@@ -144,13 +144,15 @@ func executeRemoteNodePull(c db.SSHConnection, concurrencyFlags []string) FleetN
 }
 
 func buildRemoteFleetPullCmd(concurrencyFlags []string) string {
+	prefix := "$env:GCM_CREDENTIAL_STORE='none'; $env:GCM_NO_PERSIST='1'; $env:GITMAP_HEADLESS_SSH='1'; "
 	cmd := "gitmap pa --json"
 	if len(concurrencyFlags) > 0 {
 		cmd += " " + strings.Join(concurrencyFlags, " ")
 	} else {
 		cmd += " --parallel 2"
 	}
-	return cmd
+
+	return prefix + cmd
 }
 
 func ensureRemoteNodeGitmap(client *ssh.Client, c db.SSHConnection) {

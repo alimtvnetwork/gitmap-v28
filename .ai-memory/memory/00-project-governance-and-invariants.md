@@ -39,13 +39,18 @@ Every agent, tool, and subtask operating on the GitMap codebase must strictly ad
 - **Rule:** When asserting executed Git commands in unit tests (e.g., `sends_test.go`), always verify command prefixes (`strings.HasPrefix(c, "push")`) rather than exact string equality (`c == "push"`).
 - **Rationale:** Subprocess execution abstractions append destination remotes and target branch names (`push origin main`), causing strict equality comparisons to fail spuriously in CI/CD pipelines.
 
+### Invariant 7: Universal Readme Casing & Timestamp Prohibition
+- **Rule:** Documentation files must strictly use canonical lowercase `readme.md`. The filenames `readme.text` and `readme.txt` (any casing) are completely prohibited repository-wide.
+- **Prohibition:** Dynamic timestamp generation, date injection, or time-stamping scripts (e.g. `refresh-readme.ps1`) targeting readme files are permanently banned.
+- **Rationale:** Standardizes Git hosting platform auto-rendering and prevents phantom diffs and perpetual dirty index loops.
+
 ---
 
 ## 2. Append-Only Strictly Prohibited Registry
 
 These rules are permanent and unalterable:
 
-1. **No Timestamps in Readmes:** Never insert dynamic date/time/clock stamps into `readme.txt` or general documentation files.
+1. **No `readme.text` or Readme Timestamps:** The filename `readme.text` is banned. Never insert dynamic date/time/clock stamps into `readme.txt`, `readme.text`, or any documentation file. All documentation must strictly use canonical lowercase `readme.md`.
 2. **Untouchable CI Release Pipeline:** `.github/workflows/release.yml`, `.github/scripts/smoke-installer.*`, and anything under `.gitmap/release/` are strictly off-limits. Never edit, refactor, or "improve" release workflow files.
 3. **Commit-In Payloads:** Never store raw file contents, file hashes, or diff payloads in commit-in database tables. Only store `RelativePath` strings (`git cat-file` resolves content on demand).
 4. **Append-Only History:** Never rewrite Git history of active working repositories during standard operations. History alterations belong strictly to dedicated purge tools (`gitmap history-purge`).

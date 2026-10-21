@@ -12,11 +12,11 @@ import (
 )
 
 type readFlags struct {
-	aliasName   string
-	limit       int
-	isJson      bool
-	showColumns bool
-	isHelp      bool
+	aliasName     string
+	limit         int
+	isJson        bool
+	isShowColumns bool
+	isHelp        bool
 }
 
 // RunDbRead executes the unified gitmap db-read command.
@@ -24,6 +24,7 @@ func RunDbRead(args []string) *appfault.AppError {
 	flags, posArgs := parseReadFlags(args)
 	if flags.isHelp || (len(posArgs) == 0 && flags.aliasName == "") {
 		printDbReadHelp(os.Stdout)
+
 		return nil
 	}
 
@@ -36,8 +37,8 @@ func parseReadFlags(args []string) (readFlags, []string) {
 
 	i := 0
 	for i < len(args) {
-		consumed, handled := parseFlagItem(args, i, &flags)
-		if handled {
+		consumed, isHandled := parseFlagItem(args, i, &flags)
+		if isHandled {
 			i += consumed
 			continue
 		}
@@ -50,78 +51,199 @@ func parseReadFlags(args []string) (readFlags, []string) {
 }
 
 func parseFlagItem(args []string, idx int, flags *readFlags) (int, bool) {
-	arg := args[idx]
-	switch {
-	case arg == "--help" || arg == "-h":
+	if n, isHandled := parseSimpleReadFlag(args[idx], flags); isHandled {
+		return n, true
+	}
+
+	if n, isHandled := parseAliasReadFlag(args, idx, flags); isHandled {
+		return n, true
+	}
+
+	return parseLimitReadFlag(args, idx, flags)
+}
+
+func parseSimpleReadFlag(arg string, flags *readFlags) (int, bool) {
+	switch arg {
+	case "--help", "-h":
 		flags.isHelp = true
 		return 1, true
-	case arg == "--json" || arg == "-j":
+	case "--json", "-j":
 		flags.isJson = true
 		return 1, true
-	case arg == "--columns" || arg == "-c":
-		flags.showColumns = true
+	case "--columns", "-c":
+		flags.isShowColumns = true
 		return 1, true
-	case (arg == "-as" || arg == "--alias") && idx+1 < len(args):
+	default:
+		return 0, false
+	}
+}
+
+func parseAliasReadFlag(args []string, idx int, flags *readFlags) (int, bool) {
+	arg := args[idx]
+	if (arg == "-as" || arg == "--alias") && idx+1 < len(args) {
 		flags.aliasName = args[idx+1]
 		return 2, true
-	case strings.HasPrefix(arg, "-as="):
+	}
+
+	if strings.HasPrefix(arg, "-as=") {
 		flags.aliasName = strings.TrimPrefix(arg, "-as=")
 		return 1, true
-	case strings.HasPrefix(arg, "--alias="):
+	}
+
+	if strings.HasPrefix(arg, "--alias=") {
 		flags.aliasName = strings.TrimPrefix(arg, "--alias=")
 		return 1, true
-	case (arg == "-l" || arg == "--limit" || arg == "-n") && idx+1 < len(args):
+	}
+
+	return 0, false
+}
+
+func parseLimitReadFlag(args []string, idx int, flags *readFlags) (int, bool) {
+	arg := args[idx]
+	if (arg == "-l" || arg == "--limit" || arg == "-n") && idx+1 < len(args) {
 		flags.limit, _ = strconv.Atoi(args[idx+1])
 		return 2, true
-	case strings.HasPrefix(arg, "--limit="):
+	}
+
+	if strings.HasPrefix(arg, "--limit=") {
 		flags.limit, _ = strconv.Atoi(strings.TrimPrefix(arg, "--limit="))
 		return 1, true
-	case strings.HasPrefix(arg, "-l="):
+	}
+
+	if strings.HasPrefix(arg, "-l=") {
 		flags.limit, _ = strconv.Atoi(strings.TrimPrefix(arg, "-l="))
 		return 1, true
 	}
+
 	return 0, false
 }
 
 func dispatchReadOperation(flags readFlags, posArgs []string) *appfault.AppError {
-	if len(posArgs) == 1 && flags.aliasName != "" && !strings.EqualFold(posArgs[0], "ls") {
-		return handleAliasRegistrationOnly(flags, posArgs[0])
+	if len(posArgs) == 0 {
+		return handleReadInspect(flags, resolveEffectiveTargetDb(flags.aliasName, ""))
 	}
+
+	if isExplicitLsDispatch(posArgs) {
+		return dispatchLsOperation(flags, posArgs)
+	}
+
+	if isExplicitTableDispatch(posArgs) {
+		return dispatchTableOperation(flags, posArgs)
+	}
+
+	if len(posArgs) >= 2 {
+		return dispatchMultiArgOperation(flags, posArgs)
+	}
+
+	return dispatchSingleArgOperation(flags, posArgs[0])
+}
+
+func isExplicitLsDispatch(posArgs []string) bool {
 	if len(posArgs) > 0 && strings.EqualFold(posArgs[0], "ls") {
+		return true
+	}
+
+	return len(posArgs) > 1 && strings.EqualFold(posArgs[1], "ls")
+}
+
+func dispatchLsOperation(flags readFlags, posArgs []string) *appfault.AppError {
+	if strings.EqualFold(posArgs[0], "ls") {
 		return handleReadLs(flags, resolveEffectiveTargetDb(flags.aliasName, ""))
 	}
-	if len(posArgs) > 1 && strings.EqualFold(posArgs[1], "ls") {
-		maybeAutoRegisterAlias(flags, posArgs[0])
-		return handleReadLs(flags, posArgs[0])
-	}
+
+	maybeAutoRegisterAlias(flags, posArgs[0])
+
+	return handleReadLs(flags, posArgs[0])
+}
+
+func isExplicitTableDispatch(posArgs []string) bool {
 	if len(posArgs) > 0 && strings.EqualFold(posArgs[0], "table") {
+		return true
+	}
+
+	return len(posArgs) > 1 && strings.EqualFold(posArgs[1], "table")
+}
+
+func dispatchTableOperation(flags readFlags, posArgs []string) *appfault.AppError {
+	if strings.EqualFold(posArgs[0], "table") {
 		return handleReadTable(flags, resolveEffectiveTargetDb(flags.aliasName, ""), posArgs[1:])
 	}
-	if len(posArgs) > 1 && strings.EqualFold(posArgs[1], "table") {
-		maybeAutoRegisterAlias(flags, posArgs[0])
-		return handleReadTable(flags, posArgs[0], posArgs[2:])
+
+	maybeAutoRegisterAlias(flags, posArgs[0])
+
+	return handleReadTable(flags, posArgs[0], posArgs[2:])
+}
+
+func dispatchMultiArgOperation(flags readFlags, posArgs []string) *appfault.AppError {
+	dbArg := posArgs[0]
+	maybeAutoRegisterAlias(flags, dbArg)
+	queryCandidate := strings.Join(posArgs[1:], " ")
+	if isQuerySafe(queryCandidate) {
+		return handleReadSql(flags, dbArg, queryCandidate)
 	}
-	if len(posArgs) >= 2 {
-		maybeAutoRegisterAlias(flags, posArgs[0])
-		return handleReadSql(flags, posArgs[0], strings.Join(posArgs[1:], " "))
+
+	return handleReadTable(flags, dbArg, posArgs[1:])
+}
+
+func dispatchSingleArgOperation(flags readFlags, arg string) *appfault.AppError {
+	if isQuerySafe(arg) {
+		return handleReadSql(flags, resolveEffectiveTargetDb(flags.aliasName, ""), arg)
 	}
-	if len(posArgs) == 1 && isQuerySafe(posArgs[0]) {
-		return handleReadSql(flags, resolveEffectiveTargetDb(flags.aliasName, ""), posArgs[0])
+
+	if flags.aliasName != "" {
+		return handleSinglePosArgWithAlias(flags, arg)
 	}
-	if len(posArgs) == 1 {
-		maybeAutoRegisterAlias(flags, posArgs[0])
-		return handleReadLs(flags, posArgs[0])
+
+	if isDatabaseTarget(arg) {
+		maybeAutoRegisterAlias(flags, arg)
+
+		return handleReadInspect(flags, arg)
 	}
-	return handleReadLs(flags, "master")
+
+	return handleReadTable(flags, resolveEffectiveTargetDb(flags.aliasName, ""), []string{arg})
+}
+
+func handleSinglePosArgWithAlias(flags readFlags, target string) *appfault.AppError {
+	if isExistingFilePath(target) {
+		return handleAliasRegistrationOnly(flags, target)
+	}
+
+	return handleReadTable(flags, flags.aliasName, []string{target})
+}
+
+func isExistingFilePath(target string) bool {
+	fi, err := os.Stat(target)
+	if err != nil {
+		return false
+	}
+
+	return !fi.IsDir()
+}
+
+func isDatabaseTarget(target string) bool {
+	if isExistingFilePath(target) {
+		return true
+	}
+
+	_, hasSys := resolveSystemDbAlias(target)
+	if hasSys {
+		return true
+	}
+
+	_, hasReg := lookupAliasInRegistry(target)
+
+	return hasReg
 }
 
 func resolveEffectiveTargetDb(flagAlias, fallback string) string {
 	if flagAlias != "" {
 		return flagAlias
 	}
+
 	if fallback != "" {
 		return fallback
 	}
+
 	return "master"
 }
 
@@ -129,6 +251,7 @@ func maybeAutoRegisterAlias(flags readFlags, dbArg string) {
 	if flags.aliasName == "" || dbArg == "" {
 		return
 	}
+
 	if _, statErr := os.Stat(dbArg); statErr == nil {
 		_, _ = registerDbPathAlias(dbArg, flags.aliasName)
 	}
@@ -142,15 +265,21 @@ func handleAliasRegistrationOnly(flags readFlags, rawPath string) *appfault.AppE
 		return failRead(os.Stdout, flags.isJson, "db-read:alias", rawPath, flags.aliasName, "ERR_DB_NOT_FOUND", 20, err.Error(), "Ensure target SQLite file exists before registering.")
 	}
 
+	return renderAliasRegistrationResult(flags, absPath, elapsed)
+}
+
+func renderAliasRegistrationResult(flags readFlags, absPath string, elapsed time.Duration) *appfault.AppError {
 	msg := fmt.Sprintf("Registered alias '%s' -> '%s' in database registry.", flags.aliasName, absPath)
 	if flags.isJson {
 		data := map[string]any{"alias": flags.aliasName, "path": absPath, "message": msg}
 		outputReadSuccess(os.Stdout, "db-read:alias", absPath, flags.aliasName, data, elapsed)
+
 		return nil
 	}
 
 	fmt.Println(msg)
 	fmt.Println(formatCompletionTime(elapsed))
+
 	return nil
 }
 
@@ -168,14 +297,20 @@ func handleReadLs(flags readFlags, dbArg string) *appfault.AppError {
 		return failRead(os.Stdout, flags.isJson, "db-read:ls", dbPath, dbArg, "ERR_EXECUTION", 23, listErr.Error(), "Check database schema integrity.")
 	}
 
+	return outputLsResult(flags, dbPath, dbArg, tables, elapsed)
+}
+
+func outputLsResult(flags readFlags, dbPath, dbArg string, tables []TableInfo, elapsed time.Duration) *appfault.AppError {
 	if flags.isJson {
 		data := map[string]any{"tables": tables, "totalTables": len(tables)}
 		outputReadSuccess(os.Stdout, "db-read:ls", dbPath, dbArg, data, elapsed)
+
 		return nil
 	}
 
 	renderTablesTerminal(os.Stdout, dbPath, tables)
 	fmt.Println(formatCompletionTime(elapsed))
+
 	return nil
 }
 
@@ -191,7 +326,7 @@ func handleReadTable(flags readFlags, dbArg string, tables []string) *appfault.A
 	}
 	defer conn.Close()
 
-	if flags.showColumns {
+	if flags.isShowColumns {
 		return handleTableColumnsOutput(flags, conn, dbPath, dbArg, tables, start)
 	}
 
@@ -209,6 +344,10 @@ func handleReadSql(flags readFlags, dbArg, sqlStr string) *appfault.AppError {
 		return failRead(os.Stdout, flags.isJson, "db-read", dbArg, dbArg, "ERR_READONLY_VIOLATION", 24, msg, "Use 'gitmap db-add' or 'gitmap db-edit' for write operations.")
 	}
 
+	return executeReadOnlySql(flags, dbArg, cleanSql)
+}
+
+func executeReadOnlySql(flags readFlags, dbArg, cleanSql string) *appfault.AppError {
 	start := time.Now()
 	conn, dbPath, err := openReadOnlyResolvedDb(dbArg)
 	if err != nil {
@@ -223,14 +362,20 @@ func handleReadSql(flags readFlags, dbArg, sqlStr string) *appfault.AppError {
 		return failRead(os.Stdout, flags.isJson, "db-read", dbPath, dbArg, "ERR_INVALID_SQL", 23, queryErr.Error(), "Verify SQL syntax against standard SQLite grammar.")
 	}
 
+	return outputSqlResult(flags, dbPath, dbArg, res, elapsed)
+}
+
+func outputSqlResult(flags readFlags, dbPath, dbArg string, res QueryResult, elapsed time.Duration) *appfault.AppError {
 	if flags.isJson {
 		data := map[string]any{"columns": res.Columns, "rows": res.Rows, "count": res.Count}
 		outputReadSuccess(os.Stdout, "db-read", dbPath, dbArg, data, elapsed)
+
 		return nil
 	}
 
 	renderQueryTerminal(os.Stdout, res)
 	fmt.Println(formatCompletionTime(elapsed))
+
 	return nil
 }
 
@@ -239,7 +384,7 @@ const dbReadHelp = `gitmap db-read — Read and inspect SQLite databases across 
 Usage:
   gitmap db-read <path-or-alias> "sql" [flags]
   gitmap db-read <path-or-alias> ls [flags]
-  gitmap db-read <path-or-alias> table <t1> [t2...] [flags]
+  gitmap db-read <path-or-alias> [table] <t1> [t2...] [flags]
   gitmap db-read <path> -as <aliasName> [flags]
 
 Flags:

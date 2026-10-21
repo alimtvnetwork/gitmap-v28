@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2026-10-21T23:30:00Z",
+    "recipeId": "rcp-case-readme-001",
+    "repository": "storytelling-v1",
+    "repoPath": "../storytelling-v1",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A",
+      "git commit -m \"fix(case): normalize README.md to readme.md\""
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  }
+]

@@ -37,8 +37,9 @@ type recordDelParams struct {
 
 // RunDbRecordDel executes primary key record deletion from CLI.
 func RunDbRecordDel(args []string) *appfault.AppError {
-	if len(args) == 0 || (len(args) == 1 && isDbHelpToken(args[0])) {
+	if isDbHelpRequested(args) {
 		fmt.Print(dbRecordDelHelp)
+
 		return nil
 	}
 
@@ -47,6 +48,10 @@ func RunDbRecordDel(args []string) *appfault.AppError {
 		return err
 	}
 
+	return openAndExecuteRecordDel(params)
+}
+
+func openAndExecuteRecordDel(params recordDelParams) *appfault.AppError {
 	conn, dbPath, openErr := OpenResolvedDb(params.dbArg)
 	if openErr != nil {
 		return appfault.NewNotFoundError(fmt.Sprintf("open database '%s': %v", params.dbArg, openErr))
@@ -69,30 +74,48 @@ func parseRecordDelArgs(args []string) (recordDelParams, *appfault.AppError) {
 		i++
 	}
 
+	return validateRecordDelParams(p)
+}
+
+func validateRecordDelParams(p recordDelParams) (recordDelParams, *appfault.AppError) {
 	if p.dbArg == "" || p.table == "" || p.id == "" {
 		return p, appfault.NewValidationError("usage: gitmap db-record-del <db> -table <table> -id <id> [-y]")
 	}
+
 	return p, nil
 }
 
 func parseRecordDelFlag(args []string, idx int, p *recordDelParams) (int, bool) {
 	arg := args[idx]
-	if arg == "-y" || arg == "--yes" || arg == "--force" {
+	if isConfirmFlag(arg) {
 		p.isConfirmed = true
 		return 1, true
 	}
+
 	if arg == "-j" || arg == "--json" {
 		p.isJson = true
 		return 1, true
 	}
+
+	return parseTargetRecordDelFlag(args, idx, p)
+}
+
+func isConfirmFlag(arg string) bool {
+	return arg == "-y" || arg == "--yes" || arg == "--force"
+}
+
+func parseTargetRecordDelFlag(args []string, idx int, p *recordDelParams) (int, bool) {
+	arg := args[idx]
 	if (arg == "-table" || arg == "--table" || arg == "-t") && idx+1 < len(args) {
 		p.table = args[idx+1]
 		return 2, true
 	}
+
 	if (arg == "-id" || arg == "--id") && idx+1 < len(args) {
 		p.id = args[idx+1]
 		return 2, true
 	}
+
 	return 0, false
 }
 
@@ -101,10 +124,12 @@ func assignRecordDelPositional(arg string, p *recordDelParams) {
 		p.dbArg = arg
 		return
 	}
+
 	if p.table == "" {
 		p.table = arg
 		return
 	}
+
 	if p.id == "" {
 		p.id = arg
 	}
@@ -117,23 +142,28 @@ func executeRecordDeletion(conn *sql.DB, dbPath string, p recordDelParams) *appf
 	}
 
 	pkCol := resolveTablePkName(cols)
+	if !p.isConfirmed && !askDeletionConfirmation(p.table, pkCol, p.id, p.dbArg) {
+		fmt.Println("[ABORTED] Record deletion canceled.")
 
-	if !p.isConfirmed {
-		if !askDeletionConfirmation(p.table, pkCol, p.id, p.dbArg) {
-			fmt.Println("[ABORTED] Record deletion cancelled.")
-			return nil
-		}
+		return nil
 	}
 
+	return finishRecordDeletion(conn, dbPath, p, pkCol)
+}
+
+func finishRecordDeletion(conn *sql.DB, dbPath string, p recordDelParams, pkCol string) *appfault.AppError {
 	rowsAffected, txErr := runDeleteTx(conn, p.table, pkCol, p.id)
 	if txErr != nil {
 		return appfault.NewValidationError(fmt.Sprintf("delete record failed: %v", txErr))
 	}
+
 	if rowsAffected == 0 {
 		return appfault.NewNotFoundError(fmt.Sprintf("no record found in '%s' where %s = %s", p.table, pkCol, p.id))
 	}
 
+	InvalidateTableMetadata(dbPath)
 	outputRecordDelResult(p, pkCol, rowsAffected, dbPath)
+
 	return nil
 }
 
@@ -144,7 +174,9 @@ func askDeletionConfirmation(table, pkCol, id, dbArg string) bool {
 	if err != nil {
 		return false
 	}
+
 	trimmed := strings.ToLower(strings.TrimSpace(response))
+
 	return trimmed == "y" || trimmed == "yes"
 }
 
@@ -160,37 +192,50 @@ func runDeleteTx(conn *sql.DB, table, pkCol, id string) (int64, error) {
 	if execErr != nil {
 		return 0, execErr
 	}
+
+	return commitDeleteTx(tx, res)
+}
+
+func commitDeleteTx(tx *sql.Tx, res sql.Result) (int64, error) {
 	rowsAffected, affErr := res.RowsAffected()
 	if affErr != nil {
 		return 0, affErr
 	}
+
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
+
 	return rowsAffected, nil
 }
 
 func outputRecordDelResult(p recordDelParams, pkCol string, rowsAffected int64, dbPath string) {
 	if p.isJson {
-		data := map[string]any{
-			"Status": map[string]any{
-				"IsSuccess": true,
-				"Code":      200,
-				"Message":   "Record deleted successfully",
-			},
-			"Attributes": map[string]any{
-				"Database":     dbPath,
-				"Table":        p.table,
-				"PrimaryKey":   pkCol,
-				"Id":           p.id,
-				"RowsAffected": rowsAffected,
-			},
-			"Results": map[string]any{
-				"DeletedId": p.id,
-			},
-		}
-		_ = outputJson(os.Stdout, data)
+		outputRecordDelJson(p, pkCol, rowsAffected, dbPath)
+
 		return
 	}
+
 	fmt.Printf("[SUCCESS] Deleted %d record (%s=%s) from table '%s' in database '%s'.\n", rowsAffected, pkCol, p.id, p.table, p.dbArg)
+}
+
+func outputRecordDelJson(p recordDelParams, pkCol string, rowsAffected int64, dbPath string) {
+	data := map[string]any{
+		"Status": map[string]any{
+			"IsSuccess": true,
+			"Code":      200,
+			"Message":   "Record deleted successfully",
+		},
+		"Attributes": map[string]any{
+			"Database":     dbPath,
+			"Table":        p.table,
+			"PrimaryKey":   pkCol,
+			"Id":           p.id,
+			"RowsAffected": rowsAffected,
+		},
+		"Results": map[string]any{
+			"DeletedId": p.id,
+		},
+	}
+	_ = outputJson(os.Stdout, data)
 }

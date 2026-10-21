@@ -14,34 +14,33 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/parallel"
 )
 
-func isFixAgyRequest(args []string) bool {
-	for _, arg := range args {
-		low := strings.ToLower(arg)
-		if low == "agy" || low == "aef" || low == "agy-errors-fix" {
-			return true
+func hasAnyMatch(args []string, candidates ...string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		for _, c := range candidates {
+			if low == c {
+				return true
+			}
 		}
 	}
+
 	return false
+}
+
+func isFixAgyRequest(args []string) bool {
+	return hasAnyMatch(args, "agy", "aef", "agy-errors-fix")
+}
+
+func isFixCasingRequest(args []string) bool {
+	return hasAnyMatch(args, "casing", "case", "readme-casing")
 }
 
 func isFixAllRequested(args []string) bool {
-	for _, arg := range args {
-		low := strings.ToLower(arg)
-		if low == "all" || low == "--all" || low == "-all" || low == "-a" {
-			return true
-		}
-	}
-	return false
+	return hasAnyMatch(args, "all", "--all", "-all", "-a")
 }
 
 func isFixPromptRequested(args []string) bool {
-	for _, arg := range args {
-		low := strings.ToLower(arg)
-		if low == "--prompt" || low == "-p" || low == "prompt" || low == "--interactive" || low == "-i" || low == "interactive" {
-			return true
-		}
-	}
-	return false
+	return hasAnyMatch(args, "--prompt", "-p", "prompt", "--interactive", "-i", "interactive")
 }
 
 func executeTargetedFixAction(repoPath string, action string) (bool, error) {
@@ -64,55 +63,97 @@ func resolveFixAllAction(args []string, aliasOverride string) string {
 }
 
 func runFixAll(action string, items []cmdremediation.RemediationItem) error {
-	hasPullFailures := cmdpull.HasPendingPullFailures()
-	if len(items) == 0 && hasPullFailures {
+	reconcileAllCasingDiscrepancies()
+	if len(items) == 0 && cmdpull.HasPendingPullFailures() {
 		return cmdpull.RunBatchPullFix([]string{"--all"})
 	}
-
 	if len(items) == 0 {
 		fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+
 		return nil
 	}
 
+	return executeParallelFixAll(action, items, cmdpull.HasPendingPullFailures())
+}
+
+func reconcileAllCasingDiscrepancies() {
+	for _, r := range discoverReposForFixLs() {
+		discrepancies, err := DetectCasingDiscrepancies(r.AbsolutePath)
+		if err == nil && len(discrepancies) > 0 {
+			_ = ReconcileDiscrepancyList(discrepancies)
+		}
+	}
+}
+
+func executeParallelFixAll(action string, items []cmdremediation.RemediationItem, hasPullFailures bool) error {
+	printParallelFixHeader(len(items), action)
+	concurrency := parallel.ResolveConcurrency(0)
+	failedRepos := runParallelFixWorkers(action, items, concurrency)
+	handlePostFixPull(hasPullFailures)
+
+	return evaluateParallelFixResult(len(items), failedRepos)
+}
+
+func printParallelFixHeader(itemCount int, action string) {
 	concurrency := parallel.ResolveConcurrency(0)
 	fmt.Printf("%s Remediating %d repository(ies) in parallel (%d workers) with action: %s\n\n",
-		constants.ColorCyan+"ℹ"+constants.ColorReset, len(items), concurrency, action)
+		constants.ColorCyan+"ℹ"+constants.ColorReset, itemCount, concurrency, action)
+}
 
-	var (
-		mu          sync.Mutex
-		failedRepos []string
-		completed   int
-		total       = len(items)
-	)
-
-	_ = parallel.ExecuteParallel(items, concurrency, func(workerID int, item cmdremediation.RemediationItem) error {
-		mu.Lock()
-		fmt.Printf("%s [Worker %d] Starting remediation on: %s\n",
-			constants.ColorCyan+"ℹ"+constants.ColorReset, workerID+1, item.RepoName)
-		mu.Unlock()
-
-		idx := parseRecipeIndex(action, item.Recipes)
-		if idx < 0 || idx >= len(item.Recipes) {
-			idx = 0
-		}
-
-		err := executeFixRecipe(&item, item.Recipes[idx])
-		reportWorkerCompletion(&mu, &completed, total, workerID, item.RepoName, err, &failedRepos)
-		return err
-	})
-
+func handlePostFixPull(hasPullFailures bool) {
 	if hasPullFailures {
 		fmt.Println()
 		_ = cmdpull.RunBatchPullFix([]string{"--all"})
 	}
+}
 
+func evaluateParallelFixResult(total int, failedRepos []string) error {
 	if len(failedRepos) > 0 {
 		return fmt.Errorf("remediation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", "))
 	}
 
 	fmt.Printf("\n%s All %d repository(ies) remediated successfully.\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, len(items))
+		constants.ColorGreen+"✓"+constants.ColorReset, total)
+
 	return nil
+}
+
+func runParallelFixWorkers(action string, items []cmdremediation.RemediationItem, concurrency int) []string {
+	var mu sync.Mutex
+	var failedRepos []string
+	completed := 0
+	total := len(items)
+
+	_ = parallel.ExecuteParallel(items, concurrency, func(workerID int, item cmdremediation.RemediationItem) error {
+		return executeFixWorkerStep(&mu, &completed, total, workerID, action, item, &failedRepos)
+	})
+
+	return failedRepos
+}
+
+func executeFixWorkerStep(mu *sync.Mutex, completed *int, total, workerID int, action string, item cmdremediation.RemediationItem, failedRepos *[]string) error {
+	printWorkerStart(mu, workerID, item.RepoName)
+	idx := resolveRecipeIdx(action, item.Recipes)
+	err := executeFixRecipe(&item, item.Recipes[idx])
+	reportWorkerCompletion(mu, completed, total, workerID, item.RepoName, err, failedRepos)
+
+	return err
+}
+
+func resolveRecipeIdx(action string, recipes []gitutil.RemediationRecipe) int {
+	idx := parseRecipeIndex(action, recipes)
+	if idx < 0 || idx >= len(recipes) {
+		return 0
+	}
+
+	return idx
+}
+
+func printWorkerStart(mu *sync.Mutex, workerID int, repoName string) {
+	mu.Lock()
+	defer mu.Unlock()
+	fmt.Printf("%s [Worker %d] Starting remediation on: %s\n",
+		constants.ColorCyan+"ℹ"+constants.ColorReset, workerID+1, repoName)
 }
 
 func reportWorkerCompletion(mu *sync.Mutex, completed *int, total int, workerID int, repoName string, err error, failedRepos *[]string) {
@@ -135,8 +176,7 @@ func isFixReleaseTagsRequest(args []string) bool {
 	}
 
 	first := strings.ToLower(strings.TrimSpace(args[0]))
-	isReleaseTagsTwoWords := first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag"))
-	if isReleaseTagsTwoWords {
+	if first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag")) {
 		return true
 	}
 
@@ -149,11 +189,8 @@ func extractFixReleaseTagsArgs(args []string) []string {
 	}
 
 	first := strings.ToLower(strings.TrimSpace(args[0]))
-	isReleaseTagsTwoWords := first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag"))
-	if isReleaseTagsTwoWords {
-		remaining := make([]string, 0, len(args)-2)
-		remaining = append(remaining, args[2:]...)
-		return remaining
+	if first == "release" && len(args) >= 2 && (strings.EqualFold(args[1], "tags") || strings.EqualFold(args[1], "tag")) {
+		return args[2:]
 	}
 
 	if first == "release-tags" || first == "releasetags" || first == "release_tags" || first == "release-tag" {
@@ -185,6 +222,10 @@ func RunFix(args []string, aliasOverride string) error {
 
 	if isFixLsRequest(args) {
 		return runFixLs(args)
+	}
+
+	if isFixCasingRequest(args) {
+		return RunFixCasing(args)
 	}
 
 	items := cmdremediation.LoadRemediationState()
@@ -247,7 +288,5 @@ func handleLiveDiscoveredIssues() bool {
 }
 
 func printNoPendingRemediationHelp() {
-	fmt.Printf("%s No pending repositories require remediation.\n", constants.ColorGreen+"✓"+constants.ColorReset)
-	fmt.Println("  Run 'gitmap fix ls' to inspect repositories with issues.")
-	fmt.Println("  Run 'gitmap pull' to pull all tracked repositories.")
+	fmt.Printf("%s No pending repositories require remediation.\n  Run 'gitmap fix ls' to inspect repositories with issues.\n  Run 'gitmap pull' to pull all tracked repositories.\n", constants.ColorGreen+"✓"+constants.ColorReset)
 }

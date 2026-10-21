@@ -30,16 +30,25 @@ Examples:
 
 // RunDbAdd executes the database record insertion command.
 func RunDbAdd(args []string) *appfault.AppError {
-	if len(args) == 0 || (len(args) == 1 && isDbHelpToken(args[0])) {
+	if isDbHelpRequested(args) {
 		fmt.Print(dbAddHelp)
+
 		return nil
 	}
 
-	dbArg, tableArg, rawValues, isInteractive, argErr := parseAddArgs(args)
+	dbArg, tableArg, rawVals, isInteractive, argErr := parseAddArgs(args)
 	if argErr != nil {
 		return argErr
 	}
 
+	return processDbAdd(dbArg, tableArg, rawVals, isInteractive)
+}
+
+func isDbHelpRequested(args []string) bool {
+	return len(args) == 0 || (len(args) == 1 && isDbHelpToken(args[0]))
+}
+
+func processDbAdd(dbArg, tableArg string, rawVals []string, isInteractive bool) *appfault.AppError {
 	conn, dbPath, openErr := OpenResolvedDb(dbArg)
 	if openErr != nil {
 		return apperror.WrapSimple(openErr, "db.add.open")
@@ -51,21 +60,27 @@ func RunDbAdd(args []string) *appfault.AppError {
 		return apperror.WrapSimple(colErr, "db.add.columns")
 	}
 
+	return executeValidatedInsert(conn, dbPath, tableArg, cols, rawVals, isInteractive)
+}
+
+func executeValidatedInsert(conn *sql.DB, dbPath, table string, cols []ColumnInfo, rawVals []string, isInteractive bool) *appfault.AppError {
 	if len(cols) == 0 {
-		return appfault.NewNotFoundError(fmt.Sprintf("table '%s' not found or has no columns in %s", tableArg, dbPath))
+		return appfault.NewNotFoundError(fmt.Sprintf("table '%s' not found or has no columns in %s", table, dbPath))
 	}
 
-	colNames, valArgs, prepErr := prepareInsertPayload(cols, tableArg, rawValues, isInteractive)
+	colNames, valArgs, prepErr := prepareInsertPayload(cols, table, rawVals, isInteractive)
 	if prepErr != nil {
 		return prepErr
 	}
 
-	lastID, execErr := executeInsert(conn, tableArg, colNames, valArgs)
+	lastID, execErr := executeInsert(conn, table, colNames, valArgs)
 	if execErr != nil {
 		return apperror.WrapSimple(execErr, "db.add.insert")
 	}
 
-	fmt.Printf("Inserted 1 row into '%s' (rowid: %d).\n", tableArg, lastID)
+	InvalidateTableMetadata(dbPath)
+	fmt.Printf("Inserted 1 row into '%s' (rowid: %d).\n", table, lastID)
+
 	return nil
 }
 
@@ -85,6 +100,7 @@ func parseAddArgs(args []string) (string, string, []string, bool, *appfault.AppE
 	}
 
 	tokens := extractCsvTokens(args[2:])
+
 	return dbArg, tableArg, tokens, false, nil
 }
 
@@ -93,6 +109,7 @@ func extractCsvTokens(remaining []string) []string {
 	if len(remaining) > 0 && strings.EqualFold(remaining[0], "csv") {
 		words = remaining[1:]
 	}
+
 	return parseTokensFromWords(words)
 }
 
@@ -100,6 +117,7 @@ func prepareInsertPayload(cols []ColumnInfo, table string, rawVals []string, isI
 	if isInteractive {
 		return promptInteractivePayload(cols, table)
 	}
+
 	return determineInsertCols(cols, table, rawVals)
 }
 
@@ -110,9 +128,14 @@ func promptInteractivePayload(cols []ColumnInfo, table string) ([]string, []any,
 
 	fmt.Printf("Entering new row for table '%s':\n", table)
 	scanner := bufio.NewScanner(os.Stdin)
+	colNames, valArgs := scanInteractiveColumns(scanner, cols)
+
+	return colNames, valArgs, nil
+}
+
+func scanInteractiveColumns(scanner *bufio.Scanner, cols []ColumnInfo) ([]string, []any) {
 	var colNames []string
 	var valArgs []any
-
 	for _, col := range cols {
 		val, shouldInclude := promptSingleColumn(scanner, col)
 		if shouldInclude {
@@ -121,7 +144,7 @@ func promptInteractivePayload(cols []ColumnInfo, table string) ([]string, []any,
 		}
 	}
 
-	return colNames, valArgs, nil
+	return colNames, valArgs
 }
 
 func promptSingleColumn(scanner *bufio.Scanner, col ColumnInfo) (any, bool) {
@@ -134,6 +157,7 @@ func promptSingleColumn(scanner *bufio.Scanner, col ColumnInfo) (any, bool) {
 	if input == "" {
 		return nil, !col.IsPrimaryKey && col.DefaultValue == nil && !col.NotNull
 	}
+
 	return input, true
 }
 
@@ -141,9 +165,11 @@ func formatColPromptHint(col ColumnInfo) string {
 	if col.IsPrimaryKey {
 		return " [PK - leave blank for auto]"
 	}
+
 	if col.DefaultValue != nil {
 		return fmt.Sprintf(" [default: %s]", *col.DefaultValue)
 	}
+
 	return ""
 }
 
@@ -151,6 +177,7 @@ func determineInsertCols(cols []ColumnInfo, table string, tokens []string) ([]st
 	if checkHasKeyVal(tokens) {
 		return parseKeyValInsert(cols, table, tokens)
 	}
+
 	return parsePositionalInsert(cols, table, tokens)
 }
 
@@ -160,9 +187,9 @@ func parseKeyValInsert(cols []ColumnInfo, table string, tokens []string) ([]stri
 	var valArgs []any
 
 	for _, t := range tokens {
-		name, val, ok := splitKeyValueToken(t)
-		if !ok || !colMap[strings.ToLower(name)] {
-			return nil, nil, appfault.NewValidationError(fmt.Sprintf("unknown column or invalid pair '%s' for table '%s'", t, table))
+		name, val, err := extractValidKeyValue(t, table, colMap)
+		if err != nil {
+			return nil, nil, err
 		}
 		colNames = append(colNames, name)
 		valArgs = append(valArgs, val)
@@ -171,13 +198,17 @@ func parseKeyValInsert(cols []ColumnInfo, table string, tokens []string) ([]stri
 	return colNames, valArgs, nil
 }
 
-func parsePositionalInsert(cols []ColumnInfo, table string, tokens []string) ([]string, []any, *appfault.AppError) {
-	pkCol := findPrimaryKeyCol(cols)
-	targetCols := cols
-	if pkCol != nil && len(tokens) == len(cols)-1 {
-		targetCols = filterNonPkCols(cols, pkCol.Name)
+func extractValidKeyValue(token, table string, colMap map[string]bool) (string, any, *appfault.AppError) {
+	name, val, isOk := splitKeyValueToken(token)
+	if !isOk || !colMap[strings.ToLower(name)] {
+		return "", nil, appfault.NewValidationError(fmt.Sprintf("unknown column or invalid pair '%s' for table '%s'", token, table))
 	}
 
+	return name, val, nil
+}
+
+func parsePositionalInsert(cols []ColumnInfo, table string, tokens []string) ([]string, []any, *appfault.AppError) {
+	targetCols := resolveTargetCols(cols, len(tokens))
 	if len(tokens) != len(targetCols) {
 		return nil, nil, appfault.NewValidationError(fmt.Sprintf("expected %d values for table '%s', got %d", len(targetCols), table, len(tokens)))
 	}
@@ -188,7 +219,17 @@ func parsePositionalInsert(cols []ColumnInfo, table string, tokens []string) ([]
 		colNames = append(colNames, c.Name)
 		valArgs = append(valArgs, tokens[i])
 	}
+
 	return colNames, valArgs, nil
+}
+
+func resolveTargetCols(cols []ColumnInfo, tokenCount int) []ColumnInfo {
+	pkCol := findPrimaryKeyCol(cols)
+	if pkCol != nil && tokenCount == len(cols)-1 {
+		return filterNonPkCols(cols, pkCol.Name)
+	}
+
+	return cols
 }
 
 func executeInsert(conn *sql.DB, table string, colNames []string, valArgs []any) (int64, error) {
@@ -196,6 +237,16 @@ func executeInsert(conn *sql.DB, table string, colNames []string, valArgs []any)
 		return 0, fmt.Errorf("no columns specified for insert")
 	}
 
+	query := buildInsertQuery(table, colNames)
+	res, err := conn.Exec(query, valArgs...)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.LastInsertId()
+}
+
+func buildInsertQuery(table string, colNames []string) string {
 	quotedCols := make([]string, len(colNames))
 	placeholders := make([]string, len(colNames))
 	for i, c := range colNames {
@@ -203,15 +254,9 @@ func executeInsert(conn *sql.DB, table string, colNames []string, valArgs []any)
 		placeholders[i] = "?"
 	}
 
-	query := fmt.Sprintf(`INSERT INTO "%s" (%s) VALUES (%s)`,
+	return fmt.Sprintf(`INSERT INTO "%s" (%s) VALUES (%s)`,
 		strings.ReplaceAll(table, `"`, `""`),
 		strings.Join(quotedCols, ", "),
 		strings.Join(placeholders, ", "),
 	)
-
-	res, err := conn.Exec(query, valArgs...)
-	if err != nil {
-		return 0, err
-	}
-	return res.LastInsertId()
 }

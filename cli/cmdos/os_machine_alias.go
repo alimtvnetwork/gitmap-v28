@@ -176,13 +176,17 @@ func executeMachineAliasList(mode string, isSSH, isJSON bool) error {
 
 func executeMachineAliasSet(mode string, args []string, isSSH, isJSON bool) error {
 	fmt.Printf("  %sSample format: dev-win-01, ubuntu-node-02, mac-studio-01%s\n", constants.ColorYellow, constants.ColorReset)
-	if len(args) == 0 {
-		return apperror.NewSimple("missing target name/alias (e.g. gitmap "+mode+" set dev-win-01 -y)", "E_MISSING_MACHINE_NAME")
+	targetArgs, err := resolveMachineSetArgs(mode, args, isJSON)
+	if err != nil {
+		return err
 	}
+
 	if isSSH {
-		return executeSSHMachineAliasSet(mode, args, isJSON)
+		return executeSSHMachineAliasSet(mode, targetArgs, isJSON)
 	}
-	newVal := sanitizeMachineToken(args[0])
+
+	newVal := sanitizeMachineToken(targetArgs[0])
+
 	return applyLocalMachineOrAliasSet(mode, newVal, isJSON)
 }
 

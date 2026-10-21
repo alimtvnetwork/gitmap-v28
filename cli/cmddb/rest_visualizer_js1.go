@@ -1,7 +1,24 @@
 package cmddb
 
 const visualizerScriptJsPart1 = `(function() {
-  var state = { activeDb: '', activeTable: '', page: 1, limit: 50, tables: [], columns: [], lastSqlRows: [] };
+  var state = {
+    activeDb: '',
+    activeTable: '',
+    page: 1,
+    limit: 50,
+    totalPages: 1,
+    tables: [],
+    columns: [],
+    lastSqlRows: [],
+    cellStore: {},
+    cellCounter: 0,
+    blobStore: {},
+    blobCounter: 0,
+    jsonStore: {},
+    jsonCounter: 0,
+    protoStore: {},
+    protoCounter: 0
+  };
   init();
 
   function init() {
@@ -125,6 +142,88 @@ const visualizerScriptJsPart1 = `(function() {
       });
   }
 
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function isBinaryString(str) {
+    if (typeof str !== 'string' || str.length === 0) return false;
+    if (str.indexOf('\uFFFD') !== -1 || str.indexOf('\x00') !== -1) return true;
+    var checkLen = Math.min(str.length, 256);
+    for (var i = 0; i < checkLen; i++) {
+      var code = str.charCodeAt(i);
+      if (code < 32 && code !== 9 && code !== 10 && code !== 13) return true;
+    }
+    return false;
+  }
+
+  function renderCellContent(val, colName) {
+    if (val === null || val === undefined) {
+      return '<span class="cell-null">NULL</span>';
+    }
+    if (typeof val === 'boolean') {
+      var isTrue = val === true;
+      return '<span class="badge-bool ' + (isTrue ? 'true' : 'false') + '">[BOOL ' + (isTrue ? 'true' : 'false') + ']</span>';
+    }
+    if (typeof val === 'object' && (val.__type === 'binary' || val.__blob || val.hex || val.base64Data)) {
+      var bId = 'cell_' + (++state.cellCounter);
+      var sz = val.byteLength || val.size || (val.hex ? Math.floor(val.hex.length / 2) : 0);
+      state.cellStore[bId] = { col: colName, type: 'blob', data: val, size: sz, hex: val.hex, base64: val.base64Data };
+      return '<button type="button" class="badge-blob cell-badge" onclick="window.visualizerOpenInspect(\'' + bId + '\', \'hex\')">[BLOB ' + formatBytes(sz) + ']</button>';
+    }
+    if (typeof val === 'object') {
+      var jId = 'cell_' + (++state.cellCounter);
+      state.cellStore[jId] = { col: colName, type: 'json', data: val, text: JSON.stringify(val, null, 2) };
+      var count = Array.isArray(val) ? val.length + ' items' : Object.keys(val).length + ' keys';
+      return '<button type="button" class="badge-json cell-badge" onclick="window.visualizerOpenInspect(\'' + jId + '\', \'json\')">[JSON ' + count + ']</button>';
+    }
+    if (typeof val === 'string') {
+      if (isBinaryString(val)) {
+        var pId = 'cell_' + (++state.cellCounter);
+        state.cellStore[pId] = { col: colName, type: 'blob', text: val, size: val.length };
+        return '<button type="button" class="badge-blob cell-badge" onclick="window.visualizerOpenInspect(\'' + pId + '\', \'hex\')">[BLOB ' + formatBytes(val.length) + ']</button>';
+      }
+      var trimmed = val.trim();
+      if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+        try {
+          var parsed = JSON.parse(trimmed);
+          if (typeof parsed === 'object' && parsed !== null) {
+            var jId2 = 'cell_' + (++state.cellCounter);
+            state.cellStore[jId2] = { col: colName, type: 'json', data: parsed, text: JSON.stringify(parsed, null, 2) };
+            var jCount = Array.isArray(parsed) ? parsed.length + ' items' : Object.keys(parsed).length + ' keys';
+            return '<button type="button" class="badge-json cell-badge" onclick="window.visualizerOpenInspect(\'' + jId2 + '\', \'json\')">[JSON ' + jCount + ']</button>';
+          }
+        } catch (e) {}
+      }
+      if (val.indexOf('\n') !== -1 || val.indexOf('\r') !== -1) {
+        var lines = val.split(/\r?\n/);
+        var tId = 'cell_' + (++state.cellCounter);
+        state.cellStore[tId] = { col: colName, type: 'text', text: val };
+        var firstLine = lines[0].slice(0, 35);
+        return '<button type="button" class="badge-text cell-badge" onclick="window.visualizerOpenInspect(\'' + tId + '\', \'text\')">' + escapeHtml(firstLine) + ' &#8629; [' + lines.length + ' lines]</button>';
+      }
+      if (val.length > 70) {
+        var lId = 'cell_' + (++state.cellCounter);
+        state.cellStore[lId] = { col: colName, type: 'text', text: val };
+        return '<button type="button" class="cell-truncated cell-badge" onclick="window.visualizerOpenInspect(\'' + lId + '\', \'text\')" title="' + escapeHtml(val) + '">' + escapeHtml(val.slice(0, 68)) + '&hellip;</button>';
+      }
+    }
+    return escapeHtml(String(val));
+  }
+
   function renderGrid(env) {
     var rows = env.Results || [];
     var tableEl = document.getElementById('data-grid');
@@ -135,6 +234,7 @@ const visualizerScriptJsPart1 = `(function() {
     if (rows.length === 0) {
       tbody.innerHTML = '<tr><td style="text-align:center; padding:20px; color:#64748b;">No records found</td></tr>';
       document.getElementById('page-info').textContent = '0 records';
+      updatePaginationControls(0, 0);
       return;
     }
     var cols = Object.keys(rows[0]);
@@ -153,7 +253,7 @@ const visualizerScriptJsPart1 = `(function() {
       var tr = document.createElement('tr');
       cols.forEach(function(c) {
         var td = document.createElement('td');
-        td.textContent = r[c] !== null && r[c] !== undefined ? r[c] : 'NULL';
+        td.innerHTML = renderCellContent(r[c], c);
         tr.appendChild(td);
       });
       var tdA = document.createElement('td');
@@ -165,8 +265,34 @@ const visualizerScriptJsPart1 = `(function() {
       tbody.appendChild(tr);
     });
     var total = (env.Attributes && env.Attributes.TotalRecords) ? env.Attributes.TotalRecords : rows.length;
-    document.getElementById('page-info').textContent = 'Showing ' + rows.length + ' of ' + total + ' records';
-    document.getElementById('page-num').textContent = state.page;
+    updatePaginationControls(rows.length, total);
+  }
+
+  function updatePaginationControls(rowCount, total) {
+    var totalPages = Math.max(1, Math.ceil(total / state.limit));
+    state.totalPages = totalPages;
+    document.getElementById('page-info').textContent = 'Showing ' + rowCount + ' of ' + total + ' records (Page ' + state.page + ' of ' + totalPages + ')';
+    var pageNum = document.getElementById('page-num');
+    if (pageNum) pageNum.textContent = state.page;
+    var pageInput = document.getElementById('page-input');
+    if (pageInput) {
+      pageInput.value = state.page;
+      pageInput.max = totalPages;
+    }
+    var pageMaxInfo = document.getElementById('page-max-info');
+    if (pageMaxInfo) pageMaxInfo.textContent = '/ ' + totalPages;
+
+    var btnPrev = document.getElementById('btn-prev');
+    var isPrevDisabled = state.page <= 1;
+    btnPrev.disabled = isPrevDisabled;
+    btnPrev.style.opacity = isPrevDisabled ? '0.4' : '1';
+    btnPrev.style.pointerEvents = isPrevDisabled ? 'none' : 'auto';
+
+    var btnNext = document.getElementById('btn-next');
+    var isNextDisabled = state.page >= totalPages || rowCount < state.limit;
+    btnNext.disabled = isNextDisabled;
+    btnNext.style.opacity = isNextDisabled ? '0.4' : '1';
+    btnNext.style.pointerEvents = isNextDisabled ? 'none' : 'auto';
   }
 
   function loadSchema() {
@@ -210,11 +336,28 @@ const visualizerScriptJsPart1 = `(function() {
       loadTables();
     };
     document.getElementById('btn-prev').onclick = function() {
-      if (state.page > 1) { state.page--; loadGridData(); }
+      if (state.page > 1) {
+        state.page--;
+        loadGridData();
+      }
     };
     document.getElementById('btn-next').onclick = function() {
-      state.page++; loadGridData();
+      if (state.page < state.totalPages) {
+        state.page++;
+        loadGridData();
+      }
     };
+    var pageInput = document.getElementById('page-input');
+    if (pageInput) {
+      pageInput.onchange = function(e) {
+        var p = parseInt(e.target.value, 10);
+        if (isNaN(p) || p < 1) p = 1;
+        if (state.totalPages && p > state.totalPages) p = state.totalPages;
+        state.page = p;
+        e.target.value = p;
+        loadGridData();
+      };
+    }
     document.getElementById('page-size').onchange = function(e) {
       state.limit = parseInt(e.target.value, 10);
       state.page = 1;

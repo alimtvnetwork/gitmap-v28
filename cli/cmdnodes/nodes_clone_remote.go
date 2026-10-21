@@ -379,7 +379,17 @@ func runRemoteExecOverSSH(client *ssh.Client, conn db.SSHConnection, opts NodesC
 	cmdStr := buildRemoteExecString(opts, fileName, isWin)
 	out, errRun := secrets.RunCommand(client, cmdStr, shell)
 	out, errRun = handleFallbackRetries(client, conn, opts, fileName, isWin, shell, out, errRun)
-	return populateExecutionResult(res, out, errRun, start)
+	res = populateExecutionResult(res, out, errRun, start)
+	maybeTriggerCloneIDEHook(client, conn, opts, res, out)
+
+	return res
+}
+
+func maybeTriggerCloneIDEHook(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, res RemoteCloneNodeResult, out string) {
+	if res.Status != "success" {
+		return
+	}
+	_ = triggerRemoteCloneIDERegistration(client, conn, opts, out)
 }
 
 func handleFallbackRetries(client *ssh.Client, conn db.SSHConnection, opts NodesCloneOptions, fileName string, isWin bool, shell, out string, errRun error) (string, error) {

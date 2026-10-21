@@ -35,8 +35,9 @@ type dbRmParams struct {
 
 // RunDbRm executes database alias unbinding and optional file purge.
 func RunDbRm(args []string) *appfault.AppError {
-	if len(args) == 0 || (len(args) == 1 && isDbHelpToken(args[0])) {
+	if isDbHelpRequested(args) {
 		fmt.Print(dbRmHelp)
+
 		return nil
 	}
 
@@ -45,6 +46,10 @@ func RunDbRm(args []string) *appfault.AppError {
 		return err
 	}
 
+	return processAliasRemoval(params)
+}
+
+func processAliasRemoval(params dbRmParams) *appfault.AppError {
 	if isProtectedSystemAlias(params.aliasName) {
 		return createForbiddenAliasError(params.aliasName)
 	}
@@ -54,11 +59,10 @@ func RunDbRm(args []string) *appfault.AppError {
 		return findErr
 	}
 
-	if params.isPurge && !params.isConfirmed {
-		if !askPurgeConfirmation(resolvedPath) {
-			fmt.Println("[ABORTED] Database file purge cancelled.")
-			return nil
-		}
+	if params.isPurge && !params.isConfirmed && !askPurgeConfirmation(resolvedPath) {
+		fmt.Println("[ABORTED] Database file purge canceled.")
+
+		return nil
 	}
 
 	return executeAliasRemoval(params, resolvedPath)
@@ -88,23 +92,30 @@ func createForbiddenAliasError(alias string) *appfault.AppError {
 func parseDbRmArgs(args []string) (dbRmParams, *appfault.AppError) {
 	var p dbRmParams
 	for _, arg := range args {
-		if arg == "--purge" || arg == "--purge-file" {
-			p.isPurge = true
-			continue
-		}
-		if arg == "-y" || arg == "--yes" || arg == "--force" {
-			p.isConfirmed = true
-			continue
-		}
-		if !strings.HasPrefix(arg, "-") && p.aliasName == "" {
-			p.aliasName = strings.TrimSpace(arg)
-		}
+		consumeDbRmArg(arg, &p)
 	}
 
 	if p.aliasName == "" {
 		return p, appfault.NewValidationError("usage: gitmap db-rm <alias> [--purge] [-y]")
 	}
+
 	return p, nil
+}
+
+func consumeDbRmArg(arg string, p *dbRmParams) {
+	if arg == "--purge" || arg == "--purge-file" {
+		p.isPurge = true
+		return
+	}
+
+	if isConfirmFlag(arg) {
+		p.isConfirmed = true
+		return
+	}
+
+	if !strings.HasPrefix(arg, "-") && p.aliasName == "" {
+		p.aliasName = strings.TrimSpace(arg)
+	}
 }
 
 func findAliasPathInRegistry(alias string) (string, *appfault.AppError) {
@@ -114,15 +125,21 @@ func findAliasPathInRegistry(alias string) (string, *appfault.AppError) {
 	}
 	defer conn.Close()
 
+	return queryAliasPath(conn, alias)
+}
+
+func queryAliasPath(conn *sql.DB, alias string) (string, *appfault.AppError) {
 	var path string
 	query := `SELECT DatabasePath FROM DatabaseAlias WHERE LOWER(AliasName) = LOWER(?) LIMIT 1`
 	err := conn.QueryRow(query, alias).Scan(&path)
+	if err == sql.ErrNoRows {
+		return "", appfault.NewNotFoundError(fmt.Sprintf("database alias '%s' is not registered", alias))
+	}
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", appfault.NewNotFoundError(fmt.Sprintf("database alias '%s' is not registered", alias))
-		}
 		return "", appfault.NewValidationError(fmt.Sprintf("query alias '%s': %v", alias, err))
 	}
+
 	return path, nil
 }
 
@@ -133,11 +150,24 @@ func askPurgeConfirmation(path string) bool {
 	if err != nil {
 		return false
 	}
+
 	trimmed := strings.ToLower(strings.TrimSpace(response))
+
 	return trimmed == "y" || trimmed == "yes"
 }
 
 func executeAliasRemoval(p dbRmParams, resolvedPath string) *appfault.AppError {
+	delErr := deleteAliasFromDatabase(p.aliasName)
+	if delErr != nil {
+		return delErr
+	}
+
+	InvalidateTableMetadata(resolvedPath)
+
+	return finishAliasRemoval(p, resolvedPath)
+}
+
+func deleteAliasFromDatabase(aliasName string) *appfault.AppError {
 	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
 	if appErr != nil {
 		return appfault.NewValidationError(fmt.Sprintf("open master db: %v", appErr))
@@ -145,18 +175,24 @@ func executeAliasRemoval(p dbRmParams, resolvedPath string) *appfault.AppError {
 	defer conn.Close()
 
 	delQuery := `DELETE FROM DatabaseAlias WHERE LOWER(AliasName) = LOWER(?)`
-	_, delErr := conn.Exec(delQuery, p.aliasName)
+	_, delErr := conn.Exec(delQuery, aliasName)
 	if delErr != nil {
-		return appfault.NewValidationError(fmt.Sprintf("delete alias '%s': %v", p.aliasName, delErr))
+		return appfault.NewValidationError(fmt.Sprintf("delete alias '%s': %v", aliasName, delErr))
 	}
 
+	return nil
+}
+
+func finishAliasRemoval(p dbRmParams, resolvedPath string) *appfault.AppError {
 	if p.isPurge {
 		removeDatabasePhysicalFiles(resolvedPath)
 		fmt.Printf("[SUCCESS] Purged database file '%s' and removed alias '%s' from registry.\n", resolvedPath, p.aliasName)
+
 		return nil
 	}
 
 	fmt.Printf("[SUCCESS] Removed alias '%s' from registry (file preserved: %s).\n", p.aliasName, resolvedPath)
+
 	return nil
 }
 

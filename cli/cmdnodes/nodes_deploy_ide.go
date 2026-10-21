@@ -23,142 +23,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// RegisterRemoteIDEs registers a deployed repository in remote IDE configurations.
-func RegisterRemoteIDEs(client *ssh.Client, conn db.SSHConnection, repoName, remoteRepoPath string, withPinned bool) ([]string, error) {
-	isWin := isWindowsNode(conn)
-	uuidStr := generateDeployUUID()
-	fileURI := formatFolderFileURI(remoteRepoPath, isWin)
-
-	if isWin {
-		return registerRemoteIDEsWindows(client, repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
-	}
-
-	return registerRemoteIDEsLinux(client, repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
-}
-
-func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, withPinned bool) ([]string, error) {
-	script := buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
-	encoded := encodePowerShell(script)
-	cmd := "powershell.exe -NoProfile -EncodedCommand " + encoded
-	out, err := secrets.RunCommand(client, cmd, "ps")
-	if err != nil {
-		return nil, fmt.Errorf("remote windows ide registration failed: %w", err)
-	}
-
-	return parseRegisteredIDEs(out), nil
-}
-
-func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, withPinned bool) ([]string, error) {
-	script := buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, withPinned)
-	out, err := secrets.RunCommand(client, script, "sh")
-	if err != nil {
-		return nil, fmt.Errorf("remote linux ide registration failed: %w", err)
-	}
-
-	return parseRegisteredIDEs(out), nil
-}
-
-func parseRegisteredIDEs(output string) []string {
-	lines := strings.Split(output, "\n")
-	for _, l := range lines {
-		trimmed := strings.TrimSpace(l)
-		if strings.HasPrefix(trimmed, "REGISTERED:") {
-			return extractRegisteredTokens(trimmed)
-		}
-	}
-
-	return []string{"vscode", "cursor", "antigravity"}
-}
-
-func extractRegisteredTokens(line string) []string {
-	raw := strings.TrimPrefix(line, "REGISTERED:")
-	parts := strings.Split(raw, ",")
-	var res []string
-	for _, p := range parts {
-		pClean := strings.TrimSpace(p)
-		if pClean != "" {
-			res = append(res, pClean)
-		}
-	}
-
-	return res
-}
-
-func encodePowerShell(script string) string {
-	utf16Units := utf16.Encode([]rune(script))
-	buf := make([]byte, len(utf16Units)*2)
-	for i, r := range utf16Units {
-		buf[i*2] = byte(r)
-		buf[i*2+1] = byte(r >> 8)
-	}
-
-	return base64.StdEncoding.EncodeToString(buf)
-}
-
-func generateDeployUUID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-	dst := make([]byte, 36)
-	hex.Encode(dst, b[:4])
-	dst[8] = '-'
-	hex.Encode(dst[9:13], b[4:6])
-	dst[13] = '-'
-	hex.Encode(dst[14:18], b[6:8])
-	dst[18] = '-'
-	hex.Encode(dst[19:23], b[8:10])
-	dst[23] = '-'
-	hex.Encode(dst[24:], b[10:])
-
-	return string(dst)
-}
-
-func formatFolderFileURI(remotePath string, isWin bool) string {
-	cleanPath := filepath.ToSlash(strings.TrimSpace(remotePath))
-	if isWin {
-		return formatWindowsFileURI(cleanPath)
-	}
-
-	return formatUnixFileURI(cleanPath)
-}
-
-func formatWindowsFileURI(cleanPath string) string {
-	if len(cleanPath) > 1 && cleanPath[1] == ':' {
-		return "file:///" + string(cleanPath[0]) + "%3A" + url.PathEscape(cleanPath[2:])
-	}
-
-	return "file:///" + url.PathEscape(cleanPath)
-}
-
-func formatUnixFileURI(cleanPath string) string {
-	if strings.HasPrefix(cleanPath, "/") {
-		return "file://" + url.PathEscape(cleanPath)
-	}
-
-	return "file:///" + url.PathEscape(cleanPath)
-}
-
-func buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, withPinned bool) string {
-	pinnedFlag := "$false"
-	if withPinned {
-		pinnedFlag = "$true"
-	}
-	cleanRoot := strings.ReplaceAll(remoteRepoPath, "/", "\\")
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("$name = '%s'\n", repoName))
-	sb.WriteString(fmt.Sprintf("$root = '%s'\n", cleanRoot))
-	sb.WriteString(fmt.Sprintf("$withPinned = %s\n", pinnedFlag))
-	sb.WriteString(fmt.Sprintf("$uuid = '%s'\n", uuidStr))
-	sb.WriteString(fmt.Sprintf("$fileUri = '%s'\n", fileURI))
-	sb.WriteString(windowsIDEScriptBody())
-
-	return sb.String()
-}
-
-func windowsIDEScriptBody() string {
-	return `$tags = @("gitmap")
+const windowsProjectsScript = `$tags = @("gitmap")
 if ($withPinned) {
   $tags += "pinned"
 }
@@ -198,8 +63,45 @@ foreach ($pj in $paths) {
   }
   $list | ConvertTo-Json -Depth 5 | Set-Content $pj -Encoding UTF8
 }
+`
 
-$geminiProjectsDir = Join-Path $env:USERPROFILE '.gemini\config\projects'
+const windowsStateVscdbScript = `$vscStatePaths = @(
+  (Join-Path $appdata 'Code\User\globalStorage\state.vscdb'),
+  (Join-Path $appdata 'Cursor\User\globalStorage\state.vscdb')
+)
+$pyCode = @'
+import sqlite3, json, sys
+try:
+    conn = sqlite3.connect(sys.argv[1])
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT)")
+    c.execute("SELECT value FROM ItemTable WHERE key='history.recentlyOpenedPathsList'")
+    row = c.fetchone()
+    data = json.loads(row[0]) if (row and row[0]) else {'entries': []}
+    entry = {'folderUri': sys.argv[2], 'label': sys.argv[3]}
+    entries = [e for e in data.get('entries', []) if e.get('folderUri') != sys.argv[2]]
+    entries.insert(0, entry)
+    c.execute("INSERT OR REPLACE INTO ItemTable (key, value) VALUES ('history.recentlyOpenedPathsList', ?)", (json.dumps({'entries': entries}),))
+    conn.commit()
+    conn.close()
+except Exception:
+    pass
+'@
+$pyBin = if (Get-Command python -ErrorAction SilentlyContinue) { "python" } elseif (Get-Command python3 -ErrorAction SilentlyContinue) { "python3" } else { $null }
+if ($pyBin) {
+  foreach ($db in $vscStatePaths) {
+    $dbDir = Split-Path $db -Parent
+    if (-not (Test-Path $dbDir)) {
+      New-Item -ItemType Directory -Force -Path $dbDir | Out-Null
+    }
+    try {
+      & $pyBin -c $pyCode $db $fileUri $name 2>$null
+    } catch {}
+  }
+}
+`
+
+const windowsGeminiScript = `$geminiProjectsDir = Join-Path $env:USERPROFILE '.gemini\config\projects'
 if (-not (Test-Path $geminiProjectsDir)) {
   New-Item -ItemType Directory -Force -Path $geminiProjectsDir | Out-Null
 }
@@ -255,8 +157,9 @@ if ($withPinned) {
   $pinnedStore.projects = $pList
   $pinnedStore | ConvertTo-Json -Depth 5 | Set-Content $pinnedPath -Encoding UTF8
 }
+`
 
-$hasGh = $false
+const windowsGitHubDesktopScript = `$hasGh = $false
 if (Get-Command github -ErrorAction SilentlyContinue) {
   try {
     & github $root
@@ -269,21 +172,8 @@ if ($hasGh) {
   Write-Output "REGISTERED:vscode,cursor,antigravity"
 }
 `
-}
 
-func buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, withPinned bool) string {
-	pinnedStr := "False"
-	if withPinned {
-		pinnedStr = "True"
-	}
-	pyCode := fmt.Sprintf(linuxPythonScriptTemplate(), repoName, remoteRepoPath, pinnedStr, uuidStr, fileURI)
-	b64 := base64.StdEncoding.EncodeToString([]byte(pyCode))
-
-	return fmt.Sprintf(`sh -c "python3 -c \"import base64; exec(base64.b64decode('%s').decode('utf-8'))\""`, b64)
-}
-
-func linuxPythonScriptTemplate() string {
-	return `import os, sys, json, subprocess
+const linuxPythonImportsHeader = `import os, sys, json, subprocess, sqlite3
 from datetime import datetime, timezone
 
 home = os.path.expanduser('~')
@@ -304,8 +194,9 @@ entry = {
     "tags": tags,
     "enabled": True
 }
+`
 
-paths = [
+const linuxPythonProjectsScript = `paths = [
     os.path.join(home, ".config/Code/User/globalStorage/alefragnani.project-manager/projects.json"),
     os.path.join(home, ".config/Cursor/User/globalStorage/alefragnani.project-manager/projects.json")
 ]
@@ -331,8 +222,31 @@ for p in paths:
         entries.append(entry)
     with open(p, 'w', encoding='utf-8') as f:
         json.dump(entries, f, indent=2)
+`
 
-now_iso = datetime.now(timezone.utc).isoformat()
+const linuxPythonStateVscdbScript = `vsc_dbs = [
+    os.path.join(home, ".config/Code/User/globalStorage/state.vscdb"),
+    os.path.join(home, ".config/Cursor/User/globalStorage/state.vscdb")
+]
+for vdb in vsc_dbs:
+    try:
+        os.makedirs(os.path.dirname(vdb), exist_ok=True)
+        conn = sqlite3.connect(vdb)
+        cur = conn.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT)")
+        cur.execute("SELECT value FROM ItemTable WHERE key='history.recentlyOpenedPathsList'")
+        row = cur.fetchone()
+        data = json.loads(row[0]) if (row and row[0]) else {"entries": []}
+        entries = [e for e in data.get("entries", []) if e.get("folderUri") != file_uri]
+        entries.insert(0, {"folderUri": file_uri, "label": name})
+        cur.execute("INSERT OR REPLACE INTO ItemTable (key, value) VALUES ('history.recentlyOpenedPathsList', ?)", (json.dumps({"entries": entries}),))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+`
+
+const linuxPythonGeminiScript = `now_iso = datetime.now(timezone.utc).isoformat()
 agy_dir = os.path.join(home, ".gemini/config/projects")
 os.makedirs(agy_dir, exist_ok=True)
 agy_cfg = {
@@ -380,8 +294,9 @@ if with_pinned:
     pinned_store["projects"] = p_list
     with open(pinned_path, 'w', encoding='utf-8') as f:
         json.dump(pinned_store, f, indent=2)
+`
 
-has_gh = False
+const linuxPythonGitHubScript = `has_gh = False
 try:
     if subprocess.call("command -v github", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
         subprocess.call(["github", root], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -394,22 +309,209 @@ if has_gh:
 else:
     print("REGISTERED:vscode,cursor,antigravity")
 `
+
+// RegisterRemoteIDEs registers a deployed repository in remote IDE configurations.
+func RegisterRemoteIDEs(client *ssh.Client, conn db.SSHConnection, repoName, remoteRepoPath string, hasPinned bool) ([]string, error) {
+	isWin := isWindowsNode(conn)
+	uuidStr := generateDeployUUID()
+	fileURI := formatFolderFileURI(remoteRepoPath, isWin)
+
+	if isWin {
+		return registerRemoteIDEsWindows(client, repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+	}
+
+	return registerRemoteIDEsLinux(client, repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
 }
 
-// DeployConversationsForRepo finds matching conversations locally and syncs them to remote.
-func DeployConversationsForRepo(client *ssh.Client, conn db.SSHConnection, localRepoPath string) (int, error) {
+func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) ([]string, error) {
+	script := buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+	encoded := encodePowerShell(script)
+	cmd := "powershell.exe -NoProfile -EncodedCommand " + encoded
+	out, err := secrets.RunCommand(client, cmd, "ps")
+	if err != nil {
+		return nil, fmt.Errorf("remote windows ide registration failed: %w", err)
+	}
+
+	return parseRegisteredIDEs(out), nil
+}
+
+func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) ([]string, error) {
+	script := buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+	out, err := secrets.RunCommand(client, script, "sh")
+	if err != nil {
+		return nil, fmt.Errorf("remote linux ide registration failed: %w", err)
+	}
+
+	return parseRegisteredIDEs(out), nil
+}
+
+func parseRegisteredIDEs(output string) []string {
+	lines := strings.Split(output, "\n")
+	for _, l := range lines {
+		trimmed := strings.TrimSpace(l)
+		if strings.HasPrefix(trimmed, "REGISTERED:") {
+			return extractRegisteredTokens(trimmed)
+		}
+	}
+
+	return []string{"vscode", "cursor", "antigravity"}
+}
+
+func extractRegisteredTokens(line string) []string {
+	raw := strings.TrimPrefix(line, "REGISTERED:")
+	parts := strings.Split(raw, ",")
+	var res []string
+	for _, p := range parts {
+		pClean := strings.TrimSpace(p)
+		if pClean != "" {
+			res = append(res, pClean)
+		}
+	}
+
+	return res
+}
+
+func encodePowerShell(script string) string {
+	utf16Units := utf16.Encode([]rune(script))
+	buf := make([]byte, len(utf16Units)*2)
+	for i, r := range utf16Units {
+		buf[i*2] = byte(r)
+		buf[i*2+1] = byte(r >> 8)
+	}
+
+	return base64.StdEncoding.EncodeToString(buf)
+}
+
+func formatUUIDBytes(b []byte) string {
+	dst := make([]byte, 36)
+	hex.Encode(dst, b[:4])
+	dst[8] = '-'
+	hex.Encode(dst[9:13], b[4:6])
+	dst[13] = '-'
+	hex.Encode(dst[14:18], b[6:8])
+	dst[18] = '-'
+	hex.Encode(dst[19:23], b[8:10])
+	dst[23] = '-'
+	hex.Encode(dst[24:], b[10:])
+
+	return string(dst)
+}
+
+func generateDeployUUID() string {
+	b := make([]byte, 16)
+	_, _ = rand.Read(b)
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+
+	return formatUUIDBytes(b)
+}
+
+func formatFolderFileURI(remotePath string, isWin bool) string {
+	cleanPath := filepath.ToSlash(strings.TrimSpace(remotePath))
+	if isWin {
+		return formatWindowsFileURI(cleanPath)
+	}
+
+	return formatUnixFileURI(cleanPath)
+}
+
+func formatWindowsFileURI(cleanPath string) string {
+	if len(cleanPath) > 1 && cleanPath[1] == ':' {
+		return "file:///" + string(cleanPath[0]) + "%3A" + url.PathEscape(cleanPath[2:])
+	}
+
+	return "file:///" + url.PathEscape(cleanPath)
+}
+
+func formatUnixFileURI(cleanPath string) string {
+	if strings.HasPrefix(cleanPath, "/") {
+		return "file://" + url.PathEscape(cleanPath)
+	}
+
+	return "file:///" + url.PathEscape(cleanPath)
+}
+
+func formatPinnedFlag(hasPinned bool) string {
+	if hasPinned {
+		return "$true"
+	}
+
+	return "$false"
+}
+
+func buildWindowsScriptHeader(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
+	cleanRoot := strings.ReplaceAll(remoteRepoPath, "/", "\\")
+	pinnedFlag := formatPinnedFlag(hasPinned)
+
+	return fmt.Sprintf("$name = '%s'\n$root = '%s'\n$withPinned = %s\n$uuid = '%s'\n$fileUri = '%s'\n",
+		repoName, cleanRoot, pinnedFlag, uuidStr, fileURI)
+}
+
+func buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
+	header := buildWindowsScriptHeader(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+
+	return header + windowsIDEScriptBody()
+}
+
+func windowsIDEScriptBody() string {
+	return windowsProjectsScript +
+		windowsStateVscdbScript +
+		windowsGeminiScript +
+		windowsGitHubDesktopScript
+}
+
+func formatLinuxPinnedFlag(hasPinned bool) string {
+	if hasPinned {
+		return "True"
+	}
+
+	return "False"
+}
+
+func buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
+	pinnedStr := formatLinuxPinnedFlag(hasPinned)
+	pyCode := fmt.Sprintf(linuxPythonScriptTemplate(), repoName, remoteRepoPath, pinnedStr, uuidStr, fileURI)
+	b64 := base64.StdEncoding.EncodeToString([]byte(pyCode))
+
+	return fmt.Sprintf(`sh -c "python3 -c \"import base64; exec(base64.b64decode('%s').decode('utf-8'))\""`, b64)
+}
+
+func linuxPythonScriptTemplate() string {
+	return linuxPythonImportsHeader +
+		linuxPythonProjectsScript +
+		linuxPythonStateVscdbScript +
+		linuxPythonGeminiScript +
+		linuxPythonGitHubScript
+}
+
+func resolveLocalGeminiDirs() (string, string, bool) {
 	home, errHome := os.UserHomeDir()
 	if errHome != nil {
-		return 0, nil
+		return "", "", false
 	}
 
 	convDir := filepath.Join(home, ".gemini", "antigravity", "conversations")
 	brainDir := filepath.Join(home, ".gemini", "antigravity", "brain")
+
+	return convDir, brainDir, true
+}
+
+// DeployConversationsForRepo finds matching conversations locally and syncs them to remote.
+func DeployConversationsForRepo(client *ssh.Client, conn db.SSHConnection, localRepoPath string) (int, error) {
+	convDir, brainDir, isFound := resolveLocalGeminiDirs()
+	if !isFound {
+		return 0, nil
+	}
+
 	matchingIDs := findMatchingConversationIDs(convDir, brainDir, localRepoPath)
 	if len(matchingIDs) == 0 {
 		return 0, nil
 	}
 
+	return deployMatchingConversations(client, conn, convDir, brainDir, matchingIDs)
+}
+
+func deployMatchingConversations(client *ssh.Client, conn db.SSHConnection, convDir, brainDir string, matchingIDs []string) (int, error) {
 	tarData, errPkg := packageConversationsArchive(convDir, brainDir, matchingIDs)
 	if errPkg != nil {
 		return 0, fmt.Errorf("package conversations failed: %w", errPkg)
@@ -424,14 +526,19 @@ func findMatchingConversationIDs(convDir, brainDir, localRepoPath string) []stri
 		return nil
 	}
 
-	var matching []string
 	cleanTarget := strings.ToLower(filepath.ToSlash(filepath.Clean(localRepoPath)))
 	slug := strings.ToLower(filepath.Base(cleanTarget))
 
+	return collectMatchingIDs(entries, convDir, brainDir, cleanTarget, slug)
+}
+
+func collectMatchingIDs(entries []os.DirEntry, convDir, brainDir, cleanTarget, slug string) []string {
+	var matching []string
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".db") {
 			continue
 		}
+
 		convID := strings.TrimSuffix(e.Name(), ".db")
 		if isConvMatchingRepo(convDir, brainDir, convID, cleanTarget, slug) {
 			matching = append(matching, convID)
@@ -443,39 +550,49 @@ func findMatchingConversationIDs(convDir, brainDir, localRepoPath string) []stri
 
 func isConvMatchingRepo(convDir, brainDir, convID, cleanTarget, slug string) bool {
 	dbPath := filepath.Join(convDir, convID+".db")
-	if checkConvDBMatch(dbPath, cleanTarget, slug) {
+	if hasConvDBMatch(dbPath, cleanTarget, slug) {
 		return true
 	}
 
-	return checkConvTranscriptMatch(brainDir, convID, cleanTarget, slug)
+	return hasConvTranscriptMatch(brainDir, convID, cleanTarget, slug)
 }
 
-func checkConvDBMatch(dbPath, cleanTarget, slug string) bool {
+func hasConvDBMatch(dbPath, cleanTarget, slug string) bool {
 	conn, err := store.OpenSQLiteDB(dbPath)
 	if err != nil {
 		return false
 	}
-	defer conn.Close()
 
-	var blob []byte
-	row := conn.QueryRow("SELECT data FROM trajectory_metadata_blob WHERE id='main'")
-	if row.Scan(&blob) != nil || len(blob) == 0 {
+	defer conn.Close()
+	blob := readTrajectoryBlob(conn)
+	if len(blob) == 0 {
 		return false
 	}
 
-	lowerBlob := strings.ToLower(string(blob))
-	if strings.Contains(lowerBlob, cleanTarget) || strings.Contains(lowerBlob, slug) {
-		return true
-	}
-
-	return false
+	return hasTargetOrSlug(string(blob), cleanTarget, slug)
 }
 
-func checkConvTranscriptMatch(brainDir, convID, cleanTarget, slug string) bool {
+func readTrajectoryBlob(conn *store.DB) []byte {
+	var blob []byte
+	row := conn.QueryRow("SELECT data FROM trajectory_metadata_blob WHERE id='main'")
+	if row.Scan(&blob) != nil {
+		return nil
+	}
+
+	return blob
+}
+
+func hasTargetOrSlug(text, cleanTarget, slug string) bool {
+	lowerText := strings.ToLower(text)
+
+	return strings.Contains(lowerText, cleanTarget) || strings.Contains(lowerText, slug)
+}
+
+func hasConvTranscriptMatch(brainDir, convID, cleanTarget, slug string) bool {
 	logDir := filepath.Join(brainDir, convID, ".system_generated", "logs")
 	for _, fname := range []string{"transcript_full.jsonl", "transcript.jsonl"} {
 		fpath := filepath.Join(logDir, fname)
-		if checkFileContainsKeywords(fpath, cleanTarget, slug) {
+		if hasFileKeywords(fpath, cleanTarget, slug) {
 			return true
 		}
 	}
@@ -483,37 +600,47 @@ func checkConvTranscriptMatch(brainDir, convID, cleanTarget, slug string) bool {
 	return false
 }
 
-func checkFileContainsKeywords(fpath, cleanTarget, slug string) bool {
+func isFileReadable(fpath string) bool {
 	stat, err := os.Stat(fpath)
-	if err != nil || stat.IsDir() {
-		return false
+
+	return err == nil && !stat.IsDir()
+}
+
+func readOpenFile(f *os.File, maxBytes int) []byte {
+	buf := make([]byte, maxBytes)
+	n, _ := f.Read(buf)
+
+	return buf[:n]
+}
+
+func readFilePrefix(fpath string, maxBytes int) []byte {
+	if !isFileReadable(fpath) {
+		return nil
 	}
 
 	f, errOpen := os.Open(fpath)
 	if errOpen != nil {
-		return false
+		return nil
 	}
+
 	defer f.Close()
 
-	buf := make([]byte, 65536)
-	n, _ := f.Read(buf)
-	if n == 0 {
+	return readOpenFile(f, maxBytes)
+}
+
+func hasFileKeywords(fpath, cleanTarget, slug string) bool {
+	data := readFilePrefix(fpath, 65536)
+	if len(data) == 0 {
 		return false
 	}
 
-	lowerData := strings.ToLower(string(buf[:n]))
-	if strings.Contains(lowerData, cleanTarget) || strings.Contains(lowerData, slug) {
-		return true
-	}
-
-	return false
+	return hasTargetOrSlug(string(data), cleanTarget, slug)
 }
 
 func packageConversationsArchive(convDir, brainDir string, convIDs []string) ([]byte, error) {
 	var buf bytes.Buffer
 	gw := gzip.NewWriter(&buf)
 	tw := tar.NewWriter(gw)
-
 	for _, id := range convIDs {
 		archiveConvDBFiles(tw, convDir, id)
 		archiveBrainFolder(tw, brainDir, id)
@@ -542,17 +669,32 @@ func archiveBrainFolder(tw *tar.Writer, brainDir, id string) {
 		return
 	}
 
-	_ = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() {
+	_ = filepath.Walk(src, buildBrainWalkFn(tw, brainDir))
+}
+
+func archiveBrainPath(tw *tar.Writer, brainDir, path string, info os.FileInfo) {
+	if info.IsDir() {
+		return
+	}
+
+	rel, relErr := filepath.Rel(brainDir, path)
+	if relErr != nil {
+		return
+	}
+
+	writeTarFileEntry(tw, "brain/"+filepath.ToSlash(rel), path)
+}
+
+func buildBrainWalkFn(tw *tar.Writer, brainDir string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return nil
 		}
-		rel, relErr := filepath.Rel(brainDir, path)
-		if relErr != nil {
-			return nil
-		}
-		writeTarFileEntry(tw, "brain/"+filepath.ToSlash(rel), path)
+
+		archiveBrainPath(tw, brainDir, path, info)
+
 		return nil
-	})
+	}
 }
 
 func streamAndExtractConversations(client *ssh.Client, conn db.SSHConnection, tarData []byte, count int) (int, error) {
@@ -561,6 +703,10 @@ func streamAndExtractConversations(client *ssh.Client, conn db.SSHConnection, ta
 		return 0, fmt.Errorf("stream conversations failed: %w", errStream)
 	}
 
+	return runRemoteConvExtract(client, conn, stagingPath, count)
+}
+
+func runRemoteConvExtract(client *ssh.Client, conn db.SSHConnection, stagingPath string, count int) (int, error) {
 	cmd, shell := resolveConvExtractCommand(conn, stagingPath)
 	if _, errExec := secrets.RunCommand(client, cmd, shell); errExec != nil {
 		return 0, fmt.Errorf("extract conversations failed: %w", errExec)
@@ -580,9 +726,11 @@ func resolveConvStagingPath(conn db.SSHConnection) string {
 func resolveConvExtractCommand(conn db.SSHConnection, stagingPath string) (string, string) {
 	if isWindowsNode(conn) {
 		cmd := fmt.Sprintf(`powershell.exe -NoProfile -Command "$dest = Join-Path $env:USERPROFILE '.gemini\antigravity'; if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Force -Path $dest | Out-Null }; tar.exe -xzf '%s' -C $dest; Remove-Item '%s' -Force -ErrorAction SilentlyContinue"`, stagingPath, stagingPath)
+
 		return cmd, "ps"
 	}
 
 	cmd := fmt.Sprintf(`sh -c "mkdir -p ~/.gemini/antigravity && tar -xzf %s -C ~/.gemini/antigravity && rm -f %s"`, stagingPath, stagingPath)
+
 	return cmd, "sh"
 }

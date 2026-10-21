@@ -61,6 +61,47 @@ table.data-table tr:hover td { background: #141f36; }
 .modal-form label { font-size: 11px; color: #94a3b8; font-weight: 600; }
 .modal-form input, .modal-form select, .modal-form textarea { background: #1e293b; border: 1px solid #334155; color: #f8fafc; border-radius: 4px; padding: 6px 10px; font-size: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.cell-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid transparent; user-select: none; transition: all 0.15s ease; }
+.cell-badge:hover { filter: brightness(1.25); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2); }
+.badge-blob { background: rgba(168, 85, 247, 0.18); color: #c084fc; border-color: rgba(168, 85, 247, 0.4); }
+.badge-json { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); }
+.badge-text { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+.badge-bool { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.badge-bool.true, .badge-bool-true { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+.badge-bool.false, .badge-bool-false { background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.38); }
+.cell-truncated { max-width: 260px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; cursor: pointer; }
+.cell-truncated:hover { color: #38bdf8; }
+.cell-null { color: #64748b; font-style: italic; font-size: 11px; }
+
+.inspector-modal-card { width: 840px; max-width: 96vw; max-height: 88vh; display: flex; flex-direction: column; }
+.modal-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+.modal-header-bar h3 { font-size: 15px; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+.inspect-nav-tabs { display: flex; gap: 6px; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 12px; }
+.inspect-tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 4px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+.inspect-tab-btn:hover { color: #f8fafc; background: #273549; }
+.inspect-tab-btn.active { background: #0284c7; color: #fff; border-color: #0284c7; }
+.inspect-tab-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 340px; }
+.inspect-pane { flex: 1; display: none; overflow: auto; }
+.inspect-pane.active { display: flex; flex-direction: column; }
+
+.hex-table-wrap { max-height: 440px; overflow: auto; background: #060911; border: 1px solid #1e293b; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5; padding: 8px 12px; }
+.hex-grid-table { width: 100%; border-collapse: collapse; }
+.hex-grid-table td { padding: 2px 8px; border: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.hex-offset-col { color: #64748b; user-select: none; border-right: 1px solid #1e293b; width: 90px; }
+.hex-bytes-col { color: #38bdf8; letter-spacing: 0.05em; padding-left: 12px; border-right: 1px solid #1e293b; width: 380px; }
+.hex-ascii-col { color: #a5b4fc; padding-left: 12px; white-space: pre; }
+
+.json-viewer-wrap { max-height: 440px; overflow: auto; background: #060911; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5; }
+.json-key { color: #38bdf8; }
+.json-string { color: #34d399; }
+.json-number { color: #fbbf24; }
+.json-boolean { color: #f472b6; }
+.json-null { color: #64748b; font-style: italic; }
+.json-toggle { cursor: pointer; user-select: none; color: #94a3b8; display: inline-block; width: 14px; }
+.json-toggle:hover { color: #f8fafc; }
+
+.text-viewer-wrap { max-height: 440px; overflow: auto; background: #060911; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5; color: #f8fafc; white-space: pre-wrap; word-break: break-all; margin: 0; }
 </style>
 </head>
 `
@@ -119,7 +160,12 @@ const visualizerBodyHtml = `<body>
         <span id="page-info">Showing 0 records</span>
         <div style="display:flex; gap:8px; align-items:center;">
           <button class="btn-sm" id="btn-prev" style="flex:none; padding:4px 10px;">&lt; Prev</button>
-          <span id="page-num" style="font-weight:600; color:#f8fafc;">1</span>
+          <span style="display:flex; align-items:center; gap:4px; font-size:12px; color:#94a3b8;">
+            Page
+            <input type="number" id="page-input" min="1" value="1" style="width:48px; background:#0f172a; border:1px solid #334155; color:#f8fafc; border-radius:4px; padding:3px 6px; text-align:center; font-size:12px;">
+            <span id="page-max-info">/ 1</span>
+          </span>
+          <span id="page-num" style="display:none;">1</span>
           <button class="btn-sm" id="btn-next" style="flex:none; padding:4px 10px;">Next &gt;</button>
           <select id="page-size" style="background:#0f172a; border:1px solid #1e293b; color:#f8fafc; border-radius:4px; padding:4px 8px;">
             <option value="25">25 / page</option>
@@ -196,6 +242,54 @@ const visualizerBodyHtml = `<body>
     <div class="modal-actions">
       <button class="btn-sm" id="btn-modal-cancel">Cancel</button>
       <button class="btn-primary" id="btn-modal-submit">Save</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="inspector-modal">
+  <div class="modal-card inspector-modal-card">
+    <div class="modal-header-bar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h3 style="margin:0;">Cell Inspector</h3>
+        <span id="inspect-modal-col" class="item-badge" style="background:#1e293b; color:#38bdf8;">COL</span>
+        <span id="inspect-modal-badge" class="item-badge">[BLOB]</span>
+      </div>
+      <button class="btn-sm" id="btn-inspect-close" style="flex:none; padding:2px 8px;">&times;</button>
+    </div>
+    <div class="inspect-nav-tabs">
+      <button class="inspect-tab-btn active" data-inspect-tab="inspect-tab-hex">Hex Dump</button>
+      <button class="inspect-tab-btn" data-inspect-tab="inspect-tab-json">Formatted JSON</button>
+      <button class="inspect-tab-btn" data-inspect-tab="inspect-tab-text">Decoded String</button>
+    </div>
+    <div class="inspect-tab-content">
+      <div class="inspect-pane active" id="inspect-tab-hex">
+        <div class="hex-table-wrap">
+          <table class="hex-grid-table">
+            <thead style="border-bottom:1px solid #1e293b; color:#64748b; font-size:11px;">
+              <tr>
+                <th style="padding:4px 8px; text-align:left; width:90px;">OFFSET</th>
+                <th style="padding:4px 8px; text-align:left; width:380px;">HEX BYTES</th>
+                <th style="padding:4px 8px; text-align:left;">ASCII</th>
+              </tr>
+            </thead>
+            <tbody id="inspect-hex-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="inspect-pane" id="inspect-tab-json">
+        <div class="json-viewer-wrap" id="inspect-json-body"></div>
+      </div>
+      <div class="inspect-pane" id="inspect-tab-text">
+        <pre class="text-viewer-wrap" id="inspect-text-body"></pre>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:12px; justify-content:space-between;">
+      <span id="inspect-copy-status" style="color:#10b981; font-size:11px; align-self:center;"></span>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sm" id="btn-inspect-copy-hex">Copy Hex</button>
+        <button class="btn-sm" id="btn-inspect-copy-json">Copy JSON</button>
+        <button class="btn-sm" id="btn-inspect-copy-text">Copy String</button>
+        <button class="btn-primary" id="btn-inspect-done">Done</button>
+      </div>
     </div>
   </div>
 </div>

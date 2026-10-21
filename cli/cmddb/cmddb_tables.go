@@ -18,11 +18,14 @@ func RunDbTables(dbArg string, isJson bool, out io.Writer) error {
 	}
 	defer conn.Close()
 
-	tables, listErr := listTablesAndViews(conn)
+	return executeDbTablesList(conn, dbPath, isJson, out)
+}
+
+func executeDbTablesList(conn *sql.DB, dbPath string, isJson bool, out io.Writer) error {
+	tables, listErr := ListTablesAndViews(conn, dbPath)
 	if listErr != nil {
 		return listErr
 	}
-
 	if isJson {
 		return outputJson(out, tables)
 	}
@@ -30,6 +33,15 @@ func RunDbTables(dbArg string, isJson bool, out io.Writer) error {
 	renderTablesTerminal(out, dbPath, tables)
 
 	return nil
+}
+
+// ListTablesAndViews fetches table and view metadata, using in-memory cache when dbPath is known.
+func ListTablesAndViews(conn *sql.DB, dbPath string) ([]TableInfo, error) {
+	if dbPath != "" {
+		return GetCachedTablesAndViews(conn, dbPath)
+	}
+
+	return listTablesAndViews(conn)
 }
 
 type rawTableEntry struct {
@@ -43,13 +55,17 @@ func listTablesAndViews(conn *sql.DB) ([]TableInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query sqlite_master: %w", err)
 	}
+	defer rows.Close()
 
 	rawEntries, err := collectRawTableEntries(rows)
-	rows.Close()
 	if err != nil {
 		return nil, err
 	}
 
+	return populateTableInfoList(conn, rawEntries), nil
+}
+
+func populateTableInfoList(conn *sql.DB, rawEntries []rawTableEntry) []TableInfo {
 	tables := make([]TableInfo, 0, len(rawEntries))
 	for _, entry := range rawEntries {
 		cols, count := fetchTableStats(conn, entry.name, entry.tableType)
@@ -61,7 +77,7 @@ func listTablesAndViews(conn *sql.DB) ([]TableInfo, error) {
 		})
 	}
 
-	return tables, nil
+	return tables
 }
 
 func collectRawTableEntries(rows *sql.Rows) ([]rawTableEntry, error) {
@@ -116,20 +132,16 @@ func countTableRows(conn *sql.DB, name string) int64 {
 	return count
 }
 
-func renderTablesTerminal(out io.Writer, dbPath string, tables []TableInfo) {
-	if len(tables) == 0 {
-		fmt.Fprintf(out, "Database %s contains no tables or views.\n", dbPath)
-		return
-	}
-
-	fmt.Fprintf(out, "Database: %s (%d tables/views)\n\n", dbPath, len(tables))
-	cols := []termout.Column{
+func buildTableOutputColumns() []termout.Column {
+	return []termout.Column{
 		{Title: "NAME", MinWidth: 24, Align: termout.AlignLeft},
 		{Title: "TYPE", MinWidth: 10, Align: termout.AlignLeft},
 		{Title: "COLUMNS", MinWidth: 10, Align: termout.AlignRight},
 		{Title: "ROWS", MinWidth: 10, Align: termout.AlignRight},
 	}
+}
 
+func buildTableOutputRows(tables []TableInfo) []termout.Row {
 	rows := make([]termout.Row, 0, len(tables))
 	for _, t := range tables {
 		rows = append(rows, termout.Row{
@@ -142,9 +154,20 @@ func renderTablesTerminal(out io.Writer, dbPath string, tables []TableInfo) {
 		})
 	}
 
+	return rows
+}
+
+func renderTablesTerminal(out io.Writer, dbPath string, tables []TableInfo) {
+	if len(tables) == 0 {
+		fmt.Fprintf(out, "Database %s contains no tables or views.\n", dbPath)
+		return
+	}
+
+	fmt.Fprintf(out, "Database: %s (%d tables/views)\n\n", dbPath, len(tables))
+	tableRows := buildTableOutputRows(tables)
 	tableStr := termout.RenderTable(termout.TableConfig{
-		Columns:    cols,
-		Rows:       rows,
+		Columns:    buildTableOutputColumns(),
+		Rows:       tableRows,
 		HasBorders: true,
 	})
 	fmt.Fprint(out, tableStr)

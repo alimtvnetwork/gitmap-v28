@@ -8,6 +8,8 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [gitmap-enhancement-and-issue-resolution.md](gitmap-enhancement-and-issue-resolution.md) — GitMap Enhancement and Issue Resolution: Database Read Introspection & 5-10s Metadata Cache, Visualizer UI Binary Cell Formatting & Drawer, Storytelling-v1 README Casing Remediation & Repo-Cache Recipe, Remote Node Clone GitHub Desktop & VS Code Registration, Remote SSH WinCredMan Resolution, and Machine Set Interactive Prompt (Spec: [gitmap-enhancement-and-issue-resolution](../../02-spec/21-app/gitmap-enhancement-and-issue-resolution/01-architecture-spec.md)) (Status: `active`)
+
 - [gitmap-testing-and-schedule-management.md](gitmap-testing-and-schedule-management.md) — GitMap Testing and Schedule Management: Cross-OS Schedule Shutdown and Restart Validation, Pure Go Linux Cross-Compilation, Docker Container Test Harness, and Full Verification Matrix (Spec: [gitmap-testing-and-schedule-management](../../02-spec/21-app/gitmap-testing-and-schedule-management/readme.md)) (Status: `completed`)
 
 - [gitmap-mailing-and-scheduling-enhancements.md](gitmap-mailing-and-scheduling-enhancements.md) — GitMap Mailing and Scheduling Enhancements: Multi-Mailbox Checking, Scheduled Email Delivery, Folder Watcher Activity Triggers, Privacy Email Masking & Zero-CDN Web UIs (Spec: [gitmap-mailing-and-scheduling-enhancements](../../02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/readme.md)) (Status: `completed`)

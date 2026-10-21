@@ -2,11 +2,14 @@ package cmddb
 
 import (
 	"database/sql"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // handleGetRecords queries paginated, filtered table records.
@@ -89,16 +92,33 @@ func buildOrderClause(r *http.Request, cols []RestColumnInfo) string {
 	if sortCol == "" {
 		return ""
 	}
+
+	validCol := findMatchingColumnName(cols, sortCol)
+	if validCol == "" {
+		return ""
+	}
+
+	order := resolveOrderDirection(r.URL.Query().Get("order"))
+
+	return fmt.Sprintf(` ORDER BY "%s" %s`, validCol, order)
+}
+
+func findMatchingColumnName(cols []RestColumnInfo, sortCol string) string {
 	for _, c := range cols {
 		if strings.EqualFold(c.Name, sortCol) {
-			order := "ASC"
-			if strings.EqualFold(r.URL.Query().Get("order"), "desc") {
-				order = "DESC"
-			}
-			return fmt.Sprintf(` ORDER BY "%s" %s`, c.Name, order)
+			return c.Name
 		}
 	}
+
 	return ""
+}
+
+func resolveOrderDirection(orderParam string) string {
+	if strings.EqualFold(orderParam, "desc") {
+		return "DESC"
+	}
+
+	return "ASC"
 }
 
 func countMatchingRecords(conn *sql.DB, table, where string, args []any) int {
@@ -110,6 +130,101 @@ func countMatchingRecords(conn *sql.DB, table, where string, args []any) int {
 	return count
 }
 
+func isControlByte(b byte) bool {
+	if b == '\t' || b == '\n' || b == '\r' {
+		return false
+	}
+
+	return b < 32 || b == 127
+}
+
+func countControlBytes(b []byte) int {
+	count := 0
+	for _, byteVal := range b {
+		if isControlByte(byteVal) {
+			count++
+		}
+	}
+
+	return count
+}
+
+func hasHighControlRatio(b []byte) bool {
+	if len(b) == 0 {
+		return false
+	}
+	ctrlCount := countControlBytes(b)
+
+	return float64(ctrlCount)/float64(len(b)) >= 0.05
+}
+
+func isBinaryPayload(b []byte) bool {
+	if len(b) == 0 {
+		return false
+	}
+	if !utf8.Valid(b) {
+		return true
+	}
+
+	return hasHighControlRatio(b)
+}
+
+func formatHexPreview(b []byte) string {
+	if len(b) <= 32 {
+		return hex.EncodeToString(b)
+	}
+
+	return hex.EncodeToString(b[:32]) + "..."
+}
+
+func formatBinaryEnvelope(b []byte) map[string]any {
+	return map[string]any{
+		"__type":     "binary",
+		"__blob":     true,
+		"encoding":   "base64",
+		"byteLength": len(b),
+		"size":       len(b),
+		"hex":        hex.EncodeToString(b),
+		"hexPreview": formatHexPreview(b),
+		"base64Data": base64.StdEncoding.EncodeToString(b),
+		"preview":    fmt.Sprintf("[BLOB %d B]", len(b)),
+	}
+}
+
+func formatScannedValue(val any) any {
+	b, isBytes := val.([]byte)
+	if !isBytes {
+		return val
+	}
+	if isBinaryPayload(b) {
+		return formatBinaryEnvelope(b)
+	}
+
+	return string(b)
+}
+
+func populateRowMap(cols []string, vals []any) map[string]any {
+	row := make(map[string]any, len(cols))
+	for i, c := range cols {
+		row[c] = formatScannedValue(vals[i])
+	}
+
+	return row
+}
+
+func scanCurrentRow(rows *sql.Rows, cols []string) (map[string]any, error) {
+	vals := make([]any, len(cols))
+	ptrs := make([]any, len(cols))
+	for i := range vals {
+		ptrs[i] = &vals[i]
+	}
+	if err := rows.Scan(ptrs...); err != nil {
+		return nil, err
+	}
+
+	return populateRowMap(cols, vals), nil
+}
+
 func scanAllRows(rows *sql.Rows) ([]map[string]any, error) {
 	cols, err := rows.Columns()
 	if err != nil {
@@ -117,24 +232,13 @@ func scanAllRows(rows *sql.Rows) ([]map[string]any, error) {
 	}
 	results := make([]map[string]any, 0)
 	for rows.Next() {
-		vals := make([]any, len(cols))
-		ptrs := make([]any, len(cols))
-		for i := range vals {
-			ptrs[i] = &vals[i]
-		}
-		if err := rows.Scan(ptrs...); err != nil {
-			return nil, err
-		}
-		row := make(map[string]any, len(cols))
-		for i, c := range cols {
-			if b, ok := vals[i].([]byte); ok {
-				row[c] = string(b)
-			} else {
-				row[c] = vals[i]
-			}
+		row, scanErr := scanCurrentRow(rows, cols)
+		if scanErr != nil {
+			return nil, scanErr
 		}
 		results = append(results, row)
 	}
+
 	return results, rows.Err()
 }
 
@@ -167,13 +271,15 @@ func handleGetRecordById(mgr *MultiDbManager) http.HandlerFunc {
 
 func findRestPrimaryKeyCol(mgr *MultiDbManager, alias, table string) string {
 	cols, err := mgr.GetColumns(alias, table)
-	if err == nil {
-		for _, c := range cols {
-			if c.IsPrimaryKey {
-				return c.Name
-			}
+	if err != nil {
+		return "rowid"
+	}
+	for _, c := range cols {
+		if c.IsPrimaryKey {
+			return c.Name
 		}
 	}
+
 	return "rowid"
 }
 

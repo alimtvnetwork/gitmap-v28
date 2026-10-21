@@ -126,15 +126,47 @@ func logSafePullStart(rec model.ScanRecord, repoDir string) {
 	}
 }
 
+func hasWincredmanFailure(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "wincredman") || strings.Contains(lower, "unable to persist credentials")
+}
+
+func hasCredentialPersistenceFailure(output string) bool {
+	return hasWincredmanFailure(output)
+}
+
+func retryPullWithSSHConversion(rec model.ScanRecord, repoDir string, attempt int, onProgress func(string)) (model.CloneResult, bool) {
+	log := verbose.Get()
+	if log != nil {
+		log.Log("wincredman failure detected for %s; converting remote to SSH and retrying", rec.RepoName)
+	}
+	rewriteRemoteToSSHIfNeeded(repoDir, true)
+	out, err := runGitPullWithProgress(repoDir, rec.Branch, onProgress)
+	logPullAttempt(rec, attempt, out, err)
+	if err == nil {
+		return handleAttemptSuccess(rec, attempt, out), true
+	}
+	handleAttemptFailure(repoDir, out)
+
+	return buildAttemptFailureResult(rec, repoDir, attempt, out, err), isTerminalPullError(err, out, repoDir)
+}
+
+func isTerminalPullError(err error, output, repoDir string) bool {
+	return isMergeConflict(err, output) || HasUnmergedConflicts(repoDir)
+}
+
 func executePullAttempt(rec model.ScanRecord, repoDir string, attempt int, onProgress func(string)) (model.CloneResult, bool) {
 	output, err := runGitPullWithProgress(repoDir, rec.Branch, onProgress)
 	logPullAttempt(rec, attempt, output, err)
 	if err == nil {
 		return handleAttemptSuccess(rec, attempt, output), true
 	}
+	if hasWincredmanFailure(output) {
+		return retryPullWithSSHConversion(rec, repoDir, attempt, onProgress)
+	}
 	handleAttemptFailure(repoDir, output)
-
-	if isMergeConflict(err, output) || HasUnmergedConflicts(repoDir) {
+	if isTerminalPullError(err, output, repoDir) {
 		return buildAttemptFailureResult(rec, repoDir, attempt, output, err), true
 	}
 

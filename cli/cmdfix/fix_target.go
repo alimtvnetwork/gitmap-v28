@@ -2,6 +2,7 @@ package cmdfix
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 func isFixActionWord(s string) bool {
 	switch s {
 	case "1", "stash", "s", "clone", "c", "2", "wip", "w", "init", "i", "link", "3", "discard", "clean", "d", "rm", "remove",
-		"theirs", "t", "ours", "o", "resolve", "ide", "code", "v", "abort", "a", "rerere":
+		"theirs", "t", "ours", "o", "resolve", "ide", "code", "v", "abort", "a", "rerere", "case", "casing":
 		return true
 	}
 	return false
@@ -29,6 +30,7 @@ func tryExecuteTargetedFixAction(targetPath, action string) (bool, error) {
 }
 
 func applyFixRecipe(item *cmdremediation.RemediationItem, action string) error {
+	ensureCaseCollisionRecipe(item)
 	handled, err := executeTargetedFixAction(item.RepoPath, action)
 	if handled {
 		return err
@@ -43,6 +45,41 @@ func applyFixRecipe(item *cmdremediation.RemediationItem, action string) error {
 	}
 
 	return executeFixRecipe(item, item.Recipes[idx])
+}
+
+func ensureCaseCollisionRecipe(item *cmdremediation.RemediationItem) {
+	if item == nil || item.RepoPath == "" {
+		return
+	}
+	cols, err := gitutil.DetectCaseCollisions(item.RepoPath)
+	if err != nil || len(cols) == 0 {
+		return
+	}
+	if hasExistingCaseRecipe(item.Recipes) {
+		return
+	}
+	caseRecipes := buildCaseRecipes(item.RepoPath, cols)
+	item.Recipes = append(caseRecipes, item.Recipes...)
+	_ = cmdremediation.SaveRemediationState([]cmdremediation.RemediationItem{*item})
+}
+
+func hasExistingCaseRecipe(recipes []gitutil.RemediationRecipe) bool {
+	for _, r := range recipes {
+		if strings.Contains(strings.ToLower(r.Title), "case collision") {
+			return true
+		}
+	}
+
+	return false
+}
+
+func buildCaseRecipes(repoPath string, cols []gitutil.CaseCollision) []gitutil.RemediationRecipe {
+	var recipes []gitutil.RemediationRecipe
+	for _, col := range cols {
+		recipes = append(recipes, gitutil.GenerateCaseNormalizationRecipe(repoPath, col))
+	}
+
+	return recipes
 }
 
 func applyFallbackOrInvalid(item *cmdremediation.RemediationItem, action string) error {
@@ -83,6 +120,9 @@ func parseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
 	low := strings.ToLower(strings.TrimSpace(option))
 	for i, r := range recipes {
 		t := strings.ToLower(r.Title)
+		if (low == "case" || low == "casing") && strings.Contains(t, "case") {
+			return i
+		}
 		if (low == "init" || low == "i") && strings.Contains(t, "init") {
 			return i
 		}
@@ -122,23 +162,60 @@ func parseRecipeIndex(option string, recipes []gitutil.RemediationRecipe) int {
 func findItemOrError(items []cmdremediation.RemediationItem, repoQuery, action string) (*cmdremediation.RemediationItem, string, error) {
 	matched := cmdremediation.FindRemediationItem(items, repoQuery)
 	if matched != nil {
+		ensureCaseCollisionRecipe(matched)
 		return matched, action, nil
 	}
-
 	handled, err := cmdpull.RemediateRepoByQuery(repoQuery)
 	if handled {
 		return nil, action, err
 	}
-
-	localItem, cleanMsg := cmdremediation.InspectLocalRepoItem(repoQuery)
+	localItem, cleanMsg := resolveLocalOrCaseItem(repoQuery)
+	if localItem != nil {
+		return localItem, action, nil
+	}
 	if cleanMsg != "" {
 		fmt.Println(cleanMsg)
 		return nil, action, nil
 	}
-	if localItem != nil {
-		return localItem, action, nil
+
+	return resolveNonRepoOrError(items, repoQuery, action)
+}
+
+func resolveLocalOrCaseItem(repoQuery string) (*cmdremediation.RemediationItem, string) {
+	item, cleanMsg := cmdremediation.InspectLocalRepoItem(repoQuery)
+	if item != nil {
+		ensureCaseCollisionRecipe(item)
+		return item, ""
+	}
+	caseItem := inspectTargetCaseCollision(repoQuery)
+	if caseItem != nil {
+		return caseItem, ""
 	}
 
+	return nil, cleanMsg
+}
+
+func inspectTargetCaseCollision(repoQuery string) *cmdremediation.RemediationItem {
+	targetPath := resolveRepoPathForFix(repoQuery)
+	if targetPath == "" {
+		return nil
+	}
+	cols, err := gitutil.DetectCaseCollisions(targetPath)
+	if err != nil || len(cols) == 0 {
+		return nil
+	}
+	item := &cmdremediation.RemediationItem{
+		RepoPath:      targetPath,
+		RepoName:      filepath.Base(targetPath),
+		SummaryReason: "case collision in git index",
+		Recipes:       buildCaseRecipes(targetPath, cols),
+	}
+	_ = cmdremediation.SaveRemediationState([]cmdremediation.RemediationItem{*item})
+
+	return item
+}
+
+func resolveNonRepoOrError(items []cmdremediation.RemediationItem, repoQuery, action string) (*cmdremediation.RemediationItem, string, error) {
 	nonRepoItem, err := resolveNonRepoRemediationItem(repoQuery, action)
 	if err == nil && nonRepoItem != nil {
 		return nonRepoItem, action, nil
@@ -182,13 +259,13 @@ func runFixDirect(args []string, aliasOverride string) error {
 		return pullErr
 	}
 
-	item, cleanMsg := cmdremediation.InspectLocalRepoItem(repoQuery)
+	localItem, cleanMsg := resolveLocalOrCaseItem(repoQuery)
 	if cleanMsg != "" {
 		fmt.Println(cleanMsg)
 		return nil
 	}
-	if item != nil {
-		return applyFixRecipe(item, action)
+	if localItem != nil {
+		return applyFixRecipe(localItem, action)
 	}
 
 	return fixNonRepoDirectOrError(repoQuery, action)

@@ -101,18 +101,21 @@ Forbidden:
 
 ---
 
-## readme.txt timestamp generator — TOTAL BAN
+## readme.text / readme.txt timestamp generator — TOTAL BAN
 
-🔴 **NEVER build, suggest, propose, design, spec, or even mention any feature that writes a timestamp / date / time / "Malaysia-formatted" content into `readme.txt` (or any other file).**
+🔴 **NEVER build, suggest, propose, design, spec, or even mention any feature, script, or hook that writes a timestamp / date / time / clock / "Malaysia-formatted" content into `readme.text`, `readme.txt`, `readme.md`, or any text variation.**
+
+The filenames `readme.text` and `readme.txt` (any casing: `README.TEXT`, `Readme.text`, `readme.text`, `README.TXT`, `Readme.txt`) are strictly prohibited repository-wide. All documentation must strictly use canonical lowercase `readme.md`. Timestamps, Malaysia-formatted dates, or clock times must NEVER be generated or injected into any readme file under any circumstance.
 
 This includes — but is not limited to:
-- ❌ A `refresh-readme.ps1` / `refresh-readme.sh` / any script that writes time into readme.txt
-- ❌ A `readme` sub-command on `run.ps1` / `run.sh` that touches readme.txt timestamps
-- ❌ An npm script (`npm run refresh-readme`, etc.) that writes time into readme.txt
+- ❌ Creating, proposing, or referencing `readme.text`, `readme.txt`, or any text variation
+- ❌ A `refresh-readme.ps1` / `refresh-readme.sh` / any script that writes time or clock timestamps into `readme.text`, `readme.txt`, or `readme.md`
+- ❌ A `readme` sub-command on `run.ps1` / `run.sh` that touches readme timestamps
+- ❌ An npm script (`npm run refresh-readme`, etc.) that writes time into readme files
 - ❌ Hooking timestamp-writing into `npm run sync` or any other workflow
 - ❌ Hard-coded prefix variants (`let's start now`, etc.), configurable prefix, curated lists, random phrases
-- ❌ Any timezone discussion (Asia/Kuala_Lumpur, UTC, local) tied to readme.txt
-- ❌ Any 12-hr / 24-hr / `dd-MMM-yyyy` format discussion tied to readme.txt
+- ❌ Any timezone discussion (Asia/Kuala_Lumpur, UTC, local) tied to readme files
+- ❌ Any 12-hr / 24-hr / `dd-MMM-yyyy` format discussion tied to readme files
 - ❌ Any idempotency variant (always rewrite, skip if same day, write if missing)
 - ❌ "Instructions" / "how it works" / "how to run" / "how to test" sections about any such generator
 - ❌ Asking clarifying questions about any of the above
@@ -120,9 +123,9 @@ This includes — but is not limited to:
 
 **If the user asks for this feature again, do nothing except acknowledge that this entry forbids it. Do not negotiate. Do not propose a "smaller" version. Do not ask "did you mean X". Just stop.**
 
-The only acceptable interaction with `readme.txt` is a one-shot manual edit when the user explicitly types the exact content they want in that turn.
+Documentation files must strictly use canonical lowercase `readme.md`. The files `readme.text` and `readme.txt` are completely banned and must never exist under any circumstance. Timestamps or automated date markers must NEVER appear in any readme file.
 
-**Why:** User has rejected this feature, the suggestion of this feature, the discussion of this feature, and the documentation of this feature multiple times across sessions, with escalating frustration. Re-raising it is a hard failure.
+**Why:** User explicitly mandated: "Never use or add the README.text for adding the timestamp. If that memory exists, correct it everywhere, not only in GitMap but also in the coding guideline. Make sure README text never exists. Find out how many places the code is not following the coding guideline." User has rejected this feature, the suggestion of this feature, the discussion of this feature, and the documentation of this feature multiple times across sessions, with escalating frustration. Re-raising it is a hard failure.
 
 ---
 
