@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.585.0] - 2026-10-21
+
+### Added
+- prompt to send commits on current machine and send all for dirty pull repositories
+
+---
+
 ## [v6.584.1] - 2026-10-21
 
 ### Added
