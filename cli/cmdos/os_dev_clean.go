@@ -52,9 +52,26 @@ func executeAndRenderClean(paths []DiscoveredCachePath, opts DevCleanOptions) er
 	if !opts.IsDryRun {
 		purgeDiscoveredPaths(paths)
 		_ = osccleanFallbackClean()
+		updateSplitDBAfterClean(paths)
 	}
 	renderDevCleanOutput(paths, opts)
 	return nil
+}
+
+func updateSplitDBAfterClean(paths []DiscoveredCachePath) {
+	sdb, err := store.OpenDevtoolsCacheSplitDB()
+	if err != nil || sdb == nil {
+		return
+	}
+	defer sdb.Close()
+	var zeroed []DiscoveredCachePath
+	for _, p := range paths {
+		p.SizeBytes = 0
+		p.FilesCount = 0
+		p.DirsCount = 0
+		zeroed = append(zeroed, p)
+	}
+	_ = sdb.SaveDiscoveredPaths(ConvertDiscoveredToSplitRecords(zeroed))
 }
 
 func purgeDiscoveredPaths(paths []DiscoveredCachePath) {
@@ -102,11 +119,51 @@ func resolveCacheFromSplitDB(sdb *store.DevtoolsCacheSplitDB, opts DevCleanOptio
 	}
 
 	cachedPaths := resolveExistingCachedPaths(sdb)
-	if len(cachedPaths) > 0 {
-		return measureDiscoveredPaths(cachedPaths)
+	if len(cachedPaths) == 0 {
+		return discoverAndPersistDevCaches(sdb, opts)
 	}
 
-	return discoverAndPersistDevCaches(sdb, opts)
+	cachedPaths = mergeMissingEcosystemPaths(sdb, cachedPaths, opts)
+
+	return measureDiscoveredPaths(cachedPaths)
+}
+
+func mergeMissingEcosystemPaths(sdb *store.DevtoolsCacheSplitDB, cached []DiscoveredCachePath, opts DevCleanOptions) []DiscoveredCachePath {
+	rules := getEcosystemDiscoveryRules(opts.OnlyCategories)
+	missingRules := findMissingEcosystemRules(cached, rules)
+	if len(missingRules) == 0 {
+		return cached
+	}
+
+	newPaths := filterExistingCachePaths(probeAllEcosystems(missingRules))
+	if len(newPaths) == 0 {
+		return cached
+	}
+	_ = sdb.SaveDiscoveredPaths(ConvertDiscoveredToSplitRecords(newPaths))
+
+	return append(cached, newPaths...)
+}
+
+func findMissingEcosystemRules(cached []DiscoveredCachePath, rules []EcosystemDiscoveryRule) []EcosystemDiscoveryRule {
+	var missing []EcosystemDiscoveryRule
+	for _, rule := range rules {
+		if !hasEcosystemInPaths(cached, rule.EcosystemID) {
+			missing = append(missing, rule)
+		}
+	}
+
+	return missing
+}
+
+func hasEcosystemInPaths(paths []DiscoveredCachePath, ecoID string) bool {
+	norm := normalizeEcosystemID(ecoID)
+	for _, p := range paths {
+		if normalizeEcosystemID(getPathEcosystemKey(p)) == norm {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resolveExistingCachedPaths(sdb *store.DevtoolsCacheSplitDB) []DiscoveredCachePath {

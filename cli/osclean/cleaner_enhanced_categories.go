@@ -179,7 +179,7 @@ func cleanSystemTempEnhanced(isDryRun bool) CategoryCleanStats {
 
 func isDevTempArtifact(name string) bool {
 	low := strings.ToLower(name)
-	prefixes := []string{"chocolatey", "npm-", "yarn-", "pip-", "go-build", "cargo-", "tmp-"}
+	prefixes := []string{"chocolatey", "npm-", "yarn-", "pip-", "go-build", "cargo-", "rust-", "rustc-", "tmp-"}
 	for _, pre := range prefixes {
 		if strings.HasPrefix(low, pre) {
 			return true

@@ -18,7 +18,7 @@ func getAllDiscoveryRules() []EcosystemDiscoveryRule {
 		{EcosystemID: "yarn", DisplayName: "Yarn Cache", CliCommands: [][]string{{"yarn", "cache", "dir"}}, EnvVariables: []string{"YARN_CACHE_FOLDER"}, DevToolSubdirs: []string{"yarn\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\Yarn\\Cache", "~/.cache/yarn"}},
 		{EcosystemID: "bun", DisplayName: "Bun Cache", CliCommands: [][]string{{"bun", "pm", "cache"}}, EnvVariables: []string{"BUN_INSTALL"}, DevToolSubdirs: []string{"bun\\cache"}, HeuristicPaths: []string{"~/.bun/install/cache"}},
 		{EcosystemID: "python", DisplayName: "Python Pip/UV", CliCommands: [][]string{{"pip", "cache", "dir"}, {"uv", "cache", "dir"}}, EnvVariables: []string{"PIP_CACHE_DIR", "UV_CACHE_DIR"}, DevToolSubdirs: []string{"python\\pip\\cache", "uv\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\pip\\cache", "~/.cache/pip", "%LOCALAPPDATA%\\uv\\cache", "~/.cache/uv"}},
-		{EcosystemID: "cargo", DisplayName: "Rust Cargo", CliCommands: [][]string{{"cargo", "cache", "--dir"}}, EnvVariables: []string{"CARGO_HOME", "SCCACHE_DIR", "RUSTUP_HOME", "CARGO_TARGET_DIR"}, DevToolSubdirs: []string{"cargo\\registry\\cache", "cargo\\registry\\src", "cargo\\git\\db", "cargo\\git\\checkouts", "cargo\\cache"}, HeuristicPaths: []string{"~/.cargo/registry/cache", "~/.cargo/registry/src", "~/.cargo/git/db", "~/.cargo/git/checkouts", "~/.cargo/.package-cache", "~/.rustup/downloads", "~/.rustup/tmp", "%LOCALAPPDATA%\\Mozilla\\sccache", "~/.cache/sccache", "~/Library/Caches/Mozilla.sccache"}},
+		{EcosystemID: "cargo", DisplayName: "Rust Cargo", CliCommands: [][]string{{"cargo", "cache", "--dir"}}, EnvVariables: []string{"CARGO_HOME", "SCCACHE_DIR", "RUSTUP_HOME", "CARGO_TARGET_DIR"}, DevToolSubdirs: []string{"cargo\\registry\\cache", "cargo\\registry\\src", "cargo\\git\\db", "cargo\\git\\checkouts", "cargo\\cache", "cargo\\target", "cargo\\build", "rust\\cache", "rust\\target", "rust\\build"}, HeuristicPaths: []string{"~/.cargo/registry/cache", "~/.cargo/registry/src", "~/.cargo/git/db", "~/.cargo/git/checkouts", "~/.cargo/.package-cache", "~/.cargo/target", "~/.rustup/downloads", "~/.rustup/tmp", "%LOCALAPPDATA%\\Mozilla\\sccache", "~/.cache/sccache", "~/Library/Caches/Mozilla.sccache", "%USERPROFILE%\\.cargo\\registry\\cache", "%USERPROFILE%\\.cargo\\registry\\src", "%USERPROFILE%\\.cargo\\git\\db", "%USERPROFILE%\\.cargo\\git\\checkouts", "%USERPROFILE%\\.cargo\\.package-cache", "%USERPROFILE%\\.cargo\\target", "%USERPROFILE%\\.rustup\\downloads", "%USERPROFILE%\\.rustup\\tmp"}},
 		{EcosystemID: "nuget", DisplayName: ".NET NuGet", CliCommands: nil, EnvVariables: []string{"NUGET_PACKAGES"}, DevToolSubdirs: []string{"nuget\\cache"}, HeuristicPaths: []string{"%LOCALAPPDATA%\\NuGet\\v3-cache", "~/.nuget/packages"}},
 		{EcosystemID: "gradle", DisplayName: "Java Gradle", CliCommands: nil, EnvVariables: []string{"GRADLE_USER_HOME"}, DevToolSubdirs: []string{"gradle\\caches"}, HeuristicPaths: []string{"~/.gradle/caches"}},
 		{EcosystemID: "maven", DisplayName: "Java Maven", CliCommands: nil, EnvVariables: []string{"M2_HOME"}, DevToolSubdirs: []string{"maven\\repository"}, HeuristicPaths: []string{"~/.m2/repository"}},
@@ -152,14 +152,39 @@ func getAvailableDriveRoots() []string {
 
 func expandUserPath(raw string) string {
 	if strings.HasPrefix(raw, "%LOCALAPPDATA%") {
-		local := os.Getenv("LOCALAPPDATA")
-		return filepath.Join(local, strings.TrimPrefix(raw, "%LOCALAPPDATA%\\"))
+		return expandEnvVarPrefix(raw, "%LOCALAPPDATA%")
+	}
+	if strings.HasPrefix(raw, "%USERPROFILE%") {
+		return expandEnvVarPrefix(raw, "%USERPROFILE%")
 	}
 	if strings.HasPrefix(raw, "~") {
-		home, _ := os.UserHomeDir()
-		return filepath.Join(home, strings.TrimPrefix(raw, "~/"))
+		return expandTildePath(raw)
 	}
+
 	return filepath.Clean(os.ExpandEnv(raw))
+}
+
+func expandEnvVarPrefix(raw, envVar string) string {
+	val := os.Getenv(strings.Trim(envVar, "%"))
+	trimmed := strings.TrimPrefix(raw, envVar+"\\")
+	trimmed = strings.TrimPrefix(trimmed, envVar+"/")
+
+	return filepath.Join(val, filepath.FromSlash(trimmed))
+}
+
+func expandTildePath(raw string) string {
+	home, _ := os.UserHomeDir()
+	if len(home) == 0 {
+		home = os.Getenv("USERPROFILE")
+	}
+	if len(home) == 0 {
+		home = os.Getenv("HOME")
+	}
+	trimmed := strings.TrimPrefix(raw, "~")
+	trimmed = strings.TrimPrefix(trimmed, "/")
+	trimmed = strings.TrimPrefix(trimmed, "\\")
+
+	return filepath.Join(home, filepath.FromSlash(trimmed))
 }
 
 func executeSafeCliProbe(cmdArgs []string) (string, bool) {

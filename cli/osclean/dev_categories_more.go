@@ -73,6 +73,11 @@ func invokeCargoClean(isDryRun bool, res *CategoryCleanStats) {
 	if isDryRun {
 		return
 	}
+	invokeCargoTools(res)
+	invokeCargoTargetClean(res)
+}
+
+func invokeCargoTools(res *CategoryCleanStats) {
 	if hasTool("cargo-cache") {
 		_, _ = runToolCommand("cargo", "cache", "--autoclean")
 		res.Notes = append(res.Notes, "Invoked 'cargo cache --autoclean'")
@@ -83,18 +88,37 @@ func invokeCargoClean(isDryRun bool, res *CategoryCleanStats) {
 	}
 }
 
+func invokeCargoTargetClean(res *CategoryCleanStats) {
+	tgt := os.Getenv("CARGO_TARGET_DIR")
+	if len(tgt) == 0 || !hasTool("cargo") {
+		return
+	}
+	_, _ = runToolCommand("cargo", "clean", "--target-dir", tgt)
+	res.Notes = append(res.Notes, "Invoked 'cargo clean --target-dir "+tgt+"'")
+}
+
 func resolveCargoPaths() []string {
 	var paths []string
 	home, local := resolveHomeDir(), resolveLocalAppData()
 	paths = append(paths, resolveCargoRegistryPaths(home)...)
 	paths = append(paths, resolveRustToolingPaths(home, local)...)
-	paths = append(paths, resolveDevDrives("cargo/registry/cache")...)
-	paths = append(paths, resolveDevDrives("cargo/registry/src")...)
-	paths = append(paths, resolveDevDrives("cargo/git/db")...)
-	paths = append(paths, resolveDevDrives("cargo/git/checkouts")...)
-	paths = append(paths, resolveDevDrives("cargo/cache")...)
+	paths = append(paths, resolveCargoDevDrivePaths()...)
 
 	return filterUniquePaths(paths)
+}
+
+func resolveCargoDevDrivePaths() []string {
+	var paths []string
+	subs := []string{
+		"cargo/registry/cache", "cargo/registry/src", "cargo/git/db",
+		"cargo/git/checkouts", "cargo/cache", "cargo/target", "cargo/build",
+		"rust/cache", "rust/target", "rust/build",
+	}
+	for _, sub := range subs {
+		paths = append(paths, resolveDevDrives(sub)...)
+	}
+
+	return paths
 }
 
 func resolveCargoRegistryPaths(home string) []string {

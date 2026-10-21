@@ -96,9 +96,11 @@ func isHelpDevClean(args []string) bool {
 }
 
 func printOSDevCleanUsage() {
-	fmt.Println("Usage: gitmap clear devtools [flags]")
-	fmt.Println("       gitmap devtools clear [flags]")
+	fmt.Println("Usage: gitmap os dev-clean [flags]")
+	fmt.Println("       gitmap os dev clean [flags]")
 	fmt.Println("       gitmap clean-dev [flags]")
+	fmt.Println("       gitmap clear devtools [flags]")
+	fmt.Println("       gitmap devtools clear [flags]")
 	fmt.Println("\nFlags:")
 	fmt.Println("  -f, --force        Invalidate Split-DB cache and force fresh dynamic discovery")
 	fmt.Println("  -t, --tree         Render hierarchical directory tree view with file counts and sizes")
@@ -106,6 +108,6 @@ func printOSDevCleanUsage() {
 	fmt.Println("  -y, --yes          Bypass confirmation prompt")
 	fmt.Println("      --json         Output structured JSON summary")
 	fmt.Println("  -v, --verbose      Display individual subpaths and command notes")
-	fmt.Println("      --only <cats>  Comma-separated categories to clean (e.g. go,npm,pnpm)")
+	fmt.Println("      --only <cats>  Comma-separated categories to clean (e.g. go,cargo,npm,pnpm)")
 	fmt.Println("  -h, --help         Show this documentation")
 }

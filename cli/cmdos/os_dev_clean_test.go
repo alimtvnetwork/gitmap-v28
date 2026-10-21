@@ -1,6 +1,7 @@
 package cmdos
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -107,5 +108,26 @@ func TestRunOSDevClean_DryRunExecution(t *testing.T) {
 	err := RunOSDevClean([]string{"--dry-run", "--json", "--only", "cargo,go"})
 	if err != nil {
 		t.Errorf("expected no error running os dev-clean dry-run with json, got %v", err)
+	}
+}
+
+func TestFindMissingEcosystemRules(t *testing.T) {
+	cached := []DiscoveredCachePath{
+		{Category: "go", Ecosystem: "go", Path: `C:\dev-tool\go\cache`},
+	}
+	rules := []EcosystemDiscoveryRule{
+		{EcosystemID: "go", DisplayName: "Go"},
+		{EcosystemID: "cargo", DisplayName: "Rust Cargo"},
+	}
+	missing := findMissingEcosystemRules(cached, rules)
+	if len(missing) != 1 || missing[0].EcosystemID != "cargo" {
+		t.Errorf("expected missing cargo rule, got %+v", missing)
+	}
+}
+
+func TestExpandUserPath_TildeAndUserProfile(t *testing.T) {
+	p := expandUserPath("~/.cargo/registry/cache")
+	if strings.HasPrefix(p, "~") {
+		t.Errorf("tilde should be expanded, got %q", p)
 	}
 }

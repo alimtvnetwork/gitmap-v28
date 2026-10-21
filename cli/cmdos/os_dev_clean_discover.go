@@ -148,7 +148,8 @@ func isExistingDirectory(path string) bool {
 var safeCacheTokens = []string{
 	"cache", "testcache", "mod", "store", "repository", "caches",
 	"v3-cache", "npm-cache", "go-build", "cargo", "rust", "checkouts",
-	"downloads", "sccache", "ccache", "turbopack", "turbo",
+	"downloads", "sccache", "ccache", "turbopack", "turbo", "registry",
+	"package-cache", "rustup",
 }
 
 func isDevCachePathSafe(path string) bool {
