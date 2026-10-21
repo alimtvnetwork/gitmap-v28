@@ -109,15 +109,11 @@ func renderStructuredSolutionsSubtreeWithTerminal(w io.Writer, s *PullRepoState,
 	headConn, parentPrefix := resolveTreePrefixes(isTerminal)
 	fmt.Fprintf(w, "    %sSolutions:\n", headConn)
 	for i, opt := range opts {
-		renderSolutionOptionBranchWithParent(w, opt, i, len(opts), parentPrefix)
+		renderSolutionOptionBranch(w, opt, i, len(opts), parentPrefix)
 	}
 }
 
-func renderSolutionOptionBranch(w io.Writer, opt RemediationOption, idx, total int) {
-	renderSolutionOptionBranchWithParent(w, opt, idx, total, treeContinuation)
-}
-
-func renderSolutionOptionBranchWithParent(w io.Writer, opt RemediationOption, idx, total int, parentPrefix string) {
+func renderSolutionOptionBranch(w io.Writer, opt RemediationOption, idx, total int, parentPrefix string) {
 	isLast := idx == total-1
 	tier1Conn := treeBranch
 	tier2Prefix := treeContinuation
