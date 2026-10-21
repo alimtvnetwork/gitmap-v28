@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.586.0] - 2026-10-21
+
+### Added
+- fix tree view structure for pa view and ssh fleet
+
+---
+
 ## [v6.585.0] - 2026-10-21
 
 ### Added
