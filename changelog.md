@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.588.0] - 2026-10-21
+
+### Added
+- show dry run before dev-clean prompt and add cargo build caches
+
+---
+
 ## [v6.587.0] - 2026-10-21
 
 ### Added
