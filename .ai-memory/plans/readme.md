@@ -8,7 +8,9 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
-- [gitmap-mailing-and-scheduling-enhancements.md](gitmap-mailing-and-scheduling-enhancements.md) — GitMap Mailing and Scheduling Enhancements: Multi-Mailbox Checking, Scheduled Email Delivery, Folder Watcher Activity Triggers, Privacy Email Masking & Zero-CDN Web UIs (Spec: [gitmap-mailing-and-scheduling-enhancements](../../02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/readme.md)) (Status: `in_progress`)
+- [gitmap-testing-and-schedule-management.md](gitmap-testing-and-schedule-management.md) — GitMap Testing and Schedule Management: Cross-OS Schedule Shutdown and Restart Validation, Pure Go Linux Cross-Compilation, Docker Container Test Harness, and Full Verification Matrix (Spec: [gitmap-testing-and-schedule-management](../../02-spec/21-app/gitmap-testing-and-schedule-management/readme.md)) (Status: `completed`)
+
+- [gitmap-mailing-and-scheduling-enhancements.md](gitmap-mailing-and-scheduling-enhancements.md) — GitMap Mailing and Scheduling Enhancements: Multi-Mailbox Checking, Scheduled Email Delivery, Folder Watcher Activity Triggers, Privacy Email Masking & Zero-CDN Web UIs (Spec: [gitmap-mailing-and-scheduling-enhancements](../../02-spec/21-app/gitmap-mailing-and-scheduling-enhancements/readme.md)) (Status: `completed`)
 
 - [database-rest-command-implementation.md](database-rest-command-implementation.md) — Database REST Command Implementation: Full RESTful HTTP server (`gitmap db-rest`), multi-database alias resolution (`"db path" as alias`), sequential port fallback, dynamic OpenAPI 3.0 / Swagger UI, zero-dependency custom Database Visualizer UI, table CRUD, dynamic view builder, direct SQL console, DDL alterations, database cloning, Split-DB migration caching, CLI record deletion (`gitmap db-record-del`), and alias removal (`gitmap db-rm`) (Spec: [database-rest-command-implementation](../../02-spec/21-app/database-rest-command-implementation/readme.md)) (Status: `completed`)
 
@@ -136,6 +138,7 @@ The following plans are protected by the Strict Pending Isolation Boundary and r
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
 
+- `subtasks/gitmap-testing-and-schedule-management/` (6 subtasks - Testing & Schedule Management)
 - `subtasks/gitmap-mailing-and-scheduling-enhancements/` (6 subtasks - Mailing & Event Scheduling)
 - `subtasks/236-deep-spec-consolidation-and-canonical-reduction/` (Active current parent plan)
 - `subtasks/235-app-spec-and-completed-plans-consolidation-and-reduction/` (5 subtasks)

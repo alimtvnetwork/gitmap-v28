@@ -2,7 +2,7 @@
 
 **Slug:** `gitmap-testing-and-schedule-management`  
 **Task Name:** GitMap Testing and Schedule Management  
-**Status:** ACTIVE  
+**Status:** COMPLETED  
 **Lifecycle Budget:** N = 400 Steps (Phase 1: 1-100, Phase 2: 101-250, Phase 3: 251-400)  
 **Concurrency:** A = 3, H = 2, Capacity = 6  
 
@@ -79,11 +79,11 @@ Architecture Topology:
 | Subtask ID | Title | Disjoint Files Owned | Assigned Role | Status |
 |---|---|---|---|---|
 | **Subtask-01** | Git Sync, Preflight & Task Initialization | `ledger.md`, `.ai-memory/plans/` | Lead | DONE |
-| **Subtask-02** | Architecture & Cross-OS Test Specification Authoring | `02-spec/21-app/gitmap-testing-and-schedule-management/` | Spec Authors (A=3) | IN_PROGRESS |
-| **Subtask-03** | Cross-OS Schedule Shutdown and Restart Test Suite | `cli/cmdschedule/schedule_os*.go`, `cli/cmdschedule/schedule_power_state*.go` | Worker 01 | PENDING |
-| **Subtask-04** | Docker Environment & Linux Containerized Verification | `Dockerfile.test`, `.github/workflows/`, `cli/` | Worker 02 | PENDING |
-| **Subtask-05** | Comprehensive Verification of New Mail & Scheduling Features | `cli/cmdmail/`, `cli/cmdschedule/` | Worker 03 | PENDING |
-| **Subtask-06** | Master Index Registration, Quality Gates & Atomic Push | `02-spec/21-app/readme.md`, `.ai-memory/plans/readme.md` | Lead | PENDING |
+| **Subtask-02** | Architecture & Cross-OS Test Specification Authoring | `02-spec/21-app/gitmap-testing-and-schedule-management/` | Spec Authors (A=3) | DONE |
+| **Subtask-03** | Cross-OS Schedule Shutdown and Restart Test Suite | `cli/cmdschedule/schedule_os*.go`, `cli/cmdschedule/schedule_power_state*.go` | Worker 01 | DONE |
+| **Subtask-04** | Docker Environment & Linux Containerized Verification | `Dockerfile.test`, `.github/workflows/`, `cli/` | Worker 02 | DONE |
+| **Subtask-05** | Comprehensive Verification of New Mail & Scheduling Features | `cli/cmdmail/`, `cli/cmdschedule/` | Worker 03 | DONE |
+| **Subtask-06** | Master Index Registration, Quality Gates & Atomic Push | `02-spec/21-app/readme.md`, `.ai-memory/plans/readme.md` | Lead | DONE |
 
 ---
 

@@ -3,7 +3,7 @@
 - **Task ID:** `Subtask-03`
 - **Subtask Slug:** `03-subtask-cross-os-schedule-shutdown-restart`
 - **Assigned Role:** Worker 01
-- **Status:** PENDING
+- **Status:** DONE
 - **Parent Plan:** `.ai-memory/plans/gitmap-testing-and-schedule-management.md`
 - **Target Specifications:**
   - `02-spec/21-app/gitmap-testing-and-schedule-management/04-safety-and-os-test-isolation.md`
