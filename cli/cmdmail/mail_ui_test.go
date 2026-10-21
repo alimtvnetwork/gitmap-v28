@@ -160,3 +160,40 @@ func TestMailUI_PortProbing(t *testing.T) {
 		t.Errorf("expected port >= %d, got %d", DefaultMailUIPort, port)
 	}
 }
+
+func TestMailUI_MethodNotAllowed(t *testing.T) {
+	mux := BuildMailUIMux()
+	methods := []string{http.MethodGet, http.MethodPut, http.MethodDelete}
+
+	for _, method := range methods {
+		req := httptest.NewRequest(method, "/api/mail/send", nil)
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusMethodNotAllowed {
+			t.Errorf("expected 405 for %s /api/mail/send, got %d", method, rec.Code)
+		}
+	}
+}
+
+func TestMailUI_MalformedJSON(t *testing.T) {
+	mux := BuildMailUIMux()
+	req := httptest.NewRequest(http.MethodPost, "/api/mail/send", strings.NewReader("{broken-json"))
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 Bad Request on malformed JSON, got %d", rec.Code)
+	}
+}
+
+func TestMailUISPA_ZeroSchemeRelativeURLs(t *testing.T) {
+	html := BuildMailComposerHTML()
+	patterns := []string{"src=\"//", "href=\"//", "url(//", "action=\"//"}
+
+	for _, pattern := range patterns {
+		if strings.Contains(strings.ToLower(html), pattern) {
+			t.Errorf("found scheme-relative url %q in mail UI HTML", pattern)
+		}
+	}
+}

@@ -180,3 +180,50 @@ func TestScheduleUI_PortProbing(t *testing.T) {
 		t.Errorf("expected port >= %d, got %d", DefaultScheduleUIPort, port)
 	}
 }
+
+func TestScheduleUI_MethodNotAllowed(t *testing.T) {
+	mux := BuildScheduleUIMux()
+	cases := []struct {
+		method string
+		route  string
+	}{
+		{http.MethodGet, "/api/schedule/toggle"},
+		{http.MethodPut, "/api/schedule/toggle"},
+		{http.MethodPut, "/api/schedule/watchers"},
+		{http.MethodDelete, "/api/schedule/watchers"},
+	}
+
+	for _, c := range cases {
+		req := httptest.NewRequest(c.method, c.route, nil)
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+		if rec.Code != http.StatusMethodNotAllowed {
+			t.Errorf("expected 405 for %s %s, got %d", c.method, c.route, rec.Code)
+		}
+	}
+}
+
+func TestScheduleUI_MalformedJSON(t *testing.T) {
+	mux := BuildScheduleUIMux()
+	routes := []string{"/api/schedule/toggle", "/api/schedule/watchers"}
+
+	for _, r := range routes {
+		req := httptest.NewRequest(http.MethodPost, r, strings.NewReader("{invalid-json"))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 Bad Request for %s, got %d", r, rec.Code)
+		}
+	}
+}
+
+func TestScheduleUISPA_ZeroSchemeRelativeURLs(t *testing.T) {
+	html := BuildScheduleDashboardHTML()
+	patterns := []string{"src=\"//", "href=\"//", "url(//", "action=\"//"}
+
+	for _, p := range patterns {
+		if strings.Contains(strings.ToLower(html), p) {
+			t.Errorf("found scheme-relative url pattern %q in schedule HTML", p)
+		}
+	}
+}

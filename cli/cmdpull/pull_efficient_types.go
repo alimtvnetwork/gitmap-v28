@@ -139,6 +139,12 @@ func handleEfficientBatchFinish(total int, bar *PullProgressBar, part EfficientP
 	}
 	renderEfficientResults(sortedStates, part.InactiveRepos, opts.IsTableMode, all, opts.WindowHours)
 	recordEfficientPullTelemetry(total, sortedStates, part.InactiveRepos, dur, opts.IsTableMode)
+
+	unresolved := ExtractUnresolvedRepos(sortedStates)
+	if len(unresolved) > 0 {
+		_ = PromptPostPullRemediation(unresolved)
+	}
+
 	return nil
 }
 

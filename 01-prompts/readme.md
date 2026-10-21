@@ -102,7 +102,7 @@ All 27 canonical prompt categories reside directly at the root of `01-prompts/`:
 | **11** | `11-content-and-seo/` | `01-jokes-ideas-generate.md`, `03-seo-optimization.md`, `05-update-readme.md` | Content copywriting, SEO optimization, and documentation sync |
 | **12** | `12-old-plan-prompts/` | `01-plan-maximum-enforcement.md`, `05-plan-spec-steps.md` | Archived legacy planning protocols and audit workflows |
 | **13** | `13-plan-audit/` | `01-inventory-pending-tasks.md`, `02-plan-spec-steps-v2.md`, `03-audit-app-spec.md` | Task inventory, spec planning V2, and blind-AI audits |
-| **14** | `14-execute/` | `01-execute-pending-tasks.md`, `02-execute-parent-task-with-n-steps-v6.md`, `07-run.md` | Canonical V6 autonomous parent task execution, continuous loops, and run orchestration |
+| **14** | `14-execute/` | `01-execute-pending-tasks.md`, `02-execute-parent-task-with-n-steps-v6.md`, `07-run.md`, `08-execute-with-e2e.md` | Canonical V6 autonomous parent task execution, continuous loops, run orchestration, and E2E verification with minor bump release |
 | **15** | `15-cg-execute/` | `01-execute-coding-guideline-fix.md` through `38-*` | Granular coding guideline rule enforcement suite (all 38 prompts V6 compliant) |
 | **16** | `16-ci-cd/` | `01-ci-cd-fix-with-release.md`, `02-cicd-pipeline-create.md` | CI/CD pipeline diagnosis, creation, and release integration |
 | **17** | `17-release-management/` | `01-release.md`, `02-patch-bump.md`, `03-minor-bump.md`, `04-major-bump.md` | Semantic release ceremonies, version bumps, and tags |

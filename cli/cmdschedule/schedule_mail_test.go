@@ -3,6 +3,8 @@ package cmdschedule
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -27,6 +29,9 @@ func TestMaskEmail(t *testing.T) {
 		{"me@domain.org", "m*@d***n.org"},
 		{"bob@site.io", "b*b@s***e.io"},
 		{"test@sub.example.com", "t***t@s*b.e***e.com"},
+		{"a@domain.com", "a*@d***n.com"},
+		{"user@x.org", "u***r@x*.org"},
+		{"a@x.org", "a*@x*.org"},
 	}
 
 	for _, tc := range tests {
@@ -73,6 +78,11 @@ func TestMaskString(t *testing.T) {
 }
 
 func TestPrivacyMasker(t *testing.T) {
+	testPrivacyMaskerBasics(t)
+	testPrivacyMaskerListAndEnv(t)
+}
+
+func testPrivacyMaskerBasics(t *testing.T) {
 	maskerEnabled := NewPrivacyMasker(true)
 	if got := maskerEnabled.Mask("user@domain.com"); got != "u***r@d***n.com" {
 		t.Errorf("PrivacyMasker(true) = %q; want \"u***r@d***n.com\"", got)
@@ -83,33 +93,44 @@ func TestPrivacyMasker(t *testing.T) {
 		t.Errorf("PrivacyMasker(false) = %q; want \"user@domain.com\"", got)
 	}
 
-	if !HasAt("a@b.com") {
-		t.Errorf("HasAt(\"a@b.com\") expected true")
-	}
-	if HasAt("invalid") {
-		t.Errorf("HasAt(\"invalid\") expected false")
+	if !HasAt("a@b.com") || HasAt("invalid") {
+		t.Errorf("HasAt validation failed")
 	}
 }
 
+func testPrivacyMaskerListAndEnv(t *testing.T) {
+	masker := NewPrivacyMasker(true)
+	list := masker.MaskList([]string{"a@domain.com", "user@x.org"})
+	if len(list) != 2 || list[0] != "a*@d***n.com" || list[1] != "u***r@x*.org" {
+		t.Errorf("MaskList masked failed: %v", list)
+	}
+
+	os.Setenv("GITMAP_ALLOW_UNMASKED_PII", "1")
+	if ResolveIsMasked(false) {
+		t.Errorf("ResolveIsMasked expected false with GITMAP_ALLOW_UNMASKED_PII=1")
+	}
+	os.Unsetenv("GITMAP_ALLOW_UNMASKED_PII")
+}
+
 func TestRunScheduleMailCheck(t *testing.T) {
-	if err := RunScheduleMailCheck([]string{"--all"}); err != nil {
-		t.Fatalf("RunScheduleMailCheck(--all) failed: %v", err)
+	flags := [][]string{
+		{"-a"}, {"-u"}, {"-j"}, {"-m", "primary"}, {"--account=primary"},
+		{"--all"}, {"--json"}, {"--unread-only"}, {"--show-full-email"},
 	}
-
-	if err := RunScheduleMailCheck([]string{"--json"}); err != nil {
-		t.Fatalf("RunScheduleMailCheck(--json) failed: %v", err)
+	for _, f := range flags {
+		if err := RunScheduleMailCheck(f); err != nil {
+			t.Errorf("RunScheduleMailCheck(%v) failed: %v", f, err)
+		}
 	}
-
-	if err := RunScheduleMailCheck([]string{"--unread-only"}); err != nil {
-		t.Fatalf("RunScheduleMailCheck(--unread-only) failed: %v", err)
-	}
-
-	if err := RunScheduleMailCheck([]string{"--show-full-email"}); err != nil {
-		t.Fatalf("RunScheduleMailCheck(--show-full-email) failed: %v", err)
-	}
-
 	if err := RunScheduleMailCheck([]string{"--account", "unknown-alias-999"}); err == nil {
 		t.Fatalf("RunScheduleMailCheck(unknown) expected error, got nil")
+	}
+}
+
+func TestRunScheduleMailCheck_EmptyTable(t *testing.T) {
+	renderMailCheckTable([]MailboxCheckResult{})
+	if err := RunScheduleMailCheck([]string{"-m", "alerts", "-u"}); err != nil {
+		t.Errorf("RunScheduleMailCheck empty query failed: %v", err)
 	}
 }
 
@@ -126,9 +147,48 @@ func TestRunScheduleEmailValidation(t *testing.T) {
 		t.Errorf("RunScheduleEmail missing --every expected error, got nil")
 	}
 
+	if err := RunScheduleEmail([]string{"--to", "u@d.com", "--subject", "Test", "--every", "invalid_val"}); err == nil {
+		t.Errorf("RunScheduleEmail invalid interval expected error, got nil")
+	}
+
+	if err := RunScheduleEmail([]string{"--to", "u@d.com", "--subject", "Test", "--every", "-5m"}); err == nil {
+		t.Errorf("RunScheduleEmail negative interval expected error, got nil")
+	}
+
 	if err := RunScheduleEmail([]string{"--help"}); err != nil {
 		t.Errorf("RunScheduleEmail(--help) expected nil, got %v", err)
 	}
+}
+
+func TestRunScheduleEmailShorthandFlags(t *testing.T) {
+	name := fmt.Sprintf("test-short-%d", time.Now().UnixNano())
+	args := []string{name, "-t", "developer@example.com", "-s", "Short", "-b", "Body", "-i", "15m", "-j"}
+	if err := RunScheduleEmail(args); err != nil {
+		t.Fatalf("RunScheduleEmail shorthands failed: %v", err)
+	}
+
+	db, _ := store.OpenDefault()
+	defer db.Close()
+	defer func() { _ = db.DeleteSchedule(name) }()
+
+	task, err := db.GetSchedule(name)
+	if err != nil || task.IntervalVal != "15m" {
+		t.Errorf("expected interval 15m, got %s (err: %v)", task.IntervalVal, err)
+	}
+}
+
+func TestRunScheduleEmailFileFlag(t *testing.T) {
+	tmpFile := filepath.Join(t.TempDir(), "body.txt")
+	_ = os.WriteFile(tmpFile, []byte("file payload"), 0644)
+	name := fmt.Sprintf("test-f-%d", time.Now().UnixNano())
+	args := []string{name, "-t", "a@b.com", "-s", "File", "-f", tmpFile, "-i", "2h"}
+	if err := RunScheduleEmail(args); err != nil {
+		t.Fatalf("RunScheduleEmail -f failed: %v", err)
+	}
+
+	db, _ := store.OpenDefault()
+	defer db.Close()
+	_ = db.DeleteSchedule(name)
 }
 
 func TestRunScheduleEmailSuccess(t *testing.T) {

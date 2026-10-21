@@ -128,25 +128,33 @@ func areLabelsNonEmpty(labels []string) bool {
 }
 
 func maskSegment(s string) string {
-	n := len(s)
+	r := []rune(s)
+	n := len(r)
 	if n <= 1 {
 		return s + "*"
 	}
 	if n == 2 {
-		return string(s[0]) + "*"
+		return string(r[0]) + "*"
 	}
 	if n == 3 {
-		return string(s[0]) + "*" + string(s[2])
+		return string(r[0]) + "*" + string(r[2])
 	}
 
-	return string(s[0]) + "***" + string(s[n-1])
+	return string(r[0]) + "***" + string(r[n-1])
 }
 
 func maskDomainLabels(domain string) string {
+	if domain == "" {
+		return "***"
+	}
+
 	segments := strings.Split(domain, ".")
+	if len(segments) <= 1 {
+		return maskSegment(domain)
+	}
+
 	lastIdx := len(segments) - 1
 	tld := segments[lastIdx]
-
 	maskedLabels := make([]string, 0, len(segments))
 	for i := 0; i < lastIdx; i++ {
 		maskedLabels = append(maskedLabels, maskSegment(segments[i]))

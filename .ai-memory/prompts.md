@@ -78,6 +78,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `14-execute` | [`14-execute/05-execute-batched-loop-wor.md`](../01-prompts/14-execute/05-execute-batched-loop-wor.md) | 05-execute-batched-loop-wor.md |
 | `14-execute` | [`14-execute/06-execute-batched-loop-v2.md`](../01-prompts/14-execute/06-execute-batched-loop-v2.md) | 06-execute-batched-loop-v2.md |
 | `14-execute` | [`14-execute/07-run.md`](../01-prompts/14-execute/07-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
+| `14-execute` | [`14-execute/08-execute-with-e2e.md`](../01-prompts/14-execute/08-execute-with-e2e.md) | Execute with End-to-End (E2E) Testing & Automated Minor Release — [execute-with-e2e](file;.agents/skills/execute-with-e2e) |
 | `14-execute` | [`14-execute/readme.md`](../01-prompts/14-execute/readme.md) | Execution Prompts (`14-execute`) — Index & Catalog |
 | `15-cg-execute` | [`15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/02-error-management.md`](../01-prompts/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |
@@ -232,6 +233,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `v4/14-execute` | [`v4/14-execute/05-execute-batched-loop-wor.md`](../01-prompts/v4/14-execute/05-execute-batched-loop-wor.md) | 05-execute-batched-loop-wor.md |
 | `v4/14-execute` | [`v4/14-execute/06-execute-batched-loop-v2.md`](../01-prompts/v4/14-execute/06-execute-batched-loop-v2.md) | 06-execute-batched-loop-v2.md |
 | `v4/14-execute` | [`v4/14-execute/07-run.md`](../01-prompts/v4/14-execute/07-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
+| `v4/14-execute` | [`v4/14-execute/08-execute-with-e2e.md`](../01-prompts/v4/14-execute/08-execute-with-e2e.md) | Execute with End-to-End (E2E) Testing & Automated Minor Release — [execute-with-e2e](file;.agents/skills/execute-with-e2e) |
 | `v4/14-execute` | [`v4/14-execute/readme.md`](../01-prompts/v4/14-execute/readme.md) | Execution Prompts (`14-execute`) — Index & Catalog |
 | `v4/15-cg-execute` | [`v4/15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/v4/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
 | `v4/15-cg-execute` | [`v4/15-cg-execute/02-error-management.md`](../01-prompts/v4/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |

@@ -27,10 +27,12 @@ func resolvePowerStateFilePath() string {
 	if stateFileOverride != "" {
 		return stateFileOverride
 	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return filepath.Join(os.TempDir(), "gitmap_power_schedule.json")
 	}
+
 	return filepath.Join(home, ".gitmap", "power_schedule.json")
 }
 
@@ -39,6 +41,7 @@ func ensurePowerStateDir(path string) error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return apperror.WrapSimple(err, "ensurePowerStateDir")
 	}
+
 	return nil
 }
 
@@ -48,13 +51,20 @@ func SavePowerScheduleState(s PowerScheduleState) error {
 	if err := ensurePowerStateDir(path); err != nil {
 		return err
 	}
+
+	return writePowerStateJSON(path, s)
+}
+
+func writePowerStateJSON(path string, s PowerScheduleState) error {
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
 		return apperror.WrapSimple(err, "SavePowerScheduleState_Marshal")
 	}
+
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		return apperror.WrapSimple(err, "SavePowerScheduleState_Write")
 	}
+
 	return nil
 }
 
@@ -63,10 +73,12 @@ func readPowerScheduleState(path string) (*PowerScheduleState, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var s PowerScheduleState
 	if err := json.Unmarshal(data, &s); err != nil {
 		return nil, apperror.WrapSimple(err, "readPowerScheduleState_Unmarshal")
 	}
+
 	return &s, nil
 }
 
@@ -74,18 +86,22 @@ func readPowerScheduleState(path string) (*PowerScheduleState, error) {
 func GetActivePowerSchedule() (*PowerScheduleState, error) {
 	path := resolvePowerStateFilePath()
 	s, err := readPowerScheduleState(path)
-	if err != nil {
+	if err != nil || s.Status != "ARMED" {
 		return nil, nil
 	}
-	if s.Status != "ARMED" {
-		return nil, nil
-	}
+
 	if time.Now().After(s.TriggerAt) {
-		s.Status = "COMPLETED"
-		_ = SavePowerScheduleState(*s)
-		return nil, nil
+		return completeExpiredPowerSchedule(s)
 	}
+
 	return s, nil
+}
+
+func completeExpiredPowerSchedule(s *PowerScheduleState) (*PowerScheduleState, error) {
+	s.Status = "COMPLETED"
+	_ = SavePowerScheduleState(*s)
+
+	return nil, nil
 }
 
 // CancelActivePowerSchedule marks the active power schedule as canceled.
@@ -95,7 +111,9 @@ func CancelActivePowerSchedule() error {
 	if err != nil {
 		return nil
 	}
+
 	s.Status = "CANCELED"
+
 	return SavePowerScheduleState(*s)
 }
 
@@ -105,14 +123,21 @@ func FormatRemainingDuration(target time.Time) string {
 	if diff <= 0 {
 		return "0s"
 	}
+
+	return formatPositiveRemainingDuration(diff)
+}
+
+func formatPositiveRemainingDuration(diff time.Duration) string {
 	h := int(diff.Hours())
 	m := int(diff.Minutes()) % 60
 	s := int(diff.Seconds()) % 60
 	if h > 0 {
 		return fmt.Sprintf("%dh %dm %ds", h, m, s)
 	}
+
 	if m > 0 {
 		return fmt.Sprintf("%dm %ds", m, s)
 	}
+
 	return fmt.Sprintf("%ds", s)
 }

@@ -1,0 +1,35 @@
+# GitMap Linux Container Testing Harness
+FROM golang:1.24-alpine
+
+# Install minimal toolchain dependencies
+RUN apk add --no-cache git bash ca-certificates tzdata
+
+# Create hermetic mock power management binaries to guarantee that
+# tests never fail due to missing system binaries and never trigger OS shutdown.
+RUN printf '#!/bin/sh\necho "MOCK_SHUTDOWN: $*"\nexit 0\n' > /usr/local/bin/shutdown && \
+    printf '#!/bin/sh\necho "MOCK_POWEROFF: $*"\nexit 0\n' > /usr/local/bin/poweroff && \
+    printf '#!/bin/sh\necho "MOCK_REBOOT: $*"\nexit 0\n' > /usr/local/bin/reboot && \
+    chmod +x /usr/local/bin/shutdown /usr/local/bin/poweroff /usr/local/bin/reboot
+
+# Configure unprivileged execution user (UID 1001)
+RUN addgroup -g 1001 -S gitmap && \
+    adduser -u 1001 -S gitmap -G gitmap
+
+WORKDIR /workspace
+
+# Pre-copy go module definitions for layer caching
+COPY cli/go.mod cli/go.sum ./
+RUN go mod download
+
+# Copy cli source tree into /workspace
+COPY cli/ .
+
+# Ensure gitmap user owns workspace and Go cache
+RUN chown -R gitmap:gitmap /workspace /go
+
+# Execute as unprivileged user
+USER gitmap
+ENV CGO_ENABLED=0
+ENV CI=true
+
+ENTRYPOINT ["go", "test", "-v", "./cmdschedule", "./cmdmail"]

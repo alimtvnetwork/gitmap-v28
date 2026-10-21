@@ -1,8 +1,6 @@
 ---
 description: Enforces Gitmap's strict error management architecture and coding style guidelines.
-trigger:
-  - ".*"
-
+trigger: always_on
 ---
   **Gitmap Strict Error Architecture and Coding Guidelines**
 

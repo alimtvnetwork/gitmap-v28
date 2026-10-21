@@ -1,0 +1,80 @@
+name: Docker Container & Linux Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/cmdschedule/**'
+      - 'cli/cmdmail/**'
+      - 'Dockerfile.test'
+      - '.github/workflows/docker-test.yml'
+      - '03-ai-scripts/51-verify-linux-cross-compile.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cli/cmdschedule/**'
+      - 'cli/cmdmail/**'
+      - 'Dockerfile.test'
+      - '.github/workflows/docker-test.yml'
+      - '03-ai-scripts/51-verify-linux-cross-compile.py'
+  workflow_dispatch:
+
+concurrency:
+  group: docker-test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  container-test:
+    name: Containerized Linux Test Harness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Test Container
+        run: |
+          docker build -t gitmap-test:latest -f Dockerfile.test .
+
+      - name: Run Hermetic Container Tests
+        run: |
+          docker run --rm gitmap-test:latest
+
+  linux-cross-compile:
+    name: Pure Go Linux & Darwin Cross-Compile Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup Go Toolchain
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Linux Test Symbol Compilation (Zero Execution)
+        run: |
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -run=^$ ./cmdschedule ./cmdmail
+
+      - name: Linux Full Binary Compilation
+        run: |
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /tmp/gitmap-linux .
+
+      - name: Darwin Full Binary Compilation
+        run: |
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o /tmp/gitmap-darwin .
+
+      - name: Linux Go Vet Verification
+        run: |
+          GOOS=linux go vet ./cmdschedule ./cmdmail

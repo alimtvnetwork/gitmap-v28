@@ -32,12 +32,23 @@ type OSActionParams struct {
 // OSActionExecutor executes the configured OS power action.
 type OSActionExecutor func(params OSActionParams) error
 
-// DefaultOSActionExecutor is the injectable power command executor.
-var DefaultOSActionExecutor OSActionExecutor = executeNativeOSAction
+var (
+	DefaultOSActionExecutor OSActionExecutor = executeNativeOSAction
+	countdownOS                              = runtime.GOOS
+	countdownSleepFn                         = time.Sleep
+)
+
+func resolveTargetOS(targetOS ...string) string {
+	if len(targetOS) > 0 && targetOS[0] != "" {
+		return targetOS[0]
+	}
+
+	return runtime.GOOS
+}
 
 // BuildOSActionCommand constructs the OS command line for action and countdown seconds.
-func BuildOSActionCommand(action OSActionType, seconds int64) (string, []string) {
-	switch runtime.GOOS {
+func BuildOSActionCommand(action OSActionType, seconds int64, targetOS ...string) (string, []string) {
+	switch resolveTargetOS(targetOS...) {
 	case "windows":
 		return buildWindowsActionCommand(action, seconds)
 	case "darwin":
@@ -52,8 +63,8 @@ func buildWindowsActionCommand(action OSActionType, seconds int64) (string, []st
 	if action == OSActionRestart {
 		flag = "/r"
 	}
-	comment := "GitMap scheduled " + string(action)
-	return "shutdown", []string{flag, "/t", fmt.Sprintf("%d", seconds), "/c", comment}
+
+	return "shutdown", []string{flag, "/t", fmt.Sprintf("%d", seconds), "/c", "GitMap scheduled " + string(action)}
 }
 
 func buildDarwinActionCommand(action OSActionType) (string, []string) {
@@ -61,6 +72,7 @@ func buildDarwinActionCommand(action OSActionType) (string, []string) {
 	if action == OSActionRestart {
 		flag = "-r"
 	}
+
 	return "sudo", []string{"shutdown", flag, "now"}
 }
 
@@ -69,6 +81,7 @@ func buildLinuxActionCommand(action OSActionType) (string, []string) {
 	if action == OSActionRestart {
 		sub = "reboot"
 	}
+
 	return "sudo", []string{sub}
 }
 
@@ -77,25 +90,41 @@ func executeNativeOSAction(params OSActionParams) error {
 	if params.Executable == "" {
 		return nil
 	}
+
 	cmd := exec.Command(params.Executable, params.Args...)
 	if err := cmd.Run(); err != nil {
 		return apperror.WrapSimple(err, "execute "+string(params.Action))
 	}
+
 	return nil
 }
 
+func hasActivePowerSchedule() bool {
+	active, err := GetActivePowerSchedule()
+	if err != nil || active == nil {
+		return false
+	}
+
+	return active.Status == "ARMED"
+}
+
 func performDelayCountdown(params OSActionParams) {
-	if params.Action == OSActionCancel || params.Delay <= 0 || runtime.GOOS == "windows" {
+	if params.Action == OSActionCancel || params.Delay <= 0 || countdownOS == "windows" {
 		return
 	}
-	remaining := params.Delay
-	for remaining > 0 {
+
+	runCountdownLoop(params)
+}
+
+func runCountdownLoop(params OSActionParams) {
+	rem := params.Delay
+	for rem > 0 && hasActivePowerSchedule() {
 		if params.OnTick != nil {
-			params.OnTick(remaining)
+			params.OnTick(rem)
 		}
-		step := resolveCountdownStep(remaining)
-		time.Sleep(step)
-		remaining -= step
+		step := resolveCountdownStep(rem)
+		countdownSleepFn(step)
+		rem -= step
 	}
 }
 
@@ -103,6 +132,7 @@ func resolveCountdownStep(remaining time.Duration) time.Duration {
 	if remaining < time.Second {
 		return remaining
 	}
+
 	return time.Second
 }
 
@@ -119,12 +149,15 @@ func RunSchedulePowerCLI(action OSActionType, args []string) error {
 	if isHelpArg(args) {
 		return printSchedulePowerHelp(action)
 	}
+
 	if len(args) > 0 && isPowerStatusSubcmd(args[0]) {
 		return ShowSchedulePowerStatus(action)
 	}
+
 	if len(args) > 0 && isPowerCancelSubcmd(args[0]) {
 		return CancelSchedulePowerCLI(action)
 	}
+
 	return executeSchedulePowerCLI(action, args)
 }
 
@@ -133,26 +166,35 @@ func executeSchedulePowerCLI(action OSActionType, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	return armAndDispatchPowerSchedule(action, dur)
+}
+
+func armAndDispatchPowerSchedule(action OSActionType, dur time.Duration) error {
 	params := buildPowerActionParams(action, dur)
+	recordPowerSchedule(action, dur, params.Args)
 	if execErr := DefaultOSActionExecutor(params); execErr != nil {
+		_ = CancelActivePowerSchedule()
+
 		return apperror.WrapSimple(execErr, "schedule "+string(action))
 	}
-	recordPowerSchedule(action, dur, params.Args)
+
 	printPowerScheduleConfirmation(action, dur)
+
 	return nil
 }
 
 func recordPowerSchedule(action OSActionType, dur time.Duration, cmdArgs []string) {
 	now := time.Now()
-	state := PowerScheduleState{
+	_ = SavePowerScheduleState(PowerScheduleState{
 		Action:          action,
 		Status:          "ARMED",
 		ScheduledAt:     now,
 		TriggerAt:       now.Add(dur),
 		DurationSeconds: int64(dur / time.Second),
+		RawDuration:     dur.String(),
 		Command:         strings.Join(cmdArgs, " "),
-	}
-	_ = SavePowerScheduleState(state)
+	})
 }
 
 // ShowSchedulePowerStatus prints the current status of a scheduled power action.
@@ -161,30 +203,40 @@ func ShowSchedulePowerStatus(action OSActionType) error {
 	if err != nil {
 		return err
 	}
+
+	return renderActivePowerOrNone(active, action)
+}
+
+func renderActivePowerOrNone(active *PowerScheduleState, action OSActionType) error {
 	if active == nil {
 		fmt.Printf("No scheduled %s is currently active.\n", action)
+
 		return nil
 	}
+
 	renderActivePowerStatus(active)
+
 	return nil
 }
 
 func renderActivePowerStatus(active *PowerScheduleState) {
-	rem := FormatRemainingDuration(active.TriggerAt)
-	fmt.Printf("\n  \033[1;96m⚡ Active Power Schedule:\033[0m\n")
-	fmt.Printf("    • Action:     \033[1m%s\033[0m\n", active.Action)
-	fmt.Printf("    • Status:     %s\n", active.Status)
-	fmt.Printf("    • Scheduled:  %s\n", active.ScheduledAt.Format("2006-01-02 15:04:05"))
-	fmt.Printf("    • Target:     %s\n", active.TriggerAt.Format("2006-01-02 15:04:05"))
-	fmt.Printf("    • Remaining:  \033[1;92m%s\033[0m\n", rem)
-	fmt.Printf("    • To cancel:  gitmap schedule %s cancel\n\n", active.Action)
+	fmt.Printf("\n  \033[1;96m⚡ Active Power Schedule:\033[0m\n"+
+		"    • Action:     \033[1m%s\033[0m\n"+
+		"    • Status:     %s\n"+
+		"    • Scheduled:  %s\n"+
+		"    • Target:     %s\n"+
+		"    • Remaining:  \033[1;92m%s\033[0m\n"+
+		"    • To cancel:  gitmap schedule %s cancel\n\n",
+		active.Action, active.Status, active.ScheduledAt.Format("2006-01-02 15:04:05"),
+		active.TriggerAt.Format("2006-01-02 15:04:05"), FormatRemainingDuration(active.TriggerAt), active.Action)
 }
 
 // BuildCancelOSActionCommand returns the native command to abort an OS shutdown.
-func BuildCancelOSActionCommand() (string, []string) {
-	if runtime.GOOS == "windows" {
+func BuildCancelOSActionCommand(targetOS ...string) (string, []string) {
+	if resolveTargetOS(targetOS...) == "windows" {
 		return "shutdown", []string{"/a"}
 	}
+
 	return "shutdown", []string{"-c"}
 }
 
@@ -192,20 +244,14 @@ func BuildCancelOSActionCommand() (string, []string) {
 func CancelSchedulePowerCLI(action OSActionType) error {
 	_ = CancelActivePowerSchedule()
 	exe, cmdArgs := BuildCancelOSActionCommand()
-	params := buildCancelActionParams(exe, cmdArgs)
+	params := OSActionParams{Action: OSActionCancel, Executable: exe, Args: cmdArgs}
 	if err := DefaultOSActionExecutor(params); err != nil {
 		return err
 	}
-	fmt.Printf("✓ Canceled active scheduled %s.\n", action)
-	return nil
-}
 
-func buildCancelActionParams(exe string, cmdArgs []string) OSActionParams {
-	return OSActionParams{
-		Action:     OSActionCancel,
-		Executable: exe,
-		Args:       cmdArgs,
-	}
+	fmt.Printf("✓ Canceled active scheduled %s.\n", action)
+
+	return nil
 }
 
 func isHelpArg(args []string) bool {
@@ -214,30 +260,15 @@ func isHelpArg(args []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func printSchedulePowerHelp(action OSActionType) error {
-	fmt.Printf("Usage: gitmap schedule %s [duration|status|cancel]\n\n", action)
-	fmt.Printf("Schedules a system %s with flexible duration formats.\n\n", action)
-	fmt.Println("Supported duration formats:")
-	fmt.Println("  1:45hr, 1:45h, 01:30:00   Colon notation (hours:minutes[:seconds])")
-	fmt.Println("  1day, 1d, 2days, 2d       Day notation")
-	fmt.Println("  2h, 120m, 1s              Hour, minute, second notation")
-	fmt.Println("  now, 0                    Execute immediately")
-	printSchedulePowerExamples(action)
-	return nil
-}
+	fmt.Printf("Usage: gitmap schedule %s [duration|status|cancel]\n\n"+
+		"Examples: gitmap schedule %s 1:45hr | status | cancel\n", action, action)
 
-func printSchedulePowerExamples(action OSActionType) {
-	fmt.Printf("\nExamples:\n")
-	fmt.Printf("  gitmap schedule %s 1:45hr\n", action)
-	fmt.Printf("  gitmap schedule %s 2h\n", action)
-	fmt.Printf("  gitmap schedule %s 120m\n", action)
-	fmt.Printf("  gitmap schedule %s 1day\n", action)
-	fmt.Printf("  gitmap schedule %s 1d\n", action)
-	fmt.Printf("  gitmap schedule %s status    # View active timer and remaining time\n", action)
-	fmt.Printf("  gitmap schedule %s cancel    # Abort active scheduled %s\n", action, action)
+	return nil
 }
 
 func resolveSchedulePowerDuration(args []string) (time.Duration, error) {
@@ -245,29 +276,26 @@ func resolveSchedulePowerDuration(args []string) (time.Duration, error) {
 	if len(args) > 0 {
 		durStr = args[0]
 	}
+
 	res := ParseScheduleDuration(durStr)
 	if res.IsFailure() {
 		return 0, res.AppError()
 	}
+
 	return res.Value, nil
 }
 
 func buildPowerActionParams(action OSActionType, dur time.Duration) OSActionParams {
 	secs := int64(dur / time.Second)
 	exe, cmdArgs := BuildOSActionCommand(action, secs)
-	return OSActionParams{
-		Action:     action,
-		Delay:      dur,
-		Seconds:    secs,
-		Executable: exe,
-		Args:       cmdArgs,
-	}
+
+	return OSActionParams{Action: action, Delay: dur, Seconds: secs, Executable: exe, Args: cmdArgs}
 }
 
 func printPowerScheduleConfirmation(action OSActionType, dur time.Duration) {
-	secs := int64(dur / time.Second)
 	target := time.Now().Add(dur).Format("15:04:05")
-	fmt.Printf("✓ Scheduled system %s in %v (%ds). Target time: %s\n", action, dur, secs, target)
-	fmt.Printf("  • Check status: gitmap schedule %s status\n", action)
-	fmt.Printf("  • Cancel:       gitmap schedule %s cancel\n", action)
+	fmt.Printf("✓ Scheduled system %s in %v (%ds). Target time: %s\n"+
+		"  • Check status: gitmap schedule %s status\n"+
+		"  • Cancel:       gitmap schedule %s cancel\n",
+		action, dur, int64(dur/time.Second), target, action, action)
 }

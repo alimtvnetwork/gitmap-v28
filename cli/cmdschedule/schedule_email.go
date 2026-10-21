@@ -87,6 +87,14 @@ func parseScheduleEmailFlags(args []string) (scheduleEmailOptions, *appfault.App
 }
 
 func validateScheduleEmailOptions(opts scheduleEmailOptions) *appfault.AppError {
+	if fieldErr := validateRequiredScheduleFields(opts); fieldErr != nil {
+		return fieldErr
+	}
+
+	return validateScheduleEveryDuration(opts.Every)
+}
+
+func validateRequiredScheduleFields(opts scheduleEmailOptions) *appfault.AppError {
 	if strings.TrimSpace(opts.To) == "" {
 		return appfault.NewValidationError("missing required flag: --to <recipient>")
 	}
@@ -95,6 +103,15 @@ func validateScheduleEmailOptions(opts scheduleEmailOptions) *appfault.AppError 
 	}
 	if strings.TrimSpace(opts.Every) == "" {
 		return appfault.NewValidationError("missing required flag: --every <interval> (e.g. 1h, 24h)")
+	}
+
+	return nil
+}
+
+func validateScheduleEveryDuration(every string) *appfault.AppError {
+	durRes := ParseScheduleDuration(every)
+	if durRes.IsFailed() || durRes.Value <= 0 {
+		return appfault.NewValidationError(fmt.Sprintf("invalid schedule interval: %s", every))
 	}
 
 	return nil
