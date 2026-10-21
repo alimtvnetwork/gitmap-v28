@@ -19,25 +19,30 @@ func (m *mockTransmitter) SendMail(opts MailSendOptions, rawMessage []byte) erro
 	m.lastOpts = opts
 	m.lastRaw = rawMessage
 	m.sendCount++
+
 	return m.failErr
 }
 
 func TestMailSend_Success(t *testing.T) {
 	mock := &mockTransmitter{}
 	CurrentTransmitter = mock
-
 	err := RunMail([]string{"send", "--to", "dev@example.com", "--subject", "Build Succeeded", "--body", "All tests passed"})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if mock.sendCount != 1 {
-		t.Fatalf("expected 1 send call, got %d", mock.sendCount)
-	}
-	if mock.lastOpts.Subject != "Build Succeeded" {
-		t.Errorf("expected subject 'Build Succeeded', got '%s'", mock.lastOpts.Subject)
+	if err != nil || mock.sendCount != 1 || mock.lastOpts.Subject != "Build Succeeded" {
+		t.Fatalf("send failed: err=%v count=%d", err, mock.sendCount)
 	}
 	if !strings.Contains(string(mock.lastRaw), "Subject: Build Succeeded") {
 		t.Errorf("raw message missing Subject header")
+	}
+}
+
+func TestMailSend_FileAndHTML(t *testing.T) {
+	mock := &mockTransmitter{}
+	CurrentTransmitter = mock
+	tmpFile := filepath.Join(t.TempDir(), "body.html")
+	_ = os.WriteFile(tmpFile, []byte("<h1>Report</h1>"), 0644)
+	err := RunMail([]string{"send", "--to", "dev@example.com", "--subject", "HTML Report", "--file", tmpFile, "--html"})
+	if err != nil || mock.sendCount != 1 || !mock.lastOpts.IsHTML || mock.lastOpts.Body != "<h1>Report</h1>" {
+		t.Errorf("send --file --html failed: err=%v count=%d isHTML=%t", err, mock.sendCount, mock.lastOpts.IsHTML)
 	}
 }
 
@@ -58,7 +63,6 @@ func TestMailSend_BCCStripped(t *testing.T) {
 func TestMailSend_Validation(t *testing.T) {
 	mock := &mockTransmitter{}
 	CurrentTransmitter = mock
-
 	if err := RunMail([]string{"send", "--subject", "No Recipient"}); err == nil {
 		t.Error("expected validation error for missing --to")
 	}
@@ -73,8 +77,7 @@ func TestMailSend_Validation(t *testing.T) {
 
 func TestPrivacyMasking(t *testing.T) {
 	cases := []struct {
-		input    string
-		expected string
+		input, expected string
 	}{
 		{"user.name@example.com", "u***e@e***e.com"},
 		{"devops@company.org", "d***s@c***y.org"},
@@ -83,8 +86,7 @@ func TestPrivacyMasking(t *testing.T) {
 		{"", "***"},
 	}
 	for _, c := range cases {
-		actual := MaskEmail(c.input)
-		if actual != c.expected {
+		if actual := MaskEmail(c.input); actual != c.expected {
 			t.Errorf("MaskEmail(%q) = %q, expected %q", c.input, actual, c.expected)
 		}
 	}
@@ -100,13 +102,9 @@ func TestMailCheck_Evaluation(t *testing.T) {
 		t.Fatalf("failed to open in-memory store: %v", err)
 	}
 	defer store.Close()
-
 	summary, err := EvaluateMailboxes(store, MailboxCheckFilter{CheckAll: true})
-	if err != nil {
-		t.Fatalf("unexpected error evaluating mailboxes: %v", err)
-	}
-	if summary.TotalAccounts == 0 {
-		t.Error("expected at least 1 account evaluated")
+	if err != nil || summary.TotalAccounts == 0 {
+		t.Fatalf("eval mailboxes failed: err=%v total=%d", err, summary.TotalAccounts)
 	}
 	table := FormatMailCheckTable(summary, false)
 	if !strings.Contains(table, "MAILBOX ACCOUNT") {
@@ -115,19 +113,9 @@ func TestMailCheck_Evaluation(t *testing.T) {
 }
 
 func TestMailTemplate_CRUD(t *testing.T) {
-	store, err := OpenMailStore(":memory:")
-	if err != nil {
-		t.Fatalf("failed to open store: %v", err)
-	}
+	store, _ := OpenMailStore(":memory:")
 	defer store.Close()
-
-	tmpl := MailTemplateRecord{
-		TemplateID:      "t1",
-		TemplateName:    "release-alert",
-		SubjectTemplate: "Release v{{.Version}} Ready",
-		BodyTemplate:    "The new release is available.",
-		IsHTML:          false,
-	}
+	tmpl := MailTemplateRecord{TemplateID: "t1", TemplateName: "release-alert", SubjectTemplate: "Release v{{.Version}} Ready", BodyTemplate: "New release ready.", IsHTML: false}
 	if err := store.SaveTemplate(tmpl); err != nil {
 		t.Fatalf("failed to save template: %v", err)
 	}
@@ -145,10 +133,33 @@ func TestMailTemplate_CRUD(t *testing.T) {
 	}
 }
 
+func TestMailStore_RulesAndLogsCRUD(t *testing.T) {
+	s, _ := OpenMailStore(":memory:")
+	defer s.Close()
+	rule := FolderWatcherRuleRecord{RuleID: "r1", RuleName: "watch-src", FolderPath: "./src", IsEnabled: true}
+	_ = s.SaveWatcherRule(rule)
+	rules, _ := s.ListWatcherRules()
+	if len(rules) != 1 || rules[0].RuleName != "watch-src" || !rules[0].IsEnabled {
+		t.Errorf("watcher rule CRUD failed: %v", rules)
+	}
+	log := NotificationLogRecord{LogID: "l1", RuleID: "r1", Subject: "Alert", IsDelivered: true}
+	_ = s.RecordNotificationLog(log)
+	logs, _ := s.ListNotificationLogs(10)
+	if len(logs) != 1 || logs[0].Subject != "Alert" || !logs[0].IsDelivered {
+		t.Errorf("notification log CRUD failed: %v", logs)
+	}
+	prof := MailboxProfileRecord{ProfileID: "p1", Alias: "sec", EmailAddress: "s@corp.io", IsActive: true, IsMasked: true}
+	_ = s.SaveMailboxProfile(prof)
+	profs, _ := s.ListMailboxProfiles()
+	if len(profs) != 1 || profs[0].Alias != "sec" || !profs[0].IsActive || !profs[0].IsMasked {
+		t.Errorf("mailbox profile CRUD failed: %v", profs)
+	}
+}
+
 func TestIntervalGuard_Clamping(t *testing.T) {
 	g1 := NewIntervalGuard(2 * time.Second)
 	if !g1.WasClamped || g1.EffectiveInterval != MinPollingInterval {
-		t.Errorf("expected 2s clamped to 5s, got %v (clamped: %t)", g1.EffectiveInterval, g1.WasClamped)
+		t.Errorf("expected 2s clamped to 5s, got %v", g1.EffectiveInterval)
 	}
 	g2 := NewIntervalGuard(10 * time.Second)
 	if g2.WasClamped || g2.EffectiveInterval != 10*time.Second {
@@ -162,40 +173,79 @@ func TestIntervalGuard_Clamping(t *testing.T) {
 
 func TestFolderWatcher_SinglePassDetect(t *testing.T) {
 	tempDir := t.TempDir()
-	store, err := OpenMailStore(":memory:")
-	if err != nil {
-		t.Fatalf("failed to open store: %v", err)
-	}
+	store, _ := OpenMailStore(":memory:")
 	defer store.Close()
-
 	mock := &mockTransmitter{}
 	baseline, _ := ScanFolderTree(tempDir, true)
-
-	// Create a new file
 	testFile := filepath.Join(tempDir, "mutation.log")
-	if err := os.WriteFile(testFile, []byte("log entry 1\n"), 0644); err != nil {
-		t.Fatalf("failed to write test file: %v", err)
-	}
-
-	cfg := FolderWatcherConfig{
-		RuleID:          "rule-test",
-		TargetDirectory: tempDir,
-		Recipients:      []string{"notifier@test.org"},
-		IsRecursive:     true,
-		RunOnce:         true,
-	}
-
+	_ = os.WriteFile(testFile, []byte("log entry 1\n"), 0644)
+	cfg := FolderWatcherConfig{RuleID: "rule-test", TargetDirectory: tempDir, Recipients: []string{"notifier@test.org"}, IsRecursive: true, RunOnce: true}
 	batch, _, err := ExecuteWatchCycle(cfg, baseline, store, mock)
-	if err != nil {
-		t.Fatalf("unexpected watch cycle error: %v", err)
+	if err != nil || batch.TotalEvents != 1 || batch.Events[0].EventType != EventCreate || mock.sendCount != 1 {
+		t.Fatalf("single pass detect failed: err=%v events=%d count=%d", err, batch.TotalEvents, mock.sendCount)
 	}
-	if batch.TotalEvents != 1 {
-		t.Fatalf("expected 1 event, got %d", batch.TotalEvents)
+}
+
+func TestFolderWatcher_ZeroMutations(t *testing.T) {
+	dir := t.TempDir()
+	mock := &mockTransmitter{}
+	base, _ := ScanFolderTree(dir, true)
+	cfg := FolderWatcherConfig{TargetDirectory: dir, RunOnce: true}
+	batch, _, _ := ExecuteWatchCycle(cfg, base, nil, mock)
+	if batch.HasEvents || mock.sendCount != 0 {
+		t.Errorf("expected 0 events, got hasEvents=%t count=%d", batch.HasEvents, mock.sendCount)
 	}
-	if batch.Events[0].EventType != EventCreate {
-		t.Errorf("expected EventCreate, got %s", batch.Events[0].EventType)
+}
+
+func TestFolderWatcher_CompoundMutations(t *testing.T) {
+	prev := map[string]FileItemSnapshot{
+		"m.txt": {RelativePath: "m.txt", SizeBytes: 10, ModTimeUnix: 100},
+		"d.txt": {RelativePath: "d.txt", SizeBytes: 20, ModTimeUnix: 100},
 	}
-	if mock.sendCount != 1 {
-		t.Errorf("expected 1 notification email sent, got %d", mock.sendCount)
+	curr := map[string]FileItemSnapshot{
+		"m.txt": {RelativePath: "m.txt", SizeBytes: 25, ModTimeUnix: 200},
+		"c.txt": {RelativePath: "c.txt", SizeBytes: 30, ModTimeUnix: 200},
+	}
+	events := DetectFileMutations(prev, curr)
+	verifyCompoundEvents(t, events)
+}
+
+func verifyCompoundEvents(t *testing.T, events []FileEventRecord) {
+	if len(events) != 3 {
+		t.Fatalf("expected 3 events, got %d", len(events))
+	}
+	hasMod, hasDel, hasCreate := false, false, false
+	for _, e := range events {
+		switch e.EventType {
+		case EventModify:
+			hasMod = e.Path == "m.txt"
+		case EventDelete:
+			hasDel = e.Path == "d.txt"
+		case EventCreate:
+			hasCreate = e.Path == "c.txt"
+		}
+	}
+	if !hasMod || !hasDel || !hasCreate {
+		t.Errorf("compound events missing: %+v", events)
+	}
+}
+
+func TestMailCLI_TemplateRouting(t *testing.T) {
+	_ = RunMail([]string{"template", "add", "ci-build", "--subject", "CI Alert", "--body", "Failed", "--html"})
+	_ = RunMail([]string{"template", "ls"})
+	_ = RunMail([]string{"template", "view", "ci-build"})
+	_ = RunMail([]string{"template", "rm", "ci-build"})
+	if err := RunMail([]string{"template", "unknown"}); err == nil {
+		t.Error("expected error for unknown template subcommand")
+	}
+}
+
+func TestMailCLI_NotifyRouting(t *testing.T) {
+	tempDir := t.TempDir()
+	_ = RunMail([]string{"notify", "watch", "--path", tempDir, "--once"})
+	_ = RunMail([]string{"notify", "ls"})
+	_ = RunMail([]string{"notify", "trigger", "sample-rule"})
+	if err := RunMail([]string{"notify", "unknown"}); err == nil {
+		t.Error("expected error for unknown notify subcommand")
 	}
 }

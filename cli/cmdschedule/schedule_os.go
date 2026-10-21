@@ -187,13 +187,9 @@ func armAndDispatchPowerSchedule(action OSActionType, dur time.Duration) error {
 func recordPowerSchedule(action OSActionType, dur time.Duration, cmdArgs []string) {
 	now := time.Now()
 	_ = SavePowerScheduleState(PowerScheduleState{
-		Action:          action,
-		Status:          "ARMED",
-		ScheduledAt:     now,
-		TriggerAt:       now.Add(dur),
-		DurationSeconds: int64(dur / time.Second),
-		RawDuration:     dur.String(),
-		Command:         strings.Join(cmdArgs, " "),
+		Action: action, Status: "ARMED", ScheduledAt: now, TriggerAt: now.Add(dur),
+		DurationSeconds: int64(dur / time.Second), RawDuration: dur.String(),
+		Command: strings.Join(cmdArgs, " "),
 	})
 }
 
