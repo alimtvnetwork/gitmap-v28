@@ -1,8 +1,6 @@
 package heatmap
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -37,19 +35,12 @@ func runRcUpdate(flags map[string]string, pos []string, out io.Writer) error {
 		return err
 	}
 
-	if isJsonRequested(flags) {
-		env := BuildRcLogEnvelope(*updated, st.RepoDbPath(), aiName, repoSlug)
-		return json.NewEncoder(out).Encode(env)
-	}
-
 	statusStr := "MET"
 	if !updated.IsExpectationMet {
 		statusStr = "FAILED"
 	}
 
-	fmt.Fprintf(out, "Updated RC heatmap action #%d [outcome=%q, met=%v, status=%s]\n",
-		updated.HeatmapActionLogId, updated.ActualOutcome, updated.IsExpectationMet, statusStr)
-	return nil
+	return renderRcUpdateResponse(out, *updated, st.RepoDbPath(), aiName, repoSlug, statusStr, flags)
 }
 
 func runHeatmapUpdate(flags map[string]string, pos []string, out io.Writer) error {
@@ -77,19 +68,12 @@ func runHeatmapUpdate(flags map[string]string, pos []string, out io.Writer) erro
 		return err
 	}
 
-	if isJsonRequested(flags) {
-		env := BuildHeatmapLogEnvelope(*updated, db.Path)
-		return json.NewEncoder(out).Encode(env)
-	}
-
 	statusStr := "MET"
 	if !updated.IsExpectationMet {
 		statusStr = "FAILED"
 	}
 
-	fmt.Fprintf(out, "Updated heatmap action #%d [outcome=%q, met=%v, status=%s]\n",
-		updated.HeatmapActionLogId, updated.ActualOutcome, updated.IsExpectationMet, statusStr)
-	return nil
+	return renderHeatmapUpdateResponse(out, *updated, db.Path, statusStr, flags)
 }
 
 func isJsonRequested(flags map[string]string) bool {

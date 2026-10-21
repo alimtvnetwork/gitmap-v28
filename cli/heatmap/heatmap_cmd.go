@@ -2,7 +2,6 @@ package heatmap
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -66,14 +65,7 @@ func runHeatmapLog(flags map[string]string, out io.Writer) error {
 	}
 	rec.HeatmapActionLogId = id
 
-	if isJsonRequested(flags) {
-		env := BuildHeatmapLogEnvelope(rec, db.Path)
-		return json.NewEncoder(out).Encode(env)
-	}
-
-	fmt.Fprintf(out, "Logged heatmap action #%d [task=%s, action=%s, file=%s]\n",
-		id, rec.TaskSlug, rec.ActionType, rec.FilePath)
-	return nil
+	return renderHeatmapLogResponse(out, rec, db.Path, flags)
 }
 
 func buildActionLogRecord(flags map[string]string) store.HeatmapActionLogRecord {
@@ -118,8 +110,8 @@ func runHeatmapSearch(flags map[string]string, pos []string, out io.Writer) erro
 	if err != nil {
 		return err
 	}
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(records)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, records)
 	}
 	renderSearchText(out, records)
 	return nil
@@ -135,8 +127,8 @@ func runHeatmapTree(flags map[string]string, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(tree)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, tree)
 	}
 	renderTreeText(out, tree, "")
 	return nil
@@ -152,15 +144,16 @@ func runHeatmapStatus(flags map[string]string, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(status)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, status)
 	}
 	renderStatusText(out, status)
 	return nil
 }
 
 func isHeatmapBoolFlag(k string) bool {
-	return k == "json" || k == "j" || k == "help" || k == "h" || k == "dry-run" || k == "verbose" || k == "v"
+	return k == "json" || k == "j" || k == "help" || k == "h" || k == "dry-run" || k == "verbose" || k == "v" ||
+		k == "text" || k == "plain" || k == "envelope"
 }
 
 func parseHeatmapArgs(args []string) (map[string]string, []string) {

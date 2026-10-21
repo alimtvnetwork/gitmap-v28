@@ -131,6 +131,3 @@ func stashSingleRepoItem(item UnresolvedPullRepo) bool {
 	return true
 }
 
-func executeLocalCommitAllWIP(unresolved []UnresolvedPullRepo) error {
-	return executeSendCommitsCurrentMachine(unresolved)
-}

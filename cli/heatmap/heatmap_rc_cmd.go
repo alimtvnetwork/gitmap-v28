@@ -2,7 +2,6 @@ package heatmap
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -66,14 +65,7 @@ func runRcLog(flags map[string]string, out io.Writer) error {
 	}
 	rec.HeatmapActionLogId = id
 
-	if isJsonRequested(flags) {
-		env := BuildRcLogEnvelope(rec, st.RepoDbPath(), aiName, repoSlug)
-		return json.NewEncoder(out).Encode(env)
-	}
-
-	fmt.Fprintf(out, "Logged RC heatmap action #%d [ai=%s, repo=%s, task=%s, action=%s, file=%s]\n",
-		id, aiName, repoSlug, rec.TaskSlug, rec.ActionType, rec.FilePath)
-	return nil
+	return renderRcHeatmapLogResponse(out, rec, st.RepoDbPath(), aiName, repoSlug, flags)
 }
 
 func runRcSearch(flags map[string]string, pos []string, out io.Writer) error {
@@ -94,8 +86,8 @@ func runRcSearch(flags map[string]string, pos []string, out io.Writer) error {
 		return err
 	}
 
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(records)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, records)
 	}
 	renderSearchText(out, records)
 	return nil
@@ -114,8 +106,8 @@ func runRcTree(flags map[string]string, out io.Writer) error {
 		return err
 	}
 
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(tree)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, tree)
 	}
 	renderRcTreeText(out, tree, "")
 	return nil
@@ -135,8 +127,8 @@ func runRcStatus(flags map[string]string, out io.Writer) error {
 	}
 
 	uncommitted, _ := st.GetUncommittedActionCount(repoSlug, aiName)
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(map[string]any{
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, map[string]any{
 			"aiName": aiName, "repoSlug": repoSlug, "uncommitted": uncommitted, "summary": summary,
 		})
 	}
@@ -150,8 +142,8 @@ func runRcListAi(flags map[string]string, out io.Writer) error {
 	names := store.ListSupportedAINames()
 	current := store.DetectCurrentAIName()
 
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(map[string]any{
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, map[string]any{
 			"currentAI": current, "supportedAIs": names,
 		})
 	}
@@ -194,8 +186,8 @@ func runRcCommit(flags map[string]string, out io.Writer) error {
 	rec.SyncStatus, rec.IsDirty, rec.UncommittedChangeCount = "COMMITTED", false, 0
 	_ = st.UpdateLocalTracking(*rec)
 
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(map[string]any{
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, map[string]any{
 			"status": "COMMITTED", "aiName": aiName, "repoSlug": repoSlug, "message": msg,
 		})
 	}
@@ -220,8 +212,8 @@ func runRcSync(flags map[string]string, out io.Writer) error {
 	rec.SyncStatus, rec.IsDirty = "SYNCED", false
 	_ = st.UpdateLocalTracking(*rec)
 
-	if flags["json"] == "true" {
-		return json.NewEncoder(out).Encode(map[string]any{
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, map[string]any{
 			"status": "SYNCED", "aiName": aiName, "repoSlug": repoSlug,
 		})
 	}
