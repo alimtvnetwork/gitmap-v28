@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.589.0] - 2026-10-21
+
+### Added
+- prompt to send commits on current machine and then fleet send all
+
+---
+
 ## [v6.588.0] - 2026-10-21
 
 ### Added
