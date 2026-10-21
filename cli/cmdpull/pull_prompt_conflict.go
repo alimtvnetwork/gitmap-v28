@@ -76,6 +76,11 @@ func handleSafeAbort(item UnresolvedPullRepo) {
 }
 
 func renderVSCodeMergeGuide(repoPath string) {
+	renderVSCodeMergeGuideHeader(repoPath)
+	renderVSCodeMergeGuideSteps()
+}
+
+func renderVSCodeMergeGuideHeader(repoPath string) {
 	fmt.Printf("\n      %s┌──────────────────────────────────────────────────────────────┐%s\n", constants.ColorMagenta, constants.ColorReset)
 	fmt.Printf("      %s│%s  %s📖 VS Code 3-Way Merge Editor Guide%s                          %s│%s\n",
 		constants.ColorMagenta, constants.ColorReset,
@@ -84,6 +89,9 @@ func renderVSCodeMergeGuide(repoPath string) {
 	fmt.Printf("      %s├──────────────────────────────────────────────────────────────┤%s\n", constants.ColorMagenta, constants.ColorReset)
 	fmt.Printf("      %s│%s  1. Open repository: %scode %s%s\n",
 		constants.ColorMagenta, constants.ColorReset, constants.ColorCyan, repoPath, constants.ColorReset)
+}
+
+func renderVSCodeMergeGuideSteps() {
 	fmt.Printf("      %s│%s  2. Switch to Source Control tab (Ctrl+Shift+G / Cmd+Shift+G)  %s│%s\n",
 		constants.ColorMagenta, constants.ColorReset, constants.ColorMagenta, constants.ColorReset)
 	fmt.Printf("      %s│%s  3. Click a file under 'Merge Changes'                         %s│%s\n",
@@ -111,19 +119,37 @@ func dispatchStepAction(ans string, item UnresolvedPullRepo, bin string) {
 }
 
 func dispatchConflictStepAction(ans string, item UnresolvedPullRepo) {
+	if handleConflictInspectAction(ans, item) {
+		return
+	}
+
+	handleConflictCheckoutAction(ans, item)
+}
+
+func handleConflictInspectAction(ans string, item UnresolvedPullRepo) bool {
 	switch ans {
 	case "v", "code":
 		handleVSCodeOpen(item)
+		return true
+	case "h", "help":
+		renderVSCodeMergeGuide(item.RepoPath)
+		return true
+	case "n", "k", "skip", "no":
+		fmt.Printf("      %sSkipped.%s\n", constants.ColorDim, constants.ColorReset)
+		return true
+	}
+
+	return false
+}
+
+func handleConflictCheckoutAction(ans string, item UnresolvedPullRepo) {
+	switch ans {
 	case "t", "theirs":
 		handleCheckoutTheirs(item)
 	case "o", "ours":
 		handleCheckoutOurs(item)
 	case "a", "abort":
 		handleSafeAbort(item)
-	case "h", "help":
-		renderVSCodeMergeGuide(item.RepoPath)
-	case "n", "k", "skip", "no":
-		fmt.Printf("      %sSkipped.%s\n", constants.ColorDim, constants.ColorReset)
 	}
 }
 
@@ -148,6 +174,7 @@ func runSendSingle(item UnresolvedPullRepo, bin string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	_ = cmd.Run()
+	_ = promptAndSendAllFleet()
 }
 
 func runSendAll(bin string) {

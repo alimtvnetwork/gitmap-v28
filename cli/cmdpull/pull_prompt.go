@@ -27,27 +27,37 @@ func ExtractUnresolvedRepos(states []*PullRepoState) []UnresolvedPullRepo {
 		if s == nil {
 			continue
 		}
-		isDirty := s.IsDirty || s.Changes == "dirty"
-		if !isDirty && s.RepoPath != "" {
-			diag := gitutil.InspectDirtyState(s.RepoPath)
-			if diag.IsDirty {
-				isDirty = true
-			}
-		}
+		isDirty := resolveRepoDirtyFlag(s)
 		hasProblem := isDirty || s.Step == PullStepTypeError || s.Step == PullStepTypeConflict || s.ErrorMsg != ""
 		if hasProblem {
-			unresolved = append(unresolved, UnresolvedPullRepo{
-				RepoName: s.RepoName,
-				RepoPath: s.RepoPath,
-				Branch:   s.Branch,
-				ErrorMsg: s.ErrorMsg,
-				IsDirty:  isDirty,
-				IsFailed: s.Step == PullStepTypeError || s.ErrorMsg != "",
-			})
+			unresolved = append(unresolved, buildUnresolvedItem(s, isDirty))
 		}
 	}
 
 	return unresolved
+}
+
+func resolveRepoDirtyFlag(s *PullRepoState) bool {
+	if s.IsDirty || s.Changes == "dirty" {
+		return true
+	}
+	if s.RepoPath == "" {
+		return false
+	}
+	diag := gitutil.InspectDirtyState(s.RepoPath)
+
+	return diag.IsDirty
+}
+
+func buildUnresolvedItem(s *PullRepoState, isDirty bool) UnresolvedPullRepo {
+	return UnresolvedPullRepo{
+		RepoName: s.RepoName,
+		RepoPath: s.RepoPath,
+		Branch:   s.Branch,
+		ErrorMsg: s.ErrorMsg,
+		IsDirty:  isDirty,
+		IsFailed: s.Step == PullStepTypeError || s.ErrorMsg != "",
+	}
 }
 
 // PromptPostPullRemediation presents an interactive resolution menu when unresolved repos exist.
@@ -67,20 +77,27 @@ func PromptPostPullRemediation(unresolved []UnresolvedPullRepo) error {
 
 // isInteractivePromptEligible verifies terminal TTY and standard input availability.
 func isInteractivePromptEligible() bool {
-	if os.Getenv("CI") != "" || os.Getenv("GITMAP_NON_INTERACTIVE") != "" || os.Getenv("GITMAP_JSON") != "" {
+	if isNonInteractiveEnv() {
 		return false
 	}
-	if term.IsTerminal(int(os.Stdin.Fd())) {
+
+	return isTerminalAttached()
+}
+
+func isTerminalAttached() bool {
+	if term.IsTerminal(int(os.Stdin.Fd())) || term.IsTerminal(int(os.Stdout.Fd())) {
 		return true
 	}
-	if termout.IsStdoutTTY() || term.IsTerminal(int(os.Stdout.Fd())) {
-		fi, err := os.Stdin.Stat()
-		if err == nil && (fi.Mode()&os.ModeNamedPipe) == 0 {
-			return true
-		}
+	if termout.IsStdoutTTY() {
+		return true
 	}
+	info, err := os.Stdin.Stat()
 
-	return false
+	return err == nil && (info.Mode()&os.ModeCharDevice) != 0
+}
+
+func isNonInteractiveEnv() bool {
+	return os.Getenv("CI") != "" || os.Getenv("GITMAP_NON_INTERACTIVE") != "" || os.Getenv("GITMAP_JSON") != ""
 }
 
 func readPromptUserChoice() string {
