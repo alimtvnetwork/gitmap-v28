@@ -90,3 +90,13 @@ GitMap includes an embedded macro recording, serialization, and streaming replay
 - **Last-read watermark:** tracked by gitmap itself — vault HEAD SHA + UTC timestamp as JSON in `store.BinaryDataDir()` (0600). Never in an MD file. Keyed by vault path; a new vault path starts a fresh baseline. Output carries a SINCE LAST READ section (new commits / "unchanged" / first-run baseline).
 - **DECISION TRACE:** every run prints a numbered trace (checkout/clone/sync/window/order/search decisions, each with a why) plus why-annotations on the AI traversal checklist steps, so an AI learns the decision-making, not just the commands.
 - **Onboarding:** `repo-cache/12-muse-ai/00-new-muse-onboarding.md` is the paste-able 9-step new-Muse checklist (install → update → login → clone via `gitmap clone` → `gitmap pa` → read master prompt → `llm train muse` → email → `gitmap scan` → final report), every step ending with a REPORT.
+
+---
+
+## 7. Developer Tool Cleaner (`gitmap os dev-clean`) Architecture
+
+`gitmap os dev-clean` (and aliases `clean-dev`, `devtools clear`) sweeps compiler, runtime, and build tool caches with Split-DB speed:
+
+- **Upfront Dry-Run Preview Before Confirmation:** Always computes discovery and sizes across dev drives and environment targets first, displaying formatted ANSI preview cards and total reclaimable capacity metrics before prompting `Proceed with dev tools cache cleanup? Type 'yes' (or 'y') to continue: `.
+- **Comprehensive Rust / Cargo Support:** Sweeps `~/.cargo/registry/cache`, `registry/src`, `git/db`, `git/checkouts`, `.package-cache`, `target`, `CARGO_TARGET_DIR`, `%LOCALAPPDATA%\Mozilla\sccache`, `~/.cache/sccache`, `~/.rustup/downloads`, `~/.rustup/tmp`, and dev drive subdirectories (`cargo/target`, `rust/target`, `cargo/build`, `rust/build`). Paralleling `go clean`, invokes `cargo cache --autoclean` (if `cargo-cache` is present), `sccache --clear-cache` (if `sccache` is present), and `cargo clean --target-dir` (if `CARGO_TARGET_DIR` is configured).
+- **Split-DB Missing Ecosystem Auto-Discovery & Zeroing:** When `devtools_cache_paths` has existing records, missing ecosystem discovery rules (such as `cargo`) are dynamically detected, probed, and merged without requiring manual `--force`. Post-cleanup immediately zeroes cleared record sizes in `devtools_cache_paths` to reflect freed disk space.
