@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.587.0] - 2026-10-21
+
+### Added
+- fix legacy repo ref in spec and remove unused render function
+
+---
+
 ## [v6.586.0] - 2026-10-21
 
 ### Added
