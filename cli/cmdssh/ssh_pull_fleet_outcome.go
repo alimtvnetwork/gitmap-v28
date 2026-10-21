@@ -109,28 +109,41 @@ func printNodeOutcomeHeader(o FleetNodePullOutcome, activeCount, upToDateCount i
 		nodeTitle = fmt.Sprintf("Local VM (%s - localhost)", o.IP)
 	}
 	if activeCount > 0 {
-		fmt.Printf("\n  %s▶ %s:%s %d pulled (%d active, %d up-to-date)\n",
+		fmt.Printf("\n  %s• %s:%s %d pulled (%d active, %d up-to-date)\n",
 			constants.ColorCyan, nodeTitle, constants.ColorReset,
 			o.Summary.PulledCount, activeCount, upToDateCount)
 
 		return
 	}
-	fmt.Printf("\n  %s▶ %s:%s %d pulled (all up-to-date)\n",
+	fmt.Printf("\n  %s• %s:%s %d pulled (all up-to-date)\n",
 		constants.ColorCyan, nodeTitle, constants.ColorReset, o.Summary.PulledCount)
 }
 
 func renderActiveStatesList(states []fleetPullRepoItem) {
 	colWidth := resolveFleetStatesColWidth(states)
-	for _, s := range states {
-		styled := styleFleetStatus(s.Status, s.Changes)
-		fmt.Printf("      • %-*s  %s\n", colWidth, s.RepoName, styled)
-		if s.ErrorDetails != "" {
-			fmt.Printf("        %s↳ Reason: %s%s\n", constants.ColorDim, s.ErrorDetails, constants.ColorReset)
-		}
-		if s.RemediationHint != "" {
-			fmt.Printf("        %s↳ Next Step: %s%s\n", constants.ColorCyan, s.RemediationHint, constants.ColorReset)
-		}
+	for i, s := range states {
+		renderSingleFleetItem(s, colWidth, i == len(states)-1)
 	}
+}
+
+func renderSingleFleetItem(s fleetPullRepoItem, colWidth int, isLast bool) {
+	conn, subPrefix := resolveFleetItemConnectors(isLast)
+	styled := styleFleetStatus(s.Status, s.Changes)
+	fmt.Printf("    %s %-*s  %s\n", conn, colWidth, s.RepoName, styled)
+	if s.ErrorDetails != "" {
+		fmt.Printf("    %s ↳ Reason: %s%s\n", subPrefix, s.ErrorDetails, constants.ColorReset)
+	}
+	if s.RemediationHint != "" {
+		fmt.Printf("    %s ↳ Next Step: %s%s\n", subPrefix, s.RemediationHint, constants.ColorReset)
+	}
+}
+
+func resolveFleetItemConnectors(isLast bool) (string, string) {
+	if isLast {
+		return "└──", "   "
+	}
+
+	return "├──", "│  "
 }
 
 func resolveFleetStatesColWidth(states []fleetPullRepoItem) int {

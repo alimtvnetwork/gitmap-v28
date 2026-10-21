@@ -171,7 +171,7 @@ func renderUpdatedGroup(w io.Writer, colWidth int, updated []*PullRepoState, col
 		displayName := resolveRepoDisplayName(s, collisions)
 		fmt.Fprintln(w, FormatConciseActiveResultLine(colWidth, displayName, statusLabel))
 		if s.CommitRange != "" {
-			fmt.Fprintf(w, "        %s↳ Commits: %s%s\n", constants.ColorDim, s.CommitRange, constants.ColorReset)
+			fmt.Fprintf(w, "    %sCommits: %s%s%s\n", treeTerminal, constants.ColorDim, s.CommitRange, constants.ColorReset)
 		}
 	}
 }
@@ -205,10 +205,11 @@ func renderSingleDirtyItem(w io.Writer, colWidth int, s *PullRepoState, collisio
 }
 
 func maybeRenderDirtyFiles(w io.Writer, repoPath string) {
-	if repoPath != "" {
-		diag := gitutil.InspectDirtyState(repoPath)
-		renderItemizedDirtyFiles(w, diag)
+	if repoPath == "" {
+		return
 	}
+	diag := gitutil.InspectDirtyState(repoPath)
+	renderItemizedDirtyFiles(w, diag)
 }
 
 func renderDirtyReasonsAndOptions(w io.Writer, s *PullRepoState) {
@@ -216,24 +217,44 @@ func renderDirtyReasonsAndOptions(w io.Writer, s *PullRepoState) {
 	if errDetails != "" {
 		fmt.Fprintf(w, "    %sReason: %s%s%s\n", treeBranch, constants.ColorDim, errDetails, constants.ColorReset)
 	}
-	renderStructuredSolutionsSubtree(w, s)
+	renderStructuredSolutionsSubtreeWithTerminal(w, s, true)
 }
 
 func renderItemizedDirtyFiles(w io.Writer, diag gitutil.DirtyDiagnosis) {
-	for i, f := range diag.ModifiedFiles {
-		if i >= 5 {
-			fmt.Fprintf(w, "        %s... and %d more modified files%s\n", constants.ColorDim, len(diag.ModifiedFiles)-5, constants.ColorReset)
-			break
-		}
-		cleanFile := strings.ReplaceAll(filepath.ToSlash(f), "\\", "/")
-		fmt.Fprintf(w, "        %smodified: %s%s\n", constants.ColorDim, cleanFile, constants.ColorReset)
+	files := buildDirtyFileList(diag)
+	if len(files) == 0 {
+		return
 	}
-	for i, f := range diag.UntrackedFiles {
-		if i >= 5 {
-			fmt.Fprintf(w, "        %s... and %d more untracked files%s\n", constants.ColorDim, len(diag.UntrackedFiles)-5, constants.ColorReset)
-			break
+	fmt.Fprintf(w, "    %sUncommitted files (%d):\n", treeBranch, len(files))
+	renderDirtyFileEntries(w, files)
+}
+
+func renderDirtyFileEntries(w io.Writer, files []string) {
+	maxShow := min(len(files), 4)
+	for i := 0; i < maxShow; i++ {
+		connector := treeBranch
+		if i == maxShow-1 && len(files) <= 4 {
+			connector = treeTerminal
 		}
-		cleanFile := strings.ReplaceAll(filepath.ToSlash(f), "\\", "/")
-		fmt.Fprintf(w, "        %suntracked: %s%s\n", constants.ColorDim, cleanFile, constants.ColorReset)
+		fmt.Fprintf(w, "    %s%s%s%s%s\n",
+			treeContinuation, connector, constants.ColorDim, files[i], constants.ColorReset)
 	}
+	if len(files) > 4 {
+		fmt.Fprintf(w, "    %s%s%s... and %d more uncommitted file(s)%s\n",
+			treeContinuation, treeTerminal, constants.ColorDim, len(files)-4, constants.ColorReset)
+	}
+}
+
+func buildDirtyFileList(diag gitutil.DirtyDiagnosis) []string {
+	var list []string
+	for _, f := range diag.ModifiedFiles {
+		cleanFile := strings.ReplaceAll(filepath.ToSlash(f), "\\", "/")
+		list = append(list, "modified: "+cleanFile)
+	}
+	for _, f := range diag.UntrackedFiles {
+		cleanFile := strings.ReplaceAll(filepath.ToSlash(f), "\\", "/")
+		list = append(list, "untracked: "+cleanFile)
+	}
+
+	return list
 }

@@ -75,26 +75,49 @@ func resolveFallbackRepoTarget(s *PullRepoState) string {
 	if s.RepoPath != "" {
 		return filepath.Base(s.RepoPath)
 	}
+
 	return "all"
 }
 
 func renderStructuredSolutionsSubtree(w io.Writer, s *PullRepoState) {
+	renderStructuredSolutionsSubtreeWithTerminal(w, s, false)
+}
+
+func resolveDefaultOptions(s *PullRepoState) []RemediationOption {
 	structured := ResolveStructuredRemediation(s)
-	opts := structured.Options
-	if len(opts) == 0 {
-		repoTarget := resolveFallbackRepoTarget(s)
-		opts = []RemediationOption{
-			{OptionNumber: 1, Title: "Auto-Fix", Command: "gitmap fix " + repoTarget},
-			{OptionNumber: 2, Title: "Inspect Status", Command: "gitmap status " + repoTarget},
-		}
+	if len(structured.Options) > 0 {
+		return structured.Options
 	}
-	fmt.Fprintf(w, "    %sSolutions:\n", treeBranch)
+	repoTarget := resolveFallbackRepoTarget(s)
+
+	return []RemediationOption{
+		{OptionNumber: 1, Title: "Auto-Fix", Command: "gitmap fix " + repoTarget},
+		{OptionNumber: 2, Title: "Inspect Status", Command: "gitmap status " + repoTarget},
+	}
+}
+
+func resolveTreePrefixes(isTerminal bool) (string, string) {
+	if isTerminal {
+		return treeTerminal, treeIndent
+	}
+
+	return treeBranch, treeContinuation
+}
+
+func renderStructuredSolutionsSubtreeWithTerminal(w io.Writer, s *PullRepoState, isTerminal bool) {
+	opts := resolveDefaultOptions(s)
+	headConn, parentPrefix := resolveTreePrefixes(isTerminal)
+	fmt.Fprintf(w, "    %sSolutions:\n", headConn)
 	for i, opt := range opts {
-		renderSolutionOptionBranch(w, opt, i, len(opts))
+		renderSolutionOptionBranchWithParent(w, opt, i, len(opts), parentPrefix)
 	}
 }
 
 func renderSolutionOptionBranch(w io.Writer, opt RemediationOption, idx, total int) {
+	renderSolutionOptionBranchWithParent(w, opt, idx, total, treeContinuation)
+}
+
+func renderSolutionOptionBranchWithParent(w io.Writer, opt RemediationOption, idx, total int, parentPrefix string) {
 	isLast := idx == total-1
 	tier1Conn := treeBranch
 	tier2Prefix := treeContinuation
@@ -106,8 +129,8 @@ func renderSolutionOptionBranch(w io.Writer, opt RemediationOption, idx, total i
 	if optNum <= 0 {
 		optNum = idx + 1
 	}
-	fmt.Fprintf(w, "    %s%sOption %d (%s):\n", treeContinuation, tier1Conn, optNum, opt.Title)
+	fmt.Fprintf(w, "    %s%sOption %d (%s):\n", parentPrefix, tier1Conn, optNum, opt.Title)
 	fmt.Fprintf(w, "    %s%s%s%s%s%s\n",
-		treeContinuation, tier2Prefix, treeTerminal,
+		parentPrefix, tier2Prefix, treeTerminal,
 		constants.ColorYellow, opt.Command, constants.ColorReset)
 }
