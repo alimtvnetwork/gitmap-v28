@@ -224,6 +224,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `30-improvements` | [`30-improvements/01-find-100-improvements-in-ui-level.md`](../01-prompts/30-improvements/01-find-100-improvements-in-ui-level.md) | Find 100 Improvements in the UI Level |
 | `30-improvements` | [`30-improvements/02-find-100-improvements-in-code-base.md`](../01-prompts/30-improvements/02-find-100-improvements-in-code-base.md) | Find 100 Improvements in the Code Base |
 | `30-improvements` | [`30-improvements/03-find-100-improvements-in-whole-system.md`](../01-prompts/30-improvements/03-find-100-improvements-in-whole-system.md) | Find 100 Improvements in the Whole System |
+| `30-improvements` | [`30-improvements/04-detail-plans-and-improvements-for-review.md`](../01-prompts/30-improvements/04-detail-plans-and-improvements-for-review.md) | Detail Plans and Improvements for Review |
 | `30-improvements` | [`30-improvements/readme.md`](../01-prompts/30-improvements/readme.md) | Improvements Prompts (`30-improvements`) — Index & Catalog |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
 
