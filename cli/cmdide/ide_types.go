@@ -1,12 +1,15 @@
 package cmdide
 
-// IDE target name constants.
+// IDETargetType represents a supported IDE or editor target.
+type IDETargetType string
+
 const (
-	TargetVSCode      = "vscode"
-	TargetCursor      = "cursor"
-	TargetAntigravity = "antigravity"
-	TargetDesktop     = "desktop"
-	TargetAll         = "all"
+	TargetVSCode        IDETargetType = "vscode"
+	TargetCursor        IDETargetType = "cursor"
+	TargetAntigravity   IDETargetType = "antigravity"
+	TargetDesktop       IDETargetType = "desktop"
+	TargetAll           IDETargetType = "all"
+	TargetGitHubDesktop IDETargetType = "github-desktop"
 )
 
 // IDEOptions controls target selection and execution modes.
@@ -26,11 +29,11 @@ type IDEOptions struct {
 
 // IDESyncFailure records failure details for a repository synchronization attempt.
 type IDESyncFailure struct {
-	Target   string `json:"target"`
-	RepoName string `json:"repoName"`
-	RepoPath string `json:"repoPath"`
-	Reason   string `json:"reason"`
-	Output   string `json:"output,omitempty"`
+	Target   IDETargetType `json:"target"`
+	RepoName string        `json:"repoName"`
+	RepoPath string        `json:"repoPath"`
+	Reason   string        `json:"reason"`
+	Output   string        `json:"output,omitempty"`
 }
 
 // IDESyncSummary captures registration results across all editors.

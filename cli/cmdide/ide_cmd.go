@@ -11,6 +11,7 @@ func RunIDE(args []string) error {
 	if len(args) == 0 {
 		return RunHelp()
 	}
+
 	return dispatchSubcommand(args[0], args[1:])
 }
 
@@ -47,6 +48,7 @@ func parseIDEOptions(args []string) (IDEOptions, []string) {
 		}
 		remaining = append(remaining, args[i])
 	}
+
 	return opts, remaining
 }
 
@@ -65,18 +67,22 @@ func checkValueFlags(opts *IDEOptions, args []string, idx int) (int, bool) {
 	}
 	if arg == "-t" || arg == "--target" || arg == "-i" || arg == "--ide" {
 		applyTargetFilter(opts, args[idx+1])
+
 		return 1, true
 	}
 	if arg == "-e" || arg == "--exclude" || arg == "--skip-sync" || arg == "--exclude-sync" {
 		applyExcludeFilter(opts, args[idx+1])
+
 		return 1, true
 	}
 	if arg == "-d" || arg == "--dir" {
 		opts.TargetDirectory = args[idx+1]
+
 		return 1, true
 	}
 	if arg == "--name" {
 		opts.Name = args[idx+1]
+
 		return 1, true
 	}
 
@@ -104,18 +110,20 @@ func checkBoolFlags(opts *IDEOptions, arg string) (int, bool) {
 
 func applyTargetFilter(opts *IDEOptions, target string) {
 	low := strings.ToLower(target)
-	if low != TargetAll {
-		opts.IsVSCodeTargeted = strings.Contains(low, TargetVSCode) || strings.Contains(low, "code")
-		opts.IsCursorTargeted = strings.Contains(low, TargetCursor)
-		opts.IsAntigravityTargeted = strings.Contains(low, TargetAntigravity) || strings.Contains(low, "agy")
-		opts.IsDesktopTargeted = strings.Contains(low, TargetDesktop)
+	if low == string(TargetAll) {
+		return
 	}
+
+	opts.IsVSCodeTargeted = strings.Contains(low, string(TargetVSCode)) || strings.Contains(low, "code")
+	opts.IsCursorTargeted = strings.Contains(low, string(TargetCursor))
+	opts.IsAntigravityTargeted = strings.Contains(low, string(TargetAntigravity)) || strings.Contains(low, "agy")
+	opts.IsDesktopTargeted = strings.Contains(low, string(TargetDesktop))
 }
 
 func applyExcludeFilter(opts *IDEOptions, excluded string) {
 	low := strings.ToLower(excluded)
-	opts.IsVSCodeTargeted = opts.IsVSCodeTargeted && !strings.Contains(low, TargetVSCode) && !strings.Contains(low, "code")
-	opts.IsCursorTargeted = opts.IsCursorTargeted && !strings.Contains(low, TargetCursor)
-	opts.IsAntigravityTargeted = opts.IsAntigravityTargeted && !strings.Contains(low, TargetAntigravity) && !strings.Contains(low, "agy")
-	opts.IsDesktopTargeted = opts.IsDesktopTargeted && !strings.Contains(low, TargetDesktop)
+	opts.IsVSCodeTargeted = opts.IsVSCodeTargeted && !strings.Contains(low, string(TargetVSCode)) && !strings.Contains(low, "code")
+	opts.IsCursorTargeted = opts.IsCursorTargeted && !strings.Contains(low, string(TargetCursor))
+	opts.IsAntigravityTargeted = opts.IsAntigravityTargeted && !strings.Contains(low, string(TargetAntigravity)) && !strings.Contains(low, "agy")
+	opts.IsDesktopTargeted = opts.IsDesktopTargeted && !strings.Contains(low, string(TargetDesktop))
 }

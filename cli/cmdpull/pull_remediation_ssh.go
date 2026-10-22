@@ -97,7 +97,7 @@ func hasSSHRepoOwner(repos []model.ScanRecord, owner string) bool {
 func remediateCredentialAndConvertToSSH(repoPath, repoName string) {
 	storeType := gitutil.ResolveWindowsCredentialStore()
 	_ = exec.Command("git", "config", "--global", "credential.helper", "manager").Run()
-	_ = exec.Command("git", "config", "--global", "credential.credentialStore", storeType).Run()
+	_ = exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType)).Run()
 	applySSHTransportRemediation(repoPath)
 }
 
@@ -119,8 +119,8 @@ func updateRepoTransportInDB(repoPath, sshURL string) {
 
 	defer db.Close()
 	_, _ = db.Conn().Exec(
-		`UPDATE Repo SET SshUrl = ?, DiscoveredUrl = ?, IdentifiedTransport = 'ssh' WHERE AbsolutePath = ?`,
-		sshURL, sshURL, repoPath,
+		`UPDATE Repo SET SshUrl = ?, DiscoveredUrl = ?, IdentifiedTransport = ? WHERE AbsolutePath = ?`,
+		sshURL, sshURL, constants.TransportSSH, repoPath,
 	)
 }
 

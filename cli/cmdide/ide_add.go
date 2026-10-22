@@ -21,12 +21,15 @@ func runIDEAdd(args []string) error {
 	if len(remaining) == 0 {
 		return apperror.NewValidation("cmdide.runIDEAdd", "E1000", "missing repository path to add")
 	}
+
 	absPath, err := validateRepoPath(remaining[0])
 	if err != nil {
 		return err
 	}
+
 	res := addRepoToIDEs(absPath, opts)
 	printActionResult(res, opts.IsJSON, opts.IsQuiet)
+
 	return nil
 }
 
@@ -35,11 +38,13 @@ func validateRepoPath(rawPath string) (string, error) {
 	if err != nil {
 		return "", apperror.WrapSimple(err, "cmdide.validateRepoPath: abs path")
 	}
+
 	gitPath := filepath.Join(abs, ".git")
 	info, statErr := os.Stat(gitPath)
 	if statErr != nil || (!info.IsDir() && !strings.HasSuffix(rawPath, ".git")) {
 		return "", apperror.NewValidation("cmdide.validateRepoPath", "E1000", "path is not a git repository: "+rawPath)
 	}
+
 	return abs, nil
 }
 
@@ -47,6 +52,7 @@ func addRepoToIDEs(absPath string, opts IDEOptions) IDEActionResult {
 	res := IDEActionResult{Path: absPath, Action: "add"}
 	addVSCodeAndCursor(absPath, opts, &res)
 	addAntigravityAndDesktop(absPath, opts, &res)
+
 	return res
 }
 
@@ -57,6 +63,7 @@ func performIDEAddAction(isTargeted, isDryRun bool, applyFn func() bool) bool {
 	if isDryRun {
 		return true
 	}
+
 	return applyFn()
 }
 
@@ -132,18 +139,22 @@ func executeDesktopAdd(absPath string, res *IDEActionResult) {
 	initErrorDetails(res)
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		res.ErrorDetails["desktop"] = "GitHub Desktop CLI not found"
+		res.ErrorDetails[string(TargetDesktop)] = "GitHub Desktop CLI not found"
 		res.HasErrors = true
+
 		return
 	}
+
 	output, err := exec.Command(cli, "open", absPath).CombinedOutput()
 	if err == nil {
 		res.IsDesktopAffected = true
+
 		return
 	}
+
 	res.IsDesktopAffected = false
 	res.HasErrors = true
-	res.ErrorDetails["desktop"] = formatDesktopError(err, output)
+	res.ErrorDetails[string(TargetDesktop)] = formatDesktopError(err, output)
 }
 
 func initErrorDetails(res *IDEActionResult) {
@@ -157,6 +168,7 @@ func formatDesktopError(err error, output []byte) string {
 	if trimmed != "" {
 		return err.Error() + ": " + trimmed
 	}
+
 	return err.Error()
 }
 
@@ -164,6 +176,7 @@ func titleWord(s string) string {
 	if s == "" {
 		return ""
 	}
+
 	return strings.ToUpper(s[:1]) + strings.ToLower(s[1:])
 }
 
@@ -171,20 +184,22 @@ func printActionResult(res IDEActionResult, isJSON, isQuiet bool) {
 	if isJSON {
 		b, _ := json.MarshalIndent(res, "", "  ")
 		fmt.Println(string(b))
+
 		return
 	}
 	if isQuiet {
 		return
 	}
+
 	printActionSummaryLines(res)
 }
 
 func printActionSummaryLines(res IDEActionResult) {
 	fmt.Printf("%s✔ IDE %s completed for:%s %s\n", constants.ColorGreen, titleWord(res.Action), constants.ColorReset, res.Path)
-	fmt.Printf("  • VS Code:     %s\n", formatIDEStatus(res.IsVSCodeAffected, "vscode", res.ErrorDetails))
-	fmt.Printf("  • Cursor:      %s\n", formatIDEStatus(res.IsCursorAffected, "cursor", res.ErrorDetails))
-	fmt.Printf("  • Antigravity: %s\n", formatIDEStatus(res.IsAntigravityAffected, "antigravity", res.ErrorDetails))
-	fmt.Printf("  • Desktop:     %s\n", formatIDEStatus(res.IsDesktopAffected, "desktop", res.ErrorDetails))
+	fmt.Printf("  • VS Code:     %s\n", formatIDEStatus(res.IsVSCodeAffected, string(TargetVSCode), res.ErrorDetails))
+	fmt.Printf("  • Cursor:      %s\n", formatIDEStatus(res.IsCursorAffected, string(TargetCursor), res.ErrorDetails))
+	fmt.Printf("  • Antigravity: %s\n", formatIDEStatus(res.IsAntigravityAffected, string(TargetAntigravity), res.ErrorDetails))
+	fmt.Printf("  • Desktop:     %s\n", formatIDEStatus(res.IsDesktopAffected, string(TargetDesktop), res.ErrorDetails))
 	tokens := formatRegisteredTokens(res)
 	if tokens != "" {
 		fmt.Printf("\nREGISTERED:%s\n", tokens)
@@ -194,16 +209,16 @@ func printActionSummaryLines(res IDEActionResult) {
 func formatRegisteredTokens(res IDEActionResult) string {
 	var tokens []string
 	if res.IsVSCodeAffected {
-		tokens = append(tokens, "vscode")
+		tokens = append(tokens, string(TargetVSCode))
 	}
 	if res.IsCursorAffected {
-		tokens = append(tokens, "cursor")
+		tokens = append(tokens, string(TargetCursor))
 	}
 	if res.IsAntigravityAffected {
-		tokens = append(tokens, "antigravity")
+		tokens = append(tokens, string(TargetAntigravity))
 	}
 	if res.IsDesktopAffected {
-		tokens = append(tokens, "github-desktop")
+		tokens = append(tokens, string(TargetGitHubDesktop))
 	}
 
 	return strings.Join(tokens, ",")
@@ -216,5 +231,6 @@ func formatIDEStatus(isAffected bool, key string, errDetails map[string]string) 
 	if errMsg, hasErr := errDetails[key]; hasErr && errMsg != "" {
 		return constants.ColorRed + "✗ failed (" + errMsg + ")" + constants.ColorReset
 	}
+
 	return constants.ColorDim + "— skipped" + constants.ColorReset
 }

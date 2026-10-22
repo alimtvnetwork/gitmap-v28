@@ -23,6 +23,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/uuidutil"
 )
 
+const (
+	PrefixRegistered          = "REGISTERED:"
+	TokenVSCode               = "vscode"
+	TokenCursor               = "cursor"
+	TokenAntigravity          = "antigravity"
+	TokenDesktop              = "github-desktop"
+	RegisteredHeaderAll       = PrefixRegistered + TokenVSCode + "," + TokenCursor + "," + TokenAntigravity + "," + TokenDesktop
+	RegisteredHeaderNoDesktop = PrefixRegistered + TokenVSCode + "," + TokenCursor + "," + TokenAntigravity
+)
+
 const windowsProjectsScript = `$tags = @("gitmap")
 if ($withPinned) {
   $tags += "pinned"
@@ -131,9 +141,9 @@ if (Get-Command github -ErrorAction SilentlyContinue) {
   } catch {}
 }
 if ($hasGh) {
-  Write-Output "REGISTERED:vscode,cursor,antigravity,github-desktop"
+  Write-Output "` + RegisteredHeaderAll + `"
 } else {
-  Write-Output "REGISTERED:vscode,cursor,antigravity"
+  Write-Output "` + RegisteredHeaderNoDesktop + `"
 }
 `
 
@@ -170,16 +180,16 @@ func parseRegisteredIDEs(output string) []string {
 	lines := strings.Split(output, "\n")
 	for _, l := range lines {
 		trimmed := strings.TrimSpace(l)
-		if strings.HasPrefix(trimmed, "REGISTERED:") {
+		if strings.HasPrefix(trimmed, PrefixRegistered) {
 			return extractRegisteredTokens(trimmed)
 		}
 	}
 
-	return []string{"vscode", "cursor", "antigravity"}
+	return []string{TokenVSCode, TokenCursor, TokenAntigravity}
 }
 
 func extractRegisteredTokens(line string) []string {
-	raw := strings.TrimPrefix(line, "REGISTERED:")
+	raw := strings.TrimPrefix(line, PrefixRegistered)
 	parts := strings.Split(raw, ",")
 	var res []string
 	for _, p := range parts {
@@ -279,7 +289,7 @@ func buildLinuxFallbackScript(repoName, remoteRepoPath string) string {
 	cleanPath := filepath.ToSlash(strings.TrimSpace(remoteRepoPath))
 	fileURI := formatUnixFileURI(cleanPath)
 
-	return fmt.Sprintf("mkdir -p ~/.gemini/config/projects && printf '{\"id\":\"%s\",\"name\":\"%s\",\"projectResources\":{\"resources\":[{\"gitFolder\":{\"folderUri\":\"%s\",\"defaultBranch\":\"main\"}}]},\"settings\":{},\"isWorkspaceOnly\":false}' > ~/.gemini/config/projects/%s.json && echo REGISTERED:antigravity",
+	return fmt.Sprintf("mkdir -p ~/.gemini/config/projects && printf '{\"id\":\"%s\",\"name\":\"%s\",\"projectResources\":{\"resources\":[{\"gitFolder\":{\"folderUri\":\"%s\",\"defaultBranch\":\"main\"}}]},\"settings\":{},\"isWorkspaceOnly\":false}' > ~/.gemini/config/projects/%s.json && echo "+PrefixRegistered+TokenAntigravity,
 		uuidStr, repoName, fileURI, uuidStr)
 }
 

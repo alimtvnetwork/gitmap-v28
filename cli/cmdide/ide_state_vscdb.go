@@ -15,6 +15,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/uuidutil"
 )
 
+const (
+	TableItemTable             = "ItemTable"
+	KeyRecentlyOpenedPathsList = "history.recentlyOpenedPathsList"
+	DriverSQLite               = "sqlite"
+	QueryInitItemTable         = "CREATE TABLE IF NOT EXISTS " + TableItemTable + " (key TEXT PRIMARY KEY, value TEXT);"
+	QuerySelectRecentPaths     = "SELECT value FROM " + TableItemTable + " WHERE key = '" + KeyRecentlyOpenedPathsList + "'"
+	QueryUpsertRecentPaths     = "INSERT OR REPLACE INTO " + TableItemTable + " (key, value) VALUES ('" + KeyRecentlyOpenedPathsList + "', ?)"
+)
+
 // VSCodeRecentEntry represents a single item in history.recentlyOpenedPathsList.
 type VSCodeRecentEntry struct {
 	FolderURI string `json:"folderUri,omitempty"`
@@ -88,7 +97,7 @@ func openVscdb(dbPath string) (*sql.DB, error) {
 		return nil, errDir
 	}
 
-	conn, errOpen := sql.Open("sqlite", dbPath)
+	conn, errOpen := sql.Open(DriverSQLite, dbPath)
 	if errOpen != nil {
 		return nil, apperror.WrapSimple(errOpen, "openVscdb: sql.Open failed")
 	}
@@ -97,8 +106,7 @@ func openVscdb(dbPath string) (*sql.DB, error) {
 }
 
 func initItemTable(conn *sql.DB) error {
-	schema := "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT);"
-	if _, err := conn.Exec(schema); err != nil {
+	if _, err := conn.Exec(QueryInitItemTable); err != nil {
 		return apperror.WrapSimple(err, "initItemTable: create table failed")
 	}
 
@@ -107,7 +115,7 @@ func initItemTable(conn *sql.DB) error {
 
 func readRecentRawJSON(conn *sql.DB) string {
 	var raw string
-	row := conn.QueryRow("SELECT value FROM ItemTable WHERE key = 'history.recentlyOpenedPathsList'")
+	row := conn.QueryRow(QuerySelectRecentPaths)
 	if row.Scan(&raw) != nil {
 		return ""
 	}
@@ -157,8 +165,7 @@ func saveRecentEntries(conn *sql.DB, entries []VSCodeRecentEntry) error {
 		return apperror.WrapSimple(errJSON, "saveRecentEntries: json marshal")
 	}
 
-	query := "INSERT OR REPLACE INTO ItemTable (key, value) VALUES ('history.recentlyOpenedPathsList', ?)"
-	if _, errExec := conn.Exec(query, string(bytes)); errExec != nil {
+	if _, errExec := conn.Exec(QueryUpsertRecentPaths, string(bytes)); errExec != nil {
 		return apperror.WrapSimple(errExec, "saveRecentEntries: sql exec failed")
 	}
 
@@ -201,11 +208,11 @@ func AddRecentWorkspaceToAllStateVscdb(folderURI, label string) []string {
 
 func resolveEditorNameFromPath(p string) string {
 	lower := strings.ToLower(filepath.ToSlash(p))
-	if strings.Contains(lower, "cursor") {
-		return "cursor"
+	if strings.Contains(lower, string(TargetCursor)) {
+		return string(TargetCursor)
 	}
 
-	return "vscode"
+	return string(TargetVSCode)
 }
 
 // UpdateStateVscdbForVSCode updates history.recentlyOpenedPathsList in all VS Code state.vscdb databases.
@@ -230,7 +237,7 @@ func UpdateStateVscdbForCursor(folderURI, label string) error {
 	paths := ResolveStateVscdbPaths()
 	var lastErr error
 	for _, p := range paths {
-		if !strings.Contains(strings.ToLower(filepath.ToSlash(p)), "cursor") {
+		if !strings.Contains(strings.ToLower(filepath.ToSlash(p)), string(TargetCursor)) {
 			continue
 		}
 

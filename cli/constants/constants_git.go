@@ -63,6 +63,7 @@ const (
 
 // SSH environment and option constants used by git clone wrappers.
 const (
+	TransportSSH              = "ssh"
 	EnvGitSSHCommand          = "GIT_SSH_COMMAND"
 	SSHOptionFlag             = "-o"
 	SSHStrictHostKeyChecking  = "StrictHostKeyChecking"
@@ -112,3 +113,25 @@ const (
 var GitStderrNoisePatterns = []string{
 	"LF will be replaced by CRLF the next time Git touches it",
 }
+
+// CredentialStoreType represents the storage backend for Git credentials.
+type CredentialStoreType string
+
+const (
+	CredentialStoreDPAPI      CredentialStoreType = "dpapi"
+	CredentialStoreWinCredMan CredentialStoreType = "wincredman"
+	CredentialStoreCache      CredentialStoreType = "cache"
+)
+
+// Git credential store environment variables and headless SSH flags.
+const (
+	EnvGitMapHeadlessSSH       = "GITMAP_HEADLESS_SSH"
+	EnvSSHConnection           = "SSH_CONNECTION"
+	EnvSSHClient               = "SSH_CLIENT"
+	EnvSSHTTY                  = "SSH_TTY"
+	EnvGCMCredentialStoreDPAPI = "GCM_CREDENTIAL_STORE=dpapi"
+	EnvGCMCredentialStoreWinCM = "GCM_CREDENTIAL_STORE=wincredman"
+	EnvGCMCredentialStoreCache = "GCM_CREDENTIAL_STORE=cache"
+	EnvGCMNoPersistOne         = "GCM_NO_PERSIST=1"
+	EnvValueOne                = "1"
+)

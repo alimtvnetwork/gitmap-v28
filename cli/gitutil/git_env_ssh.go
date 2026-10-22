@@ -4,11 +4,12 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // isHeadlessSSHSession checks whether execution is running inside a headless SSH session.
 func isHeadlessSSHSession() bool {
-	if os.Getenv("GITMAP_HEADLESS_SSH") == "1" {
+	if os.Getenv(constants.EnvGitMapHeadlessSSH) == constants.EnvValueOne {
 		return true
 	}
 
@@ -21,18 +22,18 @@ func isHeadlessSSHSession() bool {
 
 // hasSSHSessionEnv inspects SSH environment variables indicating a remote SSH session.
 func hasSSHSessionEnv() bool {
-	if os.Getenv("SSH_CONNECTION") != "" || os.Getenv("SSH_CLIENT") != "" {
+	if os.Getenv(constants.EnvSSHConnection) != "" || os.Getenv(constants.EnvSSHClient) != "" {
 		return true
 	}
 
-	return os.Getenv("SSH_TTY") != ""
+	return os.Getenv(constants.EnvSSHTTY) != ""
 }
 
 // ResolveWindowsCredentialStore returns dpapi in headless SSH sessions and wincredman in interactive sessions.
-func ResolveWindowsCredentialStore() string {
+func ResolveWindowsCredentialStore() constants.CredentialStoreType {
 	if isHeadlessSSHSession() {
-		return "dpapi"
+		return constants.CredentialStoreDPAPI
 	}
 
-	return "wincredman"
+	return constants.CredentialStoreWinCredMan
 }

@@ -11,14 +11,14 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
-func resolveTargetCredentialStore(args []string) string {
+func resolveTargetCredentialStore(args []string) constants.CredentialStoreType {
 	for _, arg := range args {
 		if arg == "--dpapi" {
-			return "dpapi"
+			return constants.CredentialStoreDPAPI
 		}
 
 		if arg == "--wincredman" {
-			return "wincredman"
+			return constants.CredentialStoreWinCredMan
 		}
 	}
 
@@ -41,12 +41,12 @@ func setCredentialManagerHelper() *apperror.AppError {
 	return nil
 }
 
-func applyCredentialStoreType(storeType string) {
-	_ = exec.Command("git", "config", "--global", "credential.credentialStore", storeType).Run()
+func applyCredentialStoreType(storeType constants.CredentialStoreType) {
+	_ = exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType)).Run()
 }
 
-func printFixCredentialSuccess(storeType string) {
-	fmt.Printf(constants.ColorGreen+"✔ Git credential helper successfully updated to 'manager' (credentialStore: %s).\n"+constants.ColorReset, storeType)
+func printFixCredentialSuccess(storeType constants.CredentialStoreType) {
+	fmt.Printf(constants.ColorGreen+"✔ Git credential helper successfully updated to 'manager' (credentialStore: %s).\n"+constants.ColorReset, string(storeType))
 	fmt.Println("  The 'cache' and 'wincredman' credential store issues on Windows are now resolved.")
 }
 

@@ -16,14 +16,14 @@ func BuildSafeGitEnv(extra ...string) []string {
 // AppendGitCredentialEnv appends safe credential store environment variables for Git subprocesses.
 func AppendGitCredentialEnv(env []string) []string {
 	if runtime.GOOS != constants.PlatformWindows {
-		return append(env, "GCM_CREDENTIAL_STORE=cache")
+		return append(env, constants.EnvGCMCredentialStoreCache)
 	}
 
 	if isHeadlessSSHSession() {
-		return append(env, "GCM_CREDENTIAL_STORE=dpapi", "GCM_NO_PERSIST=1")
+		return append(env, constants.EnvGCMCredentialStoreDPAPI, constants.EnvGCMNoPersistOne)
 	}
 
-	return append(env, "GCM_CREDENTIAL_STORE=wincredman")
+	return append(env, constants.EnvGCMCredentialStoreWinCM)
 }
 
 func defaultSafeGitVars() []string {
@@ -32,7 +32,7 @@ func defaultSafeGitVars() []string {
 		constants.EnvGitAskpassEmpty,
 		constants.EnvSSHAskpassEmpty,
 		constants.EnvGCMInteractiveNever,
-		"GCM_NO_PERSIST=1",
+		constants.EnvGCMNoPersistOne,
 	}
 }
 
