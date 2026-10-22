@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/envutil"
 )
 
 // ResolveWorkdir determines the target working directory from flags or default repo path.
@@ -15,20 +16,23 @@ func ResolveWorkdir(flagVal string) string {
 		return clean
 	}
 
-	if envVal := strings.TrimSpace(os.Getenv("GITMAP_WORKDIR")); envVal != "" {
+	envVal := envutil.GetTrimmed(constants.EnvWorkdir)
+	if envVal != "" {
 		return envVal
 	}
 
 	return fallbackWorkdir()
 }
 
+// fallbackWorkdir resolves the default workspace repository folder (<UserHomeDir>/workspace/repos, e.g. ~/workspace/repos).
+// If the user's home directory resolution fails, it falls back to constants.DefaultDir (".").
 func fallbackWorkdir() string {
 	home, homeErr := os.UserHomeDir()
 	if homeErr != nil {
-		return "."
+		return constants.DefaultDir
 	}
 
-	return filepath.Join(home, "workspace", "repos")
+	return filepath.Join(home, constants.DefaultWorkdirWorkspace, constants.DefaultWorkdirRepos)
 }
 
 // IsGitRepoDir checks whether a directory contains a .git metadata entry.

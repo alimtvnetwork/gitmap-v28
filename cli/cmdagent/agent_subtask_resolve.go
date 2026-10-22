@@ -1,6 +1,7 @@
 package cmdagent
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -14,29 +15,38 @@ import (
 
 var slugSeparatorRuns = regexp.MustCompile(`[-_\s]+`)
 
-// ResolveSubtaskIdentifier resolves an identifier, code, or slug to a canonical SubtaskId.
-func ResolveSubtaskIdentifier(dbPath, identifier, code, slug string) (string, error) {
-	cleanId := strings.TrimSpace(identifier)
-	cleanCode := strings.TrimSpace(code)
-	cleanSlug := strings.TrimSpace(slug)
-
-	if cleanId == "" && cleanCode == "" && cleanSlug == "" {
-		return "", fmt.Errorf("subtask identifier, code, or slug is required")
+func validateSubtaskIdentifierParams(id, code, slug string) (string, string, string, error) {
+	cleanId, cleanCode, cleanSlug := strings.TrimSpace(id), strings.TrimSpace(code), strings.TrimSpace(slug)
+	hasAny := cleanId != "" || cleanCode != "" || cleanSlug != ""
+	if !hasAny {
+		return "", "", "", fmt.Errorf("subtask identifier, code, or slug is required")
 	}
 
+	return cleanId, cleanCode, cleanSlug, nil
+}
+
+// ResolveSubtaskIdentifier resolves an identifier, code, or slug to a canonical SubtaskId.
+func ResolveSubtaskIdentifier(dbPath, identifier, code, slug string) (string, error) {
+	cleanId, cleanCode, cleanSlug, valErr := validateSubtaskIdentifierParams(identifier, code, slug)
+	if valErr != nil {
+		return "", valErr
+	}
 	conn, openErr := store.OpenSQLiteDB(dbPath)
 	if openErr != nil {
 		return "", fmt.Errorf("open subtask database at %s: %w", dbPath, openErr)
 	}
 	defer conn.Close()
 
-	targetId, targetCode, targetSlug := resolveLookupParams(cleanId, cleanCode, cleanSlug)
-	query := "SELECT SubtaskId, TaskCode, TaskSlug FROM Subtask WHERE SubtaskId = ? OR TaskCode = ? COLLATE NOCASE OR TaskSlug = ? COLLATE NOCASE LIMIT 1"
+	return querySubtaskCanonicalId(conn, dbPath, cleanId, cleanCode, cleanSlug)
+}
 
-	var canonicalId, foundCode, foundSlug string
-	err := conn.QueryRow(query, targetId, targetCode, targetSlug).Scan(&canonicalId, &foundCode, &foundSlug)
+func querySubtaskCanonicalId(conn *sql.DB, dbPath, id, code, slug string) (string, error) {
+	targetId, targetCode, targetSlug := resolveLookupParams(id, code, slug)
+	query := "SELECT SubtaskId FROM Subtask WHERE SubtaskId = ? OR TaskCode = ? COLLATE NOCASE OR TaskSlug = ? COLLATE NOCASE LIMIT 1"
+	var canonicalId string
+	err := conn.QueryRow(query, targetId, targetCode, targetSlug).Scan(&canonicalId)
 	if err != nil {
-		disp := chooseDisplayRef(cleanId, cleanCode, cleanSlug)
+		disp := chooseDisplayRef(id, code, slug)
 		return "", fmt.Errorf("subtask '%s' not found in %s", disp, dbPath)
 	}
 
@@ -45,6 +55,7 @@ func ResolveSubtaskIdentifier(dbPath, identifier, code, slug string) (string, er
 
 func resolveLookupParams(id, code, slug string) (string, string, string) {
 	fallback := chooseDisplayRef(id, code, slug)
+
 	return pickParam(id, fallback), pickParam(code, fallback), pickParam(slug, fallback)
 }
 
@@ -52,6 +63,7 @@ func pickParam(val, fallback string) string {
 	if val != "" {
 		return val
 	}
+
 	return fallback
 }
 
@@ -62,16 +74,17 @@ func chooseDisplayRef(id, code, slug string) string {
 	if code != "" {
 		return code
 	}
+
 	return slug
 }
 
 // resolveSubtaskParent resolves the parent reference to its Tier 2 DB path and canonical task ID.
 func resolveSubtaskParent(parentId string) (string, string, *appfault.AppError) {
 	trimmed := strings.TrimSpace(parentId)
-	if path, taskID, ok := resolveParentSlugMatch(trimmed); ok {
+	path, taskID, hasMatch := resolveParentSlugMatch(trimmed)
+	if hasMatch {
 		return path, taskID, nil
 	}
-
 	dbPath, findErr := store.FindTaskDbPath("", parentId)
 	if findErr != nil {
 		return "", "", findErr
@@ -84,7 +97,6 @@ func resolveParentSlugMatch(trimmed string) (string, string, bool) {
 	if len(trimmed) == 0 {
 		return "", "", false
 	}
-
 	masterDb := store.ResolveMasterAgentDbPath("")
 	task, slugErr := store.FindParentTaskBySlug(masterDb, trimmed)
 	if slugErr == nil && task != nil {
@@ -100,7 +112,6 @@ func claimSubtaskBothForms(dbPath, canonicalId, rawTaskId, agentRole string) (*t
 	if claimErr != nil || sub != nil {
 		return sub, claimErr
 	}
-
 	slugForm := store.SanitizeSlug(rawTaskId)
 	if slugForm == canonicalId || len(strings.TrimSpace(rawTaskId)) == 0 {
 		return nil, nil
@@ -115,7 +126,6 @@ func listSubtasksBothForms(dbPath, canonicalId, rawTaskId string) ([]types.Subta
 	if idErr != nil {
 		return nil, idErr
 	}
-
 	subtasks := resolveScopedOrAllSubtasks(dbPath, canonicalId, rawTaskId, byId)
 	if len(subtasks) == 0 {
 		all, _ := store.ListSubtasks(dbPath, "")
@@ -131,7 +141,6 @@ func resolveScopedOrAllSubtasks(dbPath, canonicalId, rawTaskId string, byId []ty
 	if slugForm == canonicalId || len(strings.TrimSpace(rawTaskId)) == 0 {
 		return byId
 	}
-
 	bySlug, slugErr := store.ListSubtasks(dbPath, slugForm)
 	if slugErr != nil {
 		return byId
@@ -167,7 +176,6 @@ func resolveSubtaskSlug(explicit, flagSlug, parentSlug, code string) string {
 	if len(strings.TrimSpace(explicit)) > 0 {
 		return sanitizeSlugTight(explicit)
 	}
-
 	base := sanitizeSlugTight(parentSlug)
 	cleanCode := store.SanitizeSlug(code)
 	if len(base) == 0 {
@@ -187,7 +195,6 @@ func resolveParentSlugForSubtasks(parentId string) string {
 	if len(strings.TrimSpace(parentId)) == 0 {
 		return ""
 	}
-
 	masterDb := store.ResolveMasterAgentDbPath("")
 	task, findErr := store.FindParentTaskBySlug(masterDb, parentId)
 	if findErr != nil || task == nil {
@@ -264,12 +271,16 @@ func generateSubtaskId(code string) string {
 	return fmt.Sprintf("sub-%s-%s", ts, cleanCode)
 }
 
-func buildSingleSubtaskFromFlags(opts SubtaskAddOptions) []types.Subtask {
-	code := opts.TaskCode
+func resolveSubtaskCode(code string) string {
 	if len(code) == 0 {
-		code = "task"
+		return "task"
 	}
 
+	return code
+}
+
+func buildSingleSubtaskFromFlags(opts SubtaskAddOptions) []types.Subtask {
+	code := resolveSubtaskCode(opts.TaskCode)
 	sub := types.Subtask{
 		SubtaskId:      generateSubtaskId(code),
 		ParentTaskId:   opts.ParentId,
@@ -280,30 +291,4 @@ func buildSingleSubtaskFromFlags(opts SubtaskAddOptions) []types.Subtask {
 	}
 
 	return []types.Subtask{sub}
-}
-
-func renderSubtasksJson(subtasks []types.Subtask) *appfault.AppError {
-	b, err := json.MarshalIndent(subtasks, "", "  ")
-	if err != nil {
-		return appfault.WrapSimple(err, "renderSubtasksJson")
-	}
-	fmt.Println(string(b))
-
-	return nil
-}
-
-func renderSubtasksTable(subtasks []types.Subtask) {
-	if len(subtasks) == 0 {
-		fmt.Println("No subtasks found.")
-		return
-	}
-
-	fmt.Printf("%-24s  %-14s  %-12s  %-15s  %s\n", "SUBTASK ID", "CODE", "STATUS", "AGENT", "TITLE")
-	for _, s := range subtasks {
-		agent := s.AssignedAgentRole
-		if len(agent) == 0 {
-			agent = "-"
-		}
-		fmt.Printf("%-24s  %-14s  %-12s  %-15s  %s\n", s.SubtaskId, s.TaskCode, s.Status, agent, s.Title)
-	}
 }

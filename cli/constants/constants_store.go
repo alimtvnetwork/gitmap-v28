@@ -183,6 +183,12 @@ const (
 
 	SQLSelectAllRepos = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo ORDER BY Slug"
 
+	SQLSelectReposByBranch  = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Branch = ? COLLATE NOCASE ORDER BY Slug ASC"
+	SQLSelectDirtyRepos     = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Notes LIKE '%dirty%' OR RepoName IN (SELECT RepoSlug FROM HeatmapLocalTracking WHERE IsDirty = 1) ORDER BY Slug ASC"
+	SQLSelectReposByTag     = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Notes LIKE ? COLLATE NOCASE ORDER BY Slug ASC"
+	SQLSelectUnpushedRepos  = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE (Notes LIKE '%unpushed%' OR Notes LIKE '%ahead%') OR RepoName IN (SELECT RepoSlug FROM HeatmapLocalTracking WHERE IsDirty = 1) ORDER BY Slug ASC"
+	SQLSelectRepoPathBySlug = "SELECT AbsolutePath FROM Repo WHERE Slug = ? OR Slug = ? LIMIT 1"
+
 	SQLSelectRepoByID   = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE RepoId = ?"
 	SQLSelectRepoBySlug = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Slug = ?"
 

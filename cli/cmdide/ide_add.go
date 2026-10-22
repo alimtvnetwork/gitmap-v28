@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcursor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
@@ -22,7 +23,11 @@ func runIDEAdd(args []string) error {
 		return apperror.NewValidation("cmdide.runIDEAdd", "E1000", "missing repository path to add")
 	}
 
-	absPath, err := validateRepoPath(remaining[0])
+	return executeIDEAdd(remaining[0], opts)
+}
+
+func executeIDEAdd(rawPath string, opts IDEOptions) error {
+	absPath, err := validateRepoPath(rawPath)
 	if err != nil {
 		return err
 	}
@@ -70,7 +75,12 @@ func performIDEAddAction(isTargeted, isDryRun bool, applyFn func() bool) bool {
 func addVSCodeAndCursor(absPath string, opts IDEOptions, res *IDEActionResult) {
 	name := resolveRepoDisplayName(absPath, opts.Name)
 	folderURI := formatFolderURI(absPath)
-	res.IsVSCodeAffected = performIDEAddAction(opts.IsVSCodeTargeted, opts.IsDryRun, func() bool {
+	res.IsVSCodeAffected = addVSCodeAction(absPath, name, folderURI, opts)
+	res.IsCursorAffected = addCursorAction(absPath, name, folderURI, opts)
+}
+
+func addVSCodeAction(absPath, name, folderURI string, opts IDEOptions) bool {
+	return performIDEAddAction(opts.IsVSCodeTargeted, opts.IsDryRun, func() bool {
 		tags := buildProjectTags(opts.IsPinned)
 		pair := vscodepm.Pair{RootPath: absPath, Name: name, Paths: []string{absPath}, Tags: tags}
 		_, errSync := vscodepm.SyncMode([]vscodepm.Pair{pair}, vscodepm.MergeModeUnion)
@@ -78,7 +88,10 @@ func addVSCodeAndCursor(absPath string, opts IDEOptions, res *IDEActionResult) {
 
 		return errSync == nil || errDb == nil
 	})
-	res.IsCursorAffected = performIDEAddAction(opts.IsCursorTargeted, opts.IsDryRun, func() bool {
+}
+
+func addCursorAction(absPath, name, folderURI string, opts IDEOptions) bool {
+	return performIDEAddAction(opts.IsCursorTargeted, opts.IsDryRun, func() bool {
 		_, _, errSync := cmdcursor.SyncCursorProjects([]string{absPath})
 		errDb := UpdateStateVscdbForCursor(folderURI, name)
 
@@ -116,7 +129,12 @@ func formatFolderURI(absPath string) string {
 
 func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionResult) {
 	name := resolveRepoDisplayName(absPath, opts.Name)
-	res.IsAntigravityAffected = performIDEAddAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
+	res.IsAntigravityAffected = addAntigravityAction(absPath, name, opts)
+	addDesktopAction(absPath, opts, res)
+}
+
+func addAntigravityAction(absPath, name string, opts IDEOptions) bool {
+	return performIDEAddAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
 		isSynced := workspacesync.SyncAntigravity(absPath, name)
 		if opts.IsPinned {
 			_ = SyncAntigravityPinned(absPath, name)
@@ -124,6 +142,9 @@ func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionRes
 
 		return isSynced
 	})
+}
+
+func addDesktopAction(absPath string, opts IDEOptions, res *IDEActionResult) {
 	if !opts.IsDesktopTargeted {
 		return
 	}
@@ -132,6 +153,7 @@ func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionRes
 
 		return
 	}
+
 	executeDesktopAdd(absPath, res)
 }
 
@@ -139,12 +161,20 @@ func executeDesktopAdd(absPath string, res *IDEActionResult) {
 	initErrorDetails(res)
 	cli := desktop.ResolveCLI()
 	if cli == "" {
-		res.ErrorDetails[string(TargetDesktop)] = "GitHub Desktop CLI not found"
-		res.HasErrors = true
+		setDesktopMissingError(res)
 
 		return
 	}
 
+	runDesktopCLI(cli, absPath, res)
+}
+
+func setDesktopMissingError(res *IDEActionResult) {
+	res.ErrorDetails[string(TargetDesktop)] = "GitHub Desktop CLI not found"
+	res.HasErrors = true
+}
+
+func runDesktopCLI(cli, absPath string, res *IDEActionResult) {
 	output, err := exec.Command(cli, "open", absPath).CombinedOutput()
 	if err == nil {
 		res.IsDesktopAffected = true
@@ -201,27 +231,33 @@ func printActionSummaryLines(res IDEActionResult) {
 	fmt.Printf("  • Antigravity: %s\n", formatIDEStatus(res.IsAntigravityAffected, string(TargetAntigravity), res.ErrorDetails))
 	fmt.Printf("  • Desktop:     %s\n", formatIDEStatus(res.IsDesktopAffected, string(TargetDesktop), res.ErrorDetails))
 	tokens := formatRegisteredTokens(res)
+
 	if tokens != "" {
 		fmt.Printf("\nREGISTERED:%s\n", tokens)
 	}
 }
 
 func formatRegisteredTokens(res IDEActionResult) string {
-	var tokens []string
-	if res.IsVSCodeAffected {
-		tokens = append(tokens, string(TargetVSCode))
-	}
-	if res.IsCursorAffected {
-		tokens = append(tokens, string(TargetCursor))
-	}
-	if res.IsAntigravityAffected {
-		tokens = append(tokens, string(TargetAntigravity))
-	}
-	if res.IsDesktopAffected {
-		tokens = append(tokens, string(TargetGitHubDesktop))
+	tokens := collectRegisteredTokens(res)
+
+	return strutil.JoinCSV(tokens)
+}
+
+func collectRegisteredTokens(res IDEActionResult) []string {
+	tokens := appendIDEToken(nil, res.IsVSCodeAffected, string(TargetVSCode))
+	tokens = appendIDEToken(tokens, res.IsCursorAffected, string(TargetCursor))
+	tokens = appendIDEToken(tokens, res.IsAntigravityAffected, string(TargetAntigravity))
+	tokens = appendIDEToken(tokens, res.IsDesktopAffected, string(TargetGitHubDesktop))
+
+	return tokens
+}
+
+func appendIDEToken(tokens []string, isAffected bool, target string) []string {
+	if isAffected {
+		return append(tokens, target)
 	}
 
-	return strings.Join(tokens, ",")
+	return tokens
 }
 
 func formatIDEStatus(isAffected bool, key string, errDetails map[string]string) string {

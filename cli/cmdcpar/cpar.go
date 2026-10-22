@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/timeutil"
 )
 
 // RunCPAR executes commit-push-all-repos across all dirty repositories.
@@ -208,8 +209,10 @@ func enqueueCPARTaskQueue(action, target string) (string, *store.TasksSplitDB) {
 	if hasErr {
 		return "", nil
 	}
-	now := time.Now().UTC().Format(time.RFC3339)
+
+	now := timeutil.NowUTCISO()
 	store.ExecWrapper(tasksDb.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'cpar', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
+
 	return queueId, tasksDb
 }
 
@@ -218,21 +221,40 @@ func updateCPARTaskQueue(db *store.TasksSplitDB, queueId, status string) {
 	if !hasDb {
 		return
 	}
-	now := time.Now().UTC().Format(time.RFC3339)
+
+	now := timeutil.NowUTCISO()
 	store.ExecWrapper(db.Conn(), "UPDATE TaskQueue SET Status = ?, UpdatedAt = ? WHERE QueueId = ?", status, now, queueId)
 }
 
 func finalizeCPARTaskQueue(db *store.TasksSplitDB, queueId string, hasFailures bool) {
 	if hasFailures {
 		updateCPARTaskQueue(db, queueId, "failed")
+
 		return
 	}
+
 	updateCPARTaskQueue(db, queueId, "completed")
 }
 
 func closeCPARTaskDb(db *store.TasksSplitDB) {
 	hasDb := db != nil
-	if hasDb {
-		_ = db.Close()
+	if !hasDb {
+		return
 	}
+
+	closeErr := db.Close()
+	if closeErr != nil {
+		logCloseDbFailure(closeErr)
+	}
+}
+
+func logCloseDbFailure(err error) {
+	rec := store.InternalErrorRecord{
+		ErrorCode:  "E_CPAR_DB_CLOSE",
+		ErrorType:  "DB_CLOSE_ERROR",
+		Command:    "cpar",
+		Message:    fmt.Sprintf("failed to close tasks split db: %v", err),
+		SourceFile: "cli/cmdcpar/cpar.go",
+	}
+	store.LogInternalErrorRecord(rec)
 }

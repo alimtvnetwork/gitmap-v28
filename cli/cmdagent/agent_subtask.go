@@ -6,161 +6,49 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
-
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/types"
 )
 
-var (
-	subtaskAddOpts      SubtaskAddOptions
-	subtaskClaimOpts    SubtaskClaimOptions
-	subtaskStartOpts    SubtaskStartOptions
-	subtaskCompleteOpts SubtaskCompleteOptions
-	subtaskFailOpts     SubtaskFailOptions
-	subtaskLsOpts       SubtaskLsOptions
-
-	subtaskAddCmd = &cobra.Command{
-		Use:   "add",
-		Short: "Enqueue subtasks to parent task database",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 && len(subtaskAddOpts.JsonInput) == 0 {
-				subtaskAddOpts.JsonInput = args[0]
-			}
-			return toError(RunSubtaskAdd(subtaskAddOpts))
-		},
-	}
-
-	subtaskClaimCmd = &cobra.Command{
-		Use:   "claim",
-		Short: "Atomically claim the next available pending subtask",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 && len(subtaskClaimOpts.AgentRole) == 0 {
-				subtaskClaimOpts.AgentRole = args[0]
-			}
-			return toError(RunSubtaskClaim(subtaskClaimOpts))
-		},
-	}
-
-	subtaskStartCmd = &cobra.Command{
-		Use:   "start [subtask-id]",
-		Short: "Mark a claimed subtask as in-progress",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				subtaskStartOpts.SubtaskId = args[0]
-			}
-			return toError(RunSubtaskStart(subtaskStartOpts))
-		},
-	}
-
-	subtaskCompleteCmd = &cobra.Command{
-		Use:   "complete [subtask-id]",
-		Short: "Mark a subtask as done with verification evidence",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				subtaskCompleteOpts.SubtaskId = args[0]
-			}
-			return toError(RunSubtaskComplete(subtaskCompleteOpts))
-		},
-	}
-
-	subtaskFailCmd = &cobra.Command{
-		Use:   "fail [subtask-id]",
-		Short: "Mark a subtask as failed with root cause analysis",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 {
-				subtaskFailOpts.SubtaskId = args[0]
-			}
-			return toError(RunSubtaskFail(subtaskFailOpts))
-		},
-	}
-
-	subtaskLsCmd = &cobra.Command{
-		Use:     "ls [task-id]",
-		Aliases: []string{"list"},
-		Short:   "List subtasks belonging to a parent task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) > 0 && len(subtaskLsOpts.TaskId) == 0 {
-				subtaskLsOpts.TaskId = args[0]
-			}
-			return toError(RunSubtaskLs(subtaskLsOpts))
-		},
-	}
-)
-
-type SubtaskAddOptions struct {
-	ParentId, JsonInput, Title, TaskCode, Slug, OwnedFiles string
-}
-
-type SubtaskClaimOptions struct {
-	AgentRole, TaskId string
-}
-
-type SubtaskStartOptions struct {
-	SubtaskId, TaskCode, Slug, AgentRole, TaskId string
-}
-
-type SubtaskCompleteOptions struct {
-	SubtaskId, TaskCode, Slug, AgentRole, Evidence, TaskId string
-}
-
-type SubtaskFailOptions struct {
-	SubtaskId, TaskCode, Slug, AgentRole, Reason, TaskId string
-}
-
-type SubtaskLsOptions struct {
-	TaskId string
-	IsJson bool
-}
-
-func registerTargetFlags(cmd *cobra.Command, taskID, role, code, slug *string) {
-	cmd.Flags().StringVarP(role, "agent", "a", "", "Agent role")
-	cmd.Flags().StringVarP(taskID, "task-id", "t", "", "Parent task ID or slug")
-	cmd.Flags().StringVarP(code, "code", "c", "", "Subtask code (e.g. Subtask-01)")
-	cmd.Flags().StringVarP(slug, "slug", "s", "", "Subtask slug")
-}
-
-func initSubtaskCommands() {
-	f := subtaskAddCmd.Flags()
-	f.StringVarP(&subtaskAddOpts.ParentId, "parent", "p", "", "Parent task ID or slug")
-	f.StringVarP(&subtaskAddOpts.JsonInput, "json", "j", "", "JSON array or single subtask object")
-	f.StringVar(&subtaskAddOpts.Title, "title", "", "Subtask title")
-	f.StringVar(&subtaskAddOpts.TaskCode, "code", "", "Task code (e.g. Subtask-01)")
-	f.StringVar(&subtaskAddOpts.Slug, "slug", "", "Subtask slug")
-	f.StringVar(&subtaskAddOpts.OwnedFiles, "owned", "[]", "JSON array of owned files")
-
-	subtaskClaimCmd.Flags().StringVarP(&subtaskClaimOpts.AgentRole, "agent", "a", "", "Agent role claiming subtask")
-	subtaskClaimCmd.Flags().StringVarP(&subtaskClaimOpts.TaskId, "task-id", "t", "", "Parent task ID or slug")
-
-	registerTargetFlags(subtaskStartCmd, &subtaskStartOpts.TaskId, &subtaskStartOpts.AgentRole, &subtaskStartOpts.TaskCode, &subtaskStartOpts.Slug)
-	registerTargetFlags(subtaskCompleteCmd, &subtaskCompleteOpts.TaskId, &subtaskCompleteOpts.AgentRole, &subtaskCompleteOpts.TaskCode, &subtaskCompleteOpts.Slug)
-	subtaskCompleteCmd.Flags().StringVarP(&subtaskCompleteOpts.Evidence, "evidence", "e", "", "Completion evidence or summary")
-
-	registerTargetFlags(subtaskFailCmd, &subtaskFailOpts.TaskId, &subtaskFailOpts.AgentRole, &subtaskFailOpts.TaskCode, &subtaskFailOpts.Slug)
-	subtaskFailCmd.Flags().StringVarP(&subtaskFailOpts.Reason, "reason", "r", "", "Failure reason or RCA")
-
-	subtaskLsCmd.Flags().StringVarP(&subtaskLsOpts.TaskId, "task-id", "t", "", "Parent task ID or slug")
-	subtaskLsCmd.Flags().BoolVar(&subtaskLsOpts.IsJson, "json", false, "Output results in JSON format")
-
-	SubtaskCmd.AddCommand(subtaskAddCmd, subtaskClaimCmd, subtaskStartCmd, subtaskCompleteCmd, subtaskFailCmd, subtaskLsCmd)
-}
-
 // RunSubtaskAdd parses and enqueues subtasks into the parent task DB.
 func RunSubtaskAdd(opts SubtaskAddOptions) *appfault.AppError {
+	subtasks, dbPath, canonicalParentId, err := resolveAndPrepareSubtasks(opts)
+	if err != nil {
+		return err
+	}
+	addErr := store.AddSubtasks(dbPath, canonicalParentId, subtasks)
+	if addErr != nil {
+		return addErr
+	}
+
+	return renderSubtaskAddOutput(subtasks, dbPath, canonicalParentId, opts.IsJson)
+}
+
+func resolveAndPrepareSubtasks(opts SubtaskAddOptions) ([]types.Subtask, string, string, *appfault.AppError) {
 	subtasks, parseErr := parseSubtasksInput(opts)
 	if parseErr != nil {
-		return parseErr
+		return nil, "", "", parseErr
 	}
 	dbPath, canonicalParentId, findErr := resolveSubtaskParent(opts.ParentId)
 	if findErr != nil {
-		return findErr
+		return nil, "", "", findErr
 	}
-	subtasks = normalizeSubtaskParents(subtasks, opts.ParentId, canonicalParentId)
-	subtasks = applySubtaskSlugs(subtasks, opts)
-	if addErr := store.AddSubtasks(dbPath, canonicalParentId, subtasks); addErr != nil {
-		return addErr
+	subtasks = prepareSubtasksForAdd(subtasks, opts.ParentId, canonicalParentId, opts)
+
+	return subtasks, dbPath, canonicalParentId, nil
+}
+
+func prepareSubtasksForAdd(subtasks []types.Subtask, rawParent, canonicalParent string, opts SubtaskAddOptions) []types.Subtask {
+	subtasks = normalizeSubtaskParents(subtasks, rawParent, canonicalParent)
+
+	return applySubtaskSlugs(subtasks, opts)
+}
+
+func renderSubtaskAddOutput(subtasks []types.Subtask, dbPath, canonicalParentId string, isJson bool) *appfault.AppError {
+	if isJson {
+		return renderSubtaskAddEnvelope(subtasks, dbPath, canonicalParentId)
 	}
 	fmt.Printf("Successfully added %d subtask(s) to %s\n", len(subtasks), dbPath)
 
@@ -169,13 +57,27 @@ func RunSubtaskAdd(opts SubtaskAddOptions) *appfault.AppError {
 
 // RunSubtaskClaim claims the next available pending subtask for an agent.
 func RunSubtaskClaim(opts SubtaskClaimOptions) *appfault.AppError {
-	if len(strings.TrimSpace(opts.AgentRole)) == 0 {
-		return appfault.NewValidationError("agent role is required (--agent)")
+	err := validateClaimAgentRole(opts.AgentRole)
+	if err != nil {
+		return err
 	}
 	dbPath, canonicalId, findErr := resolveSubtaskParent(opts.TaskId)
 	if findErr != nil {
 		return findErr
 	}
+
+	return claimAndRenderSubtask(dbPath, canonicalId, opts)
+}
+
+func validateClaimAgentRole(role string) *appfault.AppError {
+	if len(strings.TrimSpace(role)) == 0 {
+		return appfault.NewValidationError("agent role is required (--agent)")
+	}
+
+	return nil
+}
+
+func claimAndRenderSubtask(dbPath, canonicalId string, opts SubtaskClaimOptions) *appfault.AppError {
 	sub, claimErr := claimSubtaskBothForms(dbPath, canonicalId, opts.TaskId, opts.AgentRole)
 	if claimErr != nil {
 		return claimErr
@@ -196,9 +98,11 @@ func buildClaimResultMap(sub *types.Subtask, role, dbPath string) map[string]any
 		return map[string]any{"status": "empty", "message": "No pending subtasks available to claim"}
 	}
 	cwd, _ := os.Getwd()
-	relDbPath := toRelativePath(cwd, dbPath)
-	classifiedFiles := fsutil.ClassifyFileTargets(sub.OwnedFilesJson, "", cwd)
 
+	return buildClaimedDetails(sub, role, dbPath, cwd)
+}
+
+func buildClaimedDetails(sub *types.Subtask, role, dbPath, cwd string) map[string]any {
 	return map[string]any{
 		"status":            "claimed",
 		"subtaskId":         sub.SubtaskId,
@@ -206,8 +110,8 @@ func buildClaimResultMap(sub *types.Subtask, role, dbPath string) map[string]any
 		"taskCode":          sub.TaskCode,
 		"title":             sub.Title,
 		"assignedAgentRole": role,
-		"databasePath":      relDbPath,
-		"files":             classifiedFiles,
+		"databasePath":      toRelativePath(cwd, dbPath),
+		"files":             fsutil.ClassifyFileTargets(sub.OwnedFilesJson, "", cwd),
 		"ownedFilesJson":    sub.OwnedFilesJson,
 	}
 }
@@ -221,6 +125,11 @@ func resolveSubtaskTarget(taskID, subtaskID, code, slug string) (string, string,
 	if findErr != nil {
 		return "", "", findErr
 	}
+
+	return resolveSubtaskIdInDb(dbPath, subtaskID, code, slug)
+}
+
+func resolveSubtaskIdInDb(dbPath, subtaskID, code, slug string) (string, string, *appfault.AppError) {
 	resolvedId, resErr := ResolveSubtaskIdentifier(dbPath, subtaskID, code, slug)
 	if resErr != nil {
 		return "", "", appfault.NewValidationError(resErr.Error())
@@ -235,7 +144,8 @@ func RunSubtaskStart(opts SubtaskStartOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
-	if startErr := store.StartSubtask(dbPath, subID, opts.AgentRole); startErr != nil {
+	startErr := store.StartSubtask(dbPath, subID, opts.AgentRole)
+	if startErr != nil {
 		return startErr
 	}
 	fmt.Printf("Subtask %s started by %s\n", subID, opts.AgentRole)
@@ -249,7 +159,8 @@ func RunSubtaskComplete(opts SubtaskCompleteOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
-	if compErr := store.CompleteSubtask(dbPath, subID, opts.AgentRole, opts.Evidence); compErr != nil {
+	compErr := store.CompleteSubtask(dbPath, subID, opts.AgentRole, opts.Evidence)
+	if compErr != nil {
 		return compErr
 	}
 	releaseFileClaimsBySubtask(subID)
@@ -264,7 +175,8 @@ func RunSubtaskFail(opts SubtaskFailOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
-	if failErr := store.FailSubtask(dbPath, subID, opts.AgentRole, opts.Reason); failErr != nil {
+	failErr := store.FailSubtask(dbPath, subID, opts.AgentRole, opts.Reason)
+	if failErr != nil {
 		return failErr
 	}
 	releaseFileClaimsBySubtask(subID)
@@ -283,13 +195,13 @@ func RunSubtaskLs(opts SubtaskLsOptions) *appfault.AppError {
 	if listErr != nil {
 		return listErr
 	}
-	if opts.IsJson {
-		cwd, _ := os.Getwd()
-		for i := range subtasks {
-			subtasks[i].Files = fsutil.ClassifyFileTargets(subtasks[i].OwnedFilesJson, "", cwd)
-		}
 
-		return renderSubtasksJson(subtasks)
+	return renderSubtaskLsOutput(subtasks, dbPath, canonicalId, opts.IsJson)
+}
+
+func renderSubtaskLsOutput(subtasks []types.Subtask, dbPath, canonicalId string, isJson bool) *appfault.AppError {
+	if isJson {
+		return renderSubtasksJsonEnvelope(subtasks, dbPath, canonicalId)
 	}
 	renderSubtasksTable(subtasks)
 

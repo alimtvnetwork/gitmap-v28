@@ -25,3 +25,25 @@ func EqualFoldAnyTrim(target string, candidates ...string) bool {
 func NormalizeLowerTrim(s string) string {
 	return strings.ToLower(strings.TrimSpace(s))
 }
+
+// JoinCSV joins a slice of strings with a comma separator, skipping empty entries.
+func JoinCSV(tokens []string) string {
+	cleaned := cleanTokens(tokens)
+	if len(cleaned) == 0 {
+		return ""
+	}
+
+	return strings.Join(cleaned, ",")
+}
+
+func cleanTokens(tokens []string) []string {
+	var cleaned []string
+	for _, t := range tokens {
+		trimmed := strings.TrimSpace(t)
+		if trimmed != "" {
+			cleaned = append(cleaned, trimmed)
+		}
+	}
+
+	return cleaned
+}

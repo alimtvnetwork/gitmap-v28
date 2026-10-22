@@ -30,18 +30,25 @@ import (
 // RunFixAuth parses flags and orchestrates the auth-fix pipeline.
 func RunFixAuth(args []string) error {
 	user, email, assumeYes, force := parseFixAuthFlags(args)
-	if err := checkUserFlag(user); err != nil {
-		return err
+	userErr := checkUserFlag(user)
+	if userErr != nil {
+		return userErr
 	}
 
-	if err := checkGitRepo(); err != nil {
-		return err
+	repoErr := checkGitRepo()
+	if repoErr != nil {
+		return repoErr
 	}
 
-	return executeFixAuthPipeline(user, email, assumeYes, force)
+	return executeFixAuthPipeline(
+		user,
+		email,
+		assumeYes,
+		force,
+	)
 }
 
-func checkUserFlag(user string) error {
+func checkUserFlag(user string) *apperror.AppError {
 	if user == "" {
 		fmt.Fprintln(os.Stderr, "✗ --user <github-username> is required")
 		fmt.Fprintln(os.Stderr, "  example: gitmap fix-auth --user aukgit --email me@example.com")
@@ -52,7 +59,7 @@ func checkUserFlag(user string) error {
 	return nil
 }
 
-func checkGitRepo() error {
+func checkGitRepo() *apperror.AppError {
 	isGitRepo := cmdpull.IsGitRepoCWD()
 	if !isGitRepo {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
@@ -63,30 +70,54 @@ func checkGitRepo() error {
 	return nil
 }
 
-func executeFixAuthPipeline(user, email string, assumeYes, force bool) error {
+func executeFixAuthPipeline(
+	user string,
+	email string,
+	assumeYes bool,
+	force bool,
+) error {
 	keyPath := fixAuthKeyPath(user)
-	if err := setupSSHDirAndKey(keyPath, email, assumeYes, force); err != nil {
+	err := setupSSHDirAndKey(
+		keyPath,
+		email,
+		assumeYes,
+		force,
+	)
+	if err != nil {
 		return err
 	}
 
 	return bindAndAnnounceAuth(user, keyPath)
 }
 
-func setupSSHDirAndKey(keyPath, email string, assumeYes, force bool) error {
-	if err := cmdssh.EnsureSSHDir(filepath.Dir(keyPath)); err != nil {
-		return apperror.WrapSimple(err, "mkdir ~/.ssh")
+func setupSSHDirAndKey(
+	keyPath string,
+	email string,
+	assumeYes bool,
+	force bool,
+) error {
+	dirErr := cmdssh.EnsureSSHDir(filepath.Dir(keyPath))
+	if dirErr != nil {
+		return apperror.WrapSimple(dirErr, "mkdir ~/.ssh")
 	}
 
-	return fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
+	return fixAuthGenerate(
+		keyPath,
+		resolveFixAuthEmail(email),
+		assumeYes,
+		force,
+	)
 }
 
 func bindAndAnnounceAuth(user, keyPath string) error {
-	if err := fixAuthBind(keyPath); err != nil {
-		return err
+	bindErr := fixAuthBind(keyPath)
+	if bindErr != nil {
+		return bindErr
 	}
 
-	if err := fixAuthAnnounce(user, keyPath); err != nil {
-		return err
+	annErr := fixAuthAnnounce(user, keyPath)
+	if annErr != nil {
+		return annErr
 	}
 
 	_, _ = cmdssh.SanitizeSSHConfigFile("")
@@ -147,21 +178,38 @@ func fixAuthKeyPath(user string) string {
 }
 
 // fixAuthGenerate runs ssh-keygen unless the key already exists.
-func fixAuthGenerate(keyPath, email string, assumeYes, force bool) error {
+func fixAuthGenerate(
+	keyPath string,
+	email string,
+	assumeYes bool,
+	force bool,
+) error {
 	_, err := os.Stat(keyPath)
 	hasKey := err == nil
-	if !validateKeyGeneration(hasKey, keyPath, assumeYes, force) {
+	isValid := validateKeyGeneration(
+		hasKey,
+		keyPath,
+		assumeYes,
+		force,
+	)
+	if !isValid {
 		return nil
 	}
 
-	if valErr := cmdssh.ValidateSSHKeygen(); valErr != nil {
+	valErr := cmdssh.ValidateSSHKeygen()
+	if valErr != nil {
 		return apperror.WrapSimple(valErr, constants.ErrSSHKeygenMissing)
 	}
 
 	return runSSHKeygenEd25519(keyPath, email)
 }
 
-func validateKeyGeneration(hasKey bool, keyPath string, assumeYes, force bool) bool {
+func validateKeyGeneration(
+	hasKey bool,
+	keyPath string,
+	assumeYes bool,
+	force bool,
+) bool {
 	if !hasKey {
 		return true
 	}

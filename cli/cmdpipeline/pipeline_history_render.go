@@ -1,7 +1,7 @@
 package cmdpipeline
 
 import (
-	"database/sql"
+	"bufio"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -103,40 +104,42 @@ func extractReleaseFromRepoPath(sha string) string {
 }
 
 func findLocalRepoDirForSlug(slug string) string {
-	dbPath := store.DefaultDBPath()
-	if isFileExisting(dbPath) == false {
-		return ""
-	}
-
-	conn, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dbPath)+"?mode=ro")
+	db, err := store.OpenDefault()
 	if err != nil {
 		return ""
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	return queryRepoPathFromConn(conn, slug)
-}
+	repo := store.NewRepoRepository(db.Conn())
+	absPath, appErr := repo.FindPathBySlug(slug)
+	if appErr != nil {
+		logRepoLookupFailure(slug, appErr)
 
-func queryRepoPathFromConn(conn *sql.DB, slug string) string {
-	var absPath string
-	parts := strings.Split(slug, "/")
-	shortSlug := parts[len(parts)-1]
-	query := "SELECT AbsolutePath FROM Repo WHERE Slug = ? OR Slug = ? LIMIT 1"
-	row := conn.QueryRow(query, slug, shortSlug)
-	if err := row.Scan(&absPath); err == nil && len(absPath) > 0 {
-		return absPath
+		return ""
 	}
 
-	return ""
+	return absPath
+}
+
+func logRepoLookupFailure(slug string, appErr *apperror.AppError) {
+	rec := store.InternalErrorRecord{
+		ErrorCode:  "E_PIPELINE_REPO_LOOKUP",
+		ErrorType:  "DB_QUERY_ERROR",
+		Command:    "pipeline",
+		Message:    fmt.Sprintf("failed to find repo path for slug %s: %v", slug, appErr),
+		SourceFile: "cli/cmdpipeline/pipeline_history_render.go",
+	}
+	store.LogInternalErrorRecord(rec)
 }
 
 func parseFirstVTag(output string) string {
-	lines := strings.Split(strings.TrimSpace(output), "\n")
-	for _, l := range lines {
-		trimmed := strings.TrimSpace(l)
-		hasVPrefix := strings.HasPrefix(strings.ToLower(trimmed), "v")
+	scanner := bufio.NewScanner(strings.NewReader(output))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		low := strutil.NormalizeLowerTrim(line)
+		hasVPrefix := strings.HasPrefix(low, "v")
 		if hasVPrefix {
-			return trimmed
+			return line
 		}
 	}
 
