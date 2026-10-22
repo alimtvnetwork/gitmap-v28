@@ -52,6 +52,8 @@ Rules for braces, spacing, blank lines, function size, struct size, chaining, an
 |---|------|-------------|
 | 04 | `04-code-style/` | Braces, nesting ban, blank lines, function/struct size limits, dead code, comment spacing, docs (subfolder — 8 files) |
 | 21 | `21-newline-styling-examples.md` | Before/after newline examples, Go newline constants |
+| 38 | `38-no-inline-function-calls-in-if.md` | Zero inline function calls in if statements, statement separation |
+| 39 | `39-multiline-parameter-and-argument-formatting.md` | Multiline parameter & argument formatting (>2 arguments vertical layout) |
 
 ### 📛 Naming Conventions
 
@@ -75,6 +77,7 @@ SOLID, DRY, complexity limits, and structural patterns.
 | 08 | `08-dry-principles.md` | Don't Repeat Yourself — deduplication rules |
 | 09 | `09-dry-refactoring-summary.md` | DRY refactoring examples and techniques |
 | 23 | `23-solid-principles.md` | SOLID principles with cross-language examples |
+| 40 | `40-database-repository-pattern-and-error-sovereignty.md` | Database repository pattern, Split-DB encapsulation, error sovereignty |
 
 ### 🛡️ Type Safety & Data Handling
 
@@ -91,6 +94,7 @@ Strict typing, casting elimination, null safety, mutation avoidance.
 | 33 | `33-variadic-and-spread-parameters.md` | Variadic and spread parameters, zero wrapper calls, slice forwarding |
 | 34 | `34-string-normalization-and-equalfoldany.md` | String normalization, EqualFoldAnyTrim utility standard, Search First protocol |
 | 36 | `36-mime-and-media-type-enum-standards.md` | MIME and media type enum standards, Blob/Clipboard/Header type safety |
+| 37 | `37-datetime-and-timeutil-standards.md` | Centralized timeutil date-time standards, UTC ISO 8601 formatting |
 
 ### 🔧 Patterns & Techniques
 
@@ -158,6 +162,10 @@ Consolidated reference, audit logs, contradiction checks.
 | 34 | `34-string-normalization-and-equalfoldany.md` | Type Safety |
 | 35 | `35-map-dispatch-and-handler-lookup.md` | Patterns |
 | 36 | `36-mime-and-media-type-enum-standards.md` | Type Safety |
+| 37 | `37-datetime-and-timeutil-standards.md` | Type Safety |
+| 38 | `38-no-inline-function-calls-in-if.md` | Style |
+| 39 | `39-multiline-parameter-and-argument-formatting.md` | Style |
+| 40 | `40-database-repository-pattern-and-error-sovereignty.md` | Architecture |
 | 97 | `97-acceptance-criteria.md` | Meta |
 | 98 | `98-changelog.md` | Meta |
 | 99 | `99-consistency-report.md` | Meta |

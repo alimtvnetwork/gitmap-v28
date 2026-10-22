@@ -199,17 +199,114 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent task ls` — Lists active and completed parent tasks across the workspace.
 - `gitmap agent task pending` — Lists or counts pending subtasks across agent tasks.
 - `gitmap agent task completed` — Lists completed root-level parent tasks with proof.
-- `gitmap agent subtask add --code "<code>" --slug "<slug>" --title "<title>" [--owned "<json>"]` — Adds a decomposed subtask bounding box to the active parent task queue.
-- `gitmap agent subtask ls` — Lists all subtasks, their assignees, statuses, and file boxes.
+- [x] `gitmap agent subtask add --code "<code>" --slug "<slug>" --title "<title>" [--owned "<json>"] [--json]` — Adds a decomposed subtask bounding box to the active parent task queue. When `--json` is provided, outputs a grouped JSON response collapsing shared database metadata (`databasePath`, `parentTaskId`, `addedCount`).
+- `gitmap agent subtask ls [--json|-j] [task-id]` — Lists all subtasks, their assignees, statuses, and file boxes. When `--json` (`-j`) is passed, emits a structured JSON envelope containing `status`, `databasePath`, `parentTaskId`, `summary` rollups (total, pending, in-progress, completed, failed), and `subtasks` array.
 - `gitmap agent subtask claim --agent <agent-name>` — Claims the next pending subtask atomically.
 - `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.
 - `gitmap agent log --subtask <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
-- `gitmap agent subtask complete <id> --agent <name> --evidence <evidence>` — Marks subtask completed.
+- `gitmap agent subtask start [id] --agent <name> [--json|-j]` — Marks subtask in-progress. Outputs compact JSON with `--json`.
+- `gitmap agent subtask complete <id> --agent <name> --evidence <evidence> [--json|-j]` — Marks subtask completed with verification evidence. When `--json` is provided, outputs a compact JSON response confirming completion.
+- `gitmap agent subtask fail [id] --agent <name> --reason <reason> [--json|-j]` — Marks subtask failed with diagnostic rationale. Outputs compact JSON with `--json`.
 - `gitmap agent subtask join --subtask <id> --agent <name> --role "Assistant: <focus>"` — Dynamically joins an in-flight subtask as a collaborative assistant for parallel reading, caller analysis, or verification without file collisions.
 - `gitmap agent task tree` — Renders hierarchical task swarm tree (Lead Orchestrator -> Branch Coordinators -> Leaf Workers & Dynamic Assistants).
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
 - `gitmap agent crashed` — Detects crashed or abandoned agent tasks.
 - `gitmap agent temp-clear` — Safely deletes ephemeral `.ai-memory/temp-agents/` directory.
+
+### 10.1 AI Agent Communication & Structured Subtask Envelopes
+
+To eliminate brittle ANSI terminal scraping and regex extraction errors in multi-agent swarms, all AI agents coordinating task execution MUST invoke GitMap commands with the `--json` / `-j` flag:
+
+#### `gitmap agent subtask ls --json` Response Schema
+Emits a structured JSON envelope with rollup statistics, relative database path, and classified file ownership:
+```json
+{
+  "status": "success",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db",
+  "parentTaskId": "294-code-refactoring-and-coding-guideline-update",
+  "summary": {
+    "totalCount": 5,
+    "pendingCount": 1,
+    "inProgressCount": 2,
+    "completedCount": 2,
+    "failedCount": 0
+  },
+  "subtasks": [
+    {
+      "subtaskId": "sub-120000-subtask-01",
+      "parentTaskId": "294-code-refactoring-and-coding-guideline-update",
+      "taskCode": "Subtask-01",
+      "taskSlug": "294-code-refactoring-and-coding-guideline-update-subtask-01",
+      "title": "Architecture Specification & Subtask Ledger",
+      "status": "COMPLETED",
+      "assignedAgentRole": "Worker 01",
+      "ownedFilesJson": "[\"cli/main.go\"]",
+      "files": [
+        {
+          "path": "cli/main.go",
+          "exists": true,
+          "fileType": "go"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### `gitmap agent subtask add --json` Grouped Response Schema
+Groups common metadata once at the top level instead of repeating across individual subtask items:
+```json
+{
+  "status": "success",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db",
+  "parentTaskId": "294-code-refactoring-and-coding-guideline-update",
+  "addedCount": 2,
+  "subtasks": [
+    {
+      "subtaskId": "sub-120000-subtask-01",
+      "parentTaskId": "294-code-refactoring-and-coding-guideline-update",
+      "taskCode": "Subtask-01",
+      "taskSlug": "294-code-refactoring-and-coding-guideline-update-subtask-01",
+      "title": "Refactor tokens",
+      "status": "PENDING"
+    },
+    {
+      "subtaskId": "sub-120001-subtask-02",
+      "parentTaskId": "294-code-refactoring-and-coding-guideline-update",
+      "taskCode": "Subtask-02",
+      "taskSlug": "294-code-refactoring-and-coding-guideline-update-subtask-02",
+      "title": "Extract repository",
+      "status": "PENDING"
+    }
+  ]
+}
+```
+
+#### `gitmap agent subtask complete --json` Response Schema
+Outputs a compact, structured JSON object confirming completion with relative database path and evidence:
+```json
+{
+  "status": "completed",
+  "subtaskId": "sub-111615-task-01",
+  "agentRole": "Spec Author 01",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db",
+  "details": "PASS exit 0, 01-architecture-spec.md created"
+}
+```
+
+#### `gitmap agent subtask start --json` / `fail --json` Lifecycle Schema
+Compact lifecycle transitions for AI worker status synchronization:
+```json
+{
+  "status": "in_progress",
+  "subtaskId": "sub-111615-task-01",
+  "agentRole": "Spec Author 01",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db"
+}
+```
+
+#### AI Agent Swarm Protocol: JSON Parsing Invariant
+Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers) communicating with GitMap or orchestrating subagent swarms MUST parse JSON outputs directly rather than attempting to regex-scrape plain text or ANSI tables. This maximizes parsing precision, prevents regex breakages caused by column truncation, and ensures zero unhandled exceptions.
 
 > [!CAUTION]
 > **TOTAL BAN ON RAW PYTHON SQLITE (`python -c "import sqlite3..."`):**
