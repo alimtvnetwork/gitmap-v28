@@ -19,7 +19,7 @@ All fallible operations MUST return a single strongly-typed monadic container fr
 > Never write `result.Result[[]model.ScanRecord]`. This pattern violates three core rules:
 > 1. **Package Stutter:** `result.Result` repeats the package name. Always use `result.Wrap`.
 > 2. **Leaking Raw Generic Brackets:** Raw generic brackets `[...]` in function signatures create copy-paste boilerplate across implementation files.
-> 3. **Wrapping Anonymous Slices:** Wrapping `[]model.ScanRecord` directly creates loose slice signatures. Always declare a dedicated slice collection type `type ScanRecordSlice = []model.ScanRecord` and alias `type ScanRecordSliceWrap = result.Wrap[ScanRecordSlice]` in `types.go`.
+> 3. **Wrapping Slices with `WrapSlice`:** Never wrap a slice inside a single-entity container (`result.Wrap[ScanRecordSlice]`). Always use the canonical slice container `result.WrapSlice[model.ScanRecord]` in `types.go`. For keyed lookups, always use `result.WrapMap[string, model.ScanRecord]`.
 
 | Container Type | Primary Constructor Helpers | Data Payload Representation | Core Inspection Predicates |
 | :--- | :--- | :--- | :--- |
@@ -42,9 +42,9 @@ All fallible operations MUST return a single strongly-typed monadic container fr
    type (
        ItemWrap      = result.Wrap[Item]
        ItemSlice     = []Item
-       ItemSliceWrap = result.Wrap[ItemSlice]
+       ItemSliceWrap = result.WrapSlice[Item]
        ItemMap       = map[string]Item
-       ItemMapWrap   = result.Wrap[ItemMap]
+       ItemMapWrap   = result.WrapMap[string, Item]
    )
    ```
 
@@ -151,8 +151,8 @@ type (
 	ScanRecordSlice = []model.ScanRecord
 
 	// ScanRecordSliceWrap is the canonical single reusable collection container.
-	// Replaces banned result.Result[[]model.ScanRecord] with clean, zero-bracket signature!
-	ScanRecordSliceWrap = result.Wrap[ScanRecordSlice]
+	// Uses WrapSlice[model.ScanRecord] to provide slice monadic methods (.Items(), .Count()).
+	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
 )
 ```
 
@@ -162,15 +162,15 @@ type (
 func (db *DB) ListReposByBranch(branch string) ScanRecordSliceWrap {
 	rows, err := db.conn.Query(SQLSelectByBranch, branch)
 	if err != nil {
-		return result.FailSlice[ScanRecordSlice](apperror.WrapSimple(err, "ListReposByBranch"))
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "ListReposByBranch"))
 	}
 	defer rows.Close()
 
-	var records ScanRecordSlice
+	records := make([]model.ScanRecord, 0)
 	for rows.Next() {
 		var rec model.ScanRecord
 		if scanErr := rows.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); scanErr != nil {
-			return result.FailSlice[ScanRecordSlice](apperror.WrapSimple(scanErr, "ListReposByBranch.Scan"))
+			return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "ListReposByBranch.Scan"))
 		}
 		records = append(records, rec)
 	}
@@ -183,12 +183,12 @@ res := db.ListReposByBranch("main")
 
 // Affirmative failure guard:
 if res.IsFailure() {
-	return result.FailSlice[OutputSlice](res.AppError())
+	return result.FailSlice[Output](res.AppError())
 }
 
 // Affirmative success branch:
 if res.IsSuccess() {
-	for _, rec := range res.Data() {
+	for _, rec := range res.Items() {
 		processRecord(rec)
 	}
 }
@@ -212,7 +212,8 @@ type (
 	ScanRecordMap = map[string]model.ScanRecord
 
 	// ScanRecordMapWrap is the canonical single reusable keyed container.
-	ScanRecordMapWrap = result.Wrap[ScanRecordMap]
+	// Uses WrapMap[string, model.ScanRecord] to provide map monadic methods (.Has(), .Get()).
+	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
 )
 ```
 
@@ -226,7 +227,7 @@ func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 	}
 
 	lookup := make(ScanRecordMap, recordsRes.Count())
-	for _, rec := range recordsRes.Data() {
+	for _, rec := range recordsRes.Items() {
 		lookup[rec.Slug] = rec
 	}
 
