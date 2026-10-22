@@ -2,7 +2,7 @@ package uipref
 
 import "testing"
 
-func TestIsQuietHonorsEnv(t *testing.T) {
+func TestIsQuiet_WhenEnvSet_HonorsFlag(t *testing.T) {
 	t.Setenv(EnvQuiet, "1")
 	if !IsQuiet() {
 		t.Fatal("expected IsQuiet=true when GITMAP_QUIET=1")
@@ -14,40 +14,37 @@ func TestIsQuietHonorsEnv(t *testing.T) {
 	}
 }
 
-func TestIsNoColorHonorsStdEnv(t *testing.T) {
+func TestIsNoColor_WhenStdEnvSet_ReturnsTrue(t *testing.T) {
 	t.Setenv(EnvNoColorStd, "")
 	if !IsNoColor() {
 		t.Fatal("expected IsNoColor=true when NO_COLOR is set (even empty)")
 	}
 }
 
-func TestIsNoColorHonorsProjectEnv(t *testing.T) {
+func TestIsNoColor_WhenProjectEnvSet_ReturnsTrue(t *testing.T) {
 	t.Setenv(EnvNoColor, "1")
 	if !IsNoColor() {
 		t.Fatal("expected IsNoColor=true when GITMAP_NO_COLOR=1")
 	}
 }
 
-func TestIsMacroPwdVisibleDefaultAndOverride(t *testing.T) {
+func TestIsMacroPwdVisible_DefaultAndOverride_ReflectsState(t *testing.T) {
 	ResetMacroPwdOverride()
 	defer ResetMacroPwdOverride()
-
 	if !IsMacroPwdVisible() {
-		t.Fatal("expected IsMacroPwdVisible=true by default")
+		t.Fatal("expected true by default")
 	}
-
 	SetMacroPwdOverride(false)
 	if IsMacroPwdVisible() {
-		t.Fatal("expected IsMacroPwdVisible=false after override false")
+		t.Fatal("expected false after override false")
 	}
-
 	SetMacroPwdOverride(true)
 	if !IsMacroPwdVisible() {
-		t.Fatal("expected IsMacroPwdVisible=true after override true")
+		t.Fatal("expected true after override true")
 	}
 }
 
-func TestIsMacroPwdVisibleHonorsEnv(t *testing.T) {
+func TestIsMacroPwdVisible_WhenEnvSet_HonorsConfig(t *testing.T) {
 	ResetMacroPwdOverride()
 	defer ResetMacroPwdOverride()
 
@@ -62,7 +59,7 @@ func TestIsMacroPwdVisibleHonorsEnv(t *testing.T) {
 	}
 }
 
-func TestSetMacroShowPwdPersists(t *testing.T) {
+func TestSetMacroShowPwd_WhenConfigPersisted_SurvivesReset(t *testing.T) {
 	tempHome := t.TempDir()
 	t.Setenv("HOME", tempHome)
 	t.Setenv("USERPROFILE", tempHome)

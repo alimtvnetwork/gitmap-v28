@@ -8,7 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func TestBindAndResolveProject(t *testing.T) {
+func TestBindAndResolveProject_ValidProfile_ResolvesSuccessfully(t *testing.T) {
 	tempDir := t.TempDir()
 	store.SetBinaryDataDirForTesting(tempDir)
 	defer store.SetBinaryDataDirForTesting("")
@@ -23,6 +23,7 @@ func TestBindAndResolveProject(t *testing.T) {
 	if !hasProfile || profile == nil {
 		t.Fatalf("expected profile to resolve")
 	}
+
 	if profile.Name != "Work User" {
 		t.Fatalf("expected Work User, got %s", profile.Name)
 	}
@@ -31,9 +32,10 @@ func TestBindAndResolveProject(t *testing.T) {
 	if !hasSlug || slugProfile == nil {
 		t.Fatalf("expected profile to resolve by slug")
 	}
+
 }
 
-func TestUnbindProject(t *testing.T) {
+func TestUnbindProject_ExistingBinding_RemovesResolution(t *testing.T) {
 	tempDir := t.TempDir()
 	store.SetBinaryDataDirForTesting(tempDir)
 	defer store.SetBinaryDataDirForTesting("")
@@ -49,9 +51,10 @@ func TestUnbindProject(t *testing.T) {
 	if hasProfile || profile != nil {
 		t.Fatalf("expected profile to be unbound")
 	}
+
 }
 
-func TestSyncProjectUser(t *testing.T) {
+func TestSyncProjectUser_BoundRepo_SetsGitConfig(t *testing.T) {
 	tempDir := t.TempDir()
 	store.SetBinaryDataDirForTesting(tempDir)
 	defer store.SetBinaryDataDirForTesting("")
@@ -71,9 +74,11 @@ func TestSyncProjectUser(t *testing.T) {
 	if err := SyncProjectUser("sync-repo"); err != nil {
 		t.Fatalf("unexpected sync error: %v", err)
 	}
+
 	if appliedKey != "user.email" || appliedVal != "work@company.com" {
 		t.Fatalf("expected user.email set to work@company.com, got %s=%s", appliedKey, appliedVal)
 	}
+
 }
 
 func seedProfilesConfig(t *testing.T) {
