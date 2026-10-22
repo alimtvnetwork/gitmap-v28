@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // EnsureWorkDirsTable creates the work_directories table if it does not exist.
@@ -49,22 +50,36 @@ func (db *DB) EnsureWorkDir(absPath, label string, isDefault bool) (*model.WorkD
 
 // ListWorkDirs returns all registered work directories.
 func (db *DB) ListWorkDirs() ([]model.WorkDir, error) {
+	res := db.ListWorkDirsWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListWorkDirsWrap() WorkDirSliceWrap {
 	if db == nil || db.conn == nil {
-		return nil, apperror.NewSimple("ListWorkDirs", "E_NIL_DB")
+		return result.FailSlice[model.WorkDir](apperror.NewSimple("ListWorkDirs", "E_NIL_DB"))
 	}
 
 	if err := db.EnsureWorkDirsTable(); err != nil {
-		return nil, apperror.WrapSimple(err, "ListWorkDirs.EnsureWorkDirsTable")
+		return result.FailSlice[model.WorkDir](apperror.WrapSimple(err, "ListWorkDirs.EnsureWorkDirsTable"))
 	}
 
 	rows, err := QueryWrapper(db.conn, SQLSelectAllWorkDirs).Destruct()
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "ListWorkDirs")
+		return result.FailSlice[model.WorkDir](apperror.WrapSimple(err, "ListWorkDirs"))
 	}
 
 	defer rows.Close()
 
-	return scanWorkDirRows(rows)
+	items, errScan := scanWorkDirRows(rows)
+	if errScan != nil {
+		return result.FailSlice[model.WorkDir](apperror.WrapSimple(errScan, "ListWorkDirs"))
+	}
+
+	return result.OkSlice(items)
 }
 
 func scanWorkDirRows(rows *sql.Rows) ([]model.WorkDir, error) {

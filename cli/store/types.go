@@ -48,6 +48,18 @@ type (
 
 	// RepoCountWrap is the canonical result container for integer repo counts.
 	RepoCountWrap = result.Wrap[int]
+
+	SSHHostSliceWrap = result.WrapSlice[SSHHost]
+	SSHKeySliceWrap = result.WrapSlice[model.SSHKey]
+	SSHKnownHostSliceWrap = result.WrapSlice[SSHKnownHost]
+	SSHHistorySliceWrap = result.WrapSlice[SSHHistory]
+	TaskHistoryRecordSliceWrap = result.WrapSlice[model.TaskHistoryRecord]
+	AliasSliceWrap = result.WrapSlice[model.Alias]
+	AliasWithRepoSliceWrap = result.WrapSlice[AliasWithRepo]
+	UnaliasedRepoSliceWrap = result.WrapSlice[UnaliasedRepo]
+	BookmarkRecordSliceWrap = result.WrapSlice[model.BookmarkRecord]
+	ReleaseRecordSliceWrap = result.WrapSlice[model.ReleaseRecord]
+	WorkDirSliceWrap = result.WrapSlice[model.WorkDir]
 )
 
 // HeatmapActionLogRecord models an action log entry for heatmap rendering.

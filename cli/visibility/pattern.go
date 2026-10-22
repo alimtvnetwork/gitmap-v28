@@ -19,6 +19,9 @@ package visibility
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // Pattern is the compiled form of a single user-supplied token. The
@@ -101,13 +104,13 @@ func (p Pattern) Matches(name string) bool {
 	return true
 }
 
-// ParsePatternList splits a comma-separated raw list into compiled
+// ParsePatternListWrap splits a comma-separated raw list into compiled
 // Patterns, trimming spaces, deduping by raw form, and rejecting any
-// empty token. Returns the first parse error with the offending token
-// index (1-based) for clear user feedback.
-func ParsePatternList(raw string) ([]Pattern, error) {
+// empty token, wrapped in PatternSliceWrap.
+func ParsePatternListWrap(raw string) PatternSliceWrap {
 	if len(strings.TrimSpace(raw)) == 0 {
-		return nil, fmt.Errorf("Error: empty pattern list (operation: parse-pattern-list, reason: arg is blank)")
+		err := fmt.Errorf("Error: empty pattern list (operation: parse-pattern-list, reason: arg is blank)")
+		return result.FailSlice[Pattern](apperror.WrapSimple(err, "visibility.ParsePatternListWrap"))
 	}
 
 	tokens := strings.Split(raw, ",")
@@ -116,7 +119,8 @@ func ParsePatternList(raw string) ([]Pattern, error) {
 	for i, tok := range tokens {
 		trimmed := strings.TrimSpace(tok)
 		if len(trimmed) == 0 {
-			return nil, fmt.Errorf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)
+			err := fmt.Errorf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)
+			return result.FailSlice[Pattern](apperror.WrapSimple(err, "visibility.ParsePatternListWrap"))
 		}
 
 		if seen[trimmed] {
@@ -127,11 +131,25 @@ func ParsePatternList(raw string) ([]Pattern, error) {
 
 		pat, err := ParsePattern(trimmed)
 		if err != nil {
-			return nil, fmt.Errorf("Error: token %d %q: %w", i+1, trimmed, err)
+			wrappedErr := fmt.Errorf("Error: token %d %q: %w", i+1, trimmed, err)
+			return result.FailSlice[Pattern](apperror.WrapSimple(wrappedErr, "visibility.ParsePatternListWrap"))
 		}
 
 		out = append(out, pat)
 	}
 
-	return out, nil
+	return result.OkSlice(out)
+}
+
+// ParsePatternList splits a comma-separated raw list into compiled
+// Patterns, trimming spaces, deduping by raw form, and rejecting any
+// empty token. Returns the first parse error with the offending token
+// index (1-based) for clear user feedback.
+func ParsePatternList(raw string) ([]Pattern, error) {
+	res := ParsePatternListWrap(raw)
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
 }

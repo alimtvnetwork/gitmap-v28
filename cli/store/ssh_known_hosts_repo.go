@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // SSHKnownHost represents a known host entry stored in the SQLite database.
@@ -67,16 +68,29 @@ func UpsertSSHKnownHost(ctx context.Context, kh SSHKnownHost, db *sql.DB) error 
 	return nil
 }
 
-// ListSSHKnownHosts retrieves all known hosts from SQLite.
-func ListSSHKnownHosts(ctx context.Context, db *sql.DB) ([]SSHKnownHost, error) {
+// ListSSHKnownHostsWrap retrieves all known hosts from SQLite encapsulated in SSHKnownHostSliceWrap.
+func ListSSHKnownHostsWrap(ctx context.Context, db *sql.DB) SSHKnownHostSliceWrap {
 	ctx = safeContext(ctx)
 	_ = EnsureSSHTables(db)
 	rows, err := db.QueryContext(ctx, sqlSelectListKnownHosts)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "ListSSHKnownHosts.Query")
+		return result.FailSlice[SSHKnownHost](apperror.WrapSimple(err, "ListSSHKnownHosts.Query"))
 	}
 	defer rows.Close()
-	return scanKnownHostRows(rows)
+	hosts, err := scanKnownHostRows(rows)
+	if err != nil {
+		return result.FailSlice[SSHKnownHost](apperror.WrapSimple(err, "ListSSHKnownHosts.Scan"))
+	}
+	return result.OkSlice(hosts)
+}
+
+// ListSSHKnownHosts retrieves all known hosts from SQLite.
+func ListSSHKnownHosts(ctx context.Context, db *sql.DB) ([]SSHKnownHost, error) {
+	res := ListSSHKnownHostsWrap(ctx, db)
+	if res.HasError() {
+		return nil, res.Err
+	}
+	return res.Items(), nil
 }
 
 func scanKnownHostRows(rows *sql.Rows) ([]SSHKnownHost, error) {

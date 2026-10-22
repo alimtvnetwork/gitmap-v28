@@ -3,8 +3,10 @@ package store
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // InsertBookmark saves a new bookmark record.
@@ -20,14 +22,28 @@ func (db *DB) InsertBookmark(r model.BookmarkRecord) error {
 
 // ListBookmarks returns all saved bookmarks ordered by name.
 func (db *DB) ListBookmarks() ([]model.BookmarkRecord, error) {
+	res := db.ListBookmarksWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListBookmarksWrap() BookmarkRecordSliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllBookmarks).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)
+		return result.FailSlice[model.BookmarkRecord](apperror.WrapSimple(err, "ListBookmarks"))
 	}
 
 	defer rows.Close()
 
-	return scanBookmarkRows(rows)
+	items, errScan := scanBookmarkRows(rows)
+	if errScan != nil {
+		return result.FailSlice[model.BookmarkRecord](apperror.WrapSimple(errScan, "ListBookmarks"))
+	}
+
+	return result.OkSlice(items)
 }
 
 // FindBookmarkByName returns a single bookmark by name.

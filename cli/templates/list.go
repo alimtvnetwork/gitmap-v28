@@ -5,6 +5,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // Entry describes one discoverable template.
@@ -15,17 +18,17 @@ type Entry struct {
 	Path   string     // absolute (overlay) or virtual embed path
 }
 
-// List returns every available template, with the user-overlay copy
-// shadowing the embedded one when both exist. Sorted by (kind, lang).
-func List() ([]Entry, error) {
+// ListWrap returns every available template, with the user-overlay copy
+// shadowing the embedded one when both exist. Sorted by (kind, lang), wrapped in EntrySliceWrap.
+func ListWrap() EntrySliceWrap {
 	merged := map[string]Entry{}
 
 	if err := collectEmbed(merged); err != nil {
-		return nil, err
+		return result.FailSlice[Entry](apperror.WrapSimple(err, "templates.ListWrap"))
 	}
 
 	if err := collectUser(merged); err != nil {
-		return nil, err
+		return result.FailSlice[Entry](apperror.WrapSimple(err, "templates.ListWrap"))
 	}
 
 	out := make([]Entry, 0, len(merged))
@@ -41,7 +44,18 @@ func List() ([]Entry, error) {
 		return out[i].Lang < out[j].Lang
 	})
 
-	return out, nil
+	return result.OkSlice(out)
+}
+
+// List returns every available template, with the user-overlay copy
+// shadowing the embedded one when both exist. Sorted by (kind, lang).
+func List() ([]Entry, error) {
+	res := ListWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
 }
 
 // kindRank gives a stable display order: ignore, attributes, lfs.

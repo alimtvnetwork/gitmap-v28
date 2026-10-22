@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // AliasWithRepo extends Alias with resolved repo details.
@@ -80,27 +82,55 @@ func (db *DB) FindAliasByRepoID(repoID int64) (model.Alias, error) {
 
 // FindAliasesByRepoID retrieves all aliases for a specific repo.
 func (db *DB) FindAliasesByRepoID(repoID int64) ([]model.Alias, error) {
+	res := db.FindAliasesByRepoIDWrap(repoID)
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) FindAliasesByRepoIDWrap(repoID int64) AliasSliceWrap {
 	db.ensureAliasColumns()
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAliasesByRepoID, repoID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
+		return result.FailSlice[model.Alias](apperror.WrapSimple(err, "FindAliasesByRepoID"))
 	}
 
 	defer rows.Close()
 
-	return scanAliasRowsFull(rows)
+	items, errScan := scanAliasRowsFull(rows)
+	if errScan != nil {
+		return result.FailSlice[model.Alias](apperror.WrapSimple(errScan, "FindAliasesByRepoID"))
+	}
+
+	return result.OkSlice(items)
 }
 
 // ListAliases returns all aliases ordered by name.
 func (db *DB) ListAliases() ([]model.Alias, error) {
+	res := db.ListAliasesWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListAliasesWrap() AliasSliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAliases).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
+		return result.FailSlice[model.Alias](apperror.WrapSimple(err, "ListAliases"))
 	}
 
 	defer rows.Close()
 
-	return scanAliasRows(rows)
+	items, errScan := scanAliasRows(rows)
+	if errScan != nil {
+		return result.FailSlice[model.Alias](apperror.WrapSimple(errScan, "ListAliases"))
+	}
+
+	return result.OkSlice(items)
 }
 
 // ResolveAlias retrieves an alias with its repo path and slug.
@@ -119,9 +149,18 @@ func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {
 
 // ListAliasesWithRepo returns all aliases with resolved repo details.
 func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {
+	res := db.ListAliasesWithRepoWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListAliasesWithRepoWrap() AliasWithRepoSliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAliasesWithRepo).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
+		return result.FailSlice[AliasWithRepo](apperror.WrapSimple(err, "ListAliasesWithRepo"))
 	}
 
 	defer rows.Close()
@@ -131,15 +170,15 @@ func (db *DB) ListAliasesWithRepo() ([]AliasWithRepo, error) {
 	for rows.Next() {
 		var a AliasWithRepo
 
-		err := rows.Scan(&a.ID, &a.Alias.Alias, &a.RepoID, &a.CreatedAt, &a.AbsolutePath, &a.Slug)
-		if err != nil {
+		scanErr := rows.Scan(&a.ID, &a.Alias.Alias, &a.RepoID, &a.CreatedAt, &a.AbsolutePath, &a.Slug)
+		if scanErr != nil {
 			continue
 		}
 
 		results = append(results, a)
 	}
 
-	return results, nil
+	return result.OkSlice(results)
 }
 
 // DeleteAlias removes an alias by name.
@@ -154,9 +193,18 @@ func (db *DB) DeleteAlias(alias string) error {
 
 // ListUnaliasedRepos returns repos that have no alias assigned.
 func (db *DB) ListUnaliasedRepos() ([]UnaliasedRepo, error) {
+	res := db.ListUnaliasedReposWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListUnaliasedReposWrap() UnaliasedRepoSliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectUnaliasedRepos).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrAliasQuery, err)
+		return result.FailSlice[UnaliasedRepo](apperror.WrapSimple(err, "ListUnaliasedRepos"))
 	}
 
 	defer rows.Close()
@@ -166,15 +214,15 @@ func (db *DB) ListUnaliasedRepos() ([]UnaliasedRepo, error) {
 	for rows.Next() {
 		var r UnaliasedRepo
 
-		err := rows.Scan(&r.ID, &r.Slug, &r.RepoName)
-		if err != nil {
+		scanErr := rows.Scan(&r.ID, &r.Slug, &r.RepoName)
+		if scanErr != nil {
 			continue
 		}
 
 		repos = append(repos, r)
 	}
 
-	return repos, nil
+	return result.OkSlice(repos)
 }
 
 // AliasExists returns true if an alias with the given name exists.

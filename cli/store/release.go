@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // UpsertRelease inserts or updates a release record in the database.
@@ -86,14 +87,28 @@ func clearLatestRunner(runner sqlExecutor, repoID int64) error {
 
 // ListReleases returns all releases ordered by creation date descending.
 func (db *DB) ListReleases() ([]model.ReleaseRecord, error) {
+	res := db.ListReleasesWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
+}
+
+func (db *DB) ListReleasesWrap() ReleaseRecordSliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllReleases).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
+		return result.FailSlice[model.ReleaseRecord](apperror.WrapSimple(err, "ListReleases"))
 	}
 
 	defer rows.Close()
 
-	return scanReleaseRows(rows)
+	items, errScan := scanReleaseRows(rows)
+	if errScan != nil {
+		return result.FailSlice[model.ReleaseRecord](apperror.WrapSimple(errScan, "ListReleases"))
+	}
+
+	return result.OkSlice(items)
 }
 
 // FindReleaseByTag returns a release matching the given tag.

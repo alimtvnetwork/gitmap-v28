@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // InsertSSHKey stores a new SSH key record.
@@ -42,16 +44,30 @@ func (db *DB) FindSSHKeyByName(name string) (model.SSHKey, error) {
 	return scanOneSSHKey(row)
 }
 
-// ListSSHKeys returns all stored SSH keys ordered by name.
-func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
+// ListSSHKeysWrap returns all stored SSH keys encapsulated in SSHKeySliceWrap.
+func (db *DB) ListSSHKeysWrap() SSHKeySliceWrap {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllSSHKeys).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrSSHQuery, err)
+		return result.FailSlice[model.SSHKey](apperror.WrapSimple(err, constants.ErrSSHQuery))
 	}
-
 	defer rows.Close()
 
-	return scanSSHKeyRows(rows)
+	keys, err := scanSSHKeyRows(rows)
+	if err != nil {
+		return result.FailSlice[model.SSHKey](apperror.WrapSimple(err, constants.ErrSSHQuery))
+	}
+
+	return result.OkSlice(keys)
+}
+
+// ListSSHKeys returns all stored SSH keys ordered by name.
+func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
+	res := db.ListSSHKeysWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
 }
 
 // DeleteSSHKey removes an SSH key record by name.
@@ -71,19 +87,30 @@ func (db *DB) SSHKeyExists(name string) bool {
 	return err == nil
 }
 
-// SSHKeyNames returns a list of all SSH key names.
-func (db *DB) SSHKeyNames() ([]string, error) {
-	keys, err := db.ListSSHKeys()
-	if err != nil {
-		return nil, err
+// SSHKeyNamesWrap returns a list of all SSH key names encapsulated in result.StringSliceResult.
+func (db *DB) SSHKeyNamesWrap() result.StringSliceResult {
+	keysRes := db.ListSSHKeysWrap()
+	if keysRes.HasError() {
+		return result.FailSlice[string](keysRes.AppError())
 	}
 
+	keys := keysRes.Items()
 	names := make([]string, len(keys))
 	for i, k := range keys {
 		names[i] = k.Name
 	}
 
-	return names, nil
+	return result.OkSlice(names)
+}
+
+// SSHKeyNames returns a list of all SSH key names.
+func (db *DB) SSHKeyNames() ([]string, error) {
+	res := db.SSHKeyNamesWrap()
+	if res.HasError() {
+		return nil, res.Err
+	}
+
+	return res.Items(), nil
 }
 
 // scanOneSSHKey scans a single SSH key row.

@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	_ "modernc.org/sqlite"
 )
 
@@ -162,16 +163,30 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	return nil
 }
 
-// ListTaskHistory queries audit records with section filter and pagination.
-func (db *DB) ListTaskHistory(section string, limit, offset int) ([]model.TaskHistoryRecord, error) {
+// ListTaskHistoryWrap queries audit records with section filter and pagination encapsulated in TaskHistoryRecordSliceWrap.
+func (db *DB) ListTaskHistoryWrap(section string, limit, offset int) TaskHistoryRecordSliceWrap {
 	boundedLimit, boundedOffset := sanitizeTaskHistoryBounds(limit, offset)
 	rows, err := db.queryTaskHistoryRows(section, boundedLimit, boundedOffset)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "ListTaskHistory query")
+		return result.FailSlice[model.TaskHistoryRecord](apperror.WrapSimple(err, "ListTaskHistory query"))
 	}
 	defer rows.Close()
 
-	return scanTaskHistoryRows(rows)
+	records, scanErr := scanTaskHistoryRows(rows)
+	if scanErr != nil {
+		return result.FailSlice[model.TaskHistoryRecord](apperror.WrapSimple(scanErr, "ListTaskHistory scan"))
+	}
+
+	return result.OkSlice(records)
+}
+
+// ListTaskHistory queries audit records with section filter and pagination.
+func (db *DB) ListTaskHistory(section string, limit, offset int) ([]model.TaskHistoryRecord, error) {
+	res := db.ListTaskHistoryWrap(section, limit, offset)
+	if res.HasError() {
+		return nil, res.Err
+	}
+	return res.Items(), nil
 }
 
 func sanitizeTaskHistoryBounds(limit, offset int) (int, int) {
