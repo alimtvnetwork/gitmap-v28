@@ -68,7 +68,7 @@ func matchSingleTarget(token string, projects []AgyProject) ([]AgyProject, error
 		return slugMatches, nil
 	}
 
-	return nil, fmt.Errorf("target %q did not match any project sequence (e.g. 001), ID, or slug prefix", token)
+	return nil, apperror.NewNotFoundError(fmt.Sprintf("target %q did not match any project sequence (e.g. 001), ID, or slug prefix", token))
 }
 
 func matchBySequence(token string, projects []AgyProject) (AgyProject, bool) {

@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/ssh"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func dialNodeWithSigner(target *SSHTarget, signer ssh.Signer) *ssh.Client {
@@ -95,7 +97,7 @@ func normalizeSSHAuthFailure(err error) error {
 	if strings.Contains(msg, "unexpected message type 51") ||
 		strings.Contains(msg, "unable to authenticate") ||
 		strings.Contains(msg, "handshake failed") {
-		return fmt.Errorf("ssh: authentication failed: invalid password or remote server rejected credentials: %w", err)
+		return apperror.WrapSimple(err, "ssh: authentication failed: invalid password or remote server rejected credentials")
 	}
 	return err
 }

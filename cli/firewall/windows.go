@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func runNetsh(args ...string) (string, error) {
@@ -27,7 +29,7 @@ func allowPortWindows(port int, name string) error {
 	}
 	out, err := runNetsh(args...)
 	if err != nil && !strings.Contains(out, "Ok.") {
-		return fmt.Errorf("netsh allow port %d failed: %s", port, strings.TrimSpace(out))
+		return apperror.WrapSimple(err, fmt.Sprintf("netsh allow port %d failed", port)).WithContext("output", strings.TrimSpace(out))
 	}
 
 	return nil
@@ -46,7 +48,7 @@ func blockPortWindows(port int, name string) error {
 	}
 	out, err := runNetsh(args...)
 	if err != nil && !strings.Contains(out, "Ok.") {
-		return fmt.Errorf("netsh block port %d failed: %s", port, strings.TrimSpace(out))
+		return apperror.WrapSimple(err, fmt.Sprintf("netsh block port %d failed", port)).WithContext("output", strings.TrimSpace(out))
 	}
 
 	return nil
@@ -111,7 +113,7 @@ func enablePublicSSHWindows(port int) error {
 	}
 	out, err := runNetsh(args...)
 	if err != nil && !strings.Contains(out, "Ok.") {
-		return fmt.Errorf("failed to enable public SSH firewall rule on port %d: %s", port, strings.TrimSpace(out))
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to enable public SSH firewall rule on port %d", port)).WithContext("output", strings.TrimSpace(out))
 	}
 
 	return nil

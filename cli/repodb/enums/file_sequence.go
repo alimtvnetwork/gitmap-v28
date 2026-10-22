@@ -51,7 +51,7 @@ func (e *FileSequenceFieldType) UnmarshalJSON(data []byte) error {
 
 	target := FileSequenceFieldType(s)
 	if !fileSequenceValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "FileSequenceFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "FileSequenceFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *FileSequenceFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := FileSequenceFieldType(str)
 	if !fileSequenceValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "FileSequenceFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "FileSequenceFieldType", str))
 	}
 
 	*e = target

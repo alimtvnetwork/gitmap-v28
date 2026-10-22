@@ -7,6 +7,8 @@ package helpdoc
 import (
 	"fmt"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // Expectation is what a test asserts about a fixture it loads.
@@ -36,22 +38,22 @@ type Expectation struct {
 // dashboards) that have the marker but not the full body.
 func Validate(stamp Stamp, want Expectation) error {
 	if stamp.Name == "" {
-		return fmt.Errorf("fixture is unstamped: add %q as the first line",
-			Marker(Stamp{Name: "<name>", Generation: 1, MinCurrent: want.CurrentVersion}))
+		return apperror.NewValidationError(fmt.Sprintf("fixture is unstamped: add %q as the first line",
+			Marker(Stamp{Name: "<name>", Generation: 1, MinCurrent: want.CurrentVersion})))
 	}
 
 	if stamp.Generation < want.MinGeneration {
-		return fmt.Errorf(
+		return apperror.NewValidationError(fmt.Sprintf(
 			"fixture %q is generation %d, test expects >=%d (stale fixture)\n"+
 				"  regenerate via: %s",
-			stamp.Name, stamp.Generation, want.MinGeneration, want.RegenerateRecipe)
+			stamp.Name, stamp.Generation, want.MinGeneration, want.RegenerateRecipe))
 	}
 
 	if want.CurrentVersion > 0 && stamp.MinCurrent > want.CurrentVersion {
-		return fmt.Errorf(
+		return apperror.NewValidationError(fmt.Sprintf(
 			"fixture %q requires min-current=%d but test runs at current=%d\n"+
 				"  regenerate via: %s",
-			stamp.Name, stamp.MinCurrent, want.CurrentVersion, want.RegenerateRecipe)
+			stamp.Name, stamp.MinCurrent, want.CurrentVersion, want.RegenerateRecipe))
 	}
 
 	return nil
@@ -73,11 +75,11 @@ func ValidateBody(body string, stamp Stamp, want Expectation) error {
 
 	got := ShortHash(BodyHashExcludingMarker(body))
 
-	return fmt.Errorf(
+	return apperror.NewValidationError(fmt.Sprintf(
 		"fixture %q body hash mismatch: marker records sha=%s but actual body sha=%s\n"+
 			"  the fixture was edited without refreshing its // fixture-stamp: marker.\n"+
 			"  regenerate via: %s",
-		stamp.Name, stamp.SHA, got, want.RegenerateRecipe)
+		stamp.Name, stamp.SHA, got, want.RegenerateRecipe))
 }
 
 // MustValidateBody is the one-call helper tests use: parses the

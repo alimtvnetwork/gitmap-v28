@@ -5,13 +5,15 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // CopyFile copies src -> dst, preserving mode bits and parent dirs.
 // Symlinks are recreated, not followed.
 func CopyFile(src, dst string, info os.FileInfo) error {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return fmt.Errorf("mkdir %s: %w", filepath.Dir(dst), err)
+		return apperror.WrapSimple(err, "mkdir "+filepath.Dir(dst))
 	}
 
 	if info.Mode()&os.ModeSymlink != 0 {
@@ -25,7 +27,7 @@ func CopyFile(src, dst string, info os.FileInfo) error {
 func copySymlink(src, dst string) error {
 	target, err := os.Readlink(src)
 	if err != nil {
-		return fmt.Errorf("readlink %s: %w", src, err)
+		return apperror.WrapSimple(err, "readlink "+src)
 	}
 
 	_ = os.Remove(dst)
@@ -37,18 +39,18 @@ func copySymlink(src, dst string) error {
 func copyRegular(src, dst string, mode os.FileMode) error {
 	in, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("open %s: %w", src, err)
+		return apperror.WrapSimple(err, "open "+src)
 	}
 
 	defer in.Close()
 	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode.Perm())
 	if err != nil {
-		return fmt.Errorf("create %s: %w", dst, err)
+		return apperror.WrapSimple(err, "create "+dst)
 	}
 
 	defer out.Close()
 	if _, err = io.Copy(out, in); err != nil {
-		return fmt.Errorf("copy %s -> %s: %w", src, dst, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("copy %s -> %s", src, dst))
 	}
 
 	return nil

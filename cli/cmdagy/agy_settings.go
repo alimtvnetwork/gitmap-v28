@@ -38,7 +38,7 @@ var agySettingsImportCmd = &cobra.Command{
 	Short: "Import Antigravity settings from a JSON file",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap agy settings import <file.json>")
+			return apperror.NewValidationError("usage: gitmap agy settings import <file.json>")
 		}
 
 		return executeAgySettingsImport(args[0])

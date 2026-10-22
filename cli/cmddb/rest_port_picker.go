@@ -5,6 +5,8 @@ import (
 	"net"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var defaultCandidatePorts = []int{8080, 8081, 8082, 3000, 5000}
@@ -40,7 +42,7 @@ func parsePortToken(token string) (int, error) {
 	clean := strings.TrimPrefix(strings.TrimSpace(token), "$")
 	port, err := strconv.Atoi(clean)
 	if err != nil || port < 1 || port > 65535 {
-		return 0, fmt.Errorf("invalid port '%s' (must be between 1 and 65535)", token)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid port '%s' (must be between 1 and 65535)", token))
 	}
 	return port, nil
 }
@@ -60,7 +62,7 @@ func CheckPortAvailable(port int) bool {
 // Immediately closes listener upon success and returns the first free port.
 func PickAvailablePort(candidates []int) (int, error) {
 	if len(candidates) == 0 {
-		return 0, fmt.Errorf("no candidate ports specified")
+		return 0, apperror.NewValidationError("no candidate ports specified")
 	}
 
 	for i, port := range candidates {
@@ -71,7 +73,7 @@ func PickAvailablePort(candidates []int) (int, error) {
 		logPortOccupied(port, i, candidates)
 	}
 
-	return 0, fmt.Errorf("all candidate ports [%s] are currently occupied or unavailable", formatPortCandidates(candidates))
+	return 0, apperror.NewExecutionError(fmt.Sprintf("all candidate ports [%s] are currently occupied or unavailable", formatPortCandidates(candidates)))
 }
 
 func logPortOccupied(port, idx int, candidates []int) {

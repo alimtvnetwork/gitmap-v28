@@ -168,7 +168,7 @@ func PullRebaseRepoCache(repoCachePath string) error {
 		if out, err := cmd.CombinedOutput(); err == nil {
 			return nil
 		} else {
-			lastErr = fmt.Errorf("rebase failed: %s (%w)", string(out), err)
+			lastErr = apperror.WrapSimple(err, fmt.Sprintf("rebase failed: %s", string(out)))
 		}
 		time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
 	}

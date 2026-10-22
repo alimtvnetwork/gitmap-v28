@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -55,7 +56,7 @@ func ReadModuleName() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no module directive found in go.mod")
+	return "", apperror.NewExecutionError("no module directive found in go.mod")
 }
 
 // BinaryName extracts the short name from a Go module path.
@@ -187,7 +188,7 @@ func EnsureStagingDir() (string, error) {
 	dir := constants.AssetsStagingDir
 	err := os.MkdirAll(dir, constants.DirPermission)
 	if err != nil {
-		return "", fmt.Errorf("create staging dir: %w", err)
+		return "", apperror.WrapSimple(err, "create staging dir")
 	}
 
 	if verbose.IsEnabled() {

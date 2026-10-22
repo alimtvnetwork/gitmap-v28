@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -24,7 +25,7 @@ func ResolveEndpoint(raw string, isLeft bool, opts Options) (Endpoint, error) {
 func resolveFolderEndpoint(ep Endpoint, isLeft bool, opts Options) (Endpoint, error) {
 	abs, err := filepath.Abs(ep.DisplayName)
 	if err != nil {
-		return ep, fmt.Errorf("abs %s: %w", ep.DisplayName, err)
+		return ep, apperror.WrapSimple(err, "abs "+ep.DisplayName)
 	}
 
 	ep.WorkingDir = abs
@@ -35,7 +36,7 @@ func resolveFolderEndpoint(ep Endpoint, isLeft bool, opts Options) (Endpoint, er
 
 	ep.IsExisted = isFound
 	if !isFound && isLeft {
-		return ep, fmt.Errorf(constants.ErrMMSrcMissingFmt, ep.DisplayName)
+		return ep, apperror.NewNotFoundError(fmt.Sprintf(constants.ErrMMSrcMissingFmt, ep.DisplayName))
 	}
 
 	pullErr := checkAndPullFolder(abs, isFound, opts.IsPullFolder)

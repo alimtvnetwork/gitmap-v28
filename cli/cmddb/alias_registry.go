@@ -2,12 +2,12 @@ package cmddb
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -84,11 +84,11 @@ func getSystemAliasDefs() []sysAliasDef {
 func RegisterAlias(name, path, desc string) error {
 	trimmedName := strings.TrimSpace(name)
 	if trimmedName == "" {
-		return fmt.Errorf("alias name cannot be empty")
+		return apperror.NewValidationError("alias name cannot be empty")
 	}
 	trimmedPath := strings.TrimSpace(path)
 	if trimmedPath == "" {
-		return fmt.Errorf("database path cannot be empty")
+		return apperror.NewValidationError("database path cannot be empty")
 	}
 
 	if err := InitAliasRegistry(); err != nil {

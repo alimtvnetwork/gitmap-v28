@@ -31,7 +31,7 @@ var AgyInjectPromptsCmd = &cobra.Command{
 	Short:   "Inject prompts iteratively with templates, prefix, suffix, and watch mode",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("usage: gitmap agy inject-prompts <folder-or-text> [--watch] [--rerun N] [--prefix ...] [--suffix ...]")
+			return apperror.NewValidationError("usage: gitmap agy inject-prompts <folder-or-text> [--watch] [--rerun N] [--prefix ...] [--suffix ...]")
 		}
 		appErr := runAgyInjectPrompts(args[0])
 		if appErr != nil {

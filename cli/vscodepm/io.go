@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
@@ -30,8 +31,7 @@ func writeEntriesAtomic(path string, entries []Entry) error {
 	if err := os.Rename(tmpPath, path); err != nil {
 		_ = os.Remove(tmpPath)
 
-		return fmt.Errorf(constants.ErrVSCodePMRenameFailed,
-			filepath.Base(path), err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode: failed to commit %s", filepath.Base(path)))
 	}
 
 	return nil
@@ -40,19 +40,19 @@ func writeEntriesAtomic(path string, entries []Entry) error {
 // writeEntriesToFile serializes entries with tab indent + trailing newline.
 func writeEntriesToFile(path string, entries []Entry) error {
 	if err := os.MkdirAll(filepath.Dir(path), constants.DirPermission); err != nil {
-		return fmt.Errorf(constants.ErrVSCodePMWriteTempFailed, path, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode: failed to write temp %s", path))
 	}
 
 	file, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf(constants.ErrVSCodePMWriteTempFailed, path, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode: failed to write temp %s", path))
 	}
 
 	if err := encodeEntries(file, entries); err != nil {
 		_ = file.Close()
 		_ = os.Remove(path)
 
-		return fmt.Errorf(constants.ErrVSCodePMWriteTempFailed, path, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode: failed to write temp %s", path))
 	}
 
 	return file.Close()

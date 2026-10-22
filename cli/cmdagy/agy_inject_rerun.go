@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var iprPromptName string
@@ -20,7 +22,7 @@ var AgyInjectRerunCmd = &cobra.Command{
 	Short:   "Inject prompt and rerun for N iterations",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("usage: gitmap agy inject-prompts-rerun <prompt-text> [-n 2] [--watch]")
+			return apperror.NewValidationError("usage: gitmap agy inject-prompts-rerun <prompt-text> [-n 2] [--watch]")
 		}
 		cwd, _ := os.Getwd()
 		prefixText, suffixText := resolveAppliedTemplates(iprPrefix, iprSuffix, false)
@@ -41,7 +43,7 @@ var AgyInjectRerunSSHCmd = &cobra.Command{
 	Short:   "Inject prompt and rerun via SSH cluster nodes",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("usage: gitmap agy inject-prompts-rerun-ssh <prompt-text> [--nodes ...] [-n 2]")
+			return apperror.NewValidationError("usage: gitmap agy inject-prompts-rerun-ssh <prompt-text> [--nodes ...] [-n 2]")
 		}
 		fmt.Printf("Injecting and rerunning across SSH nodes (%s)...\n", iprNodes)
 		cwd, _ := os.Getwd()

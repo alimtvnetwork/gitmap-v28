@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // WriteMergeAIManifest serializes and saves merge-ai-manifest.json into destination repository root.
@@ -14,7 +16,7 @@ func WriteMergeAIManifest(destDir string, manifest MergeAIManifest) error {
 	filePath := filepath.Join(destDir, "merge-ai-manifest.json")
 	data, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal merge-ai-manifest.json: %w", err)
+		return apperror.WrapSimple(err, "failed to marshal merge-ai-manifest.json")
 	}
 
 	return os.WriteFile(filePath, data, 0644)

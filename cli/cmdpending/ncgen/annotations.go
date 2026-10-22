@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // annotation is one curated catalog entry from nc_annotations.json.
@@ -25,7 +27,7 @@ type annotation struct {
 func loadAnnotations(path string) ([]annotation, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("read annotations: %w", err)
+		return nil, apperror.WrapSimple(err, "read annotations")
 	}
 
 	var out []annotation
@@ -34,7 +36,7 @@ func loadAnnotations(path string) ([]annotation, error) {
 	for dec.More() {
 		var a annotation
 		if err := dec.Decode(&a); err != nil {
-			return nil, fmt.Errorf("decode annotations: %w", err)
+			return nil, apperror.WrapSimple(err, "decode annotations")
 		}
 
 		if err := validateAnnotation(a); err != nil {
@@ -45,7 +47,7 @@ func loadAnnotations(path string) ([]annotation, error) {
 	}
 
 	if len(out) == 0 {
-		return nil, fmt.Errorf("no annotations found in %s", path)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("no annotations found in %s", path))
 	}
 
 	return out, nil
@@ -75,7 +77,7 @@ func validateAnnotation(a annotation) error {
 	}
 
 	if len(missing) > 0 {
-		return fmt.Errorf("annotation %q missing fields: %s", a.Name, strings.Join(missing, ", "))
+		return apperror.NewValidationError(fmt.Sprintf("annotation %q missing fields: %s", a.Name, strings.Join(missing, ", ")))
 	}
 
 	return nil

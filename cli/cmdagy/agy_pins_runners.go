@@ -41,7 +41,7 @@ func runAgyPinProjectsAdd(args []string) error {
 	for _, t := range targets {
 		pinned, addErr := addPinnedProjectTarget(t)
 		if addErr != nil {
-			return fmt.Errorf("pin project %q: %w", t, addErr.Unwrap())
+			return apperror.WrapSimple(addErr.Unwrap(), fmt.Sprintf("pin project %q", t))
 		}
 
 		fmt.Printf("%s Pinned project: %s%s%s (%s)\n",
@@ -60,7 +60,7 @@ func runAgyPinProjectsRm(args []string) error {
 
 	tokens := expandCommaSeparatedTokens(args)
 	if len(tokens) == 0 {
-		return fmt.Errorf("requires project sequence (001), ID, slug, or --all")
+		return apperror.NewValidationError("requires project sequence (001), ID, slug, or --all")
 	}
 
 	return handleAgyPinProjectsRemoveTargets(tokens)
@@ -69,7 +69,7 @@ func runAgyPinProjectsRm(args []string) error {
 func handleAgyPinProjectsClearAll() error {
 	count, clearErr := clearAllPinnedProjects()
 	if clearErr != nil {
-		return fmt.Errorf("clear pinned projects: %w", clearErr.Unwrap())
+		return apperror.WrapSimple(clearErr.Unwrap(), "clear pinned projects")
 	}
 
 	fmt.Printf("%s Unpinned all (%d) projects.\n", constants.ColorGreen+"✓"+constants.ColorReset, count)
@@ -81,7 +81,7 @@ func handleAgyPinProjectsRemoveTargets(targets []string) error {
 	for _, t := range targets {
 		removed, rmErr := removePinnedProjectTarget(t)
 		if rmErr != nil {
-			return fmt.Errorf("unpin project %q: %w", t, rmErr.Unwrap())
+			return apperror.WrapSimple(rmErr.Unwrap(), fmt.Sprintf("unpin project %q", t))
 		}
 
 		fmt.Printf("%s Unpinned project: %s%s%s (%s)\n",

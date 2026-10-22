@@ -17,6 +17,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DiffStatusType enumerates the high-level outcomes of a single Diff call.
@@ -54,7 +56,7 @@ type DiffResult struct {
 func Diff(targetPath, tag string, body []byte) (DiffResult, error) {
 	abs, err := filepath.Abs(targetPath)
 	if err != nil {
-		return DiffResult{}, fmt.Errorf("resolve %q: %w", targetPath, err)
+		return DiffResult{}, apperror.WrapSimple(err, fmt.Sprintf("resolve %q", targetPath))
 	}
 
 	prior, existed, readErr := readIfExists(abs)
@@ -173,5 +175,5 @@ func LoadFile(path string) ([]byte, bool, error) {
 		return nil, false, nil
 	}
 
-	return nil, false, fmt.Errorf("read %q: %w", path, err)
+	return nil, false, apperror.WrapSimple(err, fmt.Sprintf("read %q", path))
 }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -75,7 +76,7 @@ func resolveProfilePath(shell, profile string) (string, error) {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(resolved), constants.DirPermission); err != nil {
-		return "", fmt.Errorf("create profile dir %s: %w", filepath.Dir(resolved), err)
+		return "", apperror.WrapSimple(err, "create profile dir "+filepath.Dir(resolved))
 	}
 
 	return resolved, nil
@@ -103,7 +104,7 @@ func rewriteProfileFile(
 
 	wrErr := os.WriteFile(profile, []byte(rewritten), constants.FilePermission)
 	if wrErr != nil {
-		return PathSnippetWriteResult{}, fmt.Errorf("rewrite profile %s: %w", profile, wrErr)
+		return PathSnippetWriteResult{}, apperror.WrapSimple(wrErr, "rewrite profile "+profile)
 	}
 
 	return PathSnippetWriteResult{Profile: profile, Action: "rewritten", Snippet: body}, nil
@@ -113,12 +114,12 @@ func rewriteProfileFile(
 func appendSnippet(profile, body string) (PathSnippetWriteResult, error) {
 	f, err := os.OpenFile(profile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, constants.FilePermission)
 	if err != nil {
-		return PathSnippetWriteResult{}, fmt.Errorf("open profile %s: %w", profile, err)
+		return PathSnippetWriteResult{}, apperror.WrapSimple(err, "open profile "+profile)
 	}
 
 	defer f.Close()
 	if _, err = fmt.Fprintf(f, "\n%s\n", body); err != nil {
-		return PathSnippetWriteResult{}, fmt.Errorf("append snippet: %w", err)
+		return PathSnippetWriteResult{}, apperror.WrapSimple(err, "append snippet")
 	}
 
 	return PathSnippetWriteResult{Profile: profile, Action: "appended", Snippet: body}, nil
@@ -181,7 +182,7 @@ func rewriteSnippetBlock(content, open, close, body string) string {
 func defaultProfilePath(shell string) (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("resolve home dir: %w", err)
+		return "", apperror.WrapSimple(err, "resolve home dir")
 	}
 
 	rel, err := profileRelPath(shell)
@@ -205,6 +206,6 @@ func profileRelPath(shell string) (string, error) {
 		// pass an explicit path on Windows. Fallback for cross-shell use.
 		return filepath.Join(".config", "powershell", "Microsoft.PowerShell_profile.ps1"), nil
 	default:
-		return "", fmt.Errorf("unknown shell %q", shell)
+		return "", apperror.NewValidationError(fmt.Sprintf("unknown shell %q", shell))
 	}
 }

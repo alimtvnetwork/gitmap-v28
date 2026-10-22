@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -15,7 +16,7 @@ func RunTokenDeployCLI(args []string) error {
 	token, _, err := secrets.Resolve()
 	hasToken := err == nil && len(token) > 0
 	if !hasToken {
-		return fmt.Errorf("no GitHub token available to deploy; set GH_TOKEN, login via gh auth, or gitmap token add")
+		return apperror.NewExecutionError("no GitHub token available to deploy; set GH_TOKEN, login via gh auth, or gitmap token add")
 	}
 
 	targetNode, exceptNode, isDryRun := parseTokenDeployArgs(args)
@@ -53,7 +54,7 @@ func executeSingleNodeTokenDeploy(c db.SSHConnection, token string, isDryRun boo
 
 	client, isConnected := connectSSHNode(c, header)
 	if !isConnected {
-		return "", fmt.Errorf("unable to connect to %s", header)
+		return "", apperror.NewExecutionError(fmt.Sprintf("unable to connect to %s", header))
 	}
 	defer client.Close()
 

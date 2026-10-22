@@ -42,7 +42,7 @@ func EmitSchema(kind string) ByteSliceWrap {
 	case constants.EmitSchemaKindInput:
 		return EmitInputSchema()
 	default:
-		return FailByteSlice(apperror.WrapSimple(fmt.Errorf(constants.MsgCloneFromEmitSchemaUnknown, kind), "EmitSchema"))
+		return FailByteSlice(apperror.NewValidationError(fmt.Sprintf(constants.MsgCloneFromEmitSchemaUnknown, kind)))
 	}
 }
 

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ListApps scans and discovers installed applications across the system.
@@ -64,7 +66,7 @@ func UninstallApp(target string, opts UninstallOptions) (AppUninstallResponse, e
 
 	if target == "" {
 		resp.Error = "target application identifier cannot be empty"
-		return resp, fmt.Errorf("%s", resp.Error)
+		return resp, apperror.NewValidationError(resp.Error)
 	}
 
 	if opts.IsDryRun {
@@ -80,7 +82,7 @@ func UninstallApp(target string, opts UninstallOptions) (AppUninstallResponse, e
 		resp, hasExecutionErr = executeWindowsUninstall(target, opts, resp)
 	} else {
 		resp.Error = fmt.Sprintf("unsupported platform for uninstaller: %s", runtime.GOOS)
-		return resp, fmt.Errorf("%s", resp.Error)
+		return resp, apperror.NewExecutionError(resp.Error)
 	}
 
 	resp.DurationMs = time.Since(startTime).Milliseconds()
@@ -353,7 +355,7 @@ func runAptUninstall(packageName string, isPurge bool) error {
 		return nil
 	}
 	if os.Geteuid() != 0 {
-		return fmt.Errorf("apt uninstallation failed for %s: %v (%s)", packageName, err, strings.TrimSpace(string(output)))
+		return apperror.NewExecutionError(fmt.Sprintf("apt uninstallation failed for %s: %v (%s)", packageName, err, strings.TrimSpace(string(output))))
 	}
 	rootCmd := exec.Command("apt-get", action, "-y", packageName)
 

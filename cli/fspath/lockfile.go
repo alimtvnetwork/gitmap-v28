@@ -25,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ErrAlreadyHeld is returned by Acquire when a live process already
@@ -62,7 +64,7 @@ func ForceAcquire(name string) (Releaser, error) {
 	os.Remove(path)
 	err := writePIDFile(path)
 	if err != nil {
-		return func() {}, fmt.Errorf("lockfile: write %s: %w", path, err)
+		return func() {}, apperror.WrapSimple(err, "lockfile: write "+path)
 	}
 
 	return func() { os.Remove(path) }, nil
@@ -114,11 +116,11 @@ func recoverOrFail(path string) error {
 	}
 
 	if pid == os.Getpid() {
-		return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)
+		return apperror.WrapSimple(ErrAlreadyHeld, fmt.Sprintf("(pid=%d, file=%s)", pid, path))
 	}
 
 	if processRunning(pid) {
-		return fmt.Errorf("%w (pid=%d, file=%s)", ErrAlreadyHeld, pid, path)
+		return apperror.WrapSimple(ErrAlreadyHeld, fmt.Sprintf("(pid=%d, file=%s)", pid, path))
 	}
 
 	os.Remove(path)

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -62,17 +63,17 @@ func cloneViaTempSwap(url, target string) (cloneReplaceResult, error) {
 	fmt.Printf(constants.MsgCloneReplaceTempClone, tmp)
 
 	if err := runCloneCommand(url, tmp); err != nil {
-		return res, fmt.Errorf("git clone into temp failed: %w", err)
+		return res, apperror.WrapSimple(err, "git clone into temp failed")
 	}
 
 	defer os.RemoveAll(tmp)
 
 	if err := emptyDirContents(target); err != nil {
-		return res, fmt.Errorf("could not empty target: %w", err)
+		return res, apperror.WrapSimple(err, "could not empty target")
 	}
 
 	if err := moveDirContents(tmp, target); err != nil {
-		return res, fmt.Errorf("swap failed: %w", err)
+		return res, apperror.WrapSimple(err, "swap failed")
 	}
 
 	fmt.Println(constants.MsgCloneReplaceSwapDone)
@@ -96,7 +97,7 @@ func runCloneCommand(url, dest string) error {
 func emptyDirContents(dir string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return fmt.Errorf("read dir: %w", err)
+		return apperror.WrapSimple(err, "read dir")
 	}
 
 	fmt.Printf(constants.MsgCloneReplaceEmptying, len(entries), dir)
@@ -113,7 +114,7 @@ func emptyDirContents(dir string) error {
 	}
 
 	if len(failures) > 0 {
-		return fmt.Errorf("%d entries could not be removed (e.g. %s)", len(failures), failures[0])
+		return apperror.NewExecutionError(fmt.Sprintf("%d entries could not be removed (e.g. %s)", len(failures), failures[0]))
 	}
 
 	return nil
@@ -123,7 +124,7 @@ func emptyDirContents(dir string) error {
 func moveDirContents(src, dst string) error {
 	entries, err := os.ReadDir(src)
 	if err != nil {
-		return fmt.Errorf("read src: %w", err)
+		return apperror.WrapSimple(err, "read src")
 	}
 
 	fmt.Printf(constants.MsgCloneReplaceMoving, len(entries))
@@ -133,7 +134,7 @@ func moveDirContents(src, dst string) error {
 		to := filepath.Join(dst, entry.Name())
 
 		if mvErr := os.Rename(from, to); mvErr != nil {
-			return fmt.Errorf("rename %s -> %s: %w", from, to, mvErr)
+			return apperror.WrapSimple(mvErr, fmt.Sprintf("rename %s -> %s", from, to))
 		}
 	}
 

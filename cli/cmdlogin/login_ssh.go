@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -38,7 +39,7 @@ func RunLoginSSH(args []string) error {
 
 	pubBytes, err := os.ReadFile(pubPath)
 	if err != nil {
-		return fmt.Errorf("read public key: %w", err)
+		return apperror.WrapSimple(err, "read public key")
 	}
 
 	pubKey := strings.TrimSpace(string(pubBytes))
@@ -94,7 +95,7 @@ func resolveSSHKeyPaths(customDir, alias string) (string, string, string, error)
 	if len(sshDir) == 0 {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			return "", "", "", fmt.Errorf("resolve user home directory: %w", err)
+			return "", "", "", apperror.WrapSimple(err, "resolve user home directory")
 		}
 		sshDir = filepath.Join(homeDir, ".ssh")
 	}
@@ -124,7 +125,7 @@ func ensureSSHKey(sshDir, keyPath, pubPath, alias string, overwrite bool) error 
 	}
 
 	if err := os.MkdirAll(sshDir, 0700); err != nil {
-		return fmt.Errorf("create ssh directory: %w", err)
+		return apperror.WrapSimple(err, "create ssh directory")
 	}
 
 	comment := "gitmap"
@@ -134,7 +135,7 @@ func ensureSSHKey(sshDir, keyPath, pubPath, alias string, overwrite bool) error 
 
 	cmd := exec.Command("ssh-keygen", "-t", "ed25519", "-C", comment, "-f", keyPath, "-N", "")
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("ssh-keygen failed: %w (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "ssh-keygen failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 
 	fmt.Printf("%s✔ Generated modern Ed25519 SSH key:%s %s\n", constants.ColorGreen, constants.ColorReset, keyPath)

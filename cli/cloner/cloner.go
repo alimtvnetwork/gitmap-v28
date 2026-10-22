@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -89,14 +90,14 @@ func loadRecords(path string) ([]model.ScanRecord, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("open clone source %q: %w", path, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("open clone source %q", path))
 	}
 
 	defer file.Close()
 
 	records, err := parseByExtension(ext, file)
 	if err != nil {
-		return nil, fmt.Errorf("parse clone source %q: %w", path, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("parse clone source %q", path))
 	}
 
 	return records, nil
@@ -131,7 +132,7 @@ func parseTextFile(r io.Reader) ([]model.ScanRecord, error) {
 	}
 
 	if err := sc.Err(); err != nil {
-		return nil, fmt.Errorf("read line %d: %w", lineNum+1, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("read line %d", lineNum+1))
 	}
 
 	return records, nil

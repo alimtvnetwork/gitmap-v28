@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -35,12 +36,12 @@ type Loader interface {
 // matches so the cmd layer can print verbatim.
 func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 	if loader == nil {
-		return Plan{}, 0, fmt.Errorf("clone-pick: --replay requires database access")
+		return Plan{}, 0, apperror.NewExecutionError("clone-pick: --replay requires database access")
 	}
 
 	trimmed := strings.TrimSpace(ref)
 	if len(trimmed) == 0 {
-		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound, ref)
+		return Plan{}, 0, apperror.NewNotFoundError(fmt.Sprintf(constants.MsgClonePickReplayNotFound, ref))
 	}
 
 	id, err := strconv.ParseInt(trimmed, 10, 64)
@@ -50,7 +51,7 @@ func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 
 	plan, sel, err := loader.LoadClonePickByName(trimmed)
 	if err != nil {
-		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound+": %w", ref, err)
+		return Plan{}, 0, apperror.WrapNotFound(err, fmt.Sprintf(constants.MsgClonePickReplayNotFound, ref))
 	}
 
 	return plan, sel, nil
@@ -59,7 +60,7 @@ func LoadFromDB(loader Loader, ref string) (Plan, int64, error) {
 func loadByIDOrError(loader Loader, id int64, ref string) (Plan, int64, error) {
 	plan, sel, loadErr := loader.LoadClonePickByID(id)
 	if loadErr != nil {
-		return Plan{}, 0, fmt.Errorf(constants.MsgClonePickReplayNotFound+": %w", ref, loadErr)
+		return Plan{}, 0, apperror.WrapNotFound(loadErr, fmt.Sprintf(constants.MsgClonePickReplayNotFound, ref))
 	}
 
 	return plan, sel, nil

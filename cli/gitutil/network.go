@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -16,7 +17,7 @@ func CheckOnline() error {
 		time.Duration(constants.NetworkTimeoutSec)*time.Second,
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", constants.ErrOffline, err)
+		return apperror.WrapSimple(err, constants.ErrOffline)
 	}
 
 	conn.Close()

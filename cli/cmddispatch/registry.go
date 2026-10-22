@@ -9,6 +9,7 @@ package cmddispatch
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"path/filepath"
@@ -56,7 +57,7 @@ func CollectNames() ([]DispatchName, error) {
 		}
 		got, err := collectFromFile(path, filepath.ToSlash(rel), consts)
 		if err != nil {
-			return nil, fmt.Errorf("cmddispatch: parse %s: %w", rel, err)
+			return nil, apperror.WrapSimple(err, fmt.Sprintf("cmddispatch: parse %s", rel))
 		}
 		names = append(names, got...)
 	}
@@ -123,12 +124,12 @@ func RunCheck(w io.Writer) int {
 func repoRoot() (string, error) {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
-		return "", fmt.Errorf("cmddispatch: runtime.Caller failed")
+		return "", apperror.NewExecutionError("cmddispatch: runtime.Caller failed")
 	}
 	// file = <repo>/cli/cmddispatch/registry.go
 	root := filepath.Dir(filepath.Dir(filepath.Dir(file)))
 	if st, err := os.Stat(filepath.Join(root, "cli", "cmd")); err != nil || !st.IsDir() {
-		return "", fmt.Errorf("cmddispatch: repo root not found from %s", file)
+		return "", apperror.NewNotFoundError(fmt.Sprintf("cmddispatch: repo root not found from %s", file))
 	}
 	return root, nil
 }

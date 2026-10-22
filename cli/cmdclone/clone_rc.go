@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -148,7 +149,7 @@ func RunCloneRC(args []string, mode CloneDispatchMode) error {
 	repoCacheRoot := ResolveRepoCacheRoot()
 	manifests, err := DiscoverRCManifests(repoCacheRoot)
 	if err != nil {
-		return fmt.Errorf("failed to discover repo-cache manifests in %s: %w", repoCacheRoot, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to discover repo-cache manifests in %s", repoCacheRoot))
 	}
 
 	if len(manifests) == 0 {

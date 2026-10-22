@@ -3,6 +3,7 @@ package setup
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -17,7 +18,7 @@ import (
 // Spec: 02-spec/04-generic-cli/21-post-install-shell-activation/02-snippets.md
 func RenderPathSnippet(shell, dir, manager string) (string, error) {
 	if len(dir) == 0 {
-		return "", fmt.Errorf(constants.ErrPathSnippetDirRequired)
+		return "", apperror.NewValidationError(constants.ErrPathSnippetDirRequired)
 	}
 
 	tpl, err := snippetTemplate(shell)
@@ -44,7 +45,7 @@ func snippetTemplate(shell string) (string, error) {
 	case constants.PathSnippetShellPwsh:
 		return constants.PathSnippetPwshFmt, nil
 	default:
-		return "", fmt.Errorf(constants.ErrPathSnippetUnknownShell, shell)
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.ErrPathSnippetUnknownShell, shell))
 	}
 }
 

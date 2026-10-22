@@ -22,6 +22,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // MergeOutcomeType describes what Merge did to the target file.
@@ -52,7 +54,7 @@ type MergeResult struct {
 func Merge(targetPath, tag string, body []byte) (MergeResult, error) {
 	abs, err := filepath.Abs(targetPath)
 	if err != nil {
-		return MergeResult{}, fmt.Errorf("resolve %q: %w", targetPath, err)
+		return MergeResult{}, apperror.WrapSimple(err, fmt.Sprintf("resolve %q", targetPath))
 	}
 
 	prior, existed, readErr := readIfExists(abs)
@@ -69,11 +71,11 @@ func Merge(targetPath, tag string, body []byte) (MergeResult, error) {
 	}
 
 	if mkErr := os.MkdirAll(filepath.Dir(abs), 0o755); mkErr != nil {
-		return MergeResult{}, fmt.Errorf("mkdir %q: %w", filepath.Dir(abs), mkErr)
+		return MergeResult{}, apperror.WrapSimple(mkErr, fmt.Sprintf("mkdir %q", filepath.Dir(abs)))
 	}
 
 	if wErr := os.WriteFile(abs, next, 0o644); wErr != nil {
-		return MergeResult{}, fmt.Errorf("write %q: %w", abs, wErr)
+		return MergeResult{}, apperror.WrapSimple(wErr, fmt.Sprintf("write %q", abs))
 	}
 
 	return MergeResult{Path: abs, Outcome: outcome, Changed: true, BlockTag: tag}, nil
@@ -91,7 +93,7 @@ func readIfExists(path string) (data []byte, existed bool, err error) {
 		return nil, false, nil
 	}
 
-	return nil, false, fmt.Errorf("read %q: %w", path, err)
+	return nil, false, apperror.WrapSimple(err, fmt.Sprintf("read %q", path))
 }
 
 // composeNext returns the new file bytes and the structural outcome

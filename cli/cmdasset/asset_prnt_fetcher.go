@@ -2,6 +2,7 @@ package cmdasset
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"net/http"
 	"os"
@@ -46,7 +47,7 @@ func fetchPageHTML(targetURL string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return "", fmt.Errorf("HTTP error %d fetching %s", resp.StatusCode, targetURL)
+		return "", apperror.NewExecutionError(fmt.Sprintf("HTTP error %d fetching %s", resp.StatusCode, targetURL))
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -71,7 +72,7 @@ func parseImageURLFromHTML(rawURL, html string) (string, error) {
 		return m, nil
 	}
 
-	return "", fmt.Errorf("could not locate image source URL on %s", rawURL)
+	return "", apperror.NewNotFoundError(fmt.Sprintf("could not locate image source URL on %s", rawURL))
 }
 
 func fetchImageBytes(imgURL string) ([]byte, error) {
@@ -89,7 +90,7 @@ func fetchImageBytes(imgURL string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("HTTP error %d downloading image from %s", resp.StatusCode, imgURL)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("HTTP error %d downloading image from %s", resp.StatusCode, imgURL))
 	}
 
 	return io.ReadAll(resp.Body)

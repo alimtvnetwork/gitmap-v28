@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent"
 )
 
@@ -83,7 +84,7 @@ func ResolveSourceRoot() (string, error) {
 		return siblingCg, nil
 	}
 
-	return "", fmt.Errorf("canonical source repository (coding-guidelines) not found")
+	return "", apperror.NewNotFoundError("canonical source repository (coding-guidelines) not found")
 }
 
 func checkSiblingCodingGuidelines(cwd string, err error) string {
@@ -184,7 +185,7 @@ func parseProjectsInput(input, workRoot string) ([]ProjectConfig, error) {
 		return scanned, nil
 	}
 
-	return nil, fmt.Errorf("invalid projects input: expected JSON array or existing directory")
+	return nil, apperror.NewValidationError("invalid projects input: expected JSON array or existing directory")
 }
 
 func readProjectsInputRaw(input string) (string, error) {
@@ -197,7 +198,7 @@ func readProjectsInputRaw(input string) (string, error) {
 	}
 	bytes, readErr := os.ReadFile(input)
 	if readErr != nil {
-		return "", fmt.Errorf("failed to read projects file %s: %w", input, readErr)
+		return "", apperror.WrapSimple(readErr, fmt.Sprintf("failed to read projects file %s", input))
 	}
 	return string(bytes), nil
 }

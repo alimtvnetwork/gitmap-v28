@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strings"
 	"time"
@@ -73,7 +74,7 @@ func validateTargetRepo(flags PipelineErrorFlags) error {
 	}
 	if flags.RawRepoTarget != "" && flags.RepoTarget == "" {
 		PrintRepoTargetNotFoundDiagnostic(flags.RawRepoTarget, QueryRepoSuggestionsFromDB(flags.RawRepoTarget))
-		return fmt.Errorf("target repository %q not found", flags.RawRepoTarget)
+		return apperror.NewNotFoundError(fmt.Sprintf("target repository %q not found", flags.RawRepoTarget))
 	}
 	return nil
 }
@@ -141,7 +142,7 @@ func handleEarlyDetectedErrors(payload PipelineErrorLogsPayload, flags PipelineE
 		return true, nil
 	}
 
-	return true, fmt.Errorf("pipeline errors detected in active run")
+	return true, apperror.NewExecutionError("pipeline errors detected in active run")
 }
 
 func renderTimelineError(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {

@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonefrom"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -87,10 +88,10 @@ func validateCloneFromResults(results []clonefrom.Result) error {
 		return nil
 	}
 
-	return fmt.Errorf(constants.ErrCloneFromReportMissingFields,
+	return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneFromReportMissingFields,
 		len(indices),
 		strings.Join(indices, ","),
-		strings.Join(summaries, "; "))
+		strings.Join(summaries, "; ")))
 }
 
 // collectMissingResultFields returns the row-index strings and the

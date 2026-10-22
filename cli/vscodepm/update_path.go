@@ -2,6 +2,8 @@ package vscodepm
 
 import (
 	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // UpdateRootPath updates the rootPath and optionally name in projects.json.
@@ -37,7 +39,7 @@ func UpdateRootPathAt(projectsFile, oldPath, newPath, newName string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("project not found with rootPath %s", oldPath)
+		return apperror.NewNotFoundError(fmt.Sprintf("project not found with rootPath %s", oldPath))
 	}
 
 	return writeEntriesAtomic(projectsFile, entries)

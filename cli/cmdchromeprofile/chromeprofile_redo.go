@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ecosystemgroup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
@@ -13,7 +14,7 @@ import (
 func runChromeProfileRedo(profileName string) error {
 	snapshots, err := listChromeSnapshots()
 	if err != nil {
-		return fmt.Errorf("list snapshots: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "list snapshots")
 	}
 
 	chosen := fsutil.PickLatestSnapshotWithTag(snapshots, "pre-undo")
@@ -25,7 +26,7 @@ func runChromeProfileRedo(profileName string) error {
 
 	targetDir := filepath.Join(chromeUserDataDir(), profileName)
 	if copyErr := fsutil.CopyDirContents(chosen, targetDir); copyErr != nil {
-		return fmt.Errorf("restore redo snapshot: %w", copyErr.Unwrap())
+		return apperror.WrapSimple(copyErr.Unwrap(), "restore redo snapshot")
 	}
 
 	fmt.Printf("%s Redone Chrome profile %q from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, profileName, filepath.Base(chosen))
@@ -46,13 +47,13 @@ func runChromeGroupDispatch(args []string) error {
 		return handleChromeGroupRm(args[1:])
 	}
 
-	return fmt.Errorf("usage: gitmap chrome group [ls|add <group> <profiles...>|remove/rm <group> [profile]]")
+	return apperror.NewValidationError("usage: gitmap chrome group [ls|add <group> <profiles...>|remove/rm <group> [profile]]")
 }
 
 func handleChromeGroupAdd(group string, profiles []string) error {
 	appErr := ecosystemgroup.AddGroup("chrome", group, "", profiles)
 	if appErr != nil {
-		return fmt.Errorf("add chrome group: %w", appErr.Unwrap())
+		return apperror.WrapSimple(appErr.Unwrap(), "add chrome group")
 	}
 
 	fmt.Printf("%s Added %d profile(s) to Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(profiles), group)
@@ -66,7 +67,7 @@ func handleChromeGroupRm(args []string) error {
 	}
 
 	if err := ecosystemgroup.RemoveTarget("chrome", args[0], args[1]); err != nil {
-		return fmt.Errorf("remove chrome target: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "remove chrome target")
 	}
 
 	fmt.Printf("%s Removed %q from Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], args[0])
@@ -76,7 +77,7 @@ func handleChromeGroupRm(args []string) error {
 
 func handleChromeGroupDelete(group string) error {
 	if err := ecosystemgroup.DeleteGroup("chrome", group); err != nil {
-		return fmt.Errorf("delete chrome group: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "delete chrome group")
 	}
 
 	fmt.Printf("%s Deleted Chrome group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, group)

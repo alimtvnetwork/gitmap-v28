@@ -2,7 +2,6 @@ package cmddownload
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -56,7 +55,7 @@ func downloadWithCurl(opts DownloadOptions, destDir, destFile string) (DownloadR
 			EngineUsed:      EngineCurl,
 			Tier:            2,
 			DurationMs:      duration.Milliseconds(),
-		}, apperror.WrapSimple(fmt.Errorf("curl failed: %w, stderr: %s", err, stderr.String()), "download.curl")
+		}, apperror.WrapSimple(err, "curl failed").WithContext("output", stderr.String())
 	}
 
 	info, statErr := os.Stat(fullPath)

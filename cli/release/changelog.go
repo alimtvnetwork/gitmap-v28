@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -46,7 +47,7 @@ func ReadChangelog() ([]ChangelogEntry, error) {
 	}
 
 	if len(entries) == 0 {
-		return nil, fmt.Errorf("no version sections found in %s", constants.ChangelogFile)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("no version sections found in %s", constants.ChangelogFile))
 	}
 
 	return entries, nil

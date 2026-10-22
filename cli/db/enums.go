@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type CommandKindType int
@@ -90,7 +92,7 @@ func ParseCommandKind(s string) (CommandKindType, error) {
 	case "logoff":
 		return CommandKindLogoff, nil
 	default:
-		return 0, fmt.Errorf("invalid CommandKind: %s", s)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid CommandKind: %s", s))
 	}
 }
 
@@ -139,6 +141,6 @@ func ParseResultStatus(s string) (ResultStatusType, error) {
 	case "requiresauth":
 		return ResultStatusRequiresAuth, nil
 	default:
-		return 0, fmt.Errorf("invalid ResultStatus: %s", s)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid ResultStatus: %s", s))
 	}
 }

@@ -2,6 +2,7 @@ package cmdrelease
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/scanpipe"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"os"
@@ -18,7 +19,7 @@ import (
 func autoRegisterCurrentRepo(db *store.DB, cwd string) error {
 	absCwd, err := filepath.Abs(cwd)
 	if err != nil {
-		return fmt.Errorf("could not resolve cwd: %w", err)
+		return apperror.WrapSimple(err, "could not resolve cwd")
 	}
 
 	parent := filepath.Dir(absCwd)
@@ -30,16 +31,16 @@ func autoRegisterCurrentRepo(db *store.DB, cwd string) error {
 	records := scanpipe.BuildRecords([]scanpipe.RepoInfo{repoInfo}, "https", "")
 
 	if err := db.UpsertRepos(records); err != nil {
-		return fmt.Errorf("upsert repo failed: %w", err)
+		return apperror.WrapSimple(err, "upsert repo failed")
 	}
 
 	folder, err := db.EnsureScanFolder(parent, "", "")
 	if err != nil {
-		return fmt.Errorf("ensure scan folder failed: %w", err)
+		return apperror.WrapSimple(err, "ensure scan folder failed")
 	}
 
 	if err := db.TagReposByScanFolder(folder.ID, []string{absCwd}); err != nil {
-		return fmt.Errorf("tag repo failed: %w", err)
+		return apperror.WrapSimple(err, "tag repo failed")
 	}
 
 	// Trailing blank line: separates the release summary from the next

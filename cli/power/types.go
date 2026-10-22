@@ -1,6 +1,10 @@
 package power
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+)
 
 // Settings represents the operating system power and timeout configuration.
 type Settings struct {
@@ -27,7 +31,7 @@ func (s Settings) Summary() string {
 // Validate checks whether settings contain valid timeout values.
 func (s Settings) Validate() error {
 	if s.DisplayTimeoutMinutes < 0 || s.SleepTimeoutMinutes < 0 {
-		return fmt.Errorf("timeout minutes cannot be negative")
+		return apperror.NewValidationError("timeout minutes cannot be negative")
 	}
 
 	return nil

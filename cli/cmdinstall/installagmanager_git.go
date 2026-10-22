@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
@@ -19,7 +20,7 @@ func fetchAgManagerFromGitTags() (string, string, error) {
 	cmd := exec.CommandContext(ctx, "git", "ls-remote", "--tags", "--refs", agManagerGitURL)
 	out, err := cmd.Output()
 	if err != nil {
-		return "", "", fmt.Errorf("git ls-remote failed: %w", err)
+		return "", "", apperror.WrapSimple(err, "git ls-remote failed")
 	}
 
 	return resolveHighestTagFromOutput(string(out))
@@ -28,13 +29,13 @@ func fetchAgManagerFromGitTags() (string, string, error) {
 func resolveHighestTagFromOutput(raw string) (string, string, error) {
 	ver, isFound := findHighestSemverInOutput(raw)
 	if !isFound {
-		return "", "", fmt.Errorf("no valid semver release tags found in git repository")
+		return "", "", apperror.NewNotFoundError("no valid semver release tags found in git repository")
 	}
 
 	tag := "v" + ver.CoreString()
 	url := constructAgManagerAssetURL(tag, ver.CoreString())
 	if url == "" {
-		return "", "", fmt.Errorf("unsupported platform or architecture for %s", tag)
+		return "", "", apperror.NewExecutionError(fmt.Sprintf("unsupported platform or architecture for %s", tag))
 	}
 
 	return url, ver.CoreString(), nil
@@ -79,7 +80,7 @@ func resolveAgManagerAssetURL(reqVer string) (string, string, error) {
 	tag := "v" + clean
 	url := constructAgManagerAssetURL(tag, clean)
 	if url == "" {
-		return "", "", fmt.Errorf("unsupported platform for version %s", clean)
+		return "", "", apperror.NewExecutionError(fmt.Sprintf("unsupported platform for version %s", clean))
 	}
 
 	return url, clean, nil

@@ -9,11 +9,11 @@ package clonenext
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -51,7 +51,7 @@ func resolveGitDir(repoPath string) (string, error) {
 	dotGit := filepath.Join(repoPath, constants.DotGit)
 	info, err := os.Stat(dotGit)
 	if err != nil {
-		return "", fmt.Errorf("%w: %s: %w", ErrNotAGitRepo, repoPath, err)
+		return "", apperror.WrapNotFound(ErrNotAGitRepo, repoPath).WithContext("secondaryError", err)
 	}
 
 	if info.IsDir() {
@@ -66,7 +66,7 @@ func resolveGitDir(repoPath string) (string, error) {
 func resolveWorktreeGitDir(dotGitFile string) (string, error) {
 	body, err := os.ReadFile(dotGitFile)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrCloneNextReadWorktree, dotGitFile, err)
+		return "", apperror.WrapSimple(err, "read "+dotGitFile)
 	}
 
 	line := strings.TrimSpace(string(body))
@@ -74,7 +74,7 @@ func resolveWorktreeGitDir(dotGitFile string) (string, error) {
 		return strings.TrimSpace(strings.TrimPrefix(line, constants.GitdirPrefix)), nil
 	}
 
-	return "", fmt.Errorf(constants.ErrCloneNextMalformedGitDir, dotGitFile)
+	return "", apperror.NewValidationError("malformed .git pointer in " + dotGitFile)
 }
 
 // readOriginURL parses .git/config and returns the url under

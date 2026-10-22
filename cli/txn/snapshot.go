@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -51,7 +52,7 @@ func (j *Journal) snapshotFile(absPath, action string) error {
 
 	info, err := os.Stat(absPath)
 	if err != nil {
-		return fmt.Errorf("transaction snapshot stat %q: %w", absPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("transaction snapshot stat %q", absPath))
 	}
 
 	backup := j.backupPath(absPath)
@@ -112,12 +113,12 @@ func safeSlug(s string) string {
 // copyFileWithSha streams src → dst (creating parents) and returns its sha256.
 func copyFileWithSha(src, dst string) (string, error) {
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return "", fmt.Errorf("transaction backup mkdir: %w", err)
+		return "", apperror.WrapSimple(err, "transaction backup mkdir")
 	}
 
 	in, err := os.Open(src)
 	if err != nil {
-		return "", fmt.Errorf("transaction backup open src: %w", err)
+		return "", apperror.WrapSimple(err, "transaction backup open src")
 	}
 
 	defer in.Close()
@@ -129,13 +130,13 @@ func copyFileWithSha(src, dst string) (string, error) {
 func writeBackupAndHash(in io.Reader, dst string) (string, error) {
 	out, err := os.Create(dst)
 	if err != nil {
-		return "", fmt.Errorf("transaction backup create: %w", err)
+		return "", apperror.WrapSimple(err, "transaction backup create")
 	}
 
 	defer out.Close()
 	h := sha256.New()
 	if _, err := io.Copy(io.MultiWriter(out, h), in); err != nil {
-		return "", fmt.Errorf("transaction backup copy: %w", err)
+		return "", apperror.WrapSimple(err, "transaction backup copy")
 	}
 
 	return hex.EncodeToString(h.Sum(nil)), nil

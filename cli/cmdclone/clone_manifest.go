@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
@@ -39,7 +40,7 @@ func executeClone(cf CloneFlags) error {
 	if !ok {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
 
-		return fmt.Errorf(constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency))
 	}
 
 	cf.MaxConcurrency = workers

@@ -312,7 +312,7 @@ func resolveTargetClient(ctx context.Context, opts *SSHJoinOptions) enrollSessio
 	trace := GetActiveSSHTrace()
 	isReachable := probeTCPQuick(opts.Target.IP, opts.Target.Port, 800*time.Millisecond)
 	if !isReachable {
-		err := fmt.Errorf("network dial unreachable: %s:%d (port 22 closed or timed out)", opts.Target.IP, opts.Target.Port)
+		err := apperror.NewExecutionError(fmt.Sprintf("network dial unreachable: %s:%d (port 22 closed or timed out)", opts.Target.IP, opts.Target.Port))
 		trace.AddStep("TCP Reachability", fmt.Sprintf("%s:%d unreachable", opts.Target.IP, opts.Target.Port), "FAILED", err)
 
 		return enrollSession{hasClient: false, osType: "linux", err: err}
@@ -599,7 +599,7 @@ func checkEnrollAuth(opts *SSHJoinOptions, session enrollSession) error {
 	trace := GetActiveSSHTrace()
 	err := session.err
 	if err == nil {
-		err = fmt.Errorf("ssh: authentication failed: invalid password or remote server rejected credentials")
+		err = apperror.NewExecutionError("ssh: authentication failed: invalid password or remote server rejected credentials")
 	}
 
 	hint := buildAuthFailureHint(opts, err)

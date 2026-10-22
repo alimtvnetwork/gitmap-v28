@@ -4,6 +4,7 @@ package cmdfix
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -158,7 +159,7 @@ func executeGitTwoStepMv(repoPath, src, tmp, dst string) error {
 	if err := runGitMv(repoPath, tmp, dst); err != nil {
 		rollbackGitMv(repoPath, tmp, src)
 
-		return fmt.Errorf("git mv step 2 failed: %w", err)
+		return apperror.WrapSimple(err, "git mv step 2 failed")
 	}
 
 	return nil
@@ -176,12 +177,12 @@ func executeFSTwoStepRename(repoPath, src, tmp, dst string) error {
 	s, t, d := filepath.Join(repoPath, src), filepath.Join(repoPath, tmp), filepath.Join(repoPath, dst)
 	_ = os.Remove(t)
 	if err := os.Rename(s, t); err != nil {
-		return fmt.Errorf("fs rename step 1 failed: %w", err)
+		return apperror.WrapSimple(err, "fs rename step 1 failed")
 	}
 	if err := os.Rename(t, d); err != nil {
 		_ = os.Rename(t, s)
 
-		return fmt.Errorf("fs rename step 2 failed: %w", err)
+		return apperror.WrapSimple(err, "fs rename step 2 failed")
 	}
 	stageGitAddAll(repoPath)
 

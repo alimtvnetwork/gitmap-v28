@@ -2,6 +2,7 @@ package cmdlist
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
@@ -12,7 +13,7 @@ func RunListRC(args []string) error {
 	repoCacheRoot := cmdclone.ResolveRepoCacheRoot()
 	manifests, err := cmdclone.DiscoverRCManifests(repoCacheRoot)
 	if err != nil {
-		return fmt.Errorf("failed to discover repo-cache manifests: %w", err)
+		return apperror.WrapSimple(err, "failed to discover repo-cache manifests")
 	}
 
 	displayRoot := repoCacheRoot

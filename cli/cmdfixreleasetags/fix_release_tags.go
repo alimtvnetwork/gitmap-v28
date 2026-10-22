@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -32,7 +33,7 @@ func RunFixReleaseTags(args []string) error {
 	auditOpts := AuditFilterOptions{}
 	report, err := AuditReleaseTags(flags.TargetDirectory, auditOpts)
 	if err != nil {
-		return fmt.Errorf("release tags audit failed: %w", err)
+		return apperror.WrapSimple(err, "release tags audit failed")
 	}
 
 	if flags.IsJSON {
@@ -75,7 +76,7 @@ func RunFixReleaseTags(args []string) error {
 
 	results, err := ExecuteBatchDeletions(flags.TargetDirectory, candidates, false, nil)
 	if err != nil {
-		return fmt.Errorf("release tags deletion execution failed: %w", err)
+		return apperror.WrapSimple(err, "release tags deletion execution failed")
 	}
 
 	report.DeletionResults = results

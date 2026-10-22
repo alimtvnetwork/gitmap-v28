@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
 )
@@ -67,7 +68,7 @@ func (m *MultiDbManager) Mount(alias string, path string) error {
 
 	cleanAlias := strings.ToLower(strings.TrimSpace(alias))
 	if cleanAlias == "" {
-		return fmt.Errorf("alias cannot be empty")
+		return apperror.NewValidationError("alias cannot be empty")
 	}
 	m.aliases[cleanAlias] = filepath.Clean(path)
 	delete(m.schemas, cleanAlias)
@@ -92,7 +93,7 @@ func (m *MultiDbManager) GetPath(alias string) (string, error) {
 		return resolved, nil
 	}
 
-	return "", fmt.Errorf("alias not found: %s", alias)
+	return "", apperror.NewNotFoundError(fmt.Sprintf("alias not found: %s", alias))
 }
 
 // GetDB returns an open connection and path for an alias.
@@ -122,7 +123,7 @@ func (m *MultiDbManager) GetDB(alias string) (*sql.DB, string, error) {
 func (m *MultiDbManager) openAndConfigureConn(path string) (*sql.DB, error) {
 	conn, appErr := store.OpenSQLiteDB(path)
 	if appErr != nil {
-		return nil, fmt.Errorf("open sqlite %s: %w", path, appErr)
+		return nil, apperror.WrapSimple(appErr, "open sqlite "+path)
 	}
 	conn.SetMaxOpenConns(1)
 

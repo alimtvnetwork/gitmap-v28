@@ -5,17 +5,19 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ResolveAgyFolderTargets finds all projects whose workspace directory is inside folderRoot.
 func ResolveAgyFolderTargets(folderRoot string, projects []AgyProject) ([]AgyProject, error) {
 	cleanRoot, err := filepath.Abs(folderRoot)
 	if err != nil {
-		return nil, fmt.Errorf("resolve folder path %q: %w", folderRoot, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("resolve folder path %q", folderRoot))
 	}
 	matches := collectProjectsUnderFolder(filepath.Clean(cleanRoot), projects)
 	if len(matches) == 0 {
-		return nil, fmt.Errorf("no registered Antigravity projects found under folder %q", folderRoot)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("no registered Antigravity projects found under folder %q", folderRoot))
 	}
 	return matches, nil
 }

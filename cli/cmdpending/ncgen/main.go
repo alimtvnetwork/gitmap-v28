@@ -27,6 +27,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const (
@@ -45,7 +47,7 @@ func main() {
 
 func run() error {
 	if !fileExists(annotationsFile) {
-		return fmt.Errorf("annotations file %s not found (run from cli/cmdpending)", annotationsFile)
+		return apperror.NewNotFoundError(fmt.Sprintf("annotations file %s not found (run from cli/cmdpending)", annotationsFile))
 	}
 
 	consts, err := loadConstants(constantsDir)

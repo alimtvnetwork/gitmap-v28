@@ -2,11 +2,11 @@
 package cmdmergeai
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 )
 
@@ -22,7 +22,7 @@ func isExistingFile(p string) bool {
 func ResolveSourceFilePath(inputPath string) (string, error) {
 	trimmed := strings.TrimSpace(inputPath)
 	if trimmed == "" {
-		return "", fmt.Errorf("empty source file path")
+		return "", apperror.NewValidationError("empty source file path")
 	}
 
 	candidates := []string{trimmed}
@@ -38,7 +38,7 @@ func ResolveSourceFilePath(inputPath string) (string, error) {
 		}
 	}
 
-	return trimmed, fmt.Errorf("source file not found: %s", trimmed)
+	return trimmed, apperror.NewNotFoundError("source file not found: " + trimmed)
 }
 
 func probeSingleCandidate(cand string) (string, bool) {

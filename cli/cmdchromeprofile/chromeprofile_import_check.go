@@ -2,6 +2,7 @@ package cmdchromeprofile
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"path/filepath"
@@ -35,7 +36,7 @@ func runChromeProfileImportCheck(args []string) error {
 	}
 
 	if len(candidates) == 0 && opts.Fnf {
-		return fmt.Errorf("no profile snapshot files found to check in %q (--fnf asserted)", target)
+		return apperror.NewNotFoundError(fmt.Sprintf("no profile snapshot files found to check in %q (--fnf asserted)", target))
 	}
 
 	if len(candidates) == 0 {
@@ -161,7 +162,7 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 	logSnapshotInspectionStep(srcFile, meta)
 	dest := resolveImportDestination(exp, explicitTarget, true)
 	if err := os.MkdirAll(dest.Path, constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", dest.Path, err)
+		return apperror.WrapSimple(err, "mkdir "+dest.Path)
 	}
 
 	if err := restoreSnapshotContent(exp, dest); err != nil {

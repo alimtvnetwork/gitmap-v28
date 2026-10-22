@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/pterm/pterm"
 )
@@ -55,7 +56,7 @@ func resolveSourceStagingDir(item ResolvedSourceItem, idx, total int, stagingBas
 	cmd := exec.Command("git", "clone", "--depth", "50", item.RepoURL, stagingDir)
 	out, errClone := cmd.CombinedOutput()
 	if errClone != nil {
-		return "", fmt.Errorf("failed to clone source %s (%s): %s (%w)", item.Title, item.RepoURL, string(out), errClone)
+		return "", apperror.WrapSimple(errClone, fmt.Sprintf("failed to clone source %s (%s)", item.Title, item.RepoURL)).WithContext("output", string(out))
 	}
 	return stagingDir, nil
 }

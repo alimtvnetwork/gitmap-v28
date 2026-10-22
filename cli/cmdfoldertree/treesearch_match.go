@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // SearchModeType defines the pattern matching strategy for tree searching.
@@ -102,7 +104,7 @@ func matchTreeItemInternal(item TreeItem, mode SearchModeType, pattern string, c
 		}
 		re, err := regexp.Compile(regexPattern)
 		if err != nil {
-			return false, fmt.Errorf("invalid regex pattern %q: %w", pattern, err)
+			return false, apperror.WrapValidation(err, fmt.Sprintf("invalid regex pattern %q", pattern))
 		}
 		return re.MatchString(item.RelPath) || re.MatchString(item.FileName), nil
 
@@ -177,7 +179,7 @@ func compileGrepFilter(filter TreeSearchFilter) (*regexp.Regexp, error) {
 
 	re, err := regexp.Compile(pat)
 	if err != nil {
-		return nil, fmt.Errorf("invalid regex %q: %w", filter.Pattern, err)
+		return nil, apperror.WrapValidation(err, fmt.Sprintf("invalid regex %q", filter.Pattern))
 	}
 
 	return re, nil

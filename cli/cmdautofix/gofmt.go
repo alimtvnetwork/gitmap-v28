@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var (
@@ -19,7 +21,7 @@ func resolveGofmt() error {
 	gofmtPathOnce.Do(func() {
 		gofmtPath, errGofmtPath = exec.LookPath("gofmt")
 		if errGofmtPath != nil {
-			errGofmtPath = fmt.Errorf("gofmt not found in PATH — install the Go toolchain: %w", errGofmtPath)
+			errGofmtPath = apperror.WrapSimple(errGofmtPath, "gofmt not found in PATH — install the Go toolchain")
 		}
 	})
 	return errGofmtPath
@@ -29,7 +31,7 @@ func resolveGofmt() error {
 func catToolCheck(category string) error {
 	if category == "gofmt" {
 		if err := resolveGofmt(); err != nil {
-			return fmt.Errorf("%w: %v", errToolMissing, err)
+			return apperror.WrapSimple(errToolMissing, "gofmt tool check").WithContext("secondaryError", err)
 		}
 	}
 	return nil
@@ -44,7 +46,7 @@ func gofmtDiff(absPath string) (string, error) {
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
 		if stdout.Len() == 0 {
-			return "", fmt.Errorf("gofmt -d failed: %s", firstLine(stderr.String()))
+			return "", apperror.NewExecutionError(fmt.Sprintf("gofmt -d failed: %s", firstLine(stderr.String())))
 		}
 	}
 	return stdout.String(), nil

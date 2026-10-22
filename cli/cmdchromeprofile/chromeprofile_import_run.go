@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -22,7 +23,7 @@ func runSmartChromeImport(opts chromeTransferOptions) error {
 		fmt.Fprintf(os.Stderr, "chrome-profile-import: ERROR no matching profile snapshot files found\n")
 		printChromeProfileImportUsage()
 
-		return fmt.Errorf("no matching snapshot files found to import")
+		return apperror.NewNotFoundError("no matching snapshot files found to import")
 	}
 
 	filtered := filterImportCandidates(candidates, opts)
@@ -92,7 +93,7 @@ func findCandidatesByEmail(email, targetDir string) ([]string, string, error) {
 		}
 	}
 
-	return nil, "", fmt.Errorf("no snapshot file found containing email %q (searched %d files in %s)", email, len(files), targetDir)
+	return nil, "", apperror.NewNotFoundError(fmt.Sprintf("no snapshot file found containing email %q (searched %d files in %s)", email, len(files), targetDir))
 }
 
 func collectSearchSnapshotFiles(dir string) []string {
@@ -129,7 +130,7 @@ func findCandidatesInDir(dir string) ([]string, string, error) {
 
 	files := fallbackCheckFiles(scanSnapshotFiles(dir), dir)
 	if len(files) == 0 {
-		return nil, "", fmt.Errorf("no profile snapshot files (.json, .zip, .sqlite) found in %q", dir)
+		return nil, "", apperror.NewNotFoundError(fmt.Sprintf("no profile snapshot files (.json, .zip, .sqlite) found in %q", dir))
 	}
 
 	return files, "", nil
@@ -163,7 +164,7 @@ func resolveSinglePositionalCandidate(pos0 string) ([]string, string, error) {
 		return []string{gitmapFile}, "", nil
 	}
 
-	return nil, "", fmt.Errorf("snapshot file or directory %q not found", pos0)
+	return nil, "", apperror.NewNotFoundError(fmt.Sprintf("snapshot file or directory %q not found", pos0))
 }
 
 func resolveGlobCandidate(pattern string) ([]string, string, error) {
@@ -173,7 +174,7 @@ func resolveGlobCandidate(pattern string) ([]string, string, error) {
 	}
 
 	if len(matches) == 0 {
-		return nil, "", fmt.Errorf("no files matching pattern %q found", pattern)
+		return nil, "", apperror.NewNotFoundError(fmt.Sprintf("no files matching pattern %q found", pattern))
 	}
 
 	return matches, "", nil

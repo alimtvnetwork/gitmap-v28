@@ -3,6 +3,7 @@ package cmdui
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"net"
 	"net/http"
 	"strings"
@@ -209,7 +210,7 @@ func parseConnectionsFromRaw(raw []byte) ([]db.SSHConnection, error) {
 	}
 	var conns []db.SSHConnection
 	if err := json.Unmarshal(raw, &conns); err != nil {
-		return nil, fmt.Errorf("invalid SSH nodes JSON format")
+		return nil, apperror.NewValidationError("invalid SSH nodes JSON format")
 	}
 	return conns, nil
 }

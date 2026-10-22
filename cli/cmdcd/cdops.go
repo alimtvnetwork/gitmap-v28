@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -112,7 +113,7 @@ func runCDInner(path string, innerArgs []string) error {
 	if err := os.Chdir(path); err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCDChdirFmt, path, err)
 
-		return fmt.Errorf(constants.ErrCDChdirFmt, path, err)
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrCDChdirFmt, path, err))
 	}
 
 	os.Args = append([]string{os.Args[0]}, innerArgs...)
@@ -139,7 +140,7 @@ func lookupCDRecords(name string) ([]model.ScanRecord, error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
 
-		return nil, fmt.Errorf(constants.ErrListDBFailed, err)
+		return nil, apperror.NewExecutionError(fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 
 	defer db.Close()
@@ -247,7 +248,7 @@ func isExactMatch(r model.ScanRecord, clean string) bool {
 // promptCDPick shows a formatted selection table and reads user selection.
 func promptCDPick(name string, records []model.ScanRecord) (string, error) {
 	if len(records) == 0 {
-		return "", fmt.Errorf(constants.ErrCDNotFound, name)
+		return "", apperror.NewNotFoundError(fmt.Sprintf(constants.ErrCDNotFound, name))
 	}
 
 	title := fmt.Sprintf("Multiple repositories matching '%s':", name)
@@ -276,7 +277,7 @@ func readCDSelection(records []model.ScanRecord, name ...string) (string, error)
 	hasValidIndex := err == nil && idx >= 1 && idx <= len(records)
 	if !hasValidIndex {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
+		return "", apperror.NewValidationError(constants.ErrCDInvalidPick)
 	}
 
 	selected := records[idx-1].AbsolutePath
@@ -290,7 +291,7 @@ func handleCDScanFallback(scanErr error, records []model.ScanRecord) (string, er
 	}
 	if len(records) == 0 {
 		fmt.Fprint(os.Stderr, constants.ErrCDInvalidPick)
-		return "", fmt.Errorf("%s", constants.ErrCDInvalidPick)
+		return "", apperror.NewValidationError(constants.ErrCDInvalidPick)
 	}
 	fmt.Fprintf(os.Stderr, "  (auto-selected default: %s)\n", records[0].AbsolutePath)
 	return records[0].AbsolutePath, nil
@@ -320,7 +321,7 @@ func runCDRepos(args []string) error {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrListDBFailed, err)
 
-		return fmt.Errorf(constants.ErrListDBFailed, err)
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrListDBFailed, err))
 	}
 
 	defer db.Close()
@@ -329,7 +330,7 @@ func runCDRepos(args []string) error {
 	if len(records) == 0 {
 		fmt.Fprintln(os.Stderr, constants.MsgListEmpty)
 
-		return fmt.Errorf("%s", constants.MsgListEmpty)
+		return apperror.NewNotFoundError(constants.MsgListEmpty)
 	}
 
 	return executeCDReposPick(records)
@@ -384,7 +385,7 @@ func loadCDGroupRepos(db *store.DB, group string) []model.ScanRecord {
 // promptCDReposPick shows all repos in a formatted table and reads user selection.
 func promptCDReposPick(records []model.ScanRecord) (string, error) {
 	if len(records) == 0 {
-		return "", fmt.Errorf("no repositories found")
+		return "", apperror.NewNotFoundError("no repositories found")
 	}
 
 	RenderCDSelectionTable("Available Repositories:", records)

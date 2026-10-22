@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -66,7 +67,7 @@ func fetchLatestReleaseTag(c *http.Client) (string, error) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
-		return "", fmt.Errorf("github status %d", resp.StatusCode)
+		return "", apperror.NewExecutionError(fmt.Sprintf("github status %d", resp.StatusCode))
 	}
 
 	var body struct {
@@ -78,7 +79,7 @@ func fetchLatestReleaseTag(c *http.Client) (string, error) {
 	}
 
 	if body.TagName == "" {
-		return "", fmt.Errorf("empty tag_name in release payload")
+		return "", apperror.NewValidationError("empty tag_name in release payload")
 	}
 
 	return body.TagName, nil

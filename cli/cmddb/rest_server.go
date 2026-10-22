@@ -1,15 +1,16 @@
 package cmddb
 
 import (
-	"fmt"
 	"net"
 	"net/http"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // StartMultiDbRestServer starts an HTTP REST server on the provided listener.
 func StartMultiDbRestServer(dbs map[string]string, listener net.Listener) (*http.Server, error) {
 	if listener == nil {
-		return nil, fmt.Errorf("listener cannot be nil")
+		return nil, apperror.NewValidationError("listener cannot be nil")
 	}
 
 	mgr := NewMultiDbManager(dbs)

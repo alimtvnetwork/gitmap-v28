@@ -12,6 +12,7 @@ package cmdprobe
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"sync"
@@ -87,7 +88,7 @@ func resolveProbeTargets(db *store.DB, args []string) ([]model.ScanRecord, error
 
 	absPath, err := filepath.Abs(args[0])
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrSFAbsResolve, args[0], err)
+		return nil, apperror.NewExecutionError(fmt.Sprintf((constants.ErrSFAbsResolve), args[0], err))
 	}
 
 	matches, err := db.FindByPath(absPath)
@@ -96,7 +97,7 @@ func resolveProbeTargets(db *store.DB, args []string) ([]model.ScanRecord, error
 	}
 
 	if len(matches) == 0 {
-		return nil, fmt.Errorf(constants.ErrProbeNoRepo, absPath)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf((constants.ErrProbeNoRepo), absPath))
 	}
 
 	return matches, nil

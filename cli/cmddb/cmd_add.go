@@ -234,7 +234,7 @@ func resolveTargetCols(cols []ColumnInfo, tokenCount int) []ColumnInfo {
 
 func executeInsert(conn *sql.DB, table string, colNames []string, valArgs []any) (int64, error) {
 	if len(colNames) == 0 {
-		return 0, fmt.Errorf("no columns specified for insert")
+		return 0, apperror.NewValidationError("no columns specified for insert")
 	}
 
 	query := buildInsertQuery(table, colNames)

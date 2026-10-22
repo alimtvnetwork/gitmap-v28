@@ -26,7 +26,7 @@ func parseCSV(r io.Reader) RowSliceWrap {
 	cr.FieldsPerRecord = -1 // tolerate ragged rows
 	header, err := cr.Read()
 	if err != nil {
-		return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromCSVHeader, err), "parseCSV"))
+		return result.FailSlice[Row](apperror.WrapSimple(err, "clone-from: read CSV header"))
 	}
 
 	idx := indexCSVHeader(header)
@@ -53,7 +53,7 @@ func readCSVRows(cr *csv.Reader, idx csvIndex) RowSliceWrap {
 
 		rowNum++
 		if err != nil {
-			return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err), "readCSVRows"))
+			return result.FailSlice[Row](apperror.WrapSimple(err, fmt.Sprintf("clone-from: CSV row %d", rowNum)))
 		}
 
 		row, col, err := csvRow(rec, idx)
@@ -72,10 +72,10 @@ func readCSVRows(cr *csv.Reader, idx csvIndex) RowSliceWrap {
 // so every caller produces identical wording.
 func wrapCSVRowErr(rowNum int, col string, err error) error {
 	if len(col) == 0 {
-		return fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("clone-from: CSV row %d", rowNum))
 	}
 
-	return fmt.Errorf(constants.ErrCloneFromCSVRowCol, rowNum, col, err)
+	return apperror.WrapSimple(err, fmt.Sprintf("clone-from: CSV row %d, column %q", rowNum, col))
 }
 
 // csvIndex maps logical column names to record indices. Negative
@@ -140,7 +140,7 @@ func applyDepth(row Row, depthStr string) (Row, string, error) {
 
 	d, err := strconv.Atoi(depthStr)
 	if err != nil {
-		return row, constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromBadDepth+": %w", depthStr, err)
+		return row, constants.CSVColumnDepth, apperror.WrapValidation(err, fmt.Sprintf(constants.ErrCloneFromBadDepth, depthStr))
 	}
 
 	row.Depth = d

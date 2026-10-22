@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const (
@@ -76,7 +78,7 @@ func (r *Resolver) resolveInteractive(rel string, l, rgt FileMeta) (ChoiceType, 
 		return r.parseKey(strings.TrimSpace(scanner.Text())), nil
 	}
 
-	return ChoiceQuit, fmt.Errorf("conflict prompt: stdin closed")
+	return ChoiceQuit, apperror.NewExecutionError("conflict prompt: stdin closed")
 }
 
 // parseKey maps a single keystroke to a ChoiceType; sets sticky when A/B.

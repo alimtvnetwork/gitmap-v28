@@ -8,13 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // ExecuteDeletion executes the deletion plan for target tags.
 func ExecuteDeletion(repoPath string, plan *DeletionPlan) (*ReleaseTagDeletionResult, error) {
 	if plan == nil || len(plan.Records) == 0 {
-		return nil, fmt.Errorf("empty deletion plan")
+		return nil, apperror.NewValidationError("empty deletion plan")
 	}
 
 	exec := plan.CommandExecutor
@@ -28,7 +29,7 @@ func ExecuteDeletion(repoPath string, plan *DeletionPlan) (*ReleaseTagDeletionRe
 	}
 
 	if len(results) == 0 {
-		return nil, fmt.Errorf("no deletion results generated")
+		return nil, apperror.NewExecutionError("no deletion results generated")
 	}
 
 	return &results[0], nil

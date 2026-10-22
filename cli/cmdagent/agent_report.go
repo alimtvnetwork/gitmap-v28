@@ -289,7 +289,7 @@ func parseReportDuration(raw string) (time.Duration, error) {
 	if strings.HasSuffix(trimmed, "d") {
 		days, numErr := strconv.Atoi(strings.TrimSuffix(trimmed, "d"))
 		if numErr != nil || days < 0 {
-			return 0, fmt.Errorf("bad duration")
+			return 0, apperror.NewValidationError("bad duration")
 		}
 
 		return time.Duration(days) * 24 * time.Hour, nil

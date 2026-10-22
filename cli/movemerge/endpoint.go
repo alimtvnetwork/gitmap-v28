@@ -1,10 +1,11 @@
 package movemerge
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ClassifyEndpoint inspects raw and returns its kind and (for URLs)
@@ -67,7 +68,7 @@ func IsFolderExisting(path string) (bool, error) {
 	}
 
 	if err != nil {
-		return false, fmt.Errorf("stat %s: %w", path, err)
+		return false, apperror.WrapSimple(err, "stat "+path)
 	}
 
 	return info.IsDir(), nil

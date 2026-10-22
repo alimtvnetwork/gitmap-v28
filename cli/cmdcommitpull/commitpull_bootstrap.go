@@ -3,6 +3,7 @@ package cmdcommitpull
 import (
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -77,7 +78,7 @@ func RunCommitPullBootstrap(args []string) error {
 
 func writeBootstrapConfigFile(dest string) error {
 	if err := os.WriteFile(dest, []byte(defaultBootstrapConfig), 0o644); err != nil {
-		return fmt.Errorf("write bootstrap config %s: %w", dest, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("write bootstrap config %s", dest))
 	}
 	printBootstrapSuccess(dest)
 	return nil

@@ -30,6 +30,7 @@ package vscodepm
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -77,11 +78,11 @@ func ParseMergeMode(raw string) (MergeMode, error) {
 	case constants.VSCodePMSyncModeIntersection:
 		return MergeModeIntersection, nil
 	default:
-		return MergeModeUnion, fmt.Errorf(
+		return MergeModeUnion, apperror.NewValidationError(fmt.Sprintf(
 			constants.ErrVSCodePMSyncBadMode, raw,
 			constants.VSCodePMSyncModeUnion,
 			constants.VSCodePMSyncModeReplace,
-			constants.VSCodePMSyncModeIntersection)
+			constants.VSCodePMSyncModeIntersection))
 	}
 }
 

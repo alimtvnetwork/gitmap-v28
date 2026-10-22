@@ -16,6 +16,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // FixtureAutoBumpEnv is the env-var name that opts MaybeAutoBumpFile
@@ -133,16 +135,16 @@ func MaybeAutoBumpFile(path string, req BumpRequest) (bool, error) {
 
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return false, fmt.Errorf("autobump: read %s: %w", path, err)
+		return false, apperror.WrapSimple(err, fmt.Sprintf("autobump: read %s", path))
 	}
 
 	out, ok := BumpStampInBody(string(raw), req)
 	if !ok {
-		return false, fmt.Errorf("autobump: no stamp marker in %s", path)
+		return false, apperror.NewNotFoundError(fmt.Sprintf("autobump: no stamp marker in %s", path))
 	}
 
 	if err := os.WriteFile(path, []byte(out), readWritePerm); err != nil {
-		return false, fmt.Errorf("autobump: write %s: %w", path, err)
+		return false, apperror.WrapSimple(err, fmt.Sprintf("autobump: write %s", path))
 	}
 
 	return true, nil

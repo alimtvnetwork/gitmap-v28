@@ -35,12 +35,12 @@ import (
 func ParseFile(path string) (Plan, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return Plan{}, fmt.Errorf(constants.ErrCloneFromAbsPath, path, err)
+		return Plan{}, apperror.WrapSimple(err, fmt.Sprintf("clone-from: resolve path %s", path))
 	}
 
 	f, err := os.Open(abs)
 	if err != nil {
-		return Plan{}, fmt.Errorf(constants.ErrCloneFromOpen, abs, err)
+		return Plan{}, apperror.WrapSimple(err, fmt.Sprintf("clone-from: open %s", abs))
 	}
 
 	defer f.Close()
@@ -88,14 +88,14 @@ func parseJSON(r io.Reader) RowSliceWrap {
 	var raw []map[string]any
 	dec := json.NewDecoder(r)
 	if err := dec.Decode(&raw); err != nil {
-		return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromJSONDecode, err), "parseJSON"))
+		return result.FailSlice[Row](apperror.WrapSimple(err, "clone-from: decode JSON"))
 	}
 
 	out := make([]Row, 0, len(raw))
 	for i, obj := range raw {
 		row, err := jsonRow(obj)
 		if err != nil {
-			return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromJSONRow, i+1, err), "parseJSON"))
+			return result.FailSlice[Row](apperror.WrapSimple(err, fmt.Sprintf("clone-from: row %d", i+1)))
 		}
 
 		out = append(out, row)

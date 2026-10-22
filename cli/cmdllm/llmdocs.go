@@ -32,7 +32,7 @@ func parseLLMDocsFlags(args []string) (llmDocsOptions, error) {
 	}
 
 	if *format != constants.FormatMarkdown && *format != constants.FormatJSON {
-		return llmDocsOptions{}, fmt.Errorf(constants.ErrLLMDocsFormat, *format)
+		return llmDocsOptions{}, apperror.NewValidationError(fmt.Sprintf((constants.ErrLLMDocsFormat), *format))
 	}
 
 	return llmDocsOptions{toStdout: *toStdout, format: *format, sections: *sections}, nil

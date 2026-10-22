@@ -84,7 +84,7 @@ func applyScheduleSendEmailArg(args []string, i int, flags *scheduleSendEmailFla
 		flags.name, i = nextScheduleFlagValue(args, i, arg, "--name")
 		return i, nil
 	default:
-		return i, fmt.Errorf("unknown flag %q: usage: %s", arg, scheduleSendEmailUsageLine)
+		return i, apperror.NewValidationError(fmt.Sprintf("unknown flag %q: usage: %s", arg, scheduleSendEmailUsageLine))
 	}
 }
 
@@ -120,11 +120,11 @@ func registerScheduleSendEmailTrigger(flags scheduleSendEmailFlags) error {
 
 func validateScheduleTriggerFlags(flags scheduleSendEmailFlags) (EmailTaskType, error) {
 	if strings.TrimSpace(flags.to) == "" {
-		return "", fmt.Errorf("missing --to <email>: usage: %s", scheduleSendEmailUsageLine)
+		return "", apperror.NewValidationError(fmt.Sprintf("missing --to <email>: usage: %s", scheduleSendEmailUsageLine))
 	}
 
 	if strings.TrimSpace(flags.task) == "" {
-		return "", fmt.Errorf("missing --task <task>: usage: %s", scheduleSendEmailUsageLine)
+		return "", apperror.NewValidationError(fmt.Sprintf("missing --task <task>: usage: %s", scheduleSendEmailUsageLine))
 	}
 
 	return ParseEmailTaskType(flags.task)
@@ -210,7 +210,7 @@ func buildTriggerTableRows(triggers []EmailTrigger) []termout.Row {
 func removeScheduleSendEmailTrigger(name string) error {
 	trimmed := strings.TrimSpace(name)
 	if len(trimmed) == 0 {
-		return fmt.Errorf("missing --name <label>: usage: %s", scheduleSendEmailUsageLine)
+		return apperror.NewValidationError(fmt.Sprintf("missing --name <label>: usage: %s", scheduleSendEmailUsageLine))
 	}
 
 	db, err := openTriggerStore()

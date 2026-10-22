@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 )
 
@@ -35,7 +36,7 @@ func parseHygieneFormat(s string) (HygieneFormatType, error) {
 		return HygieneFormatTypeCSV, nil
 	}
 
-	return "", fmt.Errorf("invalid --format %q (want table|json|csv)", s)
+	return "", apperror.NewValidationError(fmt.Sprintf("invalid --format %q (want table|json|csv)", s))
 }
 
 // emitJSON writes v as indented JSON to stdout.

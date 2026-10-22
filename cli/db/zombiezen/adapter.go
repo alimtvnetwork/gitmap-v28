@@ -18,7 +18,8 @@ package zombiezen
 import (
 	"context"
 	"errors"
-	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // Conner is the abstract handle returned by Open. Mirrors the subset
@@ -40,7 +41,7 @@ type (
 // migration is unblocked. Until then, Open returns ErrNotEnabled
 // and existing mattn-backed code paths remain authoritative.
 func Open(_ context.Context, _ string) (Conner, error) {
-	return nil, fmt.Errorf("zombiezen sqlite adapter: %w", ErrNotEnabled)
+	return nil, apperror.WrapSimple(ErrNotEnabled, "zombiezen sqlite adapter")
 }
 
 // ErrNotEnabled signals that the project was built without the

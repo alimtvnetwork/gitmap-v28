@@ -214,7 +214,7 @@ func executeAndStreamCmd(cmd *exec.Cmd, host store.SSHHost, alias string, startT
 
 func runNodeDirectCmd(ctx context.Context, host store.SSHHost, alias, formattedCmd, password string, startTime time.Time) ClusterRunResult {
 	if !probeTCPQuick(host.IP, host.Port, 800*time.Millisecond) {
-		err := fmt.Errorf("node is offline or port 22 unreachable")
+		err := apperror.NewExecutionError("node is offline or port 22 unreachable")
 		printPrefixedLine(alias, "(node is offline or unreachable)", true)
 		return buildClusterRunResult(host, 255, "", err.Error(), time.Since(startTime), err)
 	}
@@ -234,7 +234,7 @@ func runNodeDirectCmd(ctx context.Context, host store.SSHHost, alias, formattedC
 
 func runNodeSSHProcess(ctx context.Context, host store.SSHHost, alias, shellCmd, password string, isSudo bool, startTime time.Time) ClusterRunResult {
 	if !probeTCPQuick(host.IP, host.Port, 800*time.Millisecond) {
-		err := fmt.Errorf("node is offline or port 22 unreachable")
+		err := apperror.NewExecutionError("node is offline or port 22 unreachable")
 		printPrefixedLine(alias, "(node is offline or unreachable)", true)
 		return buildClusterRunResult(host, 255, "", err.Error(), time.Since(startTime), err)
 	}

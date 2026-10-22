@@ -3,6 +3,7 @@ package desktop
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os/exec"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ func addOne(repoPath, cli string) error {
 	cmd := exec.Command(cli, constants.GitHubDesktopVerbOpen, repoPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
+		return apperror.WrapSimple(err, "open repo in GitHub Desktop").WithContext("output", strings.TrimSpace(string(output)))
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package dashboard
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 	"time"
 
@@ -24,7 +25,7 @@ func Collect(opts CollectOptions) (model.DashboardData, error) {
 	opts = normalizeOptions(opts)
 	commits, err := collectCommits(opts)
 	if err != nil {
-		return model.DashboardData{}, fmt.Errorf(constants.ErrDashCollect, err)
+		return model.DashboardData{}, apperror.NewExecutionError(fmt.Sprintf((constants.ErrDashCollect), err))
 	}
 
 	branches := collectBranches(opts.RepoPath)

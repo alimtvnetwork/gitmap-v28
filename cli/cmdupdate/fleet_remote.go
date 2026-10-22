@@ -235,7 +235,7 @@ func dialFleetSSH(target FleetTarget) (*ssh.Client, error) {
 	if c, ok := tryDialFleetCandidateKeys(target); ok {
 		return c, nil
 	}
-	return nil, fmt.Errorf("ssh dial failed for %s@%s", target.Username, target.IP)
+	return nil, apperror.NewExecutionError(fmt.Sprintf("ssh dial failed for %s@%s", target.Username, target.IP))
 }
 
 func tryDialFleetPassword(target FleetTarget) (*ssh.Client, bool) {

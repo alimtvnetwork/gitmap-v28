@@ -112,7 +112,7 @@ func (o *SqlOperator) UnmarshalJSON(data []byte) error {
 
 	target := SqlOperator(s)
 	if !sqlOperatorValidMap[target] {
-		return fmt.Errorf("invalid sql operator: %s", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid sql operator: %s", s))
 	}
 
 	*o = target
@@ -139,7 +139,7 @@ func (o *SqlOperator) FromJSON(s string) *apperror.AppError {
 
 	target := SqlOperator(str)
 	if !sqlOperatorValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid sql operator: %s", str), "validate sql operator from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid sql operator: %s", str))
 	}
 
 	*o = target

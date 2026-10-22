@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -63,11 +64,11 @@ func validateCSVSchema(r io.Reader) error {
 	cr.LazyQuotes = true
 	header, err := cr.Read()
 	if err == io.EOF {
-		return fmt.Errorf(constants.ErrCloneNowEmptyCSV)
+		return apperror.NewValidationError(constants.ErrCloneNowEmptyCSV)
 	}
 
 	if err != nil {
-		return fmt.Errorf(constants.ErrCloneNowCSVRead, err)
+		return apperror.WrapSimple(err, "clone-now: read CSV")
 	}
 
 	if err := validateCSVHeader(header); err != nil {
@@ -92,11 +93,11 @@ func validateCSVBody(cr *csv.Reader, header []string) error {
 		}
 
 		if err != nil {
-			return fmt.Errorf(constants.ErrCloneNowCSVRowRead, dataRow, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("clone-now: CSV data row %d failed to parse", dataRow))
 		}
 
 		if !rowHasURL(rec, urlIdxs) {
-			return fmt.Errorf(constants.ErrCloneNowCSVRowMissingURL, dataRow)
+			return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowCSVRowMissingURL, dataRow))
 		}
 	}
 }
@@ -146,7 +147,7 @@ func validateCSVHeader(header []string) error {
 		}
 
 		if !knownScanFields[name] {
-			return fmt.Errorf(constants.ErrCloneNowUnknownCSVField, name, knownFieldList())
+			return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowUnknownCSVField, name, knownFieldList()))
 		}
 
 		if name == "httpsUrl" || name == "sshUrl" {
@@ -155,7 +156,7 @@ func validateCSVHeader(header []string) error {
 	}
 
 	if !hasURL {
-		return fmt.Errorf(constants.ErrCloneNowCSVMissingURLCol)
+		return apperror.NewValidationError(constants.ErrCloneNowCSVMissingURLCol)
 	}
 
 	return nil

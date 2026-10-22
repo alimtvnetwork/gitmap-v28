@@ -1,7 +1,7 @@
 package tui
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -49,7 +49,7 @@ type rootModel struct {
 func Run(db *store.DB, cfg model.Config) error {
 	repos, err := db.ListRepos()
 	if err != nil {
-		return fmt.Errorf(constants.ErrTUIDBOpen, err)
+		return apperror.WrapSimple(err, "failed to open database for interactive mode")
 	}
 
 	groups, _ := db.ListGroups()

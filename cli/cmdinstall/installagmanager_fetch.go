@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type agManagerAsset struct {
@@ -49,7 +51,7 @@ func fetchAgManagerFromAPI() (string, string, error) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return "", "", fmt.Errorf("github api status: %d", resp.StatusCode)
+		return "", "", apperror.NewExecutionError(fmt.Sprintf("github api status: %d", resp.StatusCode))
 	}
 
 	return parseAgManagerReleaseResponse(resp)
@@ -86,7 +88,7 @@ func fetchAgManagerFromRedirect() (string, string, error) {
 	defer resp.Body.Close()
 	loc := resp.Header.Get("Location")
 	if loc == "" {
-		return "", "", fmt.Errorf("no redirect location found for latest release")
+		return "", "", apperror.NewNotFoundError("no redirect location found for latest release")
 	}
 
 	return parseTagFromLocation(loc)
@@ -95,7 +97,7 @@ func fetchAgManagerFromRedirect() (string, string, error) {
 func parseTagFromLocation(loc string) (string, string, error) {
 	idx := strings.LastIndex(loc, "/")
 	if idx == -1 || idx+1 >= len(loc) {
-		return "", "", fmt.Errorf("invalid release tag location: %s", loc)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid release tag location: %s", loc))
 	}
 
 	tag := loc[idx+1:]
@@ -139,7 +141,7 @@ func matchAgManagerAsset(assets []agManagerAsset) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no suitable asset found for %s %s", osStr, archStr)
+	return "", apperror.NewNotFoundError(fmt.Sprintf("no suitable asset found for %s %s", osStr, archStr))
 }
 
 func isIgnoredAsset(name string) bool {

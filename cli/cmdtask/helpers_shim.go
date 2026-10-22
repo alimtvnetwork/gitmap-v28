@@ -106,11 +106,11 @@ func parsePendingClearID(a string) (int64, error) {
 	id, parseErr := strconv.ParseInt(a, 10, 64)
 	isError := parseErr != nil || id <= 0
 	if isError && strings.HasPrefix(a, "-") {
-		return 0, fmt.Errorf(constants.ErrPendingClearUnknownMode, a)
+		return 0, apperror.NewValidationError(fmt.Sprintf((constants.ErrPendingClearUnknownMode), a))
 	}
 
 	if isError {
-		return 0, fmt.Errorf(constants.ErrPendingClearBadID, a)
+		return 0, apperror.NewValidationError(fmt.Sprintf((constants.ErrPendingClearBadID), a))
 	}
 
 	return id, nil

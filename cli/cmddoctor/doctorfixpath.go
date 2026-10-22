@@ -2,6 +2,7 @@ package cmddoctor
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -143,13 +144,13 @@ func printSyncFailure(absDeployed, absActive string) {
 //nolint:unused
 func resolveDeployedBinary() (string, error) {
 	if len(constants.RepoPath) == 0 {
-		return "", fmt.Errorf(constants.DoctorResolveNoRepo)
+		return "", apperror.NewExecutionError(constants.DoctorResolveNoRepo)
 	}
 
 	configPath := filepath.Join(constants.RepoPath, constants.GitMapSubdir, constants.PowershellConfigFile)
 	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return "", fmt.Errorf(constants.DoctorResolveNoRead, err)
+		return "", apperror.WrapSimple(err, "cannot read powershell.json")
 	}
 
 	return resolveDeployedPath(data)
@@ -161,7 +162,7 @@ func resolveDeployedBinary() (string, error) {
 func resolveDeployedPath(data []byte) (string, error) {
 	deployPath := extractJSONString(data, constants.JSONKeyDeployPath)
 	if len(deployPath) == 0 {
-		return "", fmt.Errorf(constants.DoctorResolveNoDeploy)
+		return "", apperror.NewExecutionError(constants.DoctorResolveNoDeploy)
 	}
 
 	binaryName := extractJSONString(data, constants.JSONKeyBinaryName)
@@ -171,7 +172,7 @@ func resolveDeployedPath(data []byte) (string, error) {
 
 	deployed := filepath.Join(deployPath, constants.GitMapCliSubdir, binaryName)
 	if _, err := os.Stat(deployed); err != nil {
-		return "", fmt.Errorf(constants.DoctorResolveNotFound+": %w", deployed, err)
+		return "", apperror.WrapNotFound(err, fmt.Sprintf("deployed binary not found: %s", deployed))
 	}
 
 	return deployed, nil

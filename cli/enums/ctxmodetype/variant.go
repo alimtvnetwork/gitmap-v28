@@ -10,6 +10,7 @@ package ctxmodetype
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 )
 
@@ -109,7 +110,7 @@ func Parse(s string) (Variant, error) {
 		}
 	}
 
-	return Invalid, fmt.Errorf("invalid ctxmode: %q", s)
+	return Invalid, apperror.NewValidationError(fmt.Sprintf("invalid ctxmode: %q", s))
 }
 
 // Values returns all valid serialized values.

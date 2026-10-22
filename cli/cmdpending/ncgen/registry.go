@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // registeredCommand is one command surface discovered in the dispatcher
@@ -27,7 +28,7 @@ type registry map[string]*registeredCommand
 func buildRegistry(cmdDir string, consts map[string]string) (registry, error) {
 	files, err := filepath.Glob(filepath.Join(cmdDir, "*.go"))
 	if err != nil {
-		return nil, fmt.Errorf("glob cmd dir: %w", err)
+		return nil, apperror.WrapSimple(err, "glob cmd dir")
 	}
 
 	reg := registry{}
@@ -52,7 +53,7 @@ func scanDispatchFile(path string, consts map[string]string, reg registry) error
 
 	file, err := parser.ParseFile(fset, path, nil, 0)
 	if err != nil {
-		return fmt.Errorf("parse %s: %w", path, err)
+		return apperror.WrapSimple(err, "parse "+path)
 	}
 
 	ast.Inspect(file, func(n ast.Node) bool {

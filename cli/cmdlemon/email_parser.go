@@ -2,8 +2,9 @@ package cmdlemon
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ParseEmailCommand extracts a CommandEnvelope from multi-format email body text.
@@ -11,7 +12,7 @@ func ParseEmailCommand(msg EmailMessage) (*CommandEnvelope, error) {
 	trimmed := strings.TrimSpace(msg.Body)
 	isEmpty := len(trimmed) == 0
 	if isEmpty {
-		return nil, fmt.Errorf("empty email body")
+		return nil, apperror.NewValidationError("empty email body")
 	}
 
 	if env, isParsed := tryParseJSON(trimmed); isParsed {
@@ -32,7 +33,7 @@ func ParseEmailCommand(msg EmailMessage) (*CommandEnvelope, error) {
 		return env, nil
 	}
 
-	return nil, fmt.Errorf("unrecognized command format")
+	return nil, apperror.NewValidationError("unrecognized command format")
 }
 
 func tryParseJSON(body string) (*CommandEnvelope, bool) {

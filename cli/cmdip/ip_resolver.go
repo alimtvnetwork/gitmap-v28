@@ -2,7 +2,6 @@ package cmdip
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"time"
 
@@ -34,7 +33,7 @@ func GetLocalIP(ctx context.Context, isSkipLoopback bool, ifaceName string) (str
 		return ipStr, nil
 	}
 
-	return "", newLocalIPError("GetLocalIP", fmt.Errorf("no suitable IP found"), ifaceName)
+	return "", newLocalIPError("GetLocalIP", apperror.NewNotFoundError("no suitable IP found"), ifaceName)
 }
 
 func newLocalIPError(op string, cause error, ifaceName string) *apperror.AppError {

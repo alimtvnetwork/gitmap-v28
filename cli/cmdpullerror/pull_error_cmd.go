@@ -4,6 +4,7 @@ package cmdpullerror
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -190,13 +191,13 @@ func buildRemotePullErrorCmd(opts PullErrorOptions) string {
 func executeLocalPullErrors(opts PullErrorOptions) error {
 	db, errDB := store.OpenPullSplitDB()
 	if errDB != nil {
-		return fmt.Errorf("open pull split db: %w", errDB)
+		return apperror.WrapSimple(errDB, "open pull split db")
 	}
 	defer db.Close()
 
 	records, appErr := db.QueryLatestPullErrors(opts.RepoSlug, opts.Limit)
 	if appErr != nil {
-		return fmt.Errorf("query pull errors: %w", appErr)
+		return apperror.WrapSimple(appErr, "query pull errors")
 	}
 
 	return renderPullErrorsOutput(records, opts)

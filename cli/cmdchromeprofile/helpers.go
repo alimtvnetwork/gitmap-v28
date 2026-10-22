@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
@@ -72,7 +73,7 @@ func writeContentToFile(targetPath, content string) error {
 
 	err := os.WriteFile(targetPath, []byte(content), 0644)
 	if err != nil {
-		return fmt.Errorf("failed writing to %s: %w", targetPath, err)
+		return apperror.WrapSimple(err, "failed writing to "+targetPath)
 	}
 
 	fmt.Printf("  %s✓%s Output written to %s\n", constants.ColorGreen, constants.ColorReset, targetPath)

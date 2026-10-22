@@ -98,7 +98,7 @@ func safePullRepoWithProgress(rec model.ScanRecord, repoDir string, onProgress f
 	if HasUnmergedConflicts(repoDir) {
 		conflicts := ExtractConflictedFilesFromRepo(repoDir)
 		conflictDesc := formatActiveConflictDesc(conflicts)
-		err := fmt.Errorf("%s: %w", conflictDesc, ErrMergeConflict)
+		err := apperror.WrapSimple(ErrMergeConflict, conflictDesc)
 
 		return buildAttemptFailureResult(rec, repoDir, 1, conflictDesc, err)
 	}

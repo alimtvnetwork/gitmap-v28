@@ -14,6 +14,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -68,7 +69,10 @@ func applyOneRepoTo(
 
 	verified, verifyErr := readVisibilityNoExit(repoCtx, verbose)
 	if verifyErr != nil || verified != target {
-		err := fmt.Errorf("verify failed: got=%q want=%q (%w)", verified, target, verifyErr)
+		err := apperror.NewExecutionError(fmt.Sprintf("verify failed: got=%q want=%q", verified, target))
+		if verifyErr != nil {
+			err = apperror.WrapSimple(verifyErr, fmt.Sprintf("verify failed: got=%q want=%q", verified, target))
+		}
 		fmt.Fprintf(w, constants.MsgBulkApplyFailFmt, err)
 
 		return applyStatus{outcome: "fail", err: err, prev: current, next: verified}
@@ -86,8 +90,8 @@ func readVisibilityNoExit(ctx VisibilityContext, verbose bool) (string, error) {
 	args := readVisibilityArgs(ctx.Provider, ctx.Slug)
 	out, err := runProviderCLI(ctx.Provider, args, verbose)
 	if err != nil {
-		return "", fmt.Errorf("Error: read visibility failed for %s: %w (operation: %s repo view, reason: %s)",
-			ctx.Slug, err, ProviderCLI(ctx.Provider), err.Error())
+		return "", apperror.WrapSimple(err, fmt.Sprintf("Error: read visibility failed for %s (operation: %s repo view, reason: %s)",
+			ctx.Slug, ProviderCLI(ctx.Provider), err.Error()))
 	}
 
 	return parseVisibilityOutput(ctx.Provider, out), nil
@@ -102,6 +106,6 @@ func applyVisibilityNoExit(ctx VisibilityContext, target string, verbose bool) e
 		return nil
 	}
 
-	return fmt.Errorf("Error: apply visibility failed for %s: %w (operation: %s repo edit, reason: %s)",
-		ctx.Slug, err, ProviderCLI(ctx.Provider), strings.TrimSpace(stderr))
+	return apperror.WrapSimple(err, fmt.Sprintf("Error: apply visibility failed for %s (operation: %s repo edit, reason: %s)",
+		ctx.Slug, ProviderCLI(ctx.Provider), strings.TrimSpace(stderr)))
 }

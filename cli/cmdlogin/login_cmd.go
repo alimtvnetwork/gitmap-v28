@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -32,7 +33,7 @@ func runLogin(args []string) error {
 		return parseErr
 	}
 	if len(rest) > 0 {
-		return fmt.Errorf("unexpected argument %q (see `gitmap login --help`)", rest[0])
+		return apperror.NewValidationError(fmt.Sprintf("unexpected argument %q (see `gitmap login --help`)", rest[0]))
 	}
 
 	return dispatchLoginOptions(opts)
@@ -122,7 +123,7 @@ func parseLoginArgs(args []string) (loginOptions, []string, error) {
 			continue
 		}
 		if arg == "--token" && i+1 >= len(args) {
-			return opts, rest, fmt.Errorf("missing value for --token (see `gitmap login --help`)")
+			return opts, rest, apperror.NewValidationError("missing value for --token (see `gitmap login --help`)")
 		}
 		if arg == "--token" {
 			opts.tokenValue = strings.TrimSpace(args[i+1])

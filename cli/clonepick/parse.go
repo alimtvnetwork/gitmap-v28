@@ -116,7 +116,7 @@ func DefaultFlags() Flags {
 // transport when the input was shorthand.
 func validateMode(mode string) error {
 	if mode != constants.ClonePickModeHTTPS && mode != constants.ClonePickModeSSH {
-		return fmt.Errorf(constants.ErrClonePickBadMode, mode)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrClonePickBadMode, mode))
 	}
 
 	return nil
@@ -126,7 +126,7 @@ func validateMode(mode string) error {
 // git and would silently fall through to a confusing remote error).
 func validateDepth(depth int) error {
 	if depth < 0 {
-		return fmt.Errorf(constants.ErrClonePickBadDepth, depth)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrClonePickBadDepth, depth))
 	}
 
 	return nil
@@ -138,7 +138,7 @@ func validateDepth(depth int) error {
 func resolveURL(raw, mode string) (string, error) {
 	s := strings.TrimSpace(raw)
 	if len(s) == 0 {
-		return "", fmt.Errorf("%s", constants.MsgClonePickMissingURL)
+		return "", apperror.NewValidationError(constants.MsgClonePickMissingURL)
 	}
 
 	if strings.Contains(s, "://") || strings.HasPrefix(s, "git@") {
@@ -206,7 +206,7 @@ func normalisePathsWrap(raw string, isAskMode bool) StringSliceWrap {
 	}
 
 	if len(strings.TrimSpace(raw)) == 0 {
-		return result.FailSlice[string](apperror.WrapSimple(fmt.Errorf("%s", constants.MsgClonePickMissingPaths), "normalisePathsWrap"))
+		return result.FailSlice[string](apperror.NewValidationError(constants.MsgClonePickMissingPaths))
 	}
 
 	seen := make(map[string]struct{})
@@ -236,21 +236,21 @@ func normalisePathsWrap(raw string, isAskMode bool) StringSliceWrap {
 func cleanPath(raw string) (string, error) {
 	p := strings.TrimSpace(raw)
 	if len(p) == 0 {
-		return "", fmt.Errorf("%s", constants.MsgClonePickPathEmpty)
+		return "", apperror.NewValidationError(constants.MsgClonePickPathEmpty)
 	}
 
 	if filepath.IsAbs(p) || strings.HasPrefix(p, "/") {
-		return "", fmt.Errorf(constants.MsgClonePickPathAbsolute, p)
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.MsgClonePickPathAbsolute, p))
 	}
 
 	p = strings.TrimPrefix(p, "./")
 	p = strings.TrimSuffix(p, "/")
 	if strings.Contains(p, "..") {
-		return "", fmt.Errorf(constants.MsgClonePickPathTraversal, p)
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.MsgClonePickPathTraversal, p))
 	}
 
 	if len(p) > constants.ClonePickPathMaxBytes {
-		return "", fmt.Errorf(constants.MsgClonePickPathTooLong, p)
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.MsgClonePickPathTooLong, p))
 	}
 
 	return p, nil

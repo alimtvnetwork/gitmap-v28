@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 )
 
@@ -118,7 +119,7 @@ func writeObject(buf *bytes.Buffer, fields []Field, indent string) error {
 func writeKeyValue(buf *bytes.Buffer, f Field, colonSpace string) error {
 	keyBytes, err := json.Marshal(f.Key)
 	if err != nil {
-		return fmt.Errorf("stablejson: encode key %q: %w", f.Key, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("stablejson: encode key %q", f.Key))
 	}
 
 	buf.Write(keyBytes)
@@ -126,7 +127,7 @@ func writeKeyValue(buf *bytes.Buffer, f Field, colonSpace string) error {
 	buf.WriteString(colonSpace)
 	valBytes, err := json.Marshal(f.Value)
 	if err != nil {
-		return fmt.Errorf("stablejson: encode value for key %q: %w", f.Key, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("stablejson: encode value for key %q", f.Key))
 	}
 
 	buf.Write(valBytes)

@@ -2,11 +2,12 @@ package cmddb
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DefaultTableCacheTTL is the expiration TTL duration for in-memory table metadata.
@@ -181,7 +182,7 @@ func resolveCachedOrFreshTables(conn *sql.DB, dbPath string) ([]TableInfo, error
 // GetCachedTablesAndViews retrieves table metadata from cache or reloads if stale.
 func GetCachedTablesAndViews(conn *sql.DB, dbPath string) ([]TableInfo, error) {
 	if conn == nil {
-		return nil, fmt.Errorf("nil database connection")
+		return nil, apperror.NewExecutionError("nil database connection")
 	}
 	if dbPath == "" {
 		return listTablesAndViews(conn)

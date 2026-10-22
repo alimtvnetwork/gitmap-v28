@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	_ "modernc.org/sqlite"
 )
 
@@ -38,14 +39,14 @@ func OpenTreeDB(dbPath string) (*sql.DB, error) {
 	dir := filepath.Dir(resolved)
 	if dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			return nil, fmt.Errorf("failed to create database directory %s: %w", dir, err)
+			return nil, apperror.WrapSimple(err, "failed to create database directory "+dir)
 		}
 	}
 
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)", resolved)
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sqlite database at %s: %w", resolved, err)
+		return nil, apperror.WrapSimple(err, "failed to open sqlite database at "+resolved)
 	}
 
 	db.SetMaxOpenConns(1)
@@ -54,7 +55,7 @@ func OpenTreeDB(dbPath string) (*sql.DB, error) {
 
 	if err := initTreeDBSchema(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to initialize schema in %s: %w", resolved, err)
+		return nil, apperror.WrapSimple(err, "failed to initialize schema in "+resolved)
 	}
 
 	return db, nil
@@ -116,7 +117,7 @@ func IngestTreeItems(dbPath string, items []TreeItem) (int, error) {
 
 	tx, err := db.Begin()
 	if err != nil {
-		return 0, fmt.Errorf("failed to begin transaction: %w", err)
+		return 0, apperror.WrapSimple(err, "failed to begin transaction")
 	}
 	defer func() {
 		_ = tx.Rollback()
@@ -137,7 +138,7 @@ func IngestTreeItems(dbPath string, items []TreeItem) (int, error) {
 			UpdatedAt = excluded.UpdatedAt;
 	`)
 	if err != nil {
-		return 0, fmt.Errorf("failed to prepare upsert statement: %w", err)
+		return 0, apperror.WrapSimple(err, "failed to prepare upsert statement")
 	}
 	defer stmt.Close()
 
@@ -166,13 +167,13 @@ func IngestTreeItems(dbPath string, items []TreeItem) (int, error) {
 			updatedAt,
 		)
 		if err != nil {
-			return ingestedCount, fmt.Errorf("failed to upsert item %s: %w", item.RelPath, err)
+			return ingestedCount, apperror.WrapSimple(err, "failed to upsert item "+item.RelPath)
 		}
 		ingestedCount++
 	}
 
 	if err := tx.Commit(); err != nil {
-		return 0, fmt.Errorf("failed to commit transaction: %w", err)
+		return 0, apperror.WrapSimple(err, "failed to commit transaction")
 	}
 
 	return ingestedCount, nil
@@ -182,7 +183,7 @@ func IngestTreeItems(dbPath string, items []TreeItem) (int, error) {
 func QueryTreeDb(dbPath string, mode SearchMode, pattern string) ([]TreeItem, error) {
 	resolved := ResolveTreeDBPath(dbPath)
 	if _, err := os.Stat(resolved); os.IsNotExist(err) {
-		return nil, fmt.Errorf("tree database not found at %s (run 'gitmap tree-learn -f <file>' first)", resolved)
+		return nil, apperror.NewNotFoundError("tree database not found at " + resolved + " (run 'gitmap tree-learn -f <file>' first)")
 	}
 
 	db, err := OpenTreeDB(resolved)
@@ -197,7 +198,7 @@ func QueryTreeDb(dbPath string, mode SearchMode, pattern string) ([]TreeItem, er
 		ORDER BY DirPath, FileName;
 	`)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query TreeFile: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to query TreeFile")
 	}
 	defer rows.Close()
 
@@ -217,14 +218,14 @@ func QueryTreeDb(dbPath string, mode SearchMode, pattern string) ([]TreeItem, er
 			&item.Depth,
 			&item.UpdatedAt,
 		); err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
+			return nil, apperror.WrapSimple(err, "failed to scan row")
 		}
 		item.IsDir = (isDirInt == 1)
 		all = append(all, item)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error reading rows: %w", err)
+		return nil, apperror.WrapSimple(err, "error reading rows")
 	}
 
 	if strings.TrimSpace(pattern) == "" {

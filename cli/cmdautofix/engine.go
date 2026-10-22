@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // binaryProbeSize mirrors 02-shared-engine.py BINARY_PROBE_CHUNK_SIZE.
@@ -90,7 +92,7 @@ func selectedCategories(opts Options) ([]Category, error) {
 			break
 		}
 		if !found {
-			return nil, fmt.Errorf("unknown category %q (valid: %s)", name, strings.Join(categoryNames(), ", "))
+			return nil, apperror.NewValidationError(fmt.Sprintf("unknown category %q (valid: %s)", name, strings.Join(categoryNames(), ", ")))
 		}
 	}
 	return selected, nil

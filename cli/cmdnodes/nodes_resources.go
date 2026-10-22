@@ -266,7 +266,7 @@ func parseCSV(raw string) (cpu, ram, tot, used int, err error) {
 		u, _ := strconv.Atoi(strings.TrimSpace(parts[3]))
 		return c, r, t, u, nil
 	}
-	return 0, 0, 0, 0, fmt.Errorf("invalid metrics")
+	return 0, 0, 0, 0, apperror.NewValidationError("invalid metrics")
 }
 
 func indexSSHConnections(conns []db.SSHConnection) map[string]db.SSHConnection {

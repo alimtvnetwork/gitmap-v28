@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -24,7 +25,7 @@ func ListRecentCommits(count int) ([]TempReleaseCommit, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("failed to list recent commits: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to list recent commits")
 	}
 
 	return parseTempReleaseCommitLines(strings.TrimSpace(string(out))), nil

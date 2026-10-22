@@ -2,6 +2,7 @@ package cmdexclude
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -60,7 +61,7 @@ func runExcludeAdd(patterns []string) error {
 
 	if addedCount > 0 {
 		if err := SaveCustomExclusions(existing); err != nil {
-			return fmt.Errorf("failed to save custom exclusions: %w", err)
+			return apperror.WrapSimple(err, "failed to save custom exclusions")
 		}
 		fmt.Printf("Saved %d new exclusion pattern(s).\n", addedCount)
 	}
@@ -93,7 +94,7 @@ func runExcludeRemove(patterns []string) error {
 
 	if removedCount > 0 {
 		if err := SaveCustomExclusions(kept); err != nil {
-			return fmt.Errorf("failed to update custom exclusions: %w", err)
+			return apperror.WrapSimple(err, "failed to update custom exclusions")
 		}
 		fmt.Printf("Updated exclusions: %d removed, %d remaining.\n", removedCount, len(kept))
 	} else {
@@ -122,7 +123,7 @@ func PrintExclusionList() error {
 
 	custom, err := LoadCustomExclusions()
 	if err != nil {
-		return fmt.Errorf("could not read custom exclusions: %w", err)
+		return apperror.WrapSimple(err, "could not read custom exclusions")
 	}
 
 	fmt.Printf("\n■ Custom User Exclusions (%d active):\n", len(custom))

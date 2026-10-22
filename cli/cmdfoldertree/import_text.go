@@ -1,9 +1,10 @@
 package cmdfoldertree
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func parseTextPathsPayload(data []byte) (*FolderTreeNode, error) {
@@ -20,7 +21,7 @@ func parseTextPathsPayload(data []byte) (*FolderTreeNode, error) {
 		}
 	}
 	if len(paths) == 0 {
-		return nil, fmt.Errorf("no valid paths found in text input")
+		return nil, apperror.NewValidationError("no valid paths found in text input")
 	}
 	return buildTreeFromPathList(paths), nil
 }

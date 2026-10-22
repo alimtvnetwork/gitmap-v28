@@ -7,7 +7,7 @@ package clonepick
 // enough to exercise the success path) and lets the cmd layer plug
 // in the real *store.DB at call time.
 
-import "fmt"
+import "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 // Persister is the surface needed to save + look up selections.
 // Implemented by *store.DB at call time; mocked in tests.
@@ -31,7 +31,7 @@ func SaveSelection(p Persister, plan Plan) (int64, error) {
 
 	id, err := p.SaveClonePickSelection(plan)
 	if err != nil {
-		return 0, fmt.Errorf("clone-pick: save selection: %w", err)
+		return 0, apperror.WrapSimple(err, "clone-pick: save selection")
 	}
 
 	return id, nil

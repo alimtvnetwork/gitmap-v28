@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -23,7 +24,7 @@ import (
 func validateJSONSchema(data []byte) error {
 	var elems []json.RawMessage
 	if err := json.Unmarshal(data, &elems); err != nil {
-		return fmt.Errorf(constants.ErrCloneNowJSONShape, err)
+		return apperror.WrapValidation(err, "clone-now: JSON input must be an array of objects")
 	}
 
 	for i, raw := range elems {
@@ -42,8 +43,7 @@ func validateJSONSchema(data []byte) error {
 func validateJSONElement(i int, raw json.RawMessage) error {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &obj); err != nil {
-		return fmt.Errorf(constants.ErrCloneNowJSONRowNotObject+": %w",
-			i+1, jsonKind(raw), err)
+		return apperror.WrapValidation(err, fmt.Sprintf(constants.ErrCloneNowJSONRowNotObject, i+1, jsonKind(raw)))
 	}
 
 	return validateJSONRow(i, obj)
@@ -56,13 +56,13 @@ func validateJSONElement(i int, raw json.RawMessage) error {
 func validateJSONRow(i int, obj map[string]json.RawMessage) error {
 	for k := range obj {
 		if !knownScanFields[k] {
-			return fmt.Errorf(constants.ErrCloneNowUnknownJSONField,
-				i+1, k, knownFieldList())
+			return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowUnknownJSONField,
+				i+1, k, knownFieldList()))
 		}
 	}
 
 	if !hasJSONURL(obj) {
-		return fmt.Errorf(constants.ErrCloneNowMissingURL, i+1)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowMissingURL, i+1))
 	}
 
 	return nil

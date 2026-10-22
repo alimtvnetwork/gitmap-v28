@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RawSourceItem represents an extracted title/URL pairing from manifest text.
@@ -43,7 +45,7 @@ func ParseSourceFile(filePath string) (string, []ResolvedSourceItem, []SkippedSo
 
 	data, errRead := os.ReadFile(resolvedPath)
 	if errRead != nil {
-		return "", nil, nil, fmt.Errorf("failed to read source file %s: %w", resolvedPath, errRead)
+		return "", nil, nil, apperror.WrapSimple(errRead, fmt.Sprintf("failed to read source file %s", resolvedPath))
 	}
 
 	return ParseSourceManifestContent(string(data))

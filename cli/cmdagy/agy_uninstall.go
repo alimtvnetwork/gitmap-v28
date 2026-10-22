@@ -183,7 +183,7 @@ func handlePreUninstallSnapshot(isFullPurge, isDryRun bool, backupPath string) e
 	snap, err := ExportAGYRestoreSnapshot(backupPath)
 	hasErr := err != nil
 	if hasErr {
-		return fmt.Errorf("snapshot export failed prior to purge: %w", err)
+		return apperror.WrapSimple(err, "snapshot export failed prior to purge")
 	}
 	printPreUninstallSnapshotSummary(snap)
 	return nil

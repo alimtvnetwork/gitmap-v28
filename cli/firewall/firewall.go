@@ -3,6 +3,8 @@ package firewall
 import (
 	"fmt"
 	"runtime"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // Rule represents an OS firewall rule entry.
@@ -29,7 +31,7 @@ func AllowPort(port int, name string) error {
 	case "darwin":
 		return allowPortDarwin(port, name)
 	default:
-		return fmt.Errorf("unsupported operating system for firewall automation: %s", runtime.GOOS)
+		return apperror.NewExecutionError(fmt.Sprintf("unsupported operating system for firewall automation: %s", runtime.GOOS))
 	}
 }
 
@@ -47,7 +49,7 @@ func BlockPort(port int, name string) error {
 	case "darwin":
 		return blockPortDarwin(port, name)
 	default:
-		return fmt.Errorf("unsupported operating system for firewall automation: %s", runtime.GOOS)
+		return apperror.NewExecutionError(fmt.Sprintf("unsupported operating system for firewall automation: %s", runtime.GOOS))
 	}
 }
 
@@ -65,7 +67,7 @@ func RemovePortRule(port int, name string) error {
 	case "darwin":
 		return removePortRuleDarwin(port, name)
 	default:
-		return fmt.Errorf("unsupported operating system for firewall automation: %s", runtime.GOOS)
+		return apperror.NewExecutionError(fmt.Sprintf("unsupported operating system for firewall automation: %s", runtime.GOOS))
 	}
 }
 
@@ -93,7 +95,7 @@ func EnablePublicSSH(port int) error {
 	case "darwin":
 		return enablePublicSSHDarwin(port)
 	default:
-		return fmt.Errorf("unsupported operating system for public SSH enablement: %s", runtime.GOOS)
+		return apperror.NewExecutionError(fmt.Sprintf("unsupported operating system for public SSH enablement: %s", runtime.GOOS))
 	}
 }
 

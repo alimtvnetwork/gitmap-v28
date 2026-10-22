@@ -28,12 +28,12 @@
 package startup
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -69,7 +69,7 @@ func AutostartDir() (string, error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		return "", fmt.Errorf(constants.ErrStartupUnsupportedOS)
+		return "", apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 	}
 
 	if runtime.GOOS == "darwin" {
@@ -121,7 +121,7 @@ func List() ([]Entry, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStartupReadDir, dir, err)
+		return nil, apperror.WrapSimple(err, "could not read autostart directory "+dir)
 	}
 
 	return collectManaged(dir, files), nil

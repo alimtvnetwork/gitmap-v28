@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -152,7 +153,7 @@ func dispatchActionReverse(db *store.DB, a model.TransactionActionRecord) error 
 	case constants.ActionKindRenamePath:
 		return reverseRenamePathAction(a)
 	default:
-		return fmt.Errorf(constants.ErrActionUnknownKind, a.ID, a.Kind)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrActionUnknownKind, a.ID, a.Kind))
 	}
 }
 
@@ -169,18 +170,18 @@ func reverseEditFileAction(db *store.DB, a model.TransactionActionRecord) error 
 		}
 	}
 
-	return fmt.Errorf(constants.ErrTxnBackupMissing, a.TransactionID, "<backup row not found>")
+	return apperror.NewNotFoundError(fmt.Sprintf(constants.ErrTxnBackupMissing, a.TransactionID, "<backup row not found>"))
 }
 
 // reverseRenamePathAction swaps the path back using the reverse payload.
 func reverseRenamePathAction(a model.TransactionActionRecord) error {
 	var p RenamePathPayload
 	if err := json.Unmarshal([]byte(a.ReverseJSON), &p); err != nil {
-		return fmt.Errorf(constants.ErrActionPayloadDecode, a.ID, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("transaction action #%d: payload decode failed", a.ID))
 	}
 
 	if _, err := os.Stat(p.From); err != nil {
-		return fmt.Errorf(constants.ErrActionLiveConflict+": %w", a.ID, a.Kind, err)
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrActionLiveConflict, a.ID, a.Kind))
 	}
 
 	return os.Rename(p.From, p.To)

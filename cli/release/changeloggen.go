@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -20,7 +21,7 @@ func GenerateChangelog(fromTag, toRef string) ([]string, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrChangelogGenCommits, fromTag, toRef, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to list commits between %s and %s", fromTag, toRef))
 	}
 
 	return parseCommitLines(strings.TrimSpace(string(out))), nil
@@ -66,7 +67,7 @@ func ListTags() ([]string, error) {
 
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrChangelogGenTags, err)
+		return nil, apperror.WrapSimple(err, "failed to list tags")
 	}
 
 	return parseCommitLines(strings.TrimSpace(string(out))), nil
@@ -80,7 +81,7 @@ func ResolveTagRange(fromTag, toTag string) (string, string, error) {
 
 	from := NormalizeVersion(fromTag)
 	if !TagExistsLocally(from) {
-		return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, from)
+		return "", "", apperror.NewNotFoundError(fmt.Sprintf(constants.ErrChangelogGenTagNotFound, from))
 	}
 
 	if len(toTag) == 0 {
@@ -89,7 +90,7 @@ func ResolveTagRange(fromTag, toTag string) (string, string, error) {
 
 	to := NormalizeVersion(toTag)
 	if !TagExistsLocally(to) {
-		return "", "", fmt.Errorf(constants.ErrChangelogGenTagNotFound, to)
+		return "", "", apperror.NewNotFoundError(fmt.Sprintf(constants.ErrChangelogGenTagNotFound, to))
 	}
 
 	return from, to, nil
@@ -98,10 +99,10 @@ func ResolveTagRange(fromTag, toTag string) (string, string, error) {
 func resolveDefaultTagRange() (string, string, error) {
 	tags, err := ListTags()
 	if err != nil {
-		return "", "", fmt.Errorf("list tags failed: %w", err)
+		return "", "", apperror.WrapSimple(err, "list tags failed")
 	}
 	if len(tags) < 1 {
-		return "", "", fmt.Errorf("%s", constants.ErrChangelogGenNoTags)
+		return "", "", apperror.NewNotFoundError(constants.ErrChangelogGenNoTags)
 	}
 
 	if len(tags) == 1 {

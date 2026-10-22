@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -135,19 +136,19 @@ func resolveLatestRepoSlug(httpClient *http.Client) (string, string, error) {
 
 	fmt.Fprint(os.Stderr, constants.ErrUpdateProbeNoResolve)
 
-	return "", "", fmt.Errorf("no resolution")
+	return "", "", apperror.NewNotFoundError("no resolution")
 }
 
 // parseCurrentRepoSlug splits "gitmap-v28" into ("gitmap", 23).
 func parseCurrentRepoSlug(slug string) (string, int, error) {
 	m := repoSlugRe.FindStringSubmatch(slug)
 	if m == nil {
-		return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, fmt.Errorf("no match"))
+		return "", 0, apperror.WrapSimple(apperror.NewExecutionError("no match"), fmt.Sprintf("could not parse current repo slug %q", slug))
 	}
 
 	n, err := strconv.Atoi(m[2])
 	if err != nil {
-		return "", 0, fmt.Errorf(constants.ErrUpdateProbeParseSlug, slug, err)
+		return "", 0, apperror.WrapSimple(err, fmt.Sprintf("could not parse current repo slug %q", slug))
 	}
 
 	return m[1], n, nil

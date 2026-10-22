@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -14,7 +15,7 @@ import (
 func InstallCDFunction(shell string) error {
 	snippet := cdSnippet(shell)
 	if len(snippet) == 0 {
-		return fmt.Errorf(constants.ErrCompUnknownShell, shell)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrCompUnknownShell, shell))
 	}
 
 	if shell == constants.ShellPowerShell {
@@ -100,7 +101,7 @@ func appendCDFunctions(snippet string, profilePaths []string) error {
 // appendCDFunction appends the gitmap command wrapper to the profile if not present.
 func appendCDFunction(snippet, profilePath string) error {
 	if err := os.MkdirAll(filepath.Dir(profilePath), 0o755); err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	existing, err := os.ReadFile(profilePath)
@@ -110,14 +111,14 @@ func appendCDFunction(snippet, profilePath string) error {
 
 	f, err := os.OpenFile(profilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	defer f.Close()
 
 	_, err = fmt.Fprintf(f, "\n%s\n%s\n", constants.CDFuncMarker, snippet)
 	if err != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)
@@ -134,7 +135,7 @@ func updateExistingCDFunction(text, snippet, profilePath string) error {
 	}
 
 	if writeErr := os.WriteFile(profilePath, []byte(next), 0o644); writeErr != nil {
-		return fmt.Errorf(constants.ErrCompProfileWrite, profilePath, writeErr)
+		return apperror.WrapSimple(writeErr, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	fmt.Fprintf(os.Stderr, constants.MsgCDFuncInstalled)

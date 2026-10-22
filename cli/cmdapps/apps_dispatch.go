@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 	"os"
 	"strings"
@@ -30,7 +31,7 @@ func RunAppsDispatch(args []string) error {
 		if strings.HasPrefix(subcommand, "-") {
 			return runAppsList(args)
 		}
-		return fmt.Errorf("unknown apps subcommand: %s. Run 'gitmap apps help' for usage", subcommand)
+		return apperror.NewValidationError(fmt.Sprintf("unknown apps subcommand: %s. Run 'gitmap apps help' for usage", subcommand))
 	}
 }
 
@@ -160,7 +161,7 @@ func RunAppsUninstall(args []string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("failed to uninstall %s: %w", target, err)
+		return apperror.WrapSimple(err, "failed to uninstall "+target)
 	}
 
 	fmt.Printf("Successfully uninstalled application: %s\n", target)
@@ -238,7 +239,7 @@ func printAppsUninstallMissingArg(isJson bool) error {
 		fmt.Println(string(data))
 		return nil
 	}
-	return fmt.Errorf("missing application identifier. Usage: gitmap apps uninstall <app-id> [--purge] [--force]")
+	return apperror.NewValidationError("missing application identifier. Usage: gitmap apps uninstall <app-id> [--purge] [--force]")
 }
 
 func printAppsUninstallJSON(resp AppUninstallResponse) error {

@@ -8,6 +8,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
@@ -81,19 +82,19 @@ func tryDialWithPasswordCandidate(c db.SSHConnection) (*ssh.Client, bool) {
 func diagnoseDialFailure(c db.SSHConnection) error {
 	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 1500*time.Millisecond)
 	if !isOnline {
-		return fmt.Errorf("ssh dial failed for %s@%s: network unreachable (%s) - verify hostname/IP, DNS, and port 22 firewall", c.Username, c.IPAddress, reason)
+		return apperror.NewExecutionError(fmt.Sprintf("ssh dial failed for %s@%s: network unreachable (%s) - verify hostname/IP, DNS, and port 22 firewall", c.Username, c.IPAddress, reason))
 	}
 	plain := resolveCandidatePassword(c)
 	if plain == "" {
-		return fmt.Errorf("ssh dial failed for %s@%s: no valid key found and no password in vault (enroll with 'gitmap sj add-with-pass %s@%s <password>' or 'gitmap ssh deploy keys')", c.Username, c.IPAddress, c.Username, c.IPAddress)
+		return apperror.NewExecutionError(fmt.Sprintf("ssh dial failed for %s@%s: no valid key found and no password in vault (enroll with 'gitmap sj add-with-pass %s@%s <password>' or 'gitmap ssh deploy keys')", c.Username, c.IPAddress, c.Username, c.IPAddress))
 	}
-	return fmt.Errorf("ssh dial failed for %s@%s: port 22 reachable, but authentication failed (credentials rejected by remote host - check password with 'gitmap ssh pass show %s')", c.Username, c.IPAddress, c.Alias)
+	return apperror.NewExecutionError(fmt.Sprintf("ssh dial failed for %s@%s: port 22 reachable, but authentication failed (credentials rejected by remote host - check password with 'gitmap ssh pass show %s')", c.Username, c.IPAddress, c.Alias))
 }
 
 func dialNodeWithFallback(c db.SSHConnection, header string) (*ssh.Client, error) {
 	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
 	if !isOnline {
-		return nil, fmt.Errorf("ssh dial failed for %s@%s: network unreachable (%s) - verify hostname/IP, DNS, and port 22 firewall", c.Username, c.IPAddress, reason)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("ssh dial failed for %s@%s: network unreachable (%s) - verify hostname/IP, DNS, and port 22 firewall", c.Username, c.IPAddress, reason))
 	}
 	if client, isKeyOk := tryDialWithSpecifiedKey(c); isKeyOk {
 		return client, nil

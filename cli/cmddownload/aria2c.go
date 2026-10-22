@@ -2,7 +2,6 @@ package cmddownload
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -77,7 +76,7 @@ func downloadWithAria2c(opts DownloadOptions, destDir, destFile string) (Downloa
 			EngineUsed:      EngineAria2c,
 			Tier:            1,
 			DurationMs:      duration.Milliseconds(),
-		}, apperror.WrapSimple(fmt.Errorf("aria2c failed: %w, stderr: %s", err, stderr.String()), "download.aria2c")
+		}, apperror.WrapSimple(err, "aria2c failed").WithContext("output", stderr.String())
 	}
 
 	info, statErr := os.Stat(fullPath)

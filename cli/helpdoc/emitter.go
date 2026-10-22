@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
@@ -63,7 +64,7 @@ func findTopic(name string) (topic, error) {
 		}
 	}
 
-	return topic{}, fmt.Errorf("%w: %q", errUnknownTopic, name)
+	return topic{}, apperror.WrapNotFound(errUnknownTopic, fmt.Sprintf("unknown topic: %q", name))
 }
 
 // RenderTopic renders one topic's HelpDisplay to its markdown document.
@@ -150,11 +151,11 @@ func writeTopic(outDir, name string) error {
 		return err
 	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return fmt.Errorf("helptextemitter: create out dir %q: %w", outDir, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("helptextemitter: create out dir %q", outDir))
 	}
 	path := filepath.Join(outDir, name+".md")
 	if err := os.WriteFile(path, []byte(doc), 0o644); err != nil {
-		return fmt.Errorf("helptextemitter: write %q: %w", path, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("helptextemitter: write %q", path))
 	}
 
 	return nil

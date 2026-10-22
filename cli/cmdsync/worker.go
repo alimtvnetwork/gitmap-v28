@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -183,12 +184,12 @@ func pushReleaseWithTags(repoPath, branch string, res RepoSyncResult, noPush boo
 		branchBytes, bErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
 		if bErr != nil {
 			errStr := string(branchBytes) + " " + bErr.Error()
-			return handlePushError(res, fmt.Errorf("%s", errStr))
+			return handlePushError(res, apperror.NewExecutionError(errStr))
 		}
 		tagBytes, tErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", res.PostTag)
 		if tErr != nil {
 			errStr := string(tagBytes) + " " + tErr.Error()
-			return handlePushError(res, fmt.Errorf("%s", errStr))
+			return handlePushError(res, apperror.NewExecutionError(errStr))
 		}
 	}
 	res.Action = "Released & Pushed"

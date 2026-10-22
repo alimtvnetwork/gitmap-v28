@@ -3,6 +3,7 @@ package cluster
 import (
 	"context"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -43,7 +44,7 @@ func ExecProjRun(
 	database, err := store.OpenDefault()
 	isDbError := err != nil
 	if isDbError {
-		return nil, fmt.Errorf("failed to open store: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to open store")
 	}
 
 	defer database.Close()
@@ -51,7 +52,7 @@ func ExecProjRun(
 	records, err := database.ListRepos()
 	isListError := err != nil
 	if isListError {
-		return nil, fmt.Errorf("failed to list repos: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to list repos")
 	}
 
 	var results []ProjRunResult

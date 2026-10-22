@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -93,7 +95,7 @@ func ensureRepoCacheDir(dbPath string) error {
 		return nil
 	}
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("failed to create repocache db directory %s: %w", dir, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to create repocache db directory %s", dir))
 	}
 	return nil
 }
@@ -107,7 +109,7 @@ func OpenRepoCacheDBAt(dbPath string) (*sql.DB, error) {
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)", dbPath)
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sqlite database at %s: %w", dbPath, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to open sqlite database at %s", dbPath))
 	}
 
 	db.SetMaxOpenConns(1)
@@ -116,7 +118,7 @@ func OpenRepoCacheDBAt(dbPath string) (*sql.DB, error) {
 
 	if err := initRepoCacheDBSchema(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to initialize repocache schema in %s: %w", dbPath, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to initialize repocache schema in %s", dbPath))
 	}
 
 	return db, nil

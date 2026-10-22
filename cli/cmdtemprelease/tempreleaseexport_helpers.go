@@ -2,6 +2,7 @@ package cmdtemprelease
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"math"
 	"strings"
 )
@@ -39,7 +40,7 @@ func CheckSequenceRange(start, count, digits int) error {
 	endSeq := start + count - 1
 
 	if endSeq > maxVal {
-		return fmt.Errorf("sequence %d exceeds %d-digit format (max %d)", endSeq, digits, maxVal)
+		return apperror.NewValidationError(fmt.Sprintf("sequence %d exceeds %d-digit format (max %d)", endSeq, digits, maxVal))
 	}
 
 	return nil

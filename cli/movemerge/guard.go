@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -13,11 +14,11 @@ func GuardEndpoints(left, right Endpoint) error {
 	lAbs, _ := filepath.Abs(left.WorkingDir)
 	rAbs, _ := filepath.Abs(right.WorkingDir)
 	if lAbs == rAbs {
-		return fmt.Errorf(constants.ErrMMSameFolderFmt, lAbs)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrMMSameFolderFmt, lAbs))
 	}
 
 	if isStrictAncestor(lAbs, rAbs) || isStrictAncestor(rAbs, lAbs) {
-		return fmt.Errorf(constants.ErrMMNestedFmt, lAbs, rAbs)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrMMNestedFmt, lAbs, rAbs))
 	}
 
 	return nil

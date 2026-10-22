@@ -319,7 +319,7 @@ func downloadInstallScript(url string) ([]byte, error) {
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(constants.ErrHTTPStatusFmt, resp.StatusCode)
+		return nil, apperror.NewExecutionError(fmt.Sprintf((constants.ErrHTTPStatusFmt), resp.StatusCode))
 	}
 
 	return io.ReadAll(resp.Body)

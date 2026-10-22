@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/lipgloss"
@@ -73,11 +74,11 @@ func loadSortedProjects() ([]AgyProject, error) {
 func buildRerunRestartPlan(projects []AgyProject, target, templateID string) (rerunRestartPlan, error) {
 	proj, seq := resolveClosestActiveProject(projects, target)
 	if seq == 0 || proj.Name == "" {
-		return rerunRestartPlan{}, fmt.Errorf("no valid project matching target %q", target)
+		return rerunRestartPlan{}, apperror.NewNotFoundError(fmt.Sprintf("no valid project matching target %q", target))
 	}
 	ws := proj.GetPath()
 	if ws == "" {
-		return rerunRestartPlan{}, fmt.Errorf("project %q has no valid workspace folder", proj.Name)
+		return rerunRestartPlan{}, apperror.NewValidationError(fmt.Sprintf("project %q has no valid workspace folder", proj.Name))
 	}
 
 	promptEntry, convID := extractLastPromptForProject(ws)

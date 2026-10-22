@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -166,7 +167,7 @@ func executeDirectCloneOne(url, folderName string, ghDesktopFlag, noReplace bool
 
 	absPath, err := filepath.Abs(folderName)
 	if err != nil {
-		return fmt.Errorf("resolve abs path for %s: %w", folderName, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("resolve abs path for %s", folderName))
 	}
 
 	url = coerceURLToStoredTransport(url)
@@ -218,12 +219,12 @@ func executeCloneStrategy(url string, absPath string, noReplace bool) error {
 func handleNoReplaceClone(url string, absPath string) error {
 	_, statErr := os.Stat(absPath)
 	if statErr == nil {
-		return fmt.Errorf("target exists: %s (use without --no-replace to replace)", absPath)
+		return apperror.NewExecutionError(fmt.Sprintf("target exists: %s (use without --no-replace to replace)", absPath))
 	}
 
 	cloneErr := runCloneCommand(url, absPath)
 	if cloneErr != nil {
-		return fmt.Errorf("git clone: %w", cloneErr)
+		return apperror.WrapSimple(cloneErr, "git clone")
 	}
 
 	return nil
@@ -232,7 +233,7 @@ func handleNoReplaceClone(url string, absPath string) error {
 func handleReplaceClone(url string, absPath string) error {
 	_, replaceErr := cloneReplacing(url, absPath)
 	if replaceErr != nil {
-		return fmt.Errorf("clone-replace: %w", replaceErr)
+		return apperror.WrapSimple(replaceErr, "clone-replace")
 	}
 
 	return nil

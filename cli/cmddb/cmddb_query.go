@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -13,11 +14,11 @@ import (
 func RunDbQuery(sqlQuery, dbArg string, isJson bool, out io.Writer) error {
 	cleanSql := strings.TrimSpace(sqlQuery)
 	if cleanSql == "" {
-		return fmt.Errorf("SQL query string is required (e.g. gitmap db query \"SELECT ...\")")
+		return apperror.NewValidationError("SQL query string is required (e.g. gitmap db query \"SELECT ...\")")
 	}
 
 	if !isQuerySafe(cleanSql) {
-		return fmt.Errorf("only read-only queries (SELECT, PRAGMA, EXPLAIN, WITH) are permitted")
+		return apperror.NewValidationError("only read-only queries (SELECT, PRAGMA, EXPLAIN, WITH) are permitted")
 	}
 
 	conn, _, err := OpenResolvedDb(dbArg)
@@ -52,13 +53,13 @@ func isQuerySafe(sql string) bool {
 func executeDynamicQuery(conn *sql.DB, query string, args ...any) (QueryResult, error) {
 	rows, err := conn.Query(query, args...)
 	if err != nil {
-		return QueryResult{}, fmt.Errorf("execute query: %w", err)
+		return QueryResult{}, apperror.WrapSimple(err, "execute query")
 	}
 	defer rows.Close()
 
 	colNames, err := rows.Columns()
 	if err != nil {
-		return QueryResult{}, fmt.Errorf("read query columns: %w", err)
+		return QueryResult{}, apperror.WrapSimple(err, "read query columns")
 	}
 
 	var data [][]any
@@ -85,7 +86,7 @@ func scanDynamicRow(rows *sql.Rows, colCount int) ([]any, error) {
 	}
 
 	if err := rows.Scan(valuePtrs...); err != nil {
-		return nil, fmt.Errorf("scan query row: %w", err)
+		return nil, apperror.WrapSimple(err, "scan query row")
 	}
 
 	cleanRow := make([]any, colCount)

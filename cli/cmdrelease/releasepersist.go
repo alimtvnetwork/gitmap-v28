@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -60,7 +61,7 @@ func resolveOrRegisterCurrentRepoID(db *store.DB) (int64, error) {
 	}
 
 	if err := autoRegisterCurrentRepo(db, cwd); err != nil {
-		return 0, fmt.Errorf("auto-register failed: %w", err)
+		return 0, apperror.WrapSimple(err, "auto-register failed")
 	}
 
 	return db.ResolveCurrentRepoID(cwd)

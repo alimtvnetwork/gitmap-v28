@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // handleGetRecords queries paginated, filtered table records.
@@ -262,7 +264,7 @@ func handleGetRecordById(mgr *MultiDbManager) http.HandlerFunc {
 
 		records, _ := scanAllRows(rows)
 		if len(records) == 0 {
-			writeRestEnvelope(w, http.StatusNotFound, nil, nil, fmt.Errorf("record not found: %s", id))
+			writeRestEnvelope(w, http.StatusNotFound, nil, nil, apperror.NewNotFoundError(fmt.Sprintf("record not found: %s", id)))
 			return
 		}
 		writeRestEnvelope(w, http.StatusOK, records, map[string]any{"IsSingle": true, "TotalRecords": 1}, nil)
@@ -294,7 +296,7 @@ func handleInsertRecord(mgr *MultiDbManager) http.HandlerFunc {
 		}
 		var payload map[string]any
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("invalid json payload: %w", err))
+			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.WrapValidation(err, "invalid json payload"))
 			return
 		}
 		res, insErr := executeRestInsert(conn, table, payload)
@@ -308,7 +310,7 @@ func handleInsertRecord(mgr *MultiDbManager) http.HandlerFunc {
 
 func executeRestInsert(conn *sql.DB, table string, payload map[string]any) (map[string]any, error) {
 	if len(payload) == 0 {
-		return nil, fmt.Errorf("empty insert payload")
+		return nil, apperror.NewValidationError("empty insert payload")
 	}
 	var cols, placeholders []string
 	var vals []any
@@ -337,7 +339,7 @@ func handleUpdateRecord(mgr *MultiDbManager) http.HandlerFunc {
 		}
 		var payload map[string]any
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("invalid json payload: %w", err))
+			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.WrapValidation(err, "invalid json payload"))
 			return
 		}
 		pk := findRestPrimaryKeyCol(mgr, alias, table)
@@ -352,7 +354,7 @@ func handleUpdateRecord(mgr *MultiDbManager) http.HandlerFunc {
 
 func executeRestUpdate(conn *sql.DB, table, pk, id string, payload map[string]any) (map[string]any, error) {
 	if len(payload) == 0 {
-		return nil, fmt.Errorf("empty update payload")
+		return nil, apperror.NewValidationError("empty update payload")
 	}
 	var sets []string
 	var vals []any

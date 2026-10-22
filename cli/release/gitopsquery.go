@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -81,7 +82,7 @@ func latestFromGitTags() (Version, error) {
 	cmd := exec.Command(constants.GitBin, constants.GitTag, constants.GitTagListFlag, constants.GitTagGlob)
 	out, err := cmd.Output()
 	if err != nil {
-		return Version{}, fmt.Errorf("no git tags found and no .gitmap/release/latest.json exists: %w", err)
+		return Version{}, apperror.WrapNotFound(err, "no git tags found and no .gitmap/release/latest.json exists")
 	}
 
 	return findHighestVersion(strings.TrimSpace(string(out)))
@@ -106,7 +107,7 @@ func findHighestVersion(output string) (Version, error) {
 		return highest, nil
 	}
 
-	return Version{}, fmt.Errorf("no version tags found. Create an initial release first")
+	return Version{}, apperror.NewNotFoundError("no version tags found. Create an initial release first")
 }
 
 // updateHighest returns the higher of current and candidate versions.

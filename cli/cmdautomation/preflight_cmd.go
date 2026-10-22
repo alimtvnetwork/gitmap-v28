@@ -3,6 +3,7 @@ package cmdautomation
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/spf13/cobra"
 
@@ -30,7 +31,7 @@ func runPreflightCmd(cmd *cobra.Command, args []string) error {
 	}
 	renderPreflightResult(monad.Value, preflightOpts.IsJson)
 	if monad.Value.FailedChecks > 0 {
-		return fmt.Errorf("preflight failed with %d error(s)", monad.Value.FailedChecks)
+		return apperror.NewExecutionError(fmt.Sprintf("preflight failed with %d error(s)", monad.Value.FailedChecks))
 	}
 	return nil
 }

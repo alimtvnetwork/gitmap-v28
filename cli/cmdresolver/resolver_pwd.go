@@ -2,6 +2,7 @@ package cmdresolver
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
@@ -11,7 +12,7 @@ import (
 func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("get current directory: %w", err)
+		return nil, apperror.WrapSimple(err, "get current directory")
 	}
 
 	for _, r := range all {
@@ -20,5 +21,5 @@ func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("current directory (%s) is not a tracked repository", pwd)
+	return nil, apperror.NewNotFoundError(fmt.Sprintf("current directory (%s) is not a tracked repository", pwd))
 }

@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
@@ -11,7 +12,7 @@ func handlePipelineStages(args []string) error {
 	repo, runId := resolveTargetRepoAndRunId(args)
 	isMissing := runId == 0
 	if isMissing {
-		return fmt.Errorf("no workflow runs found for repository: %s", repo)
+		return apperror.NewNotFoundError(fmt.Sprintf("no workflow runs found for repository: %s", repo))
 	}
 
 	summary, err := loadStageSummary(repo, runId)

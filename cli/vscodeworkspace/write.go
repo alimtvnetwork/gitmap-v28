@@ -2,6 +2,7 @@ package vscodeworkspace
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 
@@ -20,17 +21,17 @@ func WriteAtomic(outPath string, ws Workspace) error {
 
 	tmpPath := outPath + constants.VSCodeWorkspaceTempSuffix
 	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
-		return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode-workspace: failed to write temp file %q", tmpPath))
 	}
 
 	if err := os.WriteFile(tmpPath, bytesOut, 0o644); err != nil {
-		return fmt.Errorf(constants.ErrVSCodeWorkspaceWriteTemp, tmpPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode-workspace: failed to write temp file %q", tmpPath))
 	}
 
 	if err := os.Rename(tmpPath, outPath); err != nil {
 		_ = os.Remove(tmpPath)
 
-		return fmt.Errorf(constants.ErrVSCodeWorkspaceRename, outPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("vscode-workspace: failed to commit %q", outPath))
 	}
 
 	return nil

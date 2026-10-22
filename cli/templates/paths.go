@@ -1,9 +1,10 @@
 package templates
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // UserDir returns the absolute path to the user-overlay templates directory,
@@ -13,7 +14,7 @@ import (
 func UserDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf(errTemplateUserDir, err)
+		return "", apperror.WrapSimple(err, "failed to resolve user templates dir")
 	}
 
 	return filepath.Join(home, userTemplatesDirName, userTemplatesSubdir), nil
@@ -28,7 +29,7 @@ func EnsureUserDir() (string, error) {
 	}
 
 	if mkErr := os.MkdirAll(dir, 0o755); mkErr != nil {
-		return "", fmt.Errorf(errTemplateMaterialize, dir, mkErr)
+		return "", apperror.WrapSimple(mkErr, "failed to materialize templates to "+dir)
 	}
 
 	return dir, nil

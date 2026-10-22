@@ -3,6 +3,7 @@ package cmdcg
 import (
 	"bytes"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -96,7 +97,7 @@ func runCgScriptInRepo(repo string) (string, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("%w: %s", err, stderr.String())
+		return "", apperror.WrapSimple(err, "run cg script").WithContext("output", stderr.String())
 	}
 
 	return stdout.String(), nil

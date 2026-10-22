@@ -162,7 +162,7 @@ func readAheadBehind(target string) (int, int, bool, error) {
 
 	parts := strings.Fields(strings.TrimSpace(string(out)))
 	if len(parts) != 2 {
-		return 0, 0, false, apperror.WrapSimple(fmt.Errorf("unexpected output: %s", string(out)), "parse rev-list count")
+		return 0, 0, false, apperror.WrapSimple(apperror.NewExecutionError(fmt.Sprintf("unexpected output: %s", string(out))), "parse rev-list count")
 	}
 
 	ahead, _ := strconv.Atoi(parts[0])

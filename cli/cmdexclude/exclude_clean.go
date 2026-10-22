@@ -2,6 +2,7 @@ package cmdexclude
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strings"
 
@@ -14,13 +15,13 @@ import (
 func RunCleanRepos(args []string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return fmt.Errorf("failed to open database: %w", err)
+		return apperror.WrapSimple(err, "failed to open database")
 	}
 	defer db.Close()
 
 	repos, errList := db.ListRepos()
 	if errList != nil {
-		return fmt.Errorf("failed to list tracked repositories: %w", errList)
+		return apperror.WrapSimple(errList, "failed to list tracked repositories")
 	}
 
 	fmt.Println("╔════════════════════════════════════════════════════════════════════╗")

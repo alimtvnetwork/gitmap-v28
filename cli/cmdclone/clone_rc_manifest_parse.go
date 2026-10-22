@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ParseManifestFile parses a JSON manifest from disk into normalized RepoCacheEntry objects.
@@ -110,7 +112,7 @@ func parseRawManifestItems(data []byte, manifestPath string) ([]genericManifestI
 
 	var wrapper genericManifestWrapper
 	if wrapErr := json.Unmarshal(data, &wrapper); wrapErr != nil {
-		return nil, fmt.Errorf("unable to parse manifest JSON %s: %w", manifestPath, wrapErr)
+		return nil, apperror.WrapSimple(wrapErr, fmt.Sprintf("unable to parse manifest JSON %s", manifestPath))
 	}
 
 	switch {

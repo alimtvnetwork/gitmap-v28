@@ -241,12 +241,12 @@ func appendChromeProfileToOrder(profile map[string]any, dstDir string) {
 func writeChromeLocalState(path string, root map[string]any) error {
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
-		return fmt.Errorf("encode Local State: %w", err)
+		return apperror.WrapSimple(err, "encode Local State")
 	}
 
 	tmp := path + constants.ChromeLocalStateTmpSuffix
 	if err := os.WriteFile(tmp, out, constants.FilePermission); err != nil {
-		return fmt.Errorf("write %s: %w", tmp, err)
+		return apperror.WrapSimple(err, "write "+tmp)
 	}
 
 	return replaceChromeLocalState(path, tmp)
@@ -272,7 +272,7 @@ func replaceChromeLocalState(path, tmp string) error {
 func cleanupChromeLocalStateTmp(tmp string, cause error) error {
 	_ = os.Remove(tmp)
 
-	return fmt.Errorf("backup Local State: %w", cause)
+	return apperror.WrapSimple(cause, "backup Local State")
 }
 
 func finishChromeLocalStateReplace(path, tmp, bak string) error {
@@ -280,7 +280,7 @@ func finishChromeLocalStateReplace(path, tmp, bak string) error {
 		_ = os.Rename(bak, path)
 		_ = os.Remove(tmp)
 
-		return fmt.Errorf("replace %s: %w", path, err)
+		return apperror.WrapSimple(err, "replace "+path)
 	}
 
 	if err := os.Remove(bak); err != nil && !os.IsNotExist(err) {

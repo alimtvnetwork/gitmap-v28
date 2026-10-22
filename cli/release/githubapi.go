@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // GitHubRelease represents the response from creating a GitHub release.
@@ -40,7 +42,7 @@ func CreateGitHubRelease(
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("marshal release payload: %w", err)
+		return nil, apperror.WrapSimple(err, "marshal release payload")
 	}
 
 	req := newGitHubRequest(http.MethodPost, u, io.NopCloser(bytes.NewReader(jsonData)), int64(len(jsonData)))
@@ -48,7 +50,7 @@ func CreateGitHubRelease(
 
 	resp, err := doGitHubRequest(req)
 	if err != nil {
-		return nil, fmt.Errorf("create release: %w", err)
+		return nil, apperror.WrapSimple(err, "create release")
 	}
 
 	defer resp.Body.Close()
@@ -56,7 +58,7 @@ func CreateGitHubRelease(
 	if resp.StatusCode >= 300 {
 		respBody, _ := io.ReadAll(resp.Body)
 
-		return nil, fmt.Errorf("GitHub API error %d: %s", resp.StatusCode, string(respBody))
+		return nil, apperror.NewExecutionError(fmt.Sprintf("GitHub API error %d: %s", resp.StatusCode, string(respBody)))
 	}
 
 	var release GitHubRelease

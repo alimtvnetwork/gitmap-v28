@@ -4,13 +4,15 @@ package cmdmergeai
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ParseURLDetails breaks down any Git or GitHub URL into canonical components.
 func ParseURLDetails(rawURL string) (string, string, bool, string, error) {
 	trimmed := strings.TrimSpace(rawURL)
 	if trimmed == "" {
-		return "", "", false, "", fmt.Errorf("empty URL")
+		return "", "", false, "", apperror.NewValidationError("empty URL")
 	}
 
 	if isShorthandRepo(trimmed) {
@@ -31,7 +33,7 @@ func ParseURLDetails(rawURL string) (string, string, bool, string, error) {
 	pathOnly := strings.Trim(u[slashIdx+1:], "/")
 	segments := strings.Split(pathOnly, "/")
 	if len(segments) < 2 {
-		return "", "", false, "", fmt.Errorf("invalid repository path in URL: %s", rawURL)
+		return "", "", false, "", apperror.NewValidationError("invalid repository path in URL: " + rawURL)
 	}
 
 	owner := segments[0]
@@ -72,7 +74,7 @@ func parseNoSlashURL(trimmed, rawURL string) (string, string, bool, string, erro
 		cleanRepo := strings.TrimSuffix(trimmed, ".git")
 		return strings.ToLower(cleanRepo), "https://github.com/" + cleanRepo + ".git", false, "", nil
 	}
-	return "", "", false, "", fmt.Errorf("invalid repository URL: %s", rawURL)
+	return "", "", false, "", apperror.NewValidationError("invalid repository URL: " + rawURL)
 }
 
 func parseFileSegments(segments []string) (bool, string) {

@@ -120,7 +120,7 @@ func gitTopLevel() (string, error) {
 
 	root := strings.TrimSpace(string(out))
 	if root == "" {
-		return "", fmt.Errorf("empty top-level")
+		return "", apperror.NewExecutionError("empty top-level")
 	}
 
 	return filepath.Clean(root), nil
@@ -187,7 +187,7 @@ func runGitLFSInstall() error {
 	cmd := exec.Command("git", "lfs", "install", "--local")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "git lfs install").WithContext("output", strings.TrimSpace(string(out)))
 	}
 
 	return nil

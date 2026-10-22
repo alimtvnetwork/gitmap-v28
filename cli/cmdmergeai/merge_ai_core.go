@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdresolver"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -41,7 +42,7 @@ func RunMergeAI(args []string) error {
 	pterm.Info.Printf("[GitMap Merge-AI] Resolving destination target: %s\n", destTarget)
 	resolvedDest, errDest := cmdresolver.ResolveRepoFeature(destTarget)
 	if errDest != nil {
-		return fmt.Errorf("failed to resolve repo feature destination: %w", errDest)
+		return apperror.WrapSimple(errDest, "failed to resolve repo feature destination")
 	}
 
 	pterm.Success.Printf("[Repo Feature] Target resolved to: %s (Type: %s)\n",
@@ -62,7 +63,7 @@ func RunMergeAI(args []string) error {
 	}
 
 	if len(sources) == 0 {
-		return fmt.Errorf("no valid source repositories found to merge")
+		return apperror.NewNotFoundError("no valid source repositories found to merge")
 	}
 
 	// Sort chronologically (earliest to latest) to establish baseline precedence
@@ -81,11 +82,11 @@ func RunMergeAI(args []string) error {
 	manifest := assembleManifest(resolvedDest, sources, collisions, uniqueCount, skippedSources)
 
 	if errManifest := WriteMergeAIManifest(resolvedDest.LocalPath, manifest); errManifest != nil {
-		return fmt.Errorf("failed to write merge-ai-manifest.json: %w", errManifest)
+		return apperror.WrapSimple(errManifest, "failed to write merge-ai-manifest.json")
 	}
 
 	if errInstruction := WriteMergeAIInstruction(resolvedDest.LocalPath, collisions, skippedSources...); errInstruction != nil {
-		return fmt.Errorf("failed to write instruction.md: %w", errInstruction)
+		return apperror.WrapSimple(errInstruction, "failed to write instruction.md")
 	}
 
 	_, _ = gitExec(resolvedDest.LocalPath, "add", "-A")

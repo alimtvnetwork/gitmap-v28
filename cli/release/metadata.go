@@ -4,10 +4,10 @@ package release
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -63,12 +63,12 @@ func metaFilePath(v Version) string {
 func WriteReleaseMeta(meta ReleaseMeta) error {
 	err := os.MkdirAll(constants.DefaultReleaseDir, constants.DirPermission)
 	if err != nil {
-		return fmt.Errorf("create release dir: %w", err)
+		return apperror.WrapSimple(err, "create release dir")
 	}
 
 	v, err := Parse(meta.Tag)
 	if err != nil {
-		return fmt.Errorf("parse tag for path: %w", err)
+		return apperror.WrapSimple(err, "parse tag for path")
 	}
 
 	return writeJSON(metaFilePath(v), meta)

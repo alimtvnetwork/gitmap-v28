@@ -57,7 +57,7 @@ func executePingProbe(p *SupabaseProjectRecord) error {
 	if reqErr != nil {
 		RecordSupabaseError(reqErr)
 	} else if resp != nil && (resp.StatusCode < 200 || resp.StatusCode >= 400) {
-		RecordSupabaseError(fmt.Errorf("supabase ping received HTTP %d", resp.StatusCode))
+		RecordSupabaseError(apperror.NewExecutionError(fmt.Sprintf("supabase ping received HTTP %d", resp.StatusCode)))
 	}
 
 	return reportPingResult(p.Alias, p.ApiUrl, resp, latency, reqErr)

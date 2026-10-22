@@ -176,7 +176,7 @@ func evaluateRemoteUpdate(repoPath string, parsed clonenext.ParsedRepo) (clonene
 	}
 
 	if len(state.OriginURL) == 0 {
-		return clonenext.RemoteUpdateCheck{}, fmt.Errorf("no origin remote configured")
+		return clonenext.RemoteUpdateCheck{}, apperror.NewExecutionError("no origin remote configured")
 	}
 
 	owner, _, err := clonenext.ParseOwnerRepo(state.OriginURL)

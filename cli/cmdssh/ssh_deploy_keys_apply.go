@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -17,14 +18,14 @@ func deployKeysToRemoteNode(c db.SSHConnection, uniqueKeys []string, isDryRun bo
 	res := DeployKeysNodeResult{Alias: c.Alias, IPAddress: c.IPAddress, KeysTotal: len(uniqueKeys)}
 	if !checkRemoteNodeOnline(c.IPAddress, header) {
 		res.ErrorMsg = "offline"
-		return res, fmt.Errorf("node %s is offline", header)
+		return res, apperror.NewExecutionError(fmt.Sprintf("node %s is offline", header))
 	}
 	res.IsOnline = true
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
 		res.ErrorMsg = "authentication failed"
 		logDeployKeysError(c, "authentication failed", len(uniqueKeys))
-		return res, fmt.Errorf("auth failed for %s", header)
+		return res, apperror.NewExecutionError(fmt.Sprintf("auth failed for %s", header))
 	}
 	defer client.Close()
 	nodeRes, err := syncAuthorizedKeysOnClient(client, res, uniqueKeys, c.OS, isDryRun)

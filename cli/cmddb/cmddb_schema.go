@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RunDbSchema dumps formatted CREATE TABLE and index DDL for tables.
@@ -42,7 +44,7 @@ func fetchSingleTableSchema(conn *sql.DB, tableName, dbPath string) ([]SchemaInf
 	var schemaType, name, ddl string
 	err := conn.QueryRow(query, tableName, tableName).Scan(&schemaType, &name, &ddl)
 	if err != nil {
-		return nil, fmt.Errorf("table or view '%s' not found in database %s", tableName, dbPath)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("table or view '%s' not found in database %s", tableName, dbPath))
 	}
 
 	indexes := fetchTableIndexes(conn, name)
@@ -66,7 +68,7 @@ func fetchAllTableSchemas(conn *sql.DB) ([]SchemaInfo, error) {
 	query := `SELECT type, name, sql FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL ORDER BY type, name`
 	rows, err := conn.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("query all schemas: %w", err)
+		return nil, apperror.WrapSimple(err, "query all schemas")
 	}
 
 	rawEntries, err := collectRawSchemaEntries(rows)

@@ -2,6 +2,8 @@ package cmdspace
 
 import (
 	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func runSpaceEmail(args []string) error {
@@ -23,7 +25,7 @@ func runSpaceEmail(args []string) error {
 
 	printSendEmailUIHelp()
 
-	return fmt.Errorf("unknown space email subcommand: %s", args[0])
+	return apperror.NewValidationError(fmt.Sprintf("unknown space email subcommand: %s", args[0]))
 }
 
 func runSpaceSendEmailUI(args []string) error {

@@ -57,7 +57,7 @@ func setCredentialManagerHelper() *apperror.AppError {
 func applyCredentialStoreType(storeType constants.CredentialStoreType) *apperror.AppError {
 	cmd := exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType))
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out))), "git config set credentialStore")
+		return apperror.WrapSimple(err, "git config set credentialStore").WithContext("output", strings.TrimSpace(string(out)))
 	}
 
 	return nil

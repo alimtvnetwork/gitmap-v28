@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -70,7 +71,7 @@ func executeCreateTable(w http.ResponseWriter, mgr *MultiDbManager, cache *Migra
 		ddl = strings.TrimSpace(p.Sql)
 	}
 	if ddl == "" {
-		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("ddl sql is required"))
+		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("ddl sql is required"))
 
 		return
 	}
@@ -113,7 +114,7 @@ func handleAlter(mgr *MultiDbManager, cache *MigrationCache) http.HandlerFunc {
 func executeAlter(w http.ResponseWriter, mgr *MultiDbManager, cache *MigrationCache, conn *sql.DB, alias string, p AlterTablePayload) {
 	sqlStr := resolveAlterSql(p)
 	if sqlStr == "" {
-		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("incomplete alter payload"))
+		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("incomplete alter payload"))
 
 		return
 	}
@@ -170,7 +171,7 @@ func handleMigrate(mgr *MultiDbManager, cache *MigrationCache) http.HandlerFunc 
 
 func executeMigrate(w http.ResponseWriter, mgr *MultiDbManager, cache *MigrationCache, conn *sql.DB, alias string, p MigratePayload) {
 	if strings.TrimSpace(p.Sql) == "" {
-		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("migration sql is empty"))
+		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("migration sql is empty"))
 
 		return
 	}
@@ -217,7 +218,7 @@ func handleClone(mgr *MultiDbManager, cache *MigrationCache) http.HandlerFunc {
 func executeClone(w http.ResponseWriter, mgr *MultiDbManager, cache *MigrationCache, alias, srcPath string, p ClonePayload) {
 	targetAlias, targetPath := strings.TrimSpace(p.TargetAlias), strings.TrimSpace(p.TargetPath)
 	if targetAlias == "" || targetPath == "" {
-		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("targetAlias and targetPath are required"))
+		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("targetAlias and targetPath are required"))
 
 		return
 	}
@@ -271,12 +272,12 @@ func copyFileSafe(src, dst string) (int64, error) {
 func verifyClonedSqlite(path string) error {
 	info, err := os.Stat(path)
 	if err != nil || info.Size() == 0 {
-		return fmt.Errorf("cloned file verification failed: empty or missing")
+		return apperror.NewExecutionError("cloned file verification failed: empty or missing")
 	}
 
 	testConn, appErr := store.OpenSQLiteDB(path)
 	if appErr != nil {
-		return fmt.Errorf("cloned database verification failed: %w", appErr)
+		return apperror.WrapSimple(appErr, "cloned database verification failed")
 	}
 	_ = testConn.Close()
 

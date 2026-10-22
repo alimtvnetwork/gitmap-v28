@@ -1,11 +1,11 @@
 package cmdcode
 
 import (
-	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -18,7 +18,7 @@ func gitTopLevel() (string, error) {
 
 	root := strings.TrimSpace(string(out))
 	if root == "" {
-		return "", fmt.Errorf("empty top-level")
+		return "", apperror.NewExecutionError("empty top-level")
 	}
 
 	return filepath.Clean(root), nil

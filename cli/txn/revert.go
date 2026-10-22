@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -48,7 +49,7 @@ func Revert(db *store.DB, id int64, opts RevertOptions) error {
 // wrapNotFound formats the user-facing not-found error.
 func wrapNotFound(id int64, err error) error {
 	if errors.Is(err, store.ErrTransactionNotFound) {
-		return fmt.Errorf(constants.ErrTxnRowNotFound, id)
+		return apperror.NewNotFoundError(fmt.Sprintf(constants.ErrTxnRowNotFound, id))
 	}
 
 	return err
@@ -60,7 +61,7 @@ func assertCommitted(r model.TransactionRecord) error {
 		return nil
 	}
 
-	return fmt.Errorf(constants.ErrTxnNotCommitted, r.ID, r.Status)
+	return apperror.NewValidationError(fmt.Sprintf(constants.ErrTxnNotCommitted, r.ID, r.Status))
 }
 
 // applyAllReverses walks the file list newest-first to undo nested mutations.
@@ -82,19 +83,19 @@ func applyReverse(f model.TransactionFileRecord, opts RevertOptions) error {
 	case constants.TxnActionDelete, constants.TxnActionEdit:
 		return reverseRestore(f, opts)
 	default:
-		return fmt.Errorf("transaction revert: unknown action %q", f.Action)
+		return apperror.NewValidationError(fmt.Sprintf("transaction revert: unknown action %q", f.Action))
 	}
 }
 
 // reverseRename moves the post-mutation path back to its original location.
 func reverseRename(f model.TransactionFileRecord) error {
 	if err := os.MkdirAll(filepath.Dir(f.BackupPath), 0o755); err != nil {
-		return fmt.Errorf("transaction revert mkdir: %w", err)
+		return apperror.WrapSimple(err, "transaction revert mkdir")
 	}
 
 	if err := os.Rename(f.AbsPath, f.BackupPath); err != nil {
-		return fmt.Errorf("transaction revert rename %q→%q: %w",
-			f.AbsPath, f.BackupPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("transaction revert rename %q→%q",
+			f.AbsPath, f.BackupPath))
 	}
 
 	return nil
@@ -107,7 +108,7 @@ func reverseRestore(f model.TransactionFileRecord, opts RevertOptions) error {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(f.AbsPath), 0o755); err != nil {
-		return fmt.Errorf("transaction revert mkdir: %w", err)
+		return apperror.WrapSimple(err, "transaction revert mkdir")
 	}
 
 	return copyFile(f.BackupPath, f.AbsPath)
@@ -121,11 +122,11 @@ func assertBackupSha(f model.TransactionFileRecord, opts RevertOptions) error {
 
 	got, err := hashFile(f.BackupPath)
 	if err != nil {
-		return fmt.Errorf(constants.ErrTxnBackupMissing+": %w", f.TransactionID, f.BackupPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("transaction #%d backup file missing on disk: %q", f.TransactionID, f.BackupPath))
 	}
 
 	if got != f.Sha256 {
-		return fmt.Errorf(constants.ErrTxnBackupShaDrift, f.TransactionID, f.BackupPath)
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrTxnBackupShaDrift, f.TransactionID, f.BackupPath))
 	}
 
 	return nil
@@ -151,18 +152,18 @@ func hashFile(path string) (string, error) {
 func copyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("transaction revert open: %w", err)
+		return apperror.WrapSimple(err, "transaction revert open")
 	}
 
 	defer in.Close()
 	out, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("transaction revert create: %w", err)
+		return apperror.WrapSimple(err, "transaction revert create")
 	}
 
 	defer out.Close()
 	if _, err := io.Copy(out, in); err != nil {
-		return fmt.Errorf("transaction revert copy: %w", err)
+		return apperror.WrapSimple(err, "transaction revert copy")
 	}
 
 	return nil

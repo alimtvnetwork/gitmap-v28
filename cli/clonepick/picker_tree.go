@@ -14,7 +14,6 @@ package clonepick
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -32,7 +31,7 @@ import (
 func ListRepoPathsKeep(plan Plan) ([]string, string, error) {
 	tmp, err := os.MkdirTemp("", "gitmap-clonepick-ls-")
 	if err != nil {
-		return nil, "", fmt.Errorf(constants.ErrClonePickPickerLaunch, err)
+		return nil, "", apperror.WrapSimple(err, "clone-pick: launch picker")
 	}
 
 	if err := metaCloneForListing(plan, tmp); err != nil {
@@ -68,7 +67,7 @@ func metaCloneForListing(plan Plan, dest string) error {
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf(constants.ErrClonePickGitClone, err)
+		return apperror.WrapSimple(err, "clone-pick: git clone failed")
 	}
 
 	return nil

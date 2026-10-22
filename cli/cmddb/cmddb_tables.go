@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -53,7 +54,7 @@ func listTablesAndViews(conn *sql.DB) ([]TableInfo, error) {
 	query := `SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' ORDER BY type, name`
 	rows, err := conn.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("query sqlite_master: %w", err)
+		return nil, apperror.WrapSimple(err, "query sqlite_master")
 	}
 	defer rows.Close()
 

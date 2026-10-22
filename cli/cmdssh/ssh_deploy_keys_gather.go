@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
@@ -33,11 +34,11 @@ func gatherLocalPublicKeys() []string {
 func gatherRemotePublicKeys(c db.SSHConnection) ([]string, error) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	if !checkRemoteNodeOnline(c.IPAddress, header) {
-		return nil, fmt.Errorf("node %s is offline", header)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("node %s is offline", header))
 	}
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
-		return nil, fmt.Errorf("auth failed for %s", header)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("auth failed for %s", header))
 	}
 	defer client.Close()
 	cmd := buildGatherRemoteKeysCommand(c.OS)

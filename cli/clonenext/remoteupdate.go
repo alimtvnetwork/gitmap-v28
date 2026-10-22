@@ -12,6 +12,8 @@ package clonenext
 
 import (
 	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DefaultRemoteProbeCeiling caps how far above the current version we
@@ -98,7 +100,7 @@ func probeHighestSibling(params RemoteProbeParams) (int, error) {
 	for m := params.Parsed.CurrentVersion + 1; m <= params.Ceiling; m++ {
 		exists, err := params.Probe(params.Owner, TargetRepoName(params.Parsed.BaseName, m))
 		if err != nil {
-			return highest, fmt.Errorf("probe %s/%s-v%d: %w", params.Owner, params.Parsed.BaseName, m, err)
+			return highest, apperror.WrapSimple(err, fmt.Sprintf("probe %s/%s-v%d", params.Owner, params.Parsed.BaseName, m))
 		}
 
 		if !exists {

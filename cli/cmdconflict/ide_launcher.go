@@ -1,11 +1,12 @@
 package cmdconflict
 
 import (
-	"fmt"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type ideCandidate struct {
@@ -54,7 +55,7 @@ func findWindowsIDEBinary(bin string) string {
 func LaunchIDEForRepo(repoPath string, files []string) error {
 	bin, _ := DetectInstalledIDE()
 	if bin == "" {
-		return fmt.Errorf("no supported IDE found on PATH (checked: code, cursor, windsurf, codium)")
+		return apperror.NewNotFoundError("no supported IDE found on PATH (checked: code, cursor, windsurf, codium)")
 	}
 
 	args := resolveIDEFileArgs(repoPath, files)

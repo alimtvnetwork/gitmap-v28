@@ -2,6 +2,7 @@ package power
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strconv"
 	"strings"
 )
@@ -23,20 +24,20 @@ func ParsePowercfgSettingIndex(output, alias string) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("alias %s not found in powercfg output", alias)
+	return 0, apperror.NewNotFoundError(fmt.Sprintf("alias %s not found in powercfg output", alias))
 }
 
 func extractSecondsFromLine(line string) (int, error) {
 	parts := strings.Split(line, ":")
 	if len(parts) < 2 {
-		return 0, fmt.Errorf("malformed index line: %s", line)
+		return 0, apperror.NewValidationError(fmt.Sprintf("malformed index line: %s", line))
 	}
 
 	hexStr := strings.TrimSpace(parts[1])
 	hexStr = strings.TrimPrefix(hexStr, "0x")
 	val, err := strconv.ParseInt(hexStr, 16, 64)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse index %q: %w", hexStr, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("failed to parse index %q", hexStr))
 	}
 
 	return int(val), nil

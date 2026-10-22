@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,23 +33,23 @@ type TreeFileRecord = TreeItem
 // ParseTreeFile reads and parses a tree file (.json, .yaml, .yml, .txt, or auto-detected).
 func ParseTreeFile(filePath string) ([]TreeItem, error) {
 	if strings.TrimSpace(filePath) == "" {
-		return nil, fmt.Errorf("input file path is required")
+		return nil, apperror.NewValidationError("input file path is required")
 	}
 
 	info, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("tree file not found: %s", filePath)
+			return nil, apperror.NewNotFoundError("tree file not found: " + filePath)
 		}
-		return nil, fmt.Errorf("failed to access tree file: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to access tree file")
 	}
 	if info.IsDir() {
-		return nil, fmt.Errorf("specified path is a directory, not a tree file: %s", filePath)
+		return nil, apperror.NewValidationError("specified path is a directory, not a tree file: " + filePath)
 	}
 
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read tree file %s: %w", filePath, err)
+		return nil, apperror.WrapSimple(err, "failed to read tree file "+filePath)
 	}
 
 	ext := strings.ToLower(filepath.Ext(filePath))
@@ -224,7 +224,7 @@ func parseJSONTreeContent(content []byte) ([]TreeItem, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("unable to recognize JSON tree format (expected FolderReport, FolderTreeExportDoc, or []TreeItem)")
+	return nil, apperror.NewValidationError("unable to recognize JSON tree format (expected FolderReport, FolderTreeExportDoc, or []TreeItem)")
 }
 
 // walkExportTreeNode recursively visits FolderTreeNode structures.

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
@@ -209,7 +210,7 @@ func RunSSHNodesImportJSON(args []string) error {
 		raw, sourceLabel, err = readNodesImportFileWithFallback(inPath)
 	}
 	if err != nil {
-		return fmt.Errorf("failed to read SSH nodes JSON from %s: %w", sourceLabel, err)
+		return apperror.WrapSimple(err, "failed to read SSH nodes JSON from "+sourceLabel)
 	}
 	conns, parseErr := decodeConnectionsFromJSON(raw)
 	if parseErr != nil {

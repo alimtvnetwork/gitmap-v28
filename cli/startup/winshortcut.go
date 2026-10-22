@@ -12,12 +12,12 @@ package startup
 // Registry backend.
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -26,7 +26,7 @@ import (
 // outcome model as every other backend.
 func addWindowsStartupFolder(clean string, opts AddOptions) (AddResult, error) {
 	if runtime.GOOS != "windows" {
-		return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+		return AddResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 	}
 
 	dir, err := startupFolderDir()
@@ -35,7 +35,7 @@ func addWindowsStartupFolder(clean string, opts AddOptions) (AddResult, error) {
 	}
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return AddResult{}, fmt.Errorf("create startup folder %s: %w", dir, err)
+		return AddResult{}, apperror.WrapSimple(err, "create startup folder "+dir)
 	}
 
 	full := filepath.Join(dir, constants.StartupWinValuePrefix+clean+constants.StartupLnkExt)
@@ -59,7 +59,7 @@ func writeStartupShortcut(full, clean string, opts AddOptions) (AddResult, error
 	}
 
 	if err := writeShortcutFile(full, opts.Exec); err != nil {
-		return AddResult{}, fmt.Errorf(constants.ErrStartupShortcutCreate, full, err)
+		return AddResult{}, apperror.WrapSimple(err, "create shortcut "+full)
 	}
 
 	if err := writeTrackingSubkey(constants.RegGitmapStartupFolder, clean,
@@ -79,7 +79,7 @@ func writeStartupShortcut(full, clean string, opts AddOptions) (AddResult, error
 // semantics as the Linux Remove path.
 func removeWindowsStartupFolder(clean string, opts RemoveOptions) (RemoveResult, error) {
 	if runtime.GOOS != "windows" {
-		return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+		return RemoveResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 	}
 
 	dir, err := startupFolderDir()
@@ -101,7 +101,7 @@ func removeWindowsStartupFolder(clean string, opts RemoveOptions) (RemoveResult,
 	}
 
 	if err := os.Remove(full); err != nil {
-		return RemoveResult{}, fmt.Errorf("delete %s: %w", full, err)
+		return RemoveResult{}, apperror.WrapSimple(err, "delete "+full)
 	}
 
 	if err := deleteTrackingSubkey(constants.RegGitmapStartupFolder, clean); err != nil {
@@ -130,7 +130,7 @@ func listWindowsStartupFolder() ([]Entry, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStartupReadDir, dir, err)
+		return nil, apperror.WrapSimple(err, "could not read autostart directory "+dir)
 	}
 
 	return collectStartupFolderManaged(dir, files), nil

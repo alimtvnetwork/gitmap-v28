@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -19,11 +20,11 @@ func EnableGitRerere(repoDir string, isGlobal bool) error {
 	}
 
 	if _, err := runGit(repoDir, argsEnabled...); err != nil {
-		return fmt.Errorf("failed to enable rerere: %w", err)
+		return apperror.WrapSimple(err, "failed to enable rerere")
 	}
 
 	if _, err := runGit(repoDir, argsAutoUpdate...); err != nil {
-		return fmt.Errorf("failed to enable rerere.autoupdate: %w", err)
+		return apperror.WrapSimple(err, "failed to enable rerere.autoupdate")
 	}
 
 	return nil
@@ -47,17 +48,17 @@ func CheckoutConflictSide(repoDir string, side string, files []string) error {
 
 	normalizedSide := strings.TrimPrefix(strings.ToLower(strings.TrimSpace(side)), "--")
 	if normalizedSide != "theirs" && normalizedSide != "ours" {
-		return fmt.Errorf("invalid conflict side %q: expected 'theirs' or 'ours'", side)
+		return apperror.NewValidationError(fmt.Sprintf("invalid conflict side %q: expected 'theirs' or 'ours'", side))
 	}
 
 	checkoutArgs := append([]string{constants.GitCheckout, "--" + normalizedSide, "--"}, files...)
 	if _, err := runGit(repoDir, checkoutArgs...); err != nil {
-		return fmt.Errorf("git checkout --%s failed: %w", normalizedSide, err)
+		return apperror.WrapSimple(err, "git checkout --"+normalizedSide+" failed")
 	}
 
 	addArgs := append([]string{constants.GitAdd, "--"}, files...)
 	if _, err := runGit(repoDir, addArgs...); err != nil {
-		return fmt.Errorf("git add failed: %w", err)
+		return apperror.WrapSimple(err, "git add failed")
 	}
 
 	return nil
@@ -77,5 +78,5 @@ func SafeAbortMergeOrRebase(repoDir string) error {
 		return nil
 	}
 
-	return fmt.Errorf("failed to abort merge or rebase in %s", repoDir)
+	return apperror.NewExecutionError(fmt.Sprintf("failed to abort merge or rebase in %s", repoDir))
 }

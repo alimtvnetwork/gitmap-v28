@@ -34,7 +34,7 @@ func parsePurgeArgs(args []string) (pat string, isRestore, isAutoConfirm, isLova
 func runPurgeCmd(name string, args ...string) (string, error) {
 	out, err := exec.Command(name, args...).CombinedOutput()
 	if err != nil {
-		return string(out), fmt.Errorf("%s failed: %w\n%s", name, err, string(out))
+		return string(out), apperror.WrapSimple(err, fmt.Sprintf("%s failed", name)).WithContext("output", string(out))
 	}
 
 	return string(out), nil

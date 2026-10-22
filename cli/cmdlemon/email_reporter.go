@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // EmailReporter formats and transmits command completion reports.
@@ -19,14 +21,14 @@ func NewEmailReporter(transmitter EmailTransmitter) *EmailReporter {
 // SendCompletionReport sends the formatted execution report to recipient.
 func (r *EmailReporter) SendCompletionReport(to string, outcome ExecutionOutcome) error {
 	if r.transmitter == nil {
-		return fmt.Errorf("nil email transmitter")
+		return apperror.NewValidationError("nil email transmitter")
 	}
 
 	subject := FormatReportSubject(outcome)
 	body := FormatReportBody(outcome)
 
 	if err := r.transmitter.Transmit(to, subject, body); err != nil {
-		return fmt.Errorf("failed to transmit completion report: %w", err)
+		return apperror.WrapSimple(err, "failed to transmit completion report")
 	}
 
 	return nil

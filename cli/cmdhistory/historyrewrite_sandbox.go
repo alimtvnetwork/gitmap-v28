@@ -3,6 +3,7 @@ package cmdhistory
 import (
 	"errors"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"runtime"
@@ -47,7 +48,7 @@ func readOriginURL() string {
 
 	url := strings.TrimSpace(string(out))
 	if url == "" {
-		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, fmt.Errorf("empty origin URL"))
+		fmt.Fprintf(os.Stderr, constants.HistoryErrNoOrigin, apperror.NewExecutionError("empty origin URL"))
 		cliexit.HandleError(nil, constants.HistoryExitNotInRepo)
 	}
 

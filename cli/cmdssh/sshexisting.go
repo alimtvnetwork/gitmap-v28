@@ -103,7 +103,7 @@ func backupKeyForRegenerate(keyPath string) error {
 	stamp := time.Now().Unix()
 	suffix := fmt.Sprintf(".bak.%d", stamp)
 	if err := os.Rename(keyPath, keyPath+suffix); err != nil {
-		return fmt.Errorf("backup private key: %w", err)
+		return apperror.WrapSimple(err, "backup private key")
 	}
 
 	_, errStat := os.Stat(keyPath + ".pub")
@@ -114,7 +114,7 @@ func backupKeyForRegenerate(keyPath string) error {
 
 	errRename := os.Rename(keyPath+".pub", keyPath+".pub"+suffix)
 	if errRename != nil {
-		return fmt.Errorf("backup public key: %w", errRename)
+		return apperror.WrapSimple(errRename, "backup public key")
 	}
 
 	return nil
@@ -126,7 +126,7 @@ func backupKeyWithTimestamp(keyPath string) (string, error) {
 	suffix := fmt.Sprintf(".bak.%d", stamp)
 	bakPath := keyPath + suffix
 	if err := os.Rename(keyPath, bakPath); err != nil {
-		return "", fmt.Errorf("backup private key: %w", err)
+		return "", apperror.WrapSimple(err, "backup private key")
 	}
 
 	if _, errStat := os.Stat(keyPath + ".pub"); errStat == nil {

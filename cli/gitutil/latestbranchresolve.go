@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -21,7 +22,7 @@ func ReadBranchTips(refs []string) ([]RemoteBranchInfo, error) {
 	}
 
 	if len(items) == 0 {
-		return nil, fmt.Errorf(constants.ErrLatestBranchNoCommits)
+		return nil, apperror.NewExecutionError(constants.ErrLatestBranchNoCommits)
 	}
 
 	return items, nil

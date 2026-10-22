@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
@@ -33,12 +34,12 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 
 		isGitMissing := isGit && hasTokensMissing
 		if isGitMissing {
-			return fmt.Errorf("missing git sub-command")
+			return apperror.NewValidationError("missing git sub-command")
 		}
 
 		isProjMissing := isProj && hasTokensMissing
 		if isProjMissing {
-			return fmt.Errorf("missing proj sub-command")
+			return apperror.NewValidationError("missing proj sub-command")
 		}
 
 		switch cmdToken {
@@ -54,7 +55,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			case "status":
 				kind = db.CommandKindGitStatus
 			default:
-				return fmt.Errorf("unknown git sub-command: %s", subToken)
+				return apperror.NewValidationError(fmt.Sprintf("unknown git sub-command: %s", subToken))
 			}
 
 			rawArgParts = currentTokens[2:]
@@ -66,7 +67,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			case "create-cicd":
 				kind = db.CommandKindProjCreateCICD
 			default:
-				return fmt.Errorf("unknown proj sub-command: %s", subToken)
+				return apperror.NewValidationError(fmt.Sprintf("unknown proj sub-command: %s", subToken))
 			}
 
 			rawArgParts = currentTokens[2:]
@@ -95,7 +96,7 @@ func ParseSubCommands(tokens []string) ([]cluster.ClusterSubCommand, error) {
 			kind = db.CommandKindLogoff
 			rawArgParts = currentTokens[1:]
 		default:
-			return fmt.Errorf("unknown sub-command token: %s", cmdToken)
+			return apperror.NewValidationError(fmt.Sprintf("unknown sub-command token: %s", cmdToken))
 		}
 
 		subCmds = append(subCmds, cluster.ClusterSubCommand{

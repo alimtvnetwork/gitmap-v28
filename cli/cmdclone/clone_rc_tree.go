@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DiscoveredManifest holds metadata and entries for a discovered repo-cache manifest file.
@@ -104,7 +106,7 @@ func DiscoverRCManifests(repoCacheRoot string) ([]DiscoveredManifest, error) {
 
 	db, err := OpenRepoCacheDB()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open repo cache db: %w", err)
+		return nil, apperror.WrapSimple(err, "failed to open repo cache db")
 	}
 	defer db.Close()
 

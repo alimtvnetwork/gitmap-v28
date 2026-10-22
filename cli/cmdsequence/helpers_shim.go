@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -292,12 +293,12 @@ func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
 	if err != nil {
 		mainDB.Close()
 
-		return nil, nil, fmt.Errorf("find repo by path %s failed: %w", cwd, err)
+		return nil, nil, apperror.WrapSimple(err, fmt.Sprintf("find repo by path %s failed", cwd))
 	}
 	if len(repos) == 0 {
 		mainDB.Close()
 
-		return nil, nil, fmt.Errorf("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
+		return nil, nil, apperror.NewNotFoundError("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
 	}
 
 	repoDB, err := repodb.OpenRepoDB(ctx, constants.DefaultOutputDir, repos[0].AbsolutePath, repos[0].ID)

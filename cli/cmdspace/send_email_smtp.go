@@ -120,7 +120,7 @@ func readStoreSetting(key string) string {
 // Fail-closed on non-TTY stdin; the password is never stored or logged.
 func readEmailPassword() (string, error) {
 	if !term.IsTerminal(int(os.Stdin.Fd())) {
-		return "", fmt.Errorf("cannot prompt for the SMTP password: stdin is not a terminal")
+		return "", apperror.NewExecutionError("cannot prompt for the SMTP password: stdin is not a terminal")
 	}
 
 	fmt.Print("SMTP password: ")

@@ -89,7 +89,7 @@ func importSingleToolConfig(canonicalTool, inputTool, targetArg string) error {
 func restoreAndReportToolConfig(canonicalTool, sourcePath string, bundle *ConfigBundle) error {
 	destDir := resolveToolConfigDir(canonicalTool)
 	if destDir == "" {
-		err := fmt.Errorf("cannot resolve config directory for %s", canonicalTool)
+		err := apperror.NewExecutionError(fmt.Sprintf("cannot resolve config directory for %s", canonicalTool))
 		cliexit.Reportf("import-config", "resolve", canonicalTool, err)
 
 		return err

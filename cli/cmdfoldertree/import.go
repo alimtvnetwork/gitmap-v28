@@ -1,16 +1,17 @@
 package cmdfoldertree
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ImportFolderTree reads JSON/YAML/text and recreates directory and placeholder files on disk.
 func ImportFolderTree(inputFile, targetDir string, opts FolderTreeOptions) (*ImportSummary, error) {
 	data, err := os.ReadFile(inputFile)
 	if err != nil {
-		return nil, fmt.Errorf("read input file: %w", err)
+		return nil, apperror.WrapSimple(err, "read input file")
 	}
 	rootNode, err := parseImportPayload(data, inputFile)
 	if err != nil {
@@ -18,7 +19,7 @@ func ImportFolderTree(inputFile, targetDir string, opts FolderTreeOptions) (*Imp
 	}
 	absTarget, err := filepath.Abs(targetDir)
 	if err != nil {
-		return nil, fmt.Errorf("resolve target directory: %w", err)
+		return nil, apperror.WrapSimple(err, "resolve target directory")
 	}
 	summary := &ImportSummary{TargetDir: absTarget}
 	rootNode.RelPath = "."
@@ -56,7 +57,7 @@ func createDirIfNotDryRun(path string, dryRun bool) error {
 		return nil
 	}
 	if err := os.MkdirAll(path, 0755); err != nil {
-		return fmt.Errorf("create dir %s: %w", path, err)
+		return apperror.WrapSimple(err, "create dir "+path)
 	}
 	return nil
 }
@@ -80,7 +81,7 @@ func createFileIfNotDryRun(path string, dryRun bool) error {
 	parent := filepath.Dir(path)
 	_ = os.MkdirAll(parent, 0755)
 	if err := os.WriteFile(path, []byte(""), 0644); err != nil {
-		return fmt.Errorf("create file %s: %w", path, err)
+		return apperror.WrapSimple(err, "create file "+path)
 	}
 	return nil
 }

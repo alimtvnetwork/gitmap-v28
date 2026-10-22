@@ -48,7 +48,7 @@ func listInstalledPlugins() ([]string, *apperror.AppError) {
 func runAgyPluginList() error {
 	installed, err := listInstalledPlugins()
 	if err != nil {
-		return fmt.Errorf("list plugins: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "list plugins")
 	}
 
 	fmt.Printf("%s Antigravity Plugins (%d installed):\n\n", constants.ColorCyan+"▶"+constants.ColorReset, len(installed))

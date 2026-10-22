@@ -98,7 +98,7 @@ func parseSetArgs(args []string) (int, int, error) {
 
 func parseFirstPositional(fs *flag.FlagSet) (int, error) {
 	if fs.NArg() == 0 {
-		return -1, fmt.Errorf("no positional args")
+		return -1, apperror.NewValidationError("no positional args")
 	}
 
 	return strconv.Atoi(fs.Arg(0))

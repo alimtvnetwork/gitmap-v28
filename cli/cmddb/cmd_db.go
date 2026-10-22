@@ -3,9 +3,9 @@ package cmddb
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -28,12 +28,12 @@ func GetRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
 	if err != nil {
 		mainDB.Close()
 
-		return nil, nil, fmt.Errorf("find repo by path %s failed: %w", cwd, err)
+		return nil, nil, apperror.WrapSimple(err, "find repo by path "+cwd+" failed")
 	}
 	if len(repos) == 0 {
 		mainDB.Close()
 
-		return nil, nil, fmt.Errorf("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
+		return nil, nil, apperror.NewNotFoundError("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
 	}
 
 	repoDB, err := repodb.OpenRepoDB(ctx, constants.DefaultOutputDir, repos[0].AbsolutePath, repos[0].ID)

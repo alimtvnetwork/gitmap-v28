@@ -46,6 +46,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const (
@@ -86,7 +88,7 @@ func main() {
 func checkUnmarkedBlocks() error {
 	files, err := filepath.Glob(filepath.Join(constantsDir, "*.go"))
 	if err != nil {
-		return fmt.Errorf("glob constants dir: %w", err)
+		return apperror.WrapSimple(err, "glob constants dir")
 	}
 
 	var violations []string
@@ -94,7 +96,7 @@ func checkUnmarkedBlocks() error {
 	for _, rel := range files {
 		found, err := findUnmarkedCmdBlocks(rel)
 		if err != nil {
-			return fmt.Errorf("scan %s: %w", rel, err)
+			return apperror.WrapSimple(err, "scan "+rel)
 		}
 
 		violations = append(violations, found...)
@@ -104,11 +106,11 @@ func checkUnmarkedBlocks() error {
 		return nil
 	}
 
-	return fmt.Errorf("found %d Cmd* constant(s) in const block(s) lacking the `// %s` marker:\n  %s\n"+
+	return apperror.NewExecutionError(fmt.Sprintf("found %d Cmd* constant(s) in const block(s) lacking the `// %s` marker:\n  %s\n"+
 		"Add `// %s` to the block's doc comment, or mark individual specs with `// %s` inside an opted-in block.",
 		len(violations), markerTopLevel,
 		strings.Join(violations, "\n  "),
-		markerTopLevel, markerSkip)
+		markerTopLevel, markerSkip))
 }
 
 // findUnmarkedCmdBlocks parses one constants file and returns a slice of

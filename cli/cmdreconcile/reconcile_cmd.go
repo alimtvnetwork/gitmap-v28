@@ -148,7 +148,7 @@ func runReconcileAll(args []string, items []cmdremediation.RemediationItem) erro
 	}
 
 	if len(failedRepos) > 0 {
-		return fmt.Errorf("reconciliation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", "))
+		return apperror.NewExecutionError(fmt.Sprintf("reconciliation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", ")))
 	}
 
 	fmt.Printf("\n%s All %d repository(ies) reconciled successfully.\n",

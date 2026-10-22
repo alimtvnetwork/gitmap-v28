@@ -3,6 +3,7 @@ package cmdsummary
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,7 +34,7 @@ func RunSummary(args []string) error {
 
 	gitPath := filepath.Join(absPath, ".git")
 	if _, errStat := os.Stat(gitPath); errStat != nil {
-		return fmt.Errorf("directory '%s' is not a valid git repository", absPath)
+		return apperror.NewValidationError(fmt.Sprintf("directory '%s' is not a valid git repository", absPath))
 	}
 
 	remoteURL, _ := gitExec(absPath, "remote", "get-url", "origin")

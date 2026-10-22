@@ -19,12 +19,12 @@ package startup
 // never disagree on the marker contract.
 
 import (
-	"fmt"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -98,7 +98,7 @@ func requireWindowsAdminForHKLM() error {
 		return nil
 	}
 
-	return fmt.Errorf(constants.ErrStartupHKLMNotAdmin)
+	return apperror.NewExecutionError(constants.ErrStartupHKLMNotAdmin)
 }
 
 // isProcessElevated returns true when the current process token

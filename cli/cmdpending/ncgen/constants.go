@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // loadConstants maps every Cmd* string constant identifier in dir to its
@@ -14,7 +15,7 @@ import (
 func loadConstants(dir string) (map[string]string, error) {
 	files, err := filepath.Glob(filepath.Join(dir, "*.go"))
 	if err != nil {
-		return nil, fmt.Errorf("glob constants dir: %w", err)
+		return nil, apperror.WrapSimple(err, "glob constants dir")
 	}
 
 	out := map[string]string{}
@@ -39,7 +40,7 @@ func scanConstantsFile(path string, out map[string]string) error {
 
 	file, err := parser.ParseFile(fset, path, nil, 0)
 	if err != nil {
-		return fmt.Errorf("parse %s: %w", path, err)
+		return apperror.WrapSimple(err, "parse "+path)
 	}
 
 	ast.Inspect(file, func(n ast.Node) bool {

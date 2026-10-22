@@ -123,7 +123,7 @@ func runGitLFSInstall() error {
 	cmd := exec.Command("git", "lfs", "install", "--local")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "git lfs install").WithContext("output", strings.TrimSpace(string(out)))
 	}
 
 	return nil
@@ -167,7 +167,7 @@ func trackOnePattern(pattern string) error {
 	cmd := exec.Command("git", "lfs", "track", pattern)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "git lfs track").WithContext("output", strings.TrimSpace(string(out)))
 	}
 
 	return nil

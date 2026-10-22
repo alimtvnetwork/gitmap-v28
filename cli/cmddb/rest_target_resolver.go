@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DbMountTarget describes a mounted SQLite database in the REST engine.
@@ -41,7 +43,7 @@ func ResolveMountTargets(rawTargets string) ([]DbMountTarget, error) {
 	}
 
 	if len(targets) == 0 {
-		return nil, fmt.Errorf("no valid database targets specified")
+		return nil, apperror.NewValidationError("no valid database targets specified")
 	}
 	return targets, nil
 }
@@ -88,10 +90,10 @@ func resolveFilesystemTarget(token string) (string, string, string, error) {
 	cleanPath := filepath.Clean(token)
 	stat, err := os.Stat(cleanPath)
 	if err != nil {
-		return "", "", "", fmt.Errorf("database target '%s' not found as registered alias or file path", token)
+		return "", "", "", apperror.NewNotFoundError(fmt.Sprintf("database target '%s' not found as registered alias or file path", token))
 	}
 	if stat.IsDir() {
-		return "", "", "", fmt.Errorf("target '%s' is a directory, expected SQLite database file", token)
+		return "", "", "", apperror.NewValidationError(fmt.Sprintf("target '%s' is a directory, expected SQLite database file", token))
 	}
 
 	derivedAlias := deriveAliasFromPath(cleanPath)

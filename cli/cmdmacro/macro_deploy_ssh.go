@@ -482,7 +482,7 @@ func dialTargetSSH(target MacroDeployTarget) (*ssh.Client, error) {
 	if c, ok := tryDialCandidateKeys(target); ok {
 		return c, nil
 	}
-	return nil, fmt.Errorf("ssh connection failed for %s@%s", target.Username, target.IP)
+	return nil, apperror.NewExecutionError(fmt.Sprintf("ssh connection failed for %s@%s", target.Username, target.IP))
 }
 
 func tryDialPassword(target MacroDeployTarget) (*ssh.Client, bool) {

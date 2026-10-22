@@ -3,10 +3,10 @@ package cmdcluster
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -128,7 +128,7 @@ func parseClusterFlagSet(args []string, opts *ClusterFlags) ([]string, error) {
 	yes, yesShort := bindClusterFlags(fs, opts, &ips, &ids)
 	flags, pos := splitClusterFlagsAndArgs(args)
 	if err := fs.Parse(flags); err != nil {
-		return nil, fmt.Errorf("cluster: %w", err)
+		return nil, apperror.WrapSimple(err, "cluster")
 	}
 
 	opts.AutoConfirm, opts.OnlyIPs, opts.OnlyIDs = *yes || *yesShort, ips, ids

@@ -108,19 +108,19 @@ func parseMoveFlags(args []string) (moveOpts, []string) {
 
 func preflightMove(srcPath, destPath string) error {
 	if !fsutil.DirExists(srcPath) {
-		return fmt.Errorf("source directory %q does not exist", srcPath)
+		return apperror.NewNotFoundError(fmt.Sprintf("source directory %q does not exist", srcPath))
 	}
 
 	if fsutil.EqualPaths(srcPath, destPath) {
-		return fmt.Errorf("source and destination are identical")
+		return apperror.NewValidationError("source and destination are identical")
 	}
 
 	if fsutil.FileOrDirExists(destPath) {
-		return fmt.Errorf("destination %q already exists", destPath)
+		return apperror.NewValidationError(fmt.Sprintf("destination %q already exists", destPath))
 	}
 
 	if fsutil.IsSubdirectory(srcPath, destPath) {
-		return fmt.Errorf("cannot move repository into its own subdirectory")
+		return apperror.NewValidationError("cannot move repository into its own subdirectory")
 	}
 
 	return nil
@@ -235,7 +235,7 @@ func mergeCandidateRepos(primary, secondary []model.ScanRecord) []model.ScanReco
 func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("get current directory: %w", err)
+		return nil, apperror.WrapSimple(err, "get current directory")
 	}
 
 	for _, r := range all {
@@ -244,7 +244,7 @@ func resolveByPWD(all []model.ScanRecord) (*model.ScanRecord, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("current directory (%s) is not a tracked repository", pwd)
+	return nil, apperror.NewNotFoundError(fmt.Sprintf("current directory (%s) is not a tracked repository", pwd))
 }
 
 func resolveByPath(target string, all []model.ScanRecord) *model.ScanRecord {

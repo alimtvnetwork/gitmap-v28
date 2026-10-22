@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -18,7 +19,7 @@ func ExecuteSelf(opts Options) error {
 
 	originalDir, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("could not determine current directory: %w", err)
+		return apperror.WrapSimple(err, "could not determine current directory")
 	}
 
 	if filepath.Clean(srcRoot) == filepath.Clean(originalDir) {
@@ -29,7 +30,7 @@ func ExecuteSelf(opts Options) error {
 
 	fmt.Printf(constants.MsgSelfReleaseSwitch, srcRoot)
 	if err := os.Chdir(srcRoot); err != nil {
-		return fmt.Errorf("could not switch to source repo: %w", err)
+		return apperror.WrapSimple(err, "could not switch to source repo")
 	}
 
 	releaseErr := Execute(opts)

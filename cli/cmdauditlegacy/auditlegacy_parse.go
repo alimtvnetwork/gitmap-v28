@@ -4,6 +4,7 @@ package cmdauditlegacy
 import (
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"regexp"
 	"strings"
 
@@ -91,7 +92,7 @@ func compileAuditPatterns(csv string) ([]*regexp.Regexp, []string, error) {
 func compileOnePattern(p string) (*regexp.Regexp, error) {
 	re, err := regexp.Compile(p)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrAuditLegacyRegex, p, err)
+		return nil, apperror.NewExecutionError(fmt.Sprintf((constants.ErrAuditLegacyRegex), p, err))
 	}
 
 	return re, nil

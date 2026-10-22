@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -75,7 +76,7 @@ func createZip(srcPath string) (string, error) {
 	archivePath := srcPath + ".zip"
 	outFile, err := os.Create(archivePath)
 	if err != nil {
-		return "", fmt.Errorf("create zip: %w", err)
+		return "", apperror.WrapSimple(err, "create zip")
 	}
 
 	defer outFile.Close()
@@ -100,19 +101,19 @@ func createZip(srcPath string) (string, error) {
 func addFileToZip(w *zip.Writer, srcPath string) error {
 	src, err := os.Open(srcPath)
 	if err != nil {
-		return fmt.Errorf("open source: %w", err)
+		return apperror.WrapSimple(err, "open source")
 	}
 
 	defer src.Close()
 
 	info, err := src.Stat()
 	if err != nil {
-		return fmt.Errorf("stat source: %w", err)
+		return apperror.WrapSimple(err, "stat source")
 	}
 
 	header, err := zip.FileInfoHeader(info)
 	if err != nil {
-		return fmt.Errorf("zip header: %w", err)
+		return apperror.WrapSimple(err, "zip header")
 	}
 
 	header.Name = filepath.Base(srcPath)
@@ -120,7 +121,7 @@ func addFileToZip(w *zip.Writer, srcPath string) error {
 
 	writer, err := w.CreateHeader(header)
 	if err != nil {
-		return fmt.Errorf("create entry: %w", err)
+		return apperror.WrapSimple(err, "create entry")
 	}
 
 	_, err = io.Copy(writer, src)

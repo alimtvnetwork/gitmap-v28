@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func resolveSuccessorPath(parentDir, repoName string) (string, string) {
@@ -131,14 +133,14 @@ func commitFlatSnapshot(repoPath string) error {
 	cmdAdd := exec.Command("git", "add", "-A")
 	cmdAdd.Dir = repoPath
 	if err := cmdAdd.Run(); err != nil {
-		return fmt.Errorf("git add failed: %w", err)
+		return apperror.WrapSimple(err, "git add failed")
 	}
 
 	cmdCommit := exec.Command("git", "-c", "user.name=GitMap", "-c", "user.email=gitmap@local",
 		"commit", "-m", "flat: initial squashed repository snapshot")
 	cmdCommit.Dir = repoPath
 	if err := cmdCommit.Run(); err != nil {
-		return fmt.Errorf("git commit failed: %w", err)
+		return apperror.WrapSimple(err, "git commit failed")
 	}
 
 	return nil

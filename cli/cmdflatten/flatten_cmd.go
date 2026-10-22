@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
@@ -32,17 +33,17 @@ func RunFlattenCmd(args []string) error {
 
 	absTarget, err := filepath.Abs(opts.Target)
 	if err != nil {
-		return fmt.Errorf("resolve target path %q: %w", opts.Target, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("resolve target path %q", opts.Target))
 	}
 
 	targetInfo, err := os.Stat(absTarget)
 	if err != nil || !targetInfo.IsDir() {
-		return fmt.Errorf("target repository %q does not exist or is not a directory", absTarget)
+		return apperror.NewNotFoundError(fmt.Sprintf("target repository %q does not exist or is not a directory", absTarget))
 	}
 
 	gitDir := filepath.Join(absTarget, ".git")
 	if _, err := os.Stat(gitDir); err != nil {
-		return fmt.Errorf("target %q is not a git repository (missing .git)", absTarget)
+		return apperror.NewNotFoundError(fmt.Sprintf("target %q is not a git repository (missing .git)", absTarget))
 	}
 
 	parentDir := filepath.Dir(absTarget)
@@ -53,7 +54,7 @@ func RunFlattenCmd(args []string) error {
 	commitCount := countCommits(absTarget)
 	workingTreeBytes, err := computeWorkingTreeSize(absTarget)
 	if err != nil {
-		return fmt.Errorf("calculate working tree size: %w", err)
+		return apperror.WrapSimple(err, "calculate working tree size")
 	}
 
 	if opts.IsDryRun {
@@ -67,23 +68,23 @@ func RunFlattenCmd(args []string) error {
 	}
 
 	if err := os.MkdirAll(successorPath, 0755); err != nil {
-		return fmt.Errorf("create successor directory %q: %w", successorPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("create successor directory %q", successorPath))
 	}
 
 	fmt.Printf("Copying working tree files to %s...\n", successorName)
 	if err := copyWorkingTree(absTarget, successorPath); err != nil {
 		_ = os.RemoveAll(successorPath)
-		return fmt.Errorf("copy working tree: %w", err)
+		return apperror.WrapSimple(err, "copy working tree")
 	}
 
 	if err := initGitRepo(successorPath); err != nil {
 		_ = os.RemoveAll(successorPath)
-		return fmt.Errorf("initialize git repository: %w", err)
+		return apperror.WrapSimple(err, "initialize git repository")
 	}
 
 	if err := commitFlatSnapshot(successorPath); err != nil {
 		_ = os.RemoveAll(successorPath)
-		return fmt.Errorf("commit flat snapshot: %w", err)
+		return apperror.WrapSimple(err, "commit flat snapshot")
 	}
 
 	cwd, _ := os.Getwd()
@@ -98,13 +99,13 @@ func RunFlattenCmd(args []string) error {
 	fmt.Printf("Archiving bloated repository to %s...\n", filepath.Base(archivePath))
 	if err := os.Rename(absTarget, archivePath); err != nil {
 		_ = os.RemoveAll(successorPath)
-		return fmt.Errorf("archive original repository: %w", err)
+		return apperror.WrapSimple(err, "archive original repository")
 	}
 
 	fmt.Printf("Promoting %s to %s...\n", successorName, repoName)
 	if err := os.Rename(successorPath, absTarget); err != nil {
 		_ = os.Rename(archivePath, absTarget)
-		return fmt.Errorf("promote successor directory: %w", err)
+		return apperror.WrapSimple(err, "promote successor directory")
 	}
 
 	printSuccessSummary(repoName, absTarget, archivePath)
@@ -120,7 +121,7 @@ func ensureConfirmation(isYes bool) error {
 		return err
 	}
 	if !confirmed {
-		return fmt.Errorf("user aborted")
+		return apperror.NewExecutionError("user aborted")
 	}
 	return nil
 }
@@ -139,7 +140,7 @@ func parseFlattenArgs(args []string) (FlattenOptions, error) {
 			opts.IsYes = true
 		case arg == "--target", arg == "-target":
 			if i+1 >= len(args) {
-				return opts, fmt.Errorf("missing value for --target flag")
+				return opts, apperror.NewValidationError("missing value for --target flag")
 			}
 			opts.Target = args[i+1]
 			i++
@@ -168,7 +169,7 @@ func promptConfirmation() (bool, error) {
 	reader := bufio.NewReader(os.Stdin)
 	response, err := reader.ReadString('\n')
 	if err != nil {
-		return false, fmt.Errorf("read confirmation: %w", err)
+		return false, apperror.WrapSimple(err, "read confirmation")
 	}
 
 	clean := strings.ToLower(strings.TrimSpace(response))

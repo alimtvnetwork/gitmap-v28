@@ -123,7 +123,7 @@ func resolveRelativeRoot(raw, scanDir string, quiet bool) string {
 		appErr := apperror.NewWithDetails(
 			"scan.resolve",
 			"E2016",
-			fmt.Sprintf(constants.ErrScanRelativeRootInvalid, raw, fmt.Errorf("not a directory")),
+			fmt.Sprintf(constants.ErrScanRelativeRootInvalid, raw, apperror.NewValidationError("not a directory")),
 			"cmd.scanresolve",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,

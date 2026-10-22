@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ecosystemgroup"
 )
@@ -21,12 +22,12 @@ var agyGroupAddCmd = &cobra.Command{
 	Short: "Add project(s) to an Antigravity group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap agy group add <group-name> <project-id-or-path...>")
+			return apperror.NewValidationError("usage: gitmap agy group add <group-name> <project-id-or-path...>")
 		}
 
 		appErr := ecosystemgroup.AddGroup("agy", args[0], "", args[1:])
 		if appErr != nil {
-			return fmt.Errorf("add group: %w", appErr.Unwrap())
+			return apperror.WrapSimple(appErr.Unwrap(), "add group")
 		}
 
 		fmt.Printf("%s Added %d target(s) to AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(args)-1, args[0])
@@ -49,7 +50,7 @@ var agyGroupShowCmd = &cobra.Command{
 	Short: "Show details of an Antigravity group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap agy group show <group-name>")
+			return apperror.NewValidationError("usage: gitmap agy group show <group-name>")
 		}
 
 		return runAgyGroupShow(args[0])
@@ -62,7 +63,7 @@ var agyGroupRmCmd = &cobra.Command{
 	Short:   "Remove a target or an entire group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap agy group rm <group-name> [target]")
+			return apperror.NewValidationError("usage: gitmap agy group rm <group-name> [target]")
 		}
 
 		if len(args) == 1 {
@@ -70,7 +71,7 @@ var agyGroupRmCmd = &cobra.Command{
 		}
 
 		if err := ecosystemgroup.RemoveTarget("agy", args[0], args[1]); err != nil {
-			return fmt.Errorf("remove target: %w", err.Unwrap())
+			return apperror.WrapSimple(err.Unwrap(), "remove target")
 		}
 
 		fmt.Printf("%s Removed %q from AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], args[0])
@@ -81,7 +82,7 @@ var agyGroupRmCmd = &cobra.Command{
 
 func runDeleteAgyGroup(name string) error {
 	if err := ecosystemgroup.DeleteGroup("agy", name); err != nil {
-		return fmt.Errorf("delete group: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "delete group")
 	}
 
 	fmt.Printf("%s Deleted AGY group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, name)

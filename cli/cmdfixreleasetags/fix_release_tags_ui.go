@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
@@ -165,7 +166,7 @@ func ConfirmDeletion(candidateCount int, isConfirmed bool) (bool, error) {
 	}
 
 	if !isInteractiveStdin() && StdinReaderOverride == nil {
-		return false, fmt.Errorf("E1025: stdin is non-interactive; re-run with -y/--yes to confirm deletion")
+		return false, apperror.NewExecutionError("E1025: stdin is non-interactive; re-run with -y/--yes to confirm deletion")
 	}
 
 	fmt.Printf("\n%sDelete %d orphan/broken release(s) and tag(s)? [y/N]: %s",
@@ -180,7 +181,7 @@ func ConfirmDeletion(candidateCount int, isConfirmed bool) (bool, error) {
 
 	input, err := reader.ReadString('\n')
 	if err != nil && err != io.EOF {
-		return false, fmt.Errorf("failed to read confirmation input: %w", err)
+		return false, apperror.WrapSimple(err, "failed to read confirmation input")
 	}
 
 	trimmed := strings.ToLower(strings.TrimSpace(input))

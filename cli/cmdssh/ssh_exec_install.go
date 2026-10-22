@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/crypto/ssh"
@@ -39,11 +40,11 @@ func performGitmapInstall(client *ssh.Client, osType, header, checkCmd, shell st
 	fmt.Printf("%s gitmap not found, installing...\n", header)
 	installCmd, installShell := getGitmapInstallCmd(osType)
 	if _, err := secrets.RunCommand(client, installCmd, installShell); err != nil {
-		return fmt.Errorf("auto-install failed: %w", err)
+		return apperror.WrapSimple(err, "auto-install failed")
 	}
 
 	if _, err := secrets.RunCommand(client, checkCmd, shell); err != nil {
-		return fmt.Errorf("gitmap install verification failed: %w", err)
+		return apperror.WrapSimple(err, "gitmap install verification failed")
 	}
 	fmt.Printf("%s ✓ gitmap installed successfully\n", header)
 

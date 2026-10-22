@@ -78,12 +78,12 @@ func parseSendEmailArgs(args []string) (sendEmailOptions, error) {
 func applyNextSendEmailArg(args []string, i int, opts *sendEmailOptions) (int, error) {
 	arg := args[i]
 	if !strings.HasPrefix(arg, "-") {
-		return 0, fmt.Errorf("unexpected positional argument %q: usage: gitmap space send-email --to <addr> [--subject <s>] [--body <b>] [--file <f>] [--html]", arg)
+		return 0, apperror.NewValidationError(fmt.Sprintf("unexpected positional argument %q: usage: gitmap space send-email --to <addr> [--subject <s>] [--body <b>] [--file <f>] [--html]", arg))
 	}
 
 	name, _, _ := splitFlagEquals(arg)
 	if !isKnownSendEmailFlag(name) {
-		return 0, fmt.Errorf("unknown flag: %s", name)
+		return 0, apperror.NewValidationError(fmt.Sprintf("unknown flag: %s", name))
 	}
 
 	return applySendEmailFlag(args, i, opts)
@@ -130,7 +130,7 @@ func splitFlagEquals(a string) (name, val string, hasVal bool) {
 // applyHTMLFlag sets the --html bool; it takes no value.
 func applyHTMLFlag(hasInline bool, opts *sendEmailOptions) (int, error) {
 	if hasInline {
-		return 0, fmt.Errorf("flag --html takes no value")
+		return 0, apperror.NewValidationError("flag --html takes no value")
 	}
 	opts.IsHTML = true
 
@@ -145,7 +145,7 @@ func resolveFlagValue(args []string, i int, inlineVal string, hasInline bool, na
 	}
 
 	if i+1 >= len(args) {
-		return "", 0, fmt.Errorf("flag %s requires a value", name)
+		return "", 0, apperror.NewValidationError(fmt.Sprintf("flag %s requires a value", name))
 	}
 
 	return args[i+1], 1, nil
@@ -163,7 +163,7 @@ func assignSendEmailFlag(name, val string, opts *sendEmailOptions) error {
 	case flagSendEmailFile:
 		opts.File = val
 	default:
-		return fmt.Errorf("unknown flag: %s", name)
+		return apperror.NewValidationError(fmt.Sprintf("unknown flag: %s", name))
 	}
 
 	return nil

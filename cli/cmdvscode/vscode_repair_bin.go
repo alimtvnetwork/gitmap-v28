@@ -1,7 +1,6 @@
 package cmdvscode
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -9,6 +8,8 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var commitDirRegex = regexp.MustCompile(`^[0-9a-f]{10}$`)
@@ -178,7 +179,7 @@ func copyFile(src, dst string) error {
 func runWingetRepair() (string, error) {
 	wingetPath, err := exec.LookPath("winget")
 	if err != nil {
-		return "", fmt.Errorf("winget is not available on this machine")
+		return "", apperror.NewNotFoundError("winget is not available on this machine")
 	}
 
 	args := []string{"install", "--id", "Microsoft.VisualStudioCode", "--force", "--accept-source-agreements", "--accept-package-agreements"}

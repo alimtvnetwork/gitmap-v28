@@ -3,7 +3,6 @@ package cmdagy
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -81,7 +80,7 @@ func removeSingleConvFiles(convDir, brainDir, id string) {
 func deleteSummaryRecord(conn *sql.DB, id string) error {
 	res := store.ExecWrapper(conn, "DELETE FROM conversation_summaries WHERE conversation_id = ?", id)
 	if res.IsFailure {
-		return fmt.Errorf("delete conversation %s from summaries: %w", id, res.Error)
+		return apperror.WrapSimple(res.Error, "delete conversation "+id+" from summaries")
 	}
 	return nil
 }

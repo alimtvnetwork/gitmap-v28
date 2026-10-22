@@ -385,7 +385,7 @@ func formatStructuredBytes(data interface{}, isYAML bool) string {
 func saveAndPrintStructuredOutput(filePath, formatted string) error {
 	savedPath, saveErr := macro.SaveReportToFile(filePath, formatted)
 	if saveErr != nil {
-		return fmt.Errorf("failed saving to %s: %w", filePath, saveErr)
+		return apperror.WrapSimple(saveErr, fmt.Sprintf("failed saving to %s", filePath))
 	}
 
 	fmt.Println(formatted)

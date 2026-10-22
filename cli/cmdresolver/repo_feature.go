@@ -3,6 +3,7 @@ package cmdresolver
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -104,7 +105,7 @@ func resolveRemoteURLFeature(url string) (*ResolvedRepoFeature, error) {
 
 	cmd := exec.Command("git", "clone", url, destPath)
 	if out, errClone := cmd.CombinedOutput(); errClone != nil {
-		return nil, fmt.Errorf("failed to clone remote repository %s: %s (%w)", url, string(out), errClone)
+		return nil, apperror.WrapSimple(errClone, fmt.Sprintf("failed to clone remote repository %s: %s", url, string(out)))
 	}
 
 	return &ResolvedRepoFeature{
@@ -150,7 +151,7 @@ func resolveLocalNoGitFeature(dir string) (*ResolvedRepoFeature, error) {
 
 	initCmd := exec.Command("git", "-C", abs, "init", "-b", "main")
 	if out, errInit := initCmd.CombinedOutput(); errInit != nil {
-		return nil, fmt.Errorf("failed to initialize git in %s: %s (%w)", abs, string(out), errInit)
+		return nil, apperror.WrapSimple(errInit, fmt.Sprintf("failed to initialize git in %s: %s", abs, string(out)))
 	}
 
 	return &ResolvedRepoFeature{
@@ -239,7 +240,7 @@ func resolveBareSlugFeature(slug string) (*ResolvedRepoFeature, error) {
 	destPath := filepath.Join(workspaceRoot, cleanSlug)
 
 	if errMk := ensureDirExists(destPath); errMk != nil {
-		return nil, fmt.Errorf("failed to create directory %s: %w", destPath, errMk)
+		return nil, apperror.WrapSimple(errMk, fmt.Sprintf("failed to create directory %s", destPath))
 	}
 
 	gitDir := filepath.Join(destPath, ".git")

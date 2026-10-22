@@ -63,7 +63,7 @@ func runTarExtractCommand(archivePath, destDir string) error {
 		return nil
 	}
 
-	return fmt.Errorf("tar extraction failed: %w (strip: %s, direct: %s)", fallbackErr, string(out), string(fallbackOut))
+	return apperror.WrapSimple(fallbackErr, "tar extraction failed").WithContext("output", string(out)).WithContext("fallbackOutput", string(fallbackOut))
 }
 
 func extractAntigravityTarballWithRetry(archivePath, destDir string) error {

@@ -71,7 +71,7 @@ func extractAmendSHA(args []string, f *amendFlags) []string {
 func validateAmendFlags(f amendFlags) {
 	if f.name == "" && f.email == "" {
 		fmt.Fprint(os.Stderr, constants.ErrAmendNoFlags)
-		cliexit.HandleValidationError(fmt.Errorf("%s", constants.ErrAmendNoFlags))
+		cliexit.HandleValidationError(apperror.NewValidationError(fmt.Sprintf("%s", constants.ErrAmendNoFlags)))
 	}
 }
 

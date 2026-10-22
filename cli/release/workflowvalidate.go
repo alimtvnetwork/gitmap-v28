@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -55,7 +56,7 @@ func resolveLatestVersion() (Version, error) {
 func ResolveLatestVersion() (Version, error) {
 	latest, err := ReadLatest()
 	var v Version
-	var parseErr error = fmt.Errorf("initial")
+	var parseErr error = apperror.NewExecutionError("initial")
 
 	if err == nil {
 		v, parseErr = Parse(latest.Tag)
@@ -83,7 +84,7 @@ func ResolveLatestVersion() (Version, error) {
 func resolveFromFile() (Version, error) {
 	raw, err := ReadVersionFile()
 	if err != nil {
-		return Version{}, fmt.Errorf(constants.ErrReleaseVersionRequired+": %w", err)
+		return Version{}, apperror.WrapSimple(err, constants.ErrReleaseVersionRequired)
 	}
 
 	fmt.Printf(constants.MsgReleaseVersionRead, constants.DefaultVersionFile, raw)
@@ -104,11 +105,11 @@ func checkDuplicate(v Version) error {
 	}
 
 	if isRelease {
-		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrReleaseAlreadyExists, v.String(), v.String()))
 	}
 
 	if tagExists {
-		return fmt.Errorf(constants.ErrReleaseTagExists, v.String())
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrReleaseTagExists, v.String()))
 	}
 
 	return nil
@@ -122,12 +123,12 @@ func handleOrphanedMeta(v Version) error {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
-		return fmt.Errorf(constants.ErrReleaseAlreadyExists, v.String(), v.String())
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrReleaseAlreadyExists, v.String(), v.String()))
 	}
 
 	answer := strings.TrimSpace(scanner.Text())
 	if !strings.EqualFold(answer, "y") && !strings.EqualFold(answer, "yes") {
-		return fmt.Errorf(constants.ErrReleaseAborted)
+		return apperror.NewExecutionError(constants.ErrReleaseAborted)
 	}
 
 	filename := v.String() + constants.ExtJSON
@@ -135,7 +136,7 @@ func handleOrphanedMeta(v Version) error {
 
 	err := os.Remove(path)
 	if err != nil {
-		return fmt.Errorf(constants.ErrReleaseOrphanedRemove, path, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to remove release metadata at %s (operation: delete)", path))
 	}
 
 	fmt.Printf(constants.MsgReleaseOrphanedRemoved, v.String())

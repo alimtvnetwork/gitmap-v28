@@ -113,7 +113,7 @@ func (d *DbType) UnmarshalJSON(data []byte) error {
 
 	target := DbType(s)
 	if !dbTypeValidMap[target] {
-		return fmt.Errorf("invalid db type: %s", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid db type: %s", s))
 	}
 
 	*d = target
@@ -140,7 +140,7 @@ func (d *DbType) FromJSON(s string) *apperror.AppError {
 
 	target := DbType(str)
 	if !dbTypeValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid db type: %s", str), "validate db type from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid db type: %s", str))
 	}
 
 	*d = target
@@ -298,6 +298,6 @@ func ResolveCompiler(dialect DatabaseDialectType) (DialectCompiler, *apperror.Ap
 	case DatabaseDialectMongoDB:
 		return &MongoDBCompiler{}, nil
 	default:
-		return nil, apperror.WrapSimple(fmt.Errorf("unsupported dialect: %s", dialect), "resolve dialect compiler")
+		return nil, apperror.NewValidationError(fmt.Sprintf("unsupported dialect: %s", dialect))
 	}
 }

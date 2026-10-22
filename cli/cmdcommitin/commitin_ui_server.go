@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"net"
 	"net/http"
 	"os"
@@ -126,7 +127,7 @@ func runCommitPullUI(args []string) error {
 	}
 	ln, err := ListenCommitPullUIPort(*port)
 	if err != nil {
-		return fmt.Errorf("listen ui: %w", err)
+		return apperror.WrapSimple(err, "listen ui")
 	}
 	return StartCommitPullUIServer(ln, *noOpen)
 }

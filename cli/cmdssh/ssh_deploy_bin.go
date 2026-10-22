@@ -357,13 +357,13 @@ func streamAndVerify(client *ssh.Client, node db.SSHConnection, binPath, destPat
 func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin bool) error {
 	session, err := client.NewSession()
 	if err != nil {
-		return fmt.Errorf("create session: %w", err)
+		return apperror.WrapSimple(err, "create session")
 	}
 	defer session.Close()
 
 	stdin, err := session.StdinPipe()
 	if err != nil {
-		return fmt.Errorf("open stdin: %w", err)
+		return apperror.WrapSimple(err, "open stdin")
 	}
 
 	var stderrBuf bytes.Buffer
@@ -372,7 +372,7 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 	remoteCmd := buildStreamReceiverCmd(destPath, isWin)
 	file, err := os.Open(localPath)
 	if err != nil {
-		return fmt.Errorf("open local file: %w", err)
+		return apperror.WrapSimple(err, "open local file")
 	}
 	defer file.Close()
 
@@ -383,7 +383,7 @@ func streamBinaryToRemote(client *ssh.Client, destPath, localPath string, isWin 
 
 	runErr := session.Run(remoteCmd)
 	if runErr != nil {
-		return fmt.Errorf("%w (remote stderr: %s)", runErr, strings.TrimSpace(stderrBuf.String()))
+		return apperror.WrapSimple(runErr, "remote stream command failed").WithContext("output", strings.TrimSpace(stderrBuf.String()))
 	}
 	return nil
 }

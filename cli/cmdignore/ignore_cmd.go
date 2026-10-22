@@ -388,7 +388,7 @@ func processFlagArg(args []string, i int, pf *ParsedFlags) (int, error) {
 
 func parseIntervalFlag(args []string, i int, pf *ParsedFlags) (int, error) {
 	if i+1 >= len(args) {
-		return i, fmt.Errorf("flag %s requires duration value", args[i])
+		return i, apperror.NewValidationError(fmt.Sprintf("flag %s requires duration value", args[i]))
 	}
 	dur, err := ParseIgnoreInterval(args[i+1])
 	if err != nil {

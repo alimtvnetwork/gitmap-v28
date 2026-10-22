@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ReleaseUndoRangeOptions configures a multi-tag undo.
@@ -59,16 +61,16 @@ func RunReleaseUndoRange(opts ReleaseUndoRangeOptions) int {
 func expandReleaseRange(spec string) ([]string, error) {
 	lo, hi, ok := strings.Cut(spec, "..")
 	if !ok {
-		return nil, fmt.Errorf("range must be of form vX.Y.Z..vX.Y.Z, got %q", spec)
+		return nil, apperror.NewValidationError(fmt.Sprintf("range must be of form vX.Y.Z..vX.Y.Z, got %q", spec))
 	}
 
 	a, b := splitSemver(strings.TrimPrefix(lo, "v")), splitSemver(strings.TrimPrefix(hi, "v"))
 	if a[0] != b[0] || a[1] != b[1] {
-		return nil, fmt.Errorf("range endpoints must share major.minor (%s vs %s)", lo, hi)
+		return nil, apperror.NewValidationError(fmt.Sprintf("range endpoints must share major.minor (%s vs %s)", lo, hi))
 	}
 
 	if a[2] > b[2] {
-		return nil, fmt.Errorf("range endpoints reversed (%s > %s)", lo, hi)
+		return nil, apperror.NewValidationError(fmt.Sprintf("range endpoints reversed (%s > %s)", lo, hi))
 	}
 
 	out := make([]string, 0, b[2]-a[2]+1)

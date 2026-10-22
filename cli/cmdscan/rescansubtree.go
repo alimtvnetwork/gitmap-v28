@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -96,14 +97,14 @@ func splitRescanSubtreeArgs(args []string) (string, []string, error) {
 
 	switch len(positionals) {
 	case 0:
-		return "", nil, fmt.Errorf(
+		return "", nil, apperror.NewValidationError(
 			"  Error: rescan-subtree requires <absolutePath> (e.g. `gitmap rescan-subtree /home/me/work/monorepo`)")
 	case 1:
 		return positionals[0], flags, nil
 	default:
-		return "", nil, fmt.Errorf(
+		return "", nil, apperror.NewValidationError(fmt.Sprintf(
 			"  Error: rescan-subtree accepts exactly one <absolutePath>, got %d: %v",
-			len(positionals), positionals)
+			len(positionals), positionals))
 	}
 }
 
@@ -146,24 +147,24 @@ func isLikelyBoolFlag(token string) bool {
 func resolveRescanSubtreePath(path string) (string, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return "", fmt.Errorf("  Error: cannot resolve %q: %w", path, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("  Error: cannot resolve %q", path))
 	}
 
 	info, err := os.Stat(abs)
 	if err != nil && os.IsNotExist(err) {
-		return "", fmt.Errorf(
-			"  Error: rescan-subtree target does not exist %s: %w\n"+
+		return "", apperror.WrapNotFound(err, fmt.Sprintf(
+			"  Error: rescan-subtree target does not exist %s\n"+
 				"         Did you copy the absolutePath from a row that has since moved?",
-			abs, err)
+			abs))
 	}
 
 	if err != nil {
-		return "", fmt.Errorf("  Error: cannot stat %s: %w", abs, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("  Error: cannot stat %s", abs))
 	}
 
 	if !info.IsDir() {
-		return "", fmt.Errorf(
-			"  Error: rescan-subtree target is not a directory: %s", abs)
+		return "", apperror.NewValidationError(fmt.Sprintf(
+			"  Error: rescan-subtree target is not a directory: %s", abs))
 	}
 
 	return abs, nil

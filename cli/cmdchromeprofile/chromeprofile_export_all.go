@@ -138,11 +138,11 @@ func writeAllChromeProfilesJSON(names []string, outPath string) (int, error) {
 
 	raw, err := json.MarshalIndent(all, "", constants.JSONIndent)
 	if err != nil {
-		return 0, fmt.Errorf("marshal all profiles JSON: %w", err)
+		return 0, apperror.WrapSimple(err, "marshal all profiles JSON")
 	}
 
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
-		return 0, fmt.Errorf("write %s: %w", outPath, err)
+		return 0, apperror.WrapSimple(err, "write "+outPath)
 	}
 
 	printAllProfilesExportRows(all.Profiles, names, "JSON snapshot")
@@ -167,11 +167,11 @@ func writeAllChromeProfilesYAML(names []string, outPath string) (int, error) {
 
 	raw, err := yaml.Marshal(all)
 	if err != nil {
-		return 0, fmt.Errorf("marshal all profiles YAML: %w", err)
+		return 0, apperror.WrapSimple(err, "marshal all profiles YAML")
 	}
 
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
-		return 0, fmt.Errorf("write %s: %w", outPath, err)
+		return 0, apperror.WrapSimple(err, "write "+outPath)
 	}
 
 	printAllProfilesExportRows(all.Profiles, names, "YAML snapshot")
@@ -186,7 +186,7 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 
 	db, err := store.OpenSQLiteDB(outPath)
 	if err != nil {
-		return 0, fmt.Errorf("open sqlite db %s: %w", outPath, err)
+		return 0, apperror.WrapSimple(err, "open sqlite db "+outPath)
 	}
 
 	defer db.Close()

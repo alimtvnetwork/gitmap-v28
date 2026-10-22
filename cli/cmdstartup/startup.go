@@ -100,7 +100,7 @@ func parseStartupListFlags(args []string) (startupListOpts, error) {
 	}
 
 	if *jsonIndent < 0 || *jsonIndent > constants.StartupListJSONIndentMax {
-		return startupListOpts{}, fmt.Errorf(constants.ErrStartupListBadJSONIndent, *jsonIndent)
+		return startupListOpts{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupListBadJSONIndent, *jsonIndent))
 	}
 
 	if err := validateStartupListBackend(*backend); err != nil {
@@ -118,7 +118,7 @@ func parseStartupListFlags(args []string) (startupListOpts, error) {
 		}, nil
 	default:
 
-		return startupListOpts{}, fmt.Errorf(constants.ErrStartupListBadFormat, *format)
+		return startupListOpts{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupListBadFormat, *format))
 	}
 }
 
@@ -135,7 +135,7 @@ func validateStartupListBackend(b string) error {
 		return nil
 	}
 
-	return fmt.Errorf(constants.ErrStartupListBadBackend, b)
+	return apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupListBadBackend, b))
 }
 
 // runStartupRemove deletes a single managed entry. After --dry-run,
@@ -220,7 +220,7 @@ func parseStartupRemoveFlags(args []string) (startupRemoveFlags, error) {
 
 	rest := fs.Args()
 	if len(rest) != 1 {
-		return startupRemoveFlags{}, fmt.Errorf("expected 1 positional name, got %d", len(rest))
+		return startupRemoveFlags{}, apperror.NewValidationError(fmt.Sprintf("expected 1 positional name, got %d", len(rest)))
 	}
 
 	cfg.name = rest[0]
@@ -237,11 +237,11 @@ func validateStartupOutput(cmd, output string, jsonIndent int) error {
 	case constants.OutputTerminal, constants.OutputJSON:
 	default:
 
-		return fmt.Errorf(constants.ErrStartupBadOutput, cmd, output)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupBadOutput, cmd, output))
 	}
 
 	if jsonIndent < 0 || jsonIndent > constants.StartupListJSONIndentMax {
-		return fmt.Errorf(constants.ErrStartupListBadJSONIndent, jsonIndent)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupListBadJSONIndent, jsonIndent))
 	}
 
 	return nil

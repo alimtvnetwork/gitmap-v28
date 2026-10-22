@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // UninstallPlan encapsulates package and directory targets for uninstallation.
@@ -73,7 +75,7 @@ func isProtectedWorkDirectory(targetPath string) bool {
 
 func removeSingleTarget(p string) error {
 	if isProtectedWorkDirectory(p) {
-		return fmt.Errorf("safety guard: refused to modify protected directory %s", p)
+		return apperror.NewValidationError(fmt.Sprintf("safety guard: refused to modify protected directory %s", p))
 	}
 	_ = os.RemoveAll(p)
 	return nil
@@ -95,7 +97,7 @@ func runSystemCmd(cmdStr string) error {
 	cmd := exec.Command("sh", "-c", cmdStr)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("command execution failed: %v (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "command execution failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return nil
 }

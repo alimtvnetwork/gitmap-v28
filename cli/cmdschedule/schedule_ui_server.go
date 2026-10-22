@@ -3,6 +3,7 @@ package cmdschedule
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"net"
 	"net/http"
 	"sync"
@@ -132,7 +133,7 @@ func bindFallbackSchedulePort(host string) (net.Listener, int, error) {
 	if err == nil && ln != nil {
 		return ln, ln.Addr().(*net.TCPAddr).Port, nil
 	}
-	return nil, 0, fmt.Errorf("failed to bind schedule UI on any port: %w", err)
+	return nil, 0, apperror.WrapSimple(err, "failed to bind schedule UI on any port")
 }
 
 // StartScheduleUIServer launches the schedule dashboard HTTP server.

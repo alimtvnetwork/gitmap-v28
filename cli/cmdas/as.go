@@ -82,7 +82,7 @@ func parseAsArgs(args []string) (string, bool) {
 func extractAsAliasArg(rest []string, force bool) (string, bool) {
 	if len(rest) > 1 {
 		fmt.Fprintln(os.Stderr, constants.ErrAsUsage)
-		cliexit.HandleUsageError(fmt.Errorf("%s", constants.ErrAsUsage))
+		cliexit.HandleUsageError(apperror.NewValidationError(fmt.Sprintf("%s", constants.ErrAsUsage)))
 	}
 
 	if len(rest) == 1 {
@@ -102,7 +102,7 @@ func gitTopLevel() (string, error) {
 
 	root := strings.TrimSpace(string(out))
 	if root == "" {
-		return "", fmt.Errorf("empty top-level")
+		return "", apperror.NewValidationError("empty top-level")
 	}
 
 	return filepath.Clean(root), nil

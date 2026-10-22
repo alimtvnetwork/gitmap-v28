@@ -2,6 +2,8 @@ package cmdfoldertree
 
 import (
 	"fmt"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RunFolderTree is the main entry point for gitmap folder-tree / ft.
@@ -29,7 +31,7 @@ func handleLS(opts FolderTreeOptions, remaining []string) error {
 	target := resolveTargetPath(remaining, opts.TargetDir)
 	root, err := ScanFolderTree(target, opts)
 	if err != nil {
-		return fmt.Errorf("scan folder tree %s: %w", target, err)
+		return apperror.WrapSimple(err, "scan folder tree "+target)
 	}
 	if opts.IsPreview {
 		fmt.Print(RenderPreview(root, opts))
@@ -50,11 +52,11 @@ func handleExport(opts FolderTreeOptions, remaining []string) error {
 	target := resolveTargetPath(remaining, opts.TargetDir)
 	root, err := ScanFolderTree(target, opts)
 	if err != nil {
-		return fmt.Errorf("scan folder tree %s: %w", target, err)
+		return apperror.WrapSimple(err, "scan folder tree "+target)
 	}
 	content, err := ExportFolderTree(root, opts)
 	if err != nil {
-		return fmt.Errorf("export folder tree: %w", err)
+		return apperror.WrapSimple(err, "export folder tree")
 	}
 	if opts.OutputFile == "" {
 		fmt.Println(content)
@@ -73,7 +75,7 @@ func handleImport(opts FolderTreeOptions, remaining []string) error {
 		opts.DirsOnly = true
 	}
 	if len(remaining) == 0 && opts.InputFile == "" {
-		return fmt.Errorf("usage: gitmap folder-tree import <file.json|file.yaml|file.txt> [target-dir]")
+		return apperror.NewValidationError("usage: gitmap folder-tree import <file.json|file.yaml|file.txt> [target-dir]")
 	}
 	inputFile := opts.InputFile
 	targetDir := "."
@@ -85,7 +87,7 @@ func handleImport(opts FolderTreeOptions, remaining []string) error {
 	}
 	summary, err := ImportFolderTree(inputFile, targetDir, opts)
 	if err != nil {
-		return fmt.Errorf("import folder tree: %w", err)
+		return apperror.WrapSimple(err, "import folder tree")
 	}
 	printImportSummary(summary, opts.DryRun)
 	return nil

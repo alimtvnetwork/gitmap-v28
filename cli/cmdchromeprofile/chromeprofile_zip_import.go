@@ -9,13 +9,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func applyChromeExportZIPWithOptions(zipPath, dstProfile string, limit int) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return fmt.Errorf("open zip %s: %w", zipPath, err)
+		return apperror.WrapSimple(err, "open zip "+zipPath)
 	}
 
 	defer r.Close()
@@ -165,7 +166,7 @@ func extractProfileZipEntry(f *zip.File, profDir, relPath string) {
 
 func extractSingleProfileZip(r *zip.ReadCloser, dstProfile string) error {
 	if err := os.MkdirAll(dstProfile, constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
+		return apperror.WrapSimple(err, "mkdir "+dstProfile)
 	}
 
 	var jsonFile *zip.File
@@ -201,7 +202,7 @@ func importChromeJSONFile(jsonFile *zip.File, dstProfile string) error {
 
 	var exp chromeExport
 	if err := json.NewDecoder(rc).Decode(&exp); err != nil {
-		return fmt.Errorf("decode json: %w", err)
+		return apperror.WrapSimple(err, "decode json")
 	}
 
 	return applyChromeExport(&exp, dstProfile)
@@ -216,7 +217,7 @@ func extractZipFile(f *zip.File, dest string) error {
 	defer rc.Close()
 
 	if err := os.MkdirAll(filepath.Dir(dest), constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", filepath.Dir(dest), err)
+		return apperror.WrapSimple(err, "mkdir "+filepath.Dir(dest))
 	}
 
 	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, constants.FilePermission)

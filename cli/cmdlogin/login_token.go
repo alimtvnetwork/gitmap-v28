@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -29,7 +30,7 @@ func resolveTokenUsername(token string, skipVerify bool) (string, error) {
 // loginWithToken validates the token (unless skipped) and stores it for reuse.
 func loginWithToken(token string, skipVerify bool) error {
 	if len(strings.TrimSpace(token)) == 0 {
-		return fmt.Errorf("token cannot be empty (see `gitmap login --help`)")
+		return apperror.NewValidationError("token cannot be empty (see `gitmap login --help`)")
 	}
 	token = strings.TrimSpace(token)
 
@@ -50,7 +51,7 @@ func loginWithToken(token string, skipVerify bool) error {
 func validateGitHubToken(token string) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, githubUserAPI, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to build validation request: %w", err)
+		return "", apperror.WrapSimple(err, "failed to build validation request")
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Accept", "application/vnd.github+json")
@@ -58,23 +59,23 @@ func validateGitHubToken(token string) (string, error) {
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("token validation failed: cannot reach api.github.com: %w", err)
+		return "", apperror.WrapSimple(err, "token validation failed: cannot reach api.github.com")
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
-		return "", fmt.Errorf("GitHub rejected the token (HTTP %d): check the token value and its scopes", resp.StatusCode)
+		return "", apperror.NewExecutionError(fmt.Sprintf("GitHub rejected the token (HTTP %d): check the token value and its scopes", resp.StatusCode))
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("GitHub returned HTTP %d during token validation", resp.StatusCode)
+		return "", apperror.NewExecutionError(fmt.Sprintf("GitHub returned HTTP %d during token validation", resp.StatusCode))
 	}
 
 	user := githubUser{}
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
-		return "", fmt.Errorf("failed to parse GitHub validation response: %w", err)
+		return "", apperror.WrapSimple(err, "failed to parse GitHub validation response")
 	}
 	if len(strings.TrimSpace(user.Login)) == 0 {
-		return "", fmt.Errorf("GitHub validation response did not contain a username")
+		return "", apperror.NewNotFoundError("GitHub validation response did not contain a username")
 	}
 
 	return user.Login, nil
@@ -84,7 +85,7 @@ func validateGitHubToken(token string) (string, error) {
 func storeGitHubToken(token string) error {
 	cmd := exec.Command("git", "config", "--global", "github.token", token)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to store GitHub token: %w", err)
+		return apperror.WrapSimple(err, "failed to store GitHub token")
 	}
 	return nil
 }

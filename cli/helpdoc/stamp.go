@@ -18,6 +18,8 @@ package helpdoc
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // stampCommentPrefix is the HTML-comment form the stamp takes
@@ -41,9 +43,9 @@ func ValidateStamp(command string, body string, want Expectation) error {
 
 	stamp, ok := ParseMarker(marker)
 	if !ok {
-		return fmt.Errorf("helptext %q has a fixture-stamp comment but it failed to parse; "+
+		return apperror.NewValidationError(fmt.Sprintf("helptext %q has a fixture-stamp comment but it failed to parse; "+
 			"expected form: %s name=<name> generation=<N> min-current=<N> for=<note> -->",
-			command, stampCommentPrefix)
+			command, stampCommentPrefix))
 	}
 
 	return Validate(stamp, want)

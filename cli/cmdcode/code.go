@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
@@ -133,7 +134,7 @@ func resolveCodeRootPath(pathArg string) (string, error) {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("cannot determine current directory: %w", err)
+		return "", apperror.WrapSimple(err, "cannot determine current directory")
 	}
 
 	return absoluteExisting(cwd)
@@ -144,11 +145,11 @@ func resolveCodeRootPath(pathArg string) (string, error) {
 func absoluteExisting(p string) (string, error) {
 	abs, err := filepath.Abs(p)
 	if err != nil {
-		return "", fmt.Errorf("cannot resolve absolute path %q: %w", p, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("cannot resolve absolute path %q", p))
 	}
 
 	if _, err := os.Stat(abs); err != nil {
-		return "", fmt.Errorf("path does not exist %s: %w", abs, err)
+		return "", apperror.WrapNotFound(err, "path does not exist "+abs)
 	}
 
 	return abs, nil
@@ -286,13 +287,13 @@ func syncCodeEntry(rootPath, name string, extras []string) {
 func openCodeDB() (*store.DB, error) {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return nil, fmt.Errorf(constants.MsgDBUpsertFailed, err)
+		return nil, apperror.NewExecutionError(fmt.Sprintf(constants.MsgDBUpsertFailed, err))
 	}
 
 	if err := db.Migrate(); err != nil {
 		_ = db.Close()
 
-		return nil, fmt.Errorf(constants.MsgDBUpsertFailed, err)
+		return nil, apperror.NewExecutionError(fmt.Sprintf(constants.MsgDBUpsertFailed, err))
 	}
 
 	return db, nil

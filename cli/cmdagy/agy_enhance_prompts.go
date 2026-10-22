@@ -26,7 +26,7 @@ var AgyEnhancePromptsCmd = &cobra.Command{
 	Short:   "Decompose complex prompt into structured markdown task files (01-index, 02-verbatim, 03-...)",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("usage: gitmap agy enhance-prompts <text-or-path> [-folder $variable]")
+			return apperror.NewValidationError("usage: gitmap agy enhance-prompts <text-or-path> [-folder $variable]")
 		}
 		return runAgyEnhancePrompts(args[0], enhancePromptsFolder)
 	},

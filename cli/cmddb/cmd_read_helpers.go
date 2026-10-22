@@ -37,12 +37,12 @@ func openReadOnlyResolvedDb(dbArg string) (*sql.DB, string, error) {
 	}
 
 	if _, statErr := os.Stat(dbPath); statErr != nil {
-		return nil, dbPath, fmt.Errorf("database file not found: %s", dbPath)
+		return nil, dbPath, apperror.NewNotFoundError(fmt.Sprintf("database file not found: %s", dbPath))
 	}
 
 	conn, openErr := store.OpenSQLiteDB(dbPath)
 	if openErr != nil {
-		return nil, dbPath, fmt.Errorf("open database '%s': %w", dbPath, openErr)
+		return nil, dbPath, apperror.WrapSimple(openErr, "open database '"+dbPath+"'")
 	}
 
 	return enforceReadOnlyPragma(conn, dbPath)
@@ -53,7 +53,7 @@ func enforceReadOnlyPragma(conn *sql.DB, dbPath string) (*sql.DB, string, error)
 	if _, pragmaErr := conn.Exec(initPragma); pragmaErr != nil {
 		conn.Close()
 
-		return nil, dbPath, fmt.Errorf("enforce read-only pragma: %w", pragmaErr)
+		return nil, dbPath, apperror.WrapSimple(pragmaErr, "enforce read-only pragma")
 	}
 
 	return conn, dbPath, nil
@@ -62,12 +62,12 @@ func enforceReadOnlyPragma(conn *sql.DB, dbPath string) (*sql.DB, string, error)
 func registerDbPathAlias(rawPath, aliasName string) (string, error) {
 	cleanName := strings.TrimSpace(aliasName)
 	if cleanName == "" {
-		return "", fmt.Errorf("alias name cannot be empty")
+		return "", apperror.NewValidationError("alias name cannot be empty")
 	}
 
 	absPath, err := filepath.Abs(strings.TrimSpace(rawPath))
 	if err != nil {
-		return "", fmt.Errorf("resolve database path: %w", err)
+		return "", apperror.WrapSimple(err, "resolve database path")
 	}
 
 	return commitDbPathAlias(absPath, cleanName)
@@ -75,11 +75,11 @@ func registerDbPathAlias(rawPath, aliasName string) (string, error) {
 
 func commitDbPathAlias(absPath, cleanName string) (string, error) {
 	if _, statErr := os.Stat(absPath); statErr != nil {
-		return "", fmt.Errorf("database file not found: %s", absPath)
+		return "", apperror.NewNotFoundError(fmt.Sprintf("database file not found: %s", absPath))
 	}
 
 	if regErr := RegisterAlias(cleanName, absPath, "Registered via db-read"); regErr != nil {
-		return "", fmt.Errorf("save database alias: %w", regErr)
+		return "", apperror.WrapSimple(regErr, "save database alias")
 	}
 
 	return absPath, nil
@@ -113,7 +113,7 @@ func fetchSingleTableDdl(conn *sql.DB, tableName string) string {
 func fetchTableOverview(conn *sql.DB, tableName, dbPath string, limit int) (TableOverview, error) {
 	schema := fetchSingleTableDdl(conn, tableName)
 	if schema == "" {
-		return TableOverview{}, fmt.Errorf("table '%s' not found in database %s", tableName, dbPath)
+		return TableOverview{}, apperror.NewNotFoundError(fmt.Sprintf("table '%s' not found in database %s", tableName, dbPath))
 	}
 
 	colCount := countTableColumns(conn, tableName)
@@ -228,7 +228,7 @@ func collectColumnOverviews(conn *sql.DB, dbPath string, tables []string) ([]Tab
 	for _, t := range tables {
 		cols, err := fetchColumnInfos(conn, t)
 		if err != nil || len(cols) == 0 {
-			return nil, fmt.Errorf("table '%s' not found or has no columns in %s", t, dbPath)
+			return nil, apperror.NewNotFoundError(fmt.Sprintf("table '%s' not found or has no columns in %s", t, dbPath))
 		}
 
 		overviews = append(overviews, TableColumnOverview{Table: t, Columns: cols})

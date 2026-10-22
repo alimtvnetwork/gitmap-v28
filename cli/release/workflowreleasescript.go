@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
@@ -66,14 +67,14 @@ func buildReleaseVersionSnapshots(version, stagingDir string) []string {
 func writeReleaseScriptSnapshot(s releaseScriptSnapshot, stagingDir string) (string, error) {
 	raw, err := fspath.ReadFile(s.embeddedName)
 	if err != nil {
-		return "", fmt.Errorf("read embedded %s: %w", s.embeddedName, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("read embedded %s", s.embeddedName))
 	}
 
 	baked := injectVersionBake(string(raw), s.embeddedName, s.bakeLine)
 
 	outPath := filepath.Join(stagingDir, s.outputName)
 	if err := os.WriteFile(outPath, []byte(baked), constants.FilePermission); err != nil {
-		return "", fmt.Errorf("write snapshot %s: %w", outPath, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("write snapshot %s", outPath))
 	}
 
 	if verbose.IsEnabled() {

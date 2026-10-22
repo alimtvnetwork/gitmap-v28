@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -56,7 +57,7 @@ func extractZipEntry(target string, file *zip.File) {
 	}
 
 	if !strings.HasPrefix(absDest, absTarget+string(os.PathSeparator)) {
-		fmt.Fprintf(os.Stderr, constants.ErrNppExtractEntry, file.Name, destPath, fmt.Errorf("path traversal detected"))
+		fmt.Fprintf(os.Stderr, constants.ErrNppExtractEntry, file.Name, destPath, apperror.NewValidationError("path traversal detected"))
 
 		return
 	}

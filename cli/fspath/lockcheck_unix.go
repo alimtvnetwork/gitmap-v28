@@ -7,13 +7,15 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // FindLockingProcesses uses lsof to detect processes with open files in dirPath.
 func FindLockingProcesses(dirPath string) ([]LockingProcess, error) {
 	lsofPath, err := exec.LookPath("lsof")
 	if err != nil {
-		return nil, fmt.Errorf("lsof not found: %w", err)
+		return nil, apperror.WrapNotFound(err, "lsof not found")
 	}
 
 	cmd := exec.Command(lsofPath, "+D", dirPath)
@@ -52,7 +54,7 @@ func parseLsofOutput(output string) []LockingProcess {
 // KillProcess terminates a process by PID on Unix.
 func KillProcess(pid int) error {
 	if IsProtectedProcess("", pid) {
-		return fmt.Errorf("refusing to terminate protected process PID %d", pid)
+		return apperror.NewValidationError(fmt.Sprintf("refusing to terminate protected process PID %d", pid))
 	}
 
 	return exec.Command("kill", "-9", strconv.Itoa(pid)).Run()

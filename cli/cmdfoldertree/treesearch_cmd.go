@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // parsedArgs holds flags and positional parameters extracted from CLI arguments.
@@ -175,17 +177,17 @@ func executeTreeSearch(mode SearchMode, cmdName string, args []string) error {
 	if p.filePath != "" {
 		items, err = ParseTreeFile(p.filePath)
 		if err != nil {
-			return fmt.Errorf("error reading tree file %s: %w", p.filePath, err)
+			return apperror.WrapSimple(err, "error reading tree file "+p.filePath)
 		}
 	} else {
 		// Fallback to SQLite Split DB
 		dbPath := ResolveTreeDBPath(p.dbPath)
 		if _, statErr := os.Stat(dbPath); os.IsNotExist(statErr) {
-			return fmt.Errorf("no input file specified with -f and SQLite database not found at %s. Run '%s --help'", dbPath, cmdName)
+			return apperror.NewNotFoundError(fmt.Sprintf("no input file specified with -f and SQLite database not found at %s. Run '%s --help'", dbPath, cmdName))
 		}
 		items, err = QueryTreeDb(dbPath, mode, p.pattern)
 		if err != nil {
-			return fmt.Errorf("database query error: %w", err)
+			return apperror.WrapSimple(err, "database query error")
 		}
 		// If query returned results and pattern was already applied, we can jump to output
 		return renderTreeSearchResults(items, mode, p.pattern, p.isJSON)
@@ -212,7 +214,7 @@ func renderTreeSearchResults(items []TreeItem, mode SearchMode, pattern string, 
 	if isJSON {
 		jsonStr, err := FormatTreeItemsJSON(items)
 		if err != nil {
-			return fmt.Errorf("failed to encode JSON output: %w", err)
+			return apperror.WrapSimple(err, "failed to encode JSON output")
 		}
 		fmt.Println(jsonStr)
 		return nil
@@ -243,19 +245,19 @@ func RunTreeLearn(args []string) error {
 	}
 
 	if filePath == "" {
-		return fmt.Errorf("input tree file path is required via -f or --file (see 'gitmap tree-learn --help')")
+		return apperror.NewValidationError("input tree file path is required via -f or --file (see 'gitmap tree-learn --help')")
 	}
 
 	start := time.Now()
 	items, err := ParseTreeFile(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to parse tree file %s: %w", filePath, err)
+		return apperror.WrapSimple(err, "failed to parse tree file "+filePath)
 	}
 
 	dbPath := ResolveTreeDBPath(p.dbPath)
 	count, err := IngestTreeItems(dbPath, items)
 	if err != nil {
-		return fmt.Errorf("failed to ingest tree items into %s: %w", dbPath, err)
+		return apperror.WrapSimple(err, "failed to ingest tree items into "+dbPath)
 	}
 
 	elapsed := time.Since(start)

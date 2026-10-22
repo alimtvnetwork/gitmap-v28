@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -14,7 +15,7 @@ import (
 func RunDbColumns(tableArg, dbArg string, isJson bool, out io.Writer) error {
 	cleanTable := strings.TrimSpace(tableArg)
 	if cleanTable == "" {
-		return fmt.Errorf("table name is required (e.g. gitmap db columns <table-name>)")
+		return apperror.NewValidationError("table name is required (e.g. gitmap db columns <table-name>)")
 	}
 
 	conn, dbPath, err := OpenResolvedDb(dbArg)
@@ -29,7 +30,7 @@ func RunDbColumns(tableArg, dbArg string, isJson bool, out io.Writer) error {
 	}
 
 	if len(cols) == 0 {
-		return fmt.Errorf("table '%s' not found or has no columns in %s", cleanTable, dbPath)
+		return apperror.NewNotFoundError(fmt.Sprintf("table '%s' not found or has no columns in %s", cleanTable, dbPath))
 	}
 
 	if isJson {
@@ -46,7 +47,7 @@ func fetchColumnInfos(conn *sql.DB, tableName string) ([]ColumnInfo, error) {
 	query := fmt.Sprintf(`PRAGMA table_info("%s")`, escaped)
 	rows, err := conn.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("query table info: %w", err)
+		return nil, apperror.WrapSimple(err, "query table info")
 	}
 	defer rows.Close()
 

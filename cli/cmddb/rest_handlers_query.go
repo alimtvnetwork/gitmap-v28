@@ -3,10 +3,11 @@ package cmddb
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type QueryPayload struct {
@@ -27,7 +28,7 @@ func handleQuery(mgr *MultiDbManager) http.HandlerFunc {
 
 		sqlStr, parseErr := extractSqlQuery(r)
 		if parseErr != nil || strings.TrimSpace(sqlStr) == "" {
-			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("missing or empty sql query"))
+			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("missing or empty sql query"))
 
 			return
 		}

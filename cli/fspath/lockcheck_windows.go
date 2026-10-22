@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // FindLockingProcesses detects processes with open handles on the given directory
@@ -27,7 +29,7 @@ func findViaHandle(dirPath string) ([]LockingProcess, error) {
 		handlePath, err = exec.LookPath("handle64.exe")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("handle.exe not found: %w", err)
+		return nil, apperror.WrapNotFound(err, "handle.exe not found")
 	}
 
 	out, err := exec.Command(handlePath, "-accepteula", "-nobanner", dirPath).Output()
@@ -77,7 +79,7 @@ func parseHandleOutput(output string) []LockingProcess {
 // KillProcess terminates a process by PID on Windows using standard os.Process.
 func KillProcess(pid int) error {
 	if IsProtectedProcess("", pid) {
-		return fmt.Errorf("refusing to terminate protected process PID %d", pid)
+		return apperror.NewValidationError(fmt.Sprintf("refusing to terminate protected process PID %d", pid))
 	}
 
 	proc, err := os.FindProcess(pid)

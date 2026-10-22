@@ -3,6 +3,7 @@ package release
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -126,7 +127,7 @@ func returnToBranch(branch string) error {
 
 	err := CheckoutBranch(branch)
 	if err != nil {
-		return fmt.Errorf("switch back to %s: %w", branch, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("switch back to %s", branch))
 	}
 
 	fmt.Printf(constants.MsgReleaseSwitchedBack, branch)

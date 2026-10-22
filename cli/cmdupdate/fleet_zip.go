@@ -166,7 +166,7 @@ func loadOrExportAgmInstallerZip() ([]byte, error) {
 	}
 	data, ok := readFileIfExists(path)
 	if !ok {
-		return nil, fmt.Errorf("agm update export-zip did not write %s", path)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("agm update export-zip did not write %s", path))
 	}
 	return data, nil
 }

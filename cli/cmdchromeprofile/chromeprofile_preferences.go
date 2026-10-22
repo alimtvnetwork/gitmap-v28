@@ -11,10 +11,10 @@ package cmdchromeprofile
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -30,22 +30,22 @@ func patchCopiedChromeProfilePreferences(dstPath, displayName string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("read %s: %w", prefPath, err)
+		return apperror.WrapSimple(err, "read "+prefPath)
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return fmt.Errorf("parse %s: %w", prefPath, err)
+		return apperror.WrapSimple(err, "parse "+prefPath)
 	}
 
 	scrubChromePreferencesIdentity(root, displayName)
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
-		return fmt.Errorf("encode Preferences: %w", err)
+		return apperror.WrapSimple(err, "encode Preferences")
 	}
 
 	if err := os.WriteFile(prefPath, out, constants.FilePermission); err != nil {
-		return fmt.Errorf("write %s: %w", prefPath, err)
+		return apperror.WrapSimple(err, "write "+prefPath)
 	}
 
 	return nil
@@ -103,12 +103,12 @@ func readPreferencesJSON(prefPath string) (map[string]any, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", prefPath, err)
+		return nil, apperror.WrapSimple(err, "read "+prefPath)
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", prefPath, err)
+		return nil, apperror.WrapSimple(err, "parse "+prefPath)
 	}
 
 	return root, nil
@@ -117,7 +117,7 @@ func readPreferencesJSON(prefPath string) (map[string]any, error) {
 func writePreferencesJSON(prefPath string, root map[string]any) error {
 	out, err := json.MarshalIndent(root, "", constants.JSONIndent)
 	if err != nil {
-		return fmt.Errorf("encode Preferences: %w", err)
+		return apperror.WrapSimple(err, "encode Preferences")
 	}
 
 	return os.WriteFile(prefPath, out, constants.FilePermission)

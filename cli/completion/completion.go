@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -49,7 +50,7 @@ func Generate(shell string) (string, error) {
 	case constants.ShellFish:
 		return generateFish(), nil
 	default:
-		return "", fmt.Errorf(constants.ErrCompUnknownShell, shell)
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.ErrCompUnknownShell, shell))
 	}
 }
 

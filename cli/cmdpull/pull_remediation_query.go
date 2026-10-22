@@ -119,7 +119,7 @@ func tryRemediateFailureMatch(f PullFailureSummary, clean string) (bool, error) 
 	if remediateSingleRepo(f) {
 		return true, nil
 	}
-	return true, fmt.Errorf("remediation failed for %s", f.RepoName)
+	return true, apperror.NewExecutionError(fmt.Sprintf("remediation failed for %s", f.RepoName))
 }
 
 func tryRemediateMatchedRecord(rec model.ScanRecord) (bool, error) {
@@ -133,7 +133,7 @@ func tryRemediateMatchedRecord(rec model.ScanRecord) (bool, error) {
 	if remediateSingleRepo(f) {
 		return true, nil
 	}
-	return true, fmt.Errorf("remediation failed for %s", rec.RepoName)
+	return true, apperror.NewExecutionError(fmt.Sprintf("remediation failed for %s", rec.RepoName))
 }
 
 // HasPendingPullFailures reports whether gitmap-pull.db has recorded pull failures.

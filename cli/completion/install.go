@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -124,7 +125,7 @@ func addSourceLine(scriptPath, profilePath, shell string) error {
 func updateProfileSource(scriptPath, profilePath, shell string) (bool, error) {
 	snippet := buildSourceLine(scriptPath, shell)
 	if err := os.MkdirAll(filepath.Dir(profilePath), 0o755); err != nil {
-		return false, fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return false, apperror.WrapSimple(err, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	existingBytes, err := os.ReadFile(profilePath)
@@ -139,7 +140,7 @@ func updateProfileSource(scriptPath, profilePath, shell string) (bool, error) {
 	}
 
 	if err := os.WriteFile(profilePath, []byte(updated), 0o644); err != nil {
-		return false, fmt.Errorf(constants.ErrCompProfileWrite, profilePath, err)
+		return false, apperror.WrapSimple(err, fmt.Sprintf("failed to update profile at %s (operation: write)", profilePath))
 	}
 
 	return true, nil

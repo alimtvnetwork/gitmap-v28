@@ -184,7 +184,7 @@ func resolveDirectoryOrFolderTarget(token string, projects []AgyProject, isConfi
 	}
 	info, err := os.Stat(token)
 	if err != nil || !info.IsDir() {
-		return nil, fmt.Errorf("target %q did not match any project sequence, ID, alias, or path", token)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("target %q did not match any project sequence, ID, alias, or path", token))
 	}
 	return resolveDirectoryAdHocTarget(token, isConfirm)
 }

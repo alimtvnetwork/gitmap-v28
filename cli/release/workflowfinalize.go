@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -24,7 +25,7 @@ func pushAndFinalize(v Version, branchName, tag, _ string, opts Options) error {
 
 	err := PushBranchAndTag(branchName, tag)
 	if err != nil {
-		return fmt.Errorf(constants.ErrReleasePushFailed, err)
+		return apperror.WrapSimple(err, "Error: failed to push to remote")
 	}
 
 	fmt.Print(constants.MsgReleasePushed)
@@ -101,7 +102,7 @@ func writeMetadata(
 
 	err := WriteReleaseMeta(meta)
 	if err != nil {
-		return fmt.Errorf(constants.ErrReleaseMetaWrite, metaPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("Error: could not write release metadata at %s (operation: write)", metaPath))
 	}
 
 	fmt.Printf(constants.MsgReleaseMeta, metaPath)

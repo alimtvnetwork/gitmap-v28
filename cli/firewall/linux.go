@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func hasCommand(name string) bool {
@@ -16,7 +18,7 @@ func runUfwAllow(port int) error {
 	cmd := exec.Command("ufw", "allow", fmt.Sprintf("%d/tcp", port))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("ufw allow failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "ufw allow failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
@@ -25,7 +27,7 @@ func runFirewallCmdAllow(port int) error {
 	cmd := exec.Command("firewall-cmd", "--permanent", fmt.Sprintf("--add-port=%d/tcp", port))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("firewall-cmd add-port failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "firewall-cmd add-port failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	_ = exec.Command("firewall-cmd", "--reload").Run()
 	return nil
@@ -35,7 +37,7 @@ func runIptablesAllow(port int) error {
 	cmd := exec.Command("iptables", "-I", "INPUT", "-p", "tcp", "--dport", strconv.Itoa(port), "-j", "ACCEPT")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("iptables allow failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "iptables allow failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
@@ -50,14 +52,14 @@ func allowPortLinux(port int, name string) error {
 	if hasCommand("iptables") {
 		return runIptablesAllow(port)
 	}
-	return fmt.Errorf("no supported Linux firewall tool found (ufw, firewalld, iptables)")
+	return apperror.NewExecutionError("no supported Linux firewall tool found (ufw, firewalld, iptables)")
 }
 
 func runUfwDeny(port int) error {
 	cmd := exec.Command("ufw", "deny", fmt.Sprintf("%d/tcp", port))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("ufw deny failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "ufw deny failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
@@ -66,7 +68,7 @@ func runFirewallCmdDeny(port int) error {
 	cmd := exec.Command("firewall-cmd", "--permanent", fmt.Sprintf("--remove-port=%d/tcp", port))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("firewall-cmd remove-port failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "firewall-cmd remove-port failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	_ = exec.Command("firewall-cmd", "--reload").Run()
 	return nil
@@ -76,7 +78,7 @@ func runIptablesDeny(port int) error {
 	cmd := exec.Command("iptables", "-I", "INPUT", "-p", "tcp", "--dport", strconv.Itoa(port), "-j", "DROP")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("iptables drop failed: %s", strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, "iptables drop failed").WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return nil
 }
@@ -91,7 +93,7 @@ func blockPortLinux(port int, name string) error {
 	if hasCommand("iptables") {
 		return runIptablesDeny(port)
 	}
-	return fmt.Errorf("no supported Linux firewall tool found (ufw, firewalld, iptables)")
+	return apperror.NewExecutionError("no supported Linux firewall tool found (ufw, firewalld, iptables)")
 }
 
 func removePortRuleLinux(port int, name string) error {

@@ -77,7 +77,7 @@ var agyExportCmd = &cobra.Command{
 	Short:   "Create a zip backup of Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("requires destination zip path")
+			return apperror.NewValidationError("requires destination zip path")
 		}
 
 		return executeAgyExport(args[0])
@@ -104,7 +104,7 @@ var agyImportCmd = &cobra.Command{
 	Short:   "Import a zip backup of Antigravity projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("requires source zip path")
+			return apperror.NewValidationError("requires source zip path")
 		}
 
 		fmt.Printf("Imported zip backup from %s\n", args[0])
@@ -205,7 +205,7 @@ var agyPluginInstallCmd = &cobra.Command{
 	Short: "Install an Antigravity plugin",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("requires plugin slug")
+			return apperror.NewValidationError("requires plugin slug")
 		}
 
 		return runAgyPluginInstall(args[0])

@@ -1,13 +1,13 @@
 package clonefrom
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -44,7 +44,7 @@ func executeLFSFix(dest string, file string) error {
 	cmdRest.Dir = dest
 	cmdRest.Env = append(os.Environ(), constants.EnvGitLFSSkipSmudge)
 	if out, err := cmdRest.CombinedOutput(); err != nil {
-		return fmt.Errorf(constants.ErrCloneFromLFSRestore, err, string(out))
+		return apperror.WrapSimple(err, "git restore failed").WithContext("output", string(out))
 	}
 
 	// 2. git rm --cached "<file>" -q
@@ -52,7 +52,7 @@ func executeLFSFix(dest string, file string) error {
 	cmdRm.Dir = dest
 	cmdRm.Env = append(os.Environ(), constants.EnvGitLFSSkipSmudge)
 	if out, err := cmdRm.CombinedOutput(); err != nil {
-		return fmt.Errorf(constants.ErrCloneFromLFSRmCached, err, string(out))
+		return apperror.WrapSimple(err, "git rm --cached failed").WithContext("output", string(out))
 	}
 
 	// 3. Remove physical file
@@ -63,7 +63,7 @@ func executeLFSFix(dest string, file string) error {
 	cmdCommit.Dir = dest
 	cmdCommit.Env = append(os.Environ(), constants.EnvGitLFSSkipSmudge)
 	if out, err := cmdCommit.CombinedOutput(); err != nil {
-		return fmt.Errorf(constants.ErrCloneFromLFSCommit, err, string(out))
+		return apperror.WrapSimple(err, "git commit failed").WithContext("output", string(out))
 	}
 
 	// 5. git push
@@ -71,7 +71,7 @@ func executeLFSFix(dest string, file string) error {
 	cmdPush.Dir = dest
 	cmdPush.Env = append(os.Environ(), constants.EnvGitLFSSkipSmudge)
 	if out, err := cmdPush.CombinedOutput(); err != nil {
-		return fmt.Errorf(constants.ErrCloneFromLFSPush, err, string(out))
+		return apperror.WrapSimple(err, "git push failed").WithContext("output", string(out))
 	}
 
 	return nil

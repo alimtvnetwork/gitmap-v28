@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -67,13 +68,13 @@ func classifyFindNextToken(tok string, args []string, i int,
 func classifyEqualsForm(name, value string, curID int64, curJSON bool) (int, int64, bool, error) {
 	switch name {
 	case constants.FindNextFlagJSON:
-		return 0, 0, false, fmt.Errorf(constants.ErrFindNextBoolTakesNoValueFmt,
-			constants.FindNextFlagJSON, value)
+		return 0, 0, false, apperror.NewValidationError(fmt.Sprintf(constants.ErrFindNextBoolTakesNoValueFmt,
+			constants.FindNextFlagJSON, value))
 	case constants.FindNextFlagScanFolder:
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			msg := strings.TrimSpace(fmt.Sprintf(constants.ErrFindNextBadIntFmt, constants.FindNextFlagScanFolder, value))
-			return 0, 0, false, fmt.Errorf("%s: %w", msg, err)
+			return 0, 0, false, apperror.WrapValidation(err, msg)
 		}
 
 		return 0, v, curJSON, nil
@@ -86,15 +87,15 @@ func classifyEqualsForm(name, value string, curID int64, curJSON bool) (int, int
 // Returns 1 to signal that the value token at i+1 was consumed.
 func classifyScanFolderSpaceForm(args []string, i int, curJSON bool) (int, int64, bool, error) {
 	if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
-		return 0, 0, false, fmt.Errorf(constants.ErrFindNextMissingValueFmt,
-			constants.FindNextFlagScanFolder)
+		return 0, 0, false, apperror.NewValidationError(fmt.Sprintf(constants.ErrFindNextMissingValueFmt,
+			constants.FindNextFlagScanFolder))
 	}
 
 	raw := args[i+1]
 	v, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil {
 		msg := strings.TrimSpace(fmt.Sprintf(constants.ErrFindNextBadIntFmt, constants.FindNextFlagScanFolder, raw))
-		return 0, 0, false, fmt.Errorf("%s: %w", msg, err)
+		return 0, 0, false, apperror.WrapValidation(err, msg)
 	}
 
 	return 1, v, curJSON, nil
@@ -106,14 +107,14 @@ func classifyScanFolderSpaceForm(args []string, i int, curJSON bool) (int, int64
 // reported as an unexpected positional argument.
 func unknownOrPositional(tok string) error {
 	if !strings.HasPrefix(tok, "--") {
-		return fmt.Errorf(constants.ErrFindNextUnexpectedArgFmt, tok)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrFindNextUnexpectedArgFmt, tok))
 	}
 
 	if guess, ok := suggestFindNextFlag(tok); ok {
-		return fmt.Errorf(constants.ErrFindNextUnknownFlagSuggestFmt, tok, guess)
+		return apperror.NewValidationError(fmt.Sprintf(constants.ErrFindNextUnknownFlagSuggestFmt, tok, guess))
 	}
 
-	return fmt.Errorf(constants.ErrFindNextUnknownFlagFmt, tok)
+	return apperror.NewValidationError(fmt.Sprintf(constants.ErrFindNextUnknownFlagFmt, tok))
 }
 
 // suggestFindNextFlag returns the closest known flag when `tok` is

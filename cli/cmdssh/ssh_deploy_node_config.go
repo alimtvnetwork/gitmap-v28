@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/crypto/ssh"
@@ -19,11 +20,11 @@ func executeNodeConfigDeployWorker(c db.SSHConnection, payload []byte) (string, 
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	isOnline, reason := CheckConnLiveness(context.Background(), c.IPAddress, 22, 1500*time.Millisecond)
 	if !isOnline {
-		return "", fmt.Errorf("node %s is offline (%s)", header, reason)
+		return "", apperror.NewExecutionError(fmt.Sprintf("node %s is offline (%s)", header, reason))
 	}
 	client, err := connectSSHClientWithErr(c, header)
 	if err != nil {
-		return "", fmt.Errorf("auth failed for %s: %w", header, err)
+		return "", apperror.WrapSimple(err, "auth failed for "+header)
 	}
 	defer client.Close()
 	return deployConfigPayloadToNode(client, c, payload)
@@ -40,7 +41,7 @@ func deployConfigPayloadToNode(client *ssh.Client, c db.SSHConnection, payload [
 
 	streamErr := streamDirectToRemote(client, remotePath, payload, isWin)
 	if streamErr != nil {
-		return "", fmt.Errorf("failed to stream config payload to %s: %w", c.Alias, streamErr)
+		return "", apperror.WrapSimple(streamErr, "failed to stream config payload to "+c.Alias)
 	}
 	defer cleanupRemoteTempFile(client, remotePath, isWin)
 

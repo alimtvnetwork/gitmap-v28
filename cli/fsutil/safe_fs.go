@@ -1,7 +1,7 @@
 package fsutil
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"path/filepath"
@@ -30,7 +30,7 @@ func SafeRename(src, dst string) error {
 	}
 
 	if errCopy := CopyDirectory(src, dst); errCopy != nil {
-		return fmt.Errorf("rename fallback failed: %w", errCopy)
+		return apperror.WrapSimple(errCopy, "rename fallback failed")
 	}
 
 	return SafeRemoveAll(src)

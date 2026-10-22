@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // GitmapDaemonCmd represents the cobra command entry point for gitmap gitmap-daemon / daemon.
@@ -47,7 +49,7 @@ func RunLemonCLI(args []string) error {
 	case "disable", "off":
 		return runDaemonDisableCmd()
 	default:
-		return fmt.Errorf("unknown lemon subcommand %q (gitmap-daemon); see 'gitmap daemon help'", args[0])
+		return apperror.NewValidationError(fmt.Sprintf("unknown lemon subcommand %q (gitmap-daemon); see 'gitmap daemon help'", args[0]))
 	}
 }
 
@@ -101,7 +103,7 @@ func runLemonPollOnceCmd(args []string) error {
 
 func runDaemonEnableCmd() error {
 	if err := SetDaemonEnabled(true); err != nil {
-		return fmt.Errorf("failed to enable daemon in settings: %w", err)
+		return apperror.WrapSimple(err, "failed to enable daemon in settings")
 	}
 	fmt.Println("✔ gitmap-daemon is now ENABLED in settings (daemon.enabled=true)")
 	return nil
@@ -109,7 +111,7 @@ func runDaemonEnableCmd() error {
 
 func runDaemonDisableCmd() error {
 	if err := SetDaemonEnabled(false); err != nil {
-		return fmt.Errorf("failed to disable daemon in settings: %w", err)
+		return apperror.WrapSimple(err, "failed to disable daemon in settings")
 	}
 	fmt.Println("✔ gitmap-daemon is now DISABLED in settings (daemon.enabled=false)")
 	return nil

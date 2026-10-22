@@ -2,6 +2,7 @@ package cmdpullerror
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -9,12 +10,12 @@ import (
 func executeClearPullErrors(opts PullErrorOptions) error {
 	db, err := store.OpenPullSplitDB()
 	if err != nil {
-		return fmt.Errorf("open pull split db: %w", err)
+		return apperror.WrapSimple(err, "open pull split db")
 	}
 	defer db.Close()
 
 	if err := db.ClearPullErrors(opts.RepoSlug); err != nil {
-		return fmt.Errorf("clear pull errors: %w", err)
+		return apperror.WrapSimple(err, "clear pull errors")
 	}
 
 	renderClearPullErrorsSuccess(opts.RepoSlug)

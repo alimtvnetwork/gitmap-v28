@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -52,7 +53,7 @@ func collectDocsSiteItems(distDir string) ([]string, error) {
 
 	err := filepath.Walk(distDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("walk error at %s: %w", path, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("walk error at %s", path))
 		}
 
 		if info.IsDir() {
@@ -71,7 +72,7 @@ func collectDocsSiteItems(distDir string) ([]string, error) {
 func createDocsSiteZip(archivePath, distDir string, items []string) error {
 	outFile, err := os.Create(archivePath)
 	if err != nil {
-		return fmt.Errorf("create archive %s: %w", archivePath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("create archive %s", archivePath))
 	}
 
 	defer outFile.Close()
@@ -82,14 +83,14 @@ func createDocsSiteZip(archivePath, distDir string, items []string) error {
 	for _, itemPath := range items {
 		relPath, relErr := filepath.Rel(distDir, itemPath)
 		if relErr != nil {
-			return fmt.Errorf("relative path for %s: %w", itemPath, relErr)
+			return apperror.WrapSimple(relErr, fmt.Sprintf("relative path for %s", itemPath))
 		}
 
 		// Prefix with docs-site/ so it extracts into the right directory.
 		entryName := filepath.ToSlash(filepath.Join(constants.HDDocsDir, constants.HDDistDir, relPath))
 
 		if err := addSingleFileToZip(w, itemPath, entryName); err != nil {
-			return fmt.Errorf("add %s to zip: %w", itemPath, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("add %s to zip", itemPath))
 		}
 	}
 

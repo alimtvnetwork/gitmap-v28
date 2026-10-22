@@ -20,11 +20,11 @@ package startup
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"golang.org/x/sys/windows/registry"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -82,13 +82,13 @@ func deleteRunValueAt(root registry.Key, valueName string) error {
 	k, err := registry.OpenKey(root,
 		constants.RegRunKeyPath, registry.SET_VALUE)
 	if err != nil {
-		return fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
+		return apperror.WrapSimple(err, "open registry key "+constants.RegRunKeyPath)
 	}
 
 	defer k.Close()
 
 	if err := k.DeleteValue(valueName); err != nil && !errors.Is(err, registry.ErrNotExist) {
-		return fmt.Errorf(constants.ErrStartupRegistryWrite, valueName, err)
+		return apperror.WrapSimple(err, "write registry value "+valueName)
 	}
 
 	return nil
@@ -108,7 +108,7 @@ func deleteTrackingSubkeyAt(root registry.Key, parent, name string) error {
 	full := parent + `\` + name
 	if err := registry.DeleteKey(root, full); err != nil &&
 		!errors.Is(err, registry.ErrNotExist) {
-		return fmt.Errorf(constants.ErrStartupRegistryWrite, full, err)
+		return apperror.WrapSimple(err, "write registry value "+full)
 	}
 
 	return nil
@@ -140,14 +140,14 @@ func listWindowsRegistryAt(root registry.Key, hive string) ([]Entry, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStartupRegistryOpen, constants.RegRunKeyPath, err)
+		return nil, apperror.WrapSimple(err, "open registry key "+constants.RegRunKeyPath)
 	}
 
 	defer k.Close()
 
 	names, err := k.ReadValueNames(-1)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStartupRegistryRead, constants.RegRunKeyPath, err)
+		return nil, apperror.WrapSimple(err, "read registry value "+constants.RegRunKeyPath)
 	}
 
 	return collectRegistryManagedAt(root, hive, k, names), nil

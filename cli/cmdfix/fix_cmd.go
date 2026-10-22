@@ -2,6 +2,7 @@ package cmdfix
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 	"sync"
 
@@ -110,7 +111,7 @@ func handlePostFixPull(hasPullFailures bool) {
 
 func evaluateParallelFixResult(total int, failedRepos []string) error {
 	if len(failedRepos) > 0 {
-		return fmt.Errorf("remediation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", "))
+		return apperror.NewExecutionError(fmt.Sprintf("remediation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", ")))
 	}
 
 	fmt.Printf("\n%s All %d repository(ies) remediated successfully.\n",

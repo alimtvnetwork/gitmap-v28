@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
@@ -119,7 +120,7 @@ func applyAbort(repoPath string) error {
 		fmt.Printf("%s Cherry-pick aborted successfully in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
 		return nil
 	}
-	return fmt.Errorf("no merge, rebase, or cherry-pick in progress to abort in %s", repoPath)
+	return apperror.NewExecutionError(fmt.Sprintf("no merge, rebase, or cherry-pick in progress to abort in %s", repoPath))
 }
 
 func applyRerere(repoPath string) error {
@@ -149,7 +150,7 @@ func RunResolveCmd(args []string) error {
 	target, strategy := parseResolveFlags(args)
 	repoPath := ResolveRepoPath(target)
 	if repoPath == "" {
-		return fmt.Errorf("not inside a git repository and no repository specified.\nUsage: gitmap resolve <repo> [--theirs | --ours | --ide | --abort]")
+		return apperror.NewValidationError("not inside a git repository and no repository specified.\nUsage: gitmap resolve <repo> [--theirs | --ours | --ide | --abort]")
 	}
 
 	if strategy != "" {

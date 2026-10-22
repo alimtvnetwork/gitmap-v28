@@ -7,16 +7,16 @@ package cmdchromeprofile
 import (
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func parseCSVRows(path string) ([][]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", path, err)
+		return nil, apperror.WrapSimple(err, "read "+path)
 	}
 
 	defer f.Close()
@@ -24,7 +24,7 @@ func parseCSVRows(path string) ([][]string, error) {
 	r.FieldsPerRecord = -1
 	rows, err := r.ReadAll()
 	if err != nil {
-		return nil, fmt.Errorf("parse %s: %w", path, err)
+		return nil, apperror.WrapSimple(err, "parse "+path)
 	}
 
 	return rows, nil

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -264,14 +265,14 @@ func writeMetadataIfRequired(v Version, branchName, tag, sourceName string, opts
 func executeSteps(v Version, branchName, tag, sourceRef, sourceName string, opts Options) error {
 	err := CreateBranch(branchName, sourceRef)
 	if err != nil {
-		return fmt.Errorf("create branch: %w", err)
+		return apperror.WrapSimple(err, "create branch")
 	}
 
 	fmt.Printf(constants.MsgReleaseBranch, branchName)
 
 	err = CreateTag(tag, resolveTagMessage(tag, opts))
 	if err != nil {
-		return fmt.Errorf("create tag: %w", err)
+		return apperror.WrapSimple(err, "create tag")
 	}
 
 	fmt.Printf(constants.MsgReleaseTag, tag)

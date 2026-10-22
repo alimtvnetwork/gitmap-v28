@@ -124,7 +124,7 @@ func parseSendArgs(args []string) (MailSendOptions, error) {
 func readBodyFile(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return "", fmt.Errorf("read body file: %w", err)
+		return "", apperror.WrapSimple(err, "read body file")
 	}
 	return string(content), nil
 }

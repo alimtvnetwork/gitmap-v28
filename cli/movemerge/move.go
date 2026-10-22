@@ -1,10 +1,10 @@
 package movemerge
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -47,7 +47,7 @@ func ensureRightExists(right Endpoint, opts Options) error {
 	}
 
 	if err := os.MkdirAll(right.WorkingDir, 0o755); err != nil {
-		return fmt.Errorf("mkdir %s: %w", right.WorkingDir, err)
+		return apperror.WrapSimple(err, "mkdir "+right.WorkingDir)
 	}
 
 	if !opts.IsInitNewRight {
@@ -55,7 +55,7 @@ func ensureRightExists(right Endpoint, opts Options) error {
 	}
 
 	if _, err := runGit(right.WorkingDir, "init"); err != nil {
-		return fmt.Errorf("git init %s: %w", right.WorkingDir, err)
+		return apperror.WrapSimple(err, "git init "+right.WorkingDir)
 	}
 
 	return nil
@@ -89,7 +89,7 @@ func deleteLeftFolder(left Endpoint, opts Options) error {
 	}
 
 	if err := os.RemoveAll(left.WorkingDir); err != nil {
-		return fmt.Errorf("delete LEFT %s: %w", left.WorkingDir, err)
+		return apperror.WrapSimple(err, "delete LEFT "+left.WorkingDir)
 	}
 
 	logIndent(opts.LogPrefix, "deleted")

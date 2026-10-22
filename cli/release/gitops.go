@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -42,7 +43,7 @@ func PushBranchAndTag(branchName, tag string) error {
 
 	err := runGitCmd(constants.GitPush, constants.GitOrigin, branchName)
 	if err != nil {
-		return fmt.Errorf("push branch: %w", err)
+		return apperror.WrapSimple(err, "push branch")
 	}
 
 	if verbose.IsEnabled() {
@@ -51,7 +52,7 @@ func PushBranchAndTag(branchName, tag string) error {
 
 	err = runGitCmd(constants.GitPush, constants.GitOrigin, tag)
 	if err != nil {
-		return fmt.Errorf("push tag: %w", err)
+		return apperror.WrapSimple(err, "push tag")
 	}
 
 	return nil
@@ -83,7 +84,7 @@ func ResolveSourceRef(commit, branch string) (string, string, error) {
 // resolveFromCommit validates and returns the commit ref.
 func resolveFromCommit(commit string) (string, string, error) {
 	if !CommitExists(commit) {
-		return "", "", fmt.Errorf("commit %s not found", commit)
+		return "", "", apperror.NewNotFoundError(fmt.Sprintf("commit %s not found", commit))
 	}
 
 	if verbose.IsEnabled() {
@@ -97,7 +98,7 @@ func resolveFromCommit(commit string) (string, string, error) {
 func resolveFromBranch(branch string) (string, string, error) {
 	err := FetchBranch(branch)
 	if err != nil {
-		return "", "", fmt.Errorf("branch %s not found: %w", branch, err)
+		return "", "", apperror.WrapNotFound(err, fmt.Sprintf("branch %s not found", branch))
 	}
 
 	if verbose.IsEnabled() {

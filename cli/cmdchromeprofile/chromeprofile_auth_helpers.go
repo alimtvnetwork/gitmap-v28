@@ -5,10 +5,10 @@ package cmdchromeprofile
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -127,12 +127,12 @@ func restoreProfileCookies(profileDir, cookiesB64 string) error {
 
 	raw, err := base64.StdEncoding.DecodeString(cookiesB64)
 	if err != nil {
-		return fmt.Errorf("decode cookies: %w", err)
+		return apperror.WrapSimple(err, "decode cookies")
 	}
 
 	netDir := filepath.Join(profileDir, "Network")
 	if err := os.MkdirAll(netDir, constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", netDir, err)
+		return apperror.WrapSimple(err, "mkdir "+netDir)
 	}
 
 	return os.WriteFile(filepath.Join(netDir, "Cookies"), raw, constants.FilePermission)
@@ -149,7 +149,7 @@ func restoreOptionalBase64(destPath, b64 string) error {
 
 	raw, err := base64.StdEncoding.DecodeString(b64)
 	if err != nil {
-		return fmt.Errorf("decode base64 payload: %w", err)
+		return apperror.WrapSimple(err, "decode base64 payload")
 	}
 
 	return os.WriteFile(destPath, raw, constants.FilePermission)

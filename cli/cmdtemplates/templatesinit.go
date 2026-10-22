@@ -134,7 +134,7 @@ func parseTemplatesInitFlags(args []string) (templatesInitFlags, error) {
 	force := fs.Bool("force", false, "overwrite existing .gitignore/.gitattributes outright (discards hand edits outside the gitmap marker block)")
 
 	if err := fs.Parse(flagutil.ReorderFlagsBeforeArgs(args)); err != nil {
-		return templatesInitFlags{}, fmt.Errorf("parse flags: %w", err)
+		return templatesInitFlags{}, apperror.WrapSimple(err, "parse flags")
 	}
 
 	return templatesInitFlags{

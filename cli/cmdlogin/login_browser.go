@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/term"
@@ -30,12 +31,12 @@ func runGhBrowserLogin() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("browser login via gh failed: %w", err)
+		return apperror.WrapSimple(err, "browser login via gh failed")
 	}
 
 	token, source, err := secrets.Resolve()
 	if err != nil || len(token) == 0 {
-		return fmt.Errorf("browser login did not produce a usable token (see `gitmap login --help`)")
+		return apperror.NewExecutionError("browser login did not produce a usable token (see `gitmap login --help`)")
 	}
 
 	if err := storeGitHubToken(token); err != nil {
@@ -64,17 +65,17 @@ func runGuidedBrowserLogin() error {
 // readSecureToken reads a token without echoing it to the terminal.
 func readSecureToken() (string, error) {
 	if !term.IsTerminal(int(os.Stdin.Fd())) {
-		return "", fmt.Errorf("cannot read token securely: stdin is not a terminal (use `gitmap login --token <PAT>`)")
+		return "", apperror.NewValidationError("cannot read token securely: stdin is not a terminal (use `gitmap login --token <PAT>`)")
 	}
 	fmt.Print("Paste your personal access token: ")
 	raw, err := term.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()
 	if err != nil {
-		return "", fmt.Errorf("failed to read token: %w", err)
+		return "", apperror.WrapSimple(err, "failed to read token")
 	}
 	token := strings.TrimSpace(string(raw))
 	if len(token) == 0 {
-		return "", fmt.Errorf("token cannot be empty")
+		return "", apperror.NewValidationError("token cannot be empty")
 	}
 	return token, nil
 }
@@ -95,7 +96,7 @@ func openBrowser(url string) {
 // runInteractiveLogin lets the user pick a login method from the terminal.
 func runInteractiveLogin() error {
 	if !term.IsTerminal(int(os.Stdin.Fd())) {
-		return fmt.Errorf("no login method given and stdin is not a terminal (use `gitmap login --token <PAT>` or `gitmap login --web`)")
+		return apperror.NewValidationError("no login method given and stdin is not a terminal (use `gitmap login --token <PAT>` or `gitmap login --web`)")
 	}
 	printLoginMethodMenu()
 	choice := readMenuChoice()
@@ -117,7 +118,7 @@ func handleInteractiveChoice(choice string) error {
 	case "4":
 		return runLoginStatus()
 	default:
-		return fmt.Errorf("unknown choice %q: pick 1, 2, 3, or 4", choice)
+		return apperror.NewValidationError(fmt.Sprintf("unknown choice %q: pick 1, 2, 3, or 4", choice))
 	}
 }
 

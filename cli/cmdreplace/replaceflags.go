@@ -2,7 +2,6 @@ package cmdreplace
 
 import (
 	"flag"
-	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -33,7 +32,7 @@ func parseReplaceFlags(args []string) (replaceOpts, []string, error) {
 	fs, raw := defineReplaceFlags()
 	flags, positional := splitReplaceFlagsAndArgs(rest)
 	if err := fs.Parse(flags); err != nil {
-		return opts, nil, fmt.Errorf("replace: %w", err)
+		return opts, nil, apperror.WrapSimple(err, "replace")
 	}
 
 	opts.yes = *raw.yes || *raw.yesShort

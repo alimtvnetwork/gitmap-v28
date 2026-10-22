@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ecosystemgroup"
 )
@@ -15,11 +16,11 @@ var agyGroupExportCmd = &cobra.Command{
 	Short: "Export an AGY group to a JSON file",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap agy group export <group-name> <file.json>")
+			return apperror.NewValidationError("usage: gitmap agy group export <group-name> <file.json>")
 		}
 
 		if err := ecosystemgroup.ExportGroup("agy", args[0], args[1]); err != nil {
-			return fmt.Errorf("export group: %w", err.Unwrap())
+			return apperror.WrapSimple(err.Unwrap(), "export group")
 		}
 
 		fmt.Printf("%s Exported AGY group %q to %s.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[0], args[1])
@@ -33,11 +34,11 @@ var agyGroupImportCmd = &cobra.Command{
 	Short: "Import an AGY group from a JSON file",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap agy group import <file.json>")
+			return apperror.NewValidationError("usage: gitmap agy group import <file.json>")
 		}
 
 		if err := ecosystemgroup.ImportGroup("agy", args[0]); err != nil {
-			return fmt.Errorf("import group: %w", err.Unwrap())
+			return apperror.WrapSimple(err.Unwrap(), "import group")
 		}
 
 		fmt.Printf("%s Successfully imported AGY group from %s.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[0])
@@ -51,7 +52,7 @@ var agyGroupPromptCmd = &cobra.Command{
 	Short: "Send a prompt payload to all projects in an AGY group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap agy group prompt <group-name> <prompt-text>")
+			return apperror.NewValidationError("usage: gitmap agy group prompt <group-name> <prompt-text>")
 		}
 
 		return runAgyGroupPrompt(args[0], args[1])
@@ -61,7 +62,7 @@ var agyGroupPromptCmd = &cobra.Command{
 func runAgyGroupList() error {
 	store, err := ecosystemgroup.LoadStore("agy")
 	if err != nil {
-		return fmt.Errorf("load groups: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "load groups")
 	}
 
 	if len(store.Groups) == 0 {
@@ -83,12 +84,12 @@ func runAgyGroupList() error {
 func runAgyGroupShow(name string) error {
 	store, err := ecosystemgroup.LoadStore("agy")
 	if err != nil {
-		return fmt.Errorf("load groups: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "load groups")
 	}
 
 	g, exists := store.Groups[name]
 	if !exists {
-		return fmt.Errorf("group %q not found", name)
+		return apperror.NewNotFoundError(fmt.Sprintf("group %q not found", name))
 	}
 
 	fmt.Printf("%s AGY Group: \033[1m%s\033[0m (%d targets)\n", constants.ColorCyan+"▶"+constants.ColorReset, g.Name, len(g.Targets))
@@ -102,12 +103,12 @@ func runAgyGroupShow(name string) error {
 func runAgyGroupPrompt(groupName string, promptText string) error {
 	store, err := ecosystemgroup.LoadStore("agy")
 	if err != nil {
-		return fmt.Errorf("load groups: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "load groups")
 	}
 
 	g, exists := store.Groups[groupName]
 	if !exists {
-		return fmt.Errorf("group %q not found", groupName)
+		return apperror.NewNotFoundError(fmt.Sprintf("group %q not found", groupName))
 	}
 
 	fmt.Printf("%s Dispatching prompt to %d target(s) in AGY group %q...\n", constants.ColorCyan+"▶"+constants.ColorReset, len(g.Targets), groupName)

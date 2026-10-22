@@ -7,10 +7,10 @@ package startup
 // addWindowsStartupFolder, not here.
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -20,7 +20,7 @@ import (
 func startupFolderDir() (string, error) {
 	roaming := os.Getenv("APPDATA")
 	if len(roaming) == 0 {
-		return "", fmt.Errorf("APPDATA env var is empty")
+		return "", apperror.NewValidationError("APPDATA env var is empty")
 	}
 
 	return filepath.Join(roaming, constants.StartupFolderRelative), nil

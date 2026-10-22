@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -104,7 +105,7 @@ func ExecuteBatchInstall(opts installOptions) error {
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
-					execErr = fmt.Errorf("panic during install of %s: %v", tool, r)
+					execErr = apperror.NewExecutionError(fmt.Sprintf("panic during install of %s: %v", tool, r))
 				}
 			}()
 			executeInstall(singleOpts)
@@ -159,5 +160,5 @@ func handleInstallToolFailure(tool string, execErr error, result ToolInstallResu
 		return outputBatchJSON(*response)
 	}
 
-	return fmt.Errorf("failed installing %s: %w", tool, execErr)
+	return apperror.WrapSimple(execErr, "failed installing "+tool)
 }

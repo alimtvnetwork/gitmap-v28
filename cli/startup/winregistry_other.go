@@ -13,8 +13,7 @@ package startup
 // silently writing nothing.
 
 import (
-	"fmt"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -23,12 +22,12 @@ import (
 // to AutostartDir() refusing on Windows in older versions of this
 // package — callers see one consistent message.
 func addWindowsRegistry(_ string, _ AddOptions) (AddResult, error) {
-	return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return AddResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }
 
 // removeWindowsRegistry stub: unreachable on non-Windows.
 func removeWindowsRegistry(_ string, _ RemoveOptions) (RemoveResult, error) {
-	return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return RemoveResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }
 
 // listWindowsRegistry stub: returns nil entries (no error) so a
@@ -42,12 +41,12 @@ func listWindowsRegistry() ([]Entry, error) {
 // Windows-only. Returns the standard unsupported-OS error so
 // cross-platform callers get one consistent message.
 func addWindowsRegistryHKLM(_ string, _ AddOptions) (AddResult, error) {
-	return AddResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return AddResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }
 
 // removeWindowsRegistryHKLM stub: unreachable on non-Windows.
 func removeWindowsRegistryHKLM(_ string, _ RemoveOptions) (RemoveResult, error) {
-	return RemoveResult{}, fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return RemoveResult{}, apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }
 
 // listWindowsRegistryHKLM stub: returns nil entries (no error)
@@ -69,10 +68,10 @@ func trackingSubkeyExists(_, _ string) bool {
 // symmetric with the windows file so .lnk code can call it. The
 // trailing workingDir parameter mirrors the Windows signature.
 func writeTrackingSubkey(_, _, _, _, _ string) error {
-	return fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }
 
 // deleteTrackingSubkey stub.
 func deleteTrackingSubkey(_, _ string) error {
-	return fmt.Errorf(constants.ErrStartupUnsupportedOS)
+	return apperror.NewExecutionError(constants.ErrStartupUnsupportedOS)
 }

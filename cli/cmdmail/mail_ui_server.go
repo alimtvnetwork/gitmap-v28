@@ -3,6 +3,7 @@ package cmdmail
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"net"
 	"net/http"
 	"time"
@@ -107,7 +108,7 @@ func bindFallbackPort(host string) (net.Listener, int, error) {
 		boundPort := ln.Addr().(*net.TCPAddr).Port
 		return ln, boundPort, nil
 	}
-	return nil, 0, fmt.Errorf("failed to bind mail UI on any port: %w", err)
+	return nil, 0, apperror.WrapSimple(err, "failed to bind mail UI on any port")
 }
 
 // StartMailUIServer boots the HTTP server with graceful port probing.

@@ -1,10 +1,11 @@
 package cmdagy
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var iptPromptName string
@@ -19,7 +20,7 @@ var AgyInjectTxtCmd = &cobra.Command{
 	Short:   "Inject raw prompt text into current project conversation",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("usage: gitmap agy inject-prompts-txt <prompt-text> [--watch] [--rerun N]")
+			return apperror.NewValidationError("usage: gitmap agy inject-prompts-txt <prompt-text> [--watch] [--rerun N]")
 		}
 		cwd, _ := os.Getwd()
 		prefixText, suffixText := resolveAppliedTemplates(iptPrefix, iptSuffix, false)

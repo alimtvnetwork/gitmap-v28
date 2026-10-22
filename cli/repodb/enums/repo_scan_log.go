@@ -51,7 +51,7 @@ func (e *RepoScanLogFieldType) UnmarshalJSON(data []byte) error {
 
 	target := RepoScanLogFieldType(s)
 	if !repoScanLogValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "RepoScanLogFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "RepoScanLogFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *RepoScanLogFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := RepoScanLogFieldType(str)
 	if !repoScanLogValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "RepoScanLogFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "RepoScanLogFieldType", str))
 	}
 
 	*e = target

@@ -2,6 +2,7 @@ package cmdspace
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
@@ -196,7 +197,7 @@ func DispatchSpace(command string) (bool, error) {
 	if sub != "common" {
 		fmt.Print(spaceUsage)
 
-		return true, fmt.Errorf("unknown space subcommand: %s", sub)
+		return true, apperror.NewValidationError(fmt.Sprintf("unknown space subcommand: %s", sub))
 	}
 
 	subRest := rest[1:]

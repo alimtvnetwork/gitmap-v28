@@ -3,9 +3,10 @@ package cmdprompt
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // PromptCmd is the root command for managing AI prompt templates.
@@ -29,7 +30,7 @@ var promptShowCmd = &cobra.Command{
 	Short: "Show details and body of a prompt template",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap prompt show <slug> [--copy]")
+			return apperror.NewValidationError("usage: gitmap prompt show <slug> [--copy]")
 		}
 		copyFlag, _ := cmd.Flags().GetBool("copy")
 
@@ -42,7 +43,7 @@ var PromptAddCmd = &cobra.Command{
 	Short: "Add or update a prompt template from a markdown file",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap prompt add <slug> <file.md>")
+			return apperror.NewValidationError("usage: gitmap prompt add <slug> <file.md>")
 		}
 
 		return runPromptAdd(args[0], args[1])
@@ -55,7 +56,7 @@ var promptRmCmd = &cobra.Command{
 	Short:   "Remove a prompt template",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap prompt rm <slug>")
+			return apperror.NewValidationError("usage: gitmap prompt rm <slug>")
 		}
 
 		return runPromptRm(args[0])
@@ -68,7 +69,7 @@ var promptCopyCmd = &cobra.Command{
 	Short:   "Copy an existing prompt template to a new slug",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap prompt copy <src-slug> <dst-slug>")
+			return apperror.NewValidationError("usage: gitmap prompt copy <src-slug> <dst-slug>")
 		}
 
 		return runPromptCopy(args[0], args[1])

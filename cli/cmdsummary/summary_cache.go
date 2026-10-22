@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"sync"
@@ -58,7 +59,7 @@ func OpenSummaryDB() (*sql.DB, error) {
 	dsn := fmt.Sprintf("%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)", dbPath)
 	db, errOpen := sql.Open("sqlite", dsn)
 	if errOpen != nil {
-		return nil, fmt.Errorf("failed to open summary.db at %s: %w", dbPath, errOpen)
+		return nil, apperror.WrapSimple(errOpen, fmt.Sprintf("failed to open summary.db at %s", dbPath))
 	}
 
 	db.SetMaxOpenConns(1)
@@ -67,7 +68,7 @@ func OpenSummaryDB() (*sql.DB, error) {
 
 	if errMigrate := initSummaryDBSchema(db); errMigrate != nil {
 		_ = db.Close()
-		return nil, fmt.Errorf("failed to migrate summary.db schema: %w", errMigrate)
+		return nil, apperror.WrapSimple(errMigrate, "failed to migrate summary.db schema")
 	}
 
 	summaryDBInstance = db

@@ -3,6 +3,7 @@ package cmdautomation
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/spf13/cobra"
 
@@ -30,7 +31,7 @@ func runSmokeTestCmd(cmd *cobra.Command, args []string) error {
 	}
 	renderSmokeResult(monad.Value, smokeTestOpts.IsJson)
 	if monad.Value.FailedItems > 0 {
-		return fmt.Errorf("smoke test failed with %d error(s)", monad.Value.FailedItems)
+		return apperror.NewExecutionError(fmt.Sprintf("smoke test failed with %d error(s)", monad.Value.FailedItems))
 	}
 	return nil
 }

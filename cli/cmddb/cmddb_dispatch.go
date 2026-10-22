@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -106,7 +107,7 @@ func DispatchDbSubsystem(ctx context.Context, args []string, out io.Writer) erro
 	case "help", "--help", "-h", "":
 		return printDbHelp(out)
 	default:
-		return fmt.Errorf("unknown db subcommand '%s'. Run 'gitmap db help' for usage", subcmd)
+		return apperror.NewValidationError(fmt.Sprintf("unknown db subcommand '%s'. Run 'gitmap db help' for usage", subcmd))
 	}
 }
 

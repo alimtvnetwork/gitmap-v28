@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // resolvedEntry is one catalog row after merging the dispatcher
@@ -52,7 +54,7 @@ func emitCatalog(path string, anns []annotation, reg registry) error {
 	b.WriteString("\t}\n}\n")
 
 	if err := os.WriteFile(path, []byte(b.String()), 0o644); err != nil {
-		return fmt.Errorf("write %s: %w", path, err)
+		return apperror.WrapSimple(err, "write "+path)
 	}
 
 	fmt.Fprintf(os.Stderr, "ncgen: wrote %d entries to %s", len(anns), path)

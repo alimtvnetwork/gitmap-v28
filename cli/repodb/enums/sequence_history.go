@@ -51,7 +51,7 @@ func (e *SequenceHistoryFieldType) UnmarshalJSON(data []byte) error {
 
 	target := SequenceHistoryFieldType(s)
 	if !sequenceHistoryValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "SequenceHistoryFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "SequenceHistoryFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *SequenceHistoryFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := SequenceHistoryFieldType(str)
 	if !sequenceHistoryValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "SequenceHistoryFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "SequenceHistoryFieldType", str))
 	}
 
 	*e = target

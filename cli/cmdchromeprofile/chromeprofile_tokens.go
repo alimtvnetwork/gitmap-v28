@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type ChromeTokenVariation struct {
@@ -50,12 +52,12 @@ func EncodeDoubleBase64(data []byte) string {
 func DecodeDoubleBase64(s string) ([]byte, error) {
 	pass1Bytes, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
-		return nil, fmt.Errorf("double-base64 outer decode failed: %w", err)
+		return nil, apperror.WrapSimple(err, "double-base64 outer decode failed")
 	}
 
 	rawBytes, err := base64.StdEncoding.DecodeString(string(pass1Bytes))
 	if err != nil {
-		return nil, fmt.Errorf("double-base64 inner decode failed: %w", err)
+		return nil, apperror.WrapSimple(err, "double-base64 inner decode failed")
 	}
 
 	return rawBytes, nil
@@ -111,7 +113,7 @@ func EncodeCaesarByteShift(data []byte, shift byte) string {
 func DecodeCaesarByteShift(s string, shift byte) ([]byte, error) {
 	shifted, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
-		return nil, fmt.Errorf("caesar-byte base64 decode failed: %w", err)
+		return nil, apperror.WrapSimple(err, "caesar-byte base64 decode failed")
 	}
 
 	orig := make([]byte, len(shifted))
@@ -189,20 +191,20 @@ func readChromeTokenService(profilePath string) (*ChromeTokenVault, error) {
 func copyToTempFile(src string) (string, error) {
 	in, err := os.Open(src)
 	if err != nil {
-		return "", fmt.Errorf("open %s: %w", src, err)
+		return "", apperror.WrapSimple(err, "open "+src)
 	}
 
 	defer in.Close()
 
 	tmp, err := os.CreateTemp("", "gitmap-webdata-*.db")
 	if err != nil {
-		return "", fmt.Errorf("create temp db: %w", err)
+		return "", apperror.WrapSimple(err, "create temp db")
 	}
 
 	defer tmp.Close()
 
 	if _, err := io.Copy(tmp, in); err != nil {
-		return "", fmt.Errorf("copy temp db: %w", err)
+		return "", apperror.WrapSimple(err, "copy temp db")
 	}
 
 	return tmp.Name(), nil
@@ -211,7 +213,7 @@ func copyToTempFile(src string) (string, error) {
 func extractTokensFromSQLite(dbPath string) (*ChromeTokenVault, error) {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return nil, fmt.Errorf("open sqlite %s: %w", dbPath, err)
+		return nil, apperror.WrapSimple(err, "open sqlite "+dbPath)
 	}
 
 	defer db.Close()
@@ -222,7 +224,7 @@ func extractTokensFromSQLite(dbPath string) (*ChromeTokenVault, error) {
 
 	rows, err := db.Query("SELECT service, encrypted_token FROM token_service")
 	if err != nil {
-		return nil, fmt.Errorf("query token_service: %w", err)
+		return nil, apperror.WrapSimple(err, "query token_service")
 	}
 
 	defer rows.Close()
@@ -264,14 +266,14 @@ func restoreChromeTokenService(profilePath string, vault *ChromeTokenVault) erro
 	webDataPath := filepath.Join(profilePath, "Web Data")
 	db, err := sql.Open("sqlite", webDataPath)
 	if err != nil {
-		return fmt.Errorf("open %s: %w", webDataPath, err)
+		return apperror.WrapSimple(err, "open "+webDataPath)
 	}
 
 	defer db.Close()
 
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS token_service (service VARCHAR PRIMARY KEY NOT NULL, encrypted_token BLOB NOT NULL)")
 	if err != nil {
-		return fmt.Errorf("create token_service table: %w", err)
+		return apperror.WrapSimple(err, "create token_service table")
 	}
 
 	for _, entry := range vault.Tokens {
@@ -281,7 +283,7 @@ func restoreChromeTokenService(profilePath string, vault *ChromeTokenVault) erro
 		}
 
 		if _, err := db.Exec("INSERT OR REPLACE INTO token_service (service, encrypted_token) VALUES (?, ?)", entry.Service, rawBytes); err != nil {
-			return fmt.Errorf("insert token_service: %w", err)
+			return apperror.WrapSimple(err, "insert token_service")
 		}
 	}
 
@@ -297,5 +299,5 @@ func resolveRevertedTokenBytes(entry ChromeRefreshTokenEntry) ([]byte, error) {
 		return base64.StdEncoding.DecodeString(entry.RawBase64)
 	}
 
-	return nil, fmt.Errorf("no reversible token data for %s", entry.Service)
+	return nil, apperror.NewNotFoundError(fmt.Sprintf("no reversible token data for %s", entry.Service))
 }

@@ -9,11 +9,11 @@ package startup
 // details (renderDesktop, renderPlist, addWindows*).
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -123,7 +123,7 @@ func Add(opts AddOptions) (AddResult, error) {
 	}
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return AddResult{}, fmt.Errorf("create autostart dir %s: %w", dir, err)
+		return AddResult{}, apperror.WrapSimple(err, "create autostart dir "+dir)
 	}
 
 	full := joinPath(dir, platformFilename(clean))

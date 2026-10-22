@@ -3,6 +3,8 @@ package cmdlemon
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type ServiceActionType string
@@ -70,7 +72,7 @@ func (m *ServiceManager) Execute(action ServiceActionType) (*ServiceDetails, err
 	case string(ServiceActionTypeStatus):
 		return m.service.Status()
 	default:
-		return nil, fmt.Errorf("unknown service action: %s", action)
+		return nil, apperror.NewValidationError(fmt.Sprintf("unknown service action: %s", action))
 	}
 
 	if err != nil {

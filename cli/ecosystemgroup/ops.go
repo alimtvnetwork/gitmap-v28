@@ -139,7 +139,7 @@ func GetSortedGroupNames(groups map[string]EcosystemGroup) []string {
 func PrintGroupList(ecosystem string, label string) error {
 	store, err := LoadStore(ecosystem)
 	if err != nil {
-		return fmt.Errorf("load groups: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "load groups")
 	}
 
 	if len(store.Groups) == 0 {

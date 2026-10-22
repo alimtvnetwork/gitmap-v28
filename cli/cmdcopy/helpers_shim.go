@@ -1,7 +1,7 @@
 package cmdcopy
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"os/exec"
@@ -19,7 +19,7 @@ func gitTopLevel() (string, error) {
 
 	root := strings.TrimSpace(string(out))
 	if root == "" {
-		return "", fmt.Errorf("empty top-level")
+		return "", apperror.NewValidationError("empty top-level")
 	}
 
 	return filepath.Clean(root), nil

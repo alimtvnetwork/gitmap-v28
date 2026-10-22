@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func runLemonStatusCmd(args []string) error {
@@ -31,7 +33,7 @@ func runLemonStatusCmd(args []string) error {
 
 func runLemonServiceCmd(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("missing service action: install, uninstall, start, stop, restart, status")
+		return apperror.NewValidationError("missing service action: install, uninstall, start, stop, restart, status")
 	}
 	mgr := NewServiceManager()
 	details, err := mgr.Execute(ServiceActionType(args[0]))

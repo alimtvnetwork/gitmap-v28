@@ -113,7 +113,7 @@ func FetchRecentReleases(slug string, limit int) ([]GitHubRelease, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("GitHub API returned status %d", resp.StatusCode))
 	}
 	var releases []GitHubRelease
 	if errDec := json.NewDecoder(resp.Body).Decode(&releases); errDec != nil {
@@ -186,7 +186,7 @@ func fetchExplicitReleaseCandidate(slug, tag, platform, arch string, dbConn *sql
 	checksumURL := FindChecksumAsset(ghRel.Assets)
 	cacheReleaseRecord(dbConn, tag, platform, arch, asset, checksumURL, hasAsset)
 	if !hasAsset {
-		return nil, fmt.Errorf("no executable asset")
+		return nil, apperror.NewNotFoundError("no executable asset")
 	}
 	return &ReleaseCandidate{
 		Tag: tag, Version: NormalizeVersion(tag), AssetURL: asset.BrowserDownloadURL,
@@ -207,7 +207,7 @@ func fetchTagRelease(slug, tag string) (*GitHubRelease, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad status: %d", resp.StatusCode)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("bad status: %d", resp.StatusCode))
 	}
 	var ghRel GitHubRelease
 	if errDec := json.NewDecoder(resp.Body).Decode(&ghRel); errDec != nil {
@@ -219,7 +219,7 @@ func fetchTagRelease(slug, tag string) (*GitHubRelease, error) {
 func resolveFallbackFromReleases(dbConn *sql.DB, slug, platform, arch string, maxFallback int) (*ReleaseCandidate, error) {
 	releases, errReleases := FetchRecentReleases(slug, 10)
 	if errReleases != nil || len(releases) == 0 {
-		return nil, fmt.Errorf("no releases found")
+		return nil, apperror.NewNotFoundError("no releases found")
 	}
 	probeDepth := 0
 	for i, rel := range releases {

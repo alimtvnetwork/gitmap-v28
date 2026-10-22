@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -37,23 +38,23 @@ func validateRow(r Row) error {
 // discard the column name.
 func validateRowWithColumn(r Row) (string, error) {
 	if len(r.URL) == 0 {
-		return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromEmptyURL)
+		return constants.CSVColumnURL, apperror.NewValidationError(constants.ErrCloneFromEmptyURL)
 	}
 
 	if !looksLikeGitURL(r.URL) {
-		return constants.CSVColumnURL, fmt.Errorf(constants.ErrCloneFromBadURL, r.URL)
+		return constants.CSVColumnURL, apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneFromBadURL, r.URL))
 	}
 
 	if r.Depth < 0 {
-		return constants.CSVColumnDepth, fmt.Errorf(constants.ErrCloneFromNegDepth, r.Depth)
+		return constants.CSVColumnDepth, apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneFromNegDepth, r.Depth))
 	}
 
 	if len(r.Branch) > 0 && !isValidBranchName(r.Branch) {
-		return constants.CSVColumnBranch, fmt.Errorf(constants.ErrCloneFromBadBranch, r.Branch)
+		return constants.CSVColumnBranch, apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneFromBadBranch, r.Branch))
 	}
 
 	if !isValidCheckout(r.Checkout) {
-		return constants.CSVColumnCheckout, fmt.Errorf(constants.ErrCloneFromBadCheckout, r.Checkout)
+		return constants.CSVColumnCheckout, apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneFromBadCheckout, r.Checkout))
 	}
 
 	return "", nil

@@ -14,6 +14,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // CFRPCheckpoint captures the in-flight state of a cfrp batch.
@@ -44,7 +46,7 @@ func LoadCheckpoint(path string) (*CFRPCheckpoint, error) {
 
 	var cp CFRPCheckpoint
 	if err := json.Unmarshal(b, &cp); err != nil {
-		return nil, fmt.Errorf("checkpoint %s: %w", path, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("checkpoint %s", path))
 	}
 
 	return &cp, nil

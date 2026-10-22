@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
@@ -44,17 +45,17 @@ func ResolveTarget(parsed ParsedRepo, arg string) (int, error) {
 	}
 
 	if !strings.HasPrefix(lower, "v") {
-		return 0, fmt.Errorf("invalid version argument: %s (expected v++, v+1, or vN)", arg)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid version argument: %s (expected v++, v+1, or vN)", arg))
 	}
 
 	numStr := lower[1:]
 	n, err := strconv.Atoi(numStr)
 	if err != nil {
-		return 0, fmt.Errorf("invalid version argument %s (expected v++, v+1, or vN): %w", arg, err)
+		return 0, apperror.WrapValidation(err, fmt.Sprintf("invalid version argument %s (expected v++, v+1, or vN)", arg))
 	}
 
 	if n < 1 {
-		return 0, fmt.Errorf("invalid version argument: %s (version must be a positive integer)", arg)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid version argument: %s (version must be a positive integer)", arg))
 	}
 
 	return n, nil

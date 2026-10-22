@@ -160,7 +160,7 @@ func resolveAddTemplates(kind string, langs []string) ([]templates.Resolved, err
 	for _, lang := range all {
 		r, err := templates.Resolve(kind, lang)
 		if err != nil {
-			return nil, fmt.Errorf("template %s/%s: %w", kind, lang, err)
+			return nil, apperror.WrapSimple(err, fmt.Sprintf("template %s/%s", kind, lang))
 		}
 
 		out = append(out, r)

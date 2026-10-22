@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -38,7 +39,7 @@ func ReadVisibilitySoft(ctx VisibilityContext, verbose bool) (string, error) {
 
 	out, err := runProviderCLI(ctx.Provider, args, verbose)
 	if err != nil {
-		return "", fmt.Errorf("read visibility for %s: %w", ctx.Slug, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("read visibility for %s", ctx.Slug))
 	}
 
 	return parseVisibilityOutput(ctx.Provider, out), nil

@@ -141,7 +141,7 @@ func readEntries(path string) EntrySliceWrap {
 	}
 
 	if err != nil {
-		return result.FailSlice[Entry](apperror.WrapSimple(fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err), "vscodepm.readEntries"))
+		return result.FailSlice[Entry](apperror.WrapSimple(err, fmt.Sprintf("vscode: failed to read %s", path)))
 	}
 
 	if len(data) == 0 {
@@ -150,7 +150,7 @@ func readEntries(path string) EntrySliceWrap {
 
 	var entries []Entry
 	if err := json.Unmarshal(data, &entries); err != nil {
-		return result.FailSlice[Entry](apperror.WrapSimple(fmt.Errorf(constants.ErrVSCodePMParseFailed, path, err), "vscodepm.readEntries"))
+		return result.FailSlice[Entry](apperror.WrapSimple(err, fmt.Sprintf("vscode: %s is not valid JSON (left untouched)", path)))
 	}
 
 	for i := range entries {

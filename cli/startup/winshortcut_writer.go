@@ -32,6 +32,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // Shell Link header constants from [MS-SHLLINK] §2.1.
@@ -71,13 +73,13 @@ func writeShortcutFile(lnkPath, target string) error {
 
 	tmp := lnkPath + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
-		return fmt.Errorf("write shortcut tmp %s: %w", tmp, err)
+		return apperror.WrapSimple(err, "write shortcut tmp "+tmp)
 	}
 
 	if err := os.Rename(tmp, lnkPath); err != nil {
 		os.Remove(tmp)
 
-		return fmt.Errorf("rename shortcut %s: %w", lnkPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("rename shortcut %s", lnkPath))
 	}
 
 	return nil
@@ -89,7 +91,7 @@ func writeShortcutFile(lnkPath, target string) error {
 // that shape and Windows accepts it.
 func buildShortcutBytes(target string) ([]byte, error) {
 	if target == "" {
-		return nil, fmt.Errorf("shortcut target is empty")
+		return nil, apperror.NewValidationError("shortcut target is empty")
 	}
 
 	linkInfo, err := buildLinkInfo(target)
@@ -125,7 +127,7 @@ func writeShellLinkHeader(buf *bytes.Buffer) error {
 	// hdr[72:74] = HotKey — leave zero
 	// hdr[74:76] = Reserved — leave zero
 	if _, err := buf.Write(hdr); err != nil {
-		return fmt.Errorf("write shell link header: %w", err)
+		return apperror.WrapSimple(err, "write shell link header")
 	}
 
 	return nil

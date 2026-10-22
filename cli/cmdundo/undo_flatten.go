@@ -2,6 +2,7 @@ package cmdundo
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +24,7 @@ func RunUndoFlatten(repoName string) error {
 
 	absPath, err := filepath.Abs(trimmed)
 	if err != nil {
-		return fmt.Errorf("resolve repository path %q: %w", trimmed, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("resolve repository path %q", trimmed))
 	}
 
 	parentDir := filepath.Dir(absPath)
@@ -47,7 +48,7 @@ func RunUndoFlatten(repoName string) error {
 
 	fmt.Printf("Restoring %s from %s...\n", canonicalName, archiveName)
 	if err := os.Rename(archivePath, canonicalPath); err != nil {
-		return fmt.Errorf("restore archive %s to %s: %w", archivePath, canonicalPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("restore archive %s to %s", archivePath, canonicalPath))
 	}
 
 	fmt.Printf("\n%s✓ Repository %s successfully restored from %s!%s\n", constants.ColorGreen, canonicalName, archiveName, constants.ColorReset)
@@ -63,7 +64,7 @@ func resolveDefaultRepoName(name string) (string, error) {
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("resolve current working directory: %w", err)
+		return "", apperror.WrapSimple(err, "resolve current working directory")
 	}
 	return filepath.Base(cwd), nil
 }
@@ -79,7 +80,7 @@ func locateArchivePaths(parentDir, canonicalName, archiveName string) (string, s
 	if _, cwdErr := os.Stat(cwdArchive); cwdErr == nil {
 		return cwd, filepath.Join(cwd, canonicalName), cwdArchive, nil
 	}
-	return "", "", "", fmt.Errorf("archive %q not found for repository %q (expected %s)", archiveName, canonicalName, archivePath)
+	return "", "", "", apperror.NewNotFoundError(fmt.Sprintf("archive %q not found for repository %q (expected %s)", archiveName, canonicalName, archivePath))
 }
 
 func removeExistingCanonicalPath(canonicalPath string) error {
@@ -88,7 +89,7 @@ func removeExistingCanonicalPath(canonicalPath string) error {
 	}
 	fmt.Printf("Removing flattened working tree %s...\n", canonicalPath)
 	if err := os.RemoveAll(canonicalPath); err != nil {
-		return fmt.Errorf("remove existing flattened repository %s: %w", canonicalPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("remove existing flattened repository %s", canonicalPath))
 	}
 	return nil
 }

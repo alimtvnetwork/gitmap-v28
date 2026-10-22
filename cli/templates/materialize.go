@@ -1,11 +1,12 @@
 package templates
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // Materialize copies every embedded asset into the user-overlay directory,
@@ -41,7 +42,7 @@ func Materialize() (string, []string, error) {
 		return nil
 	})
 	if walkErr != nil {
-		return dir, written, fmt.Errorf(errTemplateMaterialize, dir, walkErr)
+		return dir, written, apperror.WrapSimple(walkErr, "failed to materialize templates to "+dir)
 	}
 
 	return dir, written, nil
@@ -58,16 +59,16 @@ func materializeOne(overlayDir, embedPath string) (string, error) {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return "", fmt.Errorf(errTemplateMaterialize, dst, err)
+		return "", apperror.WrapSimple(err, "failed to materialize templates to "+dst)
 	}
 
 	data, err := FS.ReadFile(embedPath)
 	if err != nil {
-		return "", fmt.Errorf(errTemplateRead, embedPath, err)
+		return "", apperror.WrapSimple(err, "failed to read template "+embedPath)
 	}
 
 	if err := os.WriteFile(dst, data, 0o644); err != nil {
-		return "", fmt.Errorf(errTemplateMaterialize, dst, err)
+		return "", apperror.WrapSimple(err, "failed to materialize templates to "+dst)
 	}
 
 	return dst, nil

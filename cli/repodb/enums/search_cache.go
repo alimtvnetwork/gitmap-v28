@@ -51,7 +51,7 @@ func (e *SearchCacheFieldType) UnmarshalJSON(data []byte) error {
 
 	target := SearchCacheFieldType(s)
 	if !searchCacheValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "SearchCacheFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "SearchCacheFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *SearchCacheFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := SearchCacheFieldType(str)
 	if !searchCacheValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "SearchCacheFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "SearchCacheFieldType", str))
 	}
 
 	*e = target

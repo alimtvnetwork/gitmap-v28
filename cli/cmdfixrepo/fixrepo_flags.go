@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -146,11 +147,11 @@ func consumeOneFixRepoArg(args []string, i int, out *fixRepoOptions,
 // returns the canonical fixRepoOptions.
 func finalizeFixRepoOpts(out fixRepoOptions, modes, unknown []string) (fixRepoOptions, error) {
 	if len(modes) > 1 {
-		return out, fmt.Errorf("multiple mode flags: %s", strings.Join(modes, " "))
+		return out, apperror.NewValidationError(fmt.Sprintf("multiple mode flags: %s", strings.Join(modes, " ")))
 	}
 
 	if len(unknown) > 0 {
-		return out, fmt.Errorf("unknown flag(s): %s\n%s", strings.Join(unknown, " "), fixRepoFlagHint())
+		return out, apperror.NewValidationError(fmt.Sprintf("unknown flag(s): %s\n%s", strings.Join(unknown, " "), fixRepoFlagHint()))
 	}
 
 	if len(modes) == 1 {
@@ -252,7 +253,7 @@ func consumeFixRepoRestrictArg(args []string, i int, out *fixRepoOptions) (int, 
 	bareTiny := "-" + constants.FixRepoFlagRestrictShort
 	matchBare := low == bareLong || low == bareShort || low == bareTiny
 	if matchBare && i+1 >= len(args) {
-		return 0, true, fmt.Errorf("%s requires a value (no-version|nv)", a)
+		return 0, true, apperror.NewValidationError(fmt.Sprintf("%s requires a value (no-version|nv)", a))
 	}
 
 	if matchBare {
@@ -278,7 +279,7 @@ func applyRestrictValue(out *fixRepoOptions, v string) error {
 		return nil
 	}
 
-	return fmt.Errorf("unknown --restrict value %q (want: no-version|nv)", v)
+	return apperror.NewValidationError(fmt.Sprintf("unknown --restrict value %q (want: no-version|nv)", v))
 }
 
 // consumeFixRepoGofmtMaxArg handles `--gofmt-max-cmd-len <n>` and its
@@ -294,7 +295,7 @@ func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, 
 	bare := "--" + constants.FixRepoFlagGofmtMaxCmdLen
 	prefix := bare + "="
 	if low == bare && i+1 >= len(args) {
-		return 0, true, fmt.Errorf("%s requires a positive integer", a)
+		return 0, true, apperror.NewValidationError(fmt.Sprintf("%s requires a positive integer", a))
 	}
 
 	if low == bare {
@@ -312,12 +313,12 @@ func consumeFixRepoGofmtMaxArg(args []string, i int, out *fixRepoOptions) (int, 
 func applyGofmtMaxCmdLen(out *fixRepoOptions, v string) error {
 	n, err := strconv.Atoi(strings.TrimSpace(v))
 	if err != nil {
-		return fmt.Errorf("--%s: %q is not an integer: %w", constants.FixRepoFlagGofmtMaxCmdLen, v, err)
+		return apperror.WrapValidation(err, fmt.Sprintf("--%s: %q is not an integer", constants.FixRepoFlagGofmtMaxCmdLen, v))
 	}
 
 	if n < constants.FixRepoGofmtMinCmdLen {
-		return fmt.Errorf("--%s: %d below floor %d",
-			constants.FixRepoFlagGofmtMaxCmdLen, n, constants.FixRepoGofmtMinCmdLen)
+		return apperror.NewValidationError(fmt.Sprintf("--%s: %d below floor %d",
+			constants.FixRepoFlagGofmtMaxCmdLen, n, constants.FixRepoGofmtMinCmdLen))
 	}
 
 	out.gofmtMaxCmdLen = n

@@ -11,7 +11,7 @@ import (
 func buildVerifyErrorLog(tool, binary string, paths []string) string {
 	args := []string{binary, versionFlag(binary)}
 	diagMsg := fmt.Sprintf("binary %q not found in PATH or fallback paths: %v", binary, paths)
-	err := fmt.Errorf("%s", diagMsg)
+	err := apperror.NewExecutionError(diagMsg)
 	outBytes := []byte(diagMsg + "\nPATH=" + os.Getenv("PATH"))
 
 	return writeInstallErrorLog(tool, "verifier", "latest", args, outBytes, err)
@@ -24,7 +24,7 @@ func recordVerificationFailure(tool, binary, logPath string) {
 		ExitCode:    1,
 		DurationMs:  0,
 		IsSuccess:   false,
-		Err:         fmt.Errorf("binary not found: %s", binary),
+		Err:         apperror.NewNotFoundError(fmt.Sprintf("binary not found: %s", binary)),
 	}
 
 	recordInstallExecution(tool, "verifier", "latest", cmdRes, "verification-failed")

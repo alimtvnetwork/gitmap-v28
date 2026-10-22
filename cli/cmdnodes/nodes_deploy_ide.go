@@ -16,6 +16,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -160,7 +161,7 @@ func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath stri
 	cmd := buildWindowsRemoteIDECommand(repoName, remoteRepoPath, hasPinned)
 	out, err := secrets.RunCommand(client, cmd, "ps")
 	if err != nil {
-		return nil, fmt.Errorf("remote windows ide registration failed: %w", err)
+		return nil, apperror.WrapSimple(err, "remote windows ide registration failed")
 	}
 
 	return parseRegisteredIDEs(out), nil
@@ -170,7 +171,7 @@ func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath string
 	cmd := buildLinuxRemoteIDECommand(repoName, remoteRepoPath, hasPinned)
 	out, err := secrets.RunCommand(client, cmd, "sh")
 	if err != nil {
-		return nil, fmt.Errorf("remote linux ide registration failed: %w", err)
+		return nil, apperror.WrapSimple(err, "remote linux ide registration failed")
 	}
 
 	return parseRegisteredIDEs(out), nil
@@ -323,7 +324,7 @@ func DeployConversationsForRepo(client *ssh.Client, conn db.SSHConnection, local
 func deployMatchingConversations(client *ssh.Client, conn db.SSHConnection, convDir, brainDir string, matchingIDs []string) (int, error) {
 	tarData, errPkg := packageConversationsArchive(convDir, brainDir, matchingIDs)
 	if errPkg != nil {
-		return 0, fmt.Errorf("package conversations failed: %w", errPkg)
+		return 0, apperror.WrapSimple(errPkg, "package conversations failed")
 	}
 
 	return streamAndExtractConversations(client, conn, tarData, len(matchingIDs))
@@ -509,7 +510,7 @@ func buildBrainWalkFn(tw *tar.Writer, brainDir string) filepath.WalkFunc {
 func streamAndExtractConversations(client *ssh.Client, conn db.SSHConnection, tarData []byte, count int) (int, error) {
 	stagingPath := resolveConvStagingPath(conn)
 	if errStream := cmdssh.StreamFileToRemote(client, stagingPath, tarData, conn.OS); errStream != nil {
-		return 0, fmt.Errorf("stream conversations failed: %w", errStream)
+		return 0, apperror.WrapSimple(errStream, "stream conversations failed")
 	}
 
 	return runRemoteConvExtract(client, conn, stagingPath, count)
@@ -518,7 +519,7 @@ func streamAndExtractConversations(client *ssh.Client, conn db.SSHConnection, ta
 func runRemoteConvExtract(client *ssh.Client, conn db.SSHConnection, stagingPath string, count int) (int, error) {
 	cmd, shell := resolveConvExtractCommand(conn, stagingPath)
 	if _, errExec := secrets.RunCommand(client, cmd, shell); errExec != nil {
-		return 0, fmt.Errorf("extract conversations failed: %w", errExec)
+		return 0, apperror.WrapSimple(errExec, "extract conversations failed")
 	}
 
 	return count, nil

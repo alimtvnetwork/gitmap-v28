@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -44,7 +45,7 @@ func ExecuteFromBranch(
 func extractVersionFromBranch(branchName string) (Version, error) {
 	prefix := constants.ReleaseBranchPrefix
 	if len(branchName) <= len(prefix) {
-		return Version{}, fmt.Errorf(constants.ErrReleaseInvalidVersion, branchName)
+		return Version{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrReleaseInvalidVersion, branchName))
 	}
 
 	versionStr := branchName[len(prefix):]
@@ -58,7 +59,7 @@ func validateExistingBranch(branchName string, v Version) error {
 		return checkDuplicate(v)
 	}
 
-	return fmt.Errorf(constants.ErrReleaseBranchNotFound, branchName)
+	return apperror.NewNotFoundError(fmt.Sprintf(constants.ErrReleaseBranchNotFound, branchName))
 }
 
 // completeBranchRelease checks out the branch and runs tag/push/release.
@@ -78,7 +79,7 @@ func completeBranchRelease(
 
 	err := CheckoutBranch(branchName)
 	if err != nil {
-		return fmt.Errorf("checkout branch: %w", err)
+		return apperror.WrapSimple(err, "checkout branch")
 	}
 
 	tag := v.String()
@@ -86,7 +87,7 @@ func completeBranchRelease(
 	if err != nil {
 		Rollback("", tag, originalBranch)
 
-		return fmt.Errorf("create tag: %w", err)
+		return apperror.WrapSimple(err, "create tag")
 	}
 
 	fmt.Printf(constants.MsgReleaseTag, tag)
@@ -119,7 +120,7 @@ func completeBranchRelease(
 func ExecutePending(assetsPath, notes string, isDraft, dryRun, noCommit, yes bool) error {
 	branches, err := listReleaseBranches()
 	if err != nil {
-		return fmt.Errorf("could not list release branches: %w", err)
+		return apperror.WrapSimple(err, "could not list release branches")
 	}
 
 	pending := filterPendingBranches(branches)

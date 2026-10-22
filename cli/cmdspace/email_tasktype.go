@@ -5,6 +5,8 @@ package cmdspace
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // EmailTaskType identifies a gitmap operation that can fire a registered
@@ -37,7 +39,7 @@ func ParseEmailTaskType(s string) (EmailTaskType, error) {
 		}
 	}
 
-	return "", fmt.Errorf("unknown email task %q: valid values: %s", s, strings.Join(emailTaskTypeNames(), ", "))
+	return "", apperror.NewValidationError(fmt.Sprintf("unknown email task %q: valid values: %s", s, strings.Join(emailTaskTypeNames(), ", ")))
 }
 
 // AllEmailTaskTypes returns every supported email trigger task, in the

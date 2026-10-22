@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -17,7 +18,7 @@ import (
 func createMaxCompressZip(archivePath string, items []model.ZipGroupItem) error {
 	outFile, err := os.Create(archivePath)
 	if err != nil {
-		return fmt.Errorf("create zip: %w", err)
+		return apperror.WrapSimple(err, "create zip")
 	}
 
 	defer outFile.Close()
@@ -102,19 +103,19 @@ func sha1File(path string) (string, error) {
 func addSingleFileToZip(w *zip.Writer, srcPath, entryName string) error {
 	src, err := os.Open(srcPath)
 	if err != nil {
-		return fmt.Errorf("open %s: %w", srcPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("open %s", srcPath))
 	}
 
 	defer src.Close()
 
 	info, err := src.Stat()
 	if err != nil {
-		return fmt.Errorf("stat %s: %w", srcPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("stat %s", srcPath))
 	}
 
 	header, err := zip.FileInfoHeader(info)
 	if err != nil {
-		return fmt.Errorf("header %s: %w", srcPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("header %s", srcPath))
 	}
 
 	header.Name = entryName
@@ -122,7 +123,7 @@ func addSingleFileToZip(w *zip.Writer, srcPath, entryName string) error {
 
 	writer, err := w.CreateHeader(header)
 	if err != nil {
-		return fmt.Errorf("create entry %s: %w", entryName, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("create entry %s", entryName))
 	}
 
 	_, err = io.Copy(writer, src)

@@ -17,6 +17,7 @@ package cmdprobe
 import (
 	"errors"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strconv"
 	"strings"
@@ -105,9 +106,7 @@ func applyOutputFlag(opts *probeOptions, args []string, i int) (int, bool, error
 	}
 
 	if val != constants.OutputTerminal {
-		return i, true, fmt.Errorf(
-			"version probe: --output only supports %q, got %q",
-			constants.OutputTerminal, val)
+		return i, true, apperror.NewValidationError(fmt.Sprintf("version probe: --output only supports %q, got %q", constants.OutputTerminal, val))
 	}
 
 	opts.termOut = true
@@ -123,7 +122,7 @@ func readStringFlag(args []string, i int) (string, int, error) {
 	}
 
 	if i+1 >= len(args) {
-		return "", i, fmt.Errorf("version probe: %s requires a value", args[i])
+		return "", i, apperror.NewValidationError(fmt.Sprintf("version probe: %s requires a value", args[i]))
 	}
 
 	return args[i+1], i + 1, nil
@@ -198,7 +197,7 @@ func readIntFlag(args []string, i int, missingFmt, valueFmt string) (int, int, e
 func parsePositiveInt(s, errFmt string) (int, error) {
 	n, err := strconv.Atoi(s)
 	if err != nil || n < 1 {
-		return 0, fmt.Errorf(errFmt, s)
+		return 0, apperror.NewValidationError(fmt.Sprintf(errFmt, s))
 	}
 
 	return n, nil

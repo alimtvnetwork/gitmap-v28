@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -61,7 +62,7 @@ func parseDayInterval(raw, val string) (time.Duration, error) {
 	daysStr := strings.TrimSuffix(val, "d")
 	days, err := strconv.Atoi(daysStr)
 	if err != nil || days < 0 {
-		return 0, fmt.Errorf("invalid day interval %q: must be positive integer followed by 'd'", raw)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid day interval %q: must be positive integer followed by 'd'", raw))
 	}
 	return time.Duration(days) * 24 * time.Hour, nil
 }
@@ -69,10 +70,10 @@ func parseDayInterval(raw, val string) (time.Duration, error) {
 func parseStandardDuration(raw, val string) (time.Duration, error) {
 	d, err := time.ParseDuration(val)
 	if err != nil {
-		return 0, fmt.Errorf("invalid interval %q: expected duration like 24h, 1d, 12h, 30m, or 0/off", raw)
+		return 0, apperror.NewValidationError(fmt.Sprintf("invalid interval %q: expected duration like 24h, 1d, 12h, 30m, or 0/off", raw))
 	}
 	if d < 0 {
-		return 0, fmt.Errorf("interval cannot be negative: %s", raw)
+		return 0, apperror.NewValidationError(fmt.Sprintf("interval cannot be negative: %s", raw))
 	}
 	return d, nil
 }
@@ -107,7 +108,7 @@ func SetGitIgnoreCheckInterval(db *store.DB, interval string) error {
 		return err
 	}
 	if db == nil {
-		return fmt.Errorf("database connection is nil")
+		return apperror.NewValidationError("database connection is nil")
 	}
 	return db.SetSetting(SettingGitIgnoreCheckInterval, trimmed)
 }

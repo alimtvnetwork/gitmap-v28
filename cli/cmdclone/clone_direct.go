@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -156,7 +157,7 @@ func checkDirectTargetCollision(absPath string, noReplace bool) error {
 	if noReplace && statErr == nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
 
-		return fmt.Errorf(constants.ErrCloneURLExists, absPath)
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrCloneURLExists, absPath))
 	}
 
 	return nil
@@ -166,7 +167,7 @@ func validateDirectCloneFolder(folderName string, noReplace bool) (string, error
 	if isDirectURL(folderName) {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
 
-		return "", fmt.Errorf(constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
+		return "", apperror.NewExecutionError(fmt.Sprintf(constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version))
 	}
 
 	absPath := resolveDirectAbsPath(folderName)

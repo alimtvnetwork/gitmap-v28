@@ -51,7 +51,7 @@ func (e *RepoFileFieldType) UnmarshalJSON(data []byte) error {
 
 	target := RepoFileFieldType(s)
 	if !repoFileValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "RepoFileFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "RepoFileFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *RepoFileFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := RepoFileFieldType(str)
 	if !repoFileValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "RepoFileFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "RepoFileFieldType", str))
 	}
 
 	*e = target

@@ -40,7 +40,7 @@ import (
 func ParseFile(path, format, mode, onExists string) (Plan, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return Plan{}, fmt.Errorf(constants.ErrCloneNowAbsPath, path, err)
+		return Plan{}, apperror.WrapSimple(err, fmt.Sprintf("clone-now: resolve path %s", path))
 	}
 
 	resolved := format
@@ -61,7 +61,7 @@ func ParseFile(path, format, mode, onExists string) (Plan, error) {
 
 	rows = dedupRows(rows)
 	if len(rows) == 0 {
-		return Plan{}, fmt.Errorf(constants.ErrCloneNowEmpty, abs)
+		return Plan{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowEmpty, abs))
 	}
 
 	return Plan{
@@ -88,7 +88,7 @@ func detectFormat(path string) (string, error) {
 		return constants.CloneNowFormatText, nil
 	}
 
-	return "", fmt.Errorf(constants.ErrCloneNowUnsupportedExt, ext, path)
+	return "", apperror.NewValidationError(fmt.Sprintf(constants.ErrCloneNowUnsupportedExt, ext, path))
 }
 
 // parseByFormat opens the file once and dispatches the io.Reader to

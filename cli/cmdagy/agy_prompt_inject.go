@@ -70,7 +70,7 @@ func findPromptInSearchPaths(slug string) (string, string, error) {
 // RunAgyPromptInject executes prompt injection for Antigravity projects and conversations.
 func RunAgyPromptInject(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("usage: gitmap agy prompt inject <slug-or-file> [target-project] [--conversation <id>]")
+		return apperror.NewValidationError("usage: gitmap agy prompt inject <slug-or-file> [target-project] [--conversation <id>]")
 	}
 
 	projectPath, err := resolveInjectProjectTarget(args)

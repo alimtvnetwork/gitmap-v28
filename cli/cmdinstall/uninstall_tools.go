@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 var devToolAliases = map[string]string{
@@ -37,7 +39,7 @@ func RunToolUninstall(tool string, isDryRun, isForce, isPurge bool) error {
 	case "cursor":
 		return uninstallCursor(isDryRun, isPurge)
 	default:
-		return fmt.Errorf("unsupported dev tool for uninstallation: %s", tool)
+		return apperror.NewValidationError(fmt.Sprintf("unsupported dev tool for uninstallation: %s", tool))
 	}
 }
 

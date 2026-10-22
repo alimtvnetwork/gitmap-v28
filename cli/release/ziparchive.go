@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -44,7 +45,7 @@ func BuildZipGroupArchives(db *store.DB, groupNames []string, stagingDir string)
 func buildOneZipGroup(db *store.DB, name, stagingDir string) (string, error) {
 	group, err := db.FindZipGroupByName(name)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrZGGroupNotDB+": %w", name, err)
+		return "", apperror.WrapNotFound(err, fmt.Sprintf("zip group %q not found in database", name))
 	}
 
 	items, err := db.ListZipGroupItems(name)
@@ -55,7 +56,7 @@ func buildOneZipGroup(db *store.DB, name, stagingDir string) (string, error) {
 	if len(items) == 0 {
 		fmt.Printf(constants.MsgZGSkipEmpty, name)
 
-		return "", fmt.Errorf("empty group")
+		return "", apperror.NewValidationError("empty group")
 	}
 
 	logZipGroupItems(name, items)

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -72,7 +73,7 @@ func historicalBlobsOf(sandbox, path string) ([]string, error) {
 		"--pretty=format:", "--raw", "--no-abbrev", "--", path)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("git log for %s: %w", path, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("git log for %s", path))
 	}
 
 	return parseBlobShasFromRawLog(string(out)), nil

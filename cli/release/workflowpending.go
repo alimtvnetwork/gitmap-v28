@@ -3,6 +3,7 @@ package release
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -76,7 +77,7 @@ func releasePendingFromMetadata(
 func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dryRun bool) error {
 	v, err := Parse(meta.Tag)
 	if err != nil {
-		return fmt.Errorf("invalid version in metadata %s: %w", meta.Tag, err)
+		return apperror.WrapValidation(err, fmt.Sprintf("invalid version in metadata %s", meta.Tag))
 	}
 
 	if !CommitExists(meta.Commit) {
@@ -105,7 +106,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 
 	err = CreateBranch(branchName, meta.Commit)
 	if err != nil {
-		return fmt.Errorf("create branch from metadata: %w", err)
+		return apperror.WrapSimple(err, "create branch from metadata")
 	}
 
 	fmt.Printf(constants.MsgReleaseBranch, branchName)
@@ -113,7 +114,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 	tag := v.String()
 	err = CreateTag(tag, constants.ReleaseTagPrefix+tag)
 	if err != nil {
-		return fmt.Errorf("create tag from metadata: %w", err)
+		return apperror.WrapSimple(err, "create tag from metadata")
 	}
 
 	fmt.Printf(constants.MsgReleaseTag, tag)

@@ -2,7 +2,6 @@ package cmdspace
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -103,7 +102,7 @@ func ensureBranchAbsence(branch string, force bool) error {
 		return nil
 	}
 
-	return fmt.Errorf("branch %s already exists — pick a different task string or pass --force to recreate it at current HEAD", branch)
+	return apperror.NewValidationError("branch " + branch + " already exists — pick a different task string or pass --force to recreate it at current HEAD")
 }
 
 // createBackupBranch creates (or with --force recreates at HEAD) the

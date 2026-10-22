@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/atotto/clipboard"
 )
@@ -76,7 +77,7 @@ func runPromptShow(slug string, copyToClipboard bool) error {
 	filePath := filepath.Join(dir, slug+".md")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("prompt template %q not found: %w", slug, err)
+		return apperror.WrapNotFound(err, fmt.Sprintf("prompt template %q not found", slug))
 	}
 
 	pt := parsePromptMarkdown(string(data))
@@ -127,7 +128,7 @@ func runPromptRm(slug string) error {
 
 	destPath := filepath.Join(dir, slug+".md")
 	if err := os.Remove(destPath); err != nil {
-		return fmt.Errorf("remove template: %w", err)
+		return apperror.WrapSimple(err, "remove template")
 	}
 
 	fmt.Printf("%s Removed prompt template %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, slug)
@@ -144,7 +145,7 @@ func runPromptCopy(srcSlug string, dstSlug string) error {
 	srcPath := filepath.Join(dir, srcSlug+".md")
 	data, readErr := os.ReadFile(srcPath)
 	if readErr != nil {
-		return fmt.Errorf("source template %q not found: %w", srcSlug, readErr)
+		return apperror.WrapNotFound(readErr, fmt.Sprintf("source template %q not found", srcSlug))
 	}
 
 	dstPath := filepath.Join(dir, dstSlug+".md")

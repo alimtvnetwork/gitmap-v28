@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RunPRMerge implements `gitmap space PR-merge [target]` (spec 271):
@@ -40,7 +42,7 @@ func RunPRMerge(args []string) error {
 	}
 
 	if source == target {
-		return fmt.Errorf("cannot merge %s into itself", source)
+		return apperror.NewValidationError(fmt.Sprintf("cannot merge %s into itself", source))
 	}
 
 	if cleanErr := requireCleanTree(); cleanErr != nil {
@@ -57,7 +59,7 @@ func RunPRMerge(args []string) error {
 
 	if hasOriginRemote() {
 		if ffErr := runGitInherit("merge", "--ff-only", "origin/"+target); ffErr != nil {
-			return fmt.Errorf("local %s has diverged from origin/%s - sync it manually first", target, target)
+			return apperror.NewExecutionError(fmt.Sprintf("local %s has diverged from origin/%s - sync it manually first", target, target))
 		}
 	}
 
@@ -73,7 +75,7 @@ func RunPRMerge(args []string) error {
 	if mergeErr != nil {
 		abortMerge()
 		printConflictedFiles()
-		return fmt.Errorf("merge conflicts - aborted, resolve manually")
+		return apperror.NewExecutionError("merge conflicts - aborted, resolve manually")
 	}
 
 	if opts.squash || opts.singleCommit {
@@ -121,16 +123,16 @@ func parsePRMergeArgs(args []string) (prMergeOptions, error) {
 		case "--no-push":
 			opts.noPush = true
 		case "--force", "-f":
-			return opts, fmt.Errorf("--force is not supported for PR-merge: merges never rewrite history")
+			return opts, apperror.NewValidationError("--force is not supported for PR-merge: merges never rewrite history")
 		case "--help", "-h":
 			// handled by the caller
 		default:
 			if strings.HasPrefix(a, "-") {
-				return opts, fmt.Errorf("unknown flag: %s", a)
+				return opts, apperror.NewValidationError(fmt.Sprintf("unknown flag: %s", a))
 			}
 
 			if opts.target != "" {
-				return opts, fmt.Errorf("unexpected argument: %s", a)
+				return opts, apperror.NewValidationError(fmt.Sprintf("unexpected argument: %s", a))
 			}
 
 			opts.target = a
@@ -157,7 +159,7 @@ func resolveDefaultBranch() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("could not determine the default branch")
+	return "", apperror.NewExecutionError("could not determine the default branch")
 }
 
 // heatmapEntry is one row of the changed-files heatmap.

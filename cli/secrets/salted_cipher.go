@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const (
@@ -77,7 +79,7 @@ func DecryptSalted(cipherText string) (string, error) {
 
 	shiftedBytes, err := base64.StdEncoding.DecodeString(payload)
 	if err != nil {
-		return "", fmt.Errorf("decode salted cipher payload: %w", err)
+		return "", apperror.WrapSimple(err, "decode salted cipher payload")
 	}
 
 	saltBytes := []byte(salt)
@@ -164,7 +166,7 @@ func DecryptCaesar(cipherText string) (string, error) {
 
 	shift, parseErr := strconv.Atoi(parts[1])
 	if parseErr != nil {
-		return "", fmt.Errorf("invalid caesar shift value: %w", parseErr)
+		return "", apperror.WrapValidation(parseErr, "invalid caesar shift value")
 	}
 	normShift := shift % asciiPrintableRange
 	if normShift < 0 {
@@ -180,7 +182,7 @@ func DecryptCaesar(cipherText string) (string, error) {
 
 	shiftedBytes, err := base64.StdEncoding.DecodeString(payload)
 	if err != nil {
-		return "", fmt.Errorf("decode caesar cipher payload: %w", err)
+		return "", apperror.WrapSimple(err, "decode caesar cipher payload")
 	}
 
 	saltBytes := []byte(salt)

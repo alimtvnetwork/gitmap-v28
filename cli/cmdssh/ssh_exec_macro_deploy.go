@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"golang.org/x/crypto/ssh"
@@ -31,7 +32,7 @@ func executeMacroAutoDeploy(client *ssh.Client, c db.SSHConnection, targetName s
 		printNodeResultOutput(c.Alias, c.IPAddress, msg, nil)
 		return true, nil
 	}
-	deployErr := fmt.Errorf("failed to deploy local macro %q to %s", targetName, c.Alias)
+	deployErr := apperror.NewExecutionError(fmt.Sprintf("failed to deploy local macro %q to %s", targetName, c.Alias))
 	printNodeResultOutput(c.Alias, c.IPAddress, "", deployErr)
 	return true, deployErr
 }

@@ -39,16 +39,16 @@ type Pattern struct {
 func ParsePattern(raw string) (Pattern, error) {
 	trimmed := strings.TrimSpace(raw)
 	if len(trimmed) == 0 {
-		return Pattern{}, fmt.Errorf("Error: empty pattern (operation: parse-pattern, reason: blank token)")
+		return Pattern{}, apperror.NewValidationError("Error: empty pattern (operation: parse-pattern, reason: blank token)")
 	}
 
 	if trimmed == "*" {
-		return Pattern{}, fmt.Errorf("Error: bare '*' pattern is refused at %q (operation: parse-pattern, reason: would match every repo under the owner)", raw)
+		return Pattern{}, apperror.NewValidationError(fmt.Sprintf("Error: bare '*' pattern is refused at %q (operation: parse-pattern, reason: would match every repo under the owner)", raw))
 	}
 
 	parts, anchorL, anchorR := splitPatternParts(trimmed)
 	if len(parts) == 0 {
-		return Pattern{}, fmt.Errorf("Error: pattern %q has no literal segments (operation: parse-pattern, reason: only wildcards)", raw)
+		return Pattern{}, apperror.NewValidationError(fmt.Sprintf("Error: pattern %q has no literal segments (operation: parse-pattern, reason: only wildcards)", raw))
 	}
 
 	return Pattern{Raw: trimmed, parts: parts, anchorL: anchorL, anchorR: anchorR}, nil
@@ -109,8 +109,7 @@ func (p Pattern) Matches(name string) bool {
 // empty token, wrapped in PatternSliceWrap.
 func ParsePatternListWrap(raw string) PatternSliceWrap {
 	if len(strings.TrimSpace(raw)) == 0 {
-		err := fmt.Errorf("Error: empty pattern list (operation: parse-pattern-list, reason: arg is blank)")
-		return result.FailSlice[Pattern](apperror.WrapSimple(err, "visibility.ParsePatternListWrap"))
+		return result.FailSlice[Pattern](apperror.NewValidationError("Error: empty pattern list (operation: parse-pattern-list, reason: arg is blank)"))
 	}
 
 	tokens := strings.Split(raw, ",")
@@ -119,8 +118,7 @@ func ParsePatternListWrap(raw string) PatternSliceWrap {
 	for i, tok := range tokens {
 		trimmed := strings.TrimSpace(tok)
 		if len(trimmed) == 0 {
-			err := fmt.Errorf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)
-			return result.FailSlice[Pattern](apperror.WrapSimple(err, "visibility.ParsePatternListWrap"))
+			return result.FailSlice[Pattern](apperror.NewValidationError(fmt.Sprintf("Error: empty pattern at token %d (operation: parse-pattern-list, reason: blank between commas)", i+1)))
 		}
 
 		if seen[trimmed] {
@@ -131,8 +129,7 @@ func ParsePatternListWrap(raw string) PatternSliceWrap {
 
 		pat, err := ParsePattern(trimmed)
 		if err != nil {
-			wrappedErr := fmt.Errorf("Error: token %d %q: %w", i+1, trimmed, err)
-			return result.FailSlice[Pattern](apperror.WrapSimple(wrappedErr, "visibility.ParsePatternListWrap"))
+			return result.FailSlice[Pattern](apperror.WrapSimple(err, fmt.Sprintf("Error: token %d %q", i+1, trimmed)))
 		}
 
 		out = append(out, pat)

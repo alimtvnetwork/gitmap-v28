@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func resolveFinalDest(dest, destHint string) string {
@@ -89,12 +91,12 @@ func parseJSONConfigFile(configPath string) (string, []ResolvedSourceItem, []Ski
 
 	data, err := os.ReadFile(resolvedPath)
 	if err != nil {
-		return "", nil, nil, fmt.Errorf("failed to read config file %s: %w", configPath, err)
+		return "", nil, nil, apperror.WrapSimple(err, fmt.Sprintf("failed to read config file %s", configPath))
 	}
 
 	var cfg MergeAIConfigFile
 	if errJSON := json.Unmarshal(data, &cfg); errJSON != nil {
-		return "", nil, nil, fmt.Errorf("failed to parse JSON config %s: %w", configPath, errJSON)
+		return "", nil, nil, apperror.WrapSimple(errJSON, fmt.Sprintf("failed to parse JSON config %s", configPath))
 	}
 
 	destHint, resolved, skipped, errParse := ParseSourceManifestContent(strings.Join(cfg.Sources, "\n"))

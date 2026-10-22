@@ -1,11 +1,11 @@
 package movemerge
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -110,7 +110,7 @@ func applyConflict(
 	}
 
 	if choice == ChoiceQuit {
-		return fmt.Errorf("%s", constants.ErrMMQuit)
+		return apperror.NewExecutionError(constants.ErrMMQuit)
 	}
 
 	if choice == ChoiceSkip {

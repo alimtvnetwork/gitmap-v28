@@ -3,6 +3,7 @@ package cmdcodingguidelines
 import (
 	"errors"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"os/exec"
@@ -163,7 +164,7 @@ func runCGInstaller(cmd *exec.Cmd, opts CodingGuidelinesOpts, goos, url string) 
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(opts.Stderr, constants.ErrCGInstallFailed, goos, err)
 
-		return fmt.Errorf("coding-guidelines install (%s, %s): %w", goos, url, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("coding-guidelines install (%s, %s)", goos, url))
 	}
 
 	fmt.Fprint(opts.Stderr, constants.MsgCGDone)

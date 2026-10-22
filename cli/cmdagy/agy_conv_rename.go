@@ -79,7 +79,7 @@ func executeConversationTitleUpdate(conn *sql.DB, convID, newTitle string) error
 	query := "UPDATE conversation_summaries SET title = ? WHERE conversation_id = ?"
 	res := store.ExecWrapper(conn, query, newTitle, convID)
 	if res.IsFailure {
-		return fmt.Errorf("update conversation %s title to %s: %w", convID, newTitle, res.Error)
+		return apperror.WrapSimple(res.Error, fmt.Sprintf("update conversation %s title to %s", convID, newTitle))
 	}
 
 	return nil

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -25,7 +26,7 @@ func GenerateChecksums(assets []string) (string, error) {
 
 	file, err := os.Create(checksumPath)
 	if err != nil {
-		return "", fmt.Errorf("create checksums file: %w", err)
+		return "", apperror.WrapSimple(err, "create checksums file")
 	}
 
 	defer file.Close()

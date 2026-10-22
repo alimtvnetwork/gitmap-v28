@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"path/filepath"
 	"sort"
 
@@ -61,7 +62,7 @@ func Encode(ws Workspace) ([]byte, error) {
 	enc.SetIndent("", constants.VSCodeWorkspaceJSONIndent)
 	enc.SetEscapeHTML(false)
 	if err := enc.Encode(ws); err != nil {
-		return nil, fmt.Errorf("vscode-workspace: encode: %w", err)
+		return nil, apperror.WrapSimple(err, "vscode-workspace: encode")
 	}
 
 	return buf.Bytes(), nil
@@ -78,7 +79,7 @@ func Relativize(folders []Folder, baseDir string) ([]Folder, error) {
 	for _, f := range folders {
 		rel, err := filepath.Rel(baseDir, f.Path)
 		if err != nil && firstErr == nil {
-			firstErr = fmt.Errorf("relativize %q against %q: %w", f.Path, baseDir, err)
+			firstErr = apperror.WrapSimple(err, fmt.Sprintf("relativize %q against %q", f.Path, baseDir))
 		}
 
 		if err != nil {

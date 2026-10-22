@@ -5,7 +5,6 @@ package clonepick
 // under the strict 200-line cap.
 
 import (
-	"fmt"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -53,7 +52,7 @@ func RunPickerKeep(plan Plan) ([]string, string, error) {
 	if runErr != nil {
 		os.RemoveAll(tmp)
 
-		return nil, "", fmt.Errorf("clone-pick: picker run: %w", runErr)
+		return nil, "", apperror.WrapSimple(runErr, "clone-pick: picker run")
 	}
 
 	finished, _ := final.(pickerModel)

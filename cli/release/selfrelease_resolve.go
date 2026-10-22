@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -62,7 +63,7 @@ func resolveFromCWD() string {
 
 func promptForSourceRepo() (string, error) {
 	if !isPathPromptAllowed() {
-		return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)
+		return "", apperror.NewNotFoundError(constants.ErrSelfReleaseNoRepo)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -70,12 +71,12 @@ func promptForSourceRepo() (string, error) {
 		fmt.Fprint(os.Stdout, constants.MsgSelfReleasePromptPath)
 		input, err := reader.ReadString('\n')
 		if err != nil && len(input) == 0 {
-			return "", fmt.Errorf("%s: %w", constants.ErrSelfReleaseNoRepo, err)
+			return "", apperror.WrapNotFound(err, constants.ErrSelfReleaseNoRepo)
 		}
 
 		path := strings.TrimSpace(strings.Trim(input, "\"'"))
 		if path == "" {
-			return "", fmt.Errorf("%s", constants.ErrSelfReleaseNoRepo)
+			return "", apperror.NewNotFoundError(constants.ErrSelfReleaseNoRepo)
 		}
 
 		root := normalizeSourceRepoRoot(path)

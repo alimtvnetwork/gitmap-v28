@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"path/filepath"
@@ -160,7 +161,7 @@ func verifyChromeManifest(tarballPath string) (bool, []string, error) {
 	manifestPath := tarballPath + chromeManifestSuffix
 	raw, err := os.ReadFile(manifestPath)
 	if err != nil {
-		return false, nil, fmt.Errorf("manifest missing (%s): %w", manifestPath, err)
+		return false, nil, apperror.WrapNotFound(err, fmt.Sprintf("manifest missing (%s)", manifestPath))
 	}
 
 	want := decodeChromeManifest(string(raw))

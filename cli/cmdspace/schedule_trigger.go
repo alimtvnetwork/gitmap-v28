@@ -122,7 +122,7 @@ func RemoveEmailTrigger(db *store.DB, name string) error {
 
 	kept := filterOutTrigger(triggers, name)
 	if len(kept) == len(triggers) {
-		return fmt.Errorf("no email trigger named %q", name)
+		return apperror.NewNotFoundError(fmt.Sprintf("no email trigger named %q", name))
 	}
 
 	return SaveEmailTriggers(db, kept)

@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompttemplate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -35,7 +36,7 @@ var promptImportCmd = &cobra.Command{
 	Short: "Import prompt templates from a zip archive or markdown file",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("usage: gitmap prompt import <file.zip|file.md>")
+			return apperror.NewValidationError("usage: gitmap prompt import <file.zip|file.md>")
 		}
 
 		return executePromptImport(args[0])
@@ -47,7 +48,7 @@ var promptInjectCmd = &cobra.Command{
 	Short: "Inject a prompt template into an AGY project or group",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
-			return fmt.Errorf("usage: gitmap prompt inject <slug> <target-project-or-group>")
+			return apperror.NewValidationError("usage: gitmap prompt inject <slug> <target-project-or-group>")
 		}
 
 		return executePromptInject(args[0], args[1])
@@ -216,7 +217,7 @@ func executePromptInject(slug string, target string) error {
 	filePath := filepath.Join(dir, slug+".md")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("template %q not found: %w", slug, err)
+		return apperror.WrapNotFound(err, fmt.Sprintf("template %q not found", slug))
 	}
 
 	pt := parsePromptMarkdown(string(data))

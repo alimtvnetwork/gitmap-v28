@@ -187,7 +187,7 @@ func RunScanExport(args []string) error {
 	outFlag = "."
 	rest := splitFlagArgs(args, map[string]*string{"machine": &machineFlag, "out": &outFlag})
 	if len(rest) > 0 {
-		return fmt.Errorf("scan export takes no positional args (got %q) — see: gitmap scan export --help", rest[0])
+		return apperror.NewValidationError(fmt.Sprintf("scan export takes no positional args (got %q) — see: gitmap scan export --help", rest[0]))
 	}
 
 	machine := resolveExportMachine(machineFlag)
@@ -206,7 +206,7 @@ func RunScanExport(args []string) error {
 
 	targetDir := filepath.Join(outFlag, slug)
 	if err := os.MkdirAll(targetDir, 0o755); err != nil {
-		return fmt.Errorf("could not create export folder %s: %w", targetDir, err)
+		return apperror.WrapSimple(err, "could not create export folder "+targetDir)
 	}
 	path := filepath.Join(targetDir, exportFileName)
 	if err := writeRecordsJSON(path, records); err != nil {
@@ -230,7 +230,7 @@ func RunScanMerge(args []string) error {
 
 	if len(dirs) == 0 {
 		scanMergeHelp()
-		return fmt.Errorf("scan merge needs at least one export folder")
+		return apperror.NewValidationError("scan merge needs at least one export folder")
 	}
 
 	var merged []exportRecord
@@ -272,11 +272,11 @@ func readExportRecords(dirOrFile string) ([]exportRecord, string, error) {
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, path, fmt.Errorf("could not read %s: %w", path, err)
+		return nil, path, apperror.WrapSimple(err, "could not read "+path)
 	}
 	var recs []exportRecord
 	if err := json.Unmarshal(data, &recs); err != nil {
-		return nil, path, fmt.Errorf("could not parse %s as repo JSON: %w", path, err)
+		return nil, path, apperror.WrapSimple(err, "could not parse "+path+" as repo JSON")
 	}
 	for i := range recs {
 		if recs[i].URL == "" {
@@ -322,13 +322,13 @@ func writeExportRecordsJSON(path string, records []exportRecord) error {
 	}
 	file, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("could not write %s: %w", path, err)
+		return apperror.WrapSimple(err, "could not write "+path)
 	}
 	defer file.Close()
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", constants.JSONIndent)
 	if err := enc.Encode(records); err != nil {
-		return fmt.Errorf("could not write %s: %w", path, err)
+		return apperror.WrapSimple(err, "could not write "+path)
 	}
 	return nil
 }

@@ -9,6 +9,8 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // UpdateStageType represents a sequential execution phase in gitmap update.
@@ -171,7 +173,7 @@ func downloadHTTP(url, dstPath string, onProg func(w, t int64)) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
+		return apperror.NewExecutionError(fmt.Sprintf("HTTP %d from %s", resp.StatusCode, url))
 	}
 	return copyHTTPBody(resp, dstPath, onProg)
 }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 )
@@ -121,7 +122,7 @@ func runVSCodeCommand(bin string, args ...string) error {
 		return err
 	}
 
-	return fmt.Errorf("%w: %s", err, trimmed)
+	return apperror.WrapSimple(err, trimmed)
 }
 
 // resolveVSCodeExecutable finds the desktop executable used for detached launch.

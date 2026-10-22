@@ -16,7 +16,7 @@ func invokeSchedule(args []string) error {
 		return RunScheduleFn(args)
 	}
 
-	return fmt.Errorf("schedule runner not initialized")
+	return apperror.NewExecutionError("schedule runner not initialized")
 }
 
 func dispatchMacroSchedule(sub string, tail, all []string) error {

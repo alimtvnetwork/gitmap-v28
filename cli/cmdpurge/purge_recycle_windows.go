@@ -4,6 +4,7 @@ package cmdpurge
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -46,7 +47,7 @@ func invokeShFileDelete(absPath string) error {
 	op := shFileOpStruct{wFunc: 3, pFrom: pFrom, fFlags: 0x40 | 0x10 | 0x0400 | 0x0004}
 	ret, _, _ := proc.Call(uintptr(unsafe.Pointer(&op)))
 	if ret != 0 {
-		return fmt.Errorf("SHFileOperation failed with code %d", ret)
+		return apperror.NewExecutionError(fmt.Sprintf("SHFileOperation failed with code %d", ret))
 	}
 
 	return nil

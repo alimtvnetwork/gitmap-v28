@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -35,7 +36,7 @@ func CloneURL(url, branch, dir string) error {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Fprintln(os.Stderr, string(out))
 
-		return fmt.Errorf("git clone %s: %w", url, err)
+		return apperror.WrapSimple(err, "git clone "+url)
 	}
 
 	return nil
@@ -45,7 +46,7 @@ func CloneURL(url, branch, dir string) error {
 func PullFFOnly(dir string) error {
 	out, err := runGit(dir, constants.GitPull, constants.GitFFOnlyFlag)
 	if err != nil {
-		return fmt.Errorf("git pull --ff-only in %s: %w (%s)", dir, err, out)
+		return apperror.WrapSimple(err, "git pull --ff-only in "+dir).WithContext("output", out)
 	}
 
 	return nil
@@ -55,7 +56,7 @@ func PullFFOnly(dir string) error {
 // Returns the commit SHA on success.
 func AddCommitPush(dir, msg string, push bool) (string, error) {
 	if _, err := runGit(dir, constants.GitAddCmd, constants.GitAddAllArg); err != nil {
-		return "", fmt.Errorf("git add -A in %s: %w", dir, err)
+		return "", apperror.WrapSimple(err, "git add -A in "+dir)
 	}
 
 	if _, err := runGit(dir, constants.GitCommitCmd, constants.GitMessageArg, msg); err != nil {
@@ -69,7 +70,7 @@ func AddCommitPush(dir, msg string, push bool) (string, error) {
 	}
 
 	if _, err := runGit(dir, constants.GitPush); err != nil {
-		return sha, fmt.Errorf("git push in %s: %w", dir, err)
+		return sha, apperror.WrapSimple(err, "git push in "+dir)
 	}
 
 	return sha, nil

@@ -35,6 +35,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -111,10 +112,10 @@ func ValidateRawShape(data []byte) error {
 		return nil
 	}
 
-	return fmt.Errorf(
+	return apperror.NewValidationError(fmt.Sprintf(
 		"config: type mismatch(es):\n  - %s",
 		strings.Join(violations, "\n  - "),
-	)
+	))
 }
 
 // collectShapeViolations walks the required-key type table and
@@ -188,10 +189,10 @@ func ValidateConfigStruct(cfg model.Config) error {
 		return nil
 	}
 
-	return fmt.Errorf(
+	return apperror.NewValidationError(fmt.Sprintf(
 		"config: invalid value(s):\n  - %s",
 		strings.Join(violations, "\n  - "),
-	)
+	))
 }
 
 // checkOutputDir rejects an explicit empty string. A whitespace-only

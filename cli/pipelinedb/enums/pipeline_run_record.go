@@ -51,7 +51,7 @@ func (e *PipelineRunRecordFieldType) UnmarshalJSON(data []byte) error {
 
 	target := PipelineRunRecordFieldType(s)
 	if !pipelineRunRecordValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "PipelineRunRecordFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "PipelineRunRecordFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *PipelineRunRecordFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := PipelineRunRecordFieldType(str)
 	if !pipelineRunRecordValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "PipelineRunRecordFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "PipelineRunRecordFieldType", str))
 	}
 
 	*e = target

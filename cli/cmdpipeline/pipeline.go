@@ -2,6 +2,7 @@ package cmdpipeline
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 )
 
@@ -277,7 +278,7 @@ func dispatchPipelineFallback(subcmd string, args []string) error {
 
 	printPipelineHelp()
 
-	return fmt.Errorf("unknown pipeline subcommand: %s", subcmd)
+	return apperror.NewValidationError(fmt.Sprintf("unknown pipeline subcommand: %s", subcmd))
 }
 
 func printPipelineHelp() {

@@ -31,6 +31,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -71,7 +72,7 @@ func ValidateRawConfig(data []byte) error {
 	var raw map[string]json.RawMessage
 	err := json.Unmarshal(data, &raw)
 	if err != nil {
-		return fmt.Errorf("config: invalid JSON: %w", err)
+		return apperror.WrapValidation(err, "config: invalid JSON")
 	}
 
 	missing := findMissingKeys(raw, requiredConfigKeys)
@@ -79,10 +80,10 @@ func ValidateRawConfig(data []byte) error {
 		return nil
 	}
 
-	return fmt.Errorf(
+	return apperror.NewValidationError(fmt.Sprintf(
 		"config: missing required key(s): %s",
 		strings.Join(missing, ", "),
-	)
+	))
 }
 
 // ValidateConfig checks the populated struct for invalid enum
@@ -98,10 +99,10 @@ func ValidateConfig(cfg model.Config) error {
 
 	sort.Strings(violations)
 
-	return fmt.Errorf(
+	return apperror.NewValidationError(fmt.Sprintf(
 		"config: invalid value(s):\n  - %s",
 		strings.Join(violations, "\n  - "),
-	)
+	))
 }
 
 // findMissingKeys returns the subset of `required` not present in

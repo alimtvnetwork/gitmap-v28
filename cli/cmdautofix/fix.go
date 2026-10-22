@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -55,9 +56,9 @@ func RunFixCmd(args []string) error {
 		// The old git-state `fix` surface moved; warn on stderr,
 		// then error as before.
 		fmt.Fprint(os.Stderr, constants.MsgFixGitStateDeprecated)
-		cliexit.HandleUsageError(fmt.Errorf(
+		cliexit.HandleUsageError(apperror.NewValidationError(fmt.Sprintf(
 			"unknown subcommand %q — valid subcommands: %s\nNote: git-state remediation moved to 'gitmap stash' / 'gitmap wip' / 'gitmap discard'",
-			sub, strings.Join(fixSubcommands, ", ")))
+			sub, strings.Join(fixSubcommands, ", "))))
 	}
 	if hasHelpFlag(rest) {
 		RenderFixCategoryHelp(sub)
@@ -86,11 +87,11 @@ func RunFixCmd(args []string) error {
 	}
 
 	if err != nil {
-		cliexit.HandleUsageError(fmt.Errorf("parse fix flags: %w", err))
+		cliexit.HandleUsageError(apperror.WrapSimple(err, "parse fix flags"))
 	}
 
 	if *workers < 1 {
-		cliexit.HandleUsageError(fmt.Errorf("--workers must be >= 1 (got %d)", *workers))
+		cliexit.HandleUsageError(apperror.NewValidationError(fmt.Sprintf("--workers must be >= 1 (got %d)", *workers)))
 	}
 
 	root := "."
@@ -98,8 +99,10 @@ func RunFixCmd(args []string) error {
 		root = positional[0]
 	}
 	info, statErr := os.Stat(root)
-	if statErr != nil || !info.IsDir() {
-		cliexit.Fail("fix", "scan root", root, fmt.Errorf("unreadable scan path: %w", statErr), 2)
+	if statErr != nil {
+		cliexit.Fail("fix", "scan root", root, apperror.WrapSimple(statErr, "unreadable scan path"), 2)
+	} else if !info.IsDir() {
+		cliexit.Fail("fix", "scan root", root, apperror.NewValidationError(fmt.Sprintf("scan path is not a directory: %s", root)), 2)
 	}
 
 	categories := []string{sub}

@@ -9,23 +9,25 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func collect() ([]string, error) {
 	files, err := filepath.Glob(filepath.Join(constantsDir, "*.go"))
 	if err != nil {
-		return nil, fmt.Errorf("glob constants dir: %w", err)
+		return nil, apperror.WrapSimple(err, "glob constants dir")
 	}
 
 	if len(files) == 0 {
-		return nil, fmt.Errorf("no constants files found in %s", constantsDir)
+		return nil, apperror.NewNotFoundError(fmt.Sprintf("no constants files found in %s", constantsDir))
 	}
 
 	seen := map[string]bool{}
 
 	for _, rel := range files {
 		if err := scanFile(rel, seen); err != nil {
-			return nil, fmt.Errorf("scan %s: %w", rel, err)
+			return nil, apperror.WrapSimple(err, "scan "+rel)
 		}
 	}
 

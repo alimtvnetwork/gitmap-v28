@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -179,7 +180,7 @@ func extractFirstNonFlagArg(args []string) string {
 func inspectTargetRepoConflicts(target string) error {
 	repoPath := ResolveRepoPath(target)
 	if repoPath == "" {
-		return fmt.Errorf("repository %q not found or not a valid directory", target)
+		return apperror.NewNotFoundError(fmt.Sprintf("repository %q not found or not a valid directory", target))
 	}
 	files, err := GetConflictedFiles(repoPath)
 	if err != nil {
@@ -197,13 +198,13 @@ func inspectTargetRepoConflicts(target string) error {
 func scanTrackedReposForConflicts() error {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return fmt.Errorf("cannot read repository store: %w", err)
+		return apperror.WrapSimple(err, "cannot read repository store")
 	}
 	defer db.Close()
 
 	repos, err := db.ListRepos()
 	if err != nil {
-		return fmt.Errorf("cannot list repositories: %w", err)
+		return apperror.WrapSimple(err, "cannot list repositories")
 	}
 
 	conflictCount := 0

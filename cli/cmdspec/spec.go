@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -105,7 +106,7 @@ func DispatchSpec(command string) (bool, error) {
 
 	fmt.Print(specUsage)
 
-	return true, fmt.Errorf("unknown spec subcommand: %s", sub)
+	return true, apperror.NewValidationError(fmt.Sprintf("unknown spec subcommand: %s", sub))
 }
 
 // runSpecNext implements `gitmap spec next [--json]`.
@@ -268,7 +269,7 @@ func claimSpecNumber(conn *sql.DB, repoRoot string, candidate int) (int, error) 
 		candidate++
 	}
 
-	return 0, fmt.Errorf("spec next: no free number after %d attempts", specClaimAttempts)
+	return 0, apperror.NewExecutionError(fmt.Sprintf("spec next: no free number after %d attempts", specClaimAttempts))
 }
 
 // specIssuance is the --json record emitted by `gitmap spec next`.

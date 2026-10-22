@@ -24,6 +24,7 @@ package goldenguard
 import (
 	"bytes"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"testing"
 )
 
@@ -91,7 +92,7 @@ func collectWriterRuns(writer WriterFn) ([][]byte, error) {
 	for i := 0; i < determinismRunCount; i++ {
 		b, err := writer()
 		if err != nil {
-			return nil, fmt.Errorf("run %d/%d: %w", i+1, determinismRunCount, err)
+			return nil, apperror.WrapSimple(err, fmt.Sprintf("run %d/%d", i+1, determinismRunCount))
 		}
 
 		out = append(out, b)

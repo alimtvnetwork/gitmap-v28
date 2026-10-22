@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -25,7 +26,7 @@ func Parse(input string) (Version, error) {
 	raw := input
 	s := strings.TrimPrefix(input, "v")
 	if len(s) == 0 {
-		return Version{}, fmt.Errorf("empty version string")
+		return Version{}, apperror.NewValidationError("empty version string")
 	}
 
 	preRelease := extractPreRelease(s)
@@ -59,12 +60,12 @@ func extractPreRelease(s string) string {
 func parseCoreSegments(core string) (major, minor, patch int, err error) {
 	parts := strings.Split(core, ".")
 	if len(parts) > 3 {
-		return 0, 0, 0, fmt.Errorf("too many version segments")
+		return 0, 0, 0, apperror.NewValidationError("too many version segments")
 	}
 
 	major, err = strconv.Atoi(parts[0])
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("invalid major version %s: %w", parts[0], err)
+		return 0, 0, 0, apperror.WrapValidation(err, fmt.Sprintf("invalid major version %s", parts[0]))
 	}
 
 	minor, err = parseSegment(parts, 1, "minor")
@@ -87,7 +88,7 @@ func parseSegment(parts []string, idx int, name string) (int, error) {
 
 	val, err := strconv.Atoi(parts[idx])
 	if err != nil {
-		return 0, fmt.Errorf("invalid %s version %s: %w", name, parts[idx], err)
+		return 0, apperror.WrapValidation(err, fmt.Sprintf("invalid %s version %s", name, parts[idx]))
 	}
 
 	return val, nil
@@ -167,6 +168,6 @@ func Bump(v Version, level string) (Version, error) {
 	case constants.BumpPatch:
 		return Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}, nil
 	default:
-		return Version{}, fmt.Errorf("invalid bump level: %s (use major, minor, or patch)", level)
+		return Version{}, apperror.NewValidationError(fmt.Sprintf("invalid bump level: %s (use major, minor, or patch)", level))
 	}
 }

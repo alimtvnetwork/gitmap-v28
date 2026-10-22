@@ -2,7 +2,7 @@ package cmdcommitpull
 
 import (
 	"flag"
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitin"
 )
@@ -16,7 +16,7 @@ func runCommitPullUI(args []string) error {
 	}
 	ln, err := cmdcommitin.ListenCommitPullUIPort(*port)
 	if err != nil {
-		return fmt.Errorf("listen ui: %w", err)
+		return apperror.WrapSimple(err, "listen ui")
 	}
 	return cmdcommitin.StartCommitPullUIServer(ln, *noOpen)
 }

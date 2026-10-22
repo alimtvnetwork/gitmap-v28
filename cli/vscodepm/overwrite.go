@@ -1,8 +1,7 @@
 package vscodepm
 
 import (
-	"fmt"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -44,7 +43,7 @@ func OverwritePaths(rootPath, name string, paths []string) error {
 	}
 
 	if err := writeEntriesAtomic(path, entries); err != nil {
-		return fmt.Errorf("%s: %w", constants.VSCodePMProjectsFile, err)
+		return apperror.WrapSimple(err, constants.VSCodePMProjectsFile)
 	}
 
 	return nil

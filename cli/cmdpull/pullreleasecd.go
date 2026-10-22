@@ -66,7 +66,7 @@ type prcResult struct {
 // per segment.
 func parsePRCEntries(args []string) ([]prcEntry, error) {
 	if len(args) == 0 {
-		return nil, fmt.Errorf("usage: gitmap prc <name-or-url> <version>[, ...]")
+		return nil, apperror.NewValidationError("usage: gitmap prc <name-or-url> <version>[, ...]")
 	}
 
 	joined := strings.Join(args, " ")
@@ -81,18 +81,18 @@ func parsePRCEntries(args []string) ([]prcEntry, error) {
 
 		parts := strings.Fields(seg)
 		if len(parts) < 2 {
-			return nil, fmt.Errorf("entry %q missing version (expected `<name-or-url> <version>`)", seg)
+			return nil, apperror.NewValidationError(fmt.Sprintf("entry %q missing version (expected `<name-or-url> <version>`)", seg))
 		}
 
 		if len(parts) > 2 {
-			return nil, fmt.Errorf("entry %q has extra tokens; only `<name-or-url> <version>` allowed", seg)
+			return nil, apperror.NewValidationError(fmt.Sprintf("entry %q has extra tokens; only `<name-or-url> <version>` allowed", seg))
 		}
 
 		out = append(out, prcEntry{token: parts[0], version: parts[1]})
 	}
 
 	if len(out) == 0 {
-		return nil, fmt.Errorf("no entries parsed")
+		return nil, apperror.NewValidationError("no entries parsed")
 	}
 
 	return out, nil
@@ -154,7 +154,7 @@ func resolvePRCTarget(self, token string) (string, string, error) {
 	}
 
 	if err := runPRCClone(self, token); err != nil {
-		return "", "", fmt.Errorf("clone %s: %w", token, err)
+		return "", "", apperror.WrapSimple(err, "clone "+token)
 	}
 
 	slug := slugFromURL(token)
@@ -185,18 +185,18 @@ func slugFromURL(url string) string {
 func lookupPRCPath(slug string) (string, error) {
 	db, err := openDB()
 	if err != nil {
-		return "", fmt.Errorf("open db: %w", err)
+		return "", apperror.WrapSimple(err, "open db")
 	}
 
 	defer db.Close()
 
 	repos, err := db.FindBySlug(strings.ToLower(slug))
 	if err != nil {
-		return "", fmt.Errorf("lookup %s: %w", slug, err)
+		return "", apperror.WrapSimple(err, "lookup "+slug)
 	}
 
 	if len(repos) == 0 {
-		return "", fmt.Errorf("repo %q not found — run `gitmap scan` first", slug)
+		return "", apperror.NewNotFoundError(fmt.Sprintf("repo %q not found — run `gitmap scan` first", slug))
 	}
 
 	return repos[0].AbsolutePath, nil

@@ -2,6 +2,7 @@ package cmdrepo
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -34,7 +35,7 @@ func runRepoDB(args []string) error {
 	default:
 		printRepoDBHelp()
 
-		return fmt.Errorf("unknown repo db subcommand: %s", sub)
+		return apperror.NewValidationError(fmt.Sprintf("unknown repo db subcommand: %s", sub))
 	}
 }
 

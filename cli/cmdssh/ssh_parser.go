@@ -80,11 +80,11 @@ func resolveDefaultPort(port int) int {
 func parsePortString(rawPort string) (int, error) {
 	port, err := strconv.Atoi(rawPort)
 	if err != nil {
-		return 0, fmt.Errorf("invalid port %q: %w", rawPort, err)
+		return 0, apperror.WrapValidation(err, fmt.Sprintf("invalid port %q", rawPort))
 	}
 
 	if !isPortValid(port) {
-		return 0, fmt.Errorf("port %d out of range (1-65535)", port)
+		return 0, apperror.NewValidationError(fmt.Sprintf("port %d out of range (1-65535)", port))
 	}
 
 	return port, nil
@@ -270,7 +270,7 @@ func isHelpFlag(arg string) bool {
 
 func extractNextArg(args []string, idx int, flagName string) (string, int, bool, error) {
 	if idx+1 >= len(args) {
-		return "", idx, true, fmt.Errorf("flag %s requires an argument", flagName)
+		return "", idx, true, apperror.NewValidationError(fmt.Sprintf("flag %s requires an argument", flagName))
 	}
 
 	return args[idx+1], idx + 2, true, nil

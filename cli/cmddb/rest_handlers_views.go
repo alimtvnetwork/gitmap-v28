@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RestViewInfo represents metadata and DDL for a SQLite view.
@@ -35,7 +37,7 @@ func handleCreateView(mgr *MultiDbManager, cache *MigrationCache) http.HandlerFu
 
 		var payload CreateViewPayload
 		if decErr := json.NewDecoder(r.Body).Decode(&payload); decErr != nil {
-			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, fmt.Errorf("invalid json payload: %w", decErr))
+			writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.WrapValidation(decErr, "invalid json payload"))
 
 			return
 		}
@@ -77,7 +79,7 @@ func extractViewParams(p CreateViewPayload) (string, string, error) {
 		query = strings.TrimSpace(p.Sql)
 	}
 	if name == "" || query == "" {
-		return "", "", fmt.Errorf("both view name and query sql are required")
+		return "", "", apperror.NewValidationError("both view name and query sql are required")
 	}
 
 	return name, query, nil

@@ -2,9 +2,10 @@ package cmdchromeprofile
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 type ChromePreviewOutputParams struct {
@@ -160,7 +161,7 @@ func writePreviewToFile(destPath string, params ChromePreviewOutputParams) error
 func formatPreviewContent(params ChromePreviewOutputParams) (string, error) {
 	raw, err := json.MarshalIndent(params.Candidates, "", "  ")
 	if err != nil {
-		return "", fmt.Errorf("marshal candidates: %w", err)
+		return "", apperror.WrapSimple(err, "marshal candidates")
 	}
 
 	return string(raw), nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -92,7 +93,7 @@ func applyConvertedURL(dir, oldURL, convertedURL string) (bool, error) {
 func currentOriginURL(dir string) (string, error) {
 	url, err := gitutil.ReadRemoteOriginURL(dir)
 	if err != nil {
-		return "", fmt.Errorf("read remote.origin.url in %s: %w (is `git remote add origin <url>` set?)", dir, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("read remote.origin.url in %s (is `git remote add origin <url>` set?)", dir))
 	}
 
 	return url, nil

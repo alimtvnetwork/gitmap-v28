@@ -77,13 +77,13 @@ func extractShowID(args []string) (int64, bool) {
 func handleClearErrors() error {
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
 
 	if err := db.FederatedClearErrors(); err != nil {
-		return fmt.Errorf("clear errors: %w", err)
+		return apperror.WrapSimple(err, "clear errors")
 	}
 
 	fmt.Println("  ✓ Cleared all recorded internal errors from gitmap-errors.db.")
@@ -94,7 +94,7 @@ func handleClearErrors() error {
 func handleShowError(id int64) error {
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
@@ -115,14 +115,14 @@ func handleListErrors(args []string) error {
 
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
 
 	records, err := db.FederatedListErrors(limit, false)
 	if err != nil {
-		return fmt.Errorf("list errors: %w", err)
+		return apperror.WrapSimple(err, "list errors")
 	}
 
 	if isJSON {

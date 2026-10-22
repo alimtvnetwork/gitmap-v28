@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -120,12 +121,12 @@ func readDirectorySnapshotMetadata(srcDir string) (*snapshotMetadata, error) {
 func readJSONSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	raw, err := os.ReadFile(srcFile)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", srcFile, err)
+		return nil, apperror.WrapSimple(err, "read "+srcFile)
 	}
 
 	var exp chromeExport
 	if err := json.Unmarshal(raw, &exp); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
+		return nil, apperror.WrapSimple(err, "parse "+srcFile)
 	}
 
 	if exp.Name == "" {

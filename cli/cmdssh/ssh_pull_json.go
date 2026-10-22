@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -52,11 +53,11 @@ func normalizePullTarget(target string) string {
 func executeRemotePullWorker(c db.SSHConnection) (string, error) {
 	header := fmt.Sprintf("[%s|%s]", c.Alias, c.IPAddress)
 	if !checkRemoteNodeOnline(c.IPAddress, header) {
-		return "", fmt.Errorf("node %s is offline", header)
+		return "", apperror.NewExecutionError(fmt.Sprintf("node %s is offline", header))
 	}
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
-		return "", fmt.Errorf("connection/auth failed for %s", header)
+		return "", apperror.NewExecutionError(fmt.Sprintf("connection/auth failed for %s", header))
 	}
 	defer client.Close()
 

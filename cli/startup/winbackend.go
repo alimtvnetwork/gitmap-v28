@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -64,7 +65,7 @@ func ParseBackend(s string) (BackendType, error) {
 	case constants.StartupBackendRegistryHKLM:
 		return BackendRegistryHKLM, nil
 	default:
-		return BackendUnspecified, fmt.Errorf(constants.ErrStartupAddBadBackend, s)
+		return BackendUnspecified, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupAddBadBackend, s))
 	}
 }
 
@@ -121,10 +122,10 @@ func addWindows(clean string, opts AddOptions) (AddResult, error) {
 		return addWindowsRegistryHKLM(clean, opts)
 	case BackendUnspecified:
 
-		return AddResult{}, fmt.Errorf(constants.ErrStartupAddBadBackend, backend.String())
+		return AddResult{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupAddBadBackend, backend.String()))
 	default:
 
-		return AddResult{}, fmt.Errorf(constants.ErrStartupAddBadBackend, backend.String())
+		return AddResult{}, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupAddBadBackend, backend.String()))
 	}
 }
 

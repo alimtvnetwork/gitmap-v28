@@ -2,7 +2,7 @@ package cmdchromeprofile
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -171,12 +171,12 @@ func extractEmailFromRawString(raw []byte) string {
 func readYAMLSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 	raw, err := os.ReadFile(srcFile)
 	if err != nil {
-		return nil, fmt.Errorf("read %s: %w", srcFile, err)
+		return nil, apperror.WrapSimple(err, "read "+srcFile)
 	}
 
 	var exp chromeExport
 	if err := yaml.Unmarshal(raw, &exp); err != nil {
-		return nil, fmt.Errorf("parse %s: %w", srcFile, err)
+		return nil, apperror.WrapSimple(err, "parse "+srcFile)
 	}
 
 	extractEmailIfMissing(&exp, raw)

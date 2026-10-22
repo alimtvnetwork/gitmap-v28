@@ -7,6 +7,7 @@ import (
 
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -114,11 +115,7 @@ func syncBranchAndRetryPush(branch, pushOutput string) error {
 	if err != nil {
 		abortRebaseAfterFailure()
 
-		return fmt.Errorf(
-			"remote branch advanced; pull --rebase failed: %s: %w",
-			trimGitOutput(pullOutput),
-			err,
-		)
+		return apperror.WrapSimple(err, "remote branch advanced; pull --rebase failed").WithContext("output", trimGitOutput(pullOutput))
 	}
 
 	if verbose.IsEnabled() {
@@ -127,11 +124,7 @@ func syncBranchAndRetryPush(branch, pushOutput string) error {
 
 	retryOutput, err := runGitCmdCombined(constants.GitPush, constants.GitOrigin, branch)
 	if err != nil {
-		return fmt.Errorf(
-			"push retry after rebase failed: %s: %w",
-			trimGitOutput(retryOutput),
-			err,
-		)
+		return apperror.WrapSimple(err, "push retry after rebase failed").WithContext("output", trimGitOutput(retryOutput))
 	}
 
 	if verbose.IsEnabled() {
@@ -165,7 +158,7 @@ func isNonFastForwardPushError(output string) bool {
 func formatGitCommandError(output string, err error) error {
 	trimmed := trimGitOutput(output)
 	if len(trimmed) > 0 {
-		return fmt.Errorf("%s", trimmed)
+		return apperror.NewExecutionError(trimmed)
 	}
 
 	return err

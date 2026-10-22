@@ -88,7 +88,7 @@ func readCommit(dir, sha string) (subject, body, author, shortSHA string, when t
 
 	parts := strings.SplitN(out, "\x1f", 5)
 	if len(parts) != 5 {
-		err = apperror.Wrap(fmt.Errorf("unexpected output: %q", out), "git show", map[string]any{"sha": sha})
+		err = apperror.Wrap(apperror.NewExecutionError(fmt.Sprintf("unexpected output: %q", out)), "git show", map[string]any{"sha": sha})
 
 		return
 	}

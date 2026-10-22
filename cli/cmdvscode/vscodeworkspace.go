@@ -99,18 +99,18 @@ func parseVSCodeWorkspaceFlags(args []string) vscodeWorkspaceFlags {
 func loadReposForWorkspace() ([]model.ScanRecord, error) {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBOpen, err)
+		return nil, apperror.WrapSimple(err, "vscode-workspace: failed to open repo database")
 	}
 
 	defer db.Close()
 
 	if err := db.Migrate(); err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBOpen, err)
+		return nil, apperror.WrapSimple(err, "vscode-workspace: failed to open repo database")
 	}
 
 	records, err := db.ListRepos()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodeWorkspaceDBList, err)
+		return nil, apperror.WrapSimple(err, "vscode-workspace: failed to list repos")
 	}
 
 	return records, nil

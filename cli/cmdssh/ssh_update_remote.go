@@ -209,13 +209,13 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 		return fmt.Sprintf("[DRY-RUN] Would update %s on %s", pkg, c.Alias), nil
 	}
 	if !isNodeAvailable(c.IPAddress, header) {
-		err := fmt.Errorf("offline: node %s is unreachable", header)
+		err := apperror.NewExecutionError(fmt.Sprintf("offline: node %s is unreachable", header))
 		reportUpdateExecution(header, pkg, "", err)
 		return "", err
 	}
 	client, isConnected := connectSSHClient(c, header)
 	if !isConnected {
-		err := fmt.Errorf("unable to connect to %s", header)
+		err := apperror.NewExecutionError(fmt.Sprintf("unable to connect to %s", header))
 		reportUpdateExecution(header, pkg, "", err)
 		return "", err
 	}
@@ -233,7 +233,7 @@ func executeSingleSSHNodeUpdate(c db.SSHConnection, pkg string, isDryRun bool) (
 		return out, err
 	}
 	if isRemoteUpdateFailed(out) {
-		return out, fmt.Errorf("remote %s update verification failed: %s", pkg, extractRemoteErrorDetails(out))
+		return out, apperror.NewExecutionError(fmt.Sprintf("remote %s update verification failed: %s", pkg, extractRemoteErrorDetails(out)))
 	}
 	return out, nil
 }
@@ -273,7 +273,7 @@ func resolveUpdateErrorMessage(err error, out string) error {
 	if err != nil {
 		return err
 	}
-	return fmt.Errorf("remote update verification failed: %s", extractRemoteErrorDetails(out))
+	return apperror.NewExecutionError(fmt.Sprintf("remote update verification failed: %s", extractRemoteErrorDetails(out)))
 }
 
 func extractJSONFieldString(out, pattern string) string {

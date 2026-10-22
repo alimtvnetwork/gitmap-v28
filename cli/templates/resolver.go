@@ -6,6 +6,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // SourceType describes where a resolved template came from.
@@ -68,7 +70,7 @@ func resolveUser(kind, lang, rel string) (Resolved, bool, error) {
 	}
 
 	if err != nil {
-		return Resolved{}, false, fmt.Errorf(errTemplateRead, full, err)
+		return Resolved{}, false, apperror.WrapSimple(err, "failed to read template "+full)
 	}
 
 	return Resolved{Kind: kind, Lang: lang, Path: full, Source: SourceUser, Content: data}, true, nil
@@ -79,11 +81,11 @@ func resolveEmbed(kind, lang, rel string) (Resolved, error) {
 	full := filepath.ToSlash(filepath.Join(embedAssetsRoot, rel))
 	data, err := FS.ReadFile(full)
 	if errors.Is(err, fs.ErrNotExist) {
-		return Resolved{}, fmt.Errorf(errTemplateNotFound, kind, lang)
+		return Resolved{}, apperror.NewNotFoundError(fmt.Sprintf(errTemplateNotFound, kind, lang))
 	}
 
 	if err != nil {
-		return Resolved{}, fmt.Errorf(errTemplateRead, full, err)
+		return Resolved{}, apperror.WrapSimple(err, "failed to read template "+full)
 	}
 
 	return Resolved{Kind: kind, Lang: lang, Path: full, Source: SourceEmbed, Content: data}, nil

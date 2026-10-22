@@ -2,12 +2,12 @@ package cmddb
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -27,7 +27,7 @@ func OpenMigrationCache(customPath ...string) (*MigrationCache, error) {
 
 	conn, appErr := store.OpenSQLiteDB(path)
 	if appErr != nil {
-		return nil, fmt.Errorf("open migration cache %s: %w", path, appErr)
+		return nil, apperror.WrapSimple(appErr, "open migration cache "+path)
 	}
 	conn.SetMaxOpenConns(1)
 
@@ -99,7 +99,7 @@ func initCacheTables(conn *sql.DB) error {
 	}
 	for _, ddl := range ddls {
 		if _, err := conn.Exec(ddl); err != nil {
-			return fmt.Errorf("init cache table: %w", err)
+			return apperror.WrapSimple(err, "init cache table")
 		}
 	}
 

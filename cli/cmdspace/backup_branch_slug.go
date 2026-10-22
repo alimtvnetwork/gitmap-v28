@@ -3,6 +3,8 @@ package cmdspace
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // maxBackupSlugLen caps the generated slug at 60 chars (spec 243.2).
@@ -30,7 +32,7 @@ func makeBackupSlug(task string) (string, error) {
 	}
 
 	if slug == "" {
-		return "", fmt.Errorf("task %q produces an empty backup slug — describe the task with letters or numbers", task)
+		return "", apperror.NewValidationError(fmt.Sprintf("task %q produces an empty backup slug — describe the task with letters or numbers", task))
 	}
 
 	return slug, nil

@@ -98,12 +98,12 @@ func resolveInjectTarget(args []string) (string, error) {
 	}
 
 	if len(positional) > 1 {
-		return "", fmt.Errorf("expected 0 or 1 folder argument, got %d", len(positional))
+		return "", apperror.NewValidationError(fmt.Sprintf("expected 0 or 1 folder argument, got %d", len(positional)))
 	}
 
 	resolved, err := cmdclone.ResolveCloneNextFolder(positional[0])
 	if err != nil {
-		return "", fmt.Errorf("folder not found or not a directory %s: %w", positional[0], err)
+		return "", apperror.WrapNotFound(err, fmt.Sprintf("folder not found or not a directory %s", positional[0]))
 	}
 
 	return resolved, nil

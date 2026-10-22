@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -13,7 +14,7 @@ import (
 func ParseRemoteOrigin() (string, string, error) {
 	url := getRemoteURL()
 	if len(url) == 0 {
-		return "", "", fmt.Errorf("no remote origin URL found")
+		return "", "", apperror.NewNotFoundError("no remote origin URL found")
 	}
 
 	return parseGitURL(url)
@@ -47,7 +48,7 @@ func parseGitURL(url string) (string, string, error) {
 		return parseSSHURL(url)
 	}
 
-	return "", "", fmt.Errorf("unrecognized remote URL format: %s", url)
+	return "", "", apperror.NewValidationError(fmt.Sprintf("unrecognized remote URL format: %s", url))
 }
 
 // parseHTTPSURL parses https://github.com/owner/repo.git
@@ -56,7 +57,7 @@ func parseHTTPSURL(url string) (string, string, error) {
 	parts := strings.Split(url, "/")
 
 	if len(parts) < 5 {
-		return "", "", fmt.Errorf("invalid HTTPS remote: %s", url)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid HTTPS remote: %s", url))
 	}
 
 	owner := parts[len(parts)-2]
@@ -71,14 +72,14 @@ func parseSSHURL(url string) (string, string, error) {
 	colonIdx := strings.LastIndex(url, ":")
 
 	if colonIdx < 0 {
-		return "", "", fmt.Errorf("invalid SSH remote: %s", url)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid SSH remote: %s", url))
 	}
 
 	path := url[colonIdx+1:]
 	parts := strings.Split(path, "/")
 
 	if len(parts) < 2 {
-		return "", "", fmt.Errorf("invalid SSH remote path: %s", url)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid SSH remote path: %s", url))
 	}
 
 	return parts[0], parts[1], nil

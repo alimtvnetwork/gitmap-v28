@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // maxEntriesPerPart caps the entries per generated part file so every
@@ -107,7 +109,7 @@ func writePart(index, total int, chunk []string) error {
 func removeStaleParts(partCount int) error {
 	matches, err := filepath.Glob(partFileGl)
 	if err != nil {
-		return fmt.Errorf("glob part files: %w", err)
+		return apperror.WrapSimple(err, "glob part files")
 	}
 
 	for _, m := range matches {
@@ -121,7 +123,7 @@ func removeStaleParts(partCount int) error {
 		}
 
 		if err := os.Remove(m); err != nil {
-			return fmt.Errorf("remove stale part file %s: %w", m, err)
+			return apperror.WrapSimple(err, "remove stale part file "+m)
 		}
 	}
 

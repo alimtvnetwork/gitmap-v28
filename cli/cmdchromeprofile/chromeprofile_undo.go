@@ -70,7 +70,7 @@ func listChromeSnapshots() ([]string, *apperror.AppError) {
 func runChromeProfileUndo(profileName string) error {
 	snapshots, err := listChromeSnapshots()
 	if err != nil {
-		return fmt.Errorf("list snapshots: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "list snapshots")
 	}
 
 	chosen := fsutil.PickLatestSnapshotWithTag(snapshots, "pre-import")
@@ -86,11 +86,11 @@ func runChromeProfileUndo(profileName string) error {
 
 	targetDir := filepath.Join(chromeUserDataDir(), profileName)
 	if _, snapErr := snapshotChromeProfile(targetDir, "pre-undo"); snapErr != nil {
-		return fmt.Errorf("snapshot pre-undo: %w", snapErr.Unwrap())
+		return apperror.WrapSimple(snapErr.Unwrap(), "snapshot pre-undo")
 	}
 
 	if copyErr := fsutil.CopyDirContents(chosen, targetDir); copyErr != nil {
-		return fmt.Errorf("restore snapshot: %w", copyErr.Unwrap())
+		return apperror.WrapSimple(copyErr.Unwrap(), "restore snapshot")
 	}
 
 	fmt.Printf("%s Restored Chrome profile %q from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, profileName, filepath.Base(chosen))

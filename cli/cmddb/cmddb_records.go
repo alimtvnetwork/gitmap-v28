@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const defaultRowLimit = 20
@@ -12,7 +14,7 @@ const defaultRowLimit = 20
 func RunDbList(tableArg, dbArg string, limit int, isJson bool, out io.Writer) error {
 	cleanTable := strings.TrimSpace(tableArg)
 	if cleanTable == "" {
-		return fmt.Errorf("table name is required (e.g. gitmap db list <table-name>)")
+		return apperror.NewValidationError("table name is required (e.g. gitmap db list <table-name>)")
 	}
 
 	effectiveLimit := resolveEffectiveLimit(limit)
@@ -27,7 +29,7 @@ func RunDbList(tableArg, dbArg string, limit int, isJson bool, out io.Writer) er
 
 	res, queryErr := executeDynamicQuery(conn, query)
 	if queryErr != nil {
-		return fmt.Errorf("list rows from table '%s': %w", cleanTable, queryErr)
+		return apperror.WrapSimple(queryErr, fmt.Sprintf("list rows from table '%s'", cleanTable))
 	}
 
 	if isJson {

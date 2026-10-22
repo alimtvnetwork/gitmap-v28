@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"os/exec"
@@ -143,7 +144,7 @@ func printStepExecutionResult(stepNum int, elapsed time.Duration, isSuccess bool
 
 func finalizeSavedMacro(m *Macro) error {
 	if err := SaveMacro(m); err != nil {
-		return fmt.Errorf("could not save macro: %w", err)
+		return apperror.WrapSimple(err, "could not save macro")
 	}
 
 	fmt.Printf("\n  %s✔ Saved macro %q with %d steps.%s\n\n",

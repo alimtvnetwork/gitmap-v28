@@ -3,6 +3,7 @@ package cmdfixgit
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -103,7 +104,7 @@ func backupAndPullRepo(repoRoot string, files []string) (string, error) {
 	out, pullErr := cmd.CombinedOutput()
 
 	if pullErr != nil {
-		return backupDir, fmt.Errorf("git pull failed: %s: %w", strings.TrimSpace(string(out)), pullErr)
+		return backupDir, apperror.WrapSimple(pullErr, fmt.Sprintf("git pull failed: %s", strings.TrimSpace(string(out))))
 	}
 
 	return backupDir, nil

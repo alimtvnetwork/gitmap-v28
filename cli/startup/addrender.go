@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -69,13 +70,13 @@ func renderDesktop(clean string, opts AddOptions) []byte {
 func atomicWrite(target string, body []byte) error {
 	tmp := tempPathFor(target)
 	if err := os.WriteFile(tmp, body, 0o644); err != nil {
-		return fmt.Errorf("write temp %s: %w", tmp, err)
+		return apperror.WrapSimple(err, "write temp "+tmp)
 	}
 
 	if err := os.Rename(tmp, target); err != nil {
 		_ = os.Remove(tmp)
 
-		return fmt.Errorf("rename %s -> %s: %w", tmp, target, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("rename %s -> %s", tmp, target))
 	}
 
 	return nil

@@ -3,6 +3,8 @@ package cmderrors
 import (
 	"fmt"
 	"os"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func RunErrorCmd(args []string) error {
@@ -28,7 +30,7 @@ func RunErrorCmd(args []string) error {
 
 func runErrorExport(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("error export: missing destination file")
+		return apperror.NewValidationError("error export: missing destination file")
 	}
 
 	dest := args[0]
@@ -36,15 +38,15 @@ func runErrorExport(args []string) error {
 	lastErrFile := ".gitmap/last_error.log"
 	data, err := os.ReadFile(lastErrFile)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("error export: no recent error found to export")
+		return apperror.NewNotFoundError("error export: no recent error found to export")
 	}
 
 	if err != nil {
-		return fmt.Errorf("error export: could not read last error: %w", err)
+		return apperror.WrapSimple(err, "error export: could not read last error")
 	}
 
 	if err := os.WriteFile(dest, data, 0644); err != nil {
-		return fmt.Errorf("error export: could not write to %s: %w", dest, err)
+		return apperror.WrapSimple(err, "error export: could not write to "+dest)
 	}
 
 	fmt.Printf("gitmap error: exported last error to %s\n", dest)

@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
@@ -39,7 +40,7 @@ func ResolveOwnerOnly(arg string) (ownerContext, error) {
 	}
 
 	if len(trimmed) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: empty target (operation: resolve-owner, reason: arg is blank)")
+		return ownerContext{}, apperror.NewValidationError("Error: empty target (operation: resolve-owner, reason: arg is blank)")
 	}
 
 	if isURLLike(trimmed) {
@@ -90,12 +91,12 @@ func isBareHostOwner(arg string) bool {
 func ownerFromURL(url string) (ownerContext, error) {
 	provider := ClassifyProvider(url)
 	if len(provider) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: unrecognized provider at %s (operation: classify-host, reason: not github.com or gitlab.com)", url)
+		return ownerContext{}, apperror.NewValidationError(fmt.Sprintf("Error: unrecognized provider at %s (operation: classify-host, reason: not github.com or gitlab.com)", url))
 	}
 
 	owner := firstPathSegment(url)
 	if len(owner) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: missing owner in URL %s (operation: parse-url, reason: empty path segment)", url)
+		return ownerContext{}, apperror.NewValidationError(fmt.Sprintf("Error: missing owner in URL %s (operation: parse-url, reason: empty path segment)", url))
 	}
 
 	return ownerContext{Provider: provider, Owner: owner, TargetRaw: url}, nil
@@ -165,7 +166,7 @@ func ownerFromBareHostOwner(arg string) (ownerContext, error) {
 	host, owner := parts[0], parts[1]
 	provider := ClassifyProvider(host)
 	if len(provider) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: unrecognized host %s (operation: classify-host, reason: not github.com or gitlab.com)", host)
+		return ownerContext{}, apperror.NewValidationError(fmt.Sprintf("Error: unrecognized host %s (operation: classify-host, reason: not github.com or gitlab.com)", host))
 	}
 
 	return ownerContext{Provider: provider, Owner: owner, TargetRaw: arg}, nil
@@ -176,16 +177,21 @@ func ownerFromBareHostOwner(arg string) (ownerContext, error) {
 func ownerFromFolder(path string) (ownerContext, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		return ownerContext{}, fmt.Errorf("Error: failed to resolve folder at %s: %w (operation: filepath.Abs, reason: %s)", path, err, err.Error())
+		return ownerContext{}, apperror.WrapSimple(err, fmt.Sprintf("Error: failed to resolve folder at %s (operation: filepath.Abs, reason: %s)", path, err.Error()))
 	}
 
 	if _, statErr := os.Stat(abs); statErr != nil {
-		return ownerContext{}, fmt.Errorf("Error: folder not found at %s: %w (operation: stat, reason: %s)", abs, statErr, statErr.Error())
+		return ownerContext{}, apperror.WrapNotFound(statErr, fmt.Sprintf("Error: folder not found at %s (operation: stat, reason: %s)", abs, statErr.Error()))
 	}
 
 	url, err := gitutil.RemoteURL(abs)
 	if err != nil || len(url) == 0 {
-		return ownerContext{}, fmt.Errorf("Error: no origin remote at %s: %w (operation: gitutil.RemoteURL, reason: %s)", abs, err, errString(err))
+		remoteErr := apperror.NewNotFoundError(fmt.Sprintf("Error: no origin remote at %s (operation: gitutil.RemoteURL, reason: %s)", abs, errString(err)))
+		if err != nil {
+			remoteErr = apperror.WrapNotFound(err, fmt.Sprintf("Error: no origin remote at %s (operation: gitutil.RemoteURL, reason: %s)", abs, errString(err)))
+		}
+
+		return ownerContext{}, remoteErr
 	}
 
 	ctx, err := ownerFromURL(url)

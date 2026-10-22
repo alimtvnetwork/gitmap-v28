@@ -143,13 +143,13 @@ func checkVaultExists(taskId string) (string, error) {
 	info, statErr := os.Stat(vaultDir)
 	isMissing := statErr != nil || !info.IsDir()
 	if isMissing {
-		return "", fmt.Errorf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId)
+		return "", apperror.NewExecutionError(fmt.Sprintf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId))
 	}
 
 	entries, readErr := os.ReadDir(vaultDir)
 	isEmpty := readErr != nil || len(entries) == 0
 	if isEmpty {
-		return "", fmt.Errorf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId)
+		return "", apperror.NewExecutionError(fmt.Sprintf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId))
 	}
 
 	return vaultDir, nil
@@ -306,7 +306,7 @@ func resolveVaultBackupPath(vaultDir string, f store.AiTaskFile) string {
 func validateBackupData(taskId, backupPath, expectedSha string) ([]byte, error) {
 	data, err := os.ReadFile(backupPath)
 	if err != nil {
-		return nil, fmt.Errorf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("E1077: Cannot revert task '%s' — OS temporary backup was purged", taskId))
 	}
 
 	actualSha := computeSha256(data)

@@ -68,7 +68,7 @@ func applyReleaseNotesArg(args []string, i int, opts *ReleaseNotesOpts) (int, er
 		return i, nil
 	}
 
-	return i, fmt.Errorf("unknown arg %q", args[i])
+	return i, apperror.NewValidationError(fmt.Sprintf("unknown arg %q", args[i]))
 }
 
 func validateReleaseNotesOpts(opts *ReleaseNotesOpts) error {
@@ -77,7 +77,7 @@ func validateReleaseNotesOpts(opts *ReleaseNotesOpts) error {
 	}
 
 	if opts.Range == "" && opts.Since == "" {
-		return fmt.Errorf("need <tagA>..<tagB>, --since, or --since-tag")
+		return apperror.NewValidationError("need <tagA>..<tagB>, --since, or --since-tag")
 	}
 
 	return nil
@@ -116,7 +116,7 @@ func gitLogForOpts(opts ReleaseNotesOpts) ([]string, error) {
 	args := buildGitLogArgs(opts)
 	out, err := exec.Command("git", args...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("git log: %w\n%s", err, out)
+		return nil, apperror.WrapSimple(err, "git log").WithContext("output", string(out))
 	}
 
 	trimmed := strings.TrimSpace(string(out))

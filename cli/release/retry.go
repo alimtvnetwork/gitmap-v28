@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -29,7 +30,7 @@ func withRetry(label string, maxAttempts int, fn func() error) error {
 		}
 	}
 
-	return fmt.Errorf("%s after %d attempts: %w", label, maxAttempts, lastErr)
+	return apperror.WrapSimple(lastErr, fmt.Sprintf("%s after %d attempts", label, maxAttempts))
 }
 
 // waitAndLog prints the retry message and sleeps with exponential backoff.

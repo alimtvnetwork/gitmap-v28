@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -39,14 +40,14 @@ import (
 func WriteReportJSON(results []Result) (string, error) {
 	dir := ".gitmap"
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", fmt.Errorf(constants.ErrCloneFromReportMkdir, dir, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("clone-from: mkdir %s", dir))
 	}
 
 	name := fmt.Sprintf(constants.CloneFromReportJSONNameFmt, time.Now().Unix())
 	full := filepath.Join(dir, name)
 	f, err := os.Create(full)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrCloneFromReportCreate, full, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("clone-from: create report %s", full))
 	}
 
 	defer f.Close()

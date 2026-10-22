@@ -9,13 +9,13 @@ package clonepick
 // internals.
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -39,15 +39,15 @@ func runSparseCheckout(plan Plan, progress io.Writer) (string, error) {
 	}
 
 	if err := gitSparseInit(plan, dest, progress); err != nil {
-		return dest, fmt.Errorf(constants.ErrClonePickGitSparseInit, err)
+		return dest, apperror.WrapSimple(err, "clone-pick: git sparse-checkout init failed")
 	}
 
 	if err := gitSparseSet(plan, dest, progress); err != nil {
-		return dest, fmt.Errorf(constants.ErrClonePickGitSparseSet, err)
+		return dest, apperror.WrapSimple(err, "clone-pick: git sparse-checkout set failed")
 	}
 
 	if err := gitCheckout(dest, progress); err != nil {
-		return dest, fmt.Errorf(constants.ErrClonePickGitCheckout, err)
+		return dest, apperror.WrapSimple(err, "clone-pick: git checkout failed")
 	}
 
 	if err := removeDotGitIfRequested(plan.KeepGit, dest); err != nil {
@@ -66,7 +66,7 @@ func acquireRepoTree(plan Plan, dest string, progress io.Writer) error {
 	}
 
 	if err := gitClonePartial(plan, dest, progress); err != nil {
-		return fmt.Errorf(constants.ErrClonePickGitClone, err)
+		return apperror.WrapSimple(err, "clone-pick: git clone failed")
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func removeDotGitIfRequested(isKeepGit bool, dest string) error {
 	}
 
 	if err := os.RemoveAll(filepath.Join(dest, ".git")); err != nil {
-		return fmt.Errorf(constants.ErrClonePickFsRemoveDotGit, err)
+		return apperror.WrapSimple(err, "clone-pick: remove .git")
 	}
 
 	return nil
@@ -86,7 +86,7 @@ func removeDotGitIfRequested(isKeepGit bool, dest string) error {
 
 func promotePreClonedOrError(src, dest string) error {
 	if err := promotePreClonedSrc(src, dest); err != nil {
-		return fmt.Errorf(constants.ErrClonePickPromoteSrc, err)
+		return apperror.WrapSimple(err, "clone-pick: promote pre-cloned source")
 	}
 
 	return nil
@@ -99,11 +99,11 @@ func promotePreClonedOrError(src, dest string) error {
 func prepareDest(plan Plan) (string, error) {
 	abs, err := filepath.Abs(plan.DestDir)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
+		return "", apperror.WrapSimple(err, "clone-pick: create dest dir")
 	}
 
 	if err := os.MkdirAll(abs, 0o755); err != nil {
-		return abs, fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
+		return abs, apperror.WrapSimple(err, "clone-pick: create dest dir")
 	}
 
 	if plan.Force {
@@ -123,11 +123,11 @@ func prepareDest(plan Plan) (string, error) {
 func assertDestEmpty(abs string) error {
 	entries, err := os.ReadDir(abs)
 	if err != nil {
-		return fmt.Errorf(constants.ErrClonePickFsCreateDest, err)
+		return apperror.WrapSimple(err, "clone-pick: create dest dir")
 	}
 
 	if len(entries) > 0 {
-		return fmt.Errorf("%s", constants.MsgClonePickDestDirty)
+		return apperror.NewValidationError(constants.MsgClonePickDestDirty)
 	}
 
 	return nil

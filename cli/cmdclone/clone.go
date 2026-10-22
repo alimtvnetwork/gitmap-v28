@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -86,7 +87,7 @@ func resolveCloneManifest(source string) (string, error) {
 	fmt.Fprintln(os.Stderr, "Error: no clone manifest found (searched *.json, gitmap.json, .gitmap/gitmap.json)")
 	fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
 
-	return "", fmt.Errorf(constants.ErrCloneUsage)
+	return "", apperror.NewValidationError(constants.ErrCloneUsage)
 }
 
 func resolveExplicitCloneSource(source string) string {
@@ -318,5 +319,5 @@ func validateShorthandPath(resolved string) (string, error) {
 
 	fmt.Fprintf(os.Stderr, constants.ErrShorthandNotFound, resolved)
 
-	return "", fmt.Errorf(constants.ErrShorthandNotFound, resolved)
+	return "", apperror.NewNotFoundError(fmt.Sprintf(constants.ErrShorthandNotFound, resolved))
 }

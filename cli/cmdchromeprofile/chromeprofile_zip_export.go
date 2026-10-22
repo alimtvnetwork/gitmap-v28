@@ -2,11 +2,11 @@ package cmdchromeprofile
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -25,12 +25,12 @@ func buildChromeProfileArchive(
 	includeSQLite bool,
 ) (int, error) {
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
-		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
+		return 0, apperror.WrapSimple(err, "mkdir "+filepath.Dir(outPath))
 	}
 
 	f, err := os.Create(outPath)
 	if err != nil {
-		return 0, fmt.Errorf("create %s: %w", outPath, err)
+		return 0, apperror.WrapSimple(err, "create "+outPath)
 	}
 
 	defer f.Close()

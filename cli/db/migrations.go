@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	"fmt"
 	"strings"
 
 	_ "modernc.org/sqlite"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 //go:embed migrations/*.sql
@@ -19,7 +20,7 @@ var MigrationsFS embed.FS
 func ApplyMigrations(ctx context.Context, conn *sql.DB) error {
 	entries, err := MigrationsFS.ReadDir("migrations")
 	if err != nil {
-		return fmt.Errorf("failed to read migrations dir: %w", err)
+		return apperror.WrapSimple(err, "failed to read migrations dir")
 	}
 
 	for _, entry := range entries {
@@ -29,12 +30,12 @@ func ApplyMigrations(ctx context.Context, conn *sql.DB) error {
 
 		content, err := MigrationsFS.ReadFile("migrations/" + entry.Name())
 		if err != nil {
-			return fmt.Errorf("failed to read migration %s: %w", entry.Name(), err)
+			return apperror.WrapSimple(err, "failed to read migration "+entry.Name())
 		}
 
 		_, err = conn.ExecContext(ctx, string(content))
 		if err != nil {
-			return fmt.Errorf("failed to execute migration %s: %w", entry.Name(), err)
+			return apperror.WrapSimple(err, "failed to execute migration "+entry.Name())
 		}
 	}
 

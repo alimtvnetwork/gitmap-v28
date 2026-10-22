@@ -4,6 +4,7 @@ package cmdvscode
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/ecosystemgroup"
 )
@@ -29,13 +30,13 @@ func dispatchEcosystemGroupCli(ecosystem string, label string, unit string, args
 		return handleEcosystemGroupRm(ecosystem, label, args[1:])
 	}
 
-	return fmt.Errorf("usage: gitmap %s group [ls|add <group> <%s...>|remove/rm <group> [%s]]", ecosystem, unit, unit)
+	return apperror.NewValidationError(fmt.Sprintf("usage: gitmap %s group [ls|add <group> <%s...>|remove/rm <group> [%s]]", ecosystem, unit, unit))
 }
 
 func handleEcosystemGroupAdd(ecosystem string, label string, unit string, group string, targets []string) error {
 	appErr := ecosystemgroup.AddGroup(ecosystem, group, "", targets)
 	if appErr != nil {
-		return fmt.Errorf("add %s group: %w", label, appErr.Unwrap())
+		return apperror.WrapSimple(appErr, fmt.Sprintf("add %s group", label))
 	}
 
 	fmt.Printf("%s Added %d %s to %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, len(targets), unit, label, group)
@@ -49,7 +50,7 @@ func handleEcosystemGroupRm(ecosystem string, label string, args []string) error
 	}
 
 	if err := ecosystemgroup.RemoveTarget(ecosystem, args[0], args[1]); err != nil {
-		return fmt.Errorf("remove %s target: %w", label, err.Unwrap())
+		return apperror.WrapSimple(err, fmt.Sprintf("remove %s target", label))
 	}
 
 	fmt.Printf("%s Removed %q from %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, args[1], label, args[0])
@@ -59,7 +60,7 @@ func handleEcosystemGroupRm(ecosystem string, label string, args []string) error
 
 func handleEcosystemGroupDelete(ecosystem string, label string, group string) error {
 	if err := ecosystemgroup.DeleteGroup(ecosystem, group); err != nil {
-		return fmt.Errorf("delete %s group: %w", label, err.Unwrap())
+		return apperror.WrapSimple(err, fmt.Sprintf("delete %s group", label))
 	}
 
 	fmt.Printf("%s Deleted %s group %q.\n", constants.ColorGreen+"✓"+constants.ColorReset, label, group)

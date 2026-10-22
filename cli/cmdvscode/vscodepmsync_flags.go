@@ -21,9 +21,9 @@ package cmdvscode
 
 import (
 	"flag"
-	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
@@ -106,7 +106,7 @@ func parseVSCodePMSyncFlags(args []string) (vscodePMSyncOpts, error) {
 	fs.Var(tags, constants.FlagVSCodePMSyncTag, constants.FlagDescVSCodePMSyncTag)
 
 	if err := fs.Parse(args); err != nil {
-		return vscodePMSyncOpts{}, fmt.Errorf("vscode-pm-sync: %w", err)
+		return vscodePMSyncOpts{}, apperror.WrapSimple(err, "vscode-pm-sync")
 	}
 
 	mode, err := vscodepm.ParseMergeMode(*modeRaw)

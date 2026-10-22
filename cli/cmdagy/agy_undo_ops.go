@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -18,7 +19,7 @@ func runAgyUndo() error {
 
 	snapshots, err := listAgySnapshots()
 	if err != nil {
-		return fmt.Errorf("list snapshots: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "list snapshots")
 	}
 
 	chosen := pickLatestSnapshotWithTag(snapshots, "pre-clear")
@@ -36,15 +37,15 @@ func runAgyUndo() error {
 
 	destDir, dirErr := getProjectsDirPath()
 	if dirErr != nil {
-		return fmt.Errorf("projects dir: %w", dirErr)
+		return apperror.WrapSimple(dirErr, "projects dir")
 	}
 
 	if _, snapErr := snapshotAgyProjects("pre-undo"); snapErr != nil {
-		return fmt.Errorf("snapshot pre-undo: %w", snapErr.Unwrap())
+		return apperror.WrapSimple(snapErr.Unwrap(), "snapshot pre-undo")
 	}
 
 	if copyErr := copyDirContents(chosen, destDir); copyErr != nil {
-		return fmt.Errorf("restore snapshot: %w", copyErr.Unwrap())
+		return apperror.WrapSimple(copyErr.Unwrap(), "restore snapshot")
 	}
 
 	fmt.Printf("%s Restored Antigravity projects from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, filepath.Base(chosen))
@@ -55,7 +56,7 @@ func runAgyUndo() error {
 func runAgyRedo() error {
 	snapshots, err := listAgySnapshots()
 	if err != nil {
-		return fmt.Errorf("list snapshots: %w", err.Unwrap())
+		return apperror.WrapSimple(err.Unwrap(), "list snapshots")
 	}
 
 	chosen := pickLatestSnapshotWithTag(snapshots, "pre-undo")
@@ -67,11 +68,11 @@ func runAgyRedo() error {
 
 	destDir, dirErr := getProjectsDirPath()
 	if dirErr != nil {
-		return fmt.Errorf("projects dir: %w", dirErr)
+		return apperror.WrapSimple(dirErr, "projects dir")
 	}
 
 	if copyErr := copyDirContents(chosen, destDir); copyErr != nil {
-		return fmt.Errorf("restore redo snapshot: %w", copyErr.Unwrap())
+		return apperror.WrapSimple(copyErr.Unwrap(), "restore redo snapshot")
 	}
 
 	fmt.Printf("%s Redone Antigravity projects from snapshot: %s\n", constants.ColorGreen+"✓"+constants.ColorReset, filepath.Base(chosen))

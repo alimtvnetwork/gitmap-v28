@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func readTokenFromTerminal(repoName string) string {
@@ -28,7 +30,7 @@ func askTokenReuseConfirmation() bool {
 func handleTokenInputFlow(repoName string) (AuthPromptResult, error) {
 	token := readTokenFromTerminal(repoName)
 	if token == "" {
-		return AuthPromptResult{}, fmt.Errorf("token cannot be empty")
+		return AuthPromptResult{}, apperror.NewValidationError("token cannot be empty")
 	}
 
 	isReused := askTokenReuseConfirmation()

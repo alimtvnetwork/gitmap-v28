@@ -2,6 +2,7 @@ package cmdtoken
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os/exec"
 	"strings"
 
@@ -70,7 +71,7 @@ func runTokenAdd(args []string) error {
 	tok := strings.TrimSpace(args[0])
 	cmd := exec.Command("git", "config", "--global", "github.token", tok)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to save git config token: %w", err)
+		return apperror.WrapSimple(err, "failed to save git config token")
 	}
 
 	fmt.Printf("%s✔ Successfully saved GitHub token to git global configuration.%s\n", constants.ColorGreen, constants.ColorReset)

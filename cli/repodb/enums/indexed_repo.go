@@ -51,7 +51,7 @@ func (e *IndexedRepoFieldType) UnmarshalJSON(data []byte) error {
 
 	target := IndexedRepoFieldType(s)
 	if !indexedRepoValidMap[target] {
-		return fmt.Errorf("invalid %s enum: %s", "IndexedRepoFieldType", s)
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "IndexedRepoFieldType", s))
 	}
 
 	*e = target
@@ -78,7 +78,7 @@ func (e *IndexedRepoFieldType) FromJSON(s string) *apperror.AppError {
 
 	target := IndexedRepoFieldType(str)
 	if !indexedRepoValidMap[target] {
-		return apperror.WrapSimple(fmt.Errorf("invalid %s enum: %s", "IndexedRepoFieldType", str), "validate field enum from json")
+		return apperror.NewValidationError(fmt.Sprintf("invalid %s enum: %s", "IndexedRepoFieldType", str))
 	}
 
 	*e = target

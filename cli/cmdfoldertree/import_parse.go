@@ -2,9 +2,9 @@ package cmdfoldertree
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"gopkg.in/yaml.v3"
 )
 
@@ -49,7 +49,7 @@ func parseJSONPayload(data []byte) (*FolderTreeNode, error) {
 	if err := json.Unmarshal(data, &pathList); err == nil && len(pathList) > 0 {
 		return buildTreeFromPathList(pathList), nil
 	}
-	return nil, fmt.Errorf("parse json import: invalid format")
+	return nil, apperror.NewValidationError("parse json import: invalid format")
 }
 
 func parseYAMLPayload(data []byte) (*FolderTreeNode, error) {
@@ -65,5 +65,5 @@ func parseYAMLPayload(data []byte) (*FolderTreeNode, error) {
 	if err := yaml.Unmarshal(data, &pathList); err == nil && len(pathList) > 0 {
 		return buildTreeFromPathList(pathList), nil
 	}
-	return nil, fmt.Errorf("parse yaml import: invalid format")
+	return nil, apperror.NewValidationError("parse yaml import: invalid format")
 }

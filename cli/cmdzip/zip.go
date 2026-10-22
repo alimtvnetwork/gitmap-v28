@@ -150,7 +150,7 @@ func resolveCompressionMode(best, fast, standard bool) (archive.CompressionMode,
 	}
 
 	if count > 1 {
-		return "", fmt.Errorf(constants.ErrArchiveBadCompression, constants.CmdZip)
+		return "", apperror.NewValidationError(fmt.Sprintf((constants.ErrArchiveBadCompression), constants.CmdZip))
 	}
 
 	switch {

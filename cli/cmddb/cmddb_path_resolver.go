@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -23,12 +24,12 @@ func OpenResolvedDb(dbArg string) (*sql.DB, string, error) {
 	}
 
 	if _, statErr := os.Stat(dbPath); statErr != nil {
-		return nil, dbPath, fmt.Errorf("database file not found: %s", dbPath)
+		return nil, dbPath, apperror.NewNotFoundError(fmt.Sprintf("database file not found: %s", dbPath))
 	}
 
 	conn, openErr := store.OpenSQLiteDB(dbPath)
 	if openErr != nil {
-		return nil, dbPath, fmt.Errorf("open database '%s': %w", dbPath, openErr)
+		return nil, dbPath, apperror.WrapSimple(openErr, "open database '"+dbPath+"'")
 	}
 
 	IncrementAliasSearchCount(dbArg)
@@ -39,7 +40,7 @@ func OpenResolvedDb(dbArg string) (*sql.DB, string, error) {
 func outputJson(out io.Writer, data any) error {
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return fmt.Errorf("marshal json output: %w", err)
+		return apperror.WrapSimple(err, "marshal json output")
 	}
 	_, writeErr := fmt.Fprintln(out, string(bytes))
 

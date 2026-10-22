@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -71,7 +72,7 @@ func ParseTargets(input string) ([]BuildTarget, error) {
 func parseOneTarget(s string) (BuildTarget, error) {
 	parts := strings.SplitN(s, "/", 2)
 	if len(parts) != 2 || len(parts[0]) == 0 || len(parts[1]) == 0 {
-		return BuildTarget{}, fmt.Errorf("invalid target format %q — expected os/arch", s)
+		return BuildTarget{}, apperror.NewValidationError(fmt.Sprintf("invalid target format %q — expected os/arch", s))
 	}
 
 	return BuildTarget{GOOS: parts[0], GOARCH: parts[1]}, nil

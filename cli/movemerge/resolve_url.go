@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -12,7 +13,7 @@ import (
 func resolveURLEndpoint(ep Endpoint, opts Options) (Endpoint, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return ep, fmt.Errorf("getwd: %w", err)
+		return ep, apperror.WrapSimple(err, "getwd")
 	}
 
 	dir := MapURLToFolder(cwd, ep.URL)
@@ -39,7 +40,7 @@ func resolveURLEndpoint(ep Endpoint, opts Options) (Endpoint, error) {
 func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, error) {
 	origin, err := GetOriginURL(dir)
 	if err != nil {
-		return ep, fmt.Errorf("read origin in %s: %w", dir, err)
+		return ep, apperror.WrapSimple(err, "read origin in "+dir)
 	}
 
 	if IsOriginMatching(origin, ep.URL) {
@@ -50,7 +51,7 @@ func reuseExistingURLFolder(ep Endpoint, dir string, opts Options) (Endpoint, er
 		return handleForceFolder(ep, dir)
 	}
 
-	return ep, fmt.Errorf(constants.ErrMMOriginFmt, dir, origin, ep.URL)
+	return ep, apperror.NewValidationError(fmt.Sprintf(constants.ErrMMOriginFmt, dir, origin, ep.URL))
 }
 
 func handleMatchingOrigin(ep Endpoint, dir string) (Endpoint, error) {
@@ -65,7 +66,7 @@ func handleMatchingOrigin(ep Endpoint, dir string) (Endpoint, error) {
 
 func handleForceFolder(ep Endpoint, dir string) (Endpoint, error) {
 	if rmErr := os.RemoveAll(dir); rmErr != nil {
-		return ep, fmt.Errorf("force-folder remove %s: %w", dir, rmErr)
+		return ep, apperror.WrapSimple(rmErr, "force-folder remove "+dir)
 	}
 
 	if cloneErr := CloneURL(ep.URL, ep.Branch, dir); cloneErr != nil {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // AckReplier handles immediate receipt acknowledgment dispatch for commands.
@@ -19,18 +21,18 @@ func NewAckReplier(transmitter EmailTransmitter) *AckReplier {
 // DispatchAck transmits the immediate ACK confirmation back to the sender.
 func (r *AckReplier) DispatchAck(env *CommandEnvelope) error {
 	if r.transmitter == nil {
-		return fmt.Errorf("nil email transmitter")
+		return apperror.NewValidationError("nil email transmitter")
 	}
 
 	if env == nil {
-		return fmt.Errorf("nil command envelope")
+		return apperror.NewValidationError("nil command envelope")
 	}
 
 	subject := FormatAckSubject(env)
 	body := FormatAckBody(env)
 
 	if err := r.transmitter.Transmit(env.Sender, subject, body); err != nil {
-		return fmt.Errorf("failed to transmit acknowledgment: %w", err)
+		return apperror.WrapSimple(err, "failed to transmit acknowledgment")
 	}
 
 	return nil

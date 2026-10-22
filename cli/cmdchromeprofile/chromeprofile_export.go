@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -44,15 +45,15 @@ func writeChromeExport(srcProfile, name, outPath string) (int, error) {
 	exp := buildExportSnapshot(srcProfile, name)
 	raw, err := json.MarshalIndent(exp, "", constants.JSONIndent)
 	if err != nil {
-		return 0, fmt.Errorf("marshal export: %w", err)
+		return 0, apperror.WrapSimple(err, "marshal export")
 	}
 
 	if err := os.MkdirAll(filepath.Dir(outPath), constants.DirPermission); err != nil {
-		return 0, fmt.Errorf("mkdir %s: %w", filepath.Dir(outPath), err)
+		return 0, apperror.WrapSimple(err, "mkdir "+filepath.Dir(outPath))
 	}
 
 	if err := os.WriteFile(outPath, raw, constants.FilePermission); err != nil {
-		return 0, fmt.Errorf("write %s: %w", outPath, err)
+		return 0, apperror.WrapSimple(err, "write "+outPath)
 	}
 
 	return len(raw), nil
@@ -103,7 +104,7 @@ func refineGaiaAndDisplay(gaiaInfo *chromeGaiaInfo, dispName, email *string, vau
 func applyChromeExport(exp *chromeExport, dstProfile string) error {
 	checkSnapshotVersion(exp.GitMapVersion)
 	if err := os.MkdirAll(dstProfile, constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", dstProfile, err)
+		return apperror.WrapSimple(err, "mkdir "+dstProfile)
 	}
 
 	if err := restoreExportBaseFiles(exp, dstProfile); err != nil {

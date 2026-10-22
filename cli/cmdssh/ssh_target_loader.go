@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -11,13 +12,13 @@ import (
 func loadSSHConnectionsForTarget(target string) ([]db.SSHConnection, error) {
 	dbConn, err := store.OpenDefault()
 	if err != nil {
-		return nil, fmt.Errorf("open store db: %w", err)
+		return nil, apperror.WrapSimple(err, "open store db")
 	}
 	defer dbConn.Close()
 
 	res := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if res.IsFailure() {
-		return nil, fmt.Errorf("retrieve ssh connections: %w", res.AppError())
+		return nil, apperror.WrapSimple(res.AppError(), "retrieve ssh connections")
 	}
 
 	conns := filterConnectionsByTarget(res.Data, target)

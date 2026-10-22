@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -35,19 +36,19 @@ func AppendPullErrorLog(entry PullErrorLogEntry) error {
 	prepared := preparePullLogEntry(entry)
 	logDir := filepath.Join(".gitmap", "logs")
 	if err := os.MkdirAll(logDir, 0755); err != nil {
-		return fmt.Errorf("create pull log dir: %w", err)
+		return apperror.WrapSimple(err, "create pull log dir")
 	}
 
 	logPath := filepath.Join(logDir, "pull-errors.log")
 	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("open pull errors log: %w", err)
+		return apperror.WrapSimple(err, "open pull errors log")
 	}
 	defer f.Close()
 
 	data, err := json.Marshal(prepared)
 	if err != nil {
-		return fmt.Errorf("marshal pull error entry: %w", err)
+		return apperror.WrapSimple(err, "marshal pull error entry")
 	}
 
 	_, writeErr := f.Write(append(data, '\n'))

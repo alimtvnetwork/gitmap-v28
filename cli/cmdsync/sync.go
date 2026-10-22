@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RunSync is the main entry point for the gitmap sync CLI command.
@@ -16,12 +18,12 @@ func RunSync(args []string) error {
 
 	sourceRoot, srcErr := ResolveSourceRoot()
 	if srcErr != nil {
-		return fmt.Errorf("gitmap sync error: %w", srcErr)
+		return apperror.WrapSimple(srcErr, "gitmap sync error")
 	}
 
 	targets, targetErr := ResolveTargetProjects(opts, sourceRoot)
 	if targetErr != nil {
-		return fmt.Errorf("failed to resolve target projects: %w", targetErr)
+		return apperror.WrapSimple(targetErr, "failed to resolve target projects")
 	}
 
 	if len(targets) == 0 {

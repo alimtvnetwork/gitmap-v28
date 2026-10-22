@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const (
@@ -38,7 +40,7 @@ func (s *WindowsService) Install() error {
 	binPath := fmt.Sprintf(`\"%s\" daemon run`, execPath)
 	cmd := exec.Command("sc.exe", "create", WindowsServiceName, "binPath=", binPath, "start=", "auto")
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to register Windows service: %w (output: %s)", err, string(out))
+		return apperror.WrapSimple(err, "failed to register Windows service").WithContext("output", string(out))
 	}
 	return nil
 }
@@ -47,7 +49,7 @@ func (s *WindowsService) Uninstall() error {
 	_ = s.Stop()
 	cmd := exec.Command("sc.exe", "delete", WindowsServiceName)
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to delete Windows service: %w (output: %s)", err, string(out))
+		return apperror.WrapSimple(err, "failed to delete Windows service").WithContext("output", string(out))
 	}
 	return nil
 }

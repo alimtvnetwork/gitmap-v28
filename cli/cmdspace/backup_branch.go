@@ -5,6 +5,8 @@ package cmdspace
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RunBackupBranch implements `gitmap space backup-branch "<task>"`:
@@ -18,7 +20,7 @@ func RunBackupBranch(args []string) error {
 
 	task, noPush, force := parseBackupBranchArgs(args)
 	if task == "" {
-		return fmt.Errorf(`missing task string: usage: gitmap space backup-branch "<task string>" [--no-push] [--force]`)
+		return apperror.NewValidationError(`missing task string: usage: gitmap space backup-branch "<task string>" [--no-push] [--force]`)
 	}
 
 	slug, slugErr := makeBackupSlug(task)

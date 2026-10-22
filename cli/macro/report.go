@@ -3,6 +3,7 @@ package macro
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -115,7 +116,7 @@ func HandleReportOutput(r *ExecutionReport, opts ExecOptions) error {
 	isYAML := determineIsYAML(opts)
 	content, err := FormatReport(r, isYAML)
 	if err != nil {
-		return fmt.Errorf("failed formatting report: %w", err)
+		return apperror.WrapSimple(err, "failed formatting report")
 	}
 
 	if len(opts.FilePath) > 0 {
@@ -142,7 +143,7 @@ func determineIsYAML(opts ExecOptions) bool {
 func writeReportAndNotify(r *ExecutionReport, filePath, content string) error {
 	savedPath, saveErr := SaveReportToFile(filePath, content)
 	if saveErr != nil {
-		return fmt.Errorf("failed saving report to %s: %w", filePath, saveErr)
+		return apperror.WrapSimple(saveErr, fmt.Sprintf("failed saving report to %s", filePath))
 	}
 
 	r.OutputFile = savedPath

@@ -89,7 +89,7 @@ func guardDiffPaths(left, right diff.Endpoint) error {
 	lAbs, _ := filepath.Abs(left.WorkingDir)
 	rAbs, _ := filepath.Abs(right.WorkingDir)
 	if lAbs == rAbs {
-		return fmt.Errorf(constants.ErrDiffSameFolder, lAbs)
+		return apperror.NewExecutionError(fmt.Sprintf((constants.ErrDiffSameFolder), lAbs))
 	}
 
 	return nil

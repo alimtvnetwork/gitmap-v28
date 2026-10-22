@@ -8,13 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func discoverZipCandidates(zipPath string) ([]DiscoveredProfileCandidate, error) {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return nil, fmt.Errorf("open zip %s: %w", zipPath, err)
+		return nil, apperror.WrapSimple(err, "open zip "+zipPath)
 	}
 
 	defer r.Close()
@@ -160,7 +161,7 @@ func importDirectorySnapshotWithStepLogging(dirPath, explicitTarget string) erro
 
 	destPath := chromeProfilePath(target)
 	if err := os.MkdirAll(destPath, constants.DirPermission); err != nil {
-		return fmt.Errorf("mkdir %s: %w", destPath, err)
+		return apperror.WrapSimple(err, "mkdir "+destPath)
 	}
 
 	copyProfileDirectoryDiskFiles(dirPath, destPath)

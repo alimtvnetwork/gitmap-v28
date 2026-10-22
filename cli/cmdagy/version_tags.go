@@ -4,6 +4,7 @@ package cmdagy
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net/http"
 	"strings"
@@ -90,7 +91,7 @@ func fetchFallbackTags(owner, repo string, limit int) ([]GitHubReleaseTagInfo, e
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("github api status: %d", resp.StatusCode)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("github api status: %d", resp.StatusCode))
 	}
 	var rawTags []struct {
 		Name string `json:"name"`

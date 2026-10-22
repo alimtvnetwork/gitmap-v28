@@ -2,6 +2,7 @@ package scanpipe
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,7 +22,7 @@ func tryShallowClone(url string, depth int) (string, error) {
 
 	tmp, err := os.MkdirTemp("", "gitmap-probe-*")
 	if err != nil {
-		return "", fmt.Errorf("mkdtemp: %w", err)
+		return "", apperror.WrapSimple(err, "mkdtemp")
 	}
 
 	defer os.RemoveAll(tmp)
@@ -34,13 +35,13 @@ func tryShallowClone(url string, depth int) (string, error) {
 		url, target,
 	)
 	if out, err := clone.CombinedOutput(); err != nil {
-		return "", fmt.Errorf(constants.ErrProbeCloneFail, summarize(out, err))
+		return "", apperror.NewExecutionError(fmt.Sprintf((constants.ErrProbeCloneFail), summarize(out, err)))
 	}
 
 	tags := exec.Command("git", "-C", target, "tag", "--sort=-v:refname")
 	out, err := tags.Output()
 	if err != nil {
-		return "", fmt.Errorf("git tag: %w", err)
+		return "", apperror.WrapSimple(err, "git tag")
 	}
 
 	for _, line := range strings.Split(string(out), "\n") {

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"golang.org/x/crypto/ssh"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func resolveTCPAddress(ip string) string {
@@ -54,7 +56,7 @@ func ConnectWithFallback(ip, user, keyPath, password string) (*ssh.Client, error
 	if password != "" {
 		return ConnectWithPassword(ip, user, password)
 	}
-	return nil, fmt.Errorf("no valid credentials provided for %s@%s", user, ip)
+	return nil, apperror.NewValidationError(fmt.Sprintf("no valid credentials provided for %s@%s", user, ip))
 }
 
 func tryConnectWithKeyCandidate(ip, user, keyPath string) (*ssh.Client, bool) {
@@ -68,12 +70,12 @@ func tryConnectWithKeyCandidate(ip, user, keyPath string) (*ssh.Client, bool) {
 func parseKeyFile(keyPath string) (ssh.Signer, error) {
 	key, err := os.ReadFile(keyPath)
 	if err != nil {
-		return nil, fmt.Errorf("read private key: %w", err)
+		return nil, apperror.WrapSimple(err, "read private key")
 	}
 
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		return nil, fmt.Errorf("parse private key: %w", err)
+		return nil, apperror.WrapSimple(err, "parse private key")
 	}
 
 	return signer, nil
@@ -91,7 +93,7 @@ func RunCommand(client *ssh.Client, cmd, shellType string) (string, error) {
 	wrappedCmd := wrapCommandForShell(cmd, shellType)
 	out, err := session.CombinedOutput(wrappedCmd)
 	if err != nil {
-		return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))
+		return string(out), apperror.WrapSimple(err, "command execution failed").WithContext("output", string(out))
 	}
 
 	return string(out), nil
@@ -111,7 +113,7 @@ func RunCommandWithInput(client *ssh.Client, cmd, shellType string, in io.Reader
 	wrappedCmd := wrapCommandForShell(cmd, shellType)
 	out, err := session.CombinedOutput(wrappedCmd)
 	if err != nil {
-		return string(out), fmt.Errorf("command execution failed: %w (output: %s)", err, string(out))
+		return string(out), apperror.WrapSimple(err, "command execution failed").WithContext("output", string(out))
 	}
 	return string(out), nil
 }

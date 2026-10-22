@@ -43,7 +43,7 @@ func runChromeProfileReconcile(args []string) error {
 	}
 
 	if err := writeChromeLocalState(localStatePath, rootRes.Data); err != nil {
-		return fmt.Errorf("reconcile write Local State: %w", err)
+		return apperror.WrapSimple(err, "reconcile write Local State")
 	}
 
 	fmt.Printf("\n\033[1;92m✓ Chrome Profile Reconciliation Complete:\033[0m %d profile(s) reconciled in Local State.\n\n", reconciledCount)

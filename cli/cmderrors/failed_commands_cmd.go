@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -62,13 +63,13 @@ func isFailedCountRequested(args []string) bool {
 func handleClearFailedCommands() error {
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
 
 	if err := db.ClearFailedCommands(); err != nil {
-		return fmt.Errorf("clear failed commands: %w", err)
+		return apperror.WrapSimple(err, "clear failed commands")
 	}
 
 	fmt.Println("  ✓ Cleared all recorded failed/undetected commands from FailedCommand table in gitmap-errors.db.")
@@ -81,14 +82,14 @@ func handleCountFailedCommands(args []string) error {
 
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
 
 	distinctCount, totalHits, countErr := db.CountFailedCommands()
 	if countErr != nil {
-		return fmt.Errorf("count failed commands: %w", countErr)
+		return apperror.WrapSimple(countErr, "count failed commands")
 	}
 
 	if isJSON {
@@ -122,14 +123,14 @@ func handleListFailedCommands(args []string) error {
 
 	db, err := store.OpenErrorsSplitDB()
 	if err != nil {
-		return fmt.Errorf("open errors db: %w", err)
+		return apperror.WrapSimple(err, "open errors db")
 	}
 
 	defer db.Close()
 
 	summary, sumErr := db.GetFailedCommandSummary(limit)
 	if sumErr != nil {
-		return fmt.Errorf("list failed commands: %w", sumErr)
+		return apperror.WrapSimple(sumErr, "list failed commands")
 	}
 
 	if isJSON {

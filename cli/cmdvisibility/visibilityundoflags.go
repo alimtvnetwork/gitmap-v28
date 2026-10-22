@@ -46,7 +46,7 @@ func mustParseRunID(args []string, i int) int64 {
 		err := apperror.NewWithDetails(
 			"cmd.visibility.mustParseRunID",
 			"E1068",
-			fmt.Sprintf(constants.ErrUndoBadRunFlagFmt, "", fmt.Errorf("missing value"), "no value after --run"),
+			fmt.Sprintf(constants.ErrUndoBadRunFlagFmt, "", apperror.NewExecutionError("missing value"), "no value after --run"),
 			"cmd.visibility",
 			apperror.ErrorTypeValidation,
 			apperror.SeverityError,

@@ -28,6 +28,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // LinkInfo + VolumeID constants from [MS-SHLLINK] §2.3.
@@ -56,7 +58,7 @@ const (
 //	// raw[len(raw)-1]                 = 0x00 CommonPathSuffix terminator
 func buildLinkInfo(target string) ([]byte, error) {
 	if bytes.IndexByte([]byte(target), 0) >= 0 {
-		return nil, fmt.Errorf("shortcut target contains NUL byte")
+		return nil, apperror.NewValidationError("shortcut target contains NUL byte")
 	}
 
 	volumeID := buildVolumeID()
@@ -91,17 +93,17 @@ type linkInfoOffsets struct {
 func computeLinkInfoOffsets(volumeID, pathBytes, suffixBytes []byte) (linkInfoOffsets, error) {
 	volSize, err := safeUint32(len(volumeID))
 	if err != nil {
-		return linkInfoOffsets{}, fmt.Errorf("volumeID size: %w", err)
+		return linkInfoOffsets{}, apperror.WrapSimple(err, "volumeID size")
 	}
 
 	pathSize, err := safeUint32(len(pathBytes))
 	if err != nil {
-		return linkInfoOffsets{}, fmt.Errorf("target path size: %w", err)
+		return linkInfoOffsets{}, apperror.WrapSimple(err, "target path size")
 	}
 
 	suffixSize, err := safeUint32(len(suffixBytes))
 	if err != nil {
-		return linkInfoOffsets{}, fmt.Errorf("suffix size: %w", err)
+		return linkInfoOffsets{}, apperror.WrapSimple(err, "suffix size")
 	}
 
 	volOff := linkInfoHeaderSize
@@ -144,7 +146,7 @@ func assembleLinkInfo(o linkInfoOffsets, volumeID, pathBytes, suffixBytes []byte
 // gosec G115 guard is uniform across every offset/size we compute.
 func safeUint32(n int) (uint32, error) {
 	if n < 0 || n > math.MaxUint32 {
-		return 0, fmt.Errorf("value %d out of uint32 range", n)
+		return 0, apperror.NewValidationError(fmt.Sprintf("value %d out of uint32 range", n))
 	}
 
 	return uint32(n), nil

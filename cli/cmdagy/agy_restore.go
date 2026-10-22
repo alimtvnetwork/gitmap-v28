@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/spf13/cobra"
@@ -86,7 +87,7 @@ func findWellKnownBackupFile(home string) (string, error) {
 	if hasFile {
 		return wellKnown, nil
 	}
-	return "", fmt.Errorf("no AGY restore snapshot JSON found in ~/.gitmap or %s", wellKnown)
+	return "", apperror.NewNotFoundError(fmt.Sprintf("no AGY restore snapshot JSON found in ~/.gitmap or %s", wellKnown))
 }
 
 func readSnapshotPayload(path string) (AGYRestoreSnapshot, error) {

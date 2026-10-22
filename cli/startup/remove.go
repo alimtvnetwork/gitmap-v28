@@ -8,11 +8,11 @@ package startup
 // winbackend.go which tries Registry then Startup-folder.
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -148,7 +148,7 @@ func removeIfManaged(full string, opts RemoveOptions) (RemoveResult, error) {
 	}
 
 	if err := os.Remove(full); err != nil {
-		return RemoveResult{}, fmt.Errorf("delete %s: %w", full, err)
+		return RemoveResult{}, apperror.WrapSimple(err, "delete "+full)
 	}
 
 	return RemoveResult{Status: RemoveDeleted, Path: full}, nil

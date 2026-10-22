@@ -84,12 +84,12 @@ func isGitWorkingTree() bool {
 func collectGoldenDiffEntries() ([]goldenDiffEntry, error) {
 	statusRes := readPorcelainStatuses()
 	if statusRes.IsFailure() {
-		return nil, fmt.Errorf("git status: %w", statusRes.AppError())
+		return nil, apperror.WrapSimple(statusRes.AppError(), "git status")
 	}
 
 	numstatRes := readNumstatCounts()
 	if numstatRes.IsFailure() {
-		return nil, fmt.Errorf("git diff numstat: %w", numstatRes.AppError())
+		return nil, apperror.WrapSimple(numstatRes.AppError(), "git diff numstat")
 	}
 
 	return mergeStatusAndNumstat(statusRes.Data, numstatRes.Data), nil
@@ -221,7 +221,7 @@ func runGitCapture(args ...string) (string, error) {
 	out, err := cmd.Output()
 	var exitErr *exec.ExitError
 	if err != nil && errors.As(err, &exitErr) {
-		return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
+		return "", apperror.WrapSimple(err, "git capture").WithContext("output", strings.TrimSpace(stderr.String()))
 	}
 
 	if err != nil {

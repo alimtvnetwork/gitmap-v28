@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
@@ -19,14 +20,14 @@ func UploadAsset(owner, repo string, releaseID int, filePath, token string) erro
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("open asset: %w", err)
+		return apperror.WrapSimple(err, "open asset")
 	}
 
 	defer file.Close()
 
 	info, err := file.Stat()
 	if err != nil {
-		return fmt.Errorf("stat asset: %w", err)
+		return apperror.WrapSimple(err, "stat asset")
 	}
 
 	req := newGitHubRequest(http.MethodPost, u, file, info.Size())
@@ -35,7 +36,7 @@ func UploadAsset(owner, repo string, releaseID int, filePath, token string) erro
 
 	resp, err := doGitHubRequest(req)
 	if err != nil {
-		return fmt.Errorf("upload asset: %w", err)
+		return apperror.WrapSimple(err, "upload asset")
 	}
 
 	defer resp.Body.Close()

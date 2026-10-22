@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
@@ -18,7 +19,7 @@ func RepoExists(owner, repo string) (bool, error) {
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return false, fmt.Errorf("create request: %w", err)
+		return false, apperror.WrapSimple(err, "create request")
 	}
 
 	token, _, _ := secrets.Resolve()
@@ -30,7 +31,7 @@ func RepoExists(owner, repo string) (bool, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return false, fmt.Errorf("check repo existence: %w", err)
+		return false, apperror.WrapSimple(err, "check repo existence")
 	}
 
 	defer resp.Body.Close()
@@ -43,7 +44,7 @@ func RepoExists(owner, repo string) (bool, error) {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("GitHub API returned %d checking %s/%s", resp.StatusCode, owner, repo)
+	return false, apperror.NewExecutionError(fmt.Sprintf("GitHub API returned %d checking %s/%s", resp.StatusCode, owner, repo))
 }
 
 // RepoCreateParams encapsulates parameters for creating a GitHub repository.
@@ -68,10 +69,10 @@ func CreateRepo(owner, repoName string, isPrivate bool) error {
 func resolveRepoToken() (string, error) {
 	token, _, err := secrets.Resolve()
 	if err != nil {
-		return "", fmt.Errorf("resolve GitHub token failed: %w", err)
+		return "", apperror.WrapSimple(err, "resolve GitHub token failed")
 	}
 	if len(token) == 0 {
-		return "", fmt.Errorf("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")
+		return "", apperror.NewExecutionError("no GitHub token available — set GITHUB_TOKEN or run `gh auth login`")
 	}
 	return token, nil
 }
@@ -114,12 +115,12 @@ func postCreateRepo(params RepoCreateParams) error {
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return fmt.Errorf("marshal repo payload: %w", err)
+		return apperror.WrapSimple(err, "marshal repo payload")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, params.ApiURL, strings.NewReader(string(jsonData)))
 	if err != nil {
-		return fmt.Errorf("create request: %w", err)
+		return apperror.WrapSimple(err, "create request")
 	}
 
 	req.Header.Set("Authorization", "token "+params.Token)
@@ -128,7 +129,7 @@ func postCreateRepo(params RepoCreateParams) error {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("create repo: %w", err)
+		return apperror.WrapSimple(err, "create repo")
 	}
 
 	defer resp.Body.Close()
@@ -139,7 +140,7 @@ func postCreateRepo(params RepoCreateParams) error {
 
 	body, _ := io.ReadAll(resp.Body)
 
-	return fmt.Errorf("GitHub API error %d: %s", resp.StatusCode, string(body))
+	return apperror.NewExecutionError(fmt.Sprintf("GitHub API error %d: %s", resp.StatusCode, string(body)))
 }
 
 // ParseOwnerRepo extracts owner and repo name from a GitHub remote URL.
@@ -154,18 +155,18 @@ func ParseOwnerRepo(remoteURL string) (string, string, error) {
 
 	// SSH: git@github.com:owner/repo
 	if !strings.Contains(url, "@") {
-		return "", "", fmt.Errorf("unrecognized remote URL format: %s", remoteURL)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("unrecognized remote URL format: %s", remoteURL))
 	}
 
 	colonIdx := strings.LastIndex(url, ":")
 	if colonIdx < 0 {
-		return "", "", fmt.Errorf("invalid SSH remote URL: %s", remoteURL)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid SSH remote URL: %s", remoteURL))
 	}
 
 	path := url[colonIdx+1:]
 	parts := strings.Split(path, "/")
 	if len(parts) < 2 {
-		return "", "", fmt.Errorf("invalid SSH remote path: %s", remoteURL)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid SSH remote path: %s", remoteURL))
 	}
 
 	return parts[0], parts[1], nil
@@ -174,7 +175,7 @@ func ParseOwnerRepo(remoteURL string) (string, string, error) {
 func parseHttpsOwnerRepo(url, remoteURL string) (string, string, error) {
 	parts := strings.Split(url, "/")
 	if len(parts) < 5 {
-		return "", "", fmt.Errorf("invalid HTTPS remote URL: %s", remoteURL)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("invalid HTTPS remote URL: %s", remoteURL))
 	}
 
 	return parts[len(parts)-2], parts[len(parts)-1], nil

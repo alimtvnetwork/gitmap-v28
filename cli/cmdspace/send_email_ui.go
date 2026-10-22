@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -112,7 +113,7 @@ func applySendEmailUIArg(args []string, i int, opts *sendEmailUIOptions) (int, e
 	case arg == "--non-interactive":
 		opts.isInteractive = false
 	default:
-		return i, fmt.Errorf("unknown UI flag %q: run 'gitmap space email ui --help'", arg)
+		return i, apperror.NewValidationError(fmt.Sprintf("unknown UI flag %q: run 'gitmap space email ui --help'", arg))
 	}
 	return i, nil
 }

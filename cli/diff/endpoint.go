@@ -7,6 +7,7 @@ package diff
 
 import (
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,12 +33,12 @@ func ResolveEndpoint(raw string) (Endpoint, error) {
 	ep := Endpoint{Raw: raw, DisplayName: trimmed}
 
 	if isURLLike(trimmed) {
-		return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, trimmed)
+		return ep, apperror.NewExecutionError(fmt.Sprintf((constants.ErrDiffNotFolderFmt), trimmed))
 	}
 
 	abs, err := filepath.Abs(trimmed)
 	if err != nil {
-		return ep, fmt.Errorf("resolve abs path %s: %w", trimmed, err)
+		return ep, apperror.WrapSimple(err, fmt.Sprintf("resolve abs path %s", trimmed))
 	}
 
 	ep.WorkingDir = abs
@@ -49,15 +50,15 @@ func ResolveEndpoint(raw string) (Endpoint, error) {
 func validateFolder(ep Endpoint) (Endpoint, error) {
 	info, err := os.Stat(ep.WorkingDir)
 	if os.IsNotExist(err) {
-		return ep, fmt.Errorf(constants.ErrDiffMissingFmt, ep.DisplayName)
+		return ep, apperror.NewNotFoundError(fmt.Sprintf((constants.ErrDiffMissingFmt), ep.DisplayName))
 	}
 
 	if err != nil {
-		return ep, fmt.Errorf("stat %s: %w", ep.WorkingDir, err)
+		return ep, apperror.WrapSimple(err, fmt.Sprintf("stat %s", ep.WorkingDir))
 	}
 
 	if !info.IsDir() {
-		return ep, fmt.Errorf(constants.ErrDiffNotFolderFmt, ep.DisplayName)
+		return ep, apperror.NewExecutionError(fmt.Sprintf((constants.ErrDiffNotFolderFmt), ep.DisplayName))
 	}
 
 	return ep, nil

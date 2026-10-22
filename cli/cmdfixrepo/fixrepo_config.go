@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -76,10 +77,10 @@ func resolveFixRepoConfigPath(explicit, repoRoot string) (string, error) {
 func resolveExplicitConfigPath(explicit string) (string, error) {
 	info, err := os.Stat(explicit)
 	if err != nil {
-		return "", fmt.Errorf("config file not found %s: %w", explicit, err)
+		return "", apperror.WrapNotFound(err, "config file not found "+explicit)
 	}
 	if info.IsDir() {
-		return "", fmt.Errorf("config file is directory: %s", explicit)
+		return "", apperror.NewValidationError("config file is directory: " + explicit)
 	}
 
 	return explicit, nil

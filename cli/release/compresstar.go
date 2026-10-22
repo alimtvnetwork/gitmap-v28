@@ -4,10 +4,11 @@ package release
 import (
 	"archive/tar"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // createTarGz wraps a file into a .tar.gz archive.
@@ -15,7 +16,7 @@ func createTarGz(srcPath string) (string, error) {
 	archivePath := srcPath + ".tar.gz"
 	outFile, err := os.Create(archivePath)
 	if err != nil {
-		return "", fmt.Errorf("create tar.gz: %w", err)
+		return "", apperror.WrapSimple(err, "create tar.gz")
 	}
 
 	defer outFile.Close()
@@ -44,26 +45,26 @@ func createTarGz(srcPath string) (string, error) {
 func addFileToTar(tw *tar.Writer, srcPath string) error {
 	src, err := os.Open(srcPath)
 	if err != nil {
-		return fmt.Errorf("open source: %w", err)
+		return apperror.WrapSimple(err, "open source")
 	}
 
 	defer src.Close()
 
 	info, err := src.Stat()
 	if err != nil {
-		return fmt.Errorf("stat source: %w", err)
+		return apperror.WrapSimple(err, "stat source")
 	}
 
 	header, err := tar.FileInfoHeader(info, "")
 	if err != nil {
-		return fmt.Errorf("tar header: %w", err)
+		return apperror.WrapSimple(err, "tar header")
 	}
 
 	header.Name = filepath.Base(srcPath)
 
 	err = tw.WriteHeader(header)
 	if err != nil {
-		return fmt.Errorf("write header: %w", err)
+		return apperror.WrapSimple(err, "write header")
 	}
 
 	_, err = io.Copy(tw, src)

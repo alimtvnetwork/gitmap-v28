@@ -41,7 +41,7 @@ func DispatchTaskSQLite(args []string) error {
 	case "help", "-h", "--help":
 		return printTaskSQLiteHelp()
 	default:
-		return fmt.Errorf("unknown task subcommand: %s", sub)
+		return apperror.NewValidationError(fmt.Sprintf("unknown task subcommand: %s", sub))
 	}
 }
 
