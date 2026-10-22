@@ -10,7 +10,12 @@ import (
 // RenderMenu prints a formatted, auto-aligned HelpMenu to standard output.
 func RenderMenu(menu HelpMenu) {
 	theme := DefaultTheme()
-	PrintBanner(menu.Title, theme.BannerColor)
+	bannerColor := menu.BannerColor
+	if bannerColor == "" {
+		bannerColor = theme.BannerColor
+	}
+
+	PrintBanner(menu.Title, bannerColor)
 	PrintUsage(menu.UsageLines)
 	colWidth := CalculateMaxCommandWidth(menu.Sections, 26, 44)
 	for _, sec := range menu.Sections {

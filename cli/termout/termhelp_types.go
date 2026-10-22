@@ -18,6 +18,7 @@ type HelpSection struct {
 // HelpMenu holds complete menu configuration for a command suite.
 type HelpMenu struct {
 	Title       string
+	BannerColor string
 	UsageLines  []string
 	Sections    []HelpSection
 	FooterFlags []CommandEntry

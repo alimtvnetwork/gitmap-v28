@@ -1,41 +1,95 @@
 package cmdcg
 
-type CgHelpComponent1 struct{}
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
+)
 
-func InitCgHelpComponent1() error         { return nil }
-func (x *CgHelpComponent1) Process() bool { return true }
+// RenderCGHelp displays the styled two-column Coding Guidelines help menu.
+func RenderCGHelp() {
+	termout.RenderMenu(buildCGHelpMenu())
+}
 
-type CgHelpComponent2 struct{}
+func buildCGHelpMenu() termout.HelpMenu {
+	return termout.HelpMenu{
+		Title:       "Coding Guidelines, Prompts & Quality Standards (gitmap cg)",
+		BannerColor: constants.ColorCyan,
+		UsageLines:  buildCGUsageLines(),
+		Sections: []termout.HelpSection{
+			buildCGOpsSection(),
+			buildCGPromptSection(),
+			buildCGVersioningSection(),
+		},
+		FooterFlags: buildCGFooterFlags(),
+		Tips:        buildCGTips(),
+	}
+}
 
-func InitCgHelpComponent2() error         { return nil }
-func (x *CgHelpComponent2) Process() bool { return true }
+func buildCGUsageLines() []string {
+	return []string{
+		"gitmap cg <command> [targets...] [flags]",
+		"gitmap cg status [--all]",
+		"gitmap cg audit [targets...]",
+		"gitmap cg doctor [targets...]",
+		"gitmap cg sync [targets...] [--all]",
+	}
+}
 
-type CgHelpComponent3 struct{}
+func buildCGOpsSection() termout.HelpSection {
+	return termout.HelpSection{
+		Title: "Coding Guidelines Operations",
+		Color: constants.ColorGreen,
+		Entries: []termout.CommandEntry{
+			{Command: "status, stat, ls", Description: "View tabulated Coding Guidelines install status & version across repos"},
+			{Command: "audit, check", Description: "Deep audit of coding standards compliance (specs, rules, memory)"},
+			{Command: "doctor, doc", Description: "Health check and configuration repair diagnostics for coding guidelines"},
+			{Command: "install", Description: "Install official Coding Guidelines standards into target repositories"},
+			{Command: "update", Description: "In-place update of Coding Guidelines for installed repositories"},
+			{Command: "diff, drift", Description: "Compare local guidelines version with latest upstream canonical standards"},
+		},
+	}
+}
 
-func InitCgHelpComponent3() error         { return nil }
-func (x *CgHelpComponent3) Process() bool { return true }
+func buildCGPromptSection() termout.HelpSection {
+	return termout.HelpSection{
+		Title: "Prompt Architect & AI Standards",
+		Color: constants.ColorCyan,
+		Entries: []termout.CommandEntry{
+			{Command: "install-prompts", Description: "Install Prompt Architect v2 suite and canonical prompt library"},
+			{Command: "update-prompts", Description: "In-place update of Prompt Architect templates across target repos"},
+			{Command: "prompts-status", Description: "Check installed status and version of Prompt Architect"},
+			{Command: "prompts-version", Description: "Show Prompt Architect version installed in repositories"},
+			{Command: "sync, sy", Description: "Unified sync of both Coding Guidelines and Prompt Architect"},
+		},
+	}
+}
 
-type CgHelpComponent4 struct{}
+func buildCGVersioningSection() termout.HelpSection {
+	return termout.HelpSection{
+		Title: "Canonical Versioning & SSOT",
+		Color: constants.ColorYellow,
+		Entries: []termout.CommandEntry{
+			{Command: "version, ver, -v", Description: "Display installed Coding Guidelines version"},
+			{Command: "install-version-json, init-version", Description: "Initialize canonical version.json SSOT with version tag"},
+			{Command: "general, general-install", Description: "Multi-repo installation suite across discovered workspaces"},
+		},
+	}
+}
 
-func InitCgHelpComponent4() error         { return nil }
-func (x *CgHelpComponent4) Process() bool { return true }
+func buildCGFooterFlags() []termout.CommandEntry {
+	return []termout.CommandEntry{
+		{Command: "--all", Description: "Execute across all discovered repositories in database"},
+		{Command: "--dry-run", Description: "Simulate operations without modifying files"},
+		{Command: "--exclude, --except <csv>", Description: "Comma-separated list of repository names to skip"},
+		{Command: "--version <ver>", Description: "Starting version value for version.json (default: 1.0.0)"},
+		{Command: "-j, --json", Description: "Emit results formatted as JSON telemetry"},
+		{Command: "-h, --help", Description: "Display this formatted help screen"},
+	}
+}
 
-type CgHelpComponent5 struct{}
-
-func InitCgHelpComponent5() error         { return nil }
-func (x *CgHelpComponent5) Process() bool { return true }
-
-type CgHelpComponent6 struct{}
-
-func InitCgHelpComponent6() error         { return nil }
-func (x *CgHelpComponent6) Process() bool { return true }
-
-type CgHelpComponent7 struct{}
-
-func InitCgHelpComponent7() error         { return nil }
-func (x *CgHelpComponent7) Process() bool { return true }
-
-type CgHelpComponent8 struct{}
-
-func InitCgHelpComponent8() error         { return nil }
-func (x *CgHelpComponent8) Process() bool { return true }
+func buildCGTips() []string {
+	return []string{
+		"Run 'gitmap cg audit' anytime to inspect coding guideline compliance.",
+		"Use 'gitmap cg sync --all' to keep your entire local fleet synchronized with upstream.",
+	}
+}

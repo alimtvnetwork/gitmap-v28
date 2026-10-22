@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 var cgCommand = "cg"
@@ -25,42 +25,90 @@ type cgOptions struct {
 	Action       string
 }
 
-func parseCGFlags(args []string) cgOptions {
-	fs := flag.NewFlagSet(cgCommand, flag.ExitOnError)
-	var opts cgOptions
+func isCGHelpArg(arg string) bool {
+	return arg == "help" || arg == "-h" || arg == "--help"
+}
+
+func hasCGHelpArg(args []string) bool {
+	for _, arg := range args {
+		if isCGHelpArg(arg) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func initCGFlagSet(fs *flag.FlagSet, opts *cgOptions) {
 	fs.BoolVar(&opts.All, "all", false, "Run on all workspaces")
 	fs.BoolVar(&opts.DryRun, "dry-run", false, "Simulate execution without modifying files")
 	fs.StringVar(&opts.Exclude, "except", "", "Exclude repos (comma separated)")
 	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude repos (comma separated)")
 	fs.StringVar(&opts.VersionValue, "version", "", "Starting version value for version.json (default: 1.0.0)")
 	fs.StringVar(&opts.VersionValue, "version-value", "", "Starting version value for version.json (default: 1.0.0)")
-	fs.Parse(reorderFlagsBeforeArgs(args))
+}
 
-	argsAfterParse := fs.Args()
-	if len(argsAfterParse) == 0 {
-		fmt.Fprintf(os.Stderr, "Usage: gitmap cg [version|status|install|update|install-version-json|install-prompts|update-prompts|prompts-status|prompts-version] [repo1 repo2...] [--all]\n")
-		cliexit.HandleError(nil, 1)
+func isCGGeneralInstall(args []string) bool {
+	return len(args) > 1 && (args[1] == "general" || args[1] == "general-install")
+}
+
+func parseCGInstallGeneral(opts cgOptions, args []string) cgOptions {
+	opts.Action = "general"
+	if len(args) > 2 {
+		opts.Repos = args[2:]
 	}
 
-	opts.Action = argsAfterParse[0]
-	if opts.Action == "repo" && len(argsAfterParse) > 1 {
-		return parseCGRepoAction(opts, argsAfterParse)
+	return opts
+}
+
+func resolveCGSingleAction(opts cgOptions, args []string) cgOptions {
+	if opts.Action == "repo" && len(args) > 1 {
+		return parseCGRepoAction(opts, args)
 	}
 
-	if opts.Action == "install" && len(argsAfterParse) > 1 && (argsAfterParse[1] == "general" || argsAfterParse[1] == "general-install") {
-		opts.Action = "general"
-		if len(argsAfterParse) > 2 {
-			opts.Repos = argsAfterParse[2:]
-		}
+	if opts.Action == "install" && isCGGeneralInstall(args) {
+		return parseCGInstallGeneral(opts, args)
+	}
+
+	return parseCGGeneralAction(opts, args)
+}
+
+func resolveCGAction(opts cgOptions, args []string) cgOptions {
+	if len(args) == 0 || isCGHelpArg(args[0]) {
+		opts.Action = "help"
 
 		return opts
 	}
 
-	return parseCGGeneralAction(opts, argsAfterParse)
+	opts.Action = args[0]
+
+	return resolveCGSingleAction(opts, args)
+}
+
+func parseCGFlags(args []string) cgOptions {
+	if len(args) == 0 || hasCGHelpArg(args) {
+		return cgOptions{Action: "help"}
+	}
+
+	fs := flag.NewFlagSet(cgCommand, flag.ContinueOnError)
+	var opts cgOptions
+	initCGFlagSet(fs, &opts)
+	_ = fs.Parse(reorderFlagsBeforeArgs(args))
+
+	return resolveCGAction(opts, fs.Args())
 }
 
 func parseCGRepoAction(opts cgOptions, args []string) cgOptions {
 	opts.Action = args[1]
+	if len(args) > 2 {
+		opts.Repos = args[2:]
+	}
+
+	return opts
+}
+
+func parseCGAllAction(opts cgOptions, args []string) cgOptions {
+	opts.All = true
 	if len(args) > 2 {
 		opts.Repos = args[2:]
 	}
@@ -73,17 +121,8 @@ func parseCGGeneralAction(opts cgOptions, args []string) cgOptions {
 		return opts
 	}
 
-	if args[1] == "all" && len(args) > 2 {
-		opts.All = true
-		opts.Repos = args[2:]
-
-		return opts
-	}
-
 	if args[1] == "all" {
-		opts.All = true
-
-		return opts
+		return parseCGAllAction(opts, args)
 	}
 
 	opts.Repos = args[1:]
@@ -91,9 +130,105 @@ func parseCGGeneralAction(opts cgOptions, args []string) cgOptions {
 	return opts
 }
 
-func runCG(args []string) error {
-	opts := parseCGFlags(args)
+func hasDispatchedCGStatus(action string, repos []string) bool {
+	switch action {
+	case "help":
+		RenderCGHelp()
+	case "version", "ver", "-v":
+		PrintCGVersion(repos)
+	case "status", "stat", "ls":
+		PrintCGStatus(repos)
+	default:
 
+		return false
+	}
+
+	return true
+}
+
+func hasDispatchedCGDiagnostic(action string, repos []string) bool {
+	switch action {
+	case "audit", "check":
+		RunCGAudit(repos, false)
+	case "doctor", "doc":
+		RunCGDoctor(repos)
+	case "diff", "drift":
+		RunCGDiff(repos)
+	default:
+
+		return false
+	}
+
+	return true
+}
+
+func hasDispatchedCGMutation(action string, repos []string, opts cgOptions) bool {
+	switch action {
+	case "sync", "sy":
+		RunCGSync(repos, opts.DryRun)
+	case "update":
+		runCGUpdateAction(repos)
+	case "install":
+		executeCGWorkers(repos)
+	default:
+
+		return false
+	}
+
+	return true
+}
+
+func hasDispatchedCGVersionInit(action string, repos []string, opts cgOptions) bool {
+	if action != "install-version-json" && action != "install-version" && action != "init-version" && action != "version-init" {
+		return false
+	}
+
+	runCGInstallVersionJSON(repos, opts.VersionValue, opts.DryRun)
+
+	return true
+}
+
+func hasDispatchedCGPrompt(action string, repos []string, opts cgOptions) bool {
+	switch action {
+	case "install-prompts", "install-prompt", "prompts-install", "update-prompts", "update-prompt", "prompts-update":
+		runCGInstallPrompts(repos, opts.DryRun)
+	case "prompts-status", "prompts-ls", "prompt-status":
+		cmdprompt.RunPromptStatus(repos)
+	case "prompts-version", "prompt-version":
+		cmdprompt.RunPromptVersion(repos)
+	default:
+
+		return false
+	}
+
+	return true
+}
+
+func hasDispatchedAnyCGAction(opts cgOptions, repos []string) bool {
+	hasStatus := hasDispatchedCGStatus(opts.Action, repos)
+	hasDiag := hasDispatchedCGDiagnostic(opts.Action, repos)
+	hasMut := hasDispatchedCGMutation(opts.Action, repos, opts)
+	hasVer := hasDispatchedCGVersionInit(opts.Action, repos, opts)
+	hasPrompt := hasDispatchedCGPrompt(opts.Action, repos, opts)
+
+	return hasStatus || hasDiag || hasMut || hasVer || hasPrompt
+}
+
+func dispatchCGAction(opts cgOptions, repos []string, args []string) error {
+	if hasDispatchedAnyCGAction(opts, repos) {
+		return nil
+	}
+
+	if opts.Action == "general" || opts.Action == "general-install" || opts.Action == "install-general" {
+		return RunCGGeneral(args)
+	}
+
+	RenderCGHelp()
+
+	return apperror.NewValidationError(fmt.Sprintf("unknown action: %s", opts.Action))
+}
+
+func executeCGAction(opts cgOptions, args []string) error {
 	repos := resolveCGRepos(opts)
 	if len(repos) == 0 {
 		fmt.Println("No repositories to process.")
@@ -101,31 +236,18 @@ func runCG(args []string) error {
 		return nil
 	}
 
-	switch opts.Action {
-	case "version", "ver", "-v":
-		PrintCGVersion(repos)
-	case "status", "stat", "ls":
-		PrintCGStatus(repos)
-	case "install-version-json", "install-version", "init-version", "version-init":
-		runCGInstallVersionJSON(repos, opts.VersionValue, opts.DryRun)
-	case "install-prompts", "install-prompt", "prompts-install", "update-prompts", "update-prompt", "prompts-update":
-		runCGInstallPrompts(repos, opts.DryRun)
-	case "prompts-status", "prompts-ls", "prompt-status":
-		cmdprompt.RunPromptStatus(repos)
-	case "prompts-version", "prompt-version":
-		cmdprompt.RunPromptVersion(repos)
-	case "update":
-		runCGUpdateAction(repos)
-	case "install":
-		executeCGWorkers(repos)
-	case "general", "general-install", "install-general":
-		return RunCGGeneral(args)
-	default:
-		fmt.Fprintf(os.Stderr, "Unknown action: %s\n", opts.Action)
-		cliexit.HandleError(nil, 1)
+	return dispatchCGAction(opts, repos, args)
+}
+
+func runCG(args []string) error {
+	opts := parseCGFlags(args)
+	if opts.Action == "help" {
+		RenderCGHelp()
+
+		return nil
 	}
 
-	return nil
+	return executeCGAction(opts, args)
 }
 
 func runCGUpdateAction(repos []string) {
@@ -133,9 +255,10 @@ func runCGUpdateAction(repos []string) {
 	for _, r := range repos {
 		if _, err := ReadCGMetadata(r); err == nil {
 			toUpdate = append(toUpdate, r)
-		} else {
-			fmt.Printf("Skipping %s (coding guidelines not installed, run `gitmap cg install` first)\n", r)
+			continue
 		}
+
+		fmt.Printf("Skipping %s (coding guidelines not installed, run `gitmap cg install` first)\n", r)
 	}
 
 	if len(toUpdate) > 0 {
@@ -158,6 +281,26 @@ func resolveCGRepos(opts cgOptions) []string {
 	return applyCGExclusions(targetRepos, opts.Exclude)
 }
 
+func extractCGRepoPaths(repos []model.ScanRecord) []string {
+	var targetRepos []string
+	for _, r := range repos {
+		targetRepos = append(targetRepos, r.AbsolutePath)
+	}
+
+	return targetRepos
+}
+
+func queryAllDBRepos(db *store.DB) []model.ScanRecord {
+	repos, errList := db.ListRepos()
+	if errList != nil {
+		fmt.Fprintf(os.Stderr, "Failed to list repos: %v\n", errList)
+
+		return []model.ScanRecord{}
+	}
+
+	return repos
+}
+
 func resolveAllCGRepos() []string {
 	db, err := store.OpenDefault()
 	if err != nil {
@@ -168,19 +311,7 @@ func resolveAllCGRepos() []string {
 
 	defer db.Close()
 
-	repos, err := db.ListRepos()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to list repos: %v\n", err)
-
-		return []string{}
-	}
-
-	var targetRepos []string
-	for _, r := range repos {
-		targetRepos = append(targetRepos, r.AbsolutePath)
-	}
-
-	return targetRepos
+	return extractCGRepoPaths(queryAllDBRepos(db))
 }
 
 func resolveCurrentDirCGRepos() []string {
@@ -197,26 +328,42 @@ func resolveCurrentDirCGRepos() []string {
 	return []string{cwd}
 }
 
-func applyCGExclusions(repos []string, excludeCSV string) []string {
-	if excludeCSV == "" {
-		return repos
-	}
-
+func buildCGExcludeMap(excludeCSV string) map[string]bool {
 	excludes := strings.Split(excludeCSV, ",")
 	excludeMap := make(map[string]bool)
 	for _, e := range excludes {
 		excludeMap[strings.TrimSpace(e)] = true
 	}
 
+	return excludeMap
+}
+
+func getCGRepoBaseName(path string) string {
+	base := strings.TrimSpace(path)
+	name := base[strings.LastIndex(base, "/")+1:]
+	if name == "" {
+		name = base[strings.LastIndex(base, "\\")+1:]
+	}
+
+	return name
+}
+
+func isCGRepoExcluded(r string, excludeMap map[string]bool) bool {
+	base := strings.TrimSpace(r)
+	name := getCGRepoBaseName(base)
+
+	return excludeMap[name] || excludeMap[base]
+}
+
+func applyCGExclusions(repos []string, excludeCSV string) []string {
+	if excludeCSV == "" {
+		return repos
+	}
+
+	excludeMap := buildCGExcludeMap(excludeCSV)
 	var filtered []string
 	for _, r := range repos {
-		base := strings.TrimSpace(r)
-		name := base[strings.LastIndex(base, "/")+1:]
-		if name == "" {
-			name = base[strings.LastIndex(base, "\\")+1:]
-		}
-
-		if !excludeMap[name] && !excludeMap[base] {
+		if !isCGRepoExcluded(r, excludeMap) {
 			filtered = append(filtered, r)
 		}
 	}

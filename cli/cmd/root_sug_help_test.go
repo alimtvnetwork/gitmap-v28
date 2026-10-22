@@ -27,6 +27,15 @@ func TestTryRenderRichTopic_ShutdownUntil(t *testing.T) {
 	}
 }
 
+func TestTryRenderRichTopic_CG(t *testing.T) {
+	topics := []string{"cg", "coding-guide", "coding-guidelines", "ct"}
+	for _, top := range topics {
+		if !tryRenderRichTopic(top) {
+			t.Errorf("expected tryRenderRichTopic(%q) to be true", top)
+		}
+	}
+}
+
 func TestAllHelpRows_ContainsShutdownUntil(t *testing.T) {
 	rows := allHelpRows()
 	var found bool

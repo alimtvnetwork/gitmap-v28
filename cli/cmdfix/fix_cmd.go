@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/parallel"
 )
 

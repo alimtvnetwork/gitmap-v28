@@ -5,6 +5,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautofix"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcluster"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit"
@@ -131,6 +132,10 @@ func tryRenderInfraRichTopic(topic string) bool {
 
 func tryRenderToolRichTopic(topic string) bool {
 	switch topic {
+	case "cg", "coding-guide", "coding-guidelines", "ct":
+		cmdcg.RenderCGHelp()
+
+		return true
 	case "install", "in":
 		cmdinstall.RenderInstallHelp()
 
