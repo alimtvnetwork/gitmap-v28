@@ -203,3 +203,50 @@ func assembleProgressBar(current, total, barWidth int) string {
 	return fmt.Sprintf("[%s%s] %d%%", filledStr, emptyStr, pct)
 }
 
+// TokyoBadge renders text inside a styled badge with custom foreground and background colors.
+// When color is disallowed or stdout is not a TTY, returns plain "[label]".
+func TokyoBadge(label, bgHex, fgHex string) string {
+	if label == "" {
+		return ""
+	}
+	if !colorAllowed() {
+		return fmt.Sprintf("[%s]", label)
+	}
+
+	return renderStyledBadge(label, bgHex, fgHex)
+}
+
+func renderStyledBadge(label, bgHex, fgHex string) string {
+	style := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color(fgHex)).
+		Background(lipgloss.Color(bgHex)).
+		Padding(0, 1)
+
+	return style.Render(label)
+}
+
+// TokyoHeader renders title inside a bold Tokyo Night section header banner.
+// When color is disallowed, returns uppercase title without ANSI styling.
+func TokyoHeader(title string) string {
+	trimmed := strings.TrimSpace(title)
+	if trimmed == "" {
+		return ""
+	}
+	if !colorAllowed() {
+		return strings.ToUpper(trimmed)
+	}
+
+	return renderStyledHeader(strings.ToUpper(trimmed))
+}
+
+func renderStyledHeader(upperTitle string) string {
+	style := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color(TokyoPrimary)).
+		MarginBottom(1)
+
+	return style.Render(upperTitle)
+}
+
+

@@ -29,6 +29,18 @@ const (
 	BorderMinimal BorderStyleType = "minimal"
 )
 
+// WrapModeType defines cell text wrapping behavior for terminal tables.
+type WrapModeType string
+
+const (
+	// WrapClip truncates cell text at column width without appending ellipsis.
+	WrapClip WrapModeType = "clip"
+	// WrapEllipsis truncates cell text exceeding column width with an ellipsis indicator.
+	WrapEllipsis WrapModeType = "ellipsis"
+	// WrapWord wraps text softly at whitespace boundaries across multiple lines.
+	WrapWord WrapModeType = "word"
+)
+
 // ColumnConfig defines configuration options for an individual table column.
 type ColumnConfig struct {
 	Title     string
@@ -36,6 +48,7 @@ type ColumnConfig struct {
 	MinWidth  int
 	Alignment AlignmentType
 	Align     AlignmentType // Backward-compatible field alias
+	WrapMode  WrapModeType
 }
 
 // Column is maintained as a type alias for ColumnConfig for backward compatibility.
@@ -53,7 +66,11 @@ type TableConfig struct {
 	Rows         []Row
 	HeaderColor  string
 	BorderColor  string
+	StripeColor  string
 	HasBorders   bool
+	RowStripe    bool
 	BorderStyle  BorderStyleType
+	WrapMode     WrapModeType
 	EllipsisText string
 }
+

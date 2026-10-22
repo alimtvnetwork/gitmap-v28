@@ -152,6 +152,41 @@ func PrintKeyValPadded(key, val string, keyWidth int, theme Theme) {
 	fmt.Fprintln(output.UI(), FormatKeyValPadded(key, val, keyWidth, theme))
 }
 
+func resolveKeyColor(theme Theme) string {
+	if theme.HeaderColor != "" {
+		return theme.HeaderColor
+	}
+
+	return RoleSGRBold(RolePrimary)
+}
+
+func buildPaddedKeyLabel(key string, keyWidth int) string {
+	keyLabel := key + ":"
+	padLen := keyWidth - VisualStringWidth(keyLabel)
+	if padLen < 1 {
+		padLen = 1
+	}
+
+	return keyLabel + SpacePool(padLen)
+}
+
+// FormatKeyValuePair formats a key-value pair aligned by printable terminal visual width.
+func FormatKeyValuePair(key, val string, keyWidth int, theme Theme) string {
+	paddedKey := buildPaddedKeyLabel(key, keyWidth)
+	if !colorAllowed() {
+		return fmt.Sprintf("  %s %s", paddedKey, val)
+	}
+	keyColor := resolveKeyColor(theme)
+
+	return fmt.Sprintf("  %s%s%s %s", keyColor, paddedKey, Reset(), val)
+}
+
+// PrintKeyValuePair prints a visual-width aligned key-value pair directly to output.UI().
+func PrintKeyValuePair(key, val string, keyWidth int, theme Theme) {
+	fmt.Fprintln(output.UI(), FormatKeyValuePair(key, val, keyWidth, theme))
+}
+
+
 // FormatSectionDivider builds a horizontal subtle line divider with an optional title.
 func FormatSectionDivider(title string, theme Theme) string {
 	trimmed := strings.TrimSpace(title)

@@ -134,6 +134,16 @@ type HeatmapStatusSummary struct {
 	TopTouchedFiles      []FileTouchCount `json:"topTouchedFiles"`
 }
 
+// HeatmapTaskSummary aggregates overall action volume and categorizes actions by operation touch type for a task.
+type HeatmapTaskSummary struct {
+	TaskSlug     string `json:"taskSlug"`
+	TotalActions int    `json:"totalActions"`
+	ReadCount    int    `json:"readCount"`
+	EditCount    int    `json:"editCount"`
+	CreateCount  int    `json:"createCount"`
+	OtherCount   int    `json:"otherCount"`
+}
+
 // FileTouchType represents the categorical operation applied to a touched file.
 type FileTouchType string
 

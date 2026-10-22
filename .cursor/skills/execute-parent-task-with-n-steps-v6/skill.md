@@ -160,6 +160,19 @@ Proceeding directly to Preflight & Phase 1B Spec Generation (Active Tool Call Ru
 
 If sources conflict, follow stricter one and record under `Conflicts:` in ledger.
 
+### 1.1 Non-Negotiable Guardrails & Rules Invariants
+
+### 1.1.E Strict Coding Guideline Enforcement Matrix
+Every code modification executed across any subtask or wave must pass the 8-Pillar Quality Gate:
+1. **Error Management:** Zero orphaned errors (`_ = err` banned). Structured errors must return `*appfault.AppError` from `pkg/appfault`.
+2. **Monadic Results:** Fallible functions return `Result[T]` or `*appfault.AppError`.
+3. **Parameter Structs:** Any function with >2–3 parameters must use a dedicated `*Params` struct.
+4. **String Constants & Enums:** Zero raw magic strings; all strings must use PascalCase enums with `Type` suffix.
+5. **Function Sizing:** Functions kept strictly between 8–15 lines (target 8–10 lines).
+6. **File Sizing:** Files bounded within 150–300 lines (UI components <= 100 lines).
+7. **Vertical Spacing:** Mandatory blank line before `if`, after `}`, before `return`, and around multiline structs.
+8. **Positive Booleans:** Affirmative `is*`/`has*` only, zero explicit `== true`, zero mixed polarity in conditions.
+
 ### Scope Control Rules
 - **Turn 1 Task Showcase:** In your very first response turn, you MUST showcase and list out the given task in visible chat. Running tools silently without presenting the task breakdown is strictly banned.
 - **Read budget:** Read only requested paths, search hits, and Step 0 context.
@@ -576,6 +589,11 @@ Write your subtask output to .ai-memory/plans/subtasks/nn-<slug>/01-<name>.json 
 }
 ```
 
+### 7.2.D Fast-Forwarding Micro-Batch Execution (NO-BUILD & NO-TEST During Implementation)
+- **Bounded Micro-Batches:** Workers execute modifications in bounded waves of 5–8 files or 10 improvement items per batch.
+- **Strict NO-BUILD / NO-TEST Invariant:** During active implementation turns, subagents are STRICTLY FORBIDDEN from running builds (`go build`, `npm run build`, `vite build`) or full test suites (`go test`, `pytest`, `npm test`).
+- **Immediate State Closure:** As each file or subtask is modified, update the subtask ledger in `.ai-memory/plans/subtasks/` immediately without lingering in intermediate states.
+
 ### 7.3 Turn-Yielding, Verification & Crash Forensics Protocol
 
 1. **Invoke & Yield:** You must ACTUALLY CALL the `invoke_subagent` tool as the final action in your turn. Print the progress line (`Dispatched Worker 01 .. Worker <A> (wave k / WAVES); waiting for their results.`) and **STOP CALLING TOOLS** to end your turn.
@@ -610,6 +628,14 @@ To maximize execution velocity and prevent idle worker slots during Phase 2 and 
 ---
 
 ## 8. Phase 3: Consolidation, Evidence Verification & Atomic GitMap Push
+
+### 7.3.A Separated End-to-End Verification Gate (Single Terminal Phase)
+- **Consolidated Verification:** Testing and building are formally isolated to Phase 3. After all implementation waves finish cleanly, run compilation and tests in a single consolidated verification pass.
+- **Sequential Verification Sequence:**
+  1. Build pass: Execute compiler check to verify zero syntax/type errors.
+  2. Static linter pass: Run relative-path fixer, newline fixer, and file-size guards.
+  3. Isolated unit test pass: Run fast unit tests adhering to OS-isolation guidelines.
+- **Zero Storage Rule:** Output test results directly to console or `$GITHUB_STEP_SUMMARY`. Total ban on `actions/upload-artifact`.
 
 1. **Consolidate Subtasks:** Merge completed subtasks into `.ai-memory/plans/completed/nn-<slug>.md`, logging real steps from ledger; link to canonical spec. Delete `.ai-memory/plans/subtasks/nn-<slug>/` and pending plan. Canonical spec in `02-spec/21-app/` stays permanently.
 2. **Update Registers:** Update `.ai-memory/plans/readme.md` and `02-spec/21-app/readme.md`. Update `01-prompts/readme.md` and `.ai-memory/prompts.md` only when adding/modifying prompts. Register recent completed tasks before push gate.

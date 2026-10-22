@@ -123,26 +123,74 @@ func formatFramedHeader(cfg TableConfig, widths []int, g tableBorderGlyphs, bCol
 	return "  " + vPipe + " " + strings.Join(parts, " "+vPipe+" ") + " " + vPipe
 }
 
-func formatFramedRow(row Row, widths []int, cfg TableConfig, g tableBorderGlyphs, bColor string) string {
-	var parts []string
-	rowColor := row.Color
-	if len(rowColor) == 0 {
-		rowColor = constants.ColorWhite
-	}
-	for i, w := range widths {
-		raw := getCellText(row.Cells, i)
-		cell := formatCell(raw, w, getColAlign(cfg.Columns, i), cfg.EllipsisText)
-		parts = append(parts, fmt.Sprintf("%s%s%s", rowColor, cell, constants.ColorReset))
-	}
-	vPipe := g.vert
-	if bColor != "" {
-		vPipe = fmt.Sprintf("%s%s%s", bColor, g.vert, constants.ColorReset)
-	}
+func formatFramedRow(row Row, rowIdx int, widths []int, cfg TableConfig, g tableBorderGlyphs, bColor string) string {
+	bgCode := resolveRowBackground(rowIdx, cfg)
+	rowColor := resolveRowColor(row.Color)
+	parts := buildRowCells(row, widths, cfg, rowColor, bgCode)
+	vPipe := resolveVerticalPipe(g.vert, bColor)
 	if !g.hasOuter {
 		return "  " + strings.Join(parts, "  ")
 	}
 
 	return "  " + vPipe + " " + strings.Join(parts, " "+vPipe+" ") + " " + vPipe
+}
+
+func resolveRowBackground(rowIdx int, cfg TableConfig) string {
+	if !cfg.RowStripe || !colorAllowed() || rowIdx%2 == 0 {
+		return ""
+	}
+	if cfg.StripeColor != "" {
+		return cfg.StripeColor
+	}
+
+	return "\033[48;2;36;40;59m"
+}
+
+func resolveRowColor(color string) string {
+	if len(color) == 0 {
+		return constants.ColorWhite
+	}
+
+	return color
+}
+
+func resolveVerticalPipe(vert, bColor string) string {
+	if bColor != "" {
+		return fmt.Sprintf("%s%s%s", bColor, vert, constants.ColorReset)
+	}
+
+	return vert
+}
+
+func renderStyledCell(cell, rowColor, bgCode string) string {
+	if bgCode != "" {
+		return fmt.Sprintf("%s%s%s%s", bgCode, rowColor, cell, constants.ColorReset)
+	}
+
+	return fmt.Sprintf("%s%s%s", rowColor, cell, constants.ColorReset)
+}
+
+func buildRowCells(row Row, widths []int, cfg TableConfig, rowColor, bgCode string) []string {
+	var parts []string
+	for i, w := range widths {
+		raw := getCellText(row.Cells, i)
+		wrap := resolveColWrap(cfg.Columns, i, cfg.WrapMode)
+		cell := formatCellWithWrap(raw, w, getColAlign(cfg.Columns, i), wrap, cfg.EllipsisText)
+		parts = append(parts, renderStyledCell(cell, rowColor, bgCode))
+	}
+
+	return parts
+}
+
+func resolveColWrap(cols []ColumnConfig, idx int, defaultWrap WrapModeType) WrapModeType {
+	if idx < len(cols) && cols[idx].WrapMode != "" {
+		return cols[idx].WrapMode
+	}
+	if defaultWrap != "" {
+		return defaultWrap
+	}
+
+	return WrapEllipsis
 }
 
 func renderFramedTable(cfg TableConfig, widths []int) string {
@@ -168,8 +216,8 @@ func renderFramedTable(cfg TableConfig, widths []int) string {
 }
 
 func appendFramedRows(sb *strings.Builder, cfg TableConfig, widths []int, g tableBorderGlyphs, bColor string) {
-	for _, row := range cfg.Rows {
-		sb.WriteString(formatFramedRow(row, widths, cfg, g, bColor))
+	for idx, row := range cfg.Rows {
+		sb.WriteString(formatFramedRow(row, idx, widths, cfg, g, bColor))
 		sb.WriteString("\n")
 	}
 }
@@ -182,8 +230,8 @@ func appendHeaderBlock(sb *strings.Builder, cfg TableConfig, widths []int) {
 }
 
 func appendRowBlocks(sb *strings.Builder, cfg TableConfig, widths []int) {
-	for _, row := range cfg.Rows {
-		sb.WriteString(formatRow(row, widths, cfg))
+	for idx, row := range cfg.Rows {
+		sb.WriteString(formatRow(row, idx, widths, cfg))
 		sb.WriteString("\n")
 	}
 }
@@ -253,17 +301,10 @@ func formatSeparator(widths []int, borderColor string) string {
 	return fmt.Sprintf("  %s%s%s", borderColor, strings.Join(parts, "──"), constants.ColorReset)
 }
 
-func formatRow(row Row, widths []int, cfg TableConfig) string {
-	var parts []string
-	rowColor := row.Color
-	if len(rowColor) == 0 {
-		rowColor = constants.ColorWhite
-	}
-	for i, w := range widths {
-		raw := getCellText(row.Cells, i)
-		cell := formatCell(raw, w, getColAlign(cfg.Columns, i), cfg.EllipsisText)
-		parts = append(parts, fmt.Sprintf("%s%s%s", rowColor, cell, constants.ColorReset))
-	}
+func formatRow(row Row, rowIdx int, widths []int, cfg TableConfig) string {
+	bgCode := resolveRowBackground(rowIdx, cfg)
+	rowColor := resolveRowColor(row.Color)
+	parts := buildRowCells(row, widths, cfg, rowColor, bgCode)
 
 	return "  " + strings.Join(parts, "  ")
 }
@@ -291,7 +332,11 @@ func getColAlign(cols []Column, idx int) AlignmentType {
 }
 
 func formatCell(text string, width int, align AlignmentType, ellipsis string) string {
-	truncated := TruncateMiddle(text, width, ellipsis)
+	return formatCellWithWrap(text, width, align, WrapEllipsis, ellipsis)
+}
+
+func formatCellWithWrap(text string, width int, align AlignmentType, wrap WrapModeType, ellipsis string) string {
+	truncated := truncateCellText(text, width, wrap, ellipsis)
 	padLen := width - VisualStringWidth(truncated)
 	if padLen <= 0 {
 		return truncated
@@ -299,6 +344,26 @@ func formatCell(text string, width int, align AlignmentType, ellipsis string) st
 
 	return alignPaddedCell(truncated, padLen, align)
 }
+
+func truncateCellText(text string, width int, wrap WrapModeType, ellipsis string) string {
+	if wrap == WrapClip {
+		return truncateClip(text, width)
+	}
+
+	return TruncateMiddle(text, width, ellipsis)
+}
+
+func truncateClip(text string, width int) string {
+	if width <= 0 {
+		return ""
+	}
+	if VisualStringWidth(text) <= width {
+		return text
+	}
+
+	return slicePrefixRunes([]rune(text), width)
+}
+
 
 func alignPaddedCell(truncated string, padLen int, align AlignmentType) string {
 	if align == AlignRight {
