@@ -178,7 +178,11 @@ func RegisterParentTask(masterDbPath string, task types.ParentTask) *appfault.Ap
 }
 
 // ListParentTasks retrieves parent tasks from Tier 1 master DB matching status.
-func ListParentTasks(masterDbPath string, limit int, status string) ([]types.ParentTask, *appfault.AppError) {
+func ListParentTasks(
+	masterDbPath string,
+	limit int,
+	status string,
+) ([]types.ParentTask, *appfault.AppError) {
 	conn, openErr := InitMasterAgentDB(masterDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -287,18 +291,34 @@ func InitTaskDB(dbPath string) (*sql.DB, *appfault.AppError) {
 	if hasOpenErr {
 		return nil, openErr
 	}
+
+	return prepareTaskDBConn(conn)
+}
+
+// prepareTaskDBConn migrates legacy columns before applying the task
+// DDL, closing the connection whenever a step fails.
+func prepareTaskDBConn(conn *sql.DB) (*sql.DB, *appfault.AppError) {
 	// Migrate legacy DBs before DDL: IdxSubtask_Slug in taskDDL requires the
 	// TaskSlug column, so the column must exist before the DDL executes.
 	migErr := ensureSubtaskSlugColumnConn(conn)
 	hasMigErr := migErr != nil
 	if hasMigErr {
 		_ = conn.Close()
+
 		return nil, migErr
 	}
+
+	return applyTaskDDL(conn)
+}
+
+// applyTaskDDL executes the Tier 2 task schema DDL against conn,
+// closing the connection on failure.
+func applyTaskDDL(conn *sql.DB) (*sql.DB, *appfault.AppError) {
 	execErr := executeAgentDDL(conn, taskDDL, "InitTaskDB")
 	hasExecErr := execErr != nil
 	if hasExecErr {
 		_ = conn.Close()
+
 		return nil, execErr
 	}
 
@@ -435,7 +455,11 @@ func resolveSubtaskCreatedAt(current, fallback string) string {
 }
 
 // ClaimSubtask claims the next available pending subtask atomically.
-func ClaimSubtask(taskDbPath string, parentId string, agentRole string) (*types.Subtask, *appfault.AppError) {
+func ClaimSubtask(
+	taskDbPath string,
+	parentId string,
+	agentRole string,
+) (*types.Subtask, *appfault.AppError) {
 	conn, openErr := InitTaskDB(taskDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -540,7 +564,12 @@ func StartSubtask(taskDbPath string, subtaskId string, agentRole string) *appfau
 }
 
 // CompleteSubtask marks a subtask as DONE with verification evidence and increments completed steps.
-func CompleteSubtask(taskDbPath string, subtaskId string, agentRole string, evidence string) *appfault.AppError {
+func CompleteSubtask(
+	taskDbPath string,
+	subtaskId string,
+	agentRole string,
+	evidence string,
+) *appfault.AppError {
 	conn, openErr := InitTaskDB(taskDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -559,7 +588,12 @@ func CompleteSubtask(taskDbPath string, subtaskId string, agentRole string, evid
 }
 
 // FailSubtask marks a subtask as FAILED with failure reasoning.
-func FailSubtask(taskDbPath string, subtaskId string, agentRole string, reason string) *appfault.AppError {
+func FailSubtask(
+	taskDbPath string,
+	subtaskId string,
+	agentRole string,
+	reason string,
+) *appfault.AppError {
 	conn, openErr := InitTaskDB(taskDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -636,7 +670,10 @@ func scanSubtasks(rows *sql.Rows) ([]types.Subtask, *appfault.AppError) {
 // FindParentTaskBySlug retrieves a parent task from the Tier 1 master DB by
 // sanitized slug. Returns (nil, nil) when no task matches. The input is
 // sanitized before comparison so Title Case slugs from prompts match storage.
-func FindParentTaskBySlug(masterDbPath string, slug string) (*types.ParentTask, *appfault.AppError) {
+func FindParentTaskBySlug(
+	masterDbPath string,
+	slug string,
+) (*types.ParentTask, *appfault.AppError) {
 	conn, openErr := InitMasterAgentDB(masterDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -721,7 +758,10 @@ func agentTableExists(conn *sql.DB, table string) (bool, *appfault.AppError) {
 
 // ListPendingSubtasks retrieves PENDING subtasks from a Tier 2 task DB,
 // optionally scoped to parent IDs (covers both stored ID and slug forms).
-func ListPendingSubtasks(taskDbPath string, parentIds ...string) ([]types.Subtask, *appfault.AppError) {
+func ListPendingSubtasks(
+	taskDbPath string,
+	parentIds ...string,
+) ([]types.Subtask, *appfault.AppError) {
 	conn, openErr := InitTaskDB(taskDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -756,7 +796,10 @@ func buildPendingSubtasksQuery(parentIds []string) (string, []any) {
 }
 
 // GetTaskStatus retrieves the overall status summary for a parent task.
-func GetTaskStatus(taskDbPath string, parentId string) (*types.TaskStatusSummary, *appfault.AppError) {
+func GetTaskStatus(
+	taskDbPath string,
+	parentId string,
+) (*types.TaskStatusSummary, *appfault.AppError) {
 	subtasks, listErr := ListSubtasks(taskDbPath, parentId)
 	hasListErr := listErr != nil
 	if hasListErr {
@@ -888,7 +931,11 @@ func resolveActionCreatedAt(raw string) string {
 }
 
 // ListAgentActions retrieves telemetry records from the Tier 3 agent split DB.
-func ListAgentActions(agentDbPath string, subtaskId string, limit int) ([]types.AgentActionLog, *appfault.AppError) {
+func ListAgentActions(
+	agentDbPath string,
+	subtaskId string,
+	limit int,
+) ([]types.AgentActionLog, *appfault.AppError) {
 	conn, openErr := InitAgentSplitDB(agentDbPath)
 	hasOpenErr := openErr != nil
 	if hasOpenErr {
@@ -906,7 +953,11 @@ func ListAgentActions(agentDbPath string, subtaskId string, limit int) ([]types.
 	return scanAgentActions(rows)
 }
 
-func queryAgentActionRows(conn *sql.DB, subtaskId string, limit int) (*sql.Rows, *appfault.AppError) {
+func queryAgentActionRows(
+	conn *sql.DB,
+	subtaskId string,
+	limit int,
+) (*sql.Rows, *appfault.AppError) {
 	boundedLimit := sanitizeTaskLimit(limit)
 	query, args := buildListActionsQuery(subtaskId, boundedLimit)
 	res := QueryWrapper(conn, query, args...)

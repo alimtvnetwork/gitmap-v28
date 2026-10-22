@@ -54,101 +54,133 @@ func isVersionCommand(cmd string) bool {
 // Run is the main entry point for the CLI.
 func Run() {
 	cmdconsole.InitConsole()
-
-	if len(os.Args) < 2 {
+	if isMissingCommandArg() {
 		printUsageCompact()
 
 		return
 	}
 
-	if os.Args[1] == "__complete" || os.Args[1] == "__completeNoDesc" {
+	if isCompletionRequest() {
 		executeCobraCompletion(os.Args[1:])
+
 		return
 	}
 
-	// Strip the global `--theme` palette selector first so it is
-	// honored even when no subcommand-specific args are present.
-	// The writer build below must run AFTER the env var is set but
-	// BEFORE any subcommand writes colored output.
+	stripThemeAndGlyphFlags()
+	installDispatchWriters()
+	stripGlobalFeatureFlags()
+	if isMissingCommandArg() {
+		printUsageCompact()
+
+		return
+	}
+
+	migrateLegacyDirsUnlessVersion()
+	rewriteCloneURLShortcut()
+	rewriteFullMultiWordCommand()
+	os.Args = applyAliasContextIfPresent(os.Args[1], os.Args)
+	runDispatch(os.Args[1])
+}
+
+// isMissingCommandArg reports whether argv carries no command token.
+func isMissingCommandArg() bool {
+	return len(os.Args) < 2
+}
+
+// isCompletionRequest reports whether argv asks cobra for shell completions.
+func isCompletionRequest() bool {
+	return os.Args[1] == "__complete" || os.Args[1] == "__completeNoDesc"
+}
+
+// stripThemeAndGlyphFlags strips the global `--theme` palette selector
+// first so it is honored even when no subcommand-specific args are
+// present, then strips the global `--glyphs` switch (rich | safe |
+// auto). The writer build must run AFTER the env vars are set but
+// BEFORE any subcommand writes colored output.
+func stripThemeAndGlyphFlags() {
 	os.Args = append(os.Args[:1], stripThemeFlag(os.Args[1:])...)
-
-	// Strip the global `--glyphs` switch (rich | safe | auto).
 	os.Args = append(os.Args[:1], stripGlyphsFlag(os.Args[1:])...)
+}
 
-	// Build the synchronous UI filter writers (see outputwriters.go
-	// for the canonical theme-then-glyphs composition order) and
-	// carry them in the dispatch context. Byte-faithful commands
-	// (cat/view/type) bypass the filter explicitly at the call site:
-	// printCatContent writes the decorative banner through the
-	// filtered writer and the file bytes through output.Raw().
-	//
-	// os.Stdout/os.Stderr are never reassigned. Writes are
-	// synchronous, so there is no pipe to drain and no flusher to
-	// register before os.Exit — the "lost bytes on Windows" class
-	// is gone by construction.
+// installDispatchWriters builds the synchronous UI filter writers (see
+// outputwriters.go for the canonical theme-then-glyphs composition
+// order) and carries them in the dispatch context. Byte-faithful
+// commands (cat/view/type) bypass the filter explicitly at the call
+// site: printCatContent writes the decorative banner through the
+// filtered writer and the file bytes through output.Raw().
+//
+// os.Stdout/os.Stderr are never reassigned. Writes are synchronous, so
+// there is no pipe to drain and no flusher to register before os.Exit
+// — the "lost bytes on Windows" class is gone by construction.
+func installDispatchWriters() {
 	uiOut, uiErr := filteredWriters(termout.Resolve(), glyphs.Resolve())
 	output.SetDispatchWriters(uiOut, uiErr)
+}
 
-	// Strip the global `--vscode-sync-disabled` kill switch from argv
-	// (and flip the env var) before any subcommand sees its flagset.
-	// Done first so even URL-shortcut and alias rewrites operate on
-	// already-cleaned args.
+// stripGlobalFeatureFlags strips the global `--vscode-sync-disabled`
+// kill switch from argv (and flips the env var) before any subcommand
+// sees its flagset, the global tag-customization flags (persisting
+// their values into GITMAP_VSCODE_TAG_{ADD,SKIP,MARKER} so every
+// DetectTagsCustom caller — present and future — picks them up), and
+// the global `--ai` execution recording flag. Done first so even
+// URL-shortcut and alias rewrites operate on already-cleaned args.
+func stripGlobalFeatureFlags() {
 	os.Args = append(os.Args[:1], cmdvscode.StripVSCodeSyncDisabledFlag(os.Args[1:])...)
-	// Strip the global tag-customization flags too, persisting their
-	// values into GITMAP_VSCODE_TAG_{ADD,SKIP,MARKER} so every
-	// DetectTagsCustom caller — present and future — picks them up.
 	os.Args = append(os.Args[:1], cmdvscode.StripVSCodeTagFlags(os.Args[1:])...)
-	// Strip global `--ai` execution recording flag and track in env.
 	os.Args = append(os.Args[:1], cmdai.StripAiFlag(os.Args[1:])...)
-	if len(os.Args) < 2 {
-		printUsageCompact()
+}
 
-		return
-	}
-
-	// Skip migration for commands that must produce clean stdout
-	cmd := os.Args[1]
-	if !isVersionCommand(cmd) {
+// migrateLegacyDirsUnlessVersion runs the legacy directory migration,
+// skipping commands that must produce clean stdout (version queries).
+func migrateLegacyDirsUnlessVersion() {
+	if !isVersionCommand(os.Args[1]) {
 		cmdmigrate.MigrateLegacyDirs()
 	}
+}
 
-	// URL shortcut: `gitmap <git-url> [<url2> ...]` (and variants with
-	// leading flags like `gitmap --verbose <url>`) is rewritten to
-	// `gitmap clone <args...>` so users don't have to remember the
-	// subcommand for the most common operation. We trigger when any
-	// positional arg looks like an HTTPS / SSH git URL or a comma-list
-	// containing one — covering all the forms users actually type:
-	//
-	//   gitmap https://...                       → gitmap clone https://...
-	//   gitmap https://a,https://b,https://c     → gitmap clone https://a,https://b,https://c
-	//   gitmap https://a, https://b https://c    → gitmap clone https://a, https://b https://c
-	//   gitmap --verbose https://...             → gitmap clone --verbose https://...
+// rewriteCloneURLShortcut rewrites a bare-URL invocation — `gitmap
+// <git-url> [<url2> ...]`, including variants with leading flags like
+// `gitmap --verbose <url>` — to `gitmap clone <args...>` so users
+// don't have to remember the subcommand for the most common
+// operation. It triggers when any positional arg looks like an
+// HTTPS / SSH git URL or a comma-list containing one, covering all
+// the forms users actually type:
+//
+//	gitmap https://...                       → gitmap clone https://...
+//	gitmap https://a,https://b,https://c     → gitmap clone https://a,https://b,https://c
+//	gitmap https://a, https://b https://c    → gitmap clone https://a, https://b https://c
+//	gitmap --verbose https://...             → gitmap clone --verbose https://...
+func rewriteCloneURLShortcut() {
 	if isCloneRewriteRequired(os.Args[1:]) {
 		os.Args = append([]string{os.Args[0], constants.CmdClone}, os.Args[1:]...)
 	}
+}
 
-	// Multi-word command rewrites:
-	//   gitmap full summary [N]    → gitmap full-summary [N]
-	//   gitmap full status [N]     → gitmap full-status [N]
-	//   gitmap full summary+pe     → gitmap full-summary+pe
-	//   gitmap full status+pe      → gitmap full-status+pe
-	if len(os.Args) >= 3 && strings.EqualFold(os.Args[1], "full") {
-		sub := strings.ToLower(os.Args[2])
-		switch sub {
-		case "summary":
-			os.Args = append([]string{os.Args[0], constants.CmdFullSummary}, os.Args[3:]...)
-		case "status":
-			os.Args = append([]string{os.Args[0], constants.CmdFullStatus}, os.Args[3:]...)
-		case "summary+pe":
-			os.Args = append([]string{os.Args[0], constants.CmdFullSummaryPE}, os.Args[3:]...)
-		case "status+pe":
-			os.Args = append([]string{os.Args[0], constants.CmdFullStatusPE}, os.Args[3:]...)
-		}
+// rewriteFullMultiWordCommand collapses the multi-word command
+// forms into their single-token commands:
+//
+//	gitmap full summary [N]    → gitmap full-summary [N]
+//	gitmap full status [N]     → gitmap full-status [N]
+//	gitmap full summary+pe     → gitmap full-summary+pe
+//	gitmap full status+pe      → gitmap full-status+pe
+func rewriteFullMultiWordCommand() {
+	if len(os.Args) < 3 || !strings.EqualFold(os.Args[1], "full") {
+		return
 	}
 
-	os.Args = applyAliasContextIfPresent(os.Args[1], os.Args)
+	target, hasTarget := fullMultiWordTargets[strings.ToLower(os.Args[2])]
+	if hasTarget {
+		os.Args = append([]string{os.Args[0], target}, os.Args[3:]...)
+	}
+}
 
-	runDispatch(os.Args[1])
+// fullMultiWordTargets maps each `full` two-word subcommand to its
+// single-token command constant.
+var fullMultiWordTargets = map[string]string{
+	"summary":    constants.CmdFullSummary,
+	"status":     constants.CmdFullStatus,
+	"summary+pe": constants.CmdFullSummaryPE,
+	"status+pe":  constants.CmdFullStatusPE,
 }
 
 func applyAliasContextIfPresent(command string, args []string) []string {
@@ -541,19 +573,25 @@ func getRootCause(err error) error {
 	}
 }
 
+// dispatchContext carries the audit bookkeeping shared by every
+// route probe in the dispatch chain.
+type dispatchContext struct {
+	shouldAudit bool
+	auditID     int64
+	auditStart  time.Time
+}
+
 func handleDispatchResult(
 	command string,
 	found bool,
 	err error,
-	shouldAudit bool,
-	auditID int64,
-	auditStart time.Time,
+	ctx dispatchContext,
 ) bool {
 	if !found {
 		return false
 	}
 
-	cmdaudit.FinishCommandAudit(shouldAudit, auditID, auditStart, 0, "", 0)
+	cmdaudit.FinishCommandAudit(ctx.shouldAudit, ctx.auditID, ctx.auditStart, 0, "", 0)
 	if err != nil {
 		handleGlobalError(command, err)
 	}
@@ -564,113 +602,109 @@ func handleDispatchResult(
 // dispatch routes to the correct subcommand handler with audit tracking.
 func dispatch(command string) {
 	auditID, auditStart, shouldAudit := cmdaudit.BeginCommandAudit(command, os.Args[2:])
-
-	// Program 275: new commands route first (two-word forms like
-	// `pe triage` must win over the `pe` pipeline-errors alias).
-	found, err := dispatch275(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmduser.DispatchUser(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdfoldertree.DispatchFolderTree(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchCore(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdcommittransfer.DispatchCommitTransfer(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchRelease(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchUtility(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchData(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchTooling(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchProjectRepos(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmddiff.DispatchDiff(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmddiff.DispatchCompare(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdmerge.DispatchMoveMerge(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchAdd(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdsync.DispatchCommon(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = dispatchCommons(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdspace.DispatchSpace(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdspec.DispatchSpec(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	found, err = cmdtemplates.DispatchTemplates(command)
-	if handleDispatchResult(command, found, err, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	if dispatchExtraCommand(command, shouldAudit, auditID, auditStart) {
-		return
-	}
-
-	if cmdmacro.DispatchMacroDynamic(command, shouldAudit, auditID, auditStart) {
+	ctx := dispatchContext{shouldAudit: shouldAudit, auditID: auditID, auditStart: auditStart}
+	if dispatchRouteGroups(command, ctx) {
 		return
 	}
 
 	handleUnknownCommand(command)
+}
+
+// dispatchRouteGroups probes every route group in dispatch order and
+// stops at the first group that handles the command.
+func dispatchRouteGroups(command string, ctx dispatchContext) bool {
+	groups := []func(string, dispatchContext) bool{
+		dispatchPrimaryRoutes, dispatchCoreRoutes, dispatchSecondaryRoutes,
+		dispatchCatalogRoutes, dispatchFallbackRoutes,
+	}
+	for _, group := range groups {
+		if group(command, ctx) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// dispatchPrimaryRoutes probes the first route group in order.
+// Program 275 routes first: two-word forms like `pe triage` must win
+// over the `pe` pipeline-errors alias.
+func dispatchPrimaryRoutes(command string, ctx dispatchContext) bool {
+	routes := []func(string) (bool, error){
+		dispatch275,
+		cmduser.DispatchUser,
+		cmdfoldertree.DispatchFolderTree,
+		dispatchCore,
+		cmdcommittransfer.DispatchCommitTransfer,
+	}
+
+	return dispatchRoutes(command, routes, ctx)
+}
+
+// dispatchCoreRoutes probes the core command route group in order.
+func dispatchCoreRoutes(command string, ctx dispatchContext) bool {
+	routes := []func(string) (bool, error){
+		dispatchRelease,
+		dispatchUtility,
+		dispatchData,
+		dispatchTooling,
+		dispatchProjectRepos,
+	}
+
+	return dispatchRoutes(command, routes, ctx)
+}
+
+// dispatchSecondaryRoutes probes the secondary route group in order.
+func dispatchSecondaryRoutes(command string, ctx dispatchContext) bool {
+	routes := []func(string) (bool, error){
+		cmddiff.DispatchDiff,
+		cmddiff.DispatchCompare,
+		cmdmerge.DispatchMoveMerge,
+		dispatchAdd,
+		cmdsync.DispatchCommon,
+	}
+
+	return dispatchRoutes(command, routes, ctx)
+}
+
+// dispatchCatalogRoutes probes the catalog-style route group in order.
+func dispatchCatalogRoutes(command string, ctx dispatchContext) bool {
+	routes := []func(string) (bool, error){
+		dispatchCommons,
+		cmdspace.DispatchSpace,
+		cmdspec.DispatchSpec,
+		cmdtemplates.DispatchTemplates,
+	}
+
+	return dispatchRoutes(command, routes, ctx)
+}
+
+// dispatchFallbackRoutes probes the audit-aware fallback handlers
+// (extra commands, then dynamic macros) that need the raw audit
+// bookkeeping instead of a plain route signature.
+func dispatchFallbackRoutes(command string, ctx dispatchContext) bool {
+	if dispatchExtraCommand(command, ctx.shouldAudit, ctx.auditID, ctx.auditStart) {
+		return true
+	}
+
+	return cmdmacro.DispatchMacroDynamic(command, ctx.shouldAudit, ctx.auditID, ctx.auditStart)
+}
+
+// dispatchRoutes runs each route probe in order and stops at the
+// first one that handles the command.
+func dispatchRoutes(
+	command string,
+	routes []func(string) (bool, error),
+	ctx dispatchContext,
+) bool {
+	for _, route := range routes {
+		found, err := route(command)
+		if handleDispatchResult(command, found, err, ctx) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // isCloneRewriteRequired returns true when the args (excluding argv[0])

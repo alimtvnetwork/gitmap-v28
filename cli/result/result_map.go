@@ -70,6 +70,15 @@ func (r *ResultMap[K, V]) HasNoError() bool {
 	return r.Err == nil || r.Err.HasNoError()
 }
 
+// HasValidError reports whether an AppError exists and is properly structured.
+func (r *ResultMap[K, V]) HasValidError() bool {
+	if r == nil || r.Err == nil {
+		return false
+	}
+
+	return r.Err.HasError() && r.Err.IsValid()
+}
+
 // IsEmpty reports whether the underlying map has 0 items or is uninitialized.
 func (r *ResultMap[K, V]) IsEmpty() bool {
 	if r == nil || (r.Err != nil && r.Err.HasError()) {
