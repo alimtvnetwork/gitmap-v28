@@ -9,18 +9,31 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // RunPicker enumerates plan.RepoUrl, opens the bubbletea picker, and
 // returns the user-picked subset. plan.Paths seeds the initial
 // selection so re-running with the same args is a no-op confirmation.
 func RunPicker(plan Plan) ([]string, error) {
+	res := RunPickerWrap(plan)
+	if res.HasError() {
+		return nil, res.Error()
+	}
+	return res.Items(), nil
+}
+
+func RunPickerWrap(plan Plan) StringSliceWrap {
 	picked, tmp, err := RunPickerKeep(plan)
 	if len(tmp) > 0 {
 		os.RemoveAll(tmp)
 	}
-
-	return picked, err
+	if err != nil {
+		return result.FailSlice[string](apperror.WrapSimple(err, "RunPickerWrap"))
+	}
+	return result.OkSlice(picked)
 }
 
 // RunPickerKeep is the clone-once variant: returns the picked paths

@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenow"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -34,14 +35,14 @@ import (
 // EmitSchema dispatches on kind and returns the pretty-printed JSON
 // Schema bytes. Unknown kinds return an error wrapping the user-
 // facing message so the CLI layer can print and exit 2 verbatim.
-func EmitSchema(kind string) ([]byte, error) {
+func EmitSchema(kind string) ByteSliceWrap {
 	switch kind {
 	case constants.EmitSchemaKindReport:
 		return EmitReportSchema()
 	case constants.EmitSchemaKindInput:
 		return EmitInputSchema()
 	default:
-		return nil, fmt.Errorf(constants.MsgCloneFromEmitSchemaUnknown, kind)
+		return FailByteSlice(apperror.WrapSimple(fmt.Errorf(constants.MsgCloneFromEmitSchemaUnknown, kind), "EmitSchema"))
 	}
 }
 
@@ -115,7 +116,7 @@ func reportRootProps() map[string]any {
 // report envelope. The schemaVersion `const` is wired to
 // constants.CloneFromReportSchemaVersion so a bump there is auto-
 // reflected here (and the writer emits a matching number).
-func EmitReportSchema() ([]byte, error) {
+func EmitReportSchema() ByteSliceWrap {
 	root := rootSchema(constants.CloneFromSchemaIDReport,
 		"gitmap clone-from JSON report envelope.",
 		reportRootProps(), []string{"schemaVersion", "transport", "provenance", "rows"})
@@ -153,21 +154,21 @@ func buildInputRootSchema() map[string]any {
 // EmitInputSchema returns the JSON Schema for the clone-now input
 // (top-level array of scan records). Field set is sourced from
 // clonenow.KnownScanFields() so additions auto-propagate.
-func EmitInputSchema() ([]byte, error) {
+func EmitInputSchema() ByteSliceWrap {
 	return marshalSchema(buildInputRootSchema())
 }
 
 // marshalSchema renders the schema as 2-space-indented JSON with a
 // trailing newline (POSIX text-file convention). EscapeHTML off so
 // `&` in $id stays readable.
-func marshalSchema(schemaObj any) ([]byte, error) {
+func marshalSchema(schemaObj any) ByteSliceWrap {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetIndent("", "  ")
 	enc.SetEscapeHTML(false)
 	if err := enc.Encode(schemaObj); err != nil {
-		return nil, err
+		return FailByteSlice(apperror.WrapSimple(err, "marshalSchema"))
 	}
 
-	return buf.Bytes(), nil
+	return OkByteSlice(buf.Bytes())
 }

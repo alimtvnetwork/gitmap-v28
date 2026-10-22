@@ -24,7 +24,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ParseFile is the package's only public parser entry point.
@@ -44,11 +46,12 @@ func ParseFile(path string) (Plan, error) {
 	defer f.Close()
 
 	format := detectFormat(abs)
-	rows, err := parseByFormat(f, format)
-	if err != nil {
-		return Plan{}, err
+	res := parseByFormat(f, format)
+	if res.HasError() {
+		return Plan{}, res.AsError()
 	}
 
+	rows := res.Items()
 	rows = dedupRows(rows)
 
 	return Plan{Source: abs, Format: format, Rows: rows}, nil
@@ -69,7 +72,7 @@ func detectFormat(path string) string {
 
 // parseByFormat is the dispatch helper. Kept tiny so future
 // formats (yaml? toml?) are a one-line addition.
-func parseByFormat(r io.Reader, format string) ([]Row, error) {
+func parseByFormat(r io.Reader, format string) RowSliceWrap {
 	if format == constants.FormatJSON {
 		return parseJSON(r)
 	}
@@ -81,24 +84,24 @@ func parseByFormat(r io.Reader, format string) ([]Row, error) {
 // fields map 1:1 to Row fields with lowercase keys: url, dest,
 // branch, depth. Unknown fields are tolerated (forward-compat:
 // future schema additions don't break old gitmap binaries).
-func parseJSON(r io.Reader) ([]Row, error) {
+func parseJSON(r io.Reader) RowSliceWrap {
 	var raw []map[string]any
 	dec := json.NewDecoder(r)
 	if err := dec.Decode(&raw); err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneFromJSONDecode, err)
+		return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromJSONDecode, err), "parseJSON"))
 	}
 
 	out := make([]Row, 0, len(raw))
 	for i, obj := range raw {
 		row, err := jsonRow(obj)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrCloneFromJSONRow, i+1, err)
+			return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromJSONRow, i+1, err), "parseJSON"))
 		}
 
 		out = append(out, row)
 	}
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // jsonRow extracts one Row from a parsed JSON object. Centralized

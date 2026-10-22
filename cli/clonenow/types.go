@@ -3,6 +3,15 @@ package clonenow
 import (
 	"io"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+)
+
+type (
+	RowSliceWrap        = result.WrapSlice[Row]
+	RowWrap             = result.Wrap[Row]
+	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
 )
 
 // ConcurrentExecutionParams encapsulates parameters for concurrent clone execution.

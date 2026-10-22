@@ -44,13 +44,13 @@ func validateCreateFormat(path string) (Format, error) {
 	return format, nil
 }
 
-func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ([]archives.FileInfo, error) {
-	files, err := gatherFiles(ctx, opts.Sources)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "gather sources")
+func prepareArchiveFiles(ctx context.Context, opts CreateOptions) ArchiveFileInfoSliceWrap {
+	filesRes := gatherFiles(ctx, opts.Sources)
+	if filesRes.HasError() {
+		return filesRes
 	}
 
-	return filterFiles(files, opts.Includes, opts.Excludes), nil
+	return result.OkSlice(filterFiles(filesRes.Items(), opts.Includes, opts.Excludes))
 }
 
 func createOutputFile(path string) (*os.File, error) {
@@ -90,10 +90,11 @@ func CreateArchive(ctx context.Context, opts CreateOptions) (CreateResult, error
 
 	res.Format = format
 
-	files, err := prepareArchiveFiles(ctx, opts)
-	if err != nil {
-		return res, err
+	filesRes := prepareArchiveFiles(ctx, opts)
+	if filesRes.HasError() {
+		return res, filesRes.Err
 	}
+	files := filesRes.Items()
 
 	res.EntriesWritten = len(files)
 
@@ -130,18 +131,23 @@ func mapSourceEntry(src string) (string, error) {
 // Roots are mapped to "<basename>/" so multi-source archives stay tidy
 // (e.g. zip foo bar → archive contains foo/... + bar/...).
 
-func gatherFiles(ctx context.Context, sources []string) ([]archives.FileInfo, error) {
+func gatherFiles(ctx context.Context, sources []string) ArchiveFileInfoSliceWrap {
 	mapping := make(map[string]string, len(sources))
 	for _, src := range sources {
 		target, err := mapSourceEntry(src)
 		if err != nil {
-			return nil, err
+			return result.FailSlice[archives.FileInfo](apperror.WrapSimple(err, "gather sources"))
 		}
 
 		mapping[src] = target
 	}
 
-	return archives.FilesFromDisk(ctx, nil, mapping)
+	files, err := archives.FilesFromDisk(ctx, nil, mapping)
+	if err != nil {
+		return result.FailSlice[archives.FileInfo](apperror.WrapSimple(err, "gather sources"))
+	}
+
+	return result.OkSlice(files)
 }
 
 func isEntryIncluded(name string, includes, excludes []string) BoolResult {

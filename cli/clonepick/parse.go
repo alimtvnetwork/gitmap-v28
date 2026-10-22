@@ -12,8 +12,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ParseArgs builds a Plan from the user-supplied URL, the
@@ -191,12 +193,20 @@ func shorthandToURL(params ShorthandURLParams) string {
 // the picker will fill it in interactively, so requiring `<paths>`
 // up front would be a usability bug.
 func normalisePaths(raw string, isAskMode bool) ([]string, error) {
+	res := normalisePathsWrap(raw, isAskMode)
+	if res.HasError() {
+		return nil, res.Error()
+	}
+	return res.Items(), nil
+}
+
+func normalisePathsWrap(raw string, isAskMode bool) StringSliceWrap {
 	if len(strings.TrimSpace(raw)) == 0 && isAskMode {
-		return nil, nil
+		return result.OkSlice[string](nil)
 	}
 
 	if len(strings.TrimSpace(raw)) == 0 {
-		return nil, fmt.Errorf("%s", constants.MsgClonePickMissingPaths)
+		return result.FailSlice[string](apperror.WrapSimple(fmt.Errorf("%s", constants.MsgClonePickMissingPaths), "normalisePathsWrap"))
 	}
 
 	seen := make(map[string]struct{})
@@ -204,7 +214,7 @@ func normalisePaths(raw string, isAskMode bool) ([]string, error) {
 	for _, p := range strings.Split(raw, ",") {
 		clean, err := cleanPath(p)
 		if err != nil {
-			return nil, err
+			return result.FailSlice[string](apperror.WrapSimple(err, "normalisePathsWrap clean"))
 		}
 
 		if _, dup := seen[clean]; dup {
@@ -217,7 +227,7 @@ func normalisePaths(raw string, isAskMode bool) ([]string, error) {
 
 	sort.Strings(out)
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // cleanPath enforces the spec's path rules and strips the cosmetic

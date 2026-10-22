@@ -8,18 +8,19 @@ package clonenow
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // parseTextRows reads the scan-text artifact (one `git clone ...`
 // line per repo) into Row slices. Branch is always empty because
 // the text format carries no branch information; users who need
 // per-row branch pinning should use the JSON or CSV input.
-func parseTextRows(r io.Reader) ([]Row, error) {
+func parseTextRows(r io.Reader) RowSliceWrap {
 	scanner := bufio.NewScanner(r)
 	// 1 MiB line cap -- scan output lines stay well under this even
 	// for monorepo-style nested URLs, but the default 64 KiB would
@@ -41,10 +42,10 @@ func parseTextRows(r io.Reader) ([]Row, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowTextRead, err)
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseTextRows"))
 	}
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // textRowFromLine extracts a Row from a single `git clone ...` line.

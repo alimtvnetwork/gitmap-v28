@@ -13,23 +13,25 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // parseCSV expects a header row of `url,dest,branch,depth` (case-
 // insensitive, only `url` required). Missing optional columns
 // default to empty/zero. Extra columns past `depth` are ignored.
-func parseCSV(r io.Reader) ([]Row, error) {
+func parseCSV(r io.Reader) RowSliceWrap {
 	cr := csv.NewReader(r)
 	cr.FieldsPerRecord = -1 // tolerate ragged rows
 	header, err := cr.Read()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneFromCSVHeader, err)
+		return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromCSVHeader, err), "parseCSV"))
 	}
 
 	idx := indexCSVHeader(header)
 	if idx.url < 0 {
-		return nil, fmt.Errorf(constants.ErrCloneFromCSVNoURL)
+		return result.FailSlice[Row](apperror.WrapSimple(errors.New(constants.ErrCloneFromCSVNoURL), "parseCSV"))
 	}
 
 	return readCSVRows(cr, idx)
@@ -40,7 +42,7 @@ func parseCSV(r io.Reader) ([]Row, error) {
 // 1-indexed row number AND, when the failure is attributable to a
 // single field, the offending column name — so an operator editing
 // a 5,000-row spreadsheet can jump straight to the bad cell.
-func readCSVRows(cr *csv.Reader, idx csvIndex) ([]Row, error) {
+func readCSVRows(cr *csv.Reader, idx csvIndex) RowSliceWrap {
 	var out []Row
 	rowNum := 1 // header was row 1; first data row is 2
 	for {
@@ -51,18 +53,18 @@ func readCSVRows(cr *csv.Reader, idx csvIndex) ([]Row, error) {
 
 		rowNum++
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err)
+			return result.FailSlice[Row](apperror.WrapSimple(fmt.Errorf(constants.ErrCloneFromCSVRow, rowNum, err), "readCSVRows"))
 		}
 
 		row, col, err := csvRow(rec, idx)
 		if err != nil {
-			return nil, wrapCSVRowErr(rowNum, col, err)
+			return result.FailSlice[Row](apperror.WrapSimple(wrapCSVRowErr(rowNum, col, err), "readCSVRows"))
 		}
 
 		out = append(out, row)
 	}
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // wrapCSVRowErr picks the column-aware format when a column is

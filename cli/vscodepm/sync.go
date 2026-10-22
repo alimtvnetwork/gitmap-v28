@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // Pair is one (rootPath, name, paths, tags) tuple to upsert into
@@ -73,25 +75,40 @@ func RenameByPath(rootPath, newName string) (bool, error) {
 		return false, err
 	}
 
-	entries, err := readEntries(path)
-	if err != nil {
-		return false, err
+	entriesRes := readEntries(path)
+	if entriesRes.HasError() {
+		return false, entriesRes.Err
 	}
+	entries := entriesRes.Items()
 
-	changed := false
+	isChanged := false
 
 	for i := range entries {
 		if pathsEqual(entries[i].RootPath, rootPath) && entries[i].Name != newName {
 			entries[i].Name = newName
-			changed = true
+			isChanged = true
 		}
 	}
 
-	if !changed {
+	if !isChanged {
 		return false, nil
 	}
 
 	return true, writeEntriesAtomic(path, entries)
+}
+
+// ListEntriesWrap returns every Entry wrapped in EntrySliceWrap currently persisted in projects.json.
+func ListEntriesWrap() EntrySliceWrap {
+	path, err := ProjectsJSONPath()
+	if err != nil {
+		return result.FailSlice[Entry](err)
+	}
+	return ReadEntriesWrap(path)
+}
+
+// ReadEntriesWrap returns the parsed entries wrapped in EntrySliceWrap.
+func ReadEntriesWrap(path string) EntrySliceWrap {
+	return readEntries(path)
 }
 
 // ListEntries returns every Entry currently persisted in projects.json
@@ -100,42 +117,45 @@ func RenameByPath(rootPath, newName string) (bool, error) {
 // projects.json => empty slice + nil error so callers can soft-report
 // "nothing to do" instead of erroring out.
 func ListEntries() ([]Entry, error) {
-	path, err := ProjectsJSONPath()
-	if err != nil {
-		return nil, err
+	res := ListEntriesWrap()
+	if res.HasError() {
+		return nil, res.Err
 	}
-
-	return readEntries(path)
+	return res.Items(), nil
 }
 
 // ReadEntries returns the parsed entries. Missing file -> empty slice.
 func ReadEntries(path string) ([]Entry, error) {
-	return readEntries(path)
+	res := ReadEntriesWrap(path)
+	if res.HasError() {
+		return nil, res.Err
+	}
+	return res.Items(), nil
 }
 
 // readEntries returns the parsed entries. Missing file -> empty slice.
-func readEntries(path string) ([]Entry, error) {
+func readEntries(path string) EntrySliceWrap {
 	data, err := os.ReadFile(path)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
-		return []Entry{}, nil
+		return result.OkSlice([]Entry{})
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err)
+		return result.FailSlice[Entry](apperror.WrapSimple(fmt.Errorf(constants.ErrVSCodePMReadFailed, path, err), "vscodepm.readEntries"))
 	}
 
 	if len(data) == 0 {
-		return []Entry{}, nil
+		return result.OkSlice([]Entry{})
 	}
 
 	var entries []Entry
 	if err := json.Unmarshal(data, &entries); err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodePMParseFailed, path, err)
+		return result.FailSlice[Entry](apperror.WrapSimple(fmt.Errorf(constants.ErrVSCodePMParseFailed, path, err), "vscodepm.readEntries"))
 	}
 
 	for i := range entries {
 		entries[i] = ensureSlices(entries[i])
 	}
 
-	return entries, nil
+	return result.OkSlice(entries)
 }

@@ -19,7 +19,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ListRepoPathsKeep is the keep-clone variant: returns the path
@@ -77,16 +79,24 @@ func metaCloneForListing(plan Plan, dest string) error {
 // repo (no HEAD) returns ([], nil) so the picker can render the
 // "nothing to pick" branch instead of erroring out.
 func runLsTree(dest string) ([]string, error) {
+	res := runLsTreeWrap(dest)
+	if res.HasError() {
+		return nil, res.Error()
+	}
+	return res.Items(), nil
+}
+
+func runLsTreeWrap(dest string) StringSliceWrap {
 	cmd := exec.Command("git", "ls-tree", "-r", "--name-only", "HEAD")
 	cmd.Dir = dest
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf(constants.ErrClonePickGitLsTree, err)
+		return result.FailSlice[string](apperror.WrapSimple(err, "runLsTreeWrap"))
 	}
 
-	return splitNonEmptyLines(buf.String()), nil
+	return result.OkSlice(splitNonEmptyLines(buf.String()))
 }
 
 // splitNonEmptyLines trims trailing newlines and drops blank entries

@@ -25,10 +25,11 @@ func SyncAt(path string, pairs []Pair) (SyncSummary, error) {
 // `gitmap vscode-pm-sync --mode <m>` plumbing so the CLI can pick
 // union / replace / intersection without forking another entry point.
 func SyncAtMode(path string, pairs []Pair, mode MergeMode) (SyncSummary, error) {
-	existing, err := readEntries(path)
-	if err != nil {
-		return SyncSummary{}, err
+	existingRes := ReadEntriesWrap(path)
+	if existingRes.HasError() {
+		return SyncSummary{}, existingRes.Err
 	}
+	existing := existingRes.Items()
 
 	merged, summary := mergePairsWithMode(existing, pairs, mode)
 
@@ -41,10 +42,19 @@ func SyncAtMode(path string, pairs []Pair, mode MergeMode) (SyncSummary, error) 
 	return summary, nil
 }
 
+// ListEntriesAtWrap is the explicit-path sibling of ListEntriesWrap.
+func ListEntriesAtWrap(path string) EntrySliceWrap {
+	return ReadEntriesWrap(path)
+}
+
 // ListEntriesAt is the explicit-path sibling of ListEntries. Used by
 // callers that have already resolved (or been given) a projects.json
 // path — e.g. `gitmap vscode-pm-sync --projects-json <path>` — and
 // don't want the resolver to second-guess them.
 func ListEntriesAt(path string) ([]Entry, error) {
-	return readEntries(path)
+	res := ListEntriesAtWrap(path)
+	if res.HasError() {
+		return nil, res.Err
+	}
+	return res.Items(), nil
 }

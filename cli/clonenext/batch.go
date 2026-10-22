@@ -36,6 +36,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ErrBatchEmpty is returned when neither the CSV nor the cwd walk yielded
@@ -74,6 +77,16 @@ func LoadBatchFromCSV(path string) ([]string, error) {
 	}
 
 	return absoluteAndSorted(paths), nil
+}
+
+// LoadBatchFromCSVWrap reads a CSV file and returns StringSliceWrap.
+func LoadBatchFromCSVWrap(path string) StringSliceWrap {
+	paths, err := LoadBatchFromCSV(path)
+	if err != nil {
+		return result.FailSlice[string](apperror.WrapSimple(err, "LoadBatchFromCSV"))
+	}
+
+	return result.OkSlice(paths)
 }
 
 // normalizeCSVBytes strips a leading UTF-8 BOM and converts bare-CR line
@@ -212,6 +225,16 @@ func WalkBatchFromDir(root string) ([]string, error) {
 	}
 
 	return absoluteAndSorted(repos), nil
+}
+
+// WalkBatchFromDirWrap walks root and returns StringSliceWrap.
+func WalkBatchFromDirWrap(root string) StringSliceWrap {
+	repos, err := WalkBatchFromDir(root)
+	if err != nil {
+		return result.FailSlice[string](apperror.WrapSimple(err, "WalkBatchFromDir"))
+	}
+
+	return result.OkSlice(repos)
 }
 
 // (IsGitRepo / isGitRepo live in repodetect.go.)

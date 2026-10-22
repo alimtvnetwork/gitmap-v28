@@ -23,10 +23,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // ParseFile is the package's only public parser entry point.
@@ -51,10 +53,11 @@ func ParseFile(path, format, mode, onExists string) (Plan, error) {
 		return Plan{}, derr
 	}
 
-	rows, err := parseByFormat(abs, resolved)
-	if err != nil {
-		return Plan{}, err
+	rowsWrap := parseByFormat(abs, resolved)
+	if rowsWrap.HasError() {
+		return Plan{}, rowsWrap.Error()
 	}
+	rows := rowsWrap.Items()
 
 	rows = dedupRows(rows)
 	if len(rows) == 0 {
@@ -91,10 +94,10 @@ func detectFormat(path string) (string, error) {
 // parseByFormat opens the file once and dispatches the io.Reader to
 // the format-specific parser. Centralized so all three branches
 // share identical open / close / error-wrapping behavior.
-func parseByFormat(path, format string) ([]Row, error) {
+func parseByFormat(path, format string) RowSliceWrap {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowOpen, path, err)
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseByFormat open"))
 	}
 
 	defer f.Close()
@@ -109,14 +112,10 @@ func parseByFormat(path, format string) ([]Row, error) {
 	return parseTextRows(f)
 }
 
-// parseJSONWithSchema slurps the JSON file once, runs the schema
-// guard against the bytes, then hands the same bytes to the
-// tolerant formatter.ParseJSON so we don't re-decode twice with
-// divergent semantics.
-func parseJSONWithSchema(f io.Reader) ([]Row, error) {
+func parseJSONWithSchema(f io.Reader) RowSliceWrap {
 	data, err := io.ReadAll(f)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseJSONWithSchema read"))
 	}
 
 	payload, _, extractErr := jsonx.ExtractPayload(data)
@@ -125,71 +124,65 @@ func parseJSONWithSchema(f io.Reader) ([]Row, error) {
 	}
 
 	if err := validateJSONSchema(payload); err != nil {
-		return nil, err
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseJSONWithSchema validate"))
 	}
 
 	recs, err := formatter.ParseJSON(bytes.NewReader(payload))
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowJSONDecode, err)
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseJSONWithSchema parse"))
 	}
 
-	return rowsFromRecords(recs), nil
+	return result.OkSlice(rowsFromRecords(recs))
 }
 
-// parseCSVWithSchema slurps the CSV file once, validates the header
-// row, then re-reads the full payload through formatter.ParseCSV.
-// Header validation must run BEFORE the tolerant parser because
-// otherwise a wrong header would silently mis-map columns.
-func parseCSVWithSchema(f io.Reader) ([]Row, error) {
+func parseCSVWithSchema(f io.Reader) RowSliceWrap {
 	data, err := io.ReadAll(f)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseCSVWithSchema read"))
 	}
 
 	if err := validateCSVSchema(bytes.NewReader(data)); err != nil {
-		return nil, err
+		return result.FailSlice[Row](apperror.WrapSimple(err, "parseCSVWithSchema validate"))
 	}
 
-	recs, err := parseCSVByHeaderName(bytes.NewReader(data))
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
+	recsWrap := parseCSVByHeaderName(bytes.NewReader(data))
+	fallbackRes := fallbackParseCSV(data, recsWrap.Items())
+	if fallbackRes.HasError() {
+		return result.FailSlice[Row](fallbackRes.Err)
 	}
 
-	if len(recs) == 0 {
-		// Fall back to the legacy positional parser for full 8+ col
-		// scan exports whose header names are not normalized cleanly.
-		recs, err = formatter.ParseCSV(bytes.NewReader(data))
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrCloneNowCSVRead, err)
-	}
-
-	return rowsFromRecords(recs), nil
+	return result.OkSlice(rowsFromRecords(fallbackRes.Items()))
 }
 
-// parseCSVByHeaderName reads a CSV using the header row as the
-// authoritative column-name → ScanRecord-field mapping. Tolerates
-// any subset of known fields (minimum: at least one URL column),
-// in any order, and survives BOM / quoted / padded header cells via
-// normalizeHeaderName. Returns nil records on a header that maps no
-// fields so the caller can fall back to the positional parser.
-func parseCSVByHeaderName(r io.Reader) ([]model.ScanRecord, error) {
+func fallbackParseCSV(data []byte, recs []model.ScanRecord) ScanRecordSliceWrap {
+	if len(recs) > 0 {
+		return result.OkSlice(recs)
+	}
+
+	parsed, parseErr := formatter.ParseCSV(bytes.NewReader(data))
+	if parseErr != nil {
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(parseErr, "parseCSVWithSchema parse"))
+	}
+
+	return result.OkSlice(parsed)
+}
+
+func parseCSVByHeaderName(r io.Reader) ScanRecordSliceWrap {
 	cr := csv.NewReader(r)
 	cr.FieldsPerRecord = -1
 	cr.LazyQuotes = true
 	rows, err := cr.ReadAll()
 	if err != nil {
-		return nil, err
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "parseCSVByHeaderName read"))
 	}
 
 	if len(rows) < 2 {
-		return nil, nil
+		return result.OkSlice[model.ScanRecord](nil)
 	}
 
 	idx := buildHeaderIndex(rows[0])
 	if !headerHasURL(idx) {
-		return nil, nil
+		return result.OkSlice[model.ScanRecord](nil)
 	}
 
 	out := make([]model.ScanRecord, 0, len(rows)-1)
@@ -197,7 +190,7 @@ func parseCSVByHeaderName(r io.Reader) ([]model.ScanRecord, error) {
 		out = append(out, recordFromIndexedRow(row, idx))
 	}
 
-	return out, nil
+	return result.OkSlice(out)
 }
 
 // buildHeaderIndex maps each known field name to its column index
