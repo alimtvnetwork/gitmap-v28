@@ -1,5 +1,18 @@
 # Changelog
 
+## [v6.590.0] - 2026-10-22
+
+### Added
+- Completed the AppError migration: bare fmt.Errorf converted to typed AppError returns across all production packages (only the diag package keeps plain errors, blocked by an import cycle)
+- Coding-guideline execute suite run to completion: all 39 prompts applied, partially applied with documented remainders, or closed with evidence
+- Deduplicated helper libraries: filesystem and string helpers consolidated into shared packages, 51 local copies removed
+- Map-based dispatch and case-insensitive matching helpers applied across command dispatchers; per-call regex compilation eliminated
+- Enum guideline compliance verified by linter (9 violations fixed); heavy test suite tagged and wired into CI as a dedicated job
+- Repaired the build: deduplicated constants and store types, aligned Result-envelope callers and test seams; full build and vet green
+- Plan backlog drained: 24 completed plans filed away; boolean-lint residue reduced to a documented guard idiom
+
+---
+
 ## [v6.589.10] - 2026-10-22
 
 ### Added
