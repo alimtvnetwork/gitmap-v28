@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // NormalizeStoragePath produces a canonical, clean absolute path for database persistence.
@@ -126,12 +127,12 @@ func (db *DB) ListReposByTransport(transport string) ([]model.ScanRecord, error)
 }
 
 // ListReposByBranch returns all repositories configured for the specified branch.
-func (db *DB) ListReposByBranch(branch string) ([]model.ScanRecord, *apperror.AppError) {
+func (db *DB) ListReposByBranch(branch string) result.Result[[]model.ScanRecord] {
 	return NewRepoRepository(db.conn).ListByBranch(branch)
 }
 
 // ListReposDirtyStatus returns repositories flagged as dirty or requiring synchronization.
-func (db *DB) ListReposDirtyStatus() ([]model.ScanRecord, *apperror.AppError) {
+func (db *DB) ListReposDirtyStatus() result.Result[[]model.ScanRecord] {
 	return NewRepoRepository(db.conn).ListDirty()
 }
 

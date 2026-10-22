@@ -111,14 +111,14 @@ func findLocalRepoDirForSlug(slug string) string {
 	defer db.Close()
 
 	repo := store.NewRepoRepository(db.Conn())
-	absPath, appErr := repo.FindPathBySlug(slug)
-	if appErr != nil {
-		logRepoLookupFailure(slug, appErr)
+	pathRes := repo.FindPathBySlug(slug)
+	if pathRes.HasError() {
+		logRepoLookupFailure(slug, pathRes.Err)
 
 		return ""
 	}
 
-	return absPath
+	return pathRes.Value
 }
 
 func logRepoLookupFailure(slug string, appErr *apperror.AppError) {
