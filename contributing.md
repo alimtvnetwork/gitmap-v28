@@ -243,6 +243,25 @@ the [spec README](spec/README.md) for structure and naming conventions.
 
 ---
 
+## Commit Conventions
+
+- **Subject format:** `type(scope): summary` — lowercase type (`feat`, `fix`,
+  `chore`, `docs`, `refactor`, `test`, `release`), imperative summary, no
+  trailing period. One format across the repo; do not mix `Feature:` / `Bug:` /
+  dash-style variants.
+- **One deliverable per commit.** A commit does one thing. If the subject needs
+  "and" more than once, split the commit — a feature, its UI, and its docs are
+  separate commits unless they cannot build apart.
+- **Canonical sync is one commit per day.** The sync script
+  (`38-sync-prompts-skills-scripts.py`) enforces a daily-sync guard: the first
+  run of the day lands the `feat(sync)` commit and later same-day runs are
+  no-ops. Override with `--force` only when a second sync genuinely cannot
+  wait until tomorrow.
+- **No placeholder subjects.** No `wip`, `tmp`, `updates`, or fixup commits on
+  `main`; squash or reword before pushing.
+
+---
+
 ## References
 
 - [Code Quality Guidelines](02-spec/05-coding-guidelines/01-code-quality-improvement.md)
