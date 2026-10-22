@@ -107,10 +107,15 @@ func writeOrRenderErrorLogs(params ErrorLogOutputParams) error {
 	if err != nil {
 		return err
 	}
-	_ = persistAutoErrorReport(params)
+
+	if err := persistAutoErrorReport(params); err != nil {
+		fmt.Fprintf(os.Stderr, "  Warning: could not persist error report: %v\n", err)
+	}
+
 	if len(params.TempFile) > 0 || len(params.FilePath) > 0 {
 		return writeErrorLogsToDisk(params, contentToWrite)
 	}
+
 	return dispatchErrorLogPresentation(params, contentToWrite)
 }
 
@@ -118,12 +123,16 @@ func dispatchErrorLogPresentation(params ErrorLogOutputParams, content string) e
 	if params.IsJSON {
 		return outputJSONErrorLogs(content)
 	}
+
 	defer printTimingBanner(params.Payload)
 	if params.HasSuppressOutputLog {
 		printSuppressedStagingNotice(params.Payload.SavedReportFile)
+
 		return nil
 	}
+
 	renderErrorLogsTerminal(params.Payload)
+
 	return maybeDispatchAgyFix(params)
 }
 
@@ -131,35 +140,46 @@ func maybeDispatchAgyFix(params ErrorLogOutputParams) error {
 	hasFailure := params.Payload.Conclusion == "failure" || len(params.Payload.FailedRuns) > 0
 	if hasFailure && params.WantFix && PipelineAgyFixRunner != nil {
 		fmt.Printf("\n  🚀 Automatically dispatching CI/CD fix to Antigravity IDE...\n")
+
 		return PipelineAgyFixRunner([]string{params.Payload.Repo, "--force"})
 	}
+
 	return nil
 }
 
 func outputJSONErrorLogs(content string) error {
 	fmt.Println(content)
 	if isClipboardWriteAllowed(false) {
-		_ = writeClipboard(content)
+		if err := writeClipboard(content); err != nil {
+			fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
+		}
 	}
+
 	return nil
 }
 
 func printSuppressedStagingNotice(reportFile string) {
 	if len(reportFile) > 0 {
 		fmt.Printf("  ✓ Error logs staged to %s (suppressed terminal output via --no-output-log)\n", reportFile)
+
 		return
 	}
+
 	fmt.Println("  ✓ Error logs staged to filesystem (suppressed terminal output via --no-output-log)")
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
 	if isClipboardWriteAllowed(false) {
-		_ = writeClipboard(content)
+		if err := writeClipboard(content); err != nil {
+			fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
+		}
 	}
+
 	defer printTimingBanner(params.Payload)
 	if len(params.TempFile) > 0 {
 		return writeContentToFile(filepath.Join(resolveTempDir(), params.TempFile), content)
 	}
+
 	return writeContentToFile(params.FilePath, content)
 }
 

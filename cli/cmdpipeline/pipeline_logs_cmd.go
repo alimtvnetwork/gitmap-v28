@@ -302,8 +302,11 @@ func dispatchLogsOutput(combined string, items []CommitWorkflowLogItem, opts Pip
 		return writeLogsToTempFile(opts.TempFileName, combined)
 	}
 	if opts.DoCopy {
-		_ = writeClipboard(combined)
-		fmt.Println("✓ Copied pipeline logs to system clipboard.")
+		if err := writeClipboard(combined); err != nil {
+			fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
+		} else {
+			fmt.Println("✓ Copied pipeline logs to system clipboard.")
+		}
 	}
 
 	fmt.Println(combined)

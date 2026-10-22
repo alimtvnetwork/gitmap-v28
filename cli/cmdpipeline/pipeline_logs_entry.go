@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 )
@@ -134,18 +133,19 @@ func pollTimelineLoopStep(repo string, flags PipelineErrorFlags) (bool, error) {
 }
 
 func handleEarlyDetectedErrors(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) (bool, error) {
-	renderTimelineErrorAndExit(payload, flags)
+	if err := renderTimelineError(payload, flags); err != nil {
+		return true, err
+	}
+
 	if isTimelineTestMode() {
 		return true, nil
 	}
+
 	return true, fmt.Errorf("pipeline errors detected in active run")
 }
 
-func renderTimelineErrorAndExit(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) {
-	_ = writePayloadWithFlags(payload, flags)
-	if !isTimelineTestMode() {
-		cliexit.Exit(1)
-	}
+func renderTimelineError(payload PipelineErrorLogsPayload, flags PipelineErrorFlags) error {
+	return writePayloadWithFlags(payload, flags)
 }
 
 func hasEarlyDetectedErrors(payload PipelineErrorLogsPayload) bool {
