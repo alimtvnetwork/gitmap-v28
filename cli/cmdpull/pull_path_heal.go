@@ -57,11 +57,7 @@ func AutoHealRepoPathInDB(oldPath, newPath string) error {
 
 	defer db.Close()
 
-	if db.Conn() != nil {
-		_, err = db.Conn().Exec("UPDATE Repo SET AbsolutePath = ? WHERE AbsolutePath = ?", newPath, oldPath)
-	}
-
-	return err
+	return db.UpdateRepoAbsolutePath(oldPath, newPath)
 }
 
 // TryHealMissingRecordPath attempts to repair a missing record's path if it has backslashes on Unix.

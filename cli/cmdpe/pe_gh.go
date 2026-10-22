@@ -3,14 +3,16 @@ package cmdpe
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // triageRepo is a local checkout that maps to a GitHub repository.
@@ -23,6 +25,7 @@ type triageRepo struct {
 // hasGh reports whether the GitHub CLI is available on PATH.
 func hasGh() bool {
 	_, lookErr := exec.LookPath("gh")
+
 	return lookErr == nil
 }
 
@@ -36,6 +39,7 @@ func ghJSON(out any, ghArgs ...string) *appfault.AppError {
 	if runErr := cmd.Run(); runErr != nil {
 		return apperror.WrapSimple(runErr, "pe.gh: "+strings.TrimSpace(stderr.String()))
 	}
+
 	if decodeErr := json.Unmarshal(stdout.Bytes(), out); decodeErr != nil {
 		return apperror.WrapSimple(decodeErr, "pe.gh.decode")
 	}
@@ -48,9 +52,11 @@ func resolveWorkdir(flagVal string) string {
 	if strings.TrimSpace(flagVal) != "" {
 		return flagVal
 	}
+
 	if envVal := strings.TrimSpace(os.Getenv("GITMAP_WORKDIR")); envVal != "" {
 		return envVal
 	}
+
 	home, homeErr := os.UserHomeDir()
 	if homeErr != nil {
 		return "."
@@ -59,25 +65,33 @@ func resolveWorkdir(flagVal string) string {
 	return filepath.Join(home, "workspace", "repos")
 }
 
+func appendTriageRepo(repos []triageRepo, workdir string, e os.DirEntry) []triageRepo {
+	if !e.IsDir() {
+		return repos
+	}
+
+	repoPath := filepath.Join(workdir, e.Name())
+	if _, statErr := os.Stat(filepath.Join(repoPath, constants.DotGit)); statErr != nil {
+		return repos
+	}
+
+	slug, _ := githubSlugForDir(repoPath)
+
+	return append(repos, triageRepo{name: e.Name(), path: repoPath, slug: slug})
+}
+
 // listGitRepos enumerates directories containing a .git entry.
 func listGitRepos(workdir string) []triageRepo {
 	entries, readErr := os.ReadDir(workdir)
 	if readErr != nil {
 		return nil
 	}
+
 	var repos []triageRepo
 	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		repoPath := filepath.Join(workdir, e.Name())
-		if _, statErr := os.Stat(filepath.Join(repoPath, ".git")); statErr != nil {
-			continue
-		}
-		slug, hasSlug := githubSlugForDir(repoPath)
-		repos = append(repos, triageRepo{name: e.Name(), path: repoPath, slug: slug})
-		_ = hasSlug
+		repos = appendTriageRepo(repos, workdir, e)
 	}
+
 	sort.Slice(repos, func(i, j int) bool { return repos[i].name < repos[j].name })
 
 	return repos
@@ -85,14 +99,22 @@ func listGitRepos(workdir string) []triageRepo {
 
 // githubSlugForDir resolves owner/repo from the origin remote URL.
 func githubSlugForDir(dir string) (string, bool) {
-	cmd := exec.Command("git", "-C", dir, "config", "--get", "remote.origin.url")
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
-	if runErr := cmd.Run(); runErr != nil {
+	origin := gitutil.GetRemoteOriginURL(dir)
+	if origin == "" {
 		return "", false
 	}
 
-	return parseGitHubSlug(strings.TrimSpace(stdout.String()))
+	return parseGitHubSlug(origin)
+}
+
+// parseGitHubSlugFromURL extracts owner/repo from a remote URL.
+func parseGitHubSlugFromURL(url string) string {
+	slug, isGitHub := parseGitHubSlug(url)
+	if !isGitHub {
+		return ""
+	}
+
+	return slug
 }
 
 // parseGitHubSlug extracts owner/repo from common remote URL shapes.
@@ -101,21 +123,12 @@ func parseGitHubSlug(raw string) (string, bool) {
 	if trimmed == "" {
 		return "", false
 	}
-	lower := strings.ToLower(trimmed)
-	var path string
-	switch {
-	case strings.HasPrefix(lower, "https://github.com/"):
-		path = trimmed[len("https://github.com/"):]
-	case strings.HasPrefix(lower, "http://github.com/"):
-		path = trimmed[len("http://github.com/"):]
-	case strings.HasPrefix(lower, "git@github.com:"):
-		path = trimmed[len("git@github.com:"):]
-	case strings.HasPrefix(lower, "ssh://git@github.com/"):
-		path = trimmed[len("ssh://git@github.com/"):]
-	default:
+
+	path := extractSlugPath(trimmed)
+	if path == "" {
 		return "", false
 	}
-	path = strings.TrimSuffix(path, ".git")
+
 	parts := strings.Split(path, "/")
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		return "", false
@@ -124,15 +137,33 @@ func parseGitHubSlug(raw string) (string, bool) {
 	return parts[0] + "/" + parts[1], true
 }
 
+func extractSlugPath(trimmed string) string {
+	lower := strings.ToLower(trimmed)
+	var path string
+	switch {
+	case strings.HasPrefix(lower, string(constants.GitHubHTTPSPrefix)):
+		path = trimmed[len(constants.GitHubHTTPSPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubHTTPPrefix)):
+		path = trimmed[len(constants.GitHubHTTPPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubSSHPrefix)):
+		path = trimmed[len(constants.GitHubSSHPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubSSHSchemePrefix)):
+		path = trimmed[len(constants.GitHubSSHSchemePrefix):]
+	default:
+		return ""
+	}
+
+	return strings.TrimSuffix(path, constants.GitDotGitSuffix)
+}
+
 // gitLastCommitAge returns a human relative age of HEAD, or "unknown".
 func gitLastCommitAge(dir string) string {
-	cmd := exec.Command("git", "-C", dir, "log", "-1", "--format=%ar")
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
-	if runErr := cmd.Run(); runErr != nil {
+	out, runErr := gitutil.RunGitInDir(dir, constants.GitLog, "-1", "--format=%ar")
+	if runErr != nil {
 		return "unknown"
 	}
-	age := strings.TrimSpace(stdout.String())
+
+	age := strings.TrimSpace(string(out))
 	if age == "" {
 		return "unknown"
 	}

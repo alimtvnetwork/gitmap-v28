@@ -3,10 +3,11 @@ package cmdpipeline
 import (
 	"database/sql"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
 )
@@ -14,6 +15,7 @@ import (
 // ResolvePipelineTarget resolves a path, alias, URL, or identifier to a canonical repository slug.
 func ResolvePipelineTarget(target string) string {
 	slug, _ := ResolvePipelineTargetAndPath(target)
+
 	return slug
 }
 
@@ -23,13 +25,17 @@ func ResolvePipelineTargetAndPath(target string) (string, string) {
 	if trimmed == "" || trimmed == "." {
 		return resolveLocalOrCwdSlug(trimmed), ""
 	}
+
 	if isPipelineGitURL(trimmed) {
 		return parseSlugFromGitURL(trimmed), ""
 	}
+
 	if info, err := os.Stat(trimmed); err == nil && info.IsDir() {
 		abs, _ := filepath.Abs(trimmed)
+
 		return resolveDirectorySlug(trimmed), abs
 	}
+
 	return resolveDBOrExplicitSlug(trimmed)
 }
 
@@ -37,36 +43,45 @@ func resolveDBOrExplicitSlug(target string) (string, string) {
 	if slug, absPath := resolveSpecialAlias(target); slug != "" {
 		return slug, absPath
 	}
+
 	if slug, absPath, isFound := queryRepoSlugAndPathFromDB(target); isFound {
 		return slug, absPath
 	}
+
 	if strings.Contains(target, "/") {
 		return target, ""
 	}
-	return "alimtvnetwork/" + target, ""
+
+	return constants.DefaultGitHubOwner + "/" + target, ""
+}
+
+func resolveAliasKey(low string) string {
+	switch low {
+	case "rs", "repo-secrets":
+		return "repo-secrets"
+	case "rc", "repo-cache", "repo-storage":
+		return "repo-cache"
+	case "gm", "gitmap":
+		return "gitmap"
+	case "cg", "coding-guidelines":
+		return "coding-guidelines"
+	default:
+		return ""
+	}
 }
 
 func resolveSpecialAlias(target string) (string, string) {
-	low := strings.ToLower(target)
-	switch low {
-	case "rs", "repo-secrets":
-		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("repo-secrets"); isFound {
-			return slug, absPath
-		}
-	case "rc", "repo-cache", "repo-storage":
-		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("repo-cache"); isFound {
-			return slug, absPath
-		}
-	case "gm", "gitmap":
-		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("gitmap"); isFound {
-			return slug, absPath
-		}
-	case "cg", "coding-guidelines":
-		if slug, absPath, isFound := queryRepoSlugAndPathFromDB("coding-guidelines"); isFound {
-			return slug, absPath
-		}
+	key := resolveAliasKey(strings.ToLower(target))
+	if key == "" {
+		return "", ""
 	}
-	return "", ""
+
+	slug, absPath, isFound := queryRepoSlugAndPathFromDB(key)
+	if !isFound {
+		return "", ""
+	}
+
+	return slug, absPath
 }
 
 func resolveLocalOrCwdSlug(target string) string {
@@ -74,39 +89,45 @@ func resolveLocalOrCwdSlug(target string) string {
 	if target != "" {
 		dir = target
 	}
-	out, err := exec.Command("git", "-C", dir, "config", "--get", "remote.origin.url").Output()
-	if err == nil && len(out) > 0 {
-		return parseSlugFromGitURL(strings.TrimSpace(string(out)))
+
+	origin := gitutil.GetRemoteOriginURL(dir)
+	if origin != "" {
+		return parseSlugFromGitURL(origin)
 	}
+
 	return resolveCurrentRepoSlug()
 }
 
 func resolveDirectorySlug(dirPath string) string {
-	out, err := exec.Command("git", "-C", dirPath, "config", "--get", "remote.origin.url").Output()
-	if err == nil && len(out) > 0 {
-		return parseSlugFromGitURL(strings.TrimSpace(string(out)))
+	origin := gitutil.GetRemoteOriginURL(dirPath)
+	if origin != "" {
+		return parseSlugFromGitURL(origin)
 	}
+
 	base := filepath.Base(dirPath)
 	if slug, isFound := queryRepoSlugFromDB(base); isFound {
 		return slug
 	}
-	return "alimtvnetwork/" + base
+
+	return constants.DefaultGitHubOwner + "/" + base
 }
 
 func isPipelineGitURL(s string) bool {
 	low := strings.ToLower(s)
-	return strings.HasPrefix(low, "http://") ||
-		strings.HasPrefix(low, "https://") ||
-		strings.HasPrefix(low, "git@") ||
-		strings.HasPrefix(low, "ssh://") ||
-		strings.HasSuffix(low, ".git") ||
-		strings.Contains(low, "github.com/") ||
-		strings.Contains(low, "github.com:")
+
+	return strings.HasPrefix(low, string(constants.GitPrefixHTTPS)) ||
+		strings.HasPrefix(low, string(constants.GitPrefixHTTP)) ||
+		strings.HasPrefix(low, string(constants.GitPrefixSSH)) ||
+		strings.HasPrefix(low, string(constants.GitPrefixSSHScheme)) ||
+		strings.HasSuffix(low, constants.GitDotGitSuffix) ||
+		strings.Contains(low, constants.GitHostTokenGitHubSlash) ||
+		strings.Contains(low, constants.GitHostTokenGitHubColon)
 }
 
 func queryRepoSlugFromDB(identifier string) (string, bool) {
-	slug, _, ok := queryRepoSlugAndPathFromDB(identifier)
-	return slug, ok
+	slug, _, isFound := queryRepoSlugAndPathFromDB(identifier)
+
+	return slug, isFound
 }
 
 func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
@@ -115,14 +136,16 @@ func queryRepoSlugAndPathFromDB(identifier string) (string, string, bool) {
 		return "", "", false
 	}
 	defer sdb.Close()
-	conn := sdb.Conn()
 
-	if slug, absPath, ok := queryExactAlias(conn, identifier); ok {
+	conn := sdb.Conn()
+	if slug, absPath, isFound := queryExactAlias(conn, identifier); isFound {
 		return slug, absPath, true
 	}
-	if slug, absPath, ok := queryExactRepo(conn, identifier); ok {
+
+	if slug, absPath, isFound := queryExactRepo(conn, identifier); isFound {
 		return slug, absPath, true
 	}
+
 	return queryPrefixRepo(conn, identifier)
 }
 
@@ -132,25 +155,52 @@ func queryExactAlias(conn *sql.DB, identifier string) (string, string, bool) {
 	if err := conn.QueryRow(q, identifier).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
 		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
 	}
+
+	return "", "", false
+}
+
+func queryRepoByPattern(conn *sql.DB, name, slashPat, backslashPat string) (string, string, bool) {
+	var slug, absPath, httpsUrl, sshUrl string
+	q := "SELECT Slug, AbsolutePath, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath = ? OR AbsolutePath LIKE ? OR AbsolutePath LIKE ? LIMIT 1"
+	if err := conn.QueryRow(q, name, name, name, slashPat, backslashPat).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
+		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+	}
+
 	return "", "", false
 }
 
 func queryExactRepo(conn *sql.DB, identifier string) (string, string, bool) {
-	var slug, absPath, httpsUrl, sshUrl string
-	q := "SELECT Slug, AbsolutePath, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE Slug = ? OR RepoName = ? OR AbsolutePath = ? OR AbsolutePath LIKE ? OR AbsolutePath LIKE ? LIMIT 1"
-	slashPattern := "%/" + filepath.ToSlash(identifier)
-	backslashPattern := "%\\" + filepath.FromSlash(identifier)
-	if err := conn.QueryRow(q, identifier, identifier, identifier, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
-		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+	slashPat := "%/" + filepath.ToSlash(identifier)
+	backslashPat := "%\\" + filepath.FromSlash(identifier)
+	if slug, absPath, isFound := queryRepoByPattern(conn, identifier, slashPat, backslashPat); isFound {
+		return slug, absPath, true
 	}
+
 	if !strings.Contains(identifier, "/") {
 		return "", "", false
 	}
+
 	shortName := identifier[strings.LastIndex(identifier, "/")+1:]
-	if err := conn.QueryRow(q, shortName, shortName, shortName, slashPattern, backslashPattern).Scan(&slug, &absPath, &httpsUrl, &sshUrl); err == nil && len(slug) > 0 {
-		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+
+	return queryRepoByPattern(conn, shortName, slashPat, backslashPat)
+}
+
+func scanFirstRepoRow(rows *sql.Rows) (string, string, string, string, bool) {
+	var slug, absPath, httpsUrl, sshUrl string
+	hasRow := false
+	for rows.Next() {
+		var s, a, h, sc string
+		if errScan := rows.Scan(&s, &a, &h, &sc); errScan != nil {
+			return "", "", "", "", false
+		}
+
+		if !hasRow {
+			slug, absPath, httpsUrl, sshUrl = s, a, h, sc
+			hasRow = true
+		}
 	}
-	return "", "", false
+
+	return slug, absPath, httpsUrl, sshUrl, hasRow
 }
 
 func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
@@ -160,37 +210,44 @@ func queryPrefixRepo(conn *sql.DB, identifier string) (string, string, bool) {
 		return "", "", false
 	}
 	defer rows.Close()
-	var slug, absPath, httpsUrl, sshUrl, s, a, h, sc string
-	count := 0
-	for rows.Next() {
-		if errScan := rows.Scan(&s, &a, &h, &sc); errScan != nil {
-			return "", "", false
-		}
-		if count == 0 {
-			slug, absPath, httpsUrl, sshUrl = s, a, h, sc
-		}
-		count++
+
+	slug, absPath, httpsUrl, sshUrl, hasRow := scanFirstRepoRow(rows)
+	if !hasRow || slug == "" {
+		return "", "", false
 	}
-	if count > 0 && slug != "" {
-		return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+
+	return canonicalizeRepoSlug(slug, httpsUrl, sshUrl), absPath, true
+}
+
+func slugFromRemoteURL(url string) string {
+	if len(url) == 0 {
+		return ""
 	}
-	return "", "", false
+
+	parsed := parseSlugFromGitURL(url)
+	if strings.Contains(parsed, "/") {
+		return parsed
+	}
+
+	return ""
 }
 
 func canonicalizeRepoSlug(slug, httpsUrl, sshUrl string) string {
 	if strings.Contains(slug, "/") {
 		return slug
 	}
-	parsedHttps := parseSlugFromGitURL(httpsUrl)
-	if len(httpsUrl) > 0 && strings.Contains(parsedHttps, "/") {
-		return parsedHttps
+
+	if parsed := slugFromRemoteURL(httpsUrl); parsed != "" {
+		return parsed
 	}
-	parsedSsh := parseSlugFromGitURL(sshUrl)
-	if len(sshUrl) > 0 && strings.Contains(parsedSsh, "/") {
-		return parsedSsh
+
+	if parsed := slugFromRemoteURL(sshUrl); parsed != "" {
+		return parsed
 	}
+
 	if len(slug) > 0 {
-		return "alimtvnetwork/" + slug
+		return constants.DefaultGitHubOwner + "/" + slug
 	}
+
 	return ""
 }

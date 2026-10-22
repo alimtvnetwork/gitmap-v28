@@ -137,6 +137,12 @@ const (
 
 	SQLDeleteRepoByPath = "DELETE FROM Repo WHERE AbsolutePath = ?"
 	SQLDeleteRepoBySlug = "DELETE FROM Repo WHERE Slug = ?"
+
+	SQLUpdateRepoTransport        = `UPDATE Repo SET SshUrl = ?, IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE AbsolutePath = ?`
+	SQLUpdateRepoTransportByPath  = SQLUpdateRepoTransport
+	SQLUpdateRepoAbsolutePath     = `UPDATE Repo SET AbsolutePath = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE AbsolutePath = ?`
+	SQLSelectRepoPrimaryURL       = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE AbsolutePath = ?`
+	SQLSelectRepoPrimaryURLByPath = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, ''), COALESCE(IdentifiedTransport, '') FROM Repo WHERE AbsolutePath = ?`
 )
 
 // SQL: upsert by AbsolutePath (spec requirement).

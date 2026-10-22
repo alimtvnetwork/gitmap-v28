@@ -26,29 +26,16 @@ func LookupRepoRemoteAndID(repoPath string) (int64, string) {
 
 	defer db.Close()
 
-	if db.Conn() == nil {
+	return queryRepoRemoteAndID(db, repoPath)
+}
+
+func queryRepoRemoteAndID(db *store.DB, repoPath string) (int64, string) {
+	repoID, primaryURL, err := db.GetRepoPrimaryURLByPath(repoPath)
+	if err != nil {
 		return 0, ""
 	}
 
-	var repoID int64
-	var httpsUrl, sshUrl, discUrl string
-	row := db.Conn().QueryRow(
-		"SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, ''), COALESCE(DiscoveredUrl, '') FROM Repo WHERE AbsolutePath = ?",
-		repoPath,
-	)
-	if err := row.Scan(&repoID, &httpsUrl, &sshUrl, &discUrl); err != nil {
-		return 0, ""
-	}
-
-	if httpsUrl != "" {
-		return repoID, httpsUrl
-	}
-
-	if sshUrl != "" {
-		return repoID, sshUrl
-	}
-
-	return repoID, discUrl
+	return repoID, primaryURL
 }
 
 // DeleteRepoRecordByPath removes the repository row from gitmap.db.

@@ -3,7 +3,6 @@ package gitutil
 
 import (
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -25,13 +24,7 @@ type RepoStatus struct {
 
 // RemoteURL returns the origin remote URL for a repo at the given path.
 func RemoteURL(repoPath string) (string, error) {
-	out, err := runGit(repoPath,
-		constants.GitConfigCmd, constants.GitGetFlag, constants.GitRemoteOrigin)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(out), nil
+	return GetRepoConfig(repoPath, constants.GitRemoteOrigin)
 }
 
 // HasInitialCommit reports whether the repository at repoPath has at least one commit.
@@ -297,9 +290,7 @@ func countStashes(repoPath string) int {
 
 // runGit executes a git command in the given directory and returns stdout.
 func runGit(dir string, args ...string) (string, error) {
-	cmd := exec.Command(constants.GitBin, args...)
-	cmd.Dir = dir
-	out, err := cmd.Output()
+	out, err := RunGitInDir(dir, args...)
 	if err != nil {
 		return "", err
 	}

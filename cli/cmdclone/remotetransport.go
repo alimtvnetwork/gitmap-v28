@@ -3,8 +3,8 @@ package cmdclone
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
 // ApplyTransportFlag rewrites the `remote.origin.url` of dir to the
@@ -20,13 +20,9 @@ import (
 //
 // Spec: 02-spec/01-app/111-push-pull-transport-flags.md
 func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, error) {
-	if !useSSH && !useHTTPS {
+	isSSH, isActionable := resolveRequestedTransport(useSSH, useHTTPS)
+	if !isActionable {
 		return false, "", "", nil
-	}
-
-	if useSSH && useHTTPS {
-		fmt.Fprintln(os.Stderr, "⚠ both --ssh and --https set; --ssh wins")
-		useHTTPS = false
 	}
 
 	old, err := currentOriginURL(dir)
@@ -34,50 +30,69 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 		return false, "", "", err
 	}
 
-	var converted string
-	var ok bool
-	if useSSH {
-		converted, ok = ConvertURLToSSH(old)
-	} else {
-		converted, ok = ConvertURLToHTTPS(old)
+	return rewriteTransportURL(dir, old, isSSH)
+}
+
+func resolveRequestedTransport(useSSH, useHTTPS bool) (bool, bool) {
+	if !useSSH && !useHTTPS {
+		return false, false
 	}
 
-	if !ok {
+	if useSSH && useHTTPS {
+		fmt.Fprintln(os.Stderr, "⚠ both --ssh and --https set; --ssh wins")
+
+		return true, true
+	}
+
+	return useSSH, true
+}
+
+func rewriteTransportURL(dir, old string, isSSH bool) (bool, string, string, error) {
+	converted, isRecognized := convertURLForTransport(old, isSSH)
+	if !isRecognized {
 		fmt.Fprintf(os.Stderr, "⚠ remote.origin.url %q is not a recognized Git URL; skipping transport rewrite\n", old)
 
 		return false, old, old, nil
 	}
 
-	if converted == old {
-		return false, old, old, nil
-	}
+	hasChanged, err := applyConvertedURL(dir, old, converted)
 
-	if err := setOriginURL(dir, converted); err != nil {
-		return false, old, converted, err
-	}
-
-	fmt.Printf("→ remote.origin.url: %s → %s\n", old, converted)
-
-	return true, old, converted, nil
+	return hasChanged, old, converted, err
 }
 
-// currentOriginURL reads `git -C dir config --get remote.origin.url`.
+func convertURLForTransport(url string, isSSH bool) (string, bool) {
+	if isSSH {
+		return ConvertURLToSSH(url)
+	}
+
+	return ConvertURLToHTTPS(url)
+}
+
+func applyConvertedURL(dir, oldURL, convertedURL string) (bool, error) {
+	if convertedURL == oldURL {
+		return false, nil
+	}
+
+	if err := setOriginURL(dir, convertedURL); err != nil {
+		return false, err
+	}
+
+	fmt.Printf("→ remote.origin.url: %s → %s\n", oldURL, convertedURL)
+
+	return true, nil
+}
+
+// currentOriginURL reads the remote origin URL for dir using gitutil.
 func currentOriginURL(dir string) (string, error) {
-	out, err := exec.Command("git", "-C", dir, "config", "--get", "remote.origin.url").Output()
+	url, err := gitutil.ReadRemoteOriginURL(dir)
 	if err != nil {
 		return "", fmt.Errorf("read remote.origin.url in %s: %w (is `git remote add origin <url>` set?)", dir, err)
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return url, nil
 }
 
-// setOriginURL runs `git -C dir remote set-url origin <url>`.
+// setOriginURL updates the remote origin URL for dir using gitutil.
 func setOriginURL(dir, url string) error {
-	cmd := exec.Command("git", "-C", dir, "remote", "set-url", "origin", url)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("git remote set-url origin %s: %w (%s)", url, err, strings.TrimSpace(string(out)))
-	}
-
-	return nil
+	return gitutil.SetRemoteOriginURL(dir, url)
 }

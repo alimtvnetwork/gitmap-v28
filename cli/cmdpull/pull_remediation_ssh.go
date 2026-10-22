@@ -11,18 +11,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func readRemoteOriginURL(repoPath string) string {
-	originOut, err := exec.Command("git", "-C", repoPath, "config", "--get", "remote.origin.url").Output()
-	if err != nil {
-		return ""
-	}
-
-	return strings.TrimSpace(string(originOut))
-}
-
 func isSameOwnerHTTPSRepo(repoPath string) bool {
-	origin := readRemoteOriginURL(repoPath)
-	if !strings.HasPrefix(strings.ToLower(origin), "https://github.com/") {
+	origin := gitutil.GetRemoteOriginURL(repoPath)
+	if !strings.HasPrefix(strings.ToLower(origin), string(constants.GitHubHTTPSPrefix)) {
 		return false
 	}
 
@@ -37,19 +28,19 @@ func isSameOwnerHTTPSRepo(repoPath string) bool {
 func extractGitHubOwnerFromURL(url string) string {
 	trimmed := strings.TrimSpace(url)
 	lower := strings.ToLower(trimmed)
-	if strings.HasPrefix(lower, "https://github.com/") {
-		return extractFirstSlashSegment(trimmed[len("https://github.com/"):])
+	if strings.HasPrefix(lower, string(constants.GitHubHTTPSPrefix)) {
+		return extractFirstSlashSegment(trimmed[len(constants.GitHubHTTPSPrefix):])
 	}
 
-	if strings.HasPrefix(lower, "git@github.com:") {
-		return extractFirstSlashSegment(trimmed[len("git@github.com:"):])
+	if strings.HasPrefix(lower, string(constants.GitHubSSHPrefix)) {
+		return extractFirstSlashSegment(trimmed[len(constants.GitHubSSHPrefix):])
 	}
 
 	return ""
 }
 
 func extractFirstSlashSegment(rest string) string {
-	parts := strings.SplitN(rest, "/", 2)
+	parts := strings.SplitN(rest, constants.GitPathSeparator, 2)
 	if len(parts) == 0 {
 		return ""
 	}
@@ -58,7 +49,7 @@ func extractFirstSlashSegment(rest string) string {
 }
 
 func hasSSHRepoForSameOwner(owner string) bool {
-	if strings.EqualFold(owner, "alimtvnetwork") {
+	if strings.EqualFold(owner, constants.DefaultGitHubOwner) {
 		return true
 	}
 
@@ -83,7 +74,7 @@ func loadStoreRepos() []model.ScanRecord {
 }
 
 func hasSSHRepoOwner(repos []model.ScanRecord, owner string) bool {
-	prefix := "git@github.com:" + strings.ToLower(owner) + "/"
+	prefix := fmt.Sprintf(constants.GitHubSSHRepoOwnerFmt, strings.ToLower(owner))
 	for _, r := range repos {
 		if strings.HasPrefix(strings.ToLower(r.SSHUrl), prefix) ||
 			strings.HasPrefix(strings.ToLower(r.DiscoveredURL), prefix) {
@@ -96,8 +87,8 @@ func hasSSHRepoOwner(repos []model.ScanRecord, owner string) bool {
 
 func remediateCredentialAndConvertToSSH(repoPath, repoName string) {
 	storeType := gitutil.ResolveWindowsCredentialStore()
-	_ = exec.Command("git", "config", "--global", "credential.helper", "manager").Run()
-	_ = exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType)).Run()
+	_ = exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.helper", "manager").Run()
+	_ = exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.credentialStore", string(storeType)).Run()
 	applySSHTransportRemediation(repoPath)
 }
 
@@ -113,15 +104,12 @@ func applySSHTransportRemediation(repoPath string) {
 
 func updateRepoTransportInDB(repoPath, sshURL string) {
 	db, err := store.OpenDefault()
-	if err != nil || db.Conn() == nil {
+	if err != nil {
 		return
 	}
 
 	defer db.Close()
-	_, _ = db.Conn().Exec(
-		`UPDATE Repo SET SshUrl = ?, DiscoveredUrl = ?, IdentifiedTransport = ? WHERE AbsolutePath = ?`,
-		sshURL, sshURL, constants.TransportSSH, repoPath,
-	)
+	_ = db.UpdateRepoTransport(repoPath, sshURL, constants.TransportSSH)
 }
 
 func clearResolvedPullError(repoName, repoPath string) {

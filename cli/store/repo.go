@@ -248,3 +248,59 @@ func (db *DB) GetRepoSuggestions(partial string) ([]string, error) {
 
 	return matches, nil
 }
+
+// UpdateRepoAbsolutePath modifies the tracked AbsolutePath of a repository record.
+// Both oldPath and newPath are canonicalized using NormalizeStoragePath.
+func (db *DB) UpdateRepoAbsolutePath(oldPath, newPath string) error {
+	cleanOld := NormalizeStoragePath(oldPath)
+	cleanNew := NormalizeStoragePath(newPath)
+	if cleanOld == "" || cleanNew == "" || cleanOld == cleanNew {
+		return nil
+	}
+
+	_, err := ExecWrapper(db.conn, constants.SQLUpdateRepoAbsolutePath, cleanNew, cleanOld).Destruct()
+
+	return err
+}
+
+// GetRepoPrimaryURLByPath retrieves the primary remote URL and repository ID for a path.
+func (db *DB) GetRepoPrimaryURLByPath(repoPath string) (int64, string, error) {
+	if strings.TrimSpace(repoPath) == "" {
+		return 0, "", nil
+	}
+
+	rec, err := db.findFirstRepoRecord(repoPath)
+	if err != nil {
+		return 0, "", err
+	}
+
+	url := resolvePrimaryURLFromFields(rec.HTTPSUrl, rec.SSHUrl, rec.IdentifiedTransport)
+
+	return rec.ID, url, nil
+}
+
+func (db *DB) findFirstRepoRecord(repoPath string) (model.ScanRecord, error) {
+	records, err := db.FindByPath(repoPath)
+	if err != nil {
+		return model.ScanRecord{}, err
+	}
+
+	if len(records) == 0 {
+		return model.ScanRecord{}, sql.ErrNoRows
+	}
+
+	return records[0], nil
+}
+
+func resolvePrimaryURLFromFields(httpsURL, sshURL, transport string) string {
+	isSSH := strings.EqualFold(transport, constants.TransportSSH)
+	if isSSH && sshURL != "" {
+		return sshURL
+	}
+
+	if httpsURL != "" {
+		return httpsURL
+	}
+
+	return sshURL
+}

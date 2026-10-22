@@ -135,3 +135,73 @@ const (
 	EnvGCMNoPersistOne         = "GCM_NO_PERSIST=1"
 	EnvValueOne                = "1"
 )
+
+// GitProviderType defines recognized Git hosting providers.
+type GitProviderType string
+
+const (
+	GitProviderGitHub      GitProviderType = "github"
+	GitProviderGitLab      GitProviderType = "gitlab"
+	GitProviderBitbucket   GitProviderType = "bitbucket"
+	GitProviderAzureDevOps GitProviderType = "azuredevops"
+	GitProviderUnknown     GitProviderType = "unknown"
+)
+
+// GitHostType defines normalized domain names for Git hosts.
+type GitHostType string
+
+const (
+	GitHostGitHub      GitHostType = "github.com"
+	GitHostGitLab      GitHostType = "gitlab.com"
+	GitHostBitbucket   GitHostType = "bitbucket.org"
+	GitHostAzureDevOps GitHostType = "dev.azure.com"
+)
+
+// GitURLPrefixType represents canonical protocol and scheme prefixes for Git remotes.
+type GitURLPrefixType string
+
+const (
+	// GitHub remote prefixes.
+	GitHubHTTPSPrefix     GitURLPrefixType = "https://github.com/"
+	GitHubHTTPPrefix      GitURLPrefixType = "http://github.com/"
+	GitHubSSHPrefix       GitURLPrefixType = "git@github.com:"
+	GitHubSSHSchemePrefix GitURLPrefixType = "ssh://git@github.com/"
+
+	// GitLab remote prefixes.
+	GitLabHTTPSPrefix     GitURLPrefixType = "https://gitlab.com/"
+	GitLabHTTPPrefix      GitURLPrefixType = "http://gitlab.com/"
+	GitLabSSHPrefix       GitURLPrefixType = "git@gitlab.com:"
+	GitLabSSHSchemePrefix GitURLPrefixType = "ssh://git@gitlab.com/"
+
+	// Bitbucket remote prefixes.
+	BitbucketHTTPSPrefix     GitURLPrefixType = "https://bitbucket.org/"
+	BitbucketHTTPPrefix      GitURLPrefixType = "http://bitbucket.org/"
+	BitbucketSSHPrefix       GitURLPrefixType = "git@bitbucket.org:"
+	BitbucketSSHSchemePrefix GitURLPrefixType = "ssh://git@bitbucket.org/"
+
+	// Generic transport scheme prefixes.
+	GitPrefixHTTPS     GitURLPrefixType = "https://"
+	GitPrefixHTTP      GitURLPrefixType = "http://"
+	GitPrefixSSH       GitURLPrefixType = "git@"
+	GitPrefixSSHScheme GitURLPrefixType = "ssh://"
+)
+
+// Git URL formats, delimiters, and default values.
+const (
+	GitHubSSHRepoOwnerFmt = "git@github.com:%s/"
+	GitHubSSHRepoFmt      = "git@github.com:%s.git"
+	GitHubHTTPSRepoFmt    = "https://github.com/%s"
+	GitHubHTTPSRepoGitFmt = "https://github.com/%s.git"
+	DefaultGitHubOwner    = "alimtvnetwork"
+
+	// GitDotGitSuffix represents the canonical repository extension for remote URLs.
+	GitDotGitSuffix = ".git"
+
+	// Delimiters for remote URL construction.
+	GitPathSeparator  = "/"
+	GitColonSeparator = ":"
+
+	// Host path tokens for boundary tokenization.
+	GitHostTokenGitHubSlash = "github.com/"
+	GitHostTokenGitHubColon = "github.com:"
+)

@@ -1,7 +1,5 @@
 package commitin
 
-import ()
-
 // gitRunner is the swappable git executor for the walk package. Tests
 // use SetGitRunnerForTest to inject a fake; production runs the real
 // `git` binary via defaultGitRunner.
