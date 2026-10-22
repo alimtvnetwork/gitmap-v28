@@ -198,7 +198,7 @@ func resolveBaseTemplate(args []string) (string, string, error) {
 		return basePromptName, content, err
 	}
 	hasArgs := len(args) > 0
-	if hasArgs == false {
+	if !hasArgs {
 		return "", "", nil
 	}
 
@@ -219,7 +219,7 @@ func resolveBaseText(args []string, detectedTemplateName string) string {
 	if hasDetected && len(args) > 1 {
 		return strings.Join(args[1:], " ")
 	}
-	if hasDetected == false && len(args) > 0 {
+	if !hasDetected && len(args) > 0 {
 		return strings.Join(args, " ")
 	}
 
@@ -234,7 +234,7 @@ func runPromptWithName(args []string) error {
 	repoRoot := resolveCurrentRepoRoot()
 	tplName := args[0]
 	tpl, hasTpl := cmdprompttemplate.FindTemplate(tplName)
-	if hasTpl == false {
+	if !hasTpl {
 		return apperror.NewSimple("prompt template not found: "+tplName, "E9013")
 	}
 	textVal := resolveWithNameText(args)

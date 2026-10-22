@@ -33,8 +33,8 @@ func shortSHA(sha string) string {
 }
 
 // boolLabel returns yes/no for a boolean.
-func boolLabel(v bool) string {
-	if v {
+func boolLabel(isEnabled bool) string {
+	if isEnabled {
 		return "yes"
 	}
 

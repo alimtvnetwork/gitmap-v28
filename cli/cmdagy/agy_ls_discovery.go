@@ -87,7 +87,7 @@ func parseLSEnvWindowsOutput(raw string) (string, string, bool) {
 	}
 	parts := strings.Split(raw, "|")
 	hasValidParts := len(parts) >= 3
-	if hasValidParts == false {
+	if !hasValidParts {
 		return "", "", false
 	}
 	token := strings.TrimSpace(parts[1])
@@ -113,7 +113,7 @@ func selectWorkingLSPort(portsStr, token string) (string, string, bool) {
 
 func probeLSPort(port, token string) bool {
 	binPath, baseArgs, isResolved := ResolveAgentAPI()
-	if isResolved == false {
+	if !isResolved {
 		return false
 	}
 	addr := "127.0.0.1:" + port

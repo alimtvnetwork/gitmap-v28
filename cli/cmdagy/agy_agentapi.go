@@ -47,7 +47,7 @@ func ResolveAgentAPI() (string, []string, bool) {
 func findAgentAPIFromHome() (string, []string, bool) {
 	home, err := os.UserHomeDir()
 	hasHome := err == nil
-	if hasHome == false {
+	if !hasHome {
 		return "", nil, false
 	}
 	winBat := filepath.Join(home, ".gemini", "antigravity", "bin", "agentapi.bat")
@@ -67,7 +67,7 @@ func findAgentAPIFromHome() (string, []string, bool) {
 func findAgentAPIFromInstallDir() (string, []string, bool) {
 	localApp := os.Getenv("LOCALAPPDATA")
 	hasLocal := len(localApp) > 0
-	if hasLocal == false {
+	if !hasLocal {
 		return "", nil, false
 	}
 	langServer := filepath.Join(localApp, "Programs", "Antigravity", "resources", "bin", "language_server.exe")
@@ -100,7 +100,7 @@ func executeAgentAPICmd(subArgs []string) result.ByteSliceResult {
 
 func executeAgentAPICmdInDir(workDir string, subArgs []string) result.ByteSliceResult {
 	binPath, baseArgs, isResolved := ResolveAgentAPI()
-	if isResolved == false {
+	if !isResolved {
 		return result.Fail[[]byte](apperror.NewSimple("agentapi binary not found", "E9030"))
 	}
 	fullArgs := append([]string{}, baseArgs...)

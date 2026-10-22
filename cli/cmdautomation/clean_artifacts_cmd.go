@@ -76,7 +76,7 @@ func printCleanArtifactItems(items []CleanArtifactItem, isVerbose bool) {
 func printSingleArtifactRow(it CleanArtifactItem) {
 	status := "DELETED"
 	color := constants.ColorGreen
-	if it.IsDeleted == false {
+	if !it.IsDeleted {
 		status = "DRY-RUN"
 		color = constants.ColorYellow
 	}

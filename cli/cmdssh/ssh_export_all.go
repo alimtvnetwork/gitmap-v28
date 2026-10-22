@@ -137,7 +137,7 @@ func exportNodeWorker(c db.SSHConnection, bundle *GitmapExportBundle, opts SSHEx
 		return
 	}
 	client, isConnected := connectSSHClient(c, fmt.Sprintf("[%s]", c.Alias))
-	if isConnected == false {
+	if !isConnected {
 		printNodeResultOutput(c.Alias, c.IPAddress, "(auth failed: export skipped)", nil)
 		return
 	}

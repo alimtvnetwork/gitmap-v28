@@ -128,7 +128,7 @@ func filterTopTierSummaries(scored []scoredSummary) []scoredSummary {
 func computeSummaryScore(r summaryRow, pClean, pName string, projectIDs []string) int {
 	isPathMatch := checkWorkspaceURIMatch(r.workspaceURI, pClean)
 	isNameMatch := checkProjectNameMatch(r, pName, projectIDs)
-	hasNeither := isPathMatch == false && isNameMatch == false
+	hasNeither := !isPathMatch && !isNameMatch
 	if hasNeither {
 		return 0
 	}
@@ -146,7 +146,7 @@ func computeBaseMatchScore(isPathMatch, isNameMatch bool) int {
 	if isBoth {
 		return 1000
 	}
-	isPathOnly := isPathMatch && isNameMatch == false
+	isPathOnly := isPathMatch && !isNameMatch
 	if isPathOnly {
 		return 500
 	}

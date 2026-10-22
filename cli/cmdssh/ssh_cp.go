@@ -25,15 +25,15 @@ func RunSSHCPCLI(args []string) error {
 	srcNode, srcPath, hasSrcNode := parseNodePath(args[0])
 	destNode, destPath, hasDestNode := parseNodePath(args[1])
 
-	if hasSrcNode == false && hasDestNode == false {
+	if !hasSrcNode && !hasDestNode {
 		return runSSHCopyCLI(args)
 	}
 
-	if hasSrcNode && hasDestNode == false {
+	if hasSrcNode && !hasDestNode {
 		return copyRemoteToLocal(srcNode, srcPath, destPath)
 	}
 
-	if hasSrcNode == false && hasDestNode {
+	if !hasSrcNode && hasDestNode {
 		return copyLocalToRemote(srcPath, destNode, destPath)
 	}
 
@@ -153,7 +153,7 @@ func findNodeConnection(target string) (db.SSHConnection, error) {
 
 func readRemoteFileBytes(conn db.SSHConnection, remotePath string) ([]byte, error) {
 	client, isConnected := connectSSHClient(conn)
-	if isConnected == false {
+	if !isConnected {
 		return nil, apperror.NewExecutionError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
 	}
 	defer client.Close()
@@ -183,7 +183,7 @@ func buildRemoteReadCmd(remotePath string, isWin bool) string {
 
 func writeRemoteFileBytes(conn db.SSHConnection, remotePath string, data []byte) error {
 	client, isConnected := connectSSHClient(conn)
-	if isConnected == false {
+	if !isConnected {
 		return apperror.NewExecutionError(fmt.Sprintf("failed to authenticate with remote node '%s'", conn.Alias))
 	}
 	defer client.Close()

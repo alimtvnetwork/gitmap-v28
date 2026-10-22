@@ -92,7 +92,7 @@ func resolveProjectTemplateOrFallback(name string) string {
 
 func resolveProjectTemplateContent(name string) (string, error) {
 	hasName := len(strings.TrimSpace(name)) > 0
-	if hasName == false {
+	if !hasName {
 		return "", nil
 	}
 	tpl, hasTpl := cmdprompttemplate.FindTemplate(name)
@@ -145,7 +145,7 @@ func searchProjectsDirByPrefix(configDir, prefix string) (string, bool) {
 	}
 	for _, entry := range entries {
 		isJson := filepath.Ext(entry.Name()) == ".json"
-		if isJson == false {
+		if !isJson {
 			continue
 		}
 
@@ -161,7 +161,7 @@ func searchProjectsDirByPrefix(configDir, prefix string) (string, bool) {
 func checkProjectFilePrefix(filePath, prefix string) (string, bool) {
 	data, err := os.ReadFile(filePath)
 	hasData := err == nil
-	if hasData == false {
+	if !hasData {
 		return "", false
 	}
 	var cfg rawProjectConfig

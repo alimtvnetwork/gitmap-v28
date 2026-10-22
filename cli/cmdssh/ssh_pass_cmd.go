@@ -48,7 +48,7 @@ func RunSSHPassCLI(args []string) error {
 
 func resolvePassTarget(sub string, args []string) (string, error) {
 	isShowAction := sub == "show" || sub == "view" || sub == "get"
-	if isShowAction == false {
+	if !isShowAction {
 		return args[0], nil
 	}
 	if len(args) < 2 {
@@ -214,7 +214,7 @@ func runPassShow(target string) error {
 	}
 
 	hasPass := encPass != ""
-	if hasPass == false {
+	if !hasPass {
 		fmt.Printf("No saved password for node: %s\n", target)
 
 		return nil

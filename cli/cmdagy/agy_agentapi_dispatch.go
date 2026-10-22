@@ -13,7 +13,7 @@ const maxDirectPromptChars = 24000
 
 func resolvePayloadContentForAgent(promptPath, content string) string {
 	hasExceeded := len(content) > maxDirectPromptChars
-	if hasExceeded == false {
+	if !hasExceeded {
 		return content
 	}
 

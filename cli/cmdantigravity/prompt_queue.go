@@ -116,7 +116,7 @@ func matchRepoInProjectEntries(dir string, entries []os.DirEntry, cleanRepo stri
 func matchProjectFileURI(filePath, cleanRepo string) bool {
 	data, err := os.ReadFile(filePath)
 	hasData := err == nil
-	if hasData == false {
+	if !hasData {
 		return false
 	}
 	var cfg rawProjectConfig
@@ -130,7 +130,7 @@ func matchProjectFileURI(filePath, cleanRepo string) bool {
 
 func checkResourceFolderURI(res *rawProjectResources, cleanRepo string) bool {
 	hasRes := res != nil && len(res.Resources) > 0
-	if hasRes == false {
+	if !hasRes {
 		return false
 	}
 	for _, r := range res.Resources {
@@ -152,7 +152,7 @@ func isFolderURIMatch(rawURI, cleanRepo string) bool {
 func parseFolderURI(rawURI string) string {
 	decoded, err := url.PathUnescape(rawURI)
 	hasDecoded := err == nil
-	if hasDecoded == false {
+	if !hasDecoded {
 		decoded = rawURI
 	}
 	clean := strings.TrimPrefix(decoded, "file:///")
@@ -205,7 +205,7 @@ func EnqueueWithDualQueuePolicy(repoRoot, templateName, assembledPrompt string) 
 
 func dispatchActivePrompt(repoRoot, templateName, content string) {
 	hasDispatcher := DefaultPromptDispatcher != nil
-	if hasDispatcher == false {
+	if !hasDispatcher {
 		return
 	}
 	promptPath := resolveActivePromptPath(repoRoot)
@@ -216,7 +216,7 @@ func dispatchActivePrompt(repoRoot, templateName, content string) {
 
 func renderPromptDispatchNotice(msg string, isSuccess bool) {
 	hasMsg := len(msg) > 0
-	if hasMsg == false {
+	if !hasMsg {
 		return
 	}
 	if isSuccess {
@@ -290,7 +290,7 @@ func resolveActivePromptPath(repoRoot string) string {
 func loadPromptQueueFile(queuePath string) PromptQueueFile {
 	data, err := os.ReadFile(queuePath)
 	hasData := err == nil
-	if hasData == false {
+	if !hasData {
 		return PromptQueueFile{Queued: make([]PromptQueueEntry, 0)}
 	}
 	var q PromptQueueFile

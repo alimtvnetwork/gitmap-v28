@@ -97,7 +97,7 @@ func scanTranscriptForWorkspace(f *os.File) string {
 func extractWorkspaceFromLine(line []byte) string {
 	match := fileURIRegex.Find(line)
 	hasMatch := len(match) > 0
-	if hasMatch == false {
+	if !hasMatch {
 		return ""
 	}
 

@@ -82,7 +82,7 @@ func convertHostToConnection(h store.SSHHost) db.SSHConnection {
 func parseAdHocConnection(token string) (db.SSHConnection, bool) {
 	t, err := ParseSSHTarget(token, "root", 22)
 	isParsed := err == nil && t != nil && t.IP != ""
-	if isParsed == false {
+	if !isParsed {
 		return db.SSHConnection{}, false
 	}
 	user := t.Username

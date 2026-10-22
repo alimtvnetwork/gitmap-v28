@@ -59,8 +59,8 @@ func formatOSType(t string) string {
 	return t
 }
 
-func formatYesNo(b bool) string {
-	if b {
+func formatYesNo(isEnabled bool) string {
+	if isEnabled {
 		return "Yes"
 	}
 	return "No"

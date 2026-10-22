@@ -206,7 +206,7 @@ func buildUnixMacroWriteCmd(name string, b64 string, isForce bool) string {
 }
 
 func buildUnixForceCheck(name string, isForce bool) string {
-	if isForce == false {
+	if !isForce {
 		return fmt.Sprintf(`[ -f "$MDIR/%s.json" ] && exit 0; `, name)
 	}
 

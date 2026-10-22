@@ -96,7 +96,7 @@ func executeSSHImportAll(opts SSHImportAllOptions) error {
 	}
 	logImportProcessStart(conn.Alias, conn.IPAddress)
 	client, isConnected := connectSSHClient(*conn, fmt.Sprintf("[%s]", conn.Alias))
-	if isConnected == false {
+	if !isConnected {
 		return apperror.NewExecutionError("failed to authenticate with " + conn.Alias)
 	}
 	defer client.Close()

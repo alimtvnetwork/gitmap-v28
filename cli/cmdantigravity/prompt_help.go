@@ -114,7 +114,7 @@ func printPromptHelpExamples() {
 // IsHelpArg checks whether CLI arguments request help.
 func IsHelpArg(args []string) bool {
 	hasArgs := len(args) > 0
-	if hasArgs == false {
+	if !hasArgs {
 		return false
 	}
 	tok := strings.ToLower(strings.TrimSpace(args[0]))
