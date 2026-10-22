@@ -7,25 +7,25 @@ import (
 
 type (
 	// PipelineRunSliceResult is the canonical single reusable result envelope for pipeline run record slices.
-	PipelineRunSliceResult = result.ResultSlice[PipelineRunRecord]
+	PipelineRunSliceResult = result.WrapSlice[PipelineRunRecord]
 
 	// PipelineErrorSliceResult is the canonical single reusable result envelope for pipeline error record slices.
-	PipelineErrorSliceResult = result.ResultSlice[PipelineErrorRecord]
+	PipelineErrorSliceResult = result.WrapSlice[PipelineErrorRecord]
 
 	// PipelineCompactErrorSliceResult is the canonical single reusable result envelope for compact error record slices.
-	PipelineCompactErrorSliceResult = result.ResultSlice[PipelineCompactErrorRecord]
+	PipelineCompactErrorSliceResult = result.WrapSlice[PipelineCompactErrorRecord]
 
 	// PipelineRunIdSliceResult is the canonical single reusable result envelope for run ID uint64 slices.
-	PipelineRunIdSliceResult = result.ResultSlice[uint64]
+	PipelineRunIdSliceResult = result.WrapSlice[uint64]
 
 	// PipelineRunIdMapResult is the canonical single reusable result envelope for run ID boolean maps.
-	PipelineRunIdMapResult = result.ResultMap[uint64, bool]
+	PipelineRunIdMapResult = result.WrapMap[uint64, bool]
 
 	// PipelineDbStatsResult is the canonical single reusable result envelope for database statistics.
-	PipelineDbStatsResult = result.Result[PipelineDbStats]
+	PipelineDbStatsResult = result.Wrap[PipelineDbStats]
 
 	// PipelineDatabaseInfoResult is the canonical single reusable result envelope for database telemetry.
-	PipelineDatabaseInfoResult = result.Result[PipelineDatabaseInfo]
+	PipelineDatabaseInfoResult = result.Wrap[PipelineDatabaseInfo]
 )
 
 // PipelineDatabaseInfo encapsulates diagnostic telemetry and metadata for the pipeline SQLite database.

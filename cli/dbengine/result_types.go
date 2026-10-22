@@ -11,8 +11,8 @@ type Int64Result = result.Int64Result
 type StringResult = result.StringResult
 type BoolResult = result.BoolResult
 type RowsAffectedResult = result.Int64Result
-type EntityResult[T any] = result.Result[*T]
-type ListResult[T any] = result.Result[[]T]
+type EntityResult[T any] = result.Wrap[*T]
+type ListResult[T any] = result.WrapSlice[T]
 
 // SuccessUint64 wraps a uint64 value in a successful result envelope.
 func SuccessUint64(val uint64) Uint64Result {

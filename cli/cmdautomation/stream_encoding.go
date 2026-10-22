@@ -40,7 +40,7 @@ func NegotiateEncoding(requested, runtimeName string) string {
 }
 
 // EncodeToStream encodes a FileContext into JSON bytes with the negotiated encoding.
-func EncodeToStream(ctx FileContext, encoding string) result.Result[[]byte] {
+func EncodeToStream(ctx FileContext, encoding string) result.ByteSliceResult {
 	jsonData, err := json.Marshal(ctx)
 	if err != nil {
 		return result.Fail[[]byte](apperror.WrapSimple(err, "EncodeToStream"))

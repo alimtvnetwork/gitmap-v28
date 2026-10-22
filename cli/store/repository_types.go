@@ -24,8 +24,8 @@ type (
 	// RepoPathWrap is the canonical single reusable result container for repository paths.
 	RepoPathWrap = result.Wrap[string]
 
-	// ScanRecordsResult is the canonical single reusable result container for []model.ScanRecord.
-	ScanRecordsResult = result.Result[[]model.ScanRecord]
+	// ScanRecordsResult is an alias for ScanRecordSliceWrap using canonical WrapSlice.
+	ScanRecordsResult = result.WrapSlice[model.ScanRecord]
 )
 
 // IRepository defines the generic domain repository interface for CRUD persistence operations.

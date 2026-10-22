@@ -51,7 +51,7 @@ type DatabaseVersion struct {
 }
 
 // DocumentResult wraps a Document in a Result envelope.
-type DocumentResult = result.Result[Document]
+type DocumentResult = result.Wrap[Document]
 
 // BytesResult wraps a byte slice in a Result envelope.
-type BytesResult = result.Result[[]byte]
+type BytesResult = result.Wrap[[]byte]

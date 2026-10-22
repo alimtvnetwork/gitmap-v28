@@ -145,11 +145,11 @@ func normalizeRuntimeKey(name string) string {
 
 type (
 	// WorkerRunResultMonad wraps WorkerRunResult with an AppError.
-	WorkerRunResultMonad = result.Result[WorkerRunResult]
+	WorkerRunResultMonad = result.Wrap[WorkerRunResult]
 
 	// RuntimeListResultMonad wraps a slice of RuntimeRecord with an AppError.
-	RuntimeListResultMonad = result.Result[[]RuntimeRecord]
+	RuntimeListResultMonad = result.WrapSlice[RuntimeRecord]
 
 	// RuntimeRecordMonad wraps a single RuntimeRecord with an AppError.
-	RuntimeRecordMonad = result.Result[RuntimeRecord]
+	RuntimeRecordMonad = result.Wrap[RuntimeRecord]
 )

@@ -155,18 +155,18 @@ func commitIngressChanges(dir, sub, body, author, short string, when time.Time, 
 	_, _ = commitWithEnv(dir, cleaned, author, when)
 }
 
-func replayIngressCommits(plan ReplayPlan, commit SourceCommit, opts Options) result.Result[[]PRCommitInfo] {
+func replayIngressCommits(plan ReplayPlan, commit SourceCommit, opts Options) result.WrapSlice[PRCommitInfo] {
 	shas := fetchIngressSHAs(plan.SourceDir, commit.SHA)
 	var infos []PRCommitInfo
 	for _, sha := range shas {
 		itemRes := replaySingleIngress(plan, sha, opts)
 		if itemRes.IsFailure() {
-			return result.Fail[[]PRCommitInfo](itemRes.Err)
+			return result.FailSlice[PRCommitInfo](itemRes.Err)
 		}
 		infos = append(infos, itemRes.Value)
 	}
 
-	return result.Ok(infos)
+	return result.OkSlice(infos)
 }
 
 func computeDiffSummary(targetDir, baseRef string) PRFileDiffSummary {

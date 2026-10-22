@@ -20,4 +20,4 @@ type CleanStats struct {
 }
 
 // CleanResult encapsulates CleanStats result wrapper.
-type CleanResult = result.Result[CleanStats]
+type CleanResult = result.Wrap[CleanStats]

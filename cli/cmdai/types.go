@@ -103,17 +103,17 @@ type CreateScriptOptions struct {
 
 type (
 	// ScriptMetadataResult wraps a single ScriptMetadata outcome with an AppError.
-	ScriptMetadataResult = result.Result[ScriptMetadata]
+	ScriptMetadataResult = result.Wrap[ScriptMetadata]
 
 	// ScriptCatalogResult wraps a list of ScriptMetadata outcomes with an AppError.
-	ScriptCatalogResult = result.Result[[]ScriptMetadata]
+	ScriptCatalogResult = result.WrapSlice[ScriptMetadata]
 
 	// PythonRuntimeResult wraps a PythonRuntime outcome with an AppError.
-	PythonRuntimeResult = result.Result[PythonRuntime]
+	PythonRuntimeResult = result.Wrap[PythonRuntime]
 
 	// FixTargetDefResult wraps a FixTargetDef outcome with an AppError.
-	FixTargetDefResult = result.Result[FixTargetDef]
+	FixTargetDefResult = result.Wrap[FixTargetDef]
 
 	// CreateScriptResult wraps the generated script path outcome with an AppError.
-	CreateScriptResult = result.Result[string]
+	CreateScriptResult = result.Wrap[string]
 )

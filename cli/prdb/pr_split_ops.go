@@ -199,27 +199,27 @@ func scanSinglePrBranch(rows *sql.Rows) result.Result[PrBranchRecord] {
 	return result.Ok(b)
 }
 
-func scanPrBranchRows(rows *sql.Rows) result.Result[[]PrBranchRecord] {
+func scanPrBranchRows(rows *sql.Rows) PrBranchListResult {
 	var list []PrBranchRecord
 	for rows.Next() {
 		itemRes := scanSinglePrBranch(rows)
 		if itemRes.IsFailure() {
-			return result.Fail[[]PrBranchRecord](itemRes.Err)
+			return result.FailSlice[PrBranchRecord](itemRes.Err)
 		}
 		list = append(list, itemRes.Value)
 	}
 	if err := rows.Err(); err != nil {
-		return result.Fail[[]PrBranchRecord](apperror.WrapSimple(err, "prdb.scanPrBranchRows.rowsErr"))
+		return result.FailSlice[PrBranchRecord](apperror.WrapSimple(err, "prdb.scanPrBranchRows.rowsErr"))
 	}
 
-	return result.Ok(list)
+	return result.OkSlice(list)
 }
 
 // ListActivePrBranches retrieves all active (unmerged, not deleted) PR branches.
-func (p *PrSplitDb) ListActivePrBranches() result.Result[[]PrBranchRecord] {
+func (p *PrSplitDb) ListActivePrBranches() PrBranchListResult {
 	rows, err := p.conn.Query(constants.SQLSelectListActivePrBranches)
 	if err != nil {
-		return result.Fail[[]PrBranchRecord](apperror.WrapSimple(err, "prdb.listActivePrBranches"))
+		return result.FailSlice[PrBranchRecord](apperror.WrapSimple(err, "prdb.listActivePrBranches"))
 	}
 	defer rows.Close()
 
@@ -227,10 +227,10 @@ func (p *PrSplitDb) ListActivePrBranches() result.Result[[]PrBranchRecord] {
 }
 
 // ListMergedPrBranches retrieves all merged but not yet deleted PR branches.
-func (p *PrSplitDb) ListMergedPrBranches() result.Result[[]PrBranchRecord] {
+func (p *PrSplitDb) ListMergedPrBranches() PrBranchListResult {
 	rows, err := p.conn.Query(constants.SQLSelectListMergedPrBranches)
 	if err != nil {
-		return result.Fail[[]PrBranchRecord](apperror.WrapSimple(err, "prdb.listMergedPrBranches"))
+		return result.FailSlice[PrBranchRecord](apperror.WrapSimple(err, "prdb.listMergedPrBranches"))
 	}
 	defer rows.Close()
 

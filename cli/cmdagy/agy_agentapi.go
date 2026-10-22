@@ -94,11 +94,11 @@ func findAgentAPIFromPath() (string, []string, bool) {
 	return "", nil, false
 }
 
-func executeAgentAPICmd(subArgs []string) result.Result[[]byte] {
+func executeAgentAPICmd(subArgs []string) result.ByteSliceResult {
 	return executeAgentAPICmdInDir("", subArgs)
 }
 
-func executeAgentAPICmdInDir(workDir string, subArgs []string) result.Result[[]byte] {
+func executeAgentAPICmdInDir(workDir string, subArgs []string) result.ByteSliceResult {
 	binPath, baseArgs, isResolved := ResolveAgentAPI()
 	if isResolved == false {
 		return result.Fail[[]byte](apperror.NewSimple("agentapi binary not found", "E9030"))

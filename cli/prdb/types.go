@@ -51,7 +51,7 @@ type PrBranchRecord struct {
 
 // Monadic Result wrappers for PR database operations.
 type (
-	PullRequestResult  = result.Result[*PullRequestRecord]
-	PrBranchListResult = result.Result[[]PrBranchRecord]
-	PrReleaseResult    = result.Result[*PrReleaseRecord]
+	PullRequestResult  = result.Wrap[*PullRequestRecord]
+	PrBranchListResult = result.WrapSlice[PrBranchRecord]
+	PrReleaseResult    = result.Wrap[*PrReleaseRecord]
 )
