@@ -128,12 +128,16 @@ func replaceConfigDefine(content, key, val string) string {
 	return content
 }
 
+var (
+	wpTablePrefixRe = regexp.MustCompile(`(?m)\$table_prefix\s*=\s*['"].*?['"]\s*;`)
+	wpDebugRe       = regexp.MustCompile(`(?m)define\s*\(\s*['"]WP_DEBUG['"]\s*,\s*.*?\s*\);`)
+)
+
 func replaceTablePrefix(content, prefix string) string {
-	re := regexp.MustCompile(`(?m)\$table_prefix\s*=\s*['"].*?['"]\s*;`)
 	replacement := fmt.Sprintf("$table_prefix = '%s';", prefix)
-	hasMatch := re.MatchString(content)
+	hasMatch := wpTablePrefixRe.MatchString(content)
 	if hasMatch {
-		return re.ReplaceAllLiteralString(content, replacement)
+		return wpTablePrefixRe.ReplaceAllLiteralString(content, replacement)
 	}
 
 	return content
@@ -145,11 +149,10 @@ func replaceWpDebug(content string, isDebug bool) string {
 		debugStr = "true"
 	}
 
-	re := regexp.MustCompile(`(?m)define\s*\(\s*['"]WP_DEBUG['"]\s*,\s*.*?\s*\);`)
 	replacement := fmt.Sprintf("define( 'WP_DEBUG', %s );", debugStr)
-	hasMatch := re.MatchString(content)
+	hasMatch := wpDebugRe.MatchString(content)
 	if hasMatch {
-		return re.ReplaceAllLiteralString(content, replacement)
+		return wpDebugRe.ReplaceAllLiteralString(content, replacement)
 	}
 
 	return content

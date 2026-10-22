@@ -17,6 +17,8 @@ import (
 
 var (
 	enhancePromptsFolder string
+	promptHeaderRe       = regexp.MustCompile(`^(#{1,3})\s+(.+)`)
+	promptListHeaderRe   = regexp.MustCompile(`^(\d+\.|\*|\-)\s+\*\*(.+?)\*\*`)
 )
 
 // AgyEnhancePromptsCmd decomposes a complex prompt into structured micro-task markdown files.
@@ -120,12 +122,9 @@ func decomposePromptContent(content string) []decomposedSection {
 	currentTitle := ""
 	secIndex := 3
 
-	headerRegex := regexp.MustCompile(`^(#{1,3})\s+(.+)`)
-	listHeaderRegex := regexp.MustCompile(`^(\d+\.|\*|\-)\s+\*\*(.+?)\*\*`)
-
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		match := headerRegex.FindStringSubmatch(trimmed)
+		match := promptHeaderRe.FindStringSubmatch(trimmed)
 		hasHeaderMatch := len(match) > 2
 		if hasHeaderMatch {
 			currentLines = appendFlushedSection(&sections, currentLines, currentTitle, &secIndex)
@@ -133,7 +132,7 @@ func decomposePromptContent(content string) []decomposedSection {
 			continue
 		}
 
-		listMatch := listHeaderRegex.FindStringSubmatch(trimmed)
+		listMatch := promptListHeaderRe.FindStringSubmatch(trimmed)
 		if len(listMatch) > 2 && currentTitle == "" {
 			currentTitle = listMatch[2]
 			continue

@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // SpecialPutResult captures the outcome of storing a file, folder, or text note in rs/rc.
@@ -408,7 +409,7 @@ func promptInteractiveSpecialRepoResolution(db *store.SpecialReposSplitDB, rec s
 	fmt.Print(promptMsg)
 	ans, _ := reader.ReadString('\n')
 	cleanAns := strings.TrimSpace(ans)
-	if strings.EqualFold(cleanAns, "n") || strings.EqualFold(cleanAns, "no") {
+	if strutil.EqualFoldAny(cleanAns, "n", "no") {
 		fmt.Printf("  [info] Skipped %s setup. (Recorded in settings: gitmap settings)\n\n", rec.ConfiguredName)
 		return db.MarkPromptAnswered(rec.ShortKey, "declined", "", remoteURL)
 	}

@@ -161,17 +161,14 @@ func resolveFallbackAction(path, defaultAction, rootDir string) string {
 	return "created"
 }
 
-func normalizeActionKeyword(act string) string {
-	switch strings.ToLower(strings.TrimSpace(act)) {
-	case "read", "view", "inspect":
-		return "read"
-	case "create", "created", "new", "add":
-		return "created"
-	case "edit", "update", "modify", "touch":
-		return "edit"
-	}
+var actionKeywordCanonical = map[string]string{
+	"read": "read", "view": "read", "inspect": "read",
+	"create": "created", "created": "created", "new": "created", "add": "created",
+	"edit": "edit", "update": "edit", "modify": "edit", "touch": "edit",
+}
 
-	return ""
+func normalizeActionKeyword(act string) string {
+	return actionKeywordCanonical[strings.ToLower(strings.TrimSpace(act))]
 }
 
 func checkFileExists(path, rootDir string) bool {

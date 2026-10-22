@@ -11,6 +11,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
+var leadingDigitsRe = regexp.MustCompile(`^(\d+)`)
+
 // SyncSingleRepo executes the safe 6-stage synchronization ceremony on a single target repo.
 func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) RepoSyncResult {
 	res := RepoSyncResult{
@@ -132,8 +134,7 @@ func bumpPatchTag(tag string) string {
 		return "v0.1.1"
 	}
 
-	re := regexp.MustCompile(`^(\d+)`)
-	m := re.FindStringSubmatch(parts[2])
+	m := leadingDigitsRe.FindStringSubmatch(parts[2])
 	if len(m) > 1 {
 		parts[2] = incrementPatchSegment(m[1], parts[2])
 	}

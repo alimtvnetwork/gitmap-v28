@@ -20,11 +20,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // isInstallVerifyCommand reports whether args invoke `install verify`.
 func isInstallVerifyCommand(args []string) bool {
-	return len(args) > 0 && strings.ToLower(strings.TrimSpace(args[0])) == "verify"
+	return len(args) > 0 && strutil.EqualFoldAnyTrim(args[0], "verify")
 }
 
 // verifyCheck is one checklist row.

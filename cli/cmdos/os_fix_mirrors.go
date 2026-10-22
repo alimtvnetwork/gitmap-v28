@@ -10,6 +10,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
+var ubuntuMirrorRe = regexp.MustCompile(`https?://[a-zA-Z0-9.-]+\.archive\.ubuntu\.com`)
+
 // FixRegionalMirrors backs up the given sources list and rewrites country mirrors to official US mirrors.
 func FixRegionalMirrors(sourcesPath string) error {
 	if sourcesPath == "" {
@@ -29,8 +31,7 @@ func FixRegionalMirrors(sourcesPath string) error {
 	}
 
 	// Rewrite country-specific mirrors e.g. http://my.archive.ubuntu.com -> http://archive.ubuntu.com
-	re := regexp.MustCompile(`https?://[a-zA-Z0-9.-]+\.archive\.ubuntu\.com`)
-	fixedContent := re.ReplaceAllString(string(data), "http://archive.ubuntu.com")
+	fixedContent := ubuntuMirrorRe.ReplaceAllString(string(data), "http://archive.ubuntu.com")
 
 	if errWrite := os.WriteFile(sourcesPath, []byte(fixedContent), 0644); errWrite != nil {
 		return apperror.Wrap(errWrite, "FixRegionalMirrors", map[string]any{"path": sourcesPath})

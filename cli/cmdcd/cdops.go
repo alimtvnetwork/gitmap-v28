@@ -238,10 +238,10 @@ func filterExactMatches(records []model.ScanRecord, name string) []model.ScanRec
 }
 
 func isExactMatch(r model.ScanRecord, clean string) bool {
-	base := strings.ToLower(filepath.Base(filepath.Clean(filepath.FromSlash(r.AbsolutePath))))
-	isMatchBase := base == clean
-	isMatchSlug := strings.ToLower(r.Slug) == clean
-	isMatchRepo := strings.ToLower(r.RepoName) == clean
+	base := filepath.Base(filepath.Clean(filepath.FromSlash(r.AbsolutePath)))
+	isMatchBase := strings.EqualFold(base, clean)
+	isMatchSlug := strings.EqualFold(r.Slug, clean)
+	isMatchRepo := strings.EqualFold(r.RepoName, clean)
 	return isMatchBase || isMatchSlug || isMatchRepo
 }
 

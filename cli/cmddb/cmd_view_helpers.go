@@ -11,6 +11,13 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
+)
+
+var (
+	findLikeRe  = regexp.MustCompile(`(?i)\blike\s+'([^']*)'`)
+	findEqAndRe = regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s+((?i:and|or))\b`)
+	findEqEndRe = regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s*$`)
 )
 
 func inferAutoJoin(conn *sql.DB, t1, t2 tableAlias) string {
@@ -129,14 +136,12 @@ func normalizeFindCondition(cond string) string {
 	if cond == "" {
 		return ""
 	}
-	reLike := regexp.MustCompile(`(?i)\blike\s+'([^']*)'`)
-	s := reLike.ReplaceAllStringFunc(cond, func(m string) string {
+	s := findLikeRe.ReplaceAllStringFunc(cond, func(m string) string {
 		return strings.ReplaceAll(m, "*", "%")
 	})
 
-	reEqAnd := regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s+((?i:and|or))\b`)
-	s = reEqAnd.ReplaceAllStringFunc(s, func(m string) string {
-		parts := reEqAnd.FindStringSubmatch(m)
+	s = findEqAndRe.ReplaceAllStringFunc(s, func(m string) string {
+		parts := findEqAndRe.FindStringSubmatch(m)
 		if len(parts) >= 3 {
 			val := strings.TrimSpace(parts[1])
 			op := parts[2]
@@ -145,9 +150,8 @@ func normalizeFindCondition(cond string) string {
 		return m
 	})
 
-	reEqEnd := regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s*$`)
-	s = reEqEnd.ReplaceAllStringFunc(s, func(m string) string {
-		parts := reEqEnd.FindStringSubmatch(m)
+	s = findEqEndRe.ReplaceAllStringFunc(s, func(m string) string {
+		parts := findEqEndRe.FindStringSubmatch(m)
 		if len(parts) >= 2 {
 			val := strings.TrimSpace(parts[1])
 			return formatNormalizedEqVal(val)
@@ -159,8 +163,7 @@ func normalizeFindCondition(cond string) string {
 }
 
 func formatNormalizedEqVal(val string) string {
-	lower := strings.ToLower(val)
-	if lower == "true" || lower == "false" || lower == "null" || strings.Contains(val, ".") {
+	if strutil.EqualFoldAny(val, "true", "false", "null") || strings.Contains(val, ".") {
 		return "= " + val
 	}
 	if _, err := strconv.Atoi(val); err == nil {

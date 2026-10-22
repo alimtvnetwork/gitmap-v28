@@ -55,7 +55,7 @@ func matchesCategory(s ScriptMetadata, category string) bool {
 
 	clean := strings.ToLower(strings.TrimSpace(category))
 
-	return strings.ToLower(string(s.Category)) == clean
+	return strings.EqualFold(string(s.Category), clean)
 }
 
 func matchesFixOnly(s ScriptMetadata, isFixOnly bool) bool {

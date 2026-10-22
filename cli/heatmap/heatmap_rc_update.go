@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 func runRcUpdate(flags map[string]string, pos []string, out io.Writer) error {
@@ -77,7 +78,7 @@ func runHeatmapUpdate(flags map[string]string, pos []string, out io.Writer) erro
 }
 
 func isJsonRequested(flags map[string]string) bool {
-	return flags["json"] == "true" || strings.ToLower(flags["format"]) == "json"
+	return flags["json"] == "true" || strings.EqualFold(flags["format"], "json")
 }
 
 func resolveActualOutcomeFlag(flags map[string]string) string {
@@ -109,11 +110,11 @@ func resolveIsExpectationMet(flags map[string]string) bool {
 		return true
 	}
 
-	if s := strings.ToLower(flags["status"]); s == "fail" || s == "failed" {
+	if strutil.EqualFoldAny(flags["status"], "fail", "failed") {
 		return false
 	}
 
-	if s := strings.ToLower(flags["status"]); s == "success" || s == "met" || s == "passed" {
+	if strutil.EqualFoldAny(flags["status"], "success", "met", "passed") {
 		return true
 	}
 
@@ -125,7 +126,7 @@ func resolveIsExpectationMet(flags map[string]string) bool {
 		return true
 	}
 
-	if o := strings.ToLower(flags["outcome"]); o == "fail" || o == "failed" {
+	if strutil.EqualFoldAny(flags["outcome"], "fail", "failed") {
 		return false
 	}
 

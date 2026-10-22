@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+var specDirNumRe = regexp.MustCompile(`^(\d+)-`)
+
 type MirrorStats struct {
 	Added   int
 	Updated int
@@ -172,12 +174,11 @@ func appendSpecDirs(specRoot string, dirs []syncDirMapping) []syncDirMapping {
 		return dirs
 	}
 	entries, _ := os.ReadDir(specRoot)
-	specNumRegex := regexp.MustCompile(`^(\d+)-`)
 	for _, e := range entries {
 		if !e.IsDir() {
 			continue
 		}
-		m := specNumRegex.FindStringSubmatch(e.Name())
+		m := specDirNumRe.FindStringSubmatch(e.Name())
 		if len(m) <= 1 {
 			continue
 		}

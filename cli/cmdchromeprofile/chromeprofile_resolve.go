@@ -14,6 +14,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // chromeLocalState is the minimal shape we need from Chrome's
@@ -140,7 +142,7 @@ func resolveChromeProfileDisplayName(name, direct string) (chromeProfileResoluti
 	want := strings.ToLower(strings.TrimSpace(name))
 	for dir, info := range state.Profile.InfoCache {
 		p := filepath.Join(chromeUserDataDir(), dir)
-		if strings.ToLower(strings.TrimSpace(info.Name)) == want && chromeProfilePathExists(p) {
+		if strutil.EqualFoldAnyTrim(info.Name, want) && chromeProfilePathExists(p) {
 			return chromeProfileResolution{Input: name, Path: p, Dir: dir, DisplayName: info.Name}, true
 		}
 	}

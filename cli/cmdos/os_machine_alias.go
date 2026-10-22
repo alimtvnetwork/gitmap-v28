@@ -153,17 +153,20 @@ func extractNonLoopbackIPv4(addr net.Addr) string {
 	return v4.String()
 }
 
+var osPlatformLabels = map[string]string{
+	"windows": "Windows (windows)",
+	"darwin":  "macOS (darwin)",
+	"macos":   "macOS (darwin)",
+	"linux":   "Ubuntu / Linux (linux)",
+	"ubuntu":  "Ubuntu / Linux (linux)",
+}
+
 func formatOSPlatform(goos string) string {
-	switch strings.ToLower(goos) {
-	case "windows":
-		return "Windows (windows)"
-	case "darwin", "macos":
-		return "macOS (darwin)"
-	case "linux", "ubuntu":
-		return "Ubuntu / Linux (linux)"
-	default:
-		return goos
+	if label, ok := osPlatformLabels[strings.ToLower(goos)]; ok {
+		return label
 	}
+
+	return goos
 }
 
 func executeMachineAliasList(mode string, isSSH, isJSON bool) error {

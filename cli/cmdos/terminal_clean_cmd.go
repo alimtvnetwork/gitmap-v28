@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // ClearTerminalScreenBuffer resets the visual terminal screen and scrollback buffer.
@@ -105,7 +106,7 @@ func confirmTerminalClean() bool {
 	if err != nil {
 		return false
 	}
-	return strings.ToLower(strings.TrimSpace(text)) == "yes"
+	return strutil.EqualFoldAnyTrim(text, "yes")
 }
 
 func renderTerminalCleanOutput(summary osclean.TerminalCleanSummary, opts osclean.TerminalCleanOptions) {

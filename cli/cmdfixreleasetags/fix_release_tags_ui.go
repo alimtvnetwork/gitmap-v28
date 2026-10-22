@@ -11,6 +11,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -100,7 +101,7 @@ func formatCICDStatusCell(rec ReleaseTagAuditRecord) string {
 	if latest.IsSuccessful || latest.Conclusion == "success" {
 		return "Passed"
 	}
-	if latest.IsInProgress || strings.ToLower(latest.Status) == "in_progress" || strings.ToLower(latest.Status) == "queued" {
+	if latest.IsInProgress || strutil.EqualFoldAny(latest.Status, "in_progress", "queued") {
 		return "In-Progress"
 	}
 	if latest.Conclusion == "failure" || rec.AuditReason == ReasonCICDFailed {

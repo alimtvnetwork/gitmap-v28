@@ -1,6 +1,10 @@
 package message
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
+)
 
 const weakPunctuation = ".,:;!?"
 
@@ -36,7 +40,7 @@ func matchesWeak(msg string, weakWords []string) bool {
 	}
 
 	for _, ww := range weakWords {
-		if strings.ToLower(strings.TrimSpace(ww)) == w {
+		if strutil.EqualFoldAnyTrim(ww, w) {
 			return true
 		}
 	}

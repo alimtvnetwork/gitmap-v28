@@ -22,11 +22,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // isInstallURLsCommand reports whether args invoke `install urls`.
 func isInstallURLsCommand(args []string) bool {
-	return len(args) > 0 && strings.ToLower(strings.TrimSpace(args[0])) == "urls"
+	return len(args) > 0 && strutil.EqualFoldAnyTrim(args[0], "urls")
 }
 
 // installURLPattern matches http(s) URLs in installer script bodies.

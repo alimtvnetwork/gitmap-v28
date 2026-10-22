@@ -212,27 +212,26 @@ func runDispatch(command string) {
 
 // isPipelineErrorsAlias reports whether the command routes to the pipeline
 // errors inspector (pe/te family), which owns its own rich help printer.
-func isPipelineErrorsAlias(command string) bool {
-	switch command {
-	case "pe", "te", "ee", "pipeline", "pipeline-errors", "pipeline_errors":
-		return true
-	}
+var pipelineErrorsAliases = map[string]bool{
+	"pe": true, "te": true, "ee": true,
+	"pipeline": true, "pipeline-errors": true, "pipeline_errors": true,
+}
 
-	return false
+func isPipelineErrorsAlias(command string) bool {
+	return pipelineErrorsAliases[command]
+}
+
+var treeSearchOrLearnCommands = map[string]bool{
+	"tree-search": true, "treesearch": true, "ts": true,
+	"tree-search-startswith": true, "tree-search-starts-with": true, "tree-search-prefix": true, "tss": true,
+	"tree-search-contains": true, "tree-search-contain": true, "tree-search-substr": true, "tsc": true,
+	"tree-search-endswith": true, "tree-search-ends-with": true, "tree-search-suffix": true, "tse": true,
+	"tree-search-grep": true, "tree-search-regex": true, "tsg": true,
+	"tree-learn": true, "treelearn": true, "tl": true,
 }
 
 func isTreeSearchOrLearnCommand(command string) bool {
-	switch strings.ToLower(command) {
-	case "tree-search", "treesearch", "ts",
-		"tree-search-startswith", "tree-search-starts-with", "tree-search-prefix", "tss",
-		"tree-search-contains", "tree-search-contain", "tree-search-substr", "tsc",
-		"tree-search-endswith", "tree-search-ends-with", "tree-search-suffix", "tse",
-		"tree-search-grep", "tree-search-regex", "tsg",
-		"tree-learn", "treelearn", "tl":
-		return true
-	}
-
-	return false
+	return treeSearchOrLearnCommands[strings.ToLower(command)]
 }
 
 func tryInterceptCommandHelp(command string, args []string) bool {

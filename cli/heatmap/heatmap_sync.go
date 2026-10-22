@@ -85,24 +85,23 @@ func OpenLocalTrackingDB() (*sql.DB, error) {
 	return conn, nil
 }
 
+var aiSequencePrefixes = map[string]string{
+	"antigravity": "01",
+	"muse":        "02",
+	"cloud-code":  "03",
+	"cloudcode":   "03",
+	"codex":       "04",
+	"grok":        "05",
+	"cursor":      "06",
+}
+
 // ResolveAiSequencePrefix returns the canonical two-digit prefix for an AI agent.
 func ResolveAiSequencePrefix(aiName string) string {
-	switch strings.ToLower(strings.TrimSpace(aiName)) {
-	case "antigravity":
-		return "01"
-	case "muse":
-		return "02"
-	case "cloud-code", "cloudcode":
-		return "03"
-	case "codex":
-		return "04"
-	case "grok":
-		return "05"
-	case "cursor":
-		return "06"
-	default:
-		return "01"
+	if prefix, ok := aiSequencePrefixes[strings.ToLower(strings.TrimSpace(aiName))]; ok {
+		return prefix
 	}
+
+	return "01"
 }
 
 // ResolveAiFolderName formats the AI folder name with its sequence prefix.

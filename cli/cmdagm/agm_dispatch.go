@@ -12,7 +12,7 @@ func DispatchAgm(args []string) *appfault.AppError {
 	if len(args) == 0 {
 		return appfault.NewValidationError("agm: missing subcommand (queue audit)")
 	}
-	if strings.ToLower(args[0]) == "queue" && len(args) > 1 && strings.ToLower(args[1]) == "audit" {
+	if strings.EqualFold(args[0], "queue") && len(args) > 1 && strings.EqualFold(args[1], "audit") {
 		return RunAgmQueueAudit(args[2:])
 	}
 	if args[0] == "--help" || args[0] == "-h" || args[0] == "help" {

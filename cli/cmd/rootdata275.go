@@ -249,7 +249,7 @@ func dispatch275TwoWord(twoWord string, args []string) (bool, error) {
 }
 
 func isAgmQueueAudit(twoWord string, args []string) bool {
-	return twoWord == "agm queue" && len(args) > 0 && strings.ToLower(args[0]) == "audit"
+	return twoWord == "agm queue" && len(args) > 0 && strings.EqualFold(args[0], "audit")
 }
 
 func dispatchAgmQueueAudit(args []string) (bool, error) {
@@ -260,5 +260,5 @@ func dispatchAgmQueueAudit(args []string) (bool, error) {
 }
 
 func isSplitLargeFiles(twoWord string, args []string) bool {
-	return twoWord == "split large" && len(args) > 0 && strings.ToLower(args[0]) == "files"
+	return twoWord == "split large" && len(args) > 0 && strings.EqualFold(args[0], "files")
 }

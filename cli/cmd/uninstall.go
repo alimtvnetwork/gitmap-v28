@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 type uninstallFlags struct {
@@ -95,7 +96,7 @@ func executeUninstallFlow(args []string) error {
 	if flags.node != "" {
 		return delegateRemoteUninstall(tool, flags)
 	}
-	if strings.EqualFold(tool, "app") || strings.EqualFold(tool, "apps") {
+	if strutil.EqualFoldAny(tool, "app", "apps") {
 		return cmdapps.RunAppsUninstall(fs.Args()[1:])
 	}
 	if isSelfUninstallTool(tool) {
@@ -162,22 +163,22 @@ func isDevToolUninstallTarget(tool, canonical string) bool {
 }
 
 func isPwshTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "pwsh") || strings.EqualFold(tool, "powershell") ||
+	return strutil.EqualFoldAny(tool, "pwsh", "powershell") ||
 		strings.EqualFold(canonical, constants.ToolPowerShell)
 }
 
 func isVimTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "vim") || strings.EqualFold(tool, "vi") ||
+	return strutil.EqualFoldAny(tool, "vim", "vi") ||
 		strings.EqualFold(canonical, "vim")
 }
 
 func isVSCodeTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "vscode") || strings.EqualFold(tool, "code") ||
-		strings.EqualFold(tool, "vs-code") || strings.EqualFold(canonical, constants.ToolVSCode)
+	return strutil.EqualFoldAny(tool, "vscode", "code", "vs-code") ||
+		strings.EqualFold(canonical, constants.ToolVSCode)
 }
 
 func isCursorTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "cursor") || strings.EqualFold(tool, "cur") ||
+	return strutil.EqualFoldAny(tool, "cursor", "cur") ||
 		strings.EqualFold(canonical, "cursor")
 }
 
@@ -202,20 +203,17 @@ func dispatchWinUtilToolUninstall(tool, canonical string, flags *uninstallFlags)
 }
 
 func isAgyUninstallTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "agy") || strings.EqualFold(tool, "agy-all") ||
-		strings.EqualFold(tool, "antigravity") || strings.EqualFold(tool, "antigravity-all") ||
-		strings.EqualFold(canonical, constants.ToolAgy) || strings.EqualFold(canonical, constants.ToolAntigravity)
+	return strutil.EqualFoldAny(tool, "agy", "agy-all", "antigravity", "antigravity-all") ||
+		strutil.EqualFoldAny(canonical, constants.ToolAgy, constants.ToolAntigravity)
 }
 
 func isAgmUninstallTarget(tool, canonical string) bool {
-	return strings.EqualFold(tool, "agm") || strings.EqualFold(tool, "agm-all") ||
-		strings.EqualFold(tool, "ag-manager") || strings.EqualFold(tool, "ag-manager-all") ||
-		strings.EqualFold(tool, "antigravity-manager") || strings.EqualFold(tool, "antigravity-manager-all") ||
+	return strutil.EqualFoldAny(tool, "agm", "agm-all", "ag-manager", "ag-manager-all", "antigravity-manager", "antigravity-manager-all") ||
 		strings.EqualFold(canonical, constants.ToolAgManager)
 }
 
 func runAgyUninstallFlow(tool, canonical string, flags *uninstallFlags) error {
-	isFullPurge := flags.isPurge || strings.EqualFold(tool, "agy-all") || strings.EqualFold(tool, "antigravity-all")
+	isFullPurge := flags.isPurge || strutil.EqualFoldAny(tool, "agy-all", "antigravity-all")
 	return cmdagy.RunAGYUninstall(isFullPurge, flags.isForce, flags.isDryRun, flags.backupPath)
 }
 

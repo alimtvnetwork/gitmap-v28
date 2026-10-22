@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpushfix"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 func runPull(args []string) error {
@@ -20,7 +21,7 @@ func runPull(args []string) error {
 }
 
 func dispatchPullAllWithArgs(subArgs []string) error {
-	if len(subArgs) > 0 && (strings.EqualFold(subArgs[0], "ssh") || strings.EqualFold(subArgs[0], "--ssh")) {
+	if len(subArgs) > 0 && strutil.EqualFoldAny(subArgs[0], "ssh", "--ssh") {
 		return cmdpull.RunPullAll(append([]string{"--ssh"}, subArgs[1:]...))
 	}
 	return cmdpull.RunPullAll(subArgs)

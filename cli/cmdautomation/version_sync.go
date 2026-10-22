@@ -20,6 +20,7 @@ var (
 	reCargoVersion     = regexp.MustCompile(`(?m)^version\s*=\s*"([^"]+)"`)
 	reSpecVersion      = regexp.MustCompile(`(?m)^\*\*Version:\*\*\s*([^\s\r\n]+)`)
 	reChangelogVersion = regexp.MustCompile(`(?m)^##\s*\[?v?([0-9]+\.[0-9]+\.[0-9]+)\]?`)
+	reVersionJSONValue = regexp.MustCompile(`"Version"\s*:\s*"[^"]+"`)
 )
 
 type versionTarget struct {
@@ -222,7 +223,7 @@ func replaceVersionInContent(path, content, canonical string) string {
 	case "00-overview.md":
 		return reSpecVersion.ReplaceAllString(content, fmt.Sprintf(`**Version:** %s`, canonical))
 	case "version.json":
-		res := regexp.MustCompile(`"Version"\s*:\s*"[^"]+"`).ReplaceAllString(content, fmt.Sprintf(`"Version": "%s"`, canonical))
+		res := reVersionJSONValue.ReplaceAllString(content, fmt.Sprintf(`"Version": "%s"`, canonical))
 		return rePackageVersion.ReplaceAllString(res, fmt.Sprintf(`"version": "%s"`, canonical))
 	default:
 		return reConstantsVersion.ReplaceAllString(content, fmt.Sprintf(`var Version = "%s"`, canonical))

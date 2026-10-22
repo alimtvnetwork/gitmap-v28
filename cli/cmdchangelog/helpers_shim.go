@@ -136,6 +136,15 @@ func hasPrettyPrefix(arg string) bool {
 
 	return false
 }
+
+var prettyModeByValue = map[string]render.PrettyModeType{
+	"1": render.PrettyOn, "t": render.PrettyOn, "true": render.PrettyOn,
+	"on": render.PrettyOn, "yes": render.PrettyOn, "y": render.PrettyOn,
+	"0": render.PrettyOff, "f": render.PrettyOff, "false": render.PrettyOff,
+	"off": render.PrettyOff, "no": render.PrettyOff, "n": render.PrettyOff,
+	"auto": render.PrettyAuto, "": render.PrettyAuto,
+}
+
 func resolvePositivePretty(
 	value string,
 	hasValue bool,
@@ -148,13 +157,8 @@ func resolvePositivePretty(
 		return render.PrettyOn
 	}
 
-	switch strings.ToLower(value) {
-	case "1", "t", "true", "on", "yes", "y":
-		return render.PrettyOn
-	case "0", "f", "false", "off", "no", "n":
-		return render.PrettyOff
-	case "auto", "":
-		return render.PrettyAuto
+	if mode, ok := prettyModeByValue[strings.ToLower(value)]; ok {
+		return mode
 	}
 
 	*out = append(*out, original)

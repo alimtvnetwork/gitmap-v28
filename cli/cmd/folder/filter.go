@@ -115,7 +115,7 @@ func hasMatchingGlob(meta *FileMeta, globs []string) bool {
 func hasMatchingExtension(ext string, allowed []string) bool {
 	cleanExt := strings.TrimPrefix(strings.ToLower(ext), ".")
 	for _, a := range allowed {
-		if strings.TrimPrefix(strings.ToLower(a), ".") == cleanExt {
+		if strings.EqualFold(strings.TrimPrefix(a, "."), cleanExt) {
 			return true
 		}
 	}

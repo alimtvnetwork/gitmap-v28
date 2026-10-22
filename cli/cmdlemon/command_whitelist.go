@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 type WhitelistAuthType string
@@ -46,7 +48,7 @@ func ValidateTokens(tokens []string) ([]string, bool) {
 	}
 
 	idx := 0
-	if first := strings.ToLower(clean[0]); first == "gitmap" || first == "gitmap.exe" {
+	if strutil.EqualFoldAny(clean[0], "gitmap", "gitmap.exe") {
 		idx = 1
 	}
 	if idx >= len(clean) || !IsSubcommandAllowed(strings.TrimPrefix(strings.ToLower(clean[idx]), "/")) {

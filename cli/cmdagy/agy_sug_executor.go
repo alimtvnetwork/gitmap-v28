@@ -102,15 +102,17 @@ func triggerSystemShutdown(total int, isDryRun bool) error {
 	return OSShutdownExecutorFn(runtime.GOOS)
 }
 
+var shutdownCommandByOS = map[string]string{
+	"windows": "shutdown /s /t 60",
+	"darwin":  `osascript -e 'tell app "System Events" to shut down'`,
+}
+
 func getShutdownCommandStr(goos string) string {
-	switch strings.ToLower(goos) {
-	case "windows":
-		return "shutdown /s /t 60"
-	case "darwin":
-		return `osascript -e 'tell app "System Events" to shut down'`
-	default:
-		return "shutdown -h +1"
+	if cmd, ok := shutdownCommandByOS[strings.ToLower(goos)]; ok {
+		return cmd
 	}
+
+	return "shutdown -h +1"
 }
 
 func defaultCrossPlatformShutdown(goos string) error {

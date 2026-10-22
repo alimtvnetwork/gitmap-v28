@@ -6,6 +6,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdignore"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // HistoryRunnerFn is a hook to delegate history execution from cmd package.
@@ -100,7 +101,7 @@ func routeIgnoreIssues(args []string) *apperror.AppError {
 func filterIgnoreFlags(subArgs []string) []string {
 	var filtered []string
 	for _, a := range subArgs {
-		isIssueWord := strings.EqualFold(a, "issues") || strings.EqualFold(a, "issue")
+		isIssueWord := strutil.EqualFoldAny(a, "issues", "issue")
 		if !isIssueWord {
 			filtered = append(filtered, a)
 		}

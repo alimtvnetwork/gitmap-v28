@@ -42,6 +42,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // ModeType is the resolved palette selection.
@@ -70,20 +71,26 @@ func (m ModeType) String() string {
 	}
 }
 
+// themeModeByLabel maps a lowercased theme label to its render mode;
+// labels absent from the map fall back to ModeBright in Parse.
+var themeModeByLabel = map[string]ModeType{
+	constants.ThemeStandard:   ModeStandard,
+	ThemeVSCodeDarkPlus:       ModeStandard,
+	constants.ThemeMonochrome: ModeMono,
+	constants.ThemeMono:       ModeMono,
+}
+
 // Parse maps a user-supplied label to a ModeType. Unknown labels (and the
 // empty string) fall back to ModeBright so a typo never crashes a CLI
 // run — they just render in the default palette. The named design-system
 // themes resolve to passthrough/downgrade modes here; their actual
 // palettes come from the registry in themes.go.
 func Parse(label string) ModeType {
-	switch strings.ToLower(strings.TrimSpace(label)) {
-	case constants.ThemeStandard, ThemeVSCodeDarkPlus:
-		return ModeStandard
-	case constants.ThemeMonochrome, constants.ThemeMono:
-		return ModeMono
-	default:
-		return ModeBright
+	if mode, ok := themeModeByLabel[strings.ToLower(strings.TrimSpace(label))]; ok {
+		return mode
 	}
+
+	return ModeBright
 }
 
 // Resolve picks the active mode from env (set by the flag stripper or
@@ -96,17 +103,13 @@ func Resolve() ModeType {
 // slug or a legacy alias. Used by the flag stripper to reject typos
 // with a clear error instead of silently falling back.
 func IsValidLabel(label string) bool {
-	switch strings.ToLower(strings.TrimSpace(label)) {
-	case constants.ThemeBright,
+	return strutil.EqualFoldAnyTrim(label,
+		constants.ThemeBright,
 		constants.ThemeStandard,
 		constants.ThemeMonochrome,
 		constants.ThemeMono,
 		ThemeNavyPurple,
 		ThemeTokyoNight,
 		ThemeVSCodeDarkPlus,
-		ThemeMonokaiPro:
-		return true
-	default:
-		return false
-	}
+		ThemeMonokaiPro)
 }

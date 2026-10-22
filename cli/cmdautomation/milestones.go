@@ -14,6 +14,8 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
+var milestoneH1Re = regexp.MustCompile(`(?m)^#\s+(.+)`)
+
 // RunMilestones queries GitHub milestone issues/PRs and formats release notes.
 func RunMilestones(opts MilestonesOptions) MilestonesResultMonad {
 	start := time.Now()
@@ -116,8 +118,7 @@ func isMilestonePlanMatch(name, milestoneId string) bool {
 
 func extractPlanTitle(path string) string {
 	content := readFileContent(path)
-	reH1 := regexp.MustCompile(`(?m)^#\s+(.+)`)
-	m := reH1.FindStringSubmatch(content)
+	m := milestoneH1Re.FindStringSubmatch(content)
 	hasMatch := len(m) > 1
 	if hasMatch {
 		return strings.TrimSpace(m[1])

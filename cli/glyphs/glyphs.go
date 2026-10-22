@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // ModeType is the resolved glyph selection.
@@ -25,16 +26,18 @@ const (
 	ModeSafe
 )
 
+var glyphModeByLabel = map[string]ModeType{
+	constants.GlyphsRich: ModeRich,
+	constants.GlyphsSafe: ModeSafe,
+}
+
 // Parse maps a user label to a ModeType. Unknown values resolve via auto.
 func Parse(label string) ModeType {
-	switch strings.ToLower(strings.TrimSpace(label)) {
-	case constants.GlyphsRich:
-		return ModeRich
-	case constants.GlyphsSafe:
-		return ModeSafe
-	default:
-		return autoDetect()
+	if mode, ok := glyphModeByLabel[strings.ToLower(strings.TrimSpace(label))]; ok {
+		return mode
 	}
+
+	return autoDetect()
 }
 
 // Resolve picks the mode from the GITMAP_GLYPHS env var (populated by
@@ -45,12 +48,7 @@ func Resolve() ModeType {
 
 // IsValidLabel reports whether label is a recognized glyph mode.
 func IsValidLabel(label string) bool {
-	switch strings.ToLower(strings.TrimSpace(label)) {
-	case constants.GlyphsAuto, constants.GlyphsRich, constants.GlyphsSafe:
-		return true
-	default:
-		return false
-	}
+	return strutil.EqualFoldAnyTrim(label, constants.GlyphsAuto, constants.GlyphsRich, constants.GlyphsSafe)
 }
 
 // autoDetect returns ModeRich on terminals known to render emoji well

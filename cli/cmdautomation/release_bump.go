@@ -13,6 +13,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
+var (
+	bumpVersionRe      = regexp.MustCompile(`("Version"\s*:\s*)"[^"]+"`)
+	bumpPkgVersionRe   = regexp.MustCompile(`("version"\s*:\s*)"[^"]+"`)
+	bumpConstVersionRe = regexp.MustCompile(`(var\s+Version\s*=\s*)"[^"]+"`)
+	bumpPrefRe         = regexp.MustCompile(`Release Mode Active \(v[0-9.]+\)`)
+)
+
 // RunReleaseBump computes the next SemVer version and updates repository manifests.
 func RunReleaseBump(opts ReleaseBumpOptions) ReleaseBumpResultMonad {
 	start := time.Now()
@@ -119,8 +126,7 @@ func updateVersionJson(fullPath, newVer string) bool {
 	if isMissing {
 		return false
 	}
-	reV := regexp.MustCompile(`("Version"\s*:\s*)"[^"]+"`)
-	updated := reV.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
+	updated := bumpVersionRe.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
 	writeErr := os.WriteFile(fullPath, []byte(updated), 0644)
 	return writeErr == nil
 }
@@ -131,8 +137,7 @@ func updatePackageJson(fullPath, newVer string) bool {
 	if isMissing {
 		return false
 	}
-	rePkg := regexp.MustCompile(`("version"\s*:\s*)"[^"]+"`)
-	updated := rePkg.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
+	updated := bumpPkgVersionRe.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
 	writeErr := os.WriteFile(fullPath, []byte(updated), 0644)
 	return writeErr == nil
 }
@@ -143,8 +148,7 @@ func updateConstantsVersion(fullPath, newVer string) bool {
 	if isMissing {
 		return false
 	}
-	reConst := regexp.MustCompile(`(var\s+Version\s*=\s*)"[^"]+"`)
-	updated := reConst.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
+	updated := bumpConstVersionRe.ReplaceAllString(content, fmt.Sprintf(`${1}"%s"`, newVer))
 	writeErr := os.WriteFile(fullPath, []byte(updated), 0644)
 	return writeErr == nil
 }
@@ -187,8 +191,7 @@ func updateUserPreferencesFile(fullPath, newVer string) bool {
 	if isMissing {
 		return false
 	}
-	rePref := regexp.MustCompile(`Release Mode Active \(v[0-9.]+\)`)
-	updated := rePref.ReplaceAllString(content, fmt.Sprintf("Release Mode Active (v%s)", newVer))
+	updated := bumpPrefRe.ReplaceAllString(content, fmt.Sprintf("Release Mode Active (v%s)", newVer))
 	writeErr := os.WriteFile(fullPath, []byte(updated), 0644)
 	return writeErr == nil
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 const updateUsageHelpText = `Available update commands:
@@ -44,29 +45,20 @@ func formatUnknownUpdateTargetHeader(token string) string {
 	return fmt.Sprintf("gitmap update: Unknown update target '%s'.", token)
 }
 
+var updateTargetSuggestions = map[string]string{
+	"al": "all", "allnodes": "all", "all-node": "all", "nodes": "all", "hosts": "all", "cluster": "all",
+	"l": "ls", "lss": "ls", "inventory": "ls", "apps": "ls", "soft": "ls",
+	"ag": "agm", "ang": "agm", "manager": "agm",
+	"git": "gitmap", "gitm": "gitmap", "gm": "gitmap",
+	"rem": "ssh", "ss": "ssh",
+	"uaz": "update-all-zip", "update-all-zip": "update-all-zip", "updateallzip": "update-all-zip",
+	"zp": "zip", "zi": "zip",
+	"antigravity": "antigravity", "antigravity-ide": "antigravity",
+	"ide": "ide", "agy-ide": "ide",
+}
+
 func suggestUpdateTarget(token string) string {
-	switch strings.ToLower(token) {
-	case "al", "allnodes", "all-node", "nodes", "hosts", "cluster":
-		return "all"
-	case "l", "lss", "inventory", "apps", "soft":
-		return "ls"
-	case "ag", "ang", "manager":
-		return "agm"
-	case "git", "gitm", "gm":
-		return "gitmap"
-	case "rem", "ss":
-		return "ssh"
-	case "uaz", "update-all-zip", "updateallzip":
-		return "update-all-zip"
-	case "zp", "zi":
-		return "zip"
-	case "antigravity", "antigravity-ide":
-		return "antigravity"
-	case "ide", "agy-ide":
-		return "ide"
-	default:
-		return ""
-	}
+	return updateTargetSuggestions[strings.ToLower(token)]
 }
 
 func resolveUpdatePackage(args []string) string {
@@ -89,12 +81,7 @@ func isAntigravityIdeUpdateTarget(args []string) bool {
 }
 
 func isAntigravityIdeToken(arg string) bool {
-	switch strings.ToLower(arg) {
-	case "antigravity", "antigravity-ide", "ide", "agy-ide":
-		return true
-	default:
-		return false
-	}
+	return strutil.EqualFoldAny(arg, "antigravity", "antigravity-ide", "ide", "agy-ide")
 }
 
 func isAgmUpdateTarget(args []string) bool {
@@ -107,17 +94,12 @@ func isAgmUpdateTarget(args []string) bool {
 }
 
 func isAgmToken(arg string) bool {
-	switch strings.ToLower(arg) {
-	case "agm", "agy", "ag-manager", "antigravity-manager":
-		return true
-	default:
-		return false
-	}
+	return strutil.EqualFoldAny(arg, "agm", "agy", "ag-manager", "antigravity-manager")
 }
 
 func hasPinArg(args []string) bool {
 	for _, a := range args {
-		if strings.EqualFold(a, "--pin") || strings.EqualFold(a, "-pin") {
+		if strutil.EqualFoldAny(a, "--pin", "-pin") {
 			return true
 		}
 	}
@@ -125,8 +107,7 @@ func hasPinArg(args []string) bool {
 }
 
 func isSSHFlagToken(a string) bool {
-	low := strings.ToLower(a)
-	return low == "--ssh" || low == "-ssh" || low == "--remote"
+	return strutil.EqualFoldAny(a, "--ssh", "-ssh", "--remote")
 }
 
 func hasSSHArg(args []string) bool {
@@ -152,22 +133,15 @@ func isKnownUpdateTargetOrFlag(token string) bool {
 	if strings.HasPrefix(token, "-") || isSemverLike(token) {
 		return true
 	}
-	switch strings.ToLower(token) {
-	case "all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "agy", "ag-manager", "antigravity-manager":
-		return true
-	case "zip", "uaz", "update-all-zip", "updateallzip", "--include-others", "--include-other":
-		return true
-	case "antigravity", "antigravity-ide", "ide", "agy-ide":
-		return true
-	default:
-		return false
-	}
+	return strutil.EqualFoldAny(token,
+		"all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "agy", "ag-manager", "antigravity-manager",
+		"zip", "uaz", "update-all-zip", "updateallzip", "--include-others", "--include-other",
+		"antigravity", "antigravity-ide", "ide", "agy-ide")
 }
 
 func isVersionListRequest(args []string) bool {
 	for _, a := range args {
-		low := strings.ToLower(strings.TrimSpace(a))
-		if low == "ls" || low == "list" || low == "versions" || low == "tags" || low == "ls-versions" {
+		if strutil.EqualFoldAnyTrim(a, "ls", "list", "versions", "tags", "ls-versions") {
 			return true
 		}
 	}
