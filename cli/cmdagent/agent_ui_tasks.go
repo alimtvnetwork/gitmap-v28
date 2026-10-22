@@ -112,8 +112,8 @@ func countTotalAgents(runDirs []string) int {
 		}
 	}
 
-	hasNone := total == 0
-	if hasNone {
+	isEmpty := total == 0
+	if isEmpty {
 		return 2
 	}
 

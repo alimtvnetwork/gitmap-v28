@@ -23,7 +23,7 @@ var (
 	aiUndoCmd = newRevertCommand("undo", []string{"revert", "restore"})
 
 	revertTaskFlag string
-	revertJsonFlag bool
+	isJsonRevert   bool
 )
 
 // AiRevertResponse defines JSON output envelope for revert operations.
@@ -39,7 +39,7 @@ type AiRevertFileInfo struct {
 	RelPath      string `json:"relPath"`
 	RestoredPath string `json:"restoredPath"`
 	Sha256       string `json:"sha256"`
-	Verified     bool   `json:"verified"`
+	IsVerified   bool   `json:"verified"`
 }
 
 func newRevertCommand(use string, aliases []string) *cobra.Command {
@@ -50,7 +50,7 @@ func newRevertCommand(use string, aliases []string) *cobra.Command {
 		RunE:    runRevertCmd,
 	}
 	cmd.Flags().StringVarP(&revertTaskFlag, "task", "t", "", "Task session identifier")
-	cmd.Flags().BoolVar(&revertJsonFlag, "json", false, "Output results in JSON format")
+	cmd.Flags().BoolVar(&isJsonRevert, "json", false, "Output results in JSON format")
 
 	return cmd
 }
@@ -73,7 +73,7 @@ func runRevertCmd(cmd *cobra.Command, args []string) error {
 		return runErr
 	}
 
-	return renderRevertSuccess(taskId, filePaths, revertJsonFlag)
+	return renderRevertSuccess(taskId, filePaths, isJsonRevert)
 }
 
 func parseRevertArgs(args []string) (string, []string, error) {

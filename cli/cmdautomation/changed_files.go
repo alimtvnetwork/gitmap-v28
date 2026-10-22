@@ -66,7 +66,7 @@ func parseStatusLine(line string, isStaged bool) ChangedFileItem {
 		Status:    status,
 		Extension: filepath.Ext(path),
 		IsStaged:  isStaged,
-		IsExists:  true,
+		IsPresent: true,
 	}
 }
 
@@ -101,7 +101,7 @@ func fetchUntrackedFiles(baseDir string) []ChangedFileItem {
 			Status:    "untracked",
 			Extension: filepath.Ext(p),
 			IsStaged:  false,
-			IsExists:  true,
+			IsPresent: true,
 		})
 	}
 	return items
@@ -163,7 +163,7 @@ func deduplicateChangedFiles(items []ChangedFileItem, isVerify bool, baseDir str
 		}
 		seen[it.Path] = true
 		if isVerify {
-			it.IsExists = verifyFileExistence(baseDir, it.Path)
+			it.IsPresent = verifyFileExistence(baseDir, it.Path)
 		}
 		deduped = append(deduped, it)
 	}

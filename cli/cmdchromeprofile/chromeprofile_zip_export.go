@@ -59,16 +59,16 @@ func buildChromeProfileArchive(
 	return int(info.Size()), nil
 }
 
-func maybeExportJSON(zw *zip.Writer, srcProfile, name string, shouldInclude bool) error {
-	if !shouldInclude {
+func maybeExportJSON(zw *zip.Writer, srcProfile, name string, isIncluded bool) error {
+	if !isIncluded {
 		return nil
 	}
 
 	return exportChromeProfileJSON(zw, srcProfile, name)
 }
 
-func maybeExportSQLite(zw *zip.Writer, srcProfile string, shouldInclude bool) error {
-	if !shouldInclude {
+func maybeExportSQLite(zw *zip.Writer, srcProfile string, isIncluded bool) error {
+	if !isIncluded {
 		return nil
 	}
 

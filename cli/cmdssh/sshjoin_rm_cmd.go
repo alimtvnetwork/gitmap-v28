@@ -53,8 +53,8 @@ func executeTargetNodeRm(target string, flags []string) error {
 	}
 
 	candidates := filterCandidateNodes(target, hosts)
-	hasNone := len(candidates) == 0
-	if hasNone {
+	isEmpty := len(candidates) == 0
+	if isEmpty {
 		return apperror.NewValidationError(fmt.Sprintf("no SSH node matching '%s' found. Use 'gitmap ssh nodes' to view registered nodes.", target))
 	}
 

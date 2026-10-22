@@ -108,8 +108,8 @@ func LoadRecordsJSONFallback() []model.ScanRecord {
 func loadRecordsJSONFallbackWithErr() ([]model.ScanRecord, error) {
 	jsonPath := filepath.Join(constants.DefaultOutputDir, constants.DefaultJSONFile)
 	_, statErr := os.Stat(jsonPath)
-	hasNotExist := os.IsNotExist(statErr)
-	if hasNotExist {
+	isMissing := os.IsNotExist(statErr)
+	if isMissing {
 		return loadAllRecordsDBOrEmpty()
 	}
 

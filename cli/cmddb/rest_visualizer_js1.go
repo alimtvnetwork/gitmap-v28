@@ -175,7 +175,7 @@ const visualizerScriptJsPart1 = `(function() {
       return '<span class="cell-null">NULL</span>';
     }
     if (typeof val === 'boolean') {
-      var isTrue = val === true;
+      var isTrue = Boolean(val);
       return '<span class="badge-bool ' + (isTrue ? 'true' : 'false') + '">[BOOL ' + (isTrue ? 'true' : 'false') + ']</span>';
     }
     if (typeof val === 'object' && (val.__type === 'binary' || val.__blob || val.hex || val.base64Data)) {

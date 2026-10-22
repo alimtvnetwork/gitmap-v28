@@ -13,16 +13,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func probeUnifiedNodesLive(ctx context.Context, nodes []UnifiedFleetNode, hosts []store.SSHHost, canUseCache ...bool) []UnifiedFleetNode {
+func probeUnifiedNodesLive(ctx context.Context, nodes []UnifiedFleetNode, hosts []store.SSHHost, isCacheAllowed ...bool) []UnifiedFleetNode {
 	isNodesEmpty := len(nodes) == 0
 	if isNodesEmpty {
 		return nodes
 	}
 
 	useCache := true
-	hasParam := len(canUseCache) > 0
+	hasParam := len(isCacheAllowed) > 0
 	if hasParam {
-		useCache = canUseCache[0]
+		useCache = isCacheAllowed[0]
 	}
 
 	isSkipEnvSet := os.Getenv("GITMAP_SKIP_NODE_CACHE") != ""

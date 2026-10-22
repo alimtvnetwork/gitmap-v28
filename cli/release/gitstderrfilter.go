@@ -37,7 +37,7 @@ func (w *filteredStderrWriter) Write(p []byte) (int, error) {
 		}
 
 		line := w.buf.Next(idx + 1)
-		if w.shouldDropLine(line) {
+		if w.isDropLine(line) {
 			continue
 		}
 
@@ -55,7 +55,7 @@ func (w *filteredStderrWriter) Flush() error {
 	}
 
 	line := w.buf.Bytes()
-	if w.shouldDropLine(line) {
+	if w.isDropLine(line) {
 		w.buf.Reset()
 
 		return nil
@@ -67,7 +67,7 @@ func (w *filteredStderrWriter) Flush() error {
 	return err
 }
 
-func (w *filteredStderrWriter) shouldDropLine(line []byte) bool {
+func (w *filteredStderrWriter) isDropLine(line []byte) bool {
 	s := string(line)
 	for _, pat := range w.patterns {
 		if strings.Contains(s, pat) {

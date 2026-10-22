@@ -27,8 +27,8 @@ func runUnifiedNodesList(args []string) error {
 	opts := parseNodesFilterOptions(args)
 	ctx := context.Background()
 
-	canUseCache := !opts.isNoCache && !opts.isRefresh
-	nodes, err := collectUnifiedNodes(ctx, opts.isFast, canUseCache)
+	isCacheAllowed := !opts.isNoCache && !opts.isRefresh
+	nodes, err := collectUnifiedNodes(ctx, opts.isFast, isCacheAllowed)
 	if err != nil {
 		return err
 	}
@@ -73,15 +73,15 @@ func resolveGlobalUnifiedFallback(localDB *store.DB) *store.DB {
 	return localDB
 }
 
-func resolveProbeCachePreference(canUseCache []bool) bool {
-	hasCacheParam := len(canUseCache) > 0
+func resolveProbeCachePreference(isCacheAllowed []bool) bool {
+	hasCacheParam := len(isCacheAllowed) > 0
 	if hasCacheParam {
-		return canUseCache[0]
+		return isCacheAllowed[0]
 	}
 	return true
 }
 
-func collectUnifiedNodes(ctx context.Context, isFast bool, canUseCache ...bool) ([]UnifiedFleetNode, error) {
+func collectUnifiedNodes(ctx context.Context, isFast bool, isCacheAllowed ...bool) ([]UnifiedFleetNode, error) {
 	dbConn, err := openUnifiedStore()
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func collectUnifiedNodes(ctx context.Context, isFast bool, canUseCache ...bool) 
 
 	isProbeNeeded := !isFast
 	if isProbeNeeded {
-		useCache := resolveProbeCachePreference(canUseCache)
+		useCache := resolveProbeCachePreference(isCacheAllowed)
 		nodes = probeUnifiedNodesLive(ctx, nodes, hosts, useCache)
 	}
 

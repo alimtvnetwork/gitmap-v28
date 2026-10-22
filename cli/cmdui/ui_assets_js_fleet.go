@@ -194,7 +194,7 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
     function kbEditable(el) {
       if (!el || !el.tagName) return false;
       const t = el.tagName.toLowerCase();
-      return t === 'input' || t === 'textarea' || t === 'select' || el.isContentEditable === true;
+      return t === 'input' || t === 'textarea' || t === 'select' || Boolean(el.isContentEditable);
     }
     function kbOverlay() { return document.getElementById('shortcuts-overlay'); }
     function kbOverlayOpen() { const o = kbOverlay(); return !!o && o.style.display !== 'none'; }

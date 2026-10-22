@@ -135,10 +135,7 @@ func executeScan(
 	})
 	if rc {
 		bench.Phase("scan.exportRepoCache", func() {
-			err := ExportScanToRepoCache(records, separate, quiet)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "  ⚠ Repo-cache export: %v\n", err)
-			}
+			runExportRepoCache(records, separate, quiet)
 		})
 	}
 	bench.Phase("scan.saveCache", func() {
@@ -157,9 +154,9 @@ func executeScan(
 	bench.Phase("scan.tagScanFolder", func() {
 		tagReposWithScanFolder(absDir, records, quiet)
 	})
-	var wasFirstWorkDirRegistered bool
+	var isFirstWorkDirRegistered bool
 	bench.Phase("scan.autoRegisterWorkDir", func() {
-		wasFirstWorkDirRegistered = autoRegisterFirstWorkDir(absDir, quiet)
+		isFirstWorkDirRegistered = autoRegisterFirstWorkDir(absDir, quiet)
 	})
 	bench.Phase("scan.autoAliases", func() {
 		autoPopulateScanAliases(quiet)
@@ -212,12 +209,19 @@ func executeScan(
 	})
 	finalizeErrorReport(errCollector, quiet)
 	fmt.Print(constants.MsgSectionDone)
-	if wasFirstWorkDirRegistered && !quiet {
+	if isFirstWorkDirRegistered && !quiet {
 		fmt.Printf("  ✓ First work directory registered and marked as default: %s\n", absDir)
 	}
 	// Mark scan task as completed after all steps succeed.
 	completePendingTask(taskDB, taskID)
 	return nil
+}
+
+func runExportRepoCache(records []model.ScanRecord, separate, quiet bool) {
+	err := ExportScanToRepoCache(records, separate, quiet)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Repo-cache export: %v\n", err)
+	}
 }
 
 // autoRegisterFirstWorkDir checks if any work directories are registered.

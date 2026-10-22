@@ -96,7 +96,7 @@ func printChangedFilesList(files []ChangedFileItem) {
 func printSingleChangedFile(idx int, f ChangedFileItem) {
 	color := formatStatusColor(f.Status)
 	staged := formatStagedBadge(f.IsStaged)
-	missing := formatMissingBadge(f.IsExists)
+	missing := formatMissingBadge(f.IsPresent)
 	fmt.Printf("  %3d. %s[%-9s]%s %s%s%s\n",
 		idx, color, f.Status, constants.ColorReset, f.Path, staged, missing)
 }
@@ -108,8 +108,8 @@ func formatStagedBadge(isStaged bool) string {
 	return ""
 }
 
-func formatMissingBadge(isExists bool) string {
-	if isExists == false {
+func formatMissingBadge(isPresent bool) string {
+	if !isPresent {
 		return " [missing on disk]"
 	}
 	return ""

@@ -57,7 +57,7 @@ type ChangedFileItem struct {
 	Status    string `json:"status"`
 	Extension string `json:"extension"`
 	IsStaged  bool   `json:"isStaged"`
-	IsExists  bool   `json:"isExists"`
+	IsPresent bool   `json:"isPresent"`
 }
 
 // ChangedFilesResult stores git changed and staged files.

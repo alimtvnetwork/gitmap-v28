@@ -44,7 +44,7 @@ type vscodePMSyncOpts struct {
 type tagListValue struct {
 	values []string
 	seen   map[string]bool
-	wasSet bool
+	isSet  bool
 }
 
 // newTagListValue returns a fresh, empty tagListValue ready for
@@ -67,7 +67,7 @@ func (t *tagListValue) String() string {
 // non-empty value not already captured. Empty entries (e.g. trailing
 // comma) are dropped silently — they are never useful.
 func (t *tagListValue) Set(raw string) error {
-	t.wasSet = true
+	t.isSet = true
 
 	for _, part := range strings.Split(raw, ",") {
 		v := strings.TrimSpace(part)
@@ -119,6 +119,6 @@ func parseVSCodePMSyncFlags(args []string) (vscodePMSyncOpts, error) {
 		Mode:           mode,
 		ProjectsJSON:   *projectsJSON,
 		TagOverride:    tags.values,
-		HasTagOverride: tags.wasSet,
+		HasTagOverride: tags.isSet,
 	}, nil
 }

@@ -213,8 +213,8 @@ func findSingleItemByID(conn *sql.DB, itemID string) (*store.RunningPromptRecord
 		&statusStr, &rec.WordCount, &mediaJSON, &rec.CreatedAt,
 	)
 
-	isNotFound := err == sql.ErrNoRows
-	if isNotFound {
+	isMissing := err == sql.ErrNoRows
+	if isMissing {
 		return nil, appfault.NewNotFound("findSingleItemByID", "E404", "item not found: "+itemID)
 	}
 
