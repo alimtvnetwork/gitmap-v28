@@ -23,10 +23,12 @@ import (
 // (data on stdout so users can pipe `gitmap clone-from
 // --emit-schema=report > schema.json` cleanly).
 func runCloneFromEmitSchema(kind string) error {
-	body, err := clonefrom.EmitSchema(kind)
-	if err != nil {
-		return apperror.WrapSimple(err, "emit-schema kind")
+	wrap := clonefrom.EmitSchema(kind)
+	if wrap.HasError() {
+		return apperror.WrapSimple(wrap.Err, "emit-schema kind")
 	}
+
+	body := wrap.Data
 
 	if _, err := os.Stdout.Write(body); err != nil {
 		return apperror.WrapSimple(err, "write-stdout emit-schema")

@@ -36,8 +36,8 @@ func TestTagListValueRepeatAndCommaList(t *testing.T) {
 		}
 	}
 
-	if !v.wasSet {
-		t.Error("wasSet = false after Set, want true")
+	if !v.isSet {
+		t.Error("isSet = false after Set, want true")
 	}
 }
 

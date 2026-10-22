@@ -19,7 +19,7 @@ import (
 func RunPicker(plan Plan) ([]string, error) {
 	res := RunPickerWrap(plan)
 	if res.HasError() {
-		return nil, res.Error()
+		return nil, res.Err
 	}
 	return res.Items(), nil
 }

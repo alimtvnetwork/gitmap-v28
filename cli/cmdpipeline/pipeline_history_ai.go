@@ -258,7 +258,13 @@ func parseErrorsFromRunOrFetch(db *pipelinedb.PipelineSplitDb, repo string, r pi
 			DatabaseId: r.RunId, Name: r.WorkflowName,
 			HeadSha: r.Sha, HeadBranch: r.Branch,
 		}
-		saveParsedFailedJobs(db, repo, ghRun, jobs, rawLogs)
+		saveParsedFailedJobs(SaveParsedFailedJobsParams{
+			DB:      db,
+			Repo:    repo,
+			Run:     ghRun,
+			Jobs:    jobs,
+			RawLogs: rawLogs,
+		})
 	}
 	return convertFailedJobsToHistorySteps(jobs, rawLogs)
 }

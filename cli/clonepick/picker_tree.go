@@ -80,7 +80,7 @@ func metaCloneForListing(plan Plan, dest string) error {
 func runLsTree(dest string) ([]string, error) {
 	res := runLsTreeWrap(dest)
 	if res.HasError() {
-		return nil, res.Error()
+		return nil, res.Err
 	}
 	return res.Items(), nil
 }

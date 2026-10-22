@@ -59,7 +59,7 @@ func resolveLineStatus(currentStatus PlanStatusType, line string, hasExplicit bo
 func parsePlanFile(filePath, relPath string, fallbackStatus PlanStatusType) (*PlanItem, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, apperror.Wrap(err, "os.Open plan file")
+		return nil, apperror.WrapSimple(err, "os.Open plan file")
 	}
 	defer file.Close()
 
@@ -96,7 +96,7 @@ func scanPlanDirectory(dirPath, baseRel string, fallbackStatus PlanStatusType) (
 			return nil, nil
 		}
 
-		return nil, apperror.Wrap(err, "os.ReadDir")
+		return nil, apperror.WrapSimple(err, "os.ReadDir")
 	}
 
 	return collectValidPlanEntries(entries, dirPath, baseRel, fallbackStatus), nil

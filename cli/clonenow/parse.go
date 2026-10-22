@@ -55,7 +55,7 @@ func ParseFile(path, format, mode, onExists string) (Plan, error) {
 
 	rowsWrap := parseByFormat(abs, resolved)
 	if rowsWrap.HasError() {
-		return Plan{}, rowsWrap.Error()
+		return Plan{}, rowsWrap.Err
 	}
 	rows := rowsWrap.Items()
 

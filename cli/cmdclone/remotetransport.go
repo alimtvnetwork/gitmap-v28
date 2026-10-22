@@ -91,12 +91,12 @@ func applyConvertedURL(dir, oldURL, convertedURL string) (bool, error) {
 
 // currentOriginURL reads the remote origin URL for dir using gitutil.
 func currentOriginURL(dir string) (string, error) {
-	url, err := gitutil.ReadRemoteOriginURL(dir)
-	if err != nil {
-		return "", apperror.WrapSimple(err, fmt.Sprintf("read remote.origin.url in %s (is `git remote add origin <url>` set?)", dir))
+	urlRes := gitutil.ReadRemoteOriginURL(dir)
+	if urlRes.IsFailure() {
+		return "", apperror.WrapSimple(urlRes.Err, fmt.Sprintf("read remote.origin.url in %s (is `git remote add origin <url>` set?)", dir))
 	}
 
-	return url, nil
+	return urlRes.Data, nil
 }
 
 // setOriginURL updates the remote origin URL for dir using gitutil.

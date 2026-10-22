@@ -15,8 +15,9 @@ func resolveProjectRootDir() string {
 	if err != nil {
 		return resolveDefaultGitmapRepoRoot()
 	}
-	root, rErr := gitutil.RepoRoot(cwd)
-	if rErr == nil && len(root) > 0 {
+	rootRes := gitutil.RepoRoot(cwd)
+	root := rootRes.Data
+	if rootRes.IsSuccess() && len(root) > 0 {
 		return root
 	}
 

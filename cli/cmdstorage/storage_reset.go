@@ -56,8 +56,9 @@ func purgeAGYBackups(opts StorageResetOptions, stats *StorageResetStats) {
 }
 
 func resolveCurrentRepoRoot() string {
-	root, err := gitutil.RepoRoot(".")
-	if err != nil || len(root) == 0 {
+	rootRes := gitutil.RepoRoot(".")
+	root := rootRes.Data
+	if rootRes.IsFailure() || len(root) == 0 {
 		return "."
 	}
 

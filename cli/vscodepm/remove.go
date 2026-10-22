@@ -12,7 +12,7 @@ func RemoveEntry(targetPath string) error {
 
 // RemoveEntryAt removes entry from a specific file.
 func RemoveEntryAt(projectsFile, targetPath string) error {
-	entries, err := readEntries(projectsFile)
+	entries, err := ReadEntries(projectsFile)
 	if err != nil {
 		return err
 	}

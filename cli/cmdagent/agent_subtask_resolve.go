@@ -19,7 +19,7 @@ func validateSubtaskIdentifierParams(id, code, slug string) (string, string, str
 	cleanId, cleanCode, cleanSlug := strings.TrimSpace(id), strings.TrimSpace(code), strings.TrimSpace(slug)
 	hasAny := cleanId != "" || cleanCode != "" || cleanSlug != ""
 	if !hasAny {
-		return "", "", "", apperror.NewValidationError("subtask identifier, code, or slug is required")
+		return "", "", "", appfault.NewValidationError("subtask identifier, code, or slug is required")
 	}
 
 	return cleanId, cleanCode, cleanSlug, nil
@@ -33,7 +33,7 @@ func ResolveSubtaskIdentifier(dbPath, identifier, code, slug string) (string, er
 	}
 	conn, openErr := store.OpenSQLiteDB(dbPath)
 	if openErr != nil {
-		return "", apperror.WrapSimple(openErr, fmt.Sprintf("open subtask database at %s", dbPath))
+		return "", appfault.WrapSimple(openErr, fmt.Sprintf("open subtask database at %s", dbPath))
 	}
 	defer conn.Close()
 
@@ -47,7 +47,7 @@ func querySubtaskCanonicalId(conn *sql.DB, dbPath, id, code, slug string) (strin
 	err := conn.QueryRow(query, targetId, targetCode, targetSlug).Scan(&canonicalId)
 	if err != nil {
 		disp := chooseDisplayRef(id, code, slug)
-		return "", apperror.NewNotFoundError(fmt.Sprintf("subtask '%s' not found in %s", disp, dbPath))
+		return "", appfault.NewNotFoundError(fmt.Sprintf("subtask '%s' not found in %s", disp, dbPath))
 	}
 
 	return canonicalId, nil

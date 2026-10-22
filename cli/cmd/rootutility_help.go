@@ -49,7 +49,7 @@ func runHelpDispatch() error {
 	return nil
 }
 
-func renderSpecificHelpTopic(topic string, mode render.PrettyMode) {
+func renderSpecificHelpTopic(topic string, mode render.PrettyModeType) {
 	prettyOff := mode == render.PrettyOff
 	helpdoc.PrintWithMode(topic, mode)
 	helpdoc.PrintExampleSection(topic, prettyOff)

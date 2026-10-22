@@ -95,7 +95,9 @@ func ResolveCloneNextFolder(token string) (string, error) {
 
 // ResolveCloneShorthand resolves clone shorthand.
 func ResolveCloneShorthand(arg string) string {
-	return resolveCloneShorthand(arg)
+	resolved, _ := resolveCloneShorthand(arg)
+
+	return resolved
 }
 
 // UpsertDirectClone upserts a direct clone record.

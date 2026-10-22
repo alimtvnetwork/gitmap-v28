@@ -124,8 +124,8 @@ func isRemoteConfigured(rec model.ScanRecord) bool {
 }
 
 func hasRemote(repoPath string) bool {
-	remoteURL, err := gitutil.RemoteURL(repoPath)
-	if err != nil || len(strings.TrimSpace(remoteURL)) == 0 {
+	remoteRes := gitutil.RemoteURL(repoPath)
+	if remoteRes.IsFailure() || len(strings.TrimSpace(remoteRes.Data)) == 0 {
 		return false
 	}
 

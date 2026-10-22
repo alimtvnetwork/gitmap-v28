@@ -22,8 +22,9 @@ func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) Rep
 	}
 
 	repoPath := proj.Path
-	branch, branchErr := gitutil.CurrentBranch(repoPath)
-	if branchErr != nil || branch == "" {
+	branchRes := gitutil.CurrentBranch(repoPath)
+	branch := branchRes.Data
+	if branchRes.IsFailure() || branch == "" {
 		branch = "main"
 	}
 

@@ -85,12 +85,14 @@ func executeSingleCloneNext(cnFlags CloneNextFlags) error {
 		return cwdErr
 	}
 
-	remoteURL, err := gitutil.RemoteURL(cwd)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneNextNoRemote, err)
+	remoteRes := gitutil.RemoteURL(cwd)
+	if remoteRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneNextNoRemote, remoteRes.Err)
 
-		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrCloneNextNoRemote, err))
+		return apperror.WrapSimple(remoteRes.Err, fmt.Sprintf(constants.ErrCloneNextNoRemote, remoteRes.Err))
 	}
+
+	remoteURL := remoteRes.Data
 
 	return executeCloneNextPipeline(cnFlags, cwd, remoteURL)
 }
@@ -248,8 +250,9 @@ func initVerboseSafe(isVerbose bool) (*verbose.Logger, error) {
 }
 
 func escapeToRepoRoot(cwd string) (string, *apperror.AppError) {
-	root, rootErr := gitutil.RepoRoot(cwd)
-	if rootErr != nil || root == "" || root == cwd {
+	rootRes := gitutil.RepoRoot(cwd)
+	root := rootRes.Data
+	if rootRes.IsFailure() || root == "" || root == cwd {
 		return cwd, nil
 	}
 

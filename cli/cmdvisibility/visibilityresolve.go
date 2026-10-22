@@ -60,8 +60,9 @@ func mustResolveVisibilityContext() VisibilityContext {
 		cliexit.HandleError(appErr, constants.ExitVisNotARepo)
 	}
 
-	url, err := gitutil.RemoteURL(cwd)
-	if err != nil || len(url) == 0 {
+	urlRes := gitutil.RemoteURL(cwd)
+	url := urlRes.Data
+	if urlRes.IsFailure() || len(url) == 0 {
 		appErr := apperror.NewWithDetails(
 			"cmd.visibility.remoteURL",
 			"E1055",

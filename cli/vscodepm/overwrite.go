@@ -18,7 +18,7 @@ func OverwritePaths(rootPath, name string, paths []string) error {
 		return err
 	}
 
-	entries, err := readEntries(path)
+	entries, err := ReadEntries(path)
 	if err != nil {
 		return err
 	}

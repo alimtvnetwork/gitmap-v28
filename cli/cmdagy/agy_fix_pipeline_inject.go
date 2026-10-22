@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
-	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // InjectAgyFixTask attempts dispatch of the fix prompt to active IDE or Antigravity CLI.
@@ -108,8 +107,9 @@ func formatQueuedSuccessMessage(pid int) string {
 
 func resolveTargetRepoRoot(repoDir string) string {
 	startPath := resolveInitialPath(repoDir)
-	root, err := gitutil.RepoRoot(startPath)
-	hasRoot := err == nil && len(root) > 0
+	rootRes := gitutil.RepoRoot(startPath)
+	root := rootRes.Data
+	hasRoot := rootRes.IsSuccess() && len(root) > 0
 	if hasRoot {
 		return root
 	}

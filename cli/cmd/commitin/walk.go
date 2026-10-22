@@ -2,7 +2,7 @@ package commitin
 
 import (
 	"fmt"
-t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 	"sync"
 	"time"

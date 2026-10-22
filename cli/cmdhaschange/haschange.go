@@ -35,7 +35,7 @@ func RunHasChange(args []string) error {
 	}
 
 	if len(alias) == 0 {
-		return apperror.NewUsageError(constants.ErrHCUsage)
+		return apperror.NewValidationError(constants.ErrHCUsage)
 	}
 
 	return executeHasChange(alias, mode, hasAll, hasFetch)
@@ -87,7 +87,7 @@ func printHasChangeOne(target, mode string) error {
 		return printHasChangeSync(target, mode)
 	}
 
-	return apperror.NewUsageError(fmt.Sprintf(constants.ErrHCBadMode, mode))
+	return apperror.NewValidationError(fmt.Sprintf(constants.ErrHCBadMode, mode))
 }
 
 func printHasChangeDirty(target string) error {

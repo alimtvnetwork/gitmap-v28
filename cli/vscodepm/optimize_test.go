@@ -50,7 +50,8 @@ func TestOptimizeProjectsAt(t *testing.T) {
 		t.Errorf("expected 2 remaining, got %d", summary.Remaining)
 	}
 
-	entries, _ := readEntries(projectsFile)
+	wrap := readEntries(projectsFile)
+	entries := wrap.Items()
 	if len(entries) != 2 {
 		t.Fatalf("expected 2 entries, got %d", len(entries))
 	}
@@ -86,7 +87,8 @@ func TestClearProjectsAtExcept(t *testing.T) {
 		t.Errorf("expected 1 remaining, got %d", summary.Remaining)
 	}
 
-	entries, _ := readEntries(projectsFile)
+	wrap := readEntries(projectsFile)
+	entries := wrap.Items()
 	if len(entries) != 1 || entries[0].Name != "keep-me" {
 		t.Errorf("unexpected remaining entry: %+v", entries)
 	}

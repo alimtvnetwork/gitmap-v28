@@ -24,11 +24,13 @@ import (
 )
 
 func TestEmitSchema_ReportShape(t *testing.T) {
-	body, err := EmitSchema(constants.EmitSchemaKindReport)
-	isSchemaErr := err != nil
+	wrap := EmitSchema(constants.EmitSchemaKindReport)
+	isSchemaErr := wrap.HasError()
 	if isSchemaErr {
-		t.Fatalf("EmitSchema(report) returned error: %v", err)
+		t.Fatalf("EmitSchema(report) returned error: %v", wrap.Err)
 	}
+
+	body := wrap.Data
 
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
@@ -56,11 +58,13 @@ func assertReportKeys(t *testing.T, props map[string]any) {
 }
 
 func TestEmitSchema_InputShape(t *testing.T) {
-	body, err := EmitSchema(constants.EmitSchemaKindInput)
-	isSchemaErr := err != nil
+	wrap := EmitSchema(constants.EmitSchemaKindInput)
+	isSchemaErr := wrap.HasError()
 	if isSchemaErr {
-		t.Fatalf("EmitSchema(input) returned error: %v", err)
+		t.Fatalf("EmitSchema(input) returned error: %v", wrap.Err)
 	}
+
+	body := wrap.Data
 
 	root := decodeSchema(t, body)
 	assertString(t, root, "$schema", constants.JSONSchemaDialect2020_12)
@@ -93,7 +97,8 @@ func assertInputFields(t *testing.T, itemProps map[string]any) {
 }
 
 func TestEmitSchema_UnknownKindUsesConstantMessage(t *testing.T) {
-	_, err := EmitSchema("nope")
+	wrap := EmitSchema("nope")
+	err := wrap.Err
 	isNilErr := err == nil
 	if isNilErr {
 		t.Fatal("expected error for unknown kind, got nil")

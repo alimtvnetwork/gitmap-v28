@@ -15,7 +15,7 @@ import (
 var cgSuccessStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#50fa7b"))
 var cgErrorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff5555"))
 var cgHeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8be9fd")).Bold(true)
-var cgVersionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#bd93f9"))
+var cgWorkerVersionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#bd93f9"))
 
 type cgUpdateResult struct {
 	repo       string
@@ -110,7 +110,7 @@ func printCGUpdateSummary(results <-chan cgUpdateResult) {
 		case r.isFail:
 			fmt.Printf("%s [%s] Failed: %s\n", cgErrorStyle.Render("X"), r.repo, r.errorMsg)
 		case !r.hasChanged:
-			fmt.Printf("%s [%s] Up to date (%s)\n", cgSuccessStyle.Render("OK"), r.repo, cgVersionStyle.Render(r.newVersion))
+			fmt.Printf("%s [%s] Up to date (%s)\n", cgSuccessStyle.Render("OK"), r.repo, cgWorkerVersionStyle.Render(r.newVersion))
 		default:
 			fmt.Printf("%s [%s] Updated: %s -> %s\n", cgSuccessStyle.Render("OK"), r.repo, cgErrorStyle.Render(r.oldVersion), cgSuccessStyle.Render(r.newVersion))
 			printModifiedFiles(r.stdout)

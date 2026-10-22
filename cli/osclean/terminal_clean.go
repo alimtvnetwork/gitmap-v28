@@ -108,10 +108,10 @@ func cleanPowerShellTerminal(opts TerminalCleanOptions, isGitmapPresent bool) Sh
 	canonical := getCanonicalGitmapSuggestions()
 
 	for _, p := range targets {
-		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.IsReseedEnabled && isGitmapPresent, false)
+		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.ShouldReseed && isGitmapPresent, false)
 	}
 
-	if opts.IsReseedEnabled && isGitmapPresent && !opts.IsDryRun {
+	if opts.ShouldReseed && isGitmapPresent && !opts.IsDryRun {
 		_ = completion.Install(constants.ShellPowerShell)
 		stats.Notes = append(stats.Notes, "PowerShell argument completer reinstalled")
 	}
@@ -129,12 +129,12 @@ func cleanBashTerminal(opts TerminalCleanOptions, isGitmapPresent bool) ShellCle
 	canonical := getCanonicalGitmapSuggestions()
 
 	for _, p := range targets {
-		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.IsReseedEnabled && isGitmapPresent, false)
+		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.ShouldReseed && isGitmapPresent, false)
 	}
 
 	cleanDirectorySessions(&stats, resolveBashSessionsDir(), opts.IsDryRun)
 
-	if opts.IsReseedEnabled && isGitmapPresent && !opts.IsDryRun {
+	if opts.ShouldReseed && isGitmapPresent && !opts.IsDryRun {
 		_ = completion.Install(constants.ShellBash)
 		stats.Notes = append(stats.Notes, "Bash tab completion script verified")
 	}
@@ -152,13 +152,13 @@ func cleanZshTerminal(opts TerminalCleanOptions, isGitmapPresent bool) ShellClea
 	canonical := getCanonicalGitmapSuggestions()
 
 	for _, p := range targets {
-		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.IsReseedEnabled && isGitmapPresent, true)
+		processTerminalHistoryFile(&stats, p, canonical, opts.IsDryRun, opts.ShouldReseed && isGitmapPresent, true)
 	}
 
 	cleanDirectorySessions(&stats, resolveZshSessionsDir(), opts.IsDryRun)
 	cleanZshCompdumps(&stats, opts.IsDryRun)
 
-	if opts.IsReseedEnabled && isGitmapPresent && !opts.IsDryRun {
+	if opts.ShouldReseed && isGitmapPresent && !opts.IsDryRun {
 		_ = completion.Install(constants.ShellZsh)
 		stats.Notes = append(stats.Notes, "Zsh completion module verified")
 	}
@@ -177,7 +177,7 @@ func cleanFishTerminal(opts TerminalCleanOptions, isGitmapPresent bool) ShellCle
 		processTerminalHistoryFile(&stats, p, nil, opts.IsDryRun, false, false)
 	}
 
-	if opts.IsReseedEnabled && isGitmapPresent && !opts.IsDryRun {
+	if opts.ShouldReseed && isGitmapPresent && !opts.IsDryRun {
 		_ = completion.Install(constants.ShellFish)
 	}
 

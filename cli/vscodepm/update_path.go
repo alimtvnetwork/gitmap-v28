@@ -18,7 +18,7 @@ func UpdateRootPath(oldPath, newPath, newName string) error {
 
 // UpdateRootPathAt modifies the specific projects.json file.
 func UpdateRootPathAt(projectsFile, oldPath, newPath, newName string) error {
-	entries, err := readEntries(projectsFile)
+	entries, err := ReadEntries(projectsFile)
 	if err != nil {
 		return err
 	}

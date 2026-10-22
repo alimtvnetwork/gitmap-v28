@@ -38,7 +38,7 @@ func OptimizeProjects(exceptList []string, dryRun bool) (OptimizeSummary, error)
 
 // OptimizeProjectsAt deduplicates entries and prunes missing entries in a specified file.
 func OptimizeProjectsAt(filePath string, exceptList []string, dryRun bool) (OptimizeSummary, error) {
-	entries, err := readEntries(filePath)
+	entries, err := ReadEntries(filePath)
 	if err != nil {
 		return OptimizeSummary{}, err
 	}
@@ -196,7 +196,7 @@ func ClearProjectsWithTargets(exceptList []string, onlyMissing, dryRun bool) (Op
 
 // ClearProjectsWithTargetsAt cleans entries and returns targeted entries.
 func ClearProjectsWithTargetsAt(filePath string, exceptList []string, onlyMissing, dryRun bool) (OptimizeSummary, []Entry, error) {
-	entries, err := readEntries(filePath)
+	entries, err := ReadEntries(filePath)
 	if err != nil {
 		return OptimizeSummary{}, nil, err
 	}

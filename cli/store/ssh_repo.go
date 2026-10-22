@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -467,5 +465,3 @@ func ListHostsByRole(ctx context.Context, role string, db *sql.DB) ([]SSHHost, e
 	}
 	return res.Items(), nil
 }
-
-

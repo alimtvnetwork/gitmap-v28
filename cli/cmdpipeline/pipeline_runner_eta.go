@@ -22,8 +22,9 @@ type RunnerETAInfo struct {
 
 // ReadRunnerETA attempts to read .ai-memory/temp/runner-eta.json from repo root.
 func ReadRunnerETA() (*RunnerETAInfo, bool) {
-	root, err := gitutil.RepoRoot(".")
-	if err != nil {
+	rootRes := gitutil.RepoRoot(".")
+	root := rootRes.Data
+	if rootRes.IsFailure() {
 		root = "."
 	}
 

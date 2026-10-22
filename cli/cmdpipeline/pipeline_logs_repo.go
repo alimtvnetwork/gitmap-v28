@@ -74,9 +74,9 @@ func resolveRepoWebURL(repo string) string {
 		return normalizeRepoURL(repo)
 	}
 
-	remoteURL, err := gitutil.RemoteURL(".")
-	if err == nil && len(remoteURL) > 0 {
-		return formatWebURL(remoteURL)
+	remoteRes := gitutil.RemoteURL(".")
+	if remoteRes.IsSuccess() && len(remoteRes.Data) > 0 {
+		return formatWebURL(remoteRes.Data)
 	}
 
 	return ""

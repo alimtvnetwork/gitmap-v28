@@ -67,9 +67,9 @@ func findProjectByPath(projects []AgyProject, targetDir string) *AgyProject {
 }
 
 func resolveWorkingRepoRoot(dirPath string) string {
-	root, err := gitutil.RepoRoot(dirPath)
-	if err == nil && len(root) > 0 {
-		return root
+	rootRes := gitutil.RepoRoot(dirPath)
+	if rootRes.IsSuccess() && len(rootRes.Data) > 0 {
+		return rootRes.Data
 	}
 	return dirPath
 }
@@ -279,6 +279,6 @@ func isGitRepo(dirPath string) bool {
 	if _, err := os.Stat(dotGit); err == nil {
 		return true
 	}
-	root, err := gitutil.RepoRoot(dirPath)
-	return err == nil && len(root) > 0
+	rootRes := gitutil.RepoRoot(dirPath)
+	return rootRes.IsSuccess() && len(rootRes.Data) > 0
 }

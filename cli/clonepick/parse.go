@@ -195,7 +195,7 @@ func shorthandToURL(params ShorthandURLParams) string {
 func normalisePaths(raw string, isAskMode bool) ([]string, error) {
 	res := normalisePathsWrap(raw, isAskMode)
 	if res.HasError() {
-		return nil, res.Error()
+		return nil, res.Err
 	}
 	return res.Items(), nil
 }

@@ -46,7 +46,11 @@ func (db *DB) GetRepoPrimaryURLByStrategy(strategy constants.RepoTransportQueryT
 	if strategy == constants.RepoTransportQueryByPath {
 		cleanPath := NormalizeStoragePath(target)
 
-		return db.GetRepoPrimaryURLByPath(cleanPath)
+		id, url, err := db.GetRepoPrimaryURLByPath(cleanPath)
+
+		// The path lookup already selects the URL using the record's
+		// identified transport; it does not resolve transport separately.
+		return id, url, "", err
 	}
 
 	return 0, "", "", appfault.NewValidationError("unsupported transport query strategy: " + string(strategy))

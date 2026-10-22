@@ -64,8 +64,9 @@ func discoverFallbackRecords() []model.ScanRecord {
 }
 
 func discoverCwdRecord() []model.ScanRecord {
-	root, err := gitutil.RepoRoot(".")
-	if err != nil || root == "" {
+	rootRes := gitutil.RepoRoot(".")
+	root := rootRes.Data
+	if rootRes.IsFailure() || root == "" {
 		return nil
 	}
 

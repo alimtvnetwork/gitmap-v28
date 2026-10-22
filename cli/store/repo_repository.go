@@ -37,7 +37,7 @@ func (r *RepoRepository) ListAll() ScanRecordSliceWrap {
 func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	clean := strings.TrimSpace(slug)
 	if clean == "" {
-		return result.Fail[model.ScanRecord](apperror.NewValidation("slug is required", "E_PARAM_REQUIRED"))
+		return result.Fail[model.ScanRecord](apperror.NewValidation("FindBySlug", "E_PARAM_REQUIRED", "slug is required"))
 	}
 
 	sliceRes := r.queryScanRecords(constants.SQLSelectRepoBySlug, clean)

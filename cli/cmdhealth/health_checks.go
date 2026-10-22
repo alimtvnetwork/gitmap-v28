@@ -55,14 +55,14 @@ func recordDirtyRepo(name string, facts *healthFacts) {
 
 func probeRepoDirty(repoPath, name string, facts *healthFacts) {
 	facts.repoTotal++
-	out, runErr := gitutil.RunGitInDir(repoPath, constants.GitStatus, constants.GitPorcelainFlag)
-	if runErr != nil {
-		facts.diagErrors = append(facts.diagErrors, runErr)
+	res := gitutil.RunGitInDir(repoPath, constants.GitStatus, constants.GitPorcelainFlag)
+	if res.IsFailure() {
+		facts.diagErrors = append(facts.diagErrors, res.Err)
 
 		return
 	}
 
-	if strings.TrimSpace(string(out)) == "" {
+	if strings.TrimSpace(string(res.Data)) == "" {
 		return
 	}
 

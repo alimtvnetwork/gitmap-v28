@@ -48,7 +48,9 @@ func RunGitCombinedInDir(repoPath string, args ...string) result.ByteSliceResult
 	cmd := createGitCmd(repoPath, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return result.Fail[[]byte](apperror.WrapSimple(err, "RunGitCombinedInDir"))
+		// Preserve the combined output alongside the error: callers such as
+		// the pull remediation flow inspect git's own text to classify failures.
+		return result.ByteSliceResult{Value: out, Data: out, Err: apperror.WrapSimple(err, "RunGitCombinedInDir")}
 	}
 
 	return result.Ok(out)

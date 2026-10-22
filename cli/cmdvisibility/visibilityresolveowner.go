@@ -184,7 +184,9 @@ func ownerFromFolder(path string) (ownerContext, error) {
 		return ownerContext{}, apperror.WrapNotFound(statErr, fmt.Sprintf("Error: folder not found at %s (operation: stat, reason: %s)", abs, statErr.Error()))
 	}
 
-	url, err := gitutil.RemoteURL(abs)
+	urlRes := gitutil.RemoteURL(abs)
+	url := urlRes.Data
+	err = urlRes.ErrOrNil()
 	if err != nil || len(url) == 0 {
 		remoteErr := apperror.NewNotFoundError(fmt.Sprintf("Error: no origin remote at %s (operation: gitutil.RemoteURL, reason: %s)", abs, errString(err)))
 		if err != nil {

@@ -3,18 +3,14 @@ package cmdagy
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdantigravity"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
-	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (

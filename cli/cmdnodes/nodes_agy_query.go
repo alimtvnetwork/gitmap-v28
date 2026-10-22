@@ -9,7 +9,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // NodesAgyQueryResult wraps the aggregated Antigravity query response across fleet.

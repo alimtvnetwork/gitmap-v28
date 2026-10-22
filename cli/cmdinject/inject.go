@@ -118,8 +118,9 @@ func resolveInjectTarget(args []string) (string, error) {
 // no exit on failure. A best-effort persistence step shouldn't bring
 // down the more useful Desktop/VS Code side effects.
 func upsertInjectIfRemote(absPath, repoName string) {
-	remoteURL, err := gitutil.RemoteURL(absPath)
-	if err != nil || len(remoteURL) == 0 {
+	remoteRes := gitutil.RemoteURL(absPath)
+	remoteURL := remoteRes.Data
+	if remoteRes.IsFailure() || len(remoteURL) == 0 {
 		fmt.Printf(constants.MsgInjectNoRemote, repoName)
 
 		return

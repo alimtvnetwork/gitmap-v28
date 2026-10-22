@@ -175,7 +175,7 @@ func RunPlans(args []string) error {
 
 	compTotal, pendTotal, err := DiscoverPlans(opts.RepoPath)
 	if err != nil {
-		return apperror.Wrap(err, "DiscoverPlans")
+		return apperror.WrapSimple(err, "DiscoverPlans")
 	}
 
 	return executePlansReport(opts, compTotal, pendTotal)

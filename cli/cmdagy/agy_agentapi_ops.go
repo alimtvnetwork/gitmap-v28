@@ -41,10 +41,10 @@ func parseSendMessageResponse(data []byte) result.StringResult {
 	}
 	hasMsg := resp.Response.SendMessage != nil
 	if hasMsg {
-		return result.StringOk(resp.Response.SendMessage.RecipientID)
+		return result.Ok(resp.Response.SendMessage.RecipientID)
 	}
 
-	return result.StringOk("")
+	return result.Ok("")
 }
 
 // AgentAPINewConversation creates a new conversation with an initial prompt.
@@ -97,7 +97,7 @@ func parseNewConversationResponse(data []byte) result.StringResult {
 	}
 	hasConv := resp.Response.NewConversation != nil
 	if hasConv {
-		return result.StringOk(resp.Response.NewConversation.ConversationID)
+		return result.Ok(resp.Response.NewConversation.ConversationID)
 	}
 
 	return result.Fail[string](apperror.NewSimple("empty new conversation response", "E9034"))

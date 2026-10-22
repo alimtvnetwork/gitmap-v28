@@ -3,13 +3,11 @@ package workspace
 import (
 	"errors"
 	"fmt"
-t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // LockHandle owns a single advisory lock acquired via AcquireLock.

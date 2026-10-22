@@ -94,7 +94,6 @@ const (
 	GitMerge       = "merge"
 	GitMergeNoFF   = "--no-ff"
 	GitStatusShort = "--porcelain"
-	GitStatus      = "status"
 )
 
 // GoMod commit message format.

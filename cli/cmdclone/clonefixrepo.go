@@ -335,12 +335,14 @@ func maybeRunFixRepoStep(absPath string, requireVersion bool) {
 
 // ResolveCloneFixRepoName discovers repository name from remote or directory base.
 func ResolveCloneFixRepoName(absPath string) string {
-	remoteURL, err := gitutil.RemoteURL(absPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.WarnCloneFixRepoRemoteFmt, absPath, err)
+	remoteRes := gitutil.RemoteURL(absPath)
+	if remoteRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, constants.WarnCloneFixRepoRemoteFmt, absPath, remoteRes.Err)
 
 		return filepath.Base(absPath)
 	}
+
+	remoteURL := remoteRes.Data
 
 	repo := repoNameFromURL(remoteURL)
 	if len(repo) > 0 {

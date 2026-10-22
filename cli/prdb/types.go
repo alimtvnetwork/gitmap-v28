@@ -60,6 +60,12 @@ type (
 	// PrReleaseWrap is the canonical single reusable result container for PrReleaseRecord.
 	PrReleaseWrap = result.Wrap[*PrReleaseRecord]
 
+	// PrSplitDbWrap is the canonical single reusable result container for PrSplitDb.
+	PrSplitDbWrap = result.Wrap[*PrSplitDb]
+
+	// PrBranchRecordWrap is the canonical single reusable result container for PrBranchRecord.
+	PrBranchRecordWrap = result.Wrap[PrBranchRecord]
+
 	// Backward-compatibility aliases for legacy callers.
 	PullRequestResult  = PullRequestWrap
 	PrBranchListResult = PrBranchSliceWrap

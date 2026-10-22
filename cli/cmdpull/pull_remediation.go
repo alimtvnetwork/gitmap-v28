@@ -196,7 +196,12 @@ func isCredentialOrHTTPSFailure(msg string) bool {
 }
 
 func execPullAutoMerge(repoPath string) ([]byte, error) {
-	return gitutil.RunGitCombinedInDir(repoPath, "pull", "--progress", "--no-rebase", "--no-edit", "--autostash")
+	res := gitutil.RunGitCombinedInDir(repoPath, "pull", "--progress", "--no-rebase", "--no-edit", "--autostash")
+	if res.IsFailure() {
+		return res.Data, res.Err
+	}
+
+	return res.Data, nil
 }
 
 func handleRemediationFailure(repoPath, repoName, out string) bool {

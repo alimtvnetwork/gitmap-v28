@@ -180,8 +180,9 @@ func resolveDefaultTemplateContent() string {
 }
 
 func resolveCurrentRepoRoot() string {
-	root, err := gitutil.RepoRoot(".")
-	hasRoot := err == nil && len(root) > 0
+	rootRes := gitutil.RepoRoot(".")
+	root := rootRes.Data
+	hasRoot := rootRes.IsSuccess() && len(root) > 0
 	if hasRoot {
 		return root
 	}

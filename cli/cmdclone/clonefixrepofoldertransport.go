@@ -29,9 +29,10 @@ func preferExistingFolderTransport(positional, absPath string) string {
 		return positional
 	}
 
-	existing, err := gitutil.RemoteURL(absPath)
-	if err != nil || existing == "" {
-		warnPreferTransport(absPath, "could not read existing origin", err)
+	existingRes := gitutil.RemoteURL(absPath)
+	existing := existingRes.Data
+	if existingRes.IsFailure() || existing == "" {
+		warnPreferTransport(absPath, "could not read existing origin", existingRes.Err)
 
 		return positional
 	}

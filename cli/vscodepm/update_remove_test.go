@@ -24,10 +24,12 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 		t.Fatalf("UpdateRootPathAt failed: %v", err)
 	}
 
-	entries, err := readEntries(pJson)
-	if err != nil {
-		t.Fatalf("readEntries failed: %v", err)
+	wrap := readEntries(pJson)
+	if wrap.HasError() {
+		t.Fatalf("readEntries failed: %v", wrap.Err)
 	}
+
+	entries := wrap.Items()
 
 	if len(entries) != 2 || entries[0].RootPath != `D:\work\new-home\my-app` || entries[0].Name != "my-app-new" {
 		t.Fatalf("Update failed: %+v", entries)
@@ -38,10 +40,12 @@ func TestUpdateRootPathAndRemoveEntry(t *testing.T) {
 		t.Fatalf("RemoveEntryAt failed: %v", err)
 	}
 
-	entries, err = readEntries(pJson)
-	if err != nil {
-		t.Fatalf("readEntries after remove failed: %v", err)
+	wrap = readEntries(pJson)
+	if wrap.HasError() {
+		t.Fatalf("readEntries after remove failed: %v", wrap.Err)
 	}
+
+	entries = wrap.Items()
 
 	if len(entries) != 1 || entries[0].Name != "my-app-new" {
 		t.Fatalf("Remove failed: %+v", entries)

@@ -25,7 +25,6 @@ const (
 	MsgAutoCommitAutoYes     = "  " + ColorDim + "→ Auto-confirmed via -y flag" + ColorReset + "\n"
 
 	// Git diff arguments for detecting changes.
-	GitDiff         = "diff"
 	GitDiffNameOnly = "--name-only"
 	GitDiffCached   = "--cached"
 )

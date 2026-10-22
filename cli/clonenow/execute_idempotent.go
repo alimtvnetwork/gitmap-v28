@@ -73,12 +73,12 @@ func inspectExistingRepo(absDest string) existingRepoState {
 	}
 
 	state.IsRepo = true
-	if remote, err := gitutil.RemoteURL(absDest); err == nil {
-		state.RemoteURL = strings.TrimSpace(remote)
+	if remoteRes := gitutil.RemoteURL(absDest); remoteRes.IsSuccess() {
+		state.RemoteURL = strings.TrimSpace(remoteRes.Data)
 	}
 
-	if branch, err := gitutil.CurrentBranch(absDest); err == nil {
-		state.Branch = strings.TrimSpace(branch)
+	if branchRes := gitutil.CurrentBranch(absDest); branchRes.IsSuccess() {
+		state.Branch = strings.TrimSpace(branchRes.Data)
 	}
 
 	return state

@@ -73,12 +73,13 @@ func TestParseCSV_RowError_NamesOffendingColumn(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := parseCSV(strings.NewReader(tc.csv))
-			if err == nil {
+			wrap := parseCSV(strings.NewReader(tc.csv))
+			hasErr := wrap.HasError()
+			if !hasErr {
 				t.Fatalf("expected parse error, got nil")
 			}
 
-			msg := err.Error()
+			msg := wrap.Err.Error()
 			for _, want := range []string{tc.wantRow, tc.wantCol, tc.wantInErr} {
 				if !strings.Contains(msg, want) {
 					t.Errorf("error %q missing substring %q", msg, want)
@@ -98,10 +99,12 @@ func TestParseCSV_ValidRows_NoError(t *testing.T) {
 	csv := "url,dest,branch,depth,checkout\n" +
 		"https://x/y.git,out/y,main,1,auto\n" +
 		"git@github.com:owner/repo.git,,feature/x,,skip\n"
-	rows, err := parseCSV(strings.NewReader(csv))
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	wrap := parseCSV(strings.NewReader(csv))
+	if wrap.HasError() {
+		t.Fatalf("unexpected error: %v", wrap.Err)
 	}
+
+	rows := wrap.Items()
 
 	if len(rows) != 2 {
 		t.Fatalf("got %d rows, want 2", len(rows))

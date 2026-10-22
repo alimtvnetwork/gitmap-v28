@@ -3,7 +3,7 @@ package runlog
 import (
 	"database/sql"
 	"fmt"
-t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"

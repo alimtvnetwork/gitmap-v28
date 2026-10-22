@@ -51,7 +51,7 @@ func buildFixLsRows(items []cmdremediation.RemediationItem) []termout.Row {
 }
 
 func buildSingleFixLsRow(idx int, item cmdremediation.RemediationItem) termout.Row {
-	branch, _ := gitutil.CurrentBranch(item.RepoPath)
+	branch := gitutil.CurrentBranch(item.RepoPath).Data
 	if branch == "" {
 		branch = "-"
 	}

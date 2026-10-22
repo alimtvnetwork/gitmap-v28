@@ -3,7 +3,7 @@ package commitin
 import (
 	"bytes"
 	"fmt"
-t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"strings"

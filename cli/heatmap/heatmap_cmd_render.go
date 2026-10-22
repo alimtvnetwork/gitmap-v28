@@ -118,7 +118,7 @@ func renderStatusText(out io.Writer, s store.HeatmapStatusSummary) {
 	printTopTouchedFiles(out, s.TopTouchedFiles)
 }
 
-func printTopTouchedFiles(out io.Writer, files []store.HeatmapTouchedFileSummary) {
+func printTopTouchedFiles(out io.Writer, files []store.FileTouchCount) {
 	if len(files) == 0 {
 		return
 	}

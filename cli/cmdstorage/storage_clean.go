@@ -34,7 +34,7 @@ func parseStorageCleanOptions(args []string) StorageCleanOptions {
 
 func executeStorageClean(opts StorageCleanOptions) (StorageCleanStats, error) {
 	var stats StorageCleanStats
-	repoRoot, _ := gitutil.RepoRoot(".")
+	repoRoot := gitutil.RepoRoot(".").Data
 	if repoRoot == "" {
 		return stats, nil
 	}

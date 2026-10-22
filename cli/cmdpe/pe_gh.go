@@ -143,12 +143,12 @@ func extractSlugPath(trimmed string) string {
 
 // gitLastCommitAge returns a human relative age of HEAD, or "unknown".
 func gitLastCommitAge(dir string) string {
-	out, runErr := gitutil.RunGitInDir(dir, constants.GitLog, constants.GitLimitOneFlag, constants.GitFormatRelative)
-	if runErr != nil {
+	res := gitutil.RunGitInDir(dir, constants.GitLog, constants.GitLimitOneFlag, constants.GitFormatRelative)
+	if res.IsFailure() {
 		return "unknown"
 	}
 
-	age := strings.TrimSpace(string(out))
+	age := strings.TrimSpace(string(res.Data))
 	if age == "" {
 		return "unknown"
 	}

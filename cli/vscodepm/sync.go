@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -101,7 +100,7 @@ func RenameByPath(rootPath, newName string) (bool, error) {
 func ListEntriesWrap() EntrySliceWrap {
 	path, err := ProjectsJSONPath()
 	if err != nil {
-		return result.FailSlice[Entry](err)
+		return result.FailSlice[Entry](apperror.WrapSimple(err, "vscode: resolve projects.json path"))
 	}
 	return ReadEntriesWrap(path)
 }

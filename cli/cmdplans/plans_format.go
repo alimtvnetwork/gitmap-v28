@@ -14,7 +14,7 @@ import (
 func RenderJSON(report PlansReport) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
-		return apperror.Wrap(err, "json.MarshalIndent plans")
+		return apperror.WrapSimple(err, "json.MarshalIndent plans")
 	}
 
 	fmt.Fprintln(os.Stdout, string(data))
@@ -26,7 +26,7 @@ func RenderJSON(report PlansReport) error {
 func RenderYAML(report PlansReport) error {
 	data, err := yaml.Marshal(report)
 	if err != nil {
-		return apperror.Wrap(err, "yaml.Marshal plans")
+		return apperror.WrapSimple(err, "yaml.Marshal plans")
 	}
 
 	fmt.Fprint(os.Stdout, string(data))

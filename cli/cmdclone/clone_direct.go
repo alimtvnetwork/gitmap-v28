@@ -195,7 +195,7 @@ func initDirectCloneTask(absPath string) (int64, *store.DB) {
 	return createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
 }
 
-func applyWinningProfile(absPath string, winningProfile *model.UserContextConfig) {
+func applyWinningProfile(absPath string, winningProfile *model.GitProfile) {
 	if winningProfile == nil {
 		return
 	}

@@ -202,7 +202,7 @@ func ListRuntimes() RuntimeListResultMonad {
 			list = append(list, buildRuntimeRecord(k, "", "missing", false))
 		}
 	}
-	return result.Ok(list)
+	return result.OkSlice(list)
 }
 
 func reprobeRuntime(db *sql.DB, norm string) RuntimeRecord {
@@ -227,5 +227,5 @@ func RefreshRuntimes() RuntimeListResultMonad {
 	for _, k := range known {
 		list = append(list, reprobeRuntime(db, normalizeRuntimeKey(k)))
 	}
-	return result.Ok(list)
+	return result.OkSlice(list)
 }

@@ -99,7 +99,7 @@ func wrapHostNotFoundError(target string) *apperror.AppError {
 func resolveCommaWrap(ctx context.Context, target string, db *sql.DB) SSHHostSliceWrap {
 	hosts, err := resolveCommaTargets(ctx, target, db)
 	if err != nil {
-		return result.FailSlice[SSHHost](err)
+		return result.FailSlice[SSHHost](apperror.WrapSimple(err, "resolveCommaTargets"))
 	}
 
 	return result.OkSlice(hosts)
@@ -112,7 +112,7 @@ func resolveGroupWrap(ctx context.Context, target string, db *sql.DB) (SSHHostSl
 	}
 
 	if err != nil {
-		return result.FailSlice[SSHHost](err), true
+		return result.FailSlice[SSHHost](apperror.WrapSimple(err, "resolveGroupTarget")), true
 	}
 
 	return result.OkSlice(hosts), true
@@ -125,7 +125,7 @@ func resolveSingleWrap(ctx context.Context, target string, db *sql.DB) (SSHHostS
 	}
 
 	if err != nil {
-		return result.FailSlice[SSHHost](err), true
+		return result.FailSlice[SSHHost](apperror.WrapSimple(err, "findHostByAliasOrIP")), true
 	}
 
 	return result.OkSlice(hosts), true

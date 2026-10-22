@@ -62,10 +62,12 @@ func addTestOriginRemote(t *testing.T, dir, url string) {
 func TestGetRepoConfig_ValidKey(t *testing.T) {
 	dir := initTestGitRepo(t)
 	setTestGitConfig(t, dir, "test.user.name", "gitmap-tester")
-	val, err := GetRepoConfig(dir, "test.user.name")
-	if err != nil {
-		t.Fatalf("GetRepoConfig error: %v", err)
+	res := GetRepoConfig(dir, "test.user.name")
+	if res.IsFailure() {
+		t.Fatalf("GetRepoConfig error: %v", res.Err)
 	}
+
+	val := res.Data
 
 	if val != "gitmap-tester" {
 		t.Fatalf("GetRepoConfig = %q, want %q", val, "gitmap-tester")
@@ -74,8 +76,8 @@ func TestGetRepoConfig_ValidKey(t *testing.T) {
 
 func TestGetRepoConfig_NonExistentKey(t *testing.T) {
 	dir := initTestGitRepo(t)
-	_, err := GetRepoConfig(dir, "nonexistent.config.key")
-	hasErr := err != nil
+	res := GetRepoConfig(dir, "nonexistent.config.key")
+	hasErr := res.IsFailure()
 	if !hasErr {
 		t.Fatal("GetRepoConfig expected error for non-existent key, got nil")
 	}
@@ -104,9 +106,10 @@ func TestReadRemoteOriginURL(t *testing.T) {
 	dir := initTestGitRepo(t)
 	testURL := "https://github.com/example/repo.git"
 	setTestGitConfig(t, dir, constants.GitRemoteOrigin, testURL)
-	readVal, err := ReadRemoteOriginURL(dir)
-	if err != nil || readVal != testURL {
-		t.Fatalf("ReadRemoteOriginURL = (%q, %v), want (%q, nil)", readVal, err, testURL)
+	res := ReadRemoteOriginURL(dir)
+	readVal := res.Data
+	if res.IsFailure() || readVal != testURL {
+		t.Fatalf("ReadRemoteOriginURL = (%q, %v), want (%q, nil)", readVal, res.Err, testURL)
 	}
 }
 
@@ -127,10 +130,12 @@ func TestRemoteURL_Delegation(t *testing.T) {
 	dir := initTestGitRepo(t)
 	expectedURL := "https://github.com/example/delegated.git"
 	setTestGitConfig(t, dir, constants.GitRemoteOrigin, expectedURL)
-	gotURL, err := RemoteURL(dir)
-	if err != nil {
-		t.Fatalf("RemoteURL error: %v", err)
+	res := RemoteURL(dir)
+	if res.IsFailure() {
+		t.Fatalf("RemoteURL error: %v", res.Err)
 	}
+
+	gotURL := res.Data
 
 	if gotURL != expectedURL {
 		t.Fatalf("RemoteURL = %q, want %q", gotURL, expectedURL)

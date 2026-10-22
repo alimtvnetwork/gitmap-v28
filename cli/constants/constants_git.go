@@ -131,6 +131,7 @@ const (
 // SSH environment and option constants used by git clone wrappers.
 const (
 	TransportSSH              = "ssh"
+	TransportHTTPS            = "https"
 	EnvGitSSHCommand          = "GIT_SSH_COMMAND"
 	SSHOptionFlag             = "-o"
 	SSHStrictHostKeyChecking  = "StrictHostKeyChecking"

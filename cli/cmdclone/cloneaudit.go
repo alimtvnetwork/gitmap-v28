@@ -16,7 +16,10 @@ import (
 // rejected so the audit always operates on a manifest the user can
 // inspect later.
 func runCloneAudit(cf CloneFlags) error {
-	source := resolveCloneShorthand(cf.Source)
+	source, shorthandErr := resolveCloneShorthand(cf.Source)
+	if shorthandErr != nil {
+		return shorthandErr
+	}
 	if isDirectURL(source) {
 		fmt.Fprint(os.Stderr, constants.ErrCloneAuditDirectURL)
 

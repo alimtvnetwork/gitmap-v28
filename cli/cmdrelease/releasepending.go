@@ -75,7 +75,7 @@ func rejectVersionArgOnPending(args []string) error {
 			continue
 		}
 
-		return apperror.NewUsageError(fmt.Sprintf(
+		return apperror.NewValidationError(fmt.Sprintf(
 			"gitmap release-pending takes no version argument (got %q); did you mean: gitmap pr %s or gitmap release %s",
 			a, a, a,
 		))

@@ -63,10 +63,12 @@ func parseVersionHistoryFlags(args []string) (int, bool) {
 
 // resolveVersionHistoryPath resolves the repo path for version history lookup.
 func resolveVersionHistoryPath(cwd string) string {
-	remoteURL, err := gitutil.RemoteURL(cwd)
-	if err != nil {
+	remoteRes := gitutil.RemoteURL(cwd)
+	if remoteRes.IsFailure() {
 		return cwd
 	}
+
+	remoteURL := remoteRes.Data
 
 	repoName := cmdclone.ExtractRepoName(remoteURL)
 	parsed := clonenext.ParseRepoName(repoName)

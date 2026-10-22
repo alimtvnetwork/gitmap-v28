@@ -10,18 +10,6 @@ type (
 	// ScanRecordSlice is a slice of ScanRecord.
 	ScanRecordSlice = []model.ScanRecord
 
-	// ScanRecordWrap is the canonical single reusable result container for ScanRecord.
-	ScanRecordWrap = result.Wrap[model.ScanRecord]
-
-	// ScanRecordSliceWrap is the canonical single reusable collection container for ScanRecord.
-	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
-
-	// ScanRecordMapWrap is the canonical single reusable keyed lookup container for ScanRecord.
-	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
-
-	// RepoPathWrap is the canonical single reusable result container for repository paths.
-	RepoPathWrap = result.Wrap[string]
-
 	// HeatmapActionLogRecordSliceWrap is the canonical collection container for HeatmapActionLogRecord.
 	HeatmapActionLogRecordSliceWrap = result.WrapSlice[HeatmapActionLogRecord]
 
@@ -49,58 +37,15 @@ type (
 	// RepoCountWrap is the canonical result container for integer repo counts.
 	RepoCountWrap = result.Wrap[int]
 
-	SSHHostSliceWrap = result.WrapSlice[SSHHost]
-	SSHKeySliceWrap = result.WrapSlice[model.SSHKey]
-	SSHKnownHostSliceWrap = result.WrapSlice[SSHKnownHost]
-	SSHHistorySliceWrap = result.WrapSlice[SSHHistory]
+	SSHHostSliceWrap           = result.WrapSlice[SSHHost]
+	SSHKeySliceWrap            = result.WrapSlice[model.SSHKey]
+	SSHKnownHostSliceWrap      = result.WrapSlice[SSHKnownHost]
+	SSHHistorySliceWrap        = result.WrapSlice[SSHHistory]
 	TaskHistoryRecordSliceWrap = result.WrapSlice[model.TaskHistoryRecord]
-	AliasSliceWrap = result.WrapSlice[model.Alias]
-	AliasWithRepoSliceWrap = result.WrapSlice[AliasWithRepo]
-	UnaliasedRepoSliceWrap = result.WrapSlice[UnaliasedRepo]
-	BookmarkRecordSliceWrap = result.WrapSlice[model.BookmarkRecord]
-	ReleaseRecordSliceWrap = result.WrapSlice[model.ReleaseRecord]
-	WorkDirSliceWrap = result.WrapSlice[model.WorkDir]
+	AliasSliceWrap             = result.WrapSlice[model.Alias]
+	AliasWithRepoSliceWrap     = result.WrapSlice[AliasWithRepo]
+	UnaliasedRepoSliceWrap     = result.WrapSlice[UnaliasedRepo]
+	BookmarkRecordSliceWrap    = result.WrapSlice[model.BookmarkRecord]
+	ReleaseRecordSliceWrap     = result.WrapSlice[model.ReleaseRecord]
+	WorkDirSliceWrap           = result.WrapSlice[model.WorkDir]
 )
-
-// HeatmapActionLogRecord models an action log entry for heatmap rendering.
-type HeatmapActionLogRecord struct {
-	ID        int64  `json:"id"`
-	Timestamp string `json:"timestamp"`
-	Action    string `json:"action"`
-	Status    string `json:"status"`
-	Path      string `json:"path"`
-}
-
-// HeatmapExecutionTreeNode models a node in the execution tree.
-type HeatmapExecutionTreeNode struct {
-	NodeID   string `json:"nodeId"`
-	ParentID string `json:"parentId"`
-	Name     string `json:"name"`
-	Status   string `json:"status"`
-}
-
-// HeatmapStatusSummary models status aggregation metrics.
-type HeatmapStatusSummary struct {
-	Total      int `json:"total"`
-	Successful int `json:"successful"`
-	Failed     int `json:"failed"`
-}
-
-// HeatmapTaskSummary models task summary metrics.
-type HeatmapTaskSummary struct {
-	TaskID    string `json:"taskId"`
-	State     string `json:"state"`
-	DurationMs int64 `json:"durationMs"`
-}
-
-// FileTouchCount models file touch frequency.
-type FileTouchCount struct {
-	FilePath   string `json:"filePath"`
-	TouchCount int    `json:"touchCount"`
-}
-
-// DuplicateRepoGroup models a group of duplicate repositories.
-type DuplicateRepoGroup struct {
-	CanonicalPath string   `json:"canonicalPath"`
-	DuplicatePaths []string `json:"duplicatePaths"`
-}

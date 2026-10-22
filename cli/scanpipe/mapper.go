@@ -95,7 +95,7 @@ func relativePathFor(repo RepoInfo, relRoot string) string {
 // fallback branch name is taken from opts.DefaultBranch when set and
 // from constants.DefaultBranch otherwise — see resolveDefaultBranch.
 func buildOneRecord(repo RepoInfo, opts BuildOptions) model.ScanRecord {
-	remoteURL, _ := gitutil.RemoteURL(repo.AbsolutePath)
+	remoteURL := gitutil.RemoteURL(repo.AbsolutePath).Data
 	httpsURL := toHTTPS(remoteURL)
 	sshURL := toSSH(remoteURL)
 	transport := classifyTransport(remoteURL)

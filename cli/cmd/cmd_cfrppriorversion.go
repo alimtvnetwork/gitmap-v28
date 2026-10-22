@@ -62,10 +62,12 @@ func resolvePriorScanIdentity(absPath string) (string, int) {
 		return "", 0
 	}
 
-	remoteURL, err := gitutil.RemoteURL(absPath)
-	if err != nil {
+	remoteRes := gitutil.RemoteURL(absPath)
+	if remoteRes.IsFailure() {
 		return "", 0
 	}
+
+	remoteURL := remoteRes.Data
 
 	repoName := cmdclone.RepoNameFromURL(remoteURL)
 	parsed := clonenext.ParseRepoName(repoName)
@@ -80,8 +82,9 @@ func resolvePriorScanIdentity(absPath string) (string, int) {
 // cloned repo so we know which provider CLI to invoke against the
 // owner's prior-version slugs.
 func resolvePriorScanProvider(absPath string) (cmdvisibility.VisibilityContext, bool) {
-	remoteURL, err := gitutil.RemoteURL(absPath)
-	if err != nil || len(remoteURL) == 0 {
+	remoteRes := gitutil.RemoteURL(absPath)
+	remoteURL := remoteRes.Data
+	if remoteRes.IsFailure() || len(remoteURL) == 0 {
 		return cmdvisibility.VisibilityContext{}, false
 	}
 

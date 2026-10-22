@@ -241,14 +241,14 @@ func Status(repoPath string) RepoStatus {
 		return rs
 	}
 
-	branch, err := CurrentBranch(repoPath)
-	if err != nil {
+	branchRes := CurrentBranch(repoPath)
+	if branchRes.IsFailure() {
 		rs.Unreachable = true
 
 		return rs
 	}
 
-	rs.Branch = branch
+	rs.Branch = branchRes.Data
 	rs.Dirty, rs.Untracked, rs.Modified, rs.Staged = parsePortcelainStatus(repoPath)
 	rs.Ahead, rs.Behind = parseAheadBehind(repoPath)
 	rs.StashCount = countStashes(repoPath)

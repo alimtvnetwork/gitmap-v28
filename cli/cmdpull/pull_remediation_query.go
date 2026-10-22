@@ -49,7 +49,7 @@ func convertRecordsToFailures(records []store.PullErrorRecord) []PullFailureSumm
 		hasPath := r.RepoPath != ""
 		if hasPath && !seen[r.RepoPath] {
 			seen[r.RepoPath] = true
-			repoID, remoteURL := LookupRepoRemoteAndID(r.RepoPath)
+			repoID, remoteURL, _ := LookupRepoRemoteAndID(r.RepoPath)
 			failures = append(failures, PullFailureSummary{
 				RepoID:    repoID,
 				RepoName:  r.RepoSlug,
@@ -147,7 +147,7 @@ func ExtractPullFailures(states []*PullRepoState) []PullFailureSummary {
 	var failures []PullFailureSummary
 	for _, s := range states {
 		if s.ErrorMsg != "" || s.Step == PullStepTypeError {
-			repoID, remoteURL := LookupRepoRemoteAndID(s.RepoPath)
+			repoID, remoteURL, _ := LookupRepoRemoteAndID(s.RepoPath)
 			failures = append(failures, PullFailureSummary{
 				RepoID:    repoID,
 				RepoName:  s.RepoName,
