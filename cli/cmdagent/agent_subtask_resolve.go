@@ -116,17 +116,28 @@ func listSubtasksBothForms(dbPath, canonicalId, rawTaskId string) ([]types.Subta
 		return nil, idErr
 	}
 
+	subtasks := resolveScopedOrAllSubtasks(dbPath, canonicalId, rawTaskId, byId)
+	if len(subtasks) == 0 {
+		all, _ := store.ListSubtasks(dbPath, "")
+
+		return all, nil
+	}
+
+	return subtasks, nil
+}
+
+func resolveScopedOrAllSubtasks(dbPath, canonicalId, rawTaskId string, byId []types.Subtask) []types.Subtask {
 	slugForm := store.SanitizeSlug(rawTaskId)
 	if slugForm == canonicalId || len(strings.TrimSpace(rawTaskId)) == 0 {
-		return byId, nil
+		return byId
 	}
 
 	bySlug, slugErr := store.ListSubtasks(dbPath, slugForm)
 	if slugErr != nil {
-		return nil, slugErr
+		return byId
 	}
 
-	return mergeSubtasksDedupe(byId, bySlug), nil
+	return mergeSubtasksDedupe(byId, bySlug)
 }
 
 func normalizeSubtaskParents(subtasks []types.Subtask, rawParentId, canonicalParentId string) []types.Subtask {

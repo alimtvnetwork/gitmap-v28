@@ -179,39 +179,56 @@ func RenderTaskInitResult(task types.ParentTask) {
 	renderTaskInitResult(task)
 }
 
-func renderTaskInitResult(task types.ParentTask) {
-	cwd, _ := os.Getwd()
-	relDbPath := toRelativePath(cwd, task.RootDbPath)
-	masterDb := store.ResolveMasterAgentDbPath("")
-	relMasterDb := toRelativePath(cwd, masterDb)
-
-	rootDbInfo := map[string]any{
+func buildTaskInitRootDbInfo(relMasterDb, relDbPath string) map[string]any {
+	return map[string]any{
 		"masterDbPath": relMasterDb,
 		"taskDbPath":   relDbPath,
 		"schema":       "ParentTaskRegistry, AgentRegistry, GlobalLifecycleMetrics",
 	}
+}
 
-	queryCommands := []string{
+func buildTaskInitQueryCommands(relDbPath, relMasterDb string, task types.ParentTask) []string {
+	return []string{
 		"gitmap agent task ls",
-		"gitmap agent subtask list --task-id " + task.ParentTaskId,
-		fmt.Sprintf("sqlite3 %s \"SELECT * FROM tasks;\"", relDbPath),
-		fmt.Sprintf("sqlite3 %s \"SELECT * FROM parent_tasks WHERE parent_task_id = '%s';\"", relMasterDb, task.ParentTaskId),
+		"gitmap agent subtask ls " + task.TaskSlug,
+		"gitmap agent status " + task.TaskSlug,
+		fmt.Sprintf("sqlite3 %s \"SELECT TaskCode, Status, Title FROM Subtask;\"", relDbPath),
+		fmt.Sprintf("sqlite3 %s \"SELECT parent_task_id, task_slug, status FROM ParentTaskRegistry WHERE task_slug = '%s';\"", relMasterDb, task.TaskSlug),
 	}
+}
 
-	out := map[string]any{
-		"status":        "success",
-		"parentTaskId":  task.ParentTaskId,
-		"taskSlug":      task.TaskSlug,
-		"taskName":      task.TaskName,
-		"rootDbPath":    task.RootDbPath,
-		"databasePath":  relDbPath,
-		"masterDbPath":  relMasterDb,
-		"rootDbInfo":    rootDbInfo,
-		"queryCommands": queryCommands,
-		"runDirectory":  task.RunDirectory,
-		"budget":        task.TotalStepsBudget,
+func buildTaskInitVariables(task types.ParentTask) map[string]string {
+	return map[string]string{
+		"task":       task.TaskSlug,
+		"powershell": fmt.Sprintf("$TASK = \"%s\"; gitmap agent subtask ls $TASK", task.TaskSlug),
+		"bash":       fmt.Sprintf("TASK=\"%s\"; gitmap agent subtask ls $TASK", task.TaskSlug),
 	}
+}
+
+func composeTaskInitJsonPayload(task types.ParentTask, relDbPath, relMasterDb string) map[string]any {
+	return map[string]any{
+		"status":          "success",
+		"parentTaskId":    task.ParentTaskId,
+		"taskSlug":        task.TaskSlug,
+		"taskName":        task.TaskName,
+		"rootDbPath":      task.RootDbPath,
+		"databasePath":    relDbPath,
+		"masterDbPath":    relMasterDb,
+		"rootDbInfo":      buildTaskInitRootDbInfo(relMasterDb, relDbPath),
+		"queryCommands":   buildTaskInitQueryCommands(relDbPath, relMasterDb, task),
+		"variableHelpers": buildTaskInitVariables(task),
+		"runDirectory":    task.RunDirectory,
+		"budget":          task.TotalStepsBudget,
+	}
+}
+
+func renderTaskInitResult(task types.ParentTask) {
+	cwd, _ := os.Getwd()
+	relDbPath := toRelativePath(cwd, task.RootDbPath)
+	relMasterDb := toRelativePath(cwd, store.ResolveMasterAgentDbPath(""))
+	out := composeTaskInitJsonPayload(task, relDbPath, relMasterDb)
 	b, _ := json.MarshalIndent(out, "", "  ")
+
 	fmt.Println(string(b))
 }
 
