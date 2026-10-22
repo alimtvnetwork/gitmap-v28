@@ -25,6 +25,8 @@ func runDb(args []string) error {
 		return result.AsError(result.MatchWrapper(runDBStatus(args[1:])))
 	case "optimize", "opt":
 		return result.AsError(result.MatchWrapper(runDBOptimize(args[1:])))
+	case "vacuum", "vac":
+		return result.AsError(result.MatchWrapper(runDBVacuum(args[1:])))
 	case "ls", "list":
 		if len(args) > 1 {
 			return DispatchDbSubsystem(context.Background(), args, os.Stdout)
@@ -37,47 +39,19 @@ func runDb(args []string) error {
 	case "sizes", "size":
 		return result.AsError(result.MatchWrapper(runDBSizes(args[1:])))
 	case "doctor", "doc":
-		appErr := RunDbDoctor(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbDoctor(args[1:])
 	case "listing", "dbl":
-		appErr := RunDbListing(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbListing(args[1:])
 	case "read", "dbr", "db-read":
-		appErr := RunDbRead(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbRead(args[1:])
 	case "add", "db-add":
-		appErr := RunDbAdd(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbAdd(args[1:])
 	case "edit", "db-edit":
-		appErr := RunDbEdit(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbEdit(args[1:])
 	case "find", "db-find":
-		appErr := RunDbFind(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbFind(args[1:])
 	case "view", "db-view":
-		appErr := RunDbView(args[1:])
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbView(args[1:])
 	case "reset":
 		return result.AsError(result.MatchWrapper(runDbResetAction(args[1:])))
 	case "clear":
@@ -122,29 +96,13 @@ func DispatchDbSubsystem(ctx context.Context, args []string, out io.Writer) erro
 		}
 		return RunDbList(tableArg, opts.DbPath, opts.Limit, opts.IsJson, out)
 	case "add":
-		appErr := RunDbAdd(pos)
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbAdd(pos)
 	case "edit":
-		appErr := RunDbEdit(pos)
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbEdit(pos)
 	case "find":
-		appErr := RunDbFind(pos)
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbFind(pos)
 	case "view":
-		appErr := RunDbView(pos)
-		if appErr != nil {
-			return appErr
-		}
-		return nil
+		return RunDbView(pos)
 	case "help", "--help", "-h", "":
 		return printDbHelp(out)
 	default:
