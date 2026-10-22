@@ -64,6 +64,8 @@ var generatedCommandsPart2 = []string{
 	"pending-commits",
 	"pf",
 	"ph",
+	"plan",
+	"plans",
 	"pnr",
 	"power",
 	"pr",
@@ -253,6 +255,4 @@ var generatedCommandsPart2 = []string{
 	"ud",
 	"un",
 	"undo",
-	"uninstall",
-	"unzip-compact",
 }
