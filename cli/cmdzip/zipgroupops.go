@@ -23,7 +23,7 @@ func runZipGroupRemove(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -43,7 +43,7 @@ func runZipGroupRemove(args []string) error {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -65,7 +65,7 @@ func runZipGroupRemove(args []string) error {
 			apperror.SeverityError,
 			map[string]any{"group": groupName, "path": rawPath},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -88,7 +88,7 @@ func runZipGroupDelete(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -107,7 +107,7 @@ func runZipGroupDelete(args []string) error {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -126,7 +126,7 @@ func runZipGroupDelete(args []string) error {
 			apperror.SeverityError,
 			map[string]any{"name": name},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -150,7 +150,7 @@ func runZipGroupRename(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -165,7 +165,7 @@ func runZipGroupRename(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -202,7 +202,7 @@ func executeZipGroupRename(name, archiveName string) {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -221,7 +221,7 @@ func executeZipGroupRename(name, archiveName string) {
 			apperror.SeverityError,
 			map[string]any{"name": name, "archive": archiveName},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

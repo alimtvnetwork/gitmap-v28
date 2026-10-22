@@ -56,7 +56,7 @@ func runVSCodeWorkspace(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -192,7 +192,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 			apperror.SeverityError,
 			map[string]any{"path": flags.out},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -220,7 +220,7 @@ func writeWorkspaceFile(flags vscodeWorkspaceFlags, folders []vscodeworkspace.Fo
 			apperror.SeverityError,
 			map[string]any{"outPath": outPath},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

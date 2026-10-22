@@ -26,7 +26,7 @@ func runZipGroupList() error {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -45,7 +45,7 @@ func runZipGroupList() error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -88,7 +88,7 @@ func runZipGroupShow(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -113,7 +113,7 @@ func executeZipGroupShow(name string) {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -132,7 +132,7 @@ func executeZipGroupShow(name string) {
 			apperror.SeverityError,
 			map[string]any{"group": name},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

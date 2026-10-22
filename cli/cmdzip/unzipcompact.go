@@ -38,7 +38,7 @@ func runUnzipCompact(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -56,7 +56,7 @@ func runUnzipCompact(args []string) error {
 			apperror.SeverityError,
 			map[string]any{"src": src},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -91,7 +91,7 @@ func parseUnzipCompactFlags(args []string) (listMode bool, positional []string) 
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 	}
 
 	return listMode, fs.Args()
@@ -135,7 +135,7 @@ func runListMode(ctx context.Context, path string) error {
 			apperror.SeverityError,
 			map[string]any{"path": path},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -187,7 +187,7 @@ func executeCompactExtract(
 			apperror.SeverityError,
 			map[string]any{"path": resolved.LocalPath, "dest": dest},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

@@ -31,7 +31,7 @@ func Print(command string) {
 func PrintWithMode(command string, mode render.PrettyModeType) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintWithMode", "E1071", command), 1)
+		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintWithMode", "E1071", command), int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -53,7 +53,7 @@ func PrintWithMode(command string, mode render.PrettyModeType) {
 func PrintRaw(command string) {
 	data, err := ReadRaw(command)
 	if err != nil {
-		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintRaw", "E1072", command), 1)
+		cliexit.HandleError(wrapHelpUnavailableError(err, "helptext.PrintRaw", "E1072", command), int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

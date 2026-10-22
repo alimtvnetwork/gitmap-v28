@@ -47,7 +47,7 @@ func RunAuditLegacy(args []string) error {
 	hits, n, walkErr := scanAuditLegacy(opts)
 	if walkErr != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrAuditLegacyWalk, opts.Root, walkErr)
-		cliexit.HandleError(walkErr, 2)
+		cliexit.HandleUsageError(walkErr)
 	}
 
 	emitAuditLegacy(opts, hits, n)

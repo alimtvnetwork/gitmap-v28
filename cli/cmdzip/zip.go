@@ -38,7 +38,7 @@ func runZip(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -53,7 +53,7 @@ func runZip(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -68,7 +68,7 @@ func runZip(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -88,7 +88,7 @@ func runZip(args []string) error {
 			apperror.SeverityError,
 			map[string]any{"sources": sources},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -256,7 +256,7 @@ func executeZip(ctx context.Context, opts archive.CreateOptions, originalSrcs []
 			apperror.SeverityError,
 			map[string]any{"outputPath": opts.OutputPath},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}

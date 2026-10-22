@@ -26,7 +26,7 @@ func runZipGroupCreate(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -68,7 +68,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -87,7 +87,7 @@ func executeZipGroupCreate(name, archiveName string, paths []string) {
 			apperror.SeverityError,
 			map[string]any{"name": name},
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -127,7 +127,7 @@ func runZipGroupAdd(args []string) error {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}
@@ -147,7 +147,7 @@ func runZipGroupAdd(args []string) error {
 			apperror.SeverityFatal,
 			nil,
 		)
-		cliexit.HandleError(appErr, 1)
+		cliexit.HandleError(appErr, int(cliexit.ExitCodeGeneralError))
 
 		return nil
 	}

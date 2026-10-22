@@ -75,5 +75,5 @@ func dispatchZipGroup(sub string, args []string) {
 		apperror.SeverityError,
 		map[string]any{"subcommand": sub},
 	)
-	cliexit.HandleError(err, 1)
+	cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 }

@@ -109,7 +109,7 @@ func handleVSCodeAdd(args []string) {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
@@ -133,7 +133,7 @@ func handleVSCodeRm(args []string) {
 			apperror.SeverityError,
 			nil,
 		)
-		cliexit.HandleError(err, 1)
+		cliexit.HandleError(err, int(cliexit.ExitCodeGeneralError))
 
 		return
 	}
