@@ -1,12 +1,11 @@
 package store
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/uuidutil"
 )
 
 const (
@@ -269,10 +268,5 @@ func scanInstallLogRow(scanner interface{ Scan(dest ...any) error }) (*InstallLo
 }
 
 func generateInstallLogID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	return uuidutil.GenerateUUID()
 }

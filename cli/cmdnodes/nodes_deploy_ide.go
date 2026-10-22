@@ -5,10 +5,8 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
-	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"net/url"
 	"os"
@@ -22,6 +20,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/uuidutil"
 )
 
 const windowsProjectsScript = `$tags = @("gitmap")
@@ -204,30 +203,6 @@ func encodePowerShell(script string) string {
 	return base64.StdEncoding.EncodeToString(buf)
 }
 
-func formatUUIDBytes(b []byte) string {
-	dst := make([]byte, 36)
-	hex.Encode(dst, b[:4])
-	dst[8] = '-'
-	hex.Encode(dst[9:13], b[4:6])
-	dst[13] = '-'
-	hex.Encode(dst[14:18], b[6:8])
-	dst[18] = '-'
-	hex.Encode(dst[19:23], b[8:10])
-	dst[23] = '-'
-	hex.Encode(dst[24:], b[10:])
-
-	return string(dst)
-}
-
-func generateDeployUUID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-
-	return formatUUIDBytes(b)
-}
-
 func formatFolderFileURI(remotePath string, isWin bool) string {
 	cleanPath := filepath.ToSlash(strings.TrimSpace(remotePath))
 	if isWin {
@@ -280,7 +255,7 @@ func buildWindowsRemoteIDECommand(repoName, remoteRepoPath string, hasPinned boo
 }
 
 func buildWindowsFallbackScript(repoName, cleanRoot string, hasPinned bool) string {
-	uuidStr := generateDeployUUID()
+	uuidStr := uuidutil.GenerateUUID()
 	fileURI := formatWindowsFileURI(cleanRoot)
 	header := fmt.Sprintf("$name = '%s'; $root = '%s'; $withPinned = %s; $uuid = '%s'; $fileUri = '%s'; ",
 		repoName, cleanRoot, formatPinnedFlag(hasPinned), uuidStr, fileURI)
@@ -300,7 +275,7 @@ func buildLinuxRemoteIDECommand(repoName, remoteRepoPath string, hasPinned bool)
 }
 
 func buildLinuxFallbackScript(repoName, remoteRepoPath string) string {
-	uuidStr := generateDeployUUID()
+	uuidStr := uuidutil.GenerateUUID()
 	cleanPath := filepath.ToSlash(strings.TrimSpace(remoteRepoPath))
 	fileURI := formatUnixFileURI(cleanPath)
 

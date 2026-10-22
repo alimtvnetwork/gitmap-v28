@@ -1,9 +1,7 @@
 package cmdide
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -14,6 +12,7 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/uuidutil"
 )
 
 // VSCodeRecentEntry represents a single item in history.recentlyOpenedPathsList.
@@ -278,7 +277,7 @@ func appendPinnedStoreEntry(pinnedPath, repoPath, repoName string) error {
 	nowStr := time.Now().UTC().Format(time.RFC3339Nano)
 	store := loadOrCreatePinnedStore(pinnedPath, nowStr)
 	entry := PinnedProjectEntry{
-		ID:       generatePinnedUUID(),
+		ID:       uuidutil.GenerateUUID(),
 		Name:     repoName,
 		Path:     repoPath,
 		Branch:   "main",
@@ -333,23 +332,4 @@ func upsertPinnedEntry(list []PinnedProjectEntry, entry PinnedProjectEntry) []Pi
 	}
 
 	return append(list, entry)
-}
-
-func generatePinnedUUID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-	dst := make([]byte, 36)
-	hex.Encode(dst, b[:4])
-	dst[8] = '-'
-	hex.Encode(dst[9:13], b[4:6])
-	dst[13] = '-'
-	hex.Encode(dst[14:18], b[6:8])
-	dst[18] = '-'
-	hex.Encode(dst[19:23], b[8:10])
-	dst[23] = '-'
-	hex.Encode(dst[24:], b[10:])
-
-	return string(dst)
 }
