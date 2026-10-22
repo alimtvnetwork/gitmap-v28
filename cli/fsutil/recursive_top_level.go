@@ -38,10 +38,11 @@ func DiscoverTopLevelGitRepos(rootDir string) ([]string, error) {
 			return nil
 		}
 
+		if !IsValidGitRepo(path) && path != rootDir {
+			return filepath.SkipDir
+		}
+
 		if !IsValidGitRepo(path) {
-			if path != rootDir {
-				return filepath.SkipDir
-			}
 			return nil
 		}
 

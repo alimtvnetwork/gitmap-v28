@@ -71,10 +71,14 @@ func LookupHelpExample(verb string) (HelpExample, bool) {
 		return ex, true
 	}
 
-	if aliased := resolveHelpAlias(key); aliased != key {
-		if ex, ok := helpExampleRegistry[aliased]; ok {
-			return ex, true
-		}
+	aliased := resolveHelpAlias(key)
+	if aliased == key {
+		return HelpExample{}, false
+	}
+
+	ex, ok := helpExampleRegistry[aliased]
+	if ok {
+		return ex, true
 	}
 
 	return HelpExample{}, false

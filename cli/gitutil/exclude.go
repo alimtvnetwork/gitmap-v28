@@ -11,11 +11,7 @@ func EnsureGitMapExcluded(repoRoot string) {
 	excludeFile := filepath.Join(repoRoot, ".git", "info", "exclude")
 	data, err := os.ReadFile(excludeFile)
 	if err != nil {
-		infoDir := filepath.Join(repoRoot, ".git", "info")
-		if stat, statErr := os.Stat(filepath.Join(repoRoot, ".git")); statErr == nil && stat.IsDir() {
-			_ = os.MkdirAll(infoDir, 0o755)
-			_ = os.WriteFile(excludeFile, []byte(".gitmap/\n"), 0o644)
-		}
+		initGitMapExclude(repoRoot, excludeFile)
 
 		return
 	}
@@ -25,4 +21,15 @@ func EnsureGitMapExcluded(repoRoot string) {
 	}
 
 	_ = os.WriteFile(excludeFile, append(data, []byte("\n.gitmap/\n")...), 0o644)
+}
+
+func initGitMapExclude(repoRoot string, excludeFile string) {
+	infoDir := filepath.Join(repoRoot, ".git", "info")
+	stat, statErr := os.Stat(filepath.Join(repoRoot, ".git"))
+	if statErr != nil || !stat.IsDir() {
+		return
+	}
+
+	_ = os.MkdirAll(infoDir, 0o755)
+	_ = os.WriteFile(excludeFile, []byte(".gitmap/\n"), 0o644)
 }

@@ -73,15 +73,16 @@ func IsValidGitRepo(repoPath string) bool {
 		return false
 	}
 
-	// If .git is a file (worktree or submodule pointer), it MUST start with "gitdir:"
-	if !fi.IsDir() {
-		data, errRead := os.ReadFile(gitPath)
-		if errRead != nil {
-			return false
-		}
-		trimmed := strings.TrimSpace(string(data))
-		return strings.HasPrefix(trimmed, "gitdir:")
+	if fi.IsDir() {
+		return true
 	}
 
-	return true
+	data, errRead := os.ReadFile(gitPath)
+	if errRead != nil {
+		return false
+	}
+
+	trimmed := strings.TrimSpace(string(data))
+
+	return strings.HasPrefix(trimmed, "gitdir:")
 }

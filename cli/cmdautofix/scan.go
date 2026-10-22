@@ -70,10 +70,11 @@ func Scan(opts Options) (*ScanResult, error) {
 		return nil, err
 	}
 	for _, cat := range cats {
-		if cat.Exec {
-			if terr := catToolCheck(cat.Name); terr != nil {
-				return nil, terr
-			}
+		if !cat.Exec {
+			continue
+		}
+		if terr := catToolCheck(cat.Name); terr != nil {
+			return nil, terr
 		}
 	}
 
@@ -114,10 +115,11 @@ func Scan(opts Options) (*ScanResult, error) {
 			if err != nil {
 				return nil
 			}
+			if d.IsDir() && d.Name() == ".git" {
+				return filepath.SkipDir
+			}
+
 			if d.IsDir() {
-				if d.Name() == ".git" {
-					return filepath.SkipDir
-				}
 				return nil
 			}
 			fileCh <- path

@@ -46,11 +46,12 @@ func RunFixCmd(args []string) error {
 		RenderFixHelp()
 		cliexit.Exit(0)
 	}
+	if !isFixSubcommand(sub) && isHelpFlag(sub) {
+		renderCategoryOrParentHelp(rest)
+		cliexit.Exit(0)
+	}
+
 	if !isFixSubcommand(sub) {
-		if isHelpFlag(sub) {
-			renderCategoryOrParentHelp(rest)
-			cliexit.Exit(0)
-		}
 		// The old git-state `fix` surface moved; warn on stderr,
 		// then error as before.
 		fmt.Fprint(os.Stderr, constants.MsgFixGitStateDeprecated)
@@ -79,10 +80,12 @@ func RunFixCmd(args []string) error {
 	asJSON := fs.Bool("json", false, "Machine-readable report (no prompt unless -y)")
 	noCache := fs.Bool("no-cache", false, "Bypass the scan-result cache")
 
-	if err := fs.Parse(rest); err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			cliexit.Exit(0)
-		}
+	err := fs.Parse(rest)
+	if err != nil && errors.Is(err, flag.ErrHelp) {
+		cliexit.Exit(0)
+	}
+
+	if err != nil {
 		cliexit.HandleUsageError(fmt.Errorf("parse fix flags: %w", err))
 	}
 
@@ -116,10 +119,11 @@ func RunFixCmd(args []string) error {
 	}
 
 	result, err := Scan(opts)
+	if err != nil && errors.Is(err, errToolMissing) {
+		cliexit.Fail("fix", "tool check", "", err, 2)
+	}
+
 	if err != nil {
-		if errors.Is(err, errToolMissing) {
-			cliexit.Fail("fix", "tool check", "", err, 2)
-		}
 		cliexit.HandleUsageError(err)
 	}
 
@@ -217,20 +221,31 @@ func askApply() bool {
 	return askApplyTerminal()
 }
 
+func resolveTerminalStdin() (*os.File, func()) {
+	if runtime.GOOS == "windows" {
+		return os.Stdin, func() {}
+	}
+	f, err := os.OpenFile("/dev/stdin", os.O_RDONLY, 0)
+	if err != nil {
+		return os.Stdin, func() {}
+	}
+
+	return f, func() {
+		_ = f.Close()
+	}
+}
+
 // askApplyTerminal is the interactive prompt path.
 func askApplyTerminal() bool {
 	fmt.Fprint(os.Stderr, "Apply these fixes? [y/N] ")
-	in := os.Stdin
-	if runtime.GOOS != "windows" {
-		if f, err := os.OpenFile("/dev/stdin", os.O_RDONLY, 0); err == nil {
-			defer f.Close()
-			in = f
-		}
-	}
+	in, cleanup := resolveTerminalStdin()
+	defer cleanup()
+
 	line, err := bufio.NewReader(in).ReadString('\n')
 	if err != nil {
 		return false
 	}
+
 	return isYes(line)
 }
 
@@ -267,24 +282,33 @@ func isYes(line string) bool {
 // JSON flow: machine-readable report; no prompt unless -y
 // ---------------------------------------------------------------------------
 
-func runJSONFlow(opts Options, result *ScanResult, fixable int) error {
-	var applied *ApplyResult
-	if opts.Yes && fixable > 0 {
-		var err error
-		applied, err = Apply(result, opts)
-		if err != nil {
-			cliexit.Fail("fix", "apply", "", err, 2)
-		}
+func applyIfRequested(opts Options, result *ScanResult, fixable int) *ApplyResult {
+	if !opts.Yes || fixable <= 0 {
+		return nil
 	}
+
+	applied, err := Apply(result, opts)
+	if err != nil {
+		cliexit.Fail("fix", "apply", "", err, 2)
+	}
+
+	return applied
+}
+
+func runJSONFlow(opts Options, result *ScanResult, fixable int) error {
+	applied := applyIfRequested(opts, result, fixable)
 	printJSONReport(opts, result, applied)
 
 	if len(result.Violations) == 0 {
 		return nil
 	}
+
 	if applied != nil && !unfixableRemain(result, applied) {
 		return nil
 	}
+
 	cliexit.Exit(1)
+
 	return nil
 }
 

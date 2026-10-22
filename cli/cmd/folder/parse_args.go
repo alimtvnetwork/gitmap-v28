@@ -71,13 +71,15 @@ func resolveNonFlags(opts Options, nonFlags []string) (Options, error) {
 	var dirCandidates []string
 
 	for _, item := range nonFlags {
-		if isGlobPattern(item) {
-			opts.Filter.IncludeGlobs = append(opts.Filter.IncludeGlobs, item)
-			if ext := extractGlobExtension(item); ext != "" {
-				opts.Filter.Extensions = append(opts.Filter.Extensions, ext)
-			}
-		} else {
+		if !isGlobPattern(item) {
 			dirCandidates = append(dirCandidates, item)
+			continue
+		}
+
+		opts.Filter.IncludeGlobs = append(opts.Filter.IncludeGlobs, item)
+		ext := extractGlobExtension(item)
+		if ext != "" {
+			opts.Filter.Extensions = append(opts.Filter.Extensions, ext)
 		}
 	}
 
@@ -98,14 +100,16 @@ func isGlobPattern(s string) bool {
 }
 
 func extractGlobExtension(pattern string) string {
-	if strings.HasPrefix(pattern, "*.") {
-		ext := strings.TrimPrefix(pattern, "*.")
-		if ext != "" && !strings.ContainsAny(ext, "*?") {
-			return ext
-		}
+	if !strings.HasPrefix(pattern, "*.") {
+		return ""
 	}
 
-	return ""
+	ext := strings.TrimPrefix(pattern, "*.")
+	if ext == "" || strings.ContainsAny(ext, "*?") {
+		return ""
+	}
+
+	return ext
 }
 
 func deduceFormatFromExt(outFile string, fallback OutputFormat) OutputFormat {

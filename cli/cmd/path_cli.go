@@ -73,45 +73,63 @@ func resolveSpecialPathTarget(clean string) (string, bool) {
 }
 
 func queryDBForRepoPath(db *store.DB, clean string) (string, bool) {
-	if aliasRow, err := db.ResolveAlias(clean); err == nil && len(aliasRow.AbsolutePath) > 0 {
+	aliasRow, err := db.ResolveAlias(clean)
+	if err == nil && len(aliasRow.AbsolutePath) > 0 {
 		return aliasRow.AbsolutePath, true
 	}
-	if repos, err := db.FindBySlug(clean); err == nil && len(repos) > 0 {
+
+	repos, err := db.FindBySlug(clean)
+	if err == nil && len(repos) > 0 {
 		return repos[0].AbsolutePath, true
 	}
+
 	all, listErr := db.ListRepos()
-	if listErr == nil {
-		for _, r := range all {
-			if strings.EqualFold(r.RepoName, clean) || strings.EqualFold(r.Slug, clean) {
-				return r.AbsolutePath, true
-			}
+	if listErr != nil {
+		return "", false
+	}
+
+	for _, r := range all {
+		if strings.EqualFold(r.RepoName, clean) || strings.EqualFold(r.Slug, clean) {
+			return r.AbsolutePath, true
 		}
 	}
+
 	return "", false
 }
 
 func resolveRepoOrLocalPath(clean string) (string, error) {
-	if specialPath, isSpecial := resolveSpecialPathTarget(clean); isSpecial {
+	specialPath, isSpecial := resolveSpecialPathTarget(clean)
+	if isSpecial {
 		return specialPath, nil
 	}
+
 	db, err := openDB()
-	if err == nil {
-		defer db.Close()
-		if p, hasRepo := queryDBForRepoPath(db, clean); hasRepo {
-			return p, nil
-		}
+	if err != nil {
+		return checkLocalDirFallback(clean)
 	}
+
+	defer db.Close()
+
+	p, hasRepo := queryDBForRepoPath(db, clean)
+	if hasRepo {
+		return p, nil
+	}
+
 	return checkLocalDirFallback(clean)
 }
 
 func checkLocalDirFallback(clean string) (string, error) {
-	if info, err := os.Stat(clean); err == nil && info.IsDir() {
-		if abs, absErr := filepath.Abs(clean); absErr == nil {
-			return abs, nil
-		}
+	info, err := os.Stat(clean)
+	if err != nil || !info.IsDir() {
+		return "", fmt.Errorf("repository or target %q not found", clean)
+	}
+
+	abs, absErr := filepath.Abs(clean)
+	if absErr != nil {
 		return clean, nil
 	}
-	return "", fmt.Errorf("repository or target %q not found", clean)
+
+	return abs, nil
 }
 
 func outputJSONPathResult(target, resolved string, isValid bool) error {
