@@ -33,6 +33,9 @@ WAVES = ceil(subtasks / (A x H))
 6. **Positive Boolean Columns**: Always use positive `Is` or `Has` prefixes (`IsActive`, `HasLicense`). Total ban on negative column names (`IsNotActive`, `HasNoLicense`).
 7. **Timestamps as Epoch Integers**: Store all timestamps as `INTEGER` representing Unix epoch seconds in UTC (`CreatedAt INTEGER NOT NULL DEFAULT (unixepoch())`).
 8. **Entity & Transactional Descriptions**: Entity/reference tables MUST include `Description TEXT NULL`. Transactional tables MUST include `Notes TEXT NULL` and `Comments TEXT NULL`.
+9. **Repository Pattern (mandatory, language-agnostic)**: All SQL and data access lives behind a repository interface — one repository per aggregate or table group. Services, handlers, and use-cases NEVER embed SQL strings, query builders, or ORM calls directly, in any language.
+10. **Intention-Named Methods & Dialect Isolation**: Repository methods are intention-named (`FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`) — never `RunQuery`, `ExecuteRaw`, or stringly-typed table/column parameters. Dialect/driver specifics stay inside the implementation; swapping the database swaps the implementation only.
+11. **Unit of Work & Error Wrapping**: Multi-repository transactions go through a unit-of-work abstraction only. Repository errors are wrapped with context (which repository, which operation) at the repository boundary before crossing into services.
 
 ---
 
@@ -108,3 +111,5 @@ gitmap heatmap rc sync
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
 - [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] Repository pattern enforced: zero SQL/query-builder/ORM calls outside repository implementations; intention-named methods only.
+- [ ] Multi-repository transactions via unit-of-work only; repository errors wrapped with repository + operation context.

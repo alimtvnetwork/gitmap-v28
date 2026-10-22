@@ -65,7 +65,7 @@ func parseBlobLine(line string, minBytes int64, pathPattern string) PurgeHistory
 		return PurgeHistoryItem{}
 	}
 	path := extractBlobPath(parts)
-	if len(pathPattern) > 0 && strings.Contains(path, pathPattern) == false {
+	if len(pathPattern) > 0 && !strings.Contains(path, pathPattern) {
 		return PurgeHistoryItem{}
 	}
 	return createPurgeItem(parts[0], path, size)

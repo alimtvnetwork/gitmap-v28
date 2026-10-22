@@ -16,7 +16,7 @@ func filterFleetTargets(targets []FleetTarget, targetFilter string, exclusions m
 	excludedCount := 0
 	targetLower := strings.ToLower(targetFilter)
 	for _, t := range targets {
-		if isFleetTargetMatch(t, targetLower) == false {
+		if !isFleetTargetMatch(t, targetLower) {
 			continue
 		}
 		if isFleetNodeExcluded(t, exclusions) {

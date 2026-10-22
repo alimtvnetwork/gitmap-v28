@@ -77,7 +77,7 @@ func insertOwnerRepoNames(
 	ts := fetchedAt.UTC().Format(time.RFC3339Nano)
 	for _, n := range names {
 		base, ver, hasMeta := visibility.ParseRepoNameMeta(n)
-		if hasMeta == false {
+		if !hasMeta {
 			base = n
 			ver = -1
 		}

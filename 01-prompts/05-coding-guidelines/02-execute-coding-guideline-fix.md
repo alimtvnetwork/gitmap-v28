@@ -59,7 +59,10 @@ Before executing the tasks below, check if this prompt is already installed as a
 ## Non-Negotiable Core Rules
 
 - **DRY:** Eliminate duplicated logic.
-- **Typed Enums:** Use typed enums with `Type` suffix instead of magic strings or numbers.
+- **Typed Enums:** Use typed enums with `Type` suffix instead of magic strings or numbers. One enum per concept, declared in the shared types/constants module, idiomatic casing, explicit stable serialized values, an unknown/zero sentinel where needed, and no raw literals anywhere an enum exists. Every enum ships `String`, `Parse`/`TryParse`, `IsValid`, and `All`/`Values` utils — a missing util is added in the same change, never deferred (util-methods checkup). External input enters only via the enum's parse util.
+- **SQL Repository Pattern (Every Language):** All data access lives behind a repository interface (one repository per aggregate/table group) with intention-named methods (`FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`). No SQL strings, query builders, or ORM calls in services, handlers, or use-cases; dialect and driver specifics stay inside the repository implementation; multi-repository transactions go through a unit-of-work abstraction only.
+- **Enum Action Dispatch:** Every action, operation, command, and event kind is a named enum member, dispatched by `switch`/`match` only — never by raw string or magic number. Dispatch is exhaustive, `IsValid`/membership is checked before dispatch, the `default` case returns a typed error naming the offending value, and adding an action means exactly one enum member plus one `switch` case.
+- **Error Tie-Ins:** An unknown enum value, a failed enum parse, or an unhandled `switch` case returns a typed error (`*appfault.AppError` / Result convention) with the offending value in the message — never a panic and never a silent default. Repository errors are wrapped at the repository boundary with the repository and the operation named.
 - **Function Size Caps:** Functions must be strictly < 8–15 lines. Extract sub-logic into private helpers.
 - **Source File Caps:** Source files should be ≤ 80–100 lines; split into logical modules if larger.
 - **No Code Mutation:** Only apply fixes, never introduce regressions or alter external business contracts.
@@ -174,7 +177,7 @@ MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool cal
   Traceability ID: Task-01
   Target Files: [5-8 relative paths]
   Violations: [IDs from Violation Ledger]
-  Action: [Concrete refactoring steps: implicit booleans, affirmative names, guard clauses, Result wrappers]
+  Action: [Concrete refactoring steps: implicit booleans, affirmative names, guard clauses, Result wrappers, repository extraction of service/handler SQL, enum extraction with all required utils, enum-member + switch-case dispatch fixes]
   Targeted Verification: python 03-ai-scripts/05-guideline-autofixer.py <files>
   ```
 
@@ -196,6 +199,7 @@ MANDATORY SAME-TURN TOOL CHAIN: The breakdown text above and your first tool cal
    - Refactor duplicated code into shared helpers.
    - Invert guard clauses and flatten nested `if` statements.
    - Enforce positive affirmative booleans (`is` and `has`). Replace `== true` with implicit checks.
+   - Move every SQL string, query-builder call, and ORM call found in a service or handler into the matching repository implementation; callers use only the repository interface.
    - Record modified files under lock: `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
    - Run targeted file-level linters/autofixers on modified files (`exit 0`). DO NOT run banned full test suites or builds during routine execution turns (deferred to CI/CD).
    - Update the pending task file to mark completed violations.

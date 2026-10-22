@@ -30,7 +30,7 @@ func TestParallelPreParseLogLines_SmallSlice(t *testing.T) {
 	if !parsed[2].IsError {
 		t.Errorf("line 2 expected error")
 	}
-	if parsed[4].IsBlank != true {
+	if !parsed[4].IsBlank {
 		t.Errorf("line 4 expected blank")
 	}
 }

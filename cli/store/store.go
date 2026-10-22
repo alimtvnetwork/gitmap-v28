@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 
 	_ "modernc.org/sqlite"
@@ -97,7 +98,7 @@ func openDBAt(dbPath string) (*DB, error) {
 	isMem := os.Getenv("GITMAP_IN_MEMORY_DB") == "1"
 
 	if err := ensureDir(dbDir); err != nil {
-		return nil, fmt.Errorf(constants.ErrDBCreateDir, dbDir, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to create database directory at %s (operation: mkdir)", dbDir))
 	}
 
 	if err := lockDBIfNotMem(dbDir, isMem); err != nil {
@@ -121,7 +122,7 @@ func openDBConnection(connPath, dbPath, dbDir string, isMem bool) (*DB, error) {
 	if err != nil {
 		releaseLockIfNotMem(dbDir, isMem)
 
-		return nil, fmt.Errorf(constants.ErrDBOpen, dbPath, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to open database at %s (operation: open)", dbPath))
 	}
 
 	if err := ConfigureSQLiteConn(conn); err != nil {
@@ -166,7 +167,7 @@ func (db *DB) Migrate() error {
 	db.migrateLegacyIDs()
 
 	if err := db.migrateV15Repo(); err != nil {
-		return fmt.Errorf(constants.ErrV15RepoMigration, err)
+		return apperror.WrapSimple(err, "v15 Repo migration failed")
 	}
 
 	// Pre-Phase-1.2: legacy `Releases` may be missing `Source` and/or `Notes`
@@ -175,7 +176,7 @@ func (db *DB) Migrate() error {
 	db.preV15Phase2EnsureReleaseColumns()
 
 	if err := db.migrateV15Phase2(); err != nil {
-		return fmt.Errorf(constants.ErrV15Phase2Migration, err)
+		return apperror.WrapSimple(err, "v15 Phase 1.2 migration failed")
 	}
 
 	// Phase 1.3 reads the legacy Commit column on TempReleases if it exists,
@@ -183,7 +184,7 @@ func (db *DB) Migrate() error {
 	db.migrateTRCommitSha()
 
 	if err := db.migrateV15Phase3(); err != nil {
-		return fmt.Errorf(constants.ErrV15Phase3Migration, err)
+		return apperror.WrapSimple(err, "v15 Phase 1.3 migration failed")
 	}
 
 	// Phase 1.4 reads legacy ZipGroupItems columns + pre-Csharp table names,
@@ -192,15 +193,15 @@ func (db *DB) Migrate() error {
 	db.migratePendingTaskColumns()
 
 	if err := db.migrateV15Phase4(); err != nil {
-		return fmt.Errorf(constants.ErrV15Phase4Migration, err)
+		return apperror.WrapSimple(err, "v15 Phase 1.4 migration failed")
 	}
 
 	if err := db.migrateV15Phase5(); err != nil {
-		return fmt.Errorf(constants.ErrV15Phase5Migration, err)
+		return apperror.WrapSimple(err, "v15 Phase 1.5 migration failed")
 	}
 
 	if err := db.migrateV15Phase6(); err != nil {
-		return fmt.Errorf(constants.ErrV15Phase6Migration, err)
+		return apperror.WrapSimple(err, "v15 Phase 1.6 migration failed")
 	}
 
 	statements := []string{
@@ -268,7 +269,7 @@ func (db *DB) Migrate() error {
 
 	for _, stmt := range statements {
 		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
-			return fmt.Errorf(constants.ErrDBMigrate, err)
+			return apperror.WrapSimple(err, "failed to initialize tables")
 		}
 	}
 
@@ -284,7 +285,7 @@ func (db *DB) Migrate() error {
 	db.purgeOrphanRepoReferences()
 
 	if err := db.EnsurePurgeHistoryTable(); err != nil {
-		return fmt.Errorf("ensure purge history table: %w", err)
+		return apperror.WrapSimple(err, "ensure purge history table")
 	}
 
 	if err := db.SeedProjectTypes(); err != nil {
@@ -382,7 +383,7 @@ func (db *DB) Reset() error {
 
 	for _, stmt := range drops {
 		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
-			return fmt.Errorf(constants.ErrDBMigrate, err)
+			return apperror.WrapSimple(err, "failed to initialize tables")
 		}
 	}
 

@@ -108,7 +108,7 @@ func Run() {
 
 	// Skip migration for commands that must produce clean stdout
 	cmd := os.Args[1]
-	if isVersionCommand(cmd) == false {
+	if !isVersionCommand(cmd) {
 		cmdmigrate.MigrateLegacyDirs()
 	}
 

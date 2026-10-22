@@ -44,3 +44,5 @@ Key mandates achieved:
 - **Worker 02:** `cli/cmdai/ai_remove_revert.go`, `cli/cmdai/ai_train.go`, `cli/cmdnodes/nodes_probe.go`, `cli/cmdnodes/nodes_collect.go`, `cli/cmdchromeprofile/chromeprofile_zip_export.go`, `cli/cmdinstall/install_muse.go`, `cli/cmdscan/scan.go`, `cli/cmdvscode/vscodepmsync_flags.go`
 - **Worker 03:** `cli/osclean/terminal_clean.go`, `cli/release/gitstderrfilter.go`, `cli/cmd/special_repos_cli.go`, `cli/cmd/special_repos_ops.go`, `cli/cmd/cmd_sends.go`
 - **Lead Agent:** `.ai-memory/plans/*`, `02-spec/*`, `.ai-memory/temp-agents/*`
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

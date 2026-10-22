@@ -92,3 +92,5 @@
 ```text
 @[d:\work\gitmap\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]
 ```
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

@@ -11,7 +11,7 @@ import (
 func TestRunSSHPassCLI_EmptyArgs(t *testing.T) {
 	err := RunSSHPassCLI([]string{})
 	isNil := err == nil
-	if isNil == false {
+	if !isNil {
 		t.Fatalf("expected nil error on empty args (prints help), got: %v", err)
 	}
 }
@@ -19,7 +19,7 @@ func TestRunSSHPassCLI_EmptyArgs(t *testing.T) {
 func TestRunSSHPassCLI_Help(t *testing.T) {
 	err := RunSSHPassCLI([]string{"--help"})
 	isNil := err == nil
-	if isNil == false {
+	if !isNil {
 		t.Fatalf("expected nil error on --help, got: %v", err)
 	}
 }
@@ -40,7 +40,7 @@ func TestRunSSHPassCLI_ShowSuccess(t *testing.T) {
 
 		err := RunSSHPassCLI([]string{"show", "box99"})
 		isNil := err == nil
-		if isNil == false {
+		if !isNil {
 			t.Fatalf("expected nil error on show existing pass, got: %v", err)
 		}
 	})
@@ -54,7 +54,7 @@ func TestRunSSHPassCLI_ListSuccess(t *testing.T) {
 
 		err := RunSSHPassCLI([]string{"ls"})
 		isNil := err == nil
-		if isNil == false {
+		if !isNil {
 			t.Fatalf("expected nil error on pass ls, got: %v", err)
 		}
 	})

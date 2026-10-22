@@ -102,9 +102,9 @@ func processGoFileContent(raw []byte, path string, opts FormatGoOptions) FormatG
 	norm := normalizeFileBytes(raw)
 	formatted := formatGoSource(norm.data)
 	isIdentical := bytes.Equal(raw, formatted)
-	isChanged := (isIdentical == false)
+	isChanged := !isIdentical
 	isSameAst := bytes.Equal(norm.data, formatted)
-	hasReorder := (isSameAst == false)
+	hasReorder := !isSameAst
 	item := buildFormatItem(path, norm, hasReorder, isChanged)
 	if opts.IsWrite && isChanged {
 		_ = os.WriteFile(path, formatted, 0644)

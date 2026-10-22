@@ -31,6 +31,13 @@ This skill guides the design, schema management, and querying of database layers
    - Enforce explicit foreign key constraints.
    - Avoid implicit ORM joins across split database boundaries.
 
+5. **Repository Pattern (mandatory, language-agnostic):**
+   - All SQL and data access lives behind a repository interface: one repository per aggregate or table group. Services, handlers, and use-cases NEVER embed SQL strings, query builders, or ORM calls directly.
+   - Repository methods are intention-named (`FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`) — never `RunQuery`, `ExecuteRaw`, or stringly-typed table/column parameters from callers.
+   - Dialect and driver specifics stay inside the repository implementation; swapping the database means swapping the implementation, never the callers. This shape is identical in Go, TypeScript, Python, Rust, and PHP; only the idiom changes.
+6. **Unit of Work:** Multi-repository transactions go through a unit-of-work abstraction; no ad-hoc transaction handling scattered in services.
+7. **Repository Error Boundary:** Repository errors are wrapped with context (which repository, which operation) at the repository boundary before crossing into services (see `cg-error-management`).
+
 ---
 
 ## 2. Step 0 Preflight with Data Schema Verification
@@ -107,3 +114,6 @@ gitmap heatmap rc sync
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
 - [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] All SQL/data access behind a repository interface (one per aggregate/table group); zero SQL, query-builder, or ORM calls in services/handlers/use-cases.
+- [ ] Repository methods intention-named; no `RunQuery`/`ExecuteRaw`/stringly-typed callers; multi-repository transactions via unit-of-work only.
+- [ ] Repository errors wrapped with repository + operation context at the boundary.

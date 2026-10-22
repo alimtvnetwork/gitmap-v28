@@ -50,7 +50,7 @@ func TestVersionSyncMismatchAndFix(t *testing.T) {
 	}
 	fixMonad := RunVersionSync(VersionSyncOptions{Dir: tempDir, IsFixMode: true})
 	isFixSuccess := fixMonad.Value.FixedCount > 0
-	if isFixSuccess == false {
+	if !isFixSuccess {
 		t.Errorf("expected fixed count > 0, got %d", fixMonad.Value.FixedCount)
 	}
 }
@@ -71,7 +71,7 @@ func TestComputeNextSemVer(t *testing.T) {
 func verifySemVerBump(t *testing.T, cur, tier, expected string) {
 	actual := computeNextSemVer(cur, tier)
 	isMatch := actual == expected
-	if isMatch == false {
+	if !isMatch {
 		t.Errorf("bump %s on %s: expected %s, got %s", tier, cur, expected, actual)
 	}
 }
@@ -86,7 +86,7 @@ func TestReleaseBumpDryRun(t *testing.T) {
 		t.Fatalf("expected success, got error: %v", monad.Err)
 	}
 	isMatch := monad.Value.NewVersion == "6.263.0"
-	if isMatch == false {
+	if !isMatch {
 		t.Errorf("expected 6.263.0, got %s", monad.Value.NewVersion)
 	}
 }
@@ -97,11 +97,11 @@ func TestReleaseBumpApply(t *testing.T) {
 	opts := ReleaseBumpOptions{Dir: tempDir, BumpType: "patch", IsDryRun: false}
 	monad := RunReleaseBump(opts)
 	isSuccess := monad.Value.IsSuccess
-	if isSuccess == false {
+	if !isSuccess {
 		t.Fatalf("expected successful bump apply")
 	}
 	isVerMatch := monad.Value.NewVersion == "6.262.1"
-	if isVerMatch == false {
+	if !isVerMatch {
 		t.Errorf("expected new version 6.262.1, got %s", monad.Value.NewVersion)
 	}
 }
@@ -110,11 +110,11 @@ func TestMilestonesReleaseNotes(t *testing.T) {
 	issues := createSampleMilestoneIssues()
 	notes := formatMilestoneReleaseNotes("14", issues)
 	hasAdded := strings.Contains(notes, "### Added")
-	if hasAdded == false {
+	if !hasAdded {
 		t.Errorf("expected '### Added' in release notes")
 	}
 	hasFixed := strings.Contains(notes, "### Fixed")
-	if hasFixed == false {
+	if !hasFixed {
 		t.Errorf("expected '### Fixed' in release notes")
 	}
 }
@@ -137,7 +137,7 @@ func TestMilestonesLocalScan(t *testing.T) {
 		t.Fatalf("expected success, got %v", monad.Err)
 	}
 	hasItems := monad.Value.TotalItems > 0
-	if hasItems == false {
+	if !hasItems {
 		t.Errorf("expected at least 1 milestone item found")
 	}
 }

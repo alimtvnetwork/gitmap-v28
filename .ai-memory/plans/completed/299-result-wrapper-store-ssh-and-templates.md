@@ -43,3 +43,5 @@ This wave focused on database query repositories in `cli/store/` (SSH hosts, SSH
 - **Worker 02:** `cli/store/types.go`, `cli/store/alias.go`, `cli/store/bookmark.go`, `cli/store/release.go`, `cli/store/workdir_list.go`
 - **Worker 03:** `cli/templates/*`, `cli/visibility/*`
 - **Lead Agent:** `.ai-memory/plans/*`, `02-spec/*`, `.ai-memory/temp-agents/*`
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

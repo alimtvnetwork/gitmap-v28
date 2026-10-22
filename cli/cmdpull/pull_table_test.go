@@ -35,7 +35,7 @@ func TestPullTableSuite(t *testing.T) {
 
 	layout := NewPullTableLayout(rows)
 	isExpectedCap := layout.MaxRepo >= len("scripts-fixer-v20")
-	if isExpectedCap == false {
+	if !isExpectedCap {
 		t.Fatalf("expected MaxRepo >= 17, got %d", layout.MaxRepo)
 	}
 
@@ -46,14 +46,14 @@ func TestFormatBranchNamePrefixOmission(t *testing.T) {
 	featureBranch := "feature/initial-migration"
 	gotFeature := formatBranchName(featureBranch, 20)
 	isExpectedFeature := gotFeature == "initial-migration"
-	if isExpectedFeature == false {
+	if !isExpectedFeature {
 		t.Fatalf("expected initial-migration, got %q", gotFeature)
 	}
 
 	releaseBranch := "release/v1.35.0"
 	gotRelease := formatBranchName(releaseBranch, 16)
 	isExpectedRelease := gotRelease == "v1.35.0"
-	if isExpectedRelease == false {
+	if !isExpectedRelease {
 		t.Fatalf("expected v1.35.0, got %q", gotRelease)
 	}
 }
@@ -62,17 +62,17 @@ func TestFormatBranchNameMiddleTruncate(t *testing.T) {
 	longBranch := "dependabot/go_modules/go-minor-patch-0d16155629"
 	formatted := formatBranchName(longBranch, 18)
 	hasExpectedLen := len(formatted) == 18
-	if hasExpectedLen == false {
+	if !hasExpectedLen {
 		t.Fatalf("expected length 18, got %d (%q)", len(formatted), formatted)
 	}
 
 	hasEllipsis := strings.Contains(formatted, "...")
-	if hasEllipsis == false {
+	if !hasEllipsis {
 		t.Fatalf("expected ellipsis in %q", formatted)
 	}
 
 	hasEndDigits := strings.HasSuffix(formatted, "55629")
-	if hasEndDigits == false {
+	if !hasEndDigits {
 		t.Fatalf("expected ending 55629 in %q", formatted)
 	}
 }
@@ -81,12 +81,12 @@ func TestFormatRepoNameMiddleTruncate(t *testing.T) {
 	longRepo := "ai-empathy-prompt-tuner-v1"
 	formatted := formatRepoName(longRepo, 20)
 	hasExpectedLen := len(formatted) == 20
-	if hasExpectedLen == false {
+	if !hasExpectedLen {
 		t.Fatalf("expected length 20, got %d (%q)", len(formatted), formatted)
 	}
 
 	hasEndSuffix := strings.HasSuffix(formatted, "er-v1")
-	if hasEndSuffix == false {
+	if !hasEndSuffix {
 		t.Fatalf("expected ending er-v1 in %q", formatted)
 	}
 }
@@ -95,17 +95,17 @@ func TestFormatRepoNameLeadTruncatePresentation(t *testing.T) {
 	longRepo := "bsrm-presentation-hiltrax-v4"
 	formatted := formatRepoName(longRepo, 24)
 	hasExpectedLen := len(formatted) == 24
-	if hasExpectedLen == false {
+	if !hasExpectedLen {
 		t.Fatalf("expected length 24, got %d (%q)", len(formatted), formatted)
 	}
 
 	hasEnding := strings.HasSuffix(formatted, "-hiltrax-v4")
-	if hasEnding == false {
+	if !hasEnding {
 		t.Fatalf("expected ending -hiltrax-v4 in %q", formatted)
 	}
 
 	hasPrefix := strings.HasPrefix(formatted, "...")
-	if hasPrefix == false {
+	if !hasPrefix {
 		t.Fatalf("expected prefix ... in %q", formatted)
 	}
 }
@@ -114,14 +114,14 @@ func TestCalcAnsiPadding(t *testing.T) {
 	plainString := "hello"
 	plainPadding := calcAnsiPadding(plainString, 10)
 	isPlainTen := plainPadding == 10
-	if isPlainTen == false {
+	if !isPlainTen {
 		t.Fatalf("expected plain padding 10, got %d", plainPadding)
 	}
 
 	coloredString := "\x1b[32mhello\x1b[0m"
 	coloredPadding := calcAnsiPadding(coloredString, 10)
 	hasExtraBytes := coloredPadding > 10
-	if hasExtraBytes == false {
+	if !hasExtraBytes {
 		t.Fatalf("expected colored padding > 10, got %d", coloredPadding)
 	}
 }
@@ -260,7 +260,7 @@ func TestFormatCombinedBranch(t *testing.T) {
 
 	diff := formatCombinedBranch("main", "release/v1.35.0", 20)
 	isExpectedDiff := diff == "main→v1.35.0" || diff == "main->v1.35.0"
-	if isExpectedDiff == false {
+	if !isExpectedDiff {
 		t.Errorf("expected 'main→v1.35.0' or 'main->v1.35.0', got %q", diff)
 	}
 }

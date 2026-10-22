@@ -55,3 +55,5 @@ This plan executes the creation of three authoritative, self-contained AI prompt
 - **FastGate AST Linter:** Zero violations on relative paths, nested ifs, positive booleans, and 500-line limits.
 - **Path Hygiene:** 100% strictly relative Git paths (zero absolute path violations).
 - **Git Atomic Commit:** `gitmap cpf "prompts - create prompts and skills for codebase improvements"`.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

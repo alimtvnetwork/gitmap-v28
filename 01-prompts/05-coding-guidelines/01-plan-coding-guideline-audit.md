@@ -33,6 +33,7 @@ Autonomously self-loop and read:
 - [/learn](slashCommand;learn) the strict identifier and file naming conventions in `02-spec/02-coding-guidelines/01-cross-language/readme.md`.
 - [/learn](slashCommand;learn) the DRY principles and duplication extraction patterns in `02-spec/02-coding-guidelines/01-cross-language/08-dry-principles.md`.
 - [/learn](slashCommand;learn) the error management architecture and logging diagnostics in `02-spec/03-error-manage/readme.md` and `02-spec/03-error-manage/02-error-architecture/02-error-handling-reference.md` as an AI skill checklist.
+- [/learn](slashCommand;learn) the SQL repository pattern and database conventions in `02-spec/04-database-conventions/` and `02-spec/02-coding-guidelines/01-cross-language/40-database-repository-pattern-and-error-sovereignty.md`.
 - [/learn](slashCommand;learn) the language-specific standards in `02-spec/02-coding-guidelines/` (TypeScript, Go, PHP, Rust, C#, Python, PowerShell).
 - [/learn](slashCommand;learn) the anti-hallucination rules and common AI mistakes in `02-spec/02-coding-guidelines/01-cross-language/readme.md` and `03-common-ai-mistakes.md`.
 - Read `.ai-memory/plans/readme.md` and `.ai-memory/memory/readme.md`.
@@ -47,9 +48,13 @@ You must dedicate this immense processing power to uncover:
 - Every magic string or number.
 - Every swallowed error or generic `catch {}`.
 - Every error without file path or variable context (`WithPath`, `WithVar`) — Rule R7.
-- Every missing Enum or `Type` suffix.
+- Every missing Enum or `Type` suffix, every enum missing any required util (`String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values`), every enum declared outside the shared types/constants module, every enum without explicit stable serialized values, and every raw literal used where an enum exists.
 - Every monolithic function exceeding 15 lines.
 - Every nested `if` statement.
+- Every SQL string, query-builder call, or ORM call in a service, handler, or use-case instead of behind a repository interface (one repository per aggregate/table group; intention-named methods `FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`; dialect inside the implementation; multi-repository transactions only via unit-of-work).
+- Every action, operation, command, or event kind dispatched by raw string or magic number instead of a named enum member in an exhaustive `switch`/`match`, and every `default` case that panics or silently succeeds instead of returning a typed error naming the offending value.
+- Every enum parsed from external input without its parse util and `IsValid` check before dispatch.
+- Every repository error returned without wrapping at the repository boundary with the repository and the operation named.
 
 If there are NO discrepancies, explicitly state: "There are no coding guideline issues or discrepancies." However, assume the codebase is a mess until proven otherwise.
 
@@ -67,7 +72,7 @@ Your final output must be a massively detailed plan stored at `.ai-memory/plans/
 The plan must partition all discovered violations into **bounded micro-batches of strictly 5–8 files each** so that 2 concurrent sub-agents (max 2 threads each) can safely execute without context exhaustion or truncation:
 
 1. [ ] **Batch Partitioning:** Group all codebase files needing fixes into 5–8 file chunks in `.ai-memory/plans/subtasks/01-coding-guideline-fixes/`.
-2. [ ] **Exact Line Locations:** List exact file, exact line, exact boolean to rename, exact parameter struct to introduce, and exact enum to extract.
+2. [ ] **Exact Line Locations:** List exact file, exact line, exact boolean to rename, exact parameter struct to introduce, exact enum to extract (with any missing enum util to add in the same change), exact repository interface + intention-named method to extract each service/handler SQL string, query-builder, or ORM call into, and exact enum member + `switch` case to add for each raw-string or magic-number dispatch.
 3. [ ] **Strict Planning Mode:** Do NOT fix the code in this turn. Your job is ONLY to plan, audit, and enqueue.
 4. [ ] **Auto-Looping Hand-Off:** Once Phase 1 planning subtasks are written, the master orchestrator MUST self-loop directly into execution mode.
 5. [ ] **Anti-Hallucination:** If referenced guidelines or files are missing, ask clarifying questions rather than guessing.
@@ -76,7 +81,7 @@ The plan must partition all discovered violations into **bounded micro-batches o
 
 ## 5. Coding Guidelines Strict Adherence
 
-[/learn](slashCommand;learn) You MUST internalize the master coding guidelines located at `01-prompts/04-coding-standards/01-coding-guidelines.md`. It contains the ultimate source of truth for Boolean rules, Function limits, Error handling, and language-specific React/Go/Python paradigms. Do not hallucinate rules; enforce exactly what is in that file.
+[/learn](slashCommand;learn) You MUST internalize the master coding guidelines located at `01-prompts/04-coding-standards/01-coding-guidelines.md`. It contains the ultimate source of truth for Boolean rules, Function limits, Error handling, the SQL repository pattern, enum authoring with the util-methods checkup, and enum-based action dispatch, and language-specific React/Go/Python paradigms. Do not hallucinate rules; enforce exactly what is in that file.
 
 ## Metadata
 

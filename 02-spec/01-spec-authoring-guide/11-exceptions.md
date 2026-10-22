@@ -222,12 +222,17 @@ spec/
 > re-propose, re-suggest, or "double-check" any prohibited behavior.
 > Silence is the required response.
 
-### Sequence 01 — `readme.text` and `readme.txt` time suggestions
+### Sequence 01 — `readme.txt` time suggestions
 
-- **Never** suggest, recommend, hint at, ask about, or auto-add anything related to timestamps inside `readme.text` or `readme.txt`.
-- The filenames `readme.text` and `readme.txt` are completely forbidden; all documentation files must strictly use canonical lowercase `readme.md`.
-- **Never** mention "git update time", commit time, last-modified time, scheduled regeneration, cron jobs, or any time-flavoured workflow in or about `readme.text`, `readme.txt`, or any readme file.
-- **Never** propose helper scripts, hooks, or CI tasks whose purpose is to generate, touch, or refresh timestamps in `readme.text`, `readme.txt`, or any readme file.
-- **Only** modify readme documentation when the user explicitly asks in that exact turn, using the format the user dictates, strictly using `readme.md`.
-- **No follow-up offers** about time after authoring documentation.
-- Cross-reference: [strictly-avoid.md](../../.ai-memory/strictly-avoid.md) → Sequence 01 and [00-project-governance-and-invariants.md](../../.ai-memory/memory/00-project-governance-and-invariants.md).
+- **Never** suggest, recommend, hint at, ask about, or auto-add anything
+  related to timestamps inside `readme.txt`.
+- **Never** mention "git update time", commit time, last-modified time,
+  scheduled regeneration, cron jobs, or any time-flavoured workflow in
+  or about `readme.txt`.
+- **Never** propose helper scripts, hooks, or CI tasks whose purpose is
+  to keep `readme.txt` time fresh.
+- **Only** modify `readme.txt` when the user explicitly asks in that
+  exact turn, using the format the user dictates.
+- **No follow-up offers** about time after writing `readme.txt`.
+- Cross-reference: `.ai-memory/memory/avoid/02-no-time-suggestions-in-readme-txt.md`
+  and `.ai-memory/strictly-avoid.md` → "Strictly Prohibited" → Sequence 01.

@@ -293,7 +293,7 @@ func TestBuildAuditRecord_Range(t *testing.T) {
 		t.Errorf("expected mode=range, got %q", record.Mode)
 	}
 
-	if record.IsForcePushed != true {
+	if !record.IsForcePushed {
 		t.Error("expected forcePushed=true")
 	}
 
@@ -330,7 +330,7 @@ func TestBuildAuditRecord_HeadMode(t *testing.T) {
 		t.Error("expected from=to for single HEAD commit")
 	}
 
-	if record.IsForcePushed != false {
+	if record.IsForcePushed {
 		t.Error("expected forcePushed=false")
 	}
 }

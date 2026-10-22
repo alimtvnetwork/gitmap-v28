@@ -17,7 +17,7 @@ func TestPromptInject_E2E(t *testing.T) {
 	title := "E2E Prompt Test"
 
 	res := cmdagy.InjectAgyPrompt(tempProject, promptText, title, "user_inject", false)
-	if res.IsSuccess == false && res.Mode == cmdagy.AgyInjectionModeNone {
+	if !res.IsSuccess && res.Mode == cmdagy.AgyInjectionModeNone {
 		t.Fatalf("expected non-none injection mode, got %s", res.Mode)
 	}
 

@@ -81,3 +81,5 @@ However, the user explicitly mandated future-phase capabilities:
 - [ ] `gitmap vm` subcommands can be sequenced within macros and run via `gitmap <macro_name>` with zero regressions.
 - [ ] Mutation operations log structured records into `TaskHistory` viewable via `gitmap task history --section vm`.
 - [ ] Full unit test suite passes with 100% green coverage on mock VM configurations.
+
+> **Go/No-Go 2026-10-23 (task 190, subtask 06):** hardware-dependent (VMware fleet batch/macro orchestration); parked in pending/ awaiting an explicit go/no-go decision. No implementation started.

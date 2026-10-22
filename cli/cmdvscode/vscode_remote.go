@@ -104,7 +104,7 @@ func printVSCodeRemoteUsage() {
 
 func runVSCodeRemoteFix(args []string) error {
 	hasArgs := len(args) > 0
-	if hasArgs == false {
+	if !hasArgs {
 		fmt.Println("Usage: gitmap vscode remote fix <node>")
 		return nil
 	}

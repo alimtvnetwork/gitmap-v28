@@ -482,7 +482,7 @@ You are Worker <NN> for task nn-<slug>. You have no prior chat context; this bri
 
 ### 100% Non-Negotiable Coding Guidelines (AUTO-REJECT ON VIOLATION):
 1. Positive booleans ONLY: use `is` and `has` prefixes exclusively. NEVER evaluate explicit `== true`. NEVER combine positive and negative checks in the same condition (`if isA && !isB` is BANNED).
-2. Go Structured Errors: return `*appfault.AppError`, never bare `error`.
+2. Go Structured Errors: return `*appfault.AppError`, never bare `error`. Repository errors are wrapped at the repository boundary with the repository and the operation named; an unknown enum value, a failed enum parse, or an unhandled switch case returns a typed `*appfault.AppError` with the offending value in the message — never a panic and never a silent default.
 3. Function Sizing: <= 8 lines preferred, hard cap 15 lines. Extract domain structs and raw generics to `types.go`.
 4. Strict Relative Git Paths & Lowercase: zero absolute filesystem paths and zero `file:///` URIs. Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well. All new files strictly lowercase.
 5. Repo Secrets: if any credentials or private tokens are needed, store them in the `repo-secrets` folder in the default work directory (via `gitmap rs`). Never commit secrets.
@@ -677,7 +677,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 - [ ] Strict In-Repository Execution: All Python scripts executed strictly within the codebase repository root.
 - [ ] Strict .ai-memory/ Folder Storage: All helper scripts, local runners, and linters stored in `03-ai-scripts/`.
 - [ ] Native File Manipulator: Use `python 03-ai-scripts/03-file-manipulator.py <command>` for mass file operations.
-- [ ] Go Generate Sync: If Go constants or enums are modified, run `go generate ./...` in the relevant package and commit generated files.
+- [ ] Go Generate Sync & Enum Util Checkup: If Go constants or enums are modified, verify the enum lives in the shared types/constants module with explicit stable serialized values and a complete util set (`String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values`) — add any missing util in the same change, never defer it — then run `go generate ./...` in the relevant package and commit generated files.
 
 ---
 
@@ -715,7 +715,10 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
-- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error.
+- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error; repository errors wrapped at the repository boundary with repository + operation named; unknown enum values and failed parses surfaced as typed errors naming the offending value.
+- [ ] SQL Repository Pattern: All SQL, query builders, and ORM calls live only inside a repository implementation (one repository per aggregate/table group, intention-named methods `FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`); services and handlers call only the repository interface in every language; multi-repository transactions go through unit-of-work only.
+- [ ] Enum Action Dispatch: Every action/operation/command/event kind is a named enum member dispatched by exhaustive `switch`/`match` only (never raw strings or magic numbers); `IsValid` is checked before dispatch; adding an action is one enum member plus one `switch` case.
+- [ ] Enum Authoring: One enum per concept in the shared types/constants module, idiomatic casing, explicit stable serialized values, unknown/zero sentinel where needed, no raw literals where an enum exists, and external input only via the enum's parse util.
 - [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).
 - [ ] Semantic Naming: Zero generic garbage names (`temp`, `data`, `obj`). Behavior-driven unit test names.
 - [ ] Multi-Line Arguments (Rule 9a/9b): Signatures and call sites with >2 arguments formatted one argument per line with trailing commas.

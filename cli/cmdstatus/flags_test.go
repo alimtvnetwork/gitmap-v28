@@ -55,7 +55,7 @@ func TestParseStatusFlags_All(t *testing.T) {
 		t.Errorf("expected empty group, got %q", group)
 	}
 
-	if all != true {
+	if !all {
 		t.Error("expected all=true")
 	}
 
@@ -70,7 +70,7 @@ func TestParseStatusFlags_GroupAndAll(t *testing.T) {
 		t.Errorf("expected group=ops, got %q", group)
 	}
 
-	if all != true {
+	if !all {
 		t.Error("expected all=true")
 	}
 

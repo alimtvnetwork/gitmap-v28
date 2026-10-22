@@ -75,7 +75,7 @@ func TestExecuteSingleRemoteNode_Success(t *testing.T) {
 	}
 
 	res := executeSingleRemoteNode(conn, "gitmap version")
-	if res.IsSuccess == false {
+	if !res.IsSuccess {
 		t.Fatalf("expected success")
 	}
 	if res.Stdout != "v1.0.0" {
@@ -124,7 +124,7 @@ func TestDispatchNodesRemoteConcurrent(t *testing.T) {
 		t.Fatalf("expected 2 results, got %d", len(results))
 	}
 	for _, r := range results {
-		if r.IsSuccess == false {
+		if !r.IsSuccess {
 			t.Fatalf("expected node %s to succeed", r.NodeAlias)
 		}
 	}

@@ -62,7 +62,7 @@ func TestSplitRescanSubtreeArgs(t *testing.T) {
 				t.Fatalf("expected error containing %q, got nil", tc.wantErrSubs)
 			}
 
-			if tc.wantErrSubs != "" && contains(err.Error(), tc.wantErrSubs) == false {
+			if tc.wantErrSubs != "" && !contains(err.Error(), tc.wantErrSubs) {
 				t.Fatalf("error %q does not contain %q", err.Error(), tc.wantErrSubs)
 			}
 

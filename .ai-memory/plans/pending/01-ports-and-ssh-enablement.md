@@ -60,3 +60,5 @@ It is not there, but here is a suggestion you can try: stats, nodes, paet
   - Worker 02: `cli/cmdssh/ssh_troubleshoot.go`, `cli/cmdssh/ssh_client.go`, `cli/cmdssh/ssh_daemon_test.go`.
 - **Wave 3 (Lead)**:
   - Lead: Index updates, version bump, targeted linters, atomic commit.
+
+> **Re-triage 2026-10-23 (task 190, subtask 06):** this plan predates the pure-Go nodes rewrite (604791574), which likely obsoletes parts of it; do not execute as-is — verify each item against current code or close it in a later task. Kept in pending/.

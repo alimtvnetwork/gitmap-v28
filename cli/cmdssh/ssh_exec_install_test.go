@@ -11,14 +11,14 @@ func TestGetGitmapCheckCmd(t *testing.T) {
 	winCmd, winShell := getGitmapCheckCmd("windows")
 	hasWinGitmap := strings.Contains(winCmd, "gitmap")
 	hasWinVersion := strings.Contains(winCmd, "version")
-	if hasWinGitmap == false || hasWinVersion == false || winShell != "cmd" {
+	if !hasWinGitmap || !hasWinVersion || winShell != "cmd" {
 		t.Errorf("getGitmapCheckCmd(windows) = (%q, %q); expected gitmap and cmd", winCmd, winShell)
 	}
 
 	unixCmd, unixShell := getGitmapCheckCmd("linux")
 	hasPath := strings.Contains(unixCmd, "export PATH=")
 	hasGitmap := strings.Contains(unixCmd, "gitmap")
-	if hasPath == false || hasGitmap == false || unixShell != "sh" {
+	if !hasPath || !hasGitmap || unixShell != "sh" {
 		t.Errorf("getGitmapCheckCmd(linux) = (%q, %q); expected export PATH, gitmap, and sh", unixCmd, unixShell)
 	}
 }
@@ -26,13 +26,13 @@ func TestGetGitmapCheckCmd(t *testing.T) {
 func TestGetGitmapInstallCmd(t *testing.T) {
 	winCmd, winShell := getGitmapInstallCmd("windows")
 	hasWinUrl := strings.Contains(winCmd, constants.SelfInstallRemotePwsh)
-	if hasWinUrl == false || winShell != "ps" {
+	if !hasWinUrl || winShell != "ps" {
 		t.Errorf("getGitmapInstallCmd(windows) = (%q, %q); expected Pwsh URL and ps", winCmd, winShell)
 	}
 
 	unixCmd, unixShell := getGitmapInstallCmd("linux")
 	hasUnixUrl := strings.Contains(unixCmd, constants.SelfInstallRemoteBash)
-	if hasUnixUrl == false || unixShell != "bash" {
+	if !hasUnixUrl || unixShell != "bash" {
 		t.Errorf("getGitmapInstallCmd(linux) = (%q, %q); expected Bash URL and bash", unixCmd, unixShell)
 	}
 }
@@ -41,7 +41,7 @@ func TestWrapUnixPath(t *testing.T) {
 	raw := "gitmap status"
 	wrapped := wrapUnixPath(raw)
 	hasPrefix := strings.HasPrefix(wrapped, "export PATH=")
-	if hasPrefix == false {
+	if !hasPrefix {
 		t.Errorf("wrapUnixPath(%q) = %q; expected export PATH prefix", raw, wrapped)
 	}
 

@@ -19,3 +19,5 @@ Standardize test function declarations across Go packages adhering to the mandat
 4. [ ] Spawn 3 parallel workers via `invoke_subagent` (`Model: 'flash_lite'`).
 5. [ ] Verify AST and style with FastGate (`50-fastgate.py`).
 6. [ ] Single atomic commit via `gitmap cpf "test - standardize three-part semantic test naming conventions"`.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

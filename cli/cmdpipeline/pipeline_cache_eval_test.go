@@ -107,7 +107,7 @@ func TestCheckTtlCacheHit_WithFreshSyncMeta(t *testing.T) {
 	data, _ := json.Marshal(syncMeta)
 	_ = os.WriteFile(filepath.Join(tempDir, "cache_sync.json"), data, 0644)
 
-	if isHit := checkTtlCacheHit(dbPath); isHit == false {
+	if isHit := checkTtlCacheHit(dbPath); !isHit {
 		t.Errorf("expected cache hit for fresh sync meta within 5s")
 	}
 }
@@ -133,7 +133,7 @@ func TestCheckTtlCacheHit_FallbackDbStat(t *testing.T) {
 	dbPath := filepath.Join(tempDir, "sql.db")
 	_ = os.WriteFile(dbPath, []byte("sqlite"), 0644)
 
-	if isHit := checkTtlCacheHit(dbPath); isHit == false {
+	if isHit := checkTtlCacheHit(dbPath); !isHit {
 		t.Errorf("expected cache hit for newly created db file fallback")
 	}
 }
@@ -144,7 +144,7 @@ func TestWriteAndReadCacheSyncMeta(t *testing.T) {
 	runs := []ghRunItem{{DatabaseId: 123, HeadSha: "abc"}}
 	writeCacheSyncMeta(dbPath, runs)
 	meta, isFound := readCacheSyncMeta(filepath.Join(tempDir, "cache_sync.json"))
-	if isFound == false || meta.RunCount != 1 || meta.FetchedSha != "abc" {
+	if !isFound || meta.RunCount != 1 || meta.FetchedSha != "abc" {
 		t.Errorf("expected sync meta to be written and read successfully")
 	}
 }

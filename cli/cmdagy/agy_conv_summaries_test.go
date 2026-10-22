@@ -71,12 +71,12 @@ func TestCheckProjectNameMatch(t *testing.T) {
 	}
 
 	isIDMatch := checkProjectNameMatch(r, "other", []string{"proj-123"})
-	if isIDMatch == false {
+	if !isIDMatch {
 		t.Errorf("expected true for project ID match")
 	}
 
 	isTitleMatch := checkProjectNameMatch(r, "Antigravity", nil)
-	if isTitleMatch == false {
+	if !isTitleMatch {
 		t.Errorf("expected true for title match")
 	}
 
@@ -89,7 +89,7 @@ func TestCheckProjectNameMatch(t *testing.T) {
 func TestIsProjectIDInList(t *testing.T) {
 	list := []string{"id-1", "id-2", "id-3"}
 	hasID := isProjectIDInList("id-2", list)
-	if hasID == false {
+	if !hasID {
 		t.Errorf("expected true for existing ID")
 	}
 

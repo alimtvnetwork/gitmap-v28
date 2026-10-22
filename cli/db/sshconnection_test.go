@@ -12,7 +12,7 @@ import (
 func setupTestSSHDB(t *testing.T) *sql.DB {
 	conn, err := sql.Open("sqlite", ":memory:")
 	isNil := err == nil
-	if isNil == false {
+	if !isNil {
 		t.Fatalf("failed to open memory db: %v", err)
 	}
 
@@ -41,7 +41,7 @@ func TestSSHConnection_InsertAndRetrieveWithOSMetadata(t *testing.T) {
 
 	appErr := InsertOrUpdateSSHConnection(ctx, conn, testConn)
 	isSuccess := appErr == nil
-	if isSuccess == false {
+	if !isSuccess {
 		t.Fatalf("InsertOrUpdateSSHConnection failed: %v", appErr)
 	}
 
@@ -52,22 +52,22 @@ func TestSSHConnection_InsertAndRetrieveWithOSMetadata(t *testing.T) {
 	}
 
 	isMatchOS := fetched.OSVersion == "Ubuntu 22.04.4 LTS"
-	if isMatchOS == false {
+	if !isMatchOS {
 		t.Fatalf("expected OSVersion 'Ubuntu 22.04.4 LTS', got: %s", fetched.OSVersion)
 	}
 
 	isMatchGroup := fetched.OSGroup == "unix"
-	if isMatchGroup == false {
+	if !isMatchGroup {
 		t.Fatalf("expected OSGroup 'unix', got: %s", fetched.OSGroup)
 	}
 
 	isMatchBuild := fetched.BuildVersion == "5.15.0-generic"
-	if isMatchBuild == false {
+	if !isMatchBuild {
 		t.Fatalf("expected BuildVersion '5.15.0-generic', got: %s", fetched.BuildVersion)
 	}
 
 	isMatchFirstRun := fetched.FirstRunAt.Equal(now)
-	if isMatchFirstRun == false {
+	if !isMatchFirstRun {
 		t.Fatalf("expected FirstRunAt %v, got: %v", now, fetched.FirstRunAt)
 	}
 }
@@ -95,7 +95,7 @@ func TestSSHConnection_GetByIP(t *testing.T) {
 	}
 
 	isWindows := fetched.OS == "windows"
-	if isWindows == false {
+	if !isWindows {
 		t.Fatalf("expected OS 'windows', got: %s", fetched.OS)
 	}
 }

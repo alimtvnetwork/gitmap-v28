@@ -51,7 +51,7 @@ func TestParseExecFlags_All(t *testing.T) {
 		t.Errorf("expected empty group, got %q", group)
 	}
 
-	if all != true {
+	if !all {
 		t.Error("expected all=true")
 	}
 
@@ -66,7 +66,7 @@ func TestParseExecFlags_NoArgs(t *testing.T) {
 		t.Errorf("expected empty group, got %q", group)
 	}
 
-	if all != true {
+	if !all {
 		t.Error("expected all=true")
 	}
 

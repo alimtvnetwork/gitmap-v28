@@ -44,3 +44,5 @@ All domain models and Result container aliases were centralized in `types.go` wi
 - **AST Integrity:** FastGate exit 0 with zero warnings.
 - **Positive Booleans:** All boolean variables adhere to `is*` / `has*` conventions.
 - **Git Safety:** Zero git commands in subagents; final commit via `gitmap cpf`.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

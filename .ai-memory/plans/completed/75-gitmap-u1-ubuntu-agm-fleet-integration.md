@@ -65,3 +65,5 @@ This plan orchestrates the end-to-end integration of Ubuntu node `U1` with GitMa
   - Compile exhaustive MD migration report with rationale, commands run, and decision trail into the repo docs/cache.
   - Generate standalone executable `run-migration.sh` script for zero-touch VM provisioning.
   - Create standalone AI prompt for upstream AGM developers to implement native Linux headless keyring support.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

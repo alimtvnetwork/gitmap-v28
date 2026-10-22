@@ -24,7 +24,7 @@ func extractReleaseFromTitle(title string) string {
 	lower := strings.ToLower(title)
 	hasReleaseKeyword := strings.Contains(lower, "release")
 	hasVTag := strings.Contains(lower, "v")
-	if hasReleaseKeyword == false && hasVTag == false {
+	if !hasReleaseKeyword && !hasVTag {
 		return ""
 	}
 

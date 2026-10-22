@@ -51,7 +51,7 @@ func TestChangedFilesParsing(t *testing.T) {
 	}
 	addedLine := "A   new_file.ts"
 	addedItem := parseStatusLine(addedLine, true)
-	if addedItem.Status != "added" || addedItem.IsStaged == false {
+	if addedItem.Status != "added" || !addedItem.IsStaged {
 		t.Errorf("expected staged added item, got %+v", addedItem)
 	}
 }
@@ -86,10 +86,10 @@ func TestPurgeBlobLineParsing(t *testing.T) {
 func TestFormatGoNormalizer(t *testing.T) {
 	rawWithBomAndCrlf := []byte("\xef\xbb\xbfpackage main\r\n\r\nfunc main() {}\r\n")
 	norm := normalizeFileBytes(rawWithBomAndCrlf)
-	if norm.hasBom == false {
+	if !norm.hasBom {
 		t.Errorf("expected hasBom to be true")
 	}
-	if norm.hasCrlf == false {
+	if !norm.hasCrlf {
 		t.Errorf("expected hasCrlf to be true")
 	}
 	if string(norm.data[:12]) != "package main" {
@@ -108,7 +108,7 @@ func TestFormatGoSourceAst(t *testing.T) {
 func TestCleanArtifactsMonad(t *testing.T) {
 	cleanRes := CleanArtifactsResult{TotalFound: 3, TotalDeleted: 3, IsSuccess: true}
 	cleanMonad := result.Ok(cleanRes)
-	if cleanMonad.IsFailure() || cleanMonad.Value.IsSuccess == false {
+	if cleanMonad.IsFailure() || !cleanMonad.Value.IsSuccess {
 		t.Errorf("expected successful CleanArtifactsResultMonad")
 	}
 }
@@ -132,7 +132,7 @@ func TestPurgeHistoryMonad(t *testing.T) {
 func TestFormatGoMonad(t *testing.T) {
 	formatRes := FormatGoResult{TotalFiles: 4, IsClean: true}
 	formatMonad := result.Ok(formatRes)
-	if formatMonad.IsFailure() || formatMonad.Value.IsClean == false {
+	if formatMonad.IsFailure() || !formatMonad.Value.IsClean {
 		t.Errorf("expected successful FormatGoResultMonad")
 	}
 }

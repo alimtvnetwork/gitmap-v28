@@ -25,7 +25,7 @@ func (db *DB) InsertPendingTask(
 	result, err := ExecWrapper(db.conn, constants.SQLInsertPendingTask,
 		taskTypeID, targetPath, workDir, sourceCmd, cmdArgs).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrPendingTaskInsert, err)
+		return 0, apperror.WrapSimple(err, "failed to insert pending task (operation: insert)")
 	}
 
 	return result.LastInsertId()
@@ -67,7 +67,7 @@ func (db *DB) FindPendingTaskDuplicateWithCmd(taskTypeID int64, targetPath, cmdA
 func (db *DB) ListPendingTasks() ([]model.PendingTaskRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllPendingTasks).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query pending tasks (operation: query)")
 	}
 
 	defer rows.Close()
@@ -85,7 +85,7 @@ func (db *DB) FindPendingTaskByID(id int64) (model.PendingTaskRecord, error) {
 		&r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 		&r.FailureReason, &r.CreatedAt, &r.UpdatedAt)
 	if err != nil {
-		return r, fmt.Errorf(constants.ErrPendingTaskQuery, err)
+		return r, apperror.WrapSimple(err, "failed to query pending tasks (operation: query)")
 	}
 
 	return r, nil
@@ -95,7 +95,7 @@ func (db *DB) FindPendingTaskByID(id int64) (model.PendingTaskRecord, error) {
 func (db *DB) CompleteTask(taskID int64) error {
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, appErr)
+		return apperror.WrapSimple(appErr, "failed to complete task (operation: complete)")
 	}
 
 	ctx := context.Background()
@@ -103,7 +103,7 @@ func (db *DB) CompleteTask(taskID int64) error {
 		return executeCompleteTaskTx(ctx, tx, taskID)
 	})
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, appErr)
+		return apperror.WrapSimple(appErr, "failed to complete task (operation: complete)")
 	}
 
 	return nil
@@ -166,12 +166,12 @@ func deletePendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, taskID i
 func (db *DB) FailTask(taskID int64, reason string) error {
 	result, err := ExecWrapper(db.conn, constants.SQLUpdatePendingTaskFailure, reason, taskID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskFail, err)
+		return apperror.WrapSimple(err, "failed to update task failure (operation: update)")
 	}
 
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf(constants.ErrPendingTaskNotFound, taskID)
+		return apperror.NewNotFoundError(fmt.Sprintf("pending task not found: %d", taskID))
 	}
 
 	return nil
@@ -181,7 +181,7 @@ func (db *DB) FailTask(taskID int64, reason string) error {
 func (db *DB) ListCompletedTasks() ([]model.CompletedTaskRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllCompletedTasks).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query pending tasks (operation: query)")
 	}
 
 	defer rows.Close()
@@ -197,12 +197,12 @@ func (db *DB) ListCompletedTasks() ([]model.CompletedTaskRecord, error) {
 func (db *DB) DeletePendingTask(id int64) error {
 	result, err := ExecWrapper(db.conn, constants.SQLDeletePendingTask, id).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskComplete, err)
+		return apperror.WrapSimple(err, "failed to complete task (operation: complete)")
 	}
 
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf(constants.ErrPendingTaskNotFound, id)
+		return apperror.NewNotFoundError(fmt.Sprintf("pending task not found: %d", id))
 	}
 
 	return nil

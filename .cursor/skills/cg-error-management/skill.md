@@ -51,6 +51,8 @@ WAVES = ceil(subtasks / (A x H))
 8. **Targeted Verification**: Continuous verification via `python linter-scripts/check-error-management.py <files>`. DO NOT run the full CI/CD pipeline runner (`06-cicd-local-runner.py`) during routine fixes.
 9. **No Releases**: Strictly forbidden from bumping versions or cutting releases at the end of this task.
 10. **Atomic Change Tracking**: Append all modified files to `.ai-memory/temp/recent-file-changes.json` under lock (`python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`), mapping to associated tests in `.ai-memory/test-inventory.json`.
+11. **Typed Errors for Unknown Enum Values (canonical example)**: Unknown enum value, failed `Parse`/`TryParse`, or unhandled switch case over an action enum MUST return a typed error (the repo's `*appfault.AppError` / result convention) with the offending value in the message — never a panic, never a silent default, never a swallowed error. Canonical pattern: `action, err := ActionTypeParse(raw)` → on failure wrap and return; exhaustive switch `default:` → same typed error.
+12. **Repository Error Wrapping (canonical example)**: Errors crossing a repository boundary MUST be wrapped at that boundary with context naming the repository and the operation (e.g. `appfault.Wrap(errType, err, "UserRepository.FindByID")`) before reaching services. Unwrapped repository/driver errors in the service layer are strictly prohibited.
 
 ---
 
@@ -140,3 +142,5 @@ All code searches MUST use GitMap. Shell search tools (`rg`, `ripgrep`, `grep`, 
 - [ ] Preflight schema verified via `gitmap agent task status --ddl` and `gitmap agent task status --json`.
 - [ ] 3-Tier Database Location Transparency contract fulfilled.
 - [ ] HEATMAP TELEMETRY & CONTENTION INSPECTION: Verified that multi-agent contention was inspected via gitmap heatmap discuss (or gitmap agent heatmap) before editing shared files, and that all file exploration and modifications were logged with reasoning via gitmap heatmap log (or gitmap agent log) into .ai-memory/heatmap.db for crash forensics and repo-cache synchronization.
+- [ ] Unknown enum value / failed parse / unhandled switch case returns a typed `AppError` carrying the offending value; zero panics, zero silent defaults.
+- [ ] Repository errors wrapped with repository + operation context at the repository boundary; zero unwrapped driver errors in services.

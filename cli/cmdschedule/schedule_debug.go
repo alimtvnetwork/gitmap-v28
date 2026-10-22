@@ -92,7 +92,7 @@ func printScheduleLogSummary(runs []store.ScheduleRunRecord) {
 
 	last := runs[0]
 	statusStr := "SUCCESS"
-	if last.IsSuccess == false {
+	if !last.IsSuccess {
 		statusStr = fmt.Sprintf("FAIL(%d)", last.ExitCode)
 	}
 

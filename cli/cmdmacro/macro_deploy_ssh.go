@@ -245,7 +245,7 @@ func filterDeployTargets(targets []MacroDeployTarget, targetFilter string, exclu
 	excludedCount := 0
 	targetLower := strings.ToLower(targetFilter)
 	for _, t := range targets {
-		if isTargetMatch(t, targetLower) == false {
+		if !isTargetMatch(t, targetLower) {
 			continue
 		}
 		if isNodeExcluded(t, exclusions) {

@@ -8,7 +8,7 @@ import (
 // GetLatestTag queries the most recent tag in the repository.
 func GetLatestTag(repoPath string) string {
 	hasPath := len(repoPath) > 0
-	if hasPath == false {
+	if !hasPath {
 		return ""
 	}
 

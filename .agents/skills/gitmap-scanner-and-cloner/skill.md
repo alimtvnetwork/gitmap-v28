@@ -35,11 +35,11 @@ gitmap scan [path] --mode ssh
 # Scan and automatically add discovered repositories to GitHub Desktop
 gitmap scan [path] --github-desktop
 
-# High-speed clone execution using generated manifest
-gitmap clone [manifest.json] --concurrency 8
+# High-speed clone execution using generated manifest with concurrency limit
+gitmap clone manifest.json --concurrency 8 --target-dir ./repos
 
 # Re-clone preserving full directory hierarchy
-gitmap clone --preserve-hierarchy --dest [target-dir]
+gitmap clone manifest.json --preserve-hierarchy --target-dir ./repos
 ```
 
 ---
@@ -51,3 +51,4 @@ gitmap clone --preserve-hierarchy --dest [target-dir]
 3. **Cross-Platform Pathspec Normalization:** Normalize all Windows backslashes (`\`) to forward slashes (`/`) internally to ensure consistent hashes, CSV paths, and git remotes across Windows, macOS, and Linux.
 4. **Zero Error Swallowing:** All filesystem or Git subprocess errors must be captured as `*apperror.AppError` with clear error codes (`[E1000:CLI]`, `[E9000:EXECUTION]`) and full stack traces.
 5. **No Routine Unit Test / Build Execution:** When developing scanner or cloner features, rely on targeted static analysis and file inspections. Do not run uncommanded test suites or builds during routine turns.
+6. **Canonical Concurrency & Target Flags (TOTAL BAN on `--max-concurrency`):** `gitmap clone` exclusively uses `--concurrency <N>` (never hallucinated `--max-concurrency` or `--threads`) and `--target-dir <path>` (never `--dest`). Fleet synchronization uses `--workers <N>`.

@@ -63,7 +63,7 @@ func performFixesIfRequested(root string, items []VersionCheckItem, canonical st
 func countMismatches(items []VersionCheckItem) int {
 	count := 0
 	for _, item := range items {
-		isMismatch := item.IsMatch == false
+		isMismatch := !item.IsMatch
 		if isMismatch {
 			count++
 		}
@@ -148,7 +148,7 @@ func resolveConstantsPath(root string) string {
 }
 
 func auditTargetFile(name, relPath, fullPath, canonical string, re *regexp.Regexp, isOpt bool) VersionCheckItem {
-	isMissing := fileExists(fullPath) == false
+	isMissing := !fileExists(fullPath)
 	if isMissing && isOpt {
 		return VersionCheckItem{}
 	}

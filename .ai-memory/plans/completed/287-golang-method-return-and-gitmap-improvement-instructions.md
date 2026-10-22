@@ -44,3 +44,5 @@ This plan addressed all non-negotiable requirements:
 - **FastGate AST Linter:** 100% PASS (< 0.02s) on all modified files.
 - **Unit Tests:** `cmdpull` and `cmdworkdir` passed with 100% green.
 - **Path Hygiene:** 100% strictly relative Git paths (zero absolute path violations).
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

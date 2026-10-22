@@ -113,7 +113,7 @@ func deployBundleFileWithLog(client *ssh.Client, c db.SSHConnection, bundle *Git
 
 func triggerRemoteImportWithLog(client *ssh.Client, osType, shell string) string {
 	cmd := "gitmap ssh import-all --local-bundle 2>/dev/null || true"
-	if isWindowsOS(osType) == false {
+	if !isWindowsOS(osType) {
 		cmd = wrapUnixPath(cmd)
 	}
 	out, err := secrets.RunCommand(client, cmd, shell)

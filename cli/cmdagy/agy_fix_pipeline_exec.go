@@ -57,7 +57,7 @@ func renderInjectionFeedback(res AgyInjectionResult, isNoInject bool) {
 		return
 	}
 
-	if isNoInject == false {
+	if !isNoInject {
 		fmt.Printf("  %sℹ Antigravity Injection: %s%s\n\n", constants.ColorYellow, res.Message, constants.ColorReset)
 	}
 }

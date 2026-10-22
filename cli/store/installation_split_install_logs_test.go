@@ -6,7 +6,7 @@ import (
 )
 
 func isFalse(b bool) bool {
-	return b == false
+	return !b
 }
 
 func setupTestSplitDB(t *testing.T) *InstallationSplitDB {

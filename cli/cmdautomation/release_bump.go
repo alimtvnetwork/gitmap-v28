@@ -194,7 +194,7 @@ func updateUserPreferencesFile(fullPath, newVer string) bool {
 }
 
 func executeTagIfRequested(root, tag string, isTag, isDryRun bool) bool {
-	isAllowed := isTag && isDryRun == false
+	isAllowed := isTag && !isDryRun
 	if isAllowed {
 		cmd := exec.Command("git", "-C", root, "tag", "-a", tag, "-m", fmt.Sprintf("Release %s", tag))
 		return cmd.Run() == nil
@@ -203,7 +203,7 @@ func executeTagIfRequested(root, tag string, isTag, isDryRun bool) bool {
 }
 
 func executePushIfRequested(root, tag string, isPush, isDryRun bool) bool {
-	isAllowed := isPush && isDryRun == false
+	isAllowed := isPush && !isDryRun
 	if isAllowed {
 		cmd := exec.Command("git", "-C", root, "push", "origin", tag)
 		return cmd.Run() == nil

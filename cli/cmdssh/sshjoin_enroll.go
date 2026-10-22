@@ -90,7 +90,7 @@ func connectWithGivenPass(target *SSHTarget, pass string) enrollSession {
 func promptAndConnectTarget(ctx context.Context, opts *SSHJoinOptions) enrollSession {
 	pass := promptUserPassword(ctx, opts.Target)
 	hasPass := pass != ""
-	if hasPass == false {
+	if !hasPass {
 		return enrollSession{hasClient: false, osType: "linux"}
 	}
 	opts.Password = pass

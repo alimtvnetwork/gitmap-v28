@@ -22,7 +22,7 @@ func RunMilestones(opts MilestonesOptions) MilestonesResultMonad {
 	issues := queryMilestoneIssues(root, id)
 	notes := formatMilestoneReleaseNotes(id, issues)
 	isWritten := writeNotesIfRequested(opts.OutputPath, notes)
-	isFailedWrite := opts.OutputPath != "" && isWritten == false
+	isFailedWrite := opts.OutputPath != "" && !isWritten
 	if isFailedWrite {
 		err := apperror.NewExecutionError("failed to write release notes to output path")
 		return result.Fail[MilestonesResult](err)

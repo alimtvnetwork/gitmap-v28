@@ -164,3 +164,5 @@ This master plan coordinates the specification and staged execution of Batch 4 o
   - **Target:** `cli/cmd/see_ops.go`
   - **Objective:** Extract operational handlers (`RunRepoManageUI`, `runSeeCommitPending`, `runSeeHistory`) from `cli/cmd/cmd_see.go`.
   - **Status:** Completed
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

@@ -59,7 +59,7 @@ func readLocalFile(filePath string) (RemoteFileContent, error) {
 func readRemoteSSHFile(nodeAlias, filePath string) (RemoteFileContent, error) {
 	conn, hasConn := findSSHNodeByAlias(nodeAlias)
 
-	if hasConn == false {
+	if !hasConn {
 		return RemoteFileContent{NodeAlias: nodeAlias, FilePath: filePath, IsSuccess: false, Error: "node not found"}, apperror.NewSimple("read_remote", "node_not_found")
 	}
 
@@ -69,7 +69,7 @@ func readRemoteSSHFile(nodeAlias, filePath string) (RemoteFileContent, error) {
 func executeRemoteRead(conn db.SSHConnection, nodeAlias, filePath string) (RemoteFileContent, error) {
 	client, isConnected := cmdssh.ConnectSSHClient(conn, fmt.Sprintf("[%s]", nodeAlias))
 
-	if isConnected == false {
+	if !isConnected {
 		return RemoteFileContent{NodeAlias: nodeAlias, FilePath: filePath, IsSuccess: false, Error: "ssh connect failed"}, apperror.NewSimple("read_remote", "connect_failed")
 	}
 	defer client.Close()
@@ -104,7 +104,7 @@ func SaveRemoteOrLocalFile(nodeAlias, filePath, content string) error {
 func saveRemoteSSHFile(nodeAlias, filePath, content string) error {
 	conn, hasConn := findSSHNodeByAlias(nodeAlias)
 
-	if hasConn == false {
+	if !hasConn {
 		return apperror.NewSimple("save_remote", "node_not_found")
 	}
 
@@ -114,7 +114,7 @@ func saveRemoteSSHFile(nodeAlias, filePath, content string) error {
 func executeRemoteSave(conn db.SSHConnection, nodeAlias, filePath, content string) error {
 	client, isConnected := cmdssh.ConnectSSHClient(conn, fmt.Sprintf("[%s]", nodeAlias))
 
-	if isConnected == false {
+	if !isConnected {
 		return apperror.NewSimple("save_remote", "connect_failed")
 	}
 	defer client.Close()

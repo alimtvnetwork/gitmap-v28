@@ -329,7 +329,7 @@ func printStartupLogs(name string, logs []store.StartupLogRecord) {
 	for _, l := range logs {
 		tStr := time.Unix(l.RunAt, 0).Format("2006-01-02 15:04:05")
 		statusStr := "SUCCESS"
-		if l.IsSuccess == false {
+		if !l.IsSuccess {
 			statusStr = fmt.Sprintf("FAIL(%d)", l.ExitCode)
 		}
 		fmt.Printf("  %-20s %-10s %-10s %s\n", tStr, fmt.Sprintf("%dms", l.DurationMs), statusStr, l.OutputSummary)

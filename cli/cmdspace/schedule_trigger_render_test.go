@@ -50,7 +50,7 @@ func TestBuildTriggerEmailHTMLFailureBanner(t *testing.T) {
 
 func TestInferTaskOutcome(t *testing.T) {
 	ok := InferTaskOutcome(EmailTaskPull, nil)
-	if ok.IsSuccess == false || ok.Summary != triggerSuccessSummary || ok.Operation != "pull" {
+	if !ok.IsSuccess || ok.Summary != triggerSuccessSummary || ok.Operation != "pull" {
 		t.Fatalf("unexpected success outcome: %+v", ok)
 	}
 

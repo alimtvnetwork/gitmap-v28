@@ -84,7 +84,7 @@ func TestOwnerRepoNameIndex_Tx(t *testing.T) {
 	}
 
 	repoName, ver, hasVersion := db.LookupHighestVersion("github", "testowner", "macro-ahk")
-	if hasVersion == false || ver != 2 || repoName != "macro-ahk-v2" {
+	if !hasVersion || ver != 2 || repoName != "macro-ahk-v2" {
 		t.Fatalf("LookupHighestVersion failed: ver=%d, name=%s", ver, repoName)
 	}
 }

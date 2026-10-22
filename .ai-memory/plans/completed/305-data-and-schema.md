@@ -19,3 +19,5 @@ Enforce database conventions across SQLite split-databases by generating PascalC
 4. [x] Spawn 3 parallel workers via `invoke_subagent` (`Model: 'flash_lite'`).
 5. [x] Verify AST and style with FastGate (`50-fastgate.py`).
 6. [x] Single atomic commit via `gitmap cpf "schema - enforce pascalcase views and primary key conventions"`.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

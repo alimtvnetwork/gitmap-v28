@@ -19,3 +19,5 @@ Enforce repository coding style and Return New Line rules (R13-R16) repository-w
 4. [x] Spawn 3 parallel workers via `invoke_subagent` (`Model: 'flash_lite'`).
 5. [x] Verify AST and style with FastGate (`50-fastgate.py`) and full newline linter (`check-newline-styling.py --all`).
 6. [x] Single atomic commit via `gitmap cpf "style - enforce return new line and closing brace vertical spacing"`.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

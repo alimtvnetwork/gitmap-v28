@@ -178,3 +178,5 @@ Every subtask implementation must strictly enforce:
 6. **Rule 6 (Vertical Whitespace):** Single blank line after block closure `}` and before return statements.
 7. **Strictly Relative Paths:** Zero absolute filesystem paths or URI schemes in code or documentation.
 8. **Zero Git / Zero Compiler Commands:** No git commands, builds, or tests during planning phase.
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

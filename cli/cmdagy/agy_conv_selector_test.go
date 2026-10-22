@@ -121,7 +121,7 @@ func TestSortConversations(t *testing.T) {
 func TestSelectMatchingConversation_ZeroMatches(t *testing.T) {
 	_, err := SelectMatchingConversation("/non/existent/repo/path/xyz")
 	hasErr := err != nil
-	if hasErr == false {
+	if !hasErr {
 		t.Fatalf("expected error for non-existent workspace, got nil")
 	}
 }

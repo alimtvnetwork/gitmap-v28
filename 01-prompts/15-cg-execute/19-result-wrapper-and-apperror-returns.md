@@ -145,7 +145,7 @@ func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	row := r.conn.QueryRow(SQLSelectBySlug, slug)
 	var rec model.ScanRecord
 	if err := row.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); err != nil {
-		return result.Fail[model.ScanRecord](apperror.WrapSimple(err, "FindBySlug"))
+		return result.Fail[model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.FindBySlug"))
 	}
 
 	return result.Ok(rec)
@@ -157,7 +157,7 @@ if res.HasError() {
 	return result.Fail[Output](res.Err)
 }
 if res.IsEmpty() {
-	return result.Fail[Output](apperror.NewNotFound("slug not found"))
+	return result.Fail[Output](apperror.NewNotFound("slug not found: " + slug))
 }
 rec := res.Value
 fmt.Println(rec.Slug)
@@ -204,7 +204,7 @@ type (
 func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	rows, err := r.conn.Query(SQLSelectDirtyRepos)
 	if err != nil {
-		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "ListDirty"))
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.ListDirty"))
 	}
 	defer rows.Close()
 
@@ -212,7 +212,7 @@ func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	for rows.Next() {
 		var rec model.ScanRecord
 		if scanErr := rows.Scan(&rec.RepoId, &rec.Slug); scanErr != nil {
-			return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "ListDirty.Scan"))
+			return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "store.RepoRepository.ListDirty.Scan"))
 		}
 		records = append(records, rec)
 	}
@@ -373,6 +373,8 @@ func (r *Result[T]) HasError() bool {
 - `res.Value` / `res.Data`: Direct payload access (guarded by prior `HasError()` check).
 - `res.Items()`: Returns safe slice copy (returns empty slice `[]T{}` if nil or failed).
 - `res.Err` / `res.AppError()`: Structured `*apperror.AppError` reference.
+#### Pattern 6: Repository Boundary, Enum Dispatch & Error Tie-Ins
+Repository methods (`FindBySlug`, `ListDirty`, `IndexBySlug`) are the only place SQL may appear: services and handlers call only the repository interface, dialect stays inside the implementation, and multi-repository transactions go through unit-of-work. Every wrap at this boundary names the repository and the operation (e.g. `"store.RepoRepository.FindBySlug"`). Every action/operation/command/event kind handled by code in this prompt is a named enum member dispatched by exhaustive `switch`/`match` only, with `IsValid` checked before dispatch; an unknown enum value, a failed parse, or an unhandled case returns a typed `*apperror.AppError` inside the Result wrapper with the offending value in the message — never a panic and never a silent default.
 
 ---
 
@@ -1011,7 +1013,7 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 - [ ] Strict In-Repository Execution: All Python scripts executed strictly within the codebase repository root.
 - [ ] Strict .ai-memory/ Folder Storage: All helper scripts, local runners, and linters stored in `03-ai-scripts/`.
 - [ ] Native File Manipulator: Use `python 03-ai-scripts/03-file-manipulator.py <command>` for mass file operations.
-- [ ] Go Generate Sync: If Go constants or enums are modified, run `go generate ./...` in the relevant package and commit generated files.
+- [ ] Go Generate Sync & Enum Util Checkup: If Go constants or enums are modified, verify the enum lives in the shared types/constants module with explicit stable serialized values and a complete util set (`String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values`) — add any missing util in the same change, never defer it — then run `go generate ./...` in the relevant package and commit generated files.
 
 ---
 
@@ -1049,7 +1051,9 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]` or `result.Wrap[*Config]`). Enforce canonical `result.Wrap[T]`, `result.WrapSlice[T]`, and `result.WrapMap[K, V]` aliases.
-- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*apperror.AppError` (or `*appfault.AppError`), never generic standard library error.
+- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*apperror.AppError` (or `*appfault.AppError`), never generic standard library error; repository errors wrapped at the repository boundary with repository + operation named; unknown enum values and failed parses surfaced as typed errors naming the offending value.
+- [ ] SQL Repository Pattern: No SQL strings, query builders, or ORM calls outside a repository implementation; repository Result wrappers are returned only from intention-named repository methods.
+- [ ] Enum Action Dispatch & Authoring: Actions dispatched by exhaustive `switch`/`match` on named enum members only; each enum lives in the shared types/constants module with `String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values` utils complete in the same change.
 - [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).
 - [ ] Semantic Naming: Zero generic garbage names (`temp`, `data`, `obj`). Behavior-driven unit test names.
 - [ ] Multi-Line Arguments (Rule 9a/9b): Signatures and call sites with >2 arguments formatted one argument per line with trailing commas.

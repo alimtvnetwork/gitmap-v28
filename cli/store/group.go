@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -11,7 +12,7 @@ import (
 func (db *DB) CreateGroup(name, description, color string) (model.Group, error) {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertGroup, name, description, color).Destruct()
 	if err != nil {
-		return model.Group{}, fmt.Errorf(constants.ErrDBGroupCreate, err)
+		return model.Group{}, apperror.WrapSimple(err, "failed to create group")
 	}
 
 	return db.findGroupByName(name)
@@ -21,7 +22,7 @@ func (db *DB) CreateGroup(name, description, color string) (model.Group, error) 
 func (db *DB) ListGroups() ([]model.Group, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllGroups).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBGroupQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query groups")
 	}
 
 	defer rows.Close()
@@ -34,7 +35,7 @@ func findGroupByNameRunner(runner sqlRowQueryer, name string) (model.Group, erro
 	var g model.Group
 	err := row.Scan(&g.ID, &g.Name, &g.Description, &g.Color, &g.CreatedAt)
 	if err != nil {
-		return model.Group{}, fmt.Errorf(constants.ErrDBGroupNone+": %w", name, err)
+		return model.Group{}, apperror.WrapNotFound(err, fmt.Sprintf("no group found: %s", name))
 	}
 
 	return g, nil
@@ -54,7 +55,7 @@ func (db *DB) AddRepoToGroup(groupName string, repoID int64) error {
 
 	_, err = ExecWrapper(db.conn, constants.SQLInsertGroupRepo, group.ID, repoID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBGroupAdd, err)
+		return apperror.WrapSimple(err, "failed to add repo to group")
 	}
 
 	return nil
@@ -69,7 +70,7 @@ func (db *DB) RemoveRepoFromGroup(groupName string, repoID int64) error {
 
 	_, err = ExecWrapper(db.conn, constants.SQLDeleteGroupRepo, group.ID, repoID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBGroupRemove, err)
+		return apperror.WrapSimple(err, "failed to remove repo from group")
 	}
 
 	return nil
@@ -84,7 +85,7 @@ func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {
 
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectGroupRepos, group.ID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()
@@ -96,7 +97,7 @@ func (db *DB) ShowGroup(name string) ([]model.ScanRecord, error) {
 func (db *DB) DeleteGroup(name string) error {
 	result, err := ExecWrapper(db.conn, constants.SQLDeleteGroup, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBGroupDelete, err)
+		return apperror.WrapSimple(err, "failed to delete group")
 	}
 
 	return checkDeleted(result, name)
@@ -112,7 +113,7 @@ func (db *DB) CountGroupRepos(name string) (int, error) {
 	var count int
 	err = db.conn.QueryRow(constants.SQLCountGroupRepos, group.ID).Scan(&count)
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrDBGroupQuery, err)
+		return 0, apperror.WrapSimple(err, "failed to query groups")
 	}
 
 	return count, nil
@@ -142,11 +143,11 @@ func scanGroupRows(rows interface {
 func checkDeleted(result interface{ RowsAffected() (int64, error) }, name string) error {
 	affected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBGroupDelete, err)
+		return apperror.WrapSimple(err, "failed to delete group")
 	}
 
 	if affected == 0 {
-		return fmt.Errorf(constants.ErrDBGroupNone, name)
+		return apperror.NewNotFoundError(fmt.Sprintf("no group found: %s", name))
 	}
 
 	return nil

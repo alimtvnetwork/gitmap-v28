@@ -25,7 +25,7 @@ This directory contains deterministic prompt transformation templates specifical
 3. **Mandatory Canonical Skill Triggers:** Every formatted prompt must conclude with its designated canonical skill trigger: `[<skill-name>](file;.cursor/skills/<skill-name>)`.
 4. **Standard Cursor Suffix:** All prompt files in this directory strictly carry the `-letterly-cursor.md` file suffix.
 5. **Strict Relative Git Paths Only:** Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well.
-6. **400-Step Lifecycle Budget:** All execution prompts declare a continuous 400-step lifecycle budget self-loop (Phase 1: 100 plan, Phase 2: 150 intermediate/archival, Phase 3: 150 implementation/sync).
+6. **Decoupled Execution Engine:** Cursor prompts remain generic and decoupled from internal engine step budgeting; lifecycle execution parameters and concurrency are encapsulated directly within the invoked skills (e.g. `execute-parent-task-with-n-steps-v6`).
 7. **Heatmap Telemetry & Collision Prevention:** All formatters enforce tracking in-flight file touches, avoiding write collisions across concurrent subagents, and querying cognitive graphs via GitMap Heatmap (`gitmap heatmap discuss` / `gitmap heatmap log` / `gitmap heatmap live`) with transparent 3-tier database location reporting.
 
 ## GitMap Heatmap One-Liner Integration

@@ -452,7 +452,7 @@ func runSSHWorker(c db.SSHConnection, args []string, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	client, isConnected := connectSSHClient(c, fmt.Sprintf("[%s]", c.Alias))
-	if isConnected == false {
+	if !isConnected {
 		printNodeResultOutput(c.Alias, c.IPAddress, formatAuthFailedAdvice(c.Alias), nil)
 		return nil
 	}
@@ -514,7 +514,7 @@ func resolveWorkerCommand(c db.SSHConnection, args []string) (string, string, bo
 		commandStr = resolveGitmapCommandString(args)
 		shellType = ""
 	}
-	if isWindowsOS(c.OS) == false {
+	if !isWindowsOS(c.OS) {
 		commandStr = wrapUnixPath(commandStr)
 	}
 

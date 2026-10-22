@@ -71,7 +71,7 @@ func printStartupTable(items []store.StartupItemRecord) {
 	fmt.Println("  ─────────────────────────────────────────────────────────────────────────────")
 	for _, it := range items {
 		activeStr := "yes"
-		if it.IsActive == false {
+		if !it.IsActive {
 			activeStr = "no"
 		}
 		fmt.Printf("  %-20s %-12s %-14s %-8s %s\n", it.Name, it.RunFrequency, it.TargetType, activeStr, it.TargetPath)

@@ -55,3 +55,5 @@ Okay. So you can see the nodes CFR has issues. First of all, the UI is very crap
 - **Task-04**: Intelligent Work Directory & Relative Path Resolution (`cli/cmdnodes/nodes_clone_file.go`, `cli/cmdnodes/nodes_clone.go`, `cli/cmdnodes/nodes_clone_types.go`)
 - **Task-05**: Nodes Help Menu, Examples & Command Suggestions Alignment (`cli/helptext/nodes.md`, `cli/cmd/nodes_cmd.go`, `cli/cmdnodes/nodes_clone_help.go`)
 - **Task-06**: Verification, Minor Bump & Release Ceremony (`version.json`, root `readme.md`, `02-spec/21-app/`)
+
+> **Closed 2026-10-23 (task 190, subtask 06 drain):** plan complete per its own status record and the spec 02 audit (substantively complete with matching commits); moved from pending/ to completed/ so the pending folder reflects only genuinely open work.

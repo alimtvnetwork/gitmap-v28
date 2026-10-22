@@ -47,7 +47,7 @@ func findAllUserSSHKeys() []string {
 
 	var found []string
 	for _, p := range candidates {
-		if fi, statErr := os.Stat(p); statErr == nil && fi.IsDir() == false {
+		if fi, statErr := os.Stat(p); statErr == nil && !fi.IsDir() {
 			found = append(found, p)
 		}
 	}

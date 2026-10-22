@@ -33,7 +33,7 @@ func TestE2ERemoteEditorRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected successful read, got error: %v", err)
 	}
-	if readRes.IsSuccess == false {
+	if !readRes.IsSuccess {
 		t.Fatalf("expected IsSuccess true, got false with err: %s", readRes.Error)
 	}
 	if readRes.Language != "json" {

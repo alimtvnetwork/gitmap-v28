@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -24,7 +23,7 @@ func (db *DB) InsertTransaction(r model.TransactionRecord) (int64, error) {
 		r.Kind, constants.TxnStatusPending, r.Argv, r.Cwd,
 		nowUnix(), r.ReverseSummary, r.RepoSlug, r.GitSha).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf("transaction insert: %w", err)
+		return 0, apperror.WrapSimple(err, "transaction insert")
 	}
 
 	return res.LastInsertId()
@@ -52,7 +51,7 @@ func (db *DB) updateTxnStatus(id int64, status string, setCommit, setRevert bool
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateTransactionStatus,
 		status, committed, reverted, id).Destruct()
 	if err != nil {
-		return fmt.Errorf("transaction status update: %w", err)
+		return apperror.WrapSimple(err, "transaction status update")
 	}
 
 	return nil
@@ -64,7 +63,7 @@ func (db *DB) InsertTransactionFile(r model.TransactionFileRecord) error {
 		r.TransactionID, r.RelPath, r.AbsPath, r.BackupPath,
 		r.ByteSize, r.Sha256, r.Action).Destruct()
 	if err != nil {
-		return fmt.Errorf("transaction file insert: %w", err)
+		return apperror.WrapSimple(err, "transaction file insert")
 	}
 
 	return nil
@@ -81,7 +80,7 @@ func (db *DB) FindTransactionByID(id int64) (model.TransactionRecord, error) {
 func (db *DB) ListTransactions(limit int) ([]model.TransactionRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectTransactionsRecent, limit).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf("transaction list: %w", err)
+		return nil, apperror.WrapSimple(err, "transaction list")
 	}
 
 	defer rows.Close()
@@ -93,7 +92,7 @@ func (db *DB) ListTransactions(limit int) ([]model.TransactionRecord, error) {
 func (db *DB) ListTransactionFiles(txnID int64) ([]model.TransactionFileRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectTransactionFiles, txnID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf("transaction files: %w", err)
+		return nil, apperror.WrapSimple(err, "transaction files")
 	}
 
 	defer rows.Close()
@@ -111,7 +110,7 @@ func (db *DB) LastCommittedTransactionID() (int64, error) {
 	}
 
 	if err != nil {
-		return 0, fmt.Errorf("transaction last-committed: %w", err)
+		return 0, apperror.WrapSimple(err, "transaction last-committed")
 	}
 
 	return id, nil
@@ -122,7 +121,7 @@ func (db *DB) LastCommittedTransactionID() (int64, error) {
 func (db *DB) PruneOldestTransactions(cap int) ([]int64, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectExcessTransactionIDs, cap).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf("transaction prune list: %w", err)
+		return nil, apperror.WrapSimple(err, "transaction prune list")
 	}
 
 	ids, err := collectInt64Column(rows)
@@ -142,7 +141,7 @@ func deleteTransactionRows(db *DB, ids []int64) error {
 
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
 	if appErr != nil {
-		return fmt.Errorf("transaction prune delete: %w", appErr)
+		return apperror.WrapSimple(appErr, "transaction prune delete")
 	}
 
 	ctx := context.Background()
@@ -150,7 +149,7 @@ func deleteTransactionRows(db *DB, ids []int64) error {
 		return deleteTransactionRowsInTx(ctx, tx, ids)
 	})
 	if appErr != nil {
-		return fmt.Errorf("transaction prune delete: %w", appErr)
+		return apperror.WrapSimple(appErr, "transaction prune delete")
 	}
 
 	return nil
@@ -178,7 +177,7 @@ func scanTransactionRow(row *sql.Row) (model.TransactionRecord, error) {
 	}
 
 	if err != nil {
-		return r, fmt.Errorf("transaction scan: %w", err)
+		return r, apperror.WrapSimple(err, "transaction scan")
 	}
 
 	r.CommittedAt = nullInt(committed)
@@ -210,7 +209,7 @@ func scanOneTxnFromRows(rows *sql.Rows) (model.TransactionRecord, error) {
 		&r.CreatedAt, &committed, &reverted, &r.ReverseSummary,
 		&r.RepoSlug, &r.GitSha)
 	if err != nil {
-		return r, fmt.Errorf("transaction scan: %w", err)
+		return r, apperror.WrapSimple(err, "transaction scan")
 	}
 
 	r.CommittedAt = nullInt(committed)
@@ -227,7 +226,7 @@ func scanTransactionFileRows(rows *sql.Rows) ([]model.TransactionFileRecord, err
 		err := rows.Scan(&r.ID, &r.TransactionID, &r.RelPath, &r.AbsPath,
 			&r.BackupPath, &r.ByteSize, &r.Sha256, &r.Action)
 		if err != nil {
-			return nil, fmt.Errorf("transaction file scan: %w", err)
+			return nil, apperror.WrapSimple(err, "transaction file scan")
 		}
 
 		out = append(out, r)
@@ -243,7 +242,7 @@ func collectInt64Column(rows *sql.Rows) ([]int64, error) {
 	for rows.Next() {
 		var id int64
 		if err := rows.Scan(&id); err != nil {
-			return nil, fmt.Errorf("transaction id scan: %w", err)
+			return nil, apperror.WrapSimple(err, "transaction id scan")
 		}
 
 		ids = append(ids, id)

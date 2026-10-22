@@ -75,18 +75,18 @@ You MUST verify and audit every item on this checklist across every file and fun
 
 - [ ] **Error Management Architecture (`02-spec/03-error-manage/`):**
   - Zero swallowed errors (`catch (err) {}` or `_ = err` is a critical violation).
-  - Universal `AppError` wrapping with operation context and key inputs.
+  - Universal `AppError` wrapping with operation context and key inputs; repository errors are wrapped at the repository boundary with the repository and the operation named, and an unknown enum value or failed parse is a typed `AppError` with the offending value in the message.
   - Universal response envelopes with typed status codes.
   - Zero dual-handling (NEVER panic/log AND return error in the same branch).
-  - Typed exit enums for error categories.
+  - Typed exit enums for error categories: the exit kind is a named enum member, dispatched by exhaustive `switch`/`match` only, `IsValid` is checked before dispatch, and an unknown value returns a typed `AppError` naming the offending value — never a panic or a silent default.
 
 ### Tier 5: Constants, Enums & Schema
 
 - [ ] **Centralized Enums & Constants (`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`):**
   - Zero magic strings or raw numeric literals.
-  - All Enum names MUST end with the suffix `Type` (e.g., `UserRoleType`, `PaymentStatusType`).
+  - All Enum names MUST end with the suffix `Type` (e.g., `UserRoleType`, `PaymentStatusType`): one enum per concept in the shared types/constants module, idiomatic casing, explicit stable serialized values, an unknown/zero sentinel where needed, no raw literals where an enum exists, external input only via the enum's parse util, and every enum ships `String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values` — a missing util is added in the same change, never deferred (util-methods checkup).
   - TypeScript string unions (`type Role = "admin" | "user"`) are banned.
-- [ ] **Database & Naming Conventions (`02-spec/04-database-conventions/`):** PascalCase table names, camelCase column names, `{TableName}Id` primary/foreign keys.
+- [ ] **Database & Naming Conventions (`02-spec/04-database-conventions/`):** PascalCase table names, camelCase column names, `{TableName}Id` primary/foreign keys. All SQL and data access lives behind a repository interface (one repository per aggregate/table group; intention-named methods `FindByID`, `ListActive`, `Insert`, `Update`, `SoftDelete`); no SQL strings, query builders, or ORM calls in services/handlers in any language; dialect inside the implementation; multi-repository transactions only via unit-of-work.
 
 ---
 
@@ -103,8 +103,8 @@ Score is bounded between 0 and 100: final_score = max(0, min(100, Score))
 
 | Severity | Deduction | Violation Types |
 | :--- | :--- | :--- |
-| **Critical** | **-10 pts** | Swallowed errors (`catch {}`, `_ = err`), panic + return dual-handling, explicit `== true` checks, files > 300 lines, disabled CI/CD or CLI linter commands. |
-| **Major** | **-5 pts** | Monolithic functions > 15 lines, nested `if` statements, inverted booleans (`!isSuccess`), magic strings/numbers without enums, missing `*Type` enum suffix, line compression cheating. |
+| **Critical** | **-10 pts** | Swallowed errors (`catch {}`, `_ = err`), panic + return dual-handling, explicit `== true` checks, files > 300 lines, disabled CI/CD or CLI linter commands, SQL strings, query builders, or ORM calls in services/handlers, raw-string or magic-number action dispatch, and a non-exhaustive switch whose default panics or silently succeeds. |
+| **Major** | **-5 pts** | Monolithic functions > 15 lines, nested `if` statements, inverted booleans (`!isSuccess`), magic strings/numbers without enums, missing `*Type` enum suffix, line compression cheating, an enum missing any required util, a repository error wrapped without repository + operation context, and an unknown enum value not surfaced as a typed error naming the offending value. |
 | **Minor** | **-2 pts** | Missing return new lines (R13), uppercase acronyms (`ID`/`URL` instead of `Id`/`Url`), missing parameter line breaks (> 3 params / > 100 chars), missing docstrings or semantic naming gaps. |
 
 ### Score Tier Ratings
@@ -156,9 +156,12 @@ For every file, perform the exhaustive check sequence:
 3. Braces and nested `if` check (flag every nested `if` or cyclomatic complexity > 5).
 4. Boolean syntax check (search for `== true`, `== false`, `!isSuccess`, `isNot*`, `!is* && *`).
 5. Error handling check (search for empty catch blocks, unchecked error returns, dual handling).
-6. Constant & Enum check (search for raw magic strings, inline union types, missing `*Type` suffix).
+6. Constant & Enum check (search for raw magic strings, inline union types, missing `*Type` suffix, enums outside the shared types/constants module, enums missing `String`/`Parse`/`IsValid`/`All` utils, and external input parsed without the enum parse util).
 7. Naming & casing check (search for uppercase acronyms `ID`/`URL`, generic names `temp`/`data`/`obj`).
 8. Return new line check (verify blank line before return/throw and after closing braces).
+9. SQL & repository check (flag every SQL string, query-builder call, or ORM call outside a repository implementation; flag repository methods that are not intention-named and multi-repository transactions handled outside unit-of-work).
+10. Action dispatch check (flag every action/operation/command/event kind dispatched by raw string or magic number, every non-exhaustive switch/match, and every default case that panics or silently succeeds).
+11. Repository error check (flag every repository error returned without repository + operation context in the wrap).
 
 ### Step 3: Write Master Audit Report
 
@@ -232,6 +235,8 @@ Save the final comprehensive report to:
      - [ ] Function lengths 15 lines max.
      - [ ] Implicit booleans only (no `== true`).
      - [ ] Zero swallowed errors; wrapped with `AppError`.
+     - [ ] No SQL/query-builder/ORM calls outside the repository implementation; repository errors wrapped with repository + operation.
+     - [ ] Enum utils complete (`String`, `Parse`/`TryParse`, `IsValid`, `All`/`Values`); dispatch exhaustive with a typed-error default naming the offending value.
      - [ ] Return new lines verified (R13–R16).
      - [ ] All unit tests pass.
      ```

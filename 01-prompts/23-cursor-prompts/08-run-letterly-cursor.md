@@ -1,29 +1,25 @@
-# Run Mode (Cursor) — Letterly Prompt Formatter
+# Run Mode — Letterly Prompt Formatter
 
-Format whatever input text is provided according to the exact project run template below, following the execute N-steps structure, using the Cursor skill format. Do NOT add conversational filler or commentary.
+Format input text according to exact project run template below without conversational filler or commentary.
 
-1. Clean the input text verbatim while strictly capturing target service names, ports, run flags, and environment parameters.
-2. Derive `<task title>` from the input text — it is the SUBJECT of the task (e.g. `Run Application Services`). Structure the output starting immediately with `# <task title>: high priority instruction, non-negotiable task`.
-3. Put `${Input Text Verbatim}` directly beneath the title line.
-4. After the verbatim input, output both the task name and the slug as subheaders:
-   - `## task: <task title>` — the human-readable subject/name of the task.
-   - `## slug: <task-slug>` — the lowercase-hyphenated task slug (e.g. `## slug: run-application-services`), NEVER `## slug: high-priority-instruction`.
-   Both the task name and slug are required so AI agents can identify and register the task via GitMap (`gitmap agent task init --title "<task title>" --slug "<task-slug>"`).
-5. Construct `# Actionable Items Must Follow Non-Negotiable`:
-   - Item 1 is ALWAYS: `1. Git pull BEFORE starting any work — first try \`gitmap pull <repo path>\` (or run \`gitmap pull\` in repository folder); if that fails, fall back to regular \`git pull\` and resolve any merge conflicts so the repository is completely up to date and clean before starting.`
-   - Item 2 is ALWAYS: `2. Inspect run.config.json for target service configuration and port mappings`
-   - Item 3 is ALWAYS: `3. Execute run script (./run.ps1 or ./run.sh) with automatic dependency verification`
-   - Item 4 is ALWAYS: `4. If dependencies or compilers are missing, fall back to gitmap aum install or ./local-install.ps1, then auto-rerun`
-   - Item 5 is ALWAYS: `5. Strictly use relative Git paths (02-spec/..., .ai-memory/..., cmd/...); only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well`
-   - Item 6..N capture discrete run parameters, port bindings, or service profiles from the input.
-6. Append the mandatory run skill invocation suffix `[run](file;.cursor/skills/run)`.
-7. Output ONLY the resulting formatted prompt as plain markdown text. STRICT — NEVER wrap it in a fenced code block: never emit ```markdown, ```plaintext, or any ``` fence at the start or end of the output. `#` headers and inline markdown are correct; the fence around them is forbidden. No conversational filler, no commentary before or after it.
-8. Relative Paths Mandate: Only add the relative paths, never add the absolute path during your work; ensure this is respected on the release page and in release notes as well.
-9. Additional Instructions Mandate: Always append the relative paths directive under ## Additional Instructions: '- Only add the relative paths, never add the absolute path during your work; this should be respected on the release page and in release notes as well.'
-10. Step Budget Mandate: Execute within the 400-step lifecycle budget, dedicating appropriate phases to configuration inspection, environment installation, and runner execution.
-11. Heatmap Mandate: Track in-flight file touches, prevent write collisions, and query the cognitive activity graph via GitMap Heatmap (gitmap heatmap discuss / log / live) with transparent 3-tier database location reporting.
+1. Clean input text verbatim, strictly preserving target service names, ports, run flags, and environment parameters.
+2. Derive `<task title>` as task subject (e.g. `Run Application Services`). Output line 1: `# <task title>: high priority instruction, non-negotiable task`.
+3. Output `${Input Text Verbatim}` directly beneath title.
+4. Output task name and slug subheaders:
+   - `## task: <task title>`
+   - `## slug: <task-slug>` (lowercase-hyphenated, e.g. `## slug: run-application-services`).
+5. Under `# Actionable Items Must Follow Non-Negotiable`, ensure:
+   - Item 1: `1. Git pull BEFORE starting any work — first try \`gitmap pull <repo path>\` (or run \`gitmap pull\` in repository folder); if that fails, fall back to regular \`git pull\` and resolve any merge conflicts so the repository is completely up to date and clean before starting.`
+   - Item 2: `2. Inspect run.config.json for target service configuration and port mappings`
+   - Item 3: `3. Execute run script (./run.ps1 or ./run.sh) with automatic dependency verification`
+   - Item 4: `4. If dependencies or compilers are missing, fall back to gitmap aum install or ./local-install.ps1, then auto-rerun`
+   - Item 5: `5. Strictly use relative Git paths (02-spec/..., .ai-memory/..., cmd/...); only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well`
+   followed by discrete run parameters or service profiles from input as items 6..N.
+6. Append mandatory run skill invocation suffix `[run](file;.cursor/skills/run)`.
+7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
+8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
 
-${Input Text Verbatim} = The cleaned input text as it is, without conversational filler words.
+${Input Text Verbatim} = Cleaned input text without verbal filler words.
 
 Output Format:
 
@@ -49,8 +45,7 @@ ${Input Text Verbatim}
 
 ## Additional Instructions
 
-- Execute within the 400-step lifecycle budget: allocate planning, installation, and run execution phases systematically.
-- [/plan](slashCommand;plan) first before doing the work to reduce the credits.
+- [/plan](slashCommand;plan) first before doing work for improved work or less friction, faster work and more pure and effective work.
 - [/learn](slashCommand;learn) from [gitmap](file;.cursor/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
-- Track in-flight file touches and prevent write collisions using GitMap Heatmap (`gitmap heatmap discuss` / `gitmap heatmap log` / `gitmap heatmap live`) with transparent 3-tier database location reporting.
-- Only add the relative paths, never add the absolute path during your work; this should be respected on the release page and in release notes as well.
+- Track in-flight file touches and prevent write collisions using GitMap RC Heatmap (`gitmap rc heatmap status` / `gitmap rc heatmap tree` / `gitmap rc heatmap live` / `gitmap rc heatmap sync`).
+- Only add relative paths, never add absolute paths during work; this must be respected on release page and in release notes as well.

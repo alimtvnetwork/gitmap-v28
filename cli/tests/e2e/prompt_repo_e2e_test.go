@@ -103,8 +103,8 @@ func TestPromptBackupRepository_Lifecycle(t *testing.T) {
 	}
 
 	_, notFoundErr := repo.GetBatch(ctx, "non-existent-batch")
-	isNotFound := notFoundErr != nil && notFoundErr.HasError()
-	if !isNotFound {
+	hasNotFoundErr := notFoundErr != nil && notFoundErr.HasError()
+	if !hasNotFoundErr {
 		t.Fatalf("expected not found error on missing batch")
 	}
 

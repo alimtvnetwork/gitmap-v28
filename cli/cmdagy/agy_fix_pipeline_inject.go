@@ -190,7 +190,7 @@ func DetectConversationExecutionStatus(repoRoot string) AgyConvStatusType {
 func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionState {
 	convID, transcriptPath := findActiveConvTranscript(repoRoot)
 	hasTranscript := len(transcriptPath) > 0
-	if hasTranscript == false {
+	if !hasTranscript {
 		return AgyConversationExecutionState{Status: AgyConvStatusUnknown}
 	}
 
@@ -205,7 +205,7 @@ func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionS
 
 func resolveExistingConvTranscript(convID string) (string, bool) {
 	hasConvID := len(convID) > 0
-	if hasConvID == false {
+	if !hasConvID {
 		return "", false
 	}
 	path := resolveTranscriptPathForConv(convID)
@@ -244,7 +244,7 @@ func checkFileExists(path string) bool {
 		return false
 	}
 	info, err := os.Stat(path)
-	isFoundFile := err == nil && info.IsDir() == false
+	isFoundFile := err == nil && !info.IsDir()
 
 	return isFoundFile
 }

@@ -115,43 +115,43 @@ func TestScanUint(t *testing.T) {
 }
 
 func TestScanBool(t *testing.T) {
-	if ScanBool(nil) != false {
+	if ScanBool(nil) {
 		t.Errorf("expected false for nil")
 	}
 
-	if ScanBool(true) != true {
+	if !ScanBool(true) {
 		t.Errorf("expected true for true")
 	}
 
-	if ScanBool(false) != false {
+	if ScanBool(false) {
 		t.Errorf("expected false for false")
 	}
 
-	if ScanBool(int64(1)) != true {
+	if !ScanBool(int64(1)) {
 		t.Errorf("expected true for int64(1)")
 	}
 
-	if ScanBool(int64(0)) != false {
+	if ScanBool(int64(0)) {
 		t.Errorf("expected false for int64(0)")
 	}
 
-	if ScanBool(1) != true {
+	if !ScanBool(1) {
 		t.Errorf("expected true for int(1)")
 	}
 
-	if ScanBool(0) != false {
+	if ScanBool(0) {
 		t.Errorf("expected false for int(0)")
 	}
 
-	if ScanBool(uint64(1)) != true {
+	if !ScanBool(uint64(1)) {
 		t.Errorf("expected true for uint64(1)")
 	}
 
-	if ScanBool(uint64(0)) != false {
+	if ScanBool(uint64(0)) {
 		t.Errorf("expected false for uint64(0)")
 	}
 
-	if ScanBool("not-bool") != false {
+	if ScanBool("not-bool") {
 		t.Errorf("expected false for string")
 	}
 }
