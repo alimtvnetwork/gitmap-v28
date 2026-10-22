@@ -132,10 +132,13 @@ func initSubtaskClaimFlags() {
 
 func initSubtaskLifecycleFlags() {
 	registerTargetFlags(subtaskStartCmd, &subtaskStartOpts.TaskId, &subtaskStartOpts.AgentRole, &subtaskStartOpts.TaskCode, &subtaskStartOpts.Slug)
+	subtaskStartCmd.Flags().BoolVarP(&subtaskStartOpts.IsJson, "json", "j", false, "Output result in JSON format")
 	registerTargetFlags(subtaskCompleteCmd, &subtaskCompleteOpts.TaskId, &subtaskCompleteOpts.AgentRole, &subtaskCompleteOpts.TaskCode, &subtaskCompleteOpts.Slug)
 	subtaskCompleteCmd.Flags().StringVarP(&subtaskCompleteOpts.Evidence, "evidence", "e", "", "Completion evidence or summary")
+	subtaskCompleteCmd.Flags().BoolVarP(&subtaskCompleteOpts.IsJson, "json", "j", false, "Output result in JSON format")
 	registerTargetFlags(subtaskFailCmd, &subtaskFailOpts.TaskId, &subtaskFailOpts.AgentRole, &subtaskFailOpts.TaskCode, &subtaskFailOpts.Slug)
 	subtaskFailCmd.Flags().StringVarP(&subtaskFailOpts.Reason, "reason", "r", "", "Failure reason or RCA")
+	subtaskFailCmd.Flags().BoolVarP(&subtaskFailOpts.IsJson, "json", "j", false, "Output result in JSON format")
 }
 
 func initSubtaskLsFlags() {
@@ -272,4 +275,22 @@ func buildSubtaskAddEnvelope(subtasks []types.Subtask, dbPath, parentId, cwd str
 		AddedCount:   len(subtasks),
 		Subtasks:     subtasks,
 	}
+}
+
+func renderSubtaskLifecycleJSON(status, subID, role, dbPath, details string) *appfault.AppError {
+	cwd, _ := os.Getwd()
+	env := SubtaskLifecycleEnvelope{
+		Status:       status,
+		SubtaskId:    subID,
+		AgentRole:    role,
+		DatabasePath: toRelativePath(cwd, dbPath),
+		Details:      details,
+	}
+	b, err := json.MarshalIndent(env, "", "  ")
+	if err != nil {
+		return appfault.WrapSimple(err, "renderSubtaskLifecycleJSON")
+	}
+	fmt.Println(string(b))
+
+	return nil
 }

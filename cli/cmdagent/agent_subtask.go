@@ -144,9 +144,22 @@ func RunSubtaskStart(opts SubtaskStartOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
+
+	return finishSubtaskStart(dbPath, subID, opts)
+}
+
+func finishSubtaskStart(dbPath, subID string, opts SubtaskStartOptions) *appfault.AppError {
 	startErr := store.StartSubtask(dbPath, subID, opts.AgentRole)
 	if startErr != nil {
 		return startErr
+	}
+
+	return reportSubtaskStart(dbPath, subID, opts)
+}
+
+func reportSubtaskStart(dbPath, subID string, opts SubtaskStartOptions) *appfault.AppError {
+	if opts.IsJson {
+		return renderSubtaskLifecycleJSON("in_progress", subID, opts.AgentRole, dbPath, "")
 	}
 	fmt.Printf("Subtask %s started by %s\n", subID, opts.AgentRole)
 
@@ -159,11 +172,24 @@ func RunSubtaskComplete(opts SubtaskCompleteOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
+
+	return finishSubtaskComplete(dbPath, subID, opts)
+}
+
+func finishSubtaskComplete(dbPath, subID string, opts SubtaskCompleteOptions) *appfault.AppError {
 	compErr := store.CompleteSubtask(dbPath, subID, opts.AgentRole, opts.Evidence)
 	if compErr != nil {
 		return compErr
 	}
 	releaseFileClaimsBySubtask(subID)
+
+	return reportSubtaskComplete(dbPath, subID, opts)
+}
+
+func reportSubtaskComplete(dbPath, subID string, opts SubtaskCompleteOptions) *appfault.AppError {
+	if opts.IsJson {
+		return renderSubtaskLifecycleJSON("completed", subID, opts.AgentRole, dbPath, opts.Evidence)
+	}
 	fmt.Printf("Subtask %s completed by %s\n", subID, opts.AgentRole)
 
 	return nil
@@ -175,11 +201,24 @@ func RunSubtaskFail(opts SubtaskFailOptions) *appfault.AppError {
 	if err != nil {
 		return err
 	}
+
+	return finishSubtaskFail(dbPath, subID, opts)
+}
+
+func finishSubtaskFail(dbPath, subID string, opts SubtaskFailOptions) *appfault.AppError {
 	failErr := store.FailSubtask(dbPath, subID, opts.AgentRole, opts.Reason)
 	if failErr != nil {
 		return failErr
 	}
 	releaseFileClaimsBySubtask(subID)
+
+	return reportSubtaskFail(dbPath, subID, opts)
+}
+
+func reportSubtaskFail(dbPath, subID string, opts SubtaskFailOptions) *appfault.AppError {
+	if opts.IsJson {
+		return renderSubtaskLifecycleJSON("failed", subID, opts.AgentRole, dbPath, opts.Reason)
+	}
 	fmt.Printf("Subtask %s marked as FAILED by %s\n", subID, opts.AgentRole)
 
 	return nil

@@ -204,7 +204,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent subtask claim --agent <agent-name>` — Claims the next pending subtask atomically.
 - `gitmap agent subtask claim-files` — Pre-declares file leases for collision and contention tracking.
 - `gitmap agent log --subtask <id> --agent <name> --action <action> --file <path> --details <desc>` — Logs in-flight agent action for crash forensics.
-- `gitmap agent subtask complete <id> --agent <name> --evidence <evidence>` — Marks subtask completed.
+- `gitmap agent subtask start [id] --agent <name> [--json|-j]` — Marks subtask in-progress. Outputs compact JSON with `--json`.
+- `gitmap agent subtask complete <id> --agent <name> --evidence <evidence> [--json|-j]` — Marks subtask completed with verification evidence. When `--json` is provided, outputs a compact JSON response confirming completion.
+- `gitmap agent subtask fail [id] --agent <name> --reason <reason> [--json|-j]` — Marks subtask failed with diagnostic rationale. Outputs compact JSON with `--json`.
 - `gitmap agent subtask join --subtask <id> --agent <name> --role "Assistant: <focus>"` — Dynamically joins an in-flight subtask as a collaborative assistant for parallel reading, caller analysis, or verification without file collisions.
 - `gitmap agent task tree` — Renders hierarchical task swarm tree (Lead Orchestrator -> Branch Coordinators -> Leaf Workers & Dynamic Assistants).
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
@@ -277,6 +279,29 @@ Groups common metadata once at the top level instead of repeating across individ
       "status": "PENDING"
     }
   ]
+}
+```
+
+#### `gitmap agent subtask complete --json` Response Schema
+Outputs a compact, structured JSON object confirming completion with relative database path and evidence:
+```json
+{
+  "status": "completed",
+  "subtaskId": "sub-111615-task-01",
+  "agentRole": "Spec Author 01",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db",
+  "details": "PASS exit 0, 01-architecture-spec.md created"
+}
+```
+
+#### `gitmap agent subtask start --json` / `fail --json` Lifecycle Schema
+Compact lifecycle transitions for AI worker status synchronization:
+```json
+{
+  "status": "in_progress",
+  "subtaskId": "sub-111615-task-01",
+  "agentRole": "Spec Author 01",
+  "databasePath": ".ai-memory/temp-agents/task-294/agent-task.db"
 }
 ```
 

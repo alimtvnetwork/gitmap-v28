@@ -28,6 +28,7 @@ type SubtaskStartOptions struct {
 	Slug      string
 	AgentRole string
 	TaskId    string
+	IsJson    bool
 }
 
 // SubtaskCompleteOptions defines options for completing a subtask with verification evidence.
@@ -38,6 +39,7 @@ type SubtaskCompleteOptions struct {
 	AgentRole string
 	Evidence  string
 	TaskId    string
+	IsJson    bool
 }
 
 // SubtaskFailOptions defines options for failing a subtask with diagnostic reasoning.
@@ -48,6 +50,7 @@ type SubtaskFailOptions struct {
 	AgentRole string
 	Reason    string
 	TaskId    string
+	IsJson    bool
 }
 
 // SubtaskLsOptions defines options for listing subtasks.
@@ -84,4 +87,13 @@ type SubtaskAddEnvelope struct {
 	ParentTaskId string          `json:"parentTaskId"`
 	AddedCount   int             `json:"addedCount"`
 	Subtasks     []types.Subtask `json:"subtasks"`
+}
+
+// SubtaskLifecycleEnvelope is the standard compact JSON response envelope for lifecycle commands.
+type SubtaskLifecycleEnvelope struct {
+	Status       string `json:"status"`
+	SubtaskId    string `json:"subtaskId"`
+	AgentRole    string `json:"agentRole"`
+	DatabasePath string `json:"databasePath"`
+	Details      string `json:"details,omitempty"`
 }
