@@ -1,5 +1,7 @@
 package cmdupdate
 
+import "strings"
+
 // Delegate hooks
 var (
 	ResolveDeployedAndConfigPathsFn func() (string, string)
@@ -40,7 +42,7 @@ func extractJSONString(data []byte, key string) string {
 }
 
 func findKeyValue(s, needle string) int {
-	idx := indexOf(s, needle)
+	idx := strings.Index(s, needle)
 	if idx < 0 {
 		return -1
 	}
@@ -58,20 +60,10 @@ func extractQuotedValue(s string, idx int) string {
 		return ""
 	}
 
-	end := indexOf(s[idx+1:], `"`)
+	end := strings.Index(s[idx+1:], `"`)
 	if end >= 0 {
 		return s[idx+1 : idx+1+end]
 	}
 
 	return ""
-}
-
-func indexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-
-	return -1
 }

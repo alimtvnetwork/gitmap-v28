@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -177,7 +178,7 @@ func importSingleSnapshotWithStepLogging(srcFile, explicitTarget string) error {
 }
 
 func isDelegatedSnapshotFile(srcFile string) bool {
-	return strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) || isDirectoryPath(srcFile)
+	return strings.HasSuffix(strings.ToLower(srcFile), constants.ExtZIP) || fsutil.DirExists(srcFile)
 }
 
 func handleDelegatedSnapshot(srcFile, explicitTarget string) error {

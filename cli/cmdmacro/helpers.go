@@ -2,7 +2,6 @@
 package cmdmacro
 
 import (
-	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -29,15 +28,6 @@ func checkHelp(command string, args []string) {
 			printCommandHelpAndExit(command)
 		}
 	}
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return !info.IsDir()
 }
 
 func parseExceptTokens(raw string) []string {

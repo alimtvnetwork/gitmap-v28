@@ -3,8 +3,8 @@ package cmdworkdir
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -54,7 +54,7 @@ func dispatchWorkDirAction(opts workDirOptions) error {
 
 		return nil
 	default:
-		if isDirectoryPath(opts.Action) {
+		if fsutil.DirExists(opts.Action) {
 			return runWorkDirSetDefault(opts.Action)
 		}
 
@@ -62,12 +62,6 @@ func dispatchWorkDirAction(opts workDirOptions) error {
 
 		return nil
 	}
-}
-
-func isDirectoryPath(path string) bool {
-	info, err := os.Stat(path)
-
-	return err == nil && info.IsDir()
 }
 
 func printWorkDirUsage() {

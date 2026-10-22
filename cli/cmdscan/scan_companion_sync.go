@@ -1,9 +1,9 @@
 package cmdscan
 
 import (
-	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -30,12 +30,7 @@ func TryIncludeRepoInRepoCacheJSON(records []model.ScanRecord) {
 
 func maybeSyncRootRepoCacheJSON(root string, records []model.ScanRecord) {
 	manifestPath := filepath.Join(root, "gitmap.json")
-	if isDir(root) && isRegularFileOnDisk(manifestPath) {
+	if fsutil.DirExists(root) && fsutil.FileExists(manifestPath) {
 		_ = mergeExistingManifest(manifestPath, records, true)
 	}
-}
-
-func isRegularFileOnDisk(p string) bool {
-	info, err := os.Stat(p)
-	return err == nil && !info.IsDir()
 }

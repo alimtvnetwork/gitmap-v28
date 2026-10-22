@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 var commitDirRegex = regexp.MustCompile(`^[0-9a-f]{10}$`)
@@ -17,7 +18,7 @@ var commitDirRegex = regexp.MustCompile(`^[0-9a-f]{10}$`)
 func discoverInstallationCandidates() []string {
 	var candidates []string
 	addIfValid := func(dir string) {
-		if dir != "" && isDir(dir) && !contains(candidates, dir) {
+		if dir != "" && fsutil.DirExists(dir) && !contains(candidates, dir) {
 			candidates = append(candidates, dir)
 		}
 	}
@@ -68,7 +69,7 @@ func resolveCodeLauncher(installDir string) string {
 	}
 
 	stdBin := filepath.Join(installDir, "bin", "code")
-	if isFile(stdBin) {
+	if fsutil.FileExists(stdBin) {
 		return stdBin
 	}
 
@@ -77,11 +78,11 @@ func resolveCodeLauncher(installDir string) string {
 
 func resolveWindowsLauncher(installDir string) string {
 	binCmd := filepath.Join(installDir, "bin", "code.cmd")
-	if isFile(binCmd) {
+	if fsutil.FileExists(binCmd) {
 		return binCmd
 	}
 	exe := filepath.Join(installDir, "Code.exe")
-	if isFile(exe) {
+	if fsutil.FileExists(exe) {
 		return exe
 	}
 
@@ -133,7 +134,7 @@ func copyMissingCommitDirs(dirs []string, srcParent, dstParent string) int {
 }
 
 func isCommitDirNeeded(dstPath, srcPath string) bool {
-	if isDir(dstPath) {
+	if fsutil.DirExists(dstPath) {
 		return false
 	}
 
@@ -190,18 +191,6 @@ func runWingetRepair() (string, error) {
 	}
 
 	return string(out), nil
-}
-
-func isDir(p string) bool {
-	fi, err := os.Stat(p)
-
-	return err == nil && fi.IsDir()
-}
-
-func isFile(p string) bool {
-	fi, err := os.Stat(p)
-
-	return err == nil && !fi.IsDir()
 }
 
 func contains(slice []string, val string) bool {

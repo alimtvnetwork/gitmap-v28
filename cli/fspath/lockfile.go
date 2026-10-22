@@ -27,6 +27,7 @@ import (
 	"syscall"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // ErrAlreadyHeld is returned by Acquire when a live process already
@@ -90,7 +91,7 @@ func lockPath(name string) string {
 // tryClaim is the core acquire logic: write if absent, recover-if-stale
 // otherwise. Split out so Acquire stays a one-liner.
 func tryClaim(path string) error {
-	if !fileExists(path) {
+	if !fsutil.FileOrDirExists(path) {
 		return writePIDFile(path)
 	}
 
@@ -126,13 +127,6 @@ func recoverOrFail(path string) error {
 	os.Remove(path)
 
 	return writePIDFile(path)
-}
-
-// fileExists reports whether path resolves to any filesystem entry.
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-
-	return err == nil
 }
 
 // writePIDFile writes the current process PID to path with 0o600 perms.

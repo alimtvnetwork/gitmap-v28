@@ -1,7 +1,6 @@
 package cmdos
 
 import (
-	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
@@ -17,11 +16,6 @@ func checkHelp(command string, args []string) bool {
 
 func expandHome(p string) string {
 	return cmdscan.ExpandHome(p)
-}
-
-func pathExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func openDB() (*store.DB, error) {

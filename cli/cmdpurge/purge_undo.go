@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // UndoOptions configures parameters for reverting a purge operation.
@@ -317,7 +318,7 @@ func printUndoSummaryBox(res *UndoResult) {
 	fmt.Println("┌─ Operation Completed: Git History Purge Undone ──────────────┐")
 	fmt.Printf("│ Operation ID      : %-42d │\n", res.OperationId)
 	fmt.Printf("│ Restored Branch   : %-42s │\n", res.Branch)
-	fmt.Printf("│ Restored HEAD     : %-42s │\n", truncateString(res.RestoredHeadSha, 42))
+	fmt.Printf("│ Restored HEAD     : %-42s │\n", strutil.TruncateDots(res.RestoredHeadSha, 42))
 	fmt.Printf("│ Restoration Source: %-42s │\n", res.RestorationSource)
 	fmt.Printf("│ Restored Files    : %-42d │\n", res.RestoredFilesCount)
 	fmt.Println("│ SplitDB Journal   : Restored (IsUndone = 1)                  │")

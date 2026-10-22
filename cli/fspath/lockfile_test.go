@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // TestAcquire_FreshSucceeds verifies the basic happy path: no lock file,
@@ -20,7 +22,7 @@ func TestAcquire_FreshSucceeds(t *testing.T) {
 	defer release()
 
 	path := lockPath(name)
-	if !fileExists(path) {
+	if !fsutil.FileOrDirExists(path) {
 		t.Errorf("lock file %s missing after Acquire", path)
 	}
 }

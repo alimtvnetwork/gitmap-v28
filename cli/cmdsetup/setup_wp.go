@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 const defaultWpConfigTemplate = `<?php
@@ -188,7 +189,7 @@ func GenerateWpConfigContent(baseContent string, opts WordPressOptions) (string,
 }
 
 func readFileIfExists(path string) (string, bool, *apperror.AppError) {
-	hasFile := fileExists(path)
+	hasFile := fsutil.FileOrDirExists(path)
 	if !hasFile {
 		return "", false, nil
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -173,7 +174,7 @@ func mergeRepoCacheRecord(existing, probe *model.ScanRecord) {
 // ProbeWorkspaceRepoCacheRecord detects whether repo-cache exists and returns a synthesized ScanRecord.
 func ProbeWorkspaceRepoCacheRecord() (*model.ScanRecord, bool) {
 	root, remoteURL, hasRepoCache := probeRepoCacheDir()
-	if !hasRepoCache || !isDir(filepath.Join(root, ".git")) {
+	if !hasRepoCache || !fsutil.DirExists(filepath.Join(root, ".git")) {
 		return nil, false
 	}
 	rec := synthesizeRepoCacheRecord(root, remoteURL)
@@ -183,7 +184,7 @@ func ProbeWorkspaceRepoCacheRecord() (*model.ScanRecord, bool) {
 func probeRepoCacheDir() (string, string, bool) {
 	if ResolveRepoCacheRootFn != nil {
 		hookRoot := ResolveRepoCacheRootFn()
-		if isDir(hookRoot) {
+		if fsutil.DirExists(hookRoot) {
 			return hookRoot, "", true
 		}
 	}
@@ -193,7 +194,7 @@ func probeRepoCacheDir() (string, string, bool) {
 	if root, hasDefault := probeDefaultWorkDir(); hasDefault {
 		return root, "", true
 	}
-	if isDir(`D:\work\repo-cache`) {
+	if fsutil.DirExists(`D:\work\repo-cache`) {
 		return `D:\work\repo-cache`, "", true
 	}
 	return "", "", false
@@ -206,7 +207,7 @@ func probeSpecialReposDB() (string, string, bool) {
 	}
 	defer db.Close()
 	rec, err := db.GetSpecialRepo("repo-cache")
-	hasRec := err == nil && rec != nil && len(rec.LocalPath) > 0 && isDir(rec.LocalPath)
+	hasRec := err == nil && rec != nil && len(rec.LocalPath) > 0 && fsutil.DirExists(rec.LocalPath)
 	if hasRec {
 		return rec.LocalPath, rec.RemoteURL, true
 	}
@@ -223,14 +224,9 @@ func probeDefaultWorkDir() (string, bool) {
 	hasDefault := err == nil && wd != nil && len(wd.AbsolutePath) > 0
 	if hasDefault {
 		candidate := filepath.Join(wd.AbsolutePath, "repo-cache")
-		return candidate, isDir(candidate)
+		return candidate, fsutil.DirExists(candidate)
 	}
 	return "", false
-}
-
-func isDir(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
 }
 
 func synthesizeRepoCacheRecord(root, remoteURL string) model.ScanRecord {

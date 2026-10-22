@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -152,9 +153,9 @@ func printSSHRunningProjectRow(r RunningProjectRecord) {
 	node := resolveFallbackValue(r.Node, "local")
 	host := resolveFallbackValue(r.Host, "127.0.0.1")
 	color := resolveRunningColorSSH(r.HasActivePrompt)
-	preview := truncateString(r.PromptPreview, 30)
+	preview := strutil.TruncateDots(r.PromptPreview, 30)
 	fmt.Printf("  %-18s  %-12s  %-15s  %s%-14s%s  %-8d  %s\n",
-		truncateString(r.ProjectName, 18), node, host, color, r.Status, constants.ColorReset, r.QueuedCount, preview)
+		strutil.TruncateDots(r.ProjectName, 18), node, host, color, r.Status, constants.ColorReset, r.QueuedCount, preview)
 }
 
 func resolveFallbackValue(val, fallback string) string {

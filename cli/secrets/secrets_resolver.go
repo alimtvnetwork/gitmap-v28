@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // Default filenames
@@ -33,7 +35,7 @@ func ResolveRepoSecretsRoot() string {
 		"repo-secrets",
 	}
 	for _, c := range candidates {
-		if isDirectoryPath(c) {
+		if fsutil.DirExists(c) {
 			return c
 		}
 	}
@@ -43,7 +45,7 @@ func ResolveRepoSecretsRoot() string {
 // ResolveRepoSecretsNodesPath locates gitmap-ssh-nodes.json or gitmap-ssh.json for a token or default.
 func ResolveRepoSecretsNodesPath(token string) string {
 	trimmed := strings.TrimSpace(token)
-	if trimmed != "" && isDirectPath(trimmed) {
+	if trimmed != "" && fsutil.FileExists(trimmed) {
 		return trimmed
 	}
 	root := ResolveRepoSecretsRoot()
@@ -63,7 +65,7 @@ func resolveNonEmptyFolderToken(root, trimmed string) string {
 // ResolveRepoSecretsManifest locates a clone or status manifest (gitmap.json) for a machine token.
 func ResolveRepoSecretsManifest(token string, preferredFile string) string {
 	trimmed := strings.TrimSpace(token)
-	if trimmed != "" && isDirectPath(trimmed) {
+	if trimmed != "" && fsutil.FileExists(trimmed) {
 		return trimmed
 	}
 	root := ResolveRepoSecretsRoot()
@@ -82,34 +84,19 @@ func resolvePreferredManifestPath(targetDir, preferredFile string) string {
 		return ""
 	}
 	preferredPath := filepath.Join(targetDir, preferredFile)
-	if fileExists(preferredPath) {
+	if fsutil.FileExists(preferredPath) {
 		return preferredPath
 	}
 	return ""
 }
 
-func isDirectPath(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
-func isDirectoryPath(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
 func resolveFolderByToken(root, token string) string {
 	low := strings.ToLower(token)
-	if mapped, ok := knownMachineFolderMap[low]; ok && isDirectoryPath(filepath.Join(root, mapped)) {
+	if mapped, ok := knownMachineFolderMap[low]; ok && fsutil.DirExists(filepath.Join(root, mapped)) {
 		return filepath.Join(root, mapped)
 	}
 	directPath := filepath.Join(root, token)
-	if isDirectoryPath(directPath) {
+	if fsutil.DirExists(directPath) {
 		return directPath
 	}
 	return scanSubdirMatchingToken(root, low)
@@ -145,7 +132,7 @@ func findNodesFileInDir(dir string) string {
 		filepath.Join(dir, DefaultSSHNodesAltJSONFile),
 	}
 	for _, c := range candidates {
-		if fileExists(c) {
+		if fsutil.FileExists(c) {
 			return c
 		}
 	}
@@ -158,7 +145,7 @@ func findAnyManifestInDir(dir string) string {
 		filepath.Join(dir, "gitmap.csv"),
 	}
 	for _, c := range candidates {
-		if fileExists(c) {
+		if fsutil.FileExists(c) {
 			return c
 		}
 	}
@@ -174,7 +161,7 @@ func findDefaultNodesPath(root string) string {
 		filepath.Join(root, DefaultSSHNodesJSONFile),
 	}
 	for _, c := range localCandidates {
-		if fileExists(c) {
+		if fsutil.FileExists(c) {
 			return c
 		}
 	}

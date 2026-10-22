@@ -2,7 +2,6 @@
 package cmdsetup
 
 import (
-	"os"
 	"regexp"
 	"strings"
 
@@ -57,9 +56,4 @@ func parseVersionFromOutput(output string) string {
 	}
 
 	return ""
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }

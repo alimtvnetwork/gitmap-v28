@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func TestParseMergeAIArgs(t *testing.T) {
@@ -98,18 +100,18 @@ func TestStageAndSequenceFilesCollision(t *testing.T) {
 	}
 
 	// Verify collision files exist on disk
-	if !fileExists(filepath.Join(tempDest, "01_main.go")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "01_main.go")) {
 		t.Fatalf("expected 01_main.go to exist in dest")
 	}
-	if !fileExists(filepath.Join(tempDest, "02_main.go")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "02_main.go")) {
 		t.Fatalf("expected 02_main.go to exist in dest")
 	}
 
 	// Verify unique files exist
-	if !fileExists(filepath.Join(tempDest, "unique1.txt")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "unique1.txt")) {
 		t.Fatalf("expected unique1.txt to exist in dest")
 	}
-	if !fileExists(filepath.Join(tempDest, "unique2.txt")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "unique2.txt")) {
 		t.Fatalf("expected unique2.txt to exist in dest")
 	}
 	if uniquePlaced != 2 {
@@ -164,13 +166,13 @@ func TestStageAndSequenceFilesCollision_ThreeRepos(t *testing.T) {
 		t.Fatalf("expected 3 variants for readme.md, got %d", len(collisions[0].Variants))
 	}
 
-	if !fileExists(filepath.Join(tempDest, "01_readme.md")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "01_readme.md")) {
 		t.Errorf("expected 01_readme.md on disk")
 	}
-	if !fileExists(filepath.Join(tempDest, "02_readme.md")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "02_readme.md")) {
 		t.Errorf("expected 02_readme.md on disk")
 	}
-	if !fileExists(filepath.Join(tempDest, "03_readme.md")) {
+	if !fsutil.FileExists(filepath.Join(tempDest, "03_readme.md")) {
 		t.Errorf("expected 03_readme.md on disk")
 	}
 }
@@ -202,7 +204,7 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 		t.Fatalf("WriteMergeAIManifest failed: %v", err)
 	}
 	manifestPath := filepath.Join(tempDest, "merge-ai-manifest.json")
-	if !fileExists(manifestPath) {
+	if !fsutil.FileExists(manifestPath) {
 		t.Fatalf("merge-ai-manifest.json does not exist")
 	}
 
@@ -247,7 +249,7 @@ func TestWriteManifestAndInstruction(t *testing.T) {
 		t.Fatalf("WriteMergeAIInstruction failed: %v", err)
 	}
 	instPath := filepath.Join(tempDest, "instruction.md")
-	if !fileExists(instPath) {
+	if !fsutil.FileExists(instPath) {
 		t.Fatalf("instruction.md does not exist")
 	}
 

@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -128,7 +129,7 @@ type ClassifyDestParams struct {
 // destination on disk. Stat-only — never opens the repo.
 func classifyDest(params ClassifyDestParams) AuditEntry {
 	base := params.Base
-	if !pathExists(params.Dest) {
+	if !fsutil.FileOrDirExists(params.Dest) {
 		base.Action = AuditActionClone
 
 		return base

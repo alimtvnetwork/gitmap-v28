@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func runSmartChromeImport(opts chromeTransferOptions) error {
@@ -77,7 +78,7 @@ func collectImportCandidates(opts chromeTransferOptions) ([]string, string, erro
 }
 
 func resolveTargetDirFromOpts(opts chromeTransferOptions) string {
-	if len(opts.Positional) > 0 && isDirectoryPath(opts.Positional[0]) {
+	if len(opts.Positional) > 0 && fsutil.DirExists(opts.Positional[0]) {
 		return opts.Positional[0]
 	}
 
@@ -137,7 +138,7 @@ func findCandidatesInDir(dir string) ([]string, string, error) {
 }
 
 func resolveSinglePositionalCandidate(pos0 string) ([]string, string, error) {
-	if pos0 == "." || pos0 == "*.*" || pos0 == "*" || isDirectoryPath(pos0) {
+	if pos0 == "." || pos0 == "*.*" || pos0 == "*" || fsutil.DirExists(pos0) {
 		return findCandidatesInDir(pos0)
 	}
 

@@ -11,14 +11,10 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/pterm/pterm"
 )
-
-func isDir(p string) bool {
-	info, err := os.Stat(p)
-	return err == nil && info.IsDir()
-}
 
 func prepareAndInspectSources(items []ResolvedSourceItem, stagingBase string) ([]SourceRepoConfig, error) {
 	var sources []SourceRepoConfig
@@ -40,13 +36,13 @@ func prepareAndInspectSources(items []ResolvedSourceItem, stagingBase string) ([
 func resolveSourceStagingDir(item ResolvedSourceItem, idx, total int, stagingBase string) (string, error) {
 	slug := deriveSourceSlug(item.RepoURL, idx)
 	localWorkDir := filepath.Join(resolveWorkBaseDir(), slug)
-	if isDir(filepath.Join(localWorkDir, ".git")) {
+	if fsutil.DirExists(filepath.Join(localWorkDir, ".git")) {
 		pterm.Info.Printf("  ▸ [%d/%d] Adopting existing local repository: %s\n", idx+1, total, localWorkDir)
 		return localWorkDir, nil
 	}
 
 	stagingDir := filepath.Join(stagingBase, slug)
-	if isDir(filepath.Join(stagingDir, ".git")) {
+	if fsutil.DirExists(filepath.Join(stagingDir, ".git")) {
 		pterm.Info.Printf("  ▸ [%d/%d] Reusing cached staging clone: %s\n", idx+1, total, stagingDir)
 		return stagingDir, nil
 	}
@@ -72,7 +68,7 @@ func resolveStoreWorkDir() string {
 	if errWd != nil || wd == nil || len(wd.AbsolutePath) == 0 {
 		return ""
 	}
-	if isDir(wd.AbsolutePath) {
+	if fsutil.DirExists(wd.AbsolutePath) {
 		return wd.AbsolutePath
 	}
 	return ""
@@ -96,7 +92,7 @@ func resolveWorkBaseDir() string {
 		return storeDir
 	}
 
-	if isDir(`D:\work`) {
+	if fsutil.DirExists(`D:\work`) {
 		return `D:\work`
 	}
 

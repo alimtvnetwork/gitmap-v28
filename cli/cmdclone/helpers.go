@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
@@ -299,11 +300,11 @@ func isGitRepo(dir string) bool {
 }
 
 func discoverDefaultCloneManifest() string {
-	if isRegularFile("gitmap.json") {
+	if fsutil.FileExists("gitmap.json") {
 		return "gitmap.json"
 	}
 	dotPath := filepath.Join(".gitmap", "gitmap.json")
-	if isRegularFile(dotPath) {
+	if fsutil.FileExists(dotPath) {
 		return dotPath
 	}
 	matches, _ := filepath.Glob("*.json")
@@ -315,17 +316,12 @@ func discoverDefaultCloneManifest() string {
 	return ""
 }
 
-func isRegularFile(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
-}
-
 func isCandidateCloneJSON(name string) bool {
 	base := strings.ToLower(filepath.Base(name))
 	if isNonCloneManifestName(base) {
 		return false
 	}
-	return isRegularFile(name)
+	return fsutil.FileExists(name)
 }
 
 func isNonCloneManifestName(name string) bool {

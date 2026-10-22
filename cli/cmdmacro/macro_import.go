@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
@@ -72,14 +73,14 @@ func parseMacroImportOpts(args []string) macroImportOpts {
 }
 
 func reconcileImportPaths(opts *macroImportOpts) {
-	if opts.FilePath == "" && opts.TargetName != "" && fileExists(opts.TargetName) {
+	if opts.FilePath == "" && opts.TargetName != "" && fsutil.FileExists(opts.TargetName) {
 		opts.FilePath = opts.TargetName
 		opts.TargetName = ""
 
 		return
 	}
 
-	if !fileExists(opts.FilePath) && fileExists(opts.TargetName) {
+	if !fsutil.FileExists(opts.FilePath) && fsutil.FileExists(opts.TargetName) {
 		opts.FilePath, opts.TargetName = opts.TargetName, opts.FilePath
 	}
 
@@ -88,7 +89,7 @@ func reconcileImportPaths(opts *macroImportOpts) {
 }
 
 func isImportPathSwapNeeded(opts *macroImportOpts) bool {
-	neitherFileExists := !fileExists(opts.FilePath) && !fileExists(opts.TargetName)
+	neitherFileExists := !fsutil.FileExists(opts.FilePath) && !fsutil.FileExists(opts.TargetName)
 	hasTargetExtOnly := hasKnownImportExtension(opts.TargetName) && !hasKnownImportExtension(opts.FilePath)
 
 	return neitherFileExists && hasTargetExtOnly

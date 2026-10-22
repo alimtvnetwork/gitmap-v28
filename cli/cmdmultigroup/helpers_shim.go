@@ -8,6 +8,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 	"github.com/mattn/go-runewidth"
 	"os"
 	"os/exec"
@@ -507,7 +508,7 @@ func execOneRepo(rec model.ScanRecord, gitArgs []string) (int, int, int) {
 	}
 
 	fmt.Printf(constants.ExecMissingFmt,
-		constants.ColorDim, truncate(rec.RepoName, 22),
+		constants.ColorDim, strutil.TruncateEllipsis(rec.RepoName, 22),
 		constants.ColorYellow, constants.ColorReset)
 
 	return 0, 0, 1
@@ -540,9 +541,9 @@ func resolveExecCmd(rec model.ScanRecord, gitArgs []string) *exec.Cmd {
 // printExecResult prints the success or failure line for one repo.
 func printExecResult(name, output string, err error) {
 	if err == nil {
-		fmt.Printf(constants.ExecSuccessFmt, constants.ColorGreen, truncate(name, 22), constants.ColorReset)
+		fmt.Printf(constants.ExecSuccessFmt, constants.ColorGreen, strutil.TruncateEllipsis(name, 22), constants.ColorReset)
 	} else {
-		fmt.Printf(constants.ExecFailFmt, constants.ColorYellow, truncate(name, 22), constants.ColorReset)
+		fmt.Printf(constants.ExecFailFmt, constants.ColorYellow, strutil.TruncateEllipsis(name, 22), constants.ColorReset)
 	}
 
 	printExecOutput(output)
@@ -557,14 +558,6 @@ func printExecOutput(output string) {
 	for _, line := range strings.Split(output, "\n") {
 		fmt.Printf(constants.ExecOutputLineFmt, constants.ColorDim, line, constants.ColorReset)
 	}
-}
-
-func truncate(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-
-	return s[:max-1] + "…"
 }
 
 // printExecSummary shows final totals.

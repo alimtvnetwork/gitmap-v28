@@ -28,6 +28,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -496,7 +497,7 @@ func handleChainedStepResult(runErr error) {
 }
 
 func hasLocalCloneManifest() bool {
-	return isRegularFile("gitmap.json") || discoverDefaultCloneManifest() != ""
+	return fsutil.FileExists("gitmap.json") || discoverDefaultCloneManifest() != ""
 }
 
 func isCFRManifestTarget(target string) bool {

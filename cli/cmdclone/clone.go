@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
@@ -91,7 +92,7 @@ func resolveCloneManifest(source string) (string, error) {
 }
 
 func resolveExplicitCloneSource(source string) string {
-	if isRegularFile(source) {
+	if fsutil.FileExists(source) {
 		return source
 	}
 	if resolved := secrets.ResolveRepoSecretsManifest(source, "gitmap.json"); resolved != "" {

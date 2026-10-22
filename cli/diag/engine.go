@@ -193,7 +193,7 @@ func matchTier2Levenshtein(token string, maxDist int) []Suggestion {
 }
 
 func buildLevenshteinSuggestion(token string, meta commandMeta, dist int) Suggestion {
-	maxLen := maxInt(len(token), len(meta.name))
+	maxLen := max(len(token), len(meta.name))
 	conf := calculateNormalizedConfidence(dist, maxLen)
 	action := ActionManual
 	if conf >= 0.75 {
@@ -263,13 +263,6 @@ func min3(a, b, c int) int {
 		m = c
 	}
 	return m
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 func matchTier3Prefix(token string) []Suggestion {
@@ -391,7 +384,7 @@ func isFlagMatch(token, flag string) bool {
 
 func buildFlagSuggestion(token string, f flagMeta) Suggestion {
 	dist := computeLevenshtein(token, f.flag)
-	conf := calculateNormalizedConfidence(dist, maxInt(len(token), len(f.flag)))
+	conf := calculateNormalizedConfidence(dist, max(len(token), len(f.flag)))
 	return Suggestion{
 		Command:     f.flag,
 		Description: f.desc,

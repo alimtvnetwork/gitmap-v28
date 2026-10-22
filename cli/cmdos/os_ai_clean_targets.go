@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/osclean"
 )
 
@@ -90,7 +91,7 @@ func (a *cleanAccumulator) addFilePath(filePath string, size int64) {
 }
 
 func scanDirectoryTree(dirPath string, acc *cleanAccumulator) {
-	if !pathExists(dirPath) || osclean.IsAntigravityProtected(dirPath) {
+	if !fsutil.FileOrDirExists(dirPath) || osclean.IsAntigravityProtected(dirPath) {
 		return
 	}
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 const defaultBoxWidth = 76
@@ -111,7 +113,7 @@ func renderTopologyBeforeNodes(sb *strings.Builder, nodes []AffectedCommitNode, 
 			badge = "[AFFECTED]"
 		}
 		sha := shortShaOrFallback(n)
-		msg := truncateString(n.CommitMessage, 28)
+		msg := strutil.TruncateDots(n.CommitMessage, 28)
 		sb.WriteString(padBoxLine(fmt.Sprintf("    * %s %s %s", sha, badge, msg), width))
 	}
 }
@@ -126,11 +128,11 @@ func renderTopologyAfterNodes(sb *strings.Builder, nodes []AffectedCommitNode, t
 		}
 
 		if n.IsAffected {
-			sb.WriteString(padBoxLine(fmt.Sprintf("    * %s (cln)   %s", sha, truncateString(n.CommitMessage, 26)), width))
+			sb.WriteString(padBoxLine(fmt.Sprintf("    * %s (cln)   %s", sha, strutil.TruncateDots(n.CommitMessage, 26)), width))
 			continue
 		}
 
-		sb.WriteString(padBoxLine(fmt.Sprintf("    * %s          %s", sha, truncateString(n.CommitMessage, 28)), width))
+		sb.WriteString(padBoxLine(fmt.Sprintf("    * %s          %s", sha, strutil.TruncateDots(n.CommitMessage, 28)), width))
 	}
 }
 
@@ -181,14 +183,6 @@ func shortShaOrFallback(n AffectedCommitNode) string {
 	}
 
 	return n.CommitSha
-}
-
-func truncateString(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-
-	return s[:max-3] + "..."
 }
 
 func formatModeLabel(t TargetType) string {

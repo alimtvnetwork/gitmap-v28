@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -59,7 +60,7 @@ func LoadPEFormatProfile(target string) (*PEFormatProfile, error) {
 }
 
 func tryLoadProfileFromFile(path string) (*PEFormatProfile, bool) {
-	if !strings.HasSuffix(strings.ToLower(path), ".json") && !fileExists(path) {
+	if !strings.HasSuffix(strings.ToLower(path), ".json") && !fsutil.FileExists(path) {
 		return nil, false
 	}
 	data, err := os.ReadFile(path)
@@ -71,11 +72,6 @@ func tryLoadProfileFromFile(path string) (*PEFormatProfile, bool) {
 		return nil, false
 	}
 	return &p, true
-}
-
-func fileExists(p string) bool {
-	info, err := os.Stat(p)
-	return err == nil && !info.IsDir()
 }
 
 func loadProfileFromFormatsDir(nameOrAlias string) (*PEFormatProfile, error) {
@@ -119,7 +115,7 @@ func scanProfilesForMatch(dir, target string) (*PEFormatProfile, error) {
 func DeletePEFormatProfile(target string) error {
 	dir := resolveFormatsDir()
 	candidate := filepath.Join(dir, target+".json")
-	if fileExists(candidate) {
+	if fsutil.FileExists(candidate) {
 		_ = os.Remove(candidate)
 	}
 	return removeMatchedProfiles(dir, target)

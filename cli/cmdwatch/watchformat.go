@@ -6,6 +6,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // printWatchDashboard clears the screen and prints one refresh cycle.
@@ -55,20 +56,20 @@ func printWatchRows(snapshots []watchSnapshot) {
 func printWatchRow(snap watchSnapshot) {
 	if snap.Status == "error" {
 		fmt.Printf(constants.WatchErrorRowFmt,
-			constants.ColorDim, truncate(snap.Name, 22),
+			constants.ColorDim, strutil.TruncateEllipsis(snap.Name, 22),
 			constants.ColorYellow, constants.ColorReset)
 
 		return
 	}
 
 	statusText := formatWatchStatus(snap.Status)
-	branchText := fmt.Sprintf("%s%s%s", constants.ColorCyan, truncate(snap.Branch, 16), constants.ColorReset)
+	branchText := fmt.Sprintf("%s%s%s", constants.ColorCyan, strutil.TruncateEllipsis(snap.Branch, 16), constants.ColorReset)
 	aheadText := formatWatchCount(snap.Ahead, constants.ColorCyan)
 	behindText := formatWatchCount(snap.Behind, constants.ColorYellow)
 	stashText := formatWatchCount(snap.Stash, constants.ColorCyan)
 
 	fmt.Printf(constants.WatchRowFmt,
-		truncate(snap.Name, 22), statusText, branchText,
+		strutil.TruncateEllipsis(snap.Name, 22), statusText, branchText,
 		aheadText, behindText, stashText)
 }
 

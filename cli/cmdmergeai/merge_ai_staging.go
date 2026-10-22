@@ -11,6 +11,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdresolver"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func cleanDestStagingDirectory(destDir string) error {
@@ -83,7 +84,7 @@ func stageSingleFile(
 		return handleKnownCollision(col, destDir, src.LocalStaging, relPath, seqPrefix, sourceSlug, headSha)
 	}
 
-	if !fileExists(destPath) {
+	if !fsutil.FileExists(destPath) {
 		return handleUniqueFile(destPath, src.LocalStaging, relPath, seqPrefix, sourceSlug, headSha, placedOrigin, uniquePlaced)
 	}
 
@@ -192,11 +193,6 @@ func handleFirstCollision(
 		},
 	}
 	return nil
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
 }
 
 func copyFile(src, dst string) error {

@@ -72,7 +72,7 @@ func pruneMissingEntries(entries []Entry, exceptList []string) ([]Entry, int) {
 			valid = append(valid, e)
 			continue
 		}
-		if !dirExists(e.RootPath) {
+		if !fsutil.DirExists(e.RootPath) {
 			missing++
 			continue
 		}
@@ -227,7 +227,7 @@ func GetClearTargets(entries []Entry, exceptList []string, onlyMissing bool) ([]
 			continue
 		}
 
-		if onlyMissing && dirExists(e.RootPath) {
+		if onlyMissing && fsutil.DirExists(e.RootPath) {
 			remaining = append(remaining, e)
 			continue
 		}

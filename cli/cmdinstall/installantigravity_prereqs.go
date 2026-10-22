@@ -39,17 +39,10 @@ func compareVersionIndices(parts1, parts2 []string, idx int) int {
 	return compareParts(p1, p2)
 }
 
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func compareVersionNumbers(v1, v2 string) int {
 	p1 := strings.Split(v1, ".")
 	p2 := strings.Split(v2, ".")
-	maxLen := maxInt(len(p1), len(p2))
+	maxLen := max(len(p1), len(p2))
 	for i := 0; i < maxLen; i++ {
 		cmp := compareVersionIndices(p1, p2, i)
 		if cmp != 0 {

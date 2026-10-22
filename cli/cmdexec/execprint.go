@@ -8,6 +8,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // execInRepo runs a git or gitmap command inside a single repo directory.
@@ -37,9 +38,9 @@ func resolveExecCmd(rec model.ScanRecord, gitArgs []string) *exec.Cmd {
 // printExecResult prints the success or failure line for one repo.
 func printExecResult(name, output string, err error) {
 	if err == nil {
-		fmt.Printf(constants.ExecSuccessFmt, constants.ColorGreen, truncate(name, 22), constants.ColorReset)
+		fmt.Printf(constants.ExecSuccessFmt, constants.ColorGreen, strutil.TruncateEllipsis(name, 22), constants.ColorReset)
 	} else {
-		fmt.Printf(constants.ExecFailFmt, constants.ColorYellow, truncate(name, 22), constants.ColorReset)
+		fmt.Printf(constants.ExecFailFmt, constants.ColorYellow, strutil.TruncateEllipsis(name, 22), constants.ColorReset)
 	}
 
 	printExecOutput(output)

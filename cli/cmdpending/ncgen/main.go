@@ -29,6 +29,7 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 const (
@@ -46,7 +47,7 @@ func main() {
 }
 
 func run() error {
-	if !fileExists(annotationsFile) {
+	if !fsutil.FileOrDirExists(annotationsFile) {
 		return apperror.NewNotFoundError(fmt.Sprintf("annotations file %s not found (run from cli/cmdpending)", annotationsFile))
 	}
 
@@ -66,9 +67,4 @@ func run() error {
 	}
 
 	return emitCatalog(outputFile, anns, reg)
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }

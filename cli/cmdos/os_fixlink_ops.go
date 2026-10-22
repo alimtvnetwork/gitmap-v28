@@ -3,6 +3,8 @@ package cmdos
 import (
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // LinkResult records the diagnostic and repair state of one symlink.
@@ -84,7 +86,7 @@ func resolveMissingLinkTarget(linkPath, override string) string {
 		return override
 	}
 
-	if filepath.Base(linkPath) == "SharedDirectories" && pathExists("/mnt/hgfs") {
+	if filepath.Base(linkPath) == "SharedDirectories" && fsutil.FileOrDirExists("/mnt/hgfs") {
 		return "/mnt/hgfs"
 	}
 
@@ -154,12 +156,12 @@ func resolveNewTarget(linkPath, currentTarget, override string) string {
 
 func checkTargetExists(linkPath, target string) bool {
 	if filepath.IsAbs(target) {
-		return pathExists(target)
+		return fsutil.FileOrDirExists(target)
 	}
 
 	cand := filepath.Join(filepath.Dir(linkPath), target)
 
-	return pathExists(cand)
+	return fsutil.FileOrDirExists(cand)
 }
 
 func makeSymlink(linkPath, target string) error {
@@ -170,17 +172,17 @@ func makeSymlink(linkPath, target string) error {
 }
 
 func findHeuristicTarget(linkPath, currentTarget string) string {
-	if filepath.Base(linkPath) == "SharedDirectories" && pathExists("/mnt/hgfs") {
+	if filepath.Base(linkPath) == "SharedDirectories" && fsutil.FileOrDirExists("/mnt/hgfs") {
 		return "/mnt/hgfs"
 	}
 
 	candDir := filepath.Join(filepath.Dir(linkPath), currentTarget)
-	if pathExists(candDir) {
+	if fsutil.FileOrDirExists(candDir) {
 		return candDir
 	}
 
 	candBase := filepath.Join(filepath.Dir(linkPath), filepath.Base(currentTarget))
-	if pathExists(candBase) {
+	if fsutil.FileOrDirExists(candBase) {
 		return candBase
 	}
 

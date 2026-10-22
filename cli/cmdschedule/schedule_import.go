@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"gopkg.in/yaml.v3"
@@ -21,7 +22,7 @@ import (
 
 func runScheduleImport(args []string) error {
 	opts := parseScheduleExportOpts(args)
-	if opts.FilePath == "" && opts.TargetName != "" && fileExists(opts.TargetName) {
+	if opts.FilePath == "" && opts.TargetName != "" && fsutil.FileExists(opts.TargetName) {
 		opts.FilePath = opts.TargetName
 		opts.TargetName = ""
 	}
@@ -38,12 +39,6 @@ func runScheduleImport(args []string) error {
 	}
 
 	return importBundlesIntoStore(bundlesRes.Data, opts.ExceptList)
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-
-	return err == nil && !info.IsDir()
 }
 
 func parseImportFileBundles(filePath string) ScheduleExportBundleResult {

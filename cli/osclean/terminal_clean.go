@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -352,7 +353,7 @@ func resolveBashSessionsDir() string {
 		return ""
 	}
 	dir := filepath.Join(home, ".bash_sessions")
-	if isDir(dir) {
+	if fsutil.DirExists(dir) {
 		return dir
 	}
 	return ""
@@ -379,7 +380,7 @@ func resolveZshSessionsDir() string {
 		return ""
 	}
 	dir := filepath.Join(home, ".zsh_sessions")
-	if isDir(dir) {
+	if fsutil.DirExists(dir) {
 		return dir
 	}
 	return ""
@@ -419,11 +420,6 @@ func filterExistingPaths(paths []string) []string {
 	return existing
 }
 
-func isDir(p string) bool {
-	fi, err := os.Stat(p)
-	return err == nil && fi.IsDir()
-}
-
 func isGitmapInstalledBefore() bool {
 	home, _ := os.UserHomeDir()
 	appData := os.Getenv("APPDATA")
@@ -440,7 +436,7 @@ func isGitmapInstalledBefore() bool {
 	}
 
 	for _, f := range checkFiles {
-		if f != "" && fileExists(f) {
+		if f != "" && fsutil.FileOrDirExists(f) {
 			return true
 		}
 	}
@@ -455,11 +451,6 @@ func isGitmapInstalledBefore() bool {
 	}
 
 	return false
-}
-
-func fileExists(p string) bool {
-	_, err := os.Stat(p)
-	return err == nil
 }
 
 func getCanonicalGitmapSuggestions() []string {

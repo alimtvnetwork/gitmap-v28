@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func TestParseLaravelFlags(t *testing.T) {
@@ -71,7 +73,7 @@ func TestSetupLaravelDryRun(t *testing.T) {
 	}
 
 	envFile := filepath.Join(dir, ".env")
-	hasFile := fileExists(envFile)
+	hasFile := fsutil.FileOrDirExists(envFile)
 	if hasFile {
 		t.Error(".env should not be written during dry-run")
 	}
@@ -167,7 +169,7 @@ func TestCreateStorageSymlink(t *testing.T) {
 	}
 
 	targetPath := filepath.Join(dir, "storage", "app", "public")
-	hasTarget := dirExists(targetPath)
+	hasTarget := fsutil.DirExists(targetPath)
 	if !hasTarget {
 		t.Error("expected storage/app/public directory to be created")
 	}

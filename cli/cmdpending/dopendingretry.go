@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -43,7 +44,7 @@ func isReplayableTaskType(typeName string) bool {
 
 // retryDeleteTask attempts to delete the target path for a pending task.
 func retryDeleteTask(db *store.DB, taskID int64, targetPath string) {
-	if !pathExists(targetPath) {
+	if !fsutil.FileOrDirExists(targetPath) {
 		fmt.Printf(constants.MsgPendingSkipNotExist, taskID)
 		completeTaskWithLog(db, taskID)
 
@@ -73,7 +74,7 @@ func retryReplayTask(db *store.DB, taskID int64, workDir, cmdArgs string) {
 	}
 
 	hasWorkDir := workDir != ""
-	isDirMissing := !pathExists(workDir)
+	isDirMissing := !fsutil.FileOrDirExists(workDir)
 	isWorkDirNotFound := hasWorkDir && isDirMissing
 	if isWorkDirNotFound {
 		reason := fmt.Sprintf(constants.ReasonWorkDirNotFound, workDir)
@@ -107,13 +108,6 @@ func retryReplayTask(db *store.DB, taskID int64, workDir, cmdArgs string) {
 
 	fmt.Printf(constants.MsgPendingTaskCompleted, taskID, cmdArgs)
 	completeTaskWithLog(db, taskID)
-}
-
-// pathExists returns true if the given path exists on the file system.
-func pathExists(path string) bool {
-	_, err := os.Stat(path)
-
-	return err == nil
 }
 
 // formatPathError returns a Code Red formatted error with path context.

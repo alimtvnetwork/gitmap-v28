@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 var commandRunner = runCommandDiscrete
@@ -56,7 +57,7 @@ func runIcaclsCredentials(credPath string, isDryRun bool) *apperror.AppError {
 }
 
 func secureSingleCredential(filePath string, isDryRun bool) *apperror.AppError {
-	hasFile := fileExists(filePath)
+	hasFile := fsutil.FileOrDirExists(filePath)
 	if !hasFile {
 		return nil
 	}

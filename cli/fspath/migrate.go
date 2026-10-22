@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // MigrateLegacyDirs moves old directories into .gitmap/ if found.
@@ -27,12 +28,12 @@ func MigrateLegacyDirs() {
 // If the target already exists, it merges files from the legacy directory
 // (without overwriting) and removes the legacy directory.
 func migrateSingleDir(oldDir, subDir string) {
-	if !dirExists(oldDir) {
+	if !fsutil.DirExists(oldDir) {
 		return
 	}
 
 	target := filepath.Join(constants.GitMapDir, subDir)
-	if dirExists(target) {
+	if fsutil.DirExists(target) {
 		mergeAndRemoveLegacy(oldDir, target)
 
 		return
@@ -86,7 +87,7 @@ func mergeAndRemoveLegacy(oldDir, target string) {
 			return nil
 		}
 
-		if fileExists(dest) {
+		if fsutil.FileOrDirExists(dest) {
 			skipped++
 
 			return nil
@@ -121,13 +122,6 @@ func mergeAndRemoveLegacy(oldDir, target string) {
 	}
 
 	fmt.Printf(constants.MsgMergedAndRemoved, oldDir, target, merged, skipped)
-}
-
-// dirExists checks if a directory exists at the given path.
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-
-	return err == nil && info.IsDir()
 }
 
 // ensureGitMapDir creates the .gitmap/ directory if it does not exist.

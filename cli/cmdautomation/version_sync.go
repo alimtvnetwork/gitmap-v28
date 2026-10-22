@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -140,7 +141,7 @@ func auditVersionFiles(root, canonical string) []VersionCheckItem {
 
 func resolveConstantsPath(root string) string {
 	p1 := filepath.Join(root, "cli/constants/constants_version.go")
-	isP1Exist := fileExists(p1)
+	isP1Exist := fsutil.FileExists(p1)
 	if isP1Exist {
 		return "cli/constants/constants_version.go"
 	}
@@ -148,7 +149,7 @@ func resolveConstantsPath(root string) string {
 }
 
 func auditTargetFile(name, relPath, fullPath, canonical string, re *regexp.Regexp, isOpt bool) VersionCheckItem {
-	isMissing := !fileExists(fullPath)
+	isMissing := !fsutil.FileExists(fullPath)
 	if isMissing && isOpt {
 		return VersionCheckItem{}
 	}
@@ -235,13 +236,4 @@ func readFileContent(fullPath string) string {
 		return ""
 	}
 	return string(data)
-}
-
-func fileExists(fullPath string) bool {
-	info, err := os.Stat(fullPath)
-	isMissing := err != nil || info.IsDir()
-	if isMissing {
-		return false
-	}
-	return true
 }

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // LocateOptions specifies parameters for finding developer tools.
@@ -118,7 +119,7 @@ func queryVsWhereForVcvars() (string, bool) {
 	}
 
 	firstLine := strings.TrimSpace(strings.Split(string(out), "\r\n")[0])
-	if pathExists(firstLine) {
+	if fsutil.FileExists(firstLine) {
 		return firstLine, true
 	}
 
@@ -132,7 +133,7 @@ func findVsWhereExe() string {
 	}
 
 	candidate := filepath.Join(prog86, "Microsoft Visual Studio", "Installer", "vswhere.exe")
-	if pathExists(candidate) {
+	if fsutil.FileExists(candidate) {
 		return candidate
 	}
 
@@ -142,7 +143,7 @@ func findVsWhereExe() string {
 	}
 
 	candidate64 := filepath.Join(prog, "Microsoft Visual Studio", "Installer", "vswhere.exe")
-	if pathExists(candidate64) {
+	if fsutil.FileExists(candidate64) {
 		return candidate64
 	}
 
@@ -152,7 +153,7 @@ func findVsWhereExe() string {
 func scanKnownVcvarsPaths() (string, bool) {
 	candidates := buildKnownVcvarsCandidates()
 	for _, c := range candidates {
-		if pathExists(c) {
+		if fsutil.FileExists(c) {
 			return c, true
 		}
 	}
@@ -190,7 +191,7 @@ func searchBoundedVcvars() (string, bool) {
 }
 
 func scanRootForFile(root, filename string, maxDepth int) (string, bool) {
-	if !dirExists(root) {
+	if !fsutil.DirExists(root) {
 		return "", false
 	}
 
@@ -233,7 +234,7 @@ func checkStandardToolDirs(target string) (string, bool) {
 	dirs := resolveStandardToolDirs()
 	for _, d := range dirs {
 		candidate := filepath.Join(d, target)
-		if pathExists(candidate) {
+		if fsutil.FileExists(candidate) {
 			return candidate, true
 		}
 	}
@@ -257,24 +258,6 @@ func resolveStandardToolDirs() []string {
 		"/opt/homebrew/bin",
 		"/bin",
 	}
-}
-
-func pathExists(p string) bool {
-	if len(p) == 0 {
-		return false
-	}
-	info, err := os.Stat(p)
-
-	return err == nil && !info.IsDir()
-}
-
-func dirExists(p string) bool {
-	if len(p) == 0 {
-		return false
-	}
-	info, err := os.Stat(p)
-
-	return err == nil && info.IsDir()
 }
 
 func renderLocateResult(res LocateResult, isJSON bool) {

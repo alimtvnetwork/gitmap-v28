@@ -16,6 +16,7 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // ErrUserDataMissing is returned when the VS Code user-data root cannot be
@@ -35,7 +36,7 @@ func UserDataRoot() (string, error) {
 		return "", ErrUserDataMissing
 	}
 
-	if !dirExists(candidate) {
+	if !fsutil.DirExists(candidate) {
 		return candidate, ErrUserDataMissing
 	}
 
@@ -57,7 +58,7 @@ func ProjectsJSONPath() (string, error) {
 		constants.VSCodePMGlobalStorageDir,
 		constants.VSCodePMExtensionDir)
 
-	if !dirExists(extDir) {
+	if !fsutil.DirExists(extDir) {
 		return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing
 	}
 
@@ -78,7 +79,7 @@ func EnsureProjectsJSONPath() (string, error) {
 		constants.VSCodePMGlobalStorageDir,
 		constants.VSCodePMExtensionDir)
 
-	if !dirExists(extDir) && os.MkdirAll(extDir, 0755) != nil {
+	if !fsutil.DirExists(extDir) && os.MkdirAll(extDir, 0755) != nil {
 		return filepath.Join(extDir, constants.VSCodePMProjectsFile), ErrExtensionMissing
 	}
 
@@ -135,14 +136,4 @@ func linuxUserDataCandidate() string {
 	}
 
 	return ""
-}
-
-// dirExists reports whether path exists and is a directory.
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-
-	return info.IsDir()
 }

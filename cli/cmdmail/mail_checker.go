@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // MailboxCheckFilter specifies criteria for inspecting mailboxes.
@@ -156,17 +158,10 @@ func FormatMailCheckTable(summary *MailCheckSummary, showFullEmail bool) string 
 		}
 		ratio := fmt.Sprintf("%d / %d", item.UnreadCount, item.TotalCount)
 		sb.WriteString(fmt.Sprintf("| %-20s | %-13s | %-8s | %-6s | %-19s |\n",
-			truncateString(displayAddr, 20), ratio, item.Status, maskedLabel, truncateString(item.LastCheckedAt, 19)))
+			strutil.TruncateDots(displayAddr, 20), ratio, item.Status, maskedLabel, strutil.TruncateDots(item.LastCheckedAt, 19)))
 	}
 	sb.WriteString("+----------------------+---------------+----------+--------+---------------------+\n")
 	return sb.String()
-}
-
-func truncateString(s string, maxLen int) string {
-	if len(s) > maxLen {
-		return s[:maxLen-3] + "..."
-	}
-	return s
 }
 
 // FormatMailCheckJSON renders check results as Universal Response Envelope.

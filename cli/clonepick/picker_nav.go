@@ -11,17 +11,17 @@ package clonepick
 func applyCursorMove(m pickerModel, key string) pickerModel {
 	switch key {
 	case "up", "k":
-		m.cursor = maxInt(0, m.cursor-1)
+		m.cursor = max(0, m.cursor-1)
 	case "down", "j":
 		m.cursor = minInt(len(m.paths)-1, m.cursor+1)
 	case "pgup", "ctrl+b":
-		m.cursor = maxInt(0, m.cursor-m.viewportHeight)
+		m.cursor = max(0, m.cursor-m.viewportHeight)
 	case "pgdown", "ctrl+f":
 		m.cursor = minInt(len(m.paths)-1, m.cursor+m.viewportHeight)
 	case "g", "home":
 		m.cursor = 0
 	case "G", "end":
-		m.cursor = maxInt(0, len(m.paths)-1)
+		m.cursor = max(0, len(m.paths)-1)
 	}
 
 	return m
@@ -67,14 +67,6 @@ func clampScroll(params ScrollBoundsParams) int {
 // external dep beyond bubbletea. Kept private to the package.
 func minInt(a, b int) int {
 	if a < b {
-		return a
-	}
-
-	return b
-}
-
-func maxInt(a, b int) int {
-	if a > b {
 		return a
 	}
 

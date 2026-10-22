@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 func renderActivePromptsTerminal(convs []AgyActiveConversation) {
@@ -35,8 +36,8 @@ func printActiveTable(convs []AgyActiveConversation) {
 }
 
 func renderActiveConvRow(seq int, c AgyActiveConversation) {
-	title := truncateString(c.Title, 22)
-	ws := truncateString(c.WorkspacePath, 30)
+	title := strutil.TruncateDots(c.Title, 22)
+	ws := strutil.TruncateDots(c.WorkspacePath, 30)
 	elapsed := formatElapsedDuration(c.ElapsedSeconds)
 	fmt.Printf("  %-3d %s%-24s%s %-32s %-8d %-12s %s%s%s\n",
 		seq, constants.ColorYellow, title, constants.ColorReset,
@@ -48,13 +49,6 @@ func formatElapsedDuration(secs int) string {
 		return fmt.Sprintf("%ds", secs)
 	}
 	return fmt.Sprintf("%dm %ds", secs/60, secs%60)
-}
-
-func truncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen-3] + "..."
 }
 
 func renderActivePromptsJSON(convs []AgyActiveConversation) error {

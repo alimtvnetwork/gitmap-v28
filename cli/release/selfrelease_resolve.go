@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -119,11 +120,11 @@ func normalizeSourceRepoRoot(path string) string {
 }
 
 func isGitmapSourceRepo(root string) bool {
-	if fileExists(filepath.Join(root, "cli", "constants", "constants.go")) || fileExists(filepath.Join(root, "gitmap", "constants", "constants.go")) {
+	if fsutil.FileExists(filepath.Join(root, "cli", "constants", "constants.go")) || fsutil.FileExists(filepath.Join(root, "gitmap", "constants", "constants.go")) {
 		return true
 	}
 
-	if !fileExists(filepath.Join(root, constants.GoModFile)) || !fileExists(filepath.Join(root, "constants", "constants.go")) {
+	if !fsutil.FileExists(filepath.Join(root, constants.GoModFile)) || !fsutil.FileExists(filepath.Join(root, "constants", "constants.go")) {
 		return false
 	}
 

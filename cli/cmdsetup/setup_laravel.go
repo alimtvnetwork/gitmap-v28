@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 const defaultLaravelEnvTemplate = `APP_NAME=Laravel
@@ -142,14 +143,8 @@ func resolveLaravelBaseContent(targetDir string) (string, *apperror.AppError) {
 	return defaultLaravelEnvTemplate, nil
 }
 
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-
-	return err == nil && info.IsDir()
-}
-
 func ensurePublicStorageTarget(targetPath string) *apperror.AppError {
-	hasTarget := dirExists(targetPath)
+	hasTarget := fsutil.DirExists(targetPath)
 	if hasTarget {
 		return nil
 	}
@@ -202,7 +197,7 @@ func createStorageSymlink(targetDir string) *apperror.AppError {
 
 func runArtisanStorageLink(targetDir string) *apperror.AppError {
 	artisanPath := filepath.Join(targetDir, "artisan")
-	hasArtisan := fileExists(artisanPath)
+	hasArtisan := fsutil.FileOrDirExists(artisanPath)
 	if !hasArtisan {
 		return nil
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // ParseIgnoreInterval parses duration strings into time.Duration.
@@ -329,7 +330,7 @@ func printSingleCacheRow(r store.GitIgnoreRecord, isValid bool) {
 	ago := formatTimeAgo(time.Since(time.Unix(r.LastCheckedAt, 0)))
 	statusTag := formatStatusTag(isValid)
 	fmt.Printf("  %-20s %-12s %-11d %-9s %-17s %s\n",
-		truncateString(r.RepoSlug, 20),
+		strutil.TruncateDots(r.RepoSlug, 20),
 		r.Status,
 		r.RemediatedCount,
 		fmt.Sprintf("%dms", r.DurationMs),
@@ -343,13 +344,6 @@ func formatStatusTag(isValid bool) string {
 		return fmt.Sprintf("%s[VALID]%s", constants.ColorGreen, constants.ColorReset)
 	}
 	return fmt.Sprintf("%s[EXPIRED]%s", constants.ColorYellow, constants.ColorReset)
-}
-
-func truncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen-3] + "..."
 }
 
 // ParsedFlags stores decomposed CLI flag arguments.

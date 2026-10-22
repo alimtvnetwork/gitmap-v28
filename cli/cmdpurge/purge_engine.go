@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 // PurgeExtendedOptions adds CLI-specific flags to PurgeOptions.
@@ -609,7 +610,7 @@ func makeAdvisoryString(opId int64) string {
 func printPostPurgeSummary(opId int64, newHead, advisory string) {
 	fmt.Println("┌─ Operation Completed: Git History Purged ──────────────────────────┐")
 	fmt.Printf("│ Operation ID      : %-46d │\n", opId)
-	fmt.Printf("│ Rewritten HEAD    : %-46s │\n", truncateString(newHead, 46))
+	fmt.Printf("│ Rewritten HEAD    : %-46s │\n", strutil.TruncateDots(newHead, 46))
 	fmt.Println("├────────────────────────────────────────────────────────────────────┤")
 	fmt.Printf("│ %-66s │\n", advisory)
 	fmt.Println("└────────────────────────────────────────────────────────────────────┘")

@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -23,7 +24,7 @@ func findWindowsCursor() (string, bool) {
 		filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local", "Programs", "cursor", "Cursor.exe"),
 	}
 	for _, cand := range candidates {
-		if cand != "" && isFile(cand) {
+		if cand != "" && fsutil.FileExists(cand) {
 			return cand, true
 		}
 	}
@@ -46,7 +47,7 @@ func findLinuxCursor() (string, bool) {
 		filepath.Join(home, ".local", "bin", "cursor"),
 	}
 	for _, cand := range candidates {
-		if cand != "" && isFile(cand) {
+		if cand != "" && fsutil.FileExists(cand) {
 			return cand, true
 		}
 	}
@@ -63,7 +64,7 @@ func findDarwinCursor() (string, bool) {
 		filepath.Join(home, "Applications", "Cursor.app", "Contents", "MacOS", "Cursor"),
 	}
 	for _, cand := range candidates {
-		if cand != "" && isFile(cand) {
+		if cand != "" && fsutil.FileExists(cand) {
 			return cand, true
 		}
 	}
@@ -71,11 +72,6 @@ func findDarwinCursor() (string, bool) {
 		return path, true
 	}
 	return "", false
-}
-
-func isFile(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
 }
 
 // FindCursorExecutable locates the Cursor IDE executable on the host system.

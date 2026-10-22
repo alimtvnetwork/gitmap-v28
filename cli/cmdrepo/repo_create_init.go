@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func InitLocalRepo(p CreateRepoParams) error {
@@ -139,22 +140,16 @@ func maybeApplyCGFiles(isCG bool, absDir string) error {
 func writeInitialFiles(absDir string, p CreateRepoParams) {
 	readmePath := filepath.Join(absDir, "README.md")
 	readmeLower := filepath.Join(absDir, "readme.md")
-	if !fileExists(readmePath) && !fileExists(readmeLower) {
+	if !fsutil.FileExists(readmePath) && !fsutil.FileExists(readmeLower) {
 		readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
 		_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
 	}
 
 	gitignorePath := filepath.Join(absDir, ".gitignore")
-	if !fileExists(gitignorePath) {
+	if !fsutil.FileExists(gitignorePath) {
 		gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
 		_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)
 	}
-}
-
-func fileExists(p string) bool {
-	info, err := os.Stat(p)
-
-	return err == nil && !info.IsDir()
 }
 
 func commitInitialFiles(absDir string) error {
@@ -235,17 +230,11 @@ func tryCopyCGSpecFiles(baseDir, cgDst string) bool {
 		return false
 	}
 	cgSrc := filepath.Join(baseDir, "02-spec", "02-coding-guidelines")
-	if !dirExists(cgSrc) {
+	if !fsutil.DirExists(cgSrc) {
 		return false
 	}
 	_ = copyDir(cgSrc, cgDst)
 	return true
-}
-
-func dirExists(p string) bool {
-	info, err := os.Stat(p)
-
-	return err == nil && info.IsDir()
 }
 
 func copyDir(src, dst string) error {
@@ -278,10 +267,10 @@ func copyFile(src, dst string) error {
 }
 
 func resolveCGBaseDir() string {
-	if constants.RepoPath != "" && dirExists(filepath.Join(constants.RepoPath, "02-spec", "02-coding-guidelines")) {
+	if constants.RepoPath != "" && fsutil.DirExists(filepath.Join(constants.RepoPath, "02-spec", "02-coding-guidelines")) {
 		return constants.RepoPath
 	}
-	if p := os.Getenv("GITMAP_CODING_GUIDELINES_DIR"); p != "" && dirExists(filepath.Join(p, "02-spec", "02-coding-guidelines")) {
+	if p := os.Getenv("GITMAP_CODING_GUIDELINES_DIR"); p != "" && fsutil.DirExists(filepath.Join(p, "02-spec", "02-coding-guidelines")) {
 		return p
 	}
 	if fromCwd := resolveCGBaseDirFromCwd(); fromCwd != "" {
@@ -295,7 +284,7 @@ func resolveCGBaseDirFromCwd() string {
 	if err != nil {
 		return ""
 	}
-	if dirExists(filepath.Join(cwd, "02-spec", "02-coding-guidelines")) {
+	if fsutil.DirExists(filepath.Join(cwd, "02-spec", "02-coding-guidelines")) {
 		return cwd
 	}
 	curr := cwd
@@ -305,11 +294,11 @@ func resolveCGBaseDirFromCwd() string {
 			break
 		}
 		cgDir := filepath.Join(parent, "coding-guidelines")
-		if dirExists(filepath.Join(cgDir, "02-spec", "02-coding-guidelines")) {
+		if fsutil.DirExists(filepath.Join(cgDir, "02-spec", "02-coding-guidelines")) {
 			return cgDir
 		}
 		gmDir := filepath.Join(parent, "git"+"map")
-		if dirExists(filepath.Join(gmDir, "02-spec", "02-coding-guidelines")) {
+		if fsutil.DirExists(filepath.Join(gmDir, "02-spec", "02-coding-guidelines")) {
 			return gmDir
 		}
 		curr = parent
@@ -321,11 +310,11 @@ func resolveCGBaseDirFromDrives() string {
 	drives := []string{"D", "C", "E"}
 	for _, d := range drives {
 		cg := filepath.Join(d+":", string(filepath.Separator), "work", "coding-guidelines")
-		if dirExists(filepath.Join(cg, "02-spec", "02-coding-guidelines")) {
+		if fsutil.DirExists(filepath.Join(cg, "02-spec", "02-coding-guidelines")) {
 			return cg
 		}
 		gm := filepath.Join(d+":", string(filepath.Separator), "work", "git"+"map")
-		if dirExists(filepath.Join(gm, "02-spec", "02-coding-guidelines")) {
+		if fsutil.DirExists(filepath.Join(gm, "02-spec", "02-coding-guidelines")) {
 			return gm
 		}
 	}
@@ -335,7 +324,7 @@ func resolveCGBaseDirFromDrives() string {
 func ensureCGOverviewFallback(cgDst string) {
 	_ = os.MkdirAll(cgDst, 0755)
 	readmePath := filepath.Join(cgDst, "00-overview.md")
-	if fileExists(readmePath) {
+	if fsutil.FileExists(readmePath) {
 		return
 	}
 	_ = os.WriteFile(readmePath, []byte("# Coding Guidelines\n\nCanonical coding guidelines standard.\n"), 0644)

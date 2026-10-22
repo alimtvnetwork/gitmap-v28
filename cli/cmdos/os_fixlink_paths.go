@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func resolveDefaultFixLinkPaths() []string {
@@ -18,7 +19,7 @@ func resolveDefaultFixLinkPaths() []string {
 
 	var active []string
 	for _, c := range candidates {
-		if pathExists(c) || isLikelyCandidate(c) {
+		if fsutil.FileOrDirExists(c) || isLikelyCandidate(c) {
 			active = append(active, c)
 		}
 	}
@@ -27,7 +28,7 @@ func resolveDefaultFixLinkPaths() []string {
 }
 
 func isLikelyCandidate(path string) bool {
-	return filepath.Base(path) == "SharedDirectories" && pathExists("/mnt/hgfs")
+	return filepath.Base(path) == "SharedDirectories" && fsutil.FileOrDirExists("/mnt/hgfs")
 }
 
 func inspectStandardLinksStatus(desktopDir string) error {

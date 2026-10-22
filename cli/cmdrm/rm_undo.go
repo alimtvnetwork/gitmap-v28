@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // ExecuteUndo performs atomic restoration of staged files from a manifest.
@@ -145,15 +146,10 @@ func restoreSingleFile(sessionDir, repoRoot string, record RmFileRecord) error {
 }
 
 func resolveStagedSource(sessionDir string, record RmFileRecord) string {
-	if record.StagedPath != "" && pathExists(record.StagedPath) {
+	if record.StagedPath != "" && fsutil.FileOrDirExists(record.StagedPath) {
 		return record.StagedPath
 	}
 	return filepath.Join(sessionDir, "files", filepath.FromSlash(record.RelativePath))
-}
-
-func pathExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func verifyRestoredChecksum(destPath, expectedSha string) error {

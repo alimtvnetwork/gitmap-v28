@@ -1,6 +1,8 @@
 package cmddoctor
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfixrepo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup"
 )
@@ -43,7 +45,7 @@ func extractJSONString(data []byte, key string) string {
 //
 //nolint:unused
 func findKeyValue(s, needle string) int {
-	idx := indexOf(s, needle)
+	idx := strings.Index(s, needle)
 	if idx < 0 {
 		return -1
 	}
@@ -64,23 +66,10 @@ func extractQuotedValue(s string, idx int) string {
 		return ""
 	}
 
-	end := indexOf(s[idx+1:], `"`)
+	end := strings.Index(s[idx+1:], `"`)
 	if end >= 0 {
 		return s[idx+1 : idx+1+end]
 	}
 
 	return ""
-}
-
-// indexOf returns the index of substr in s, or -1.
-//
-//nolint:unused
-func indexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
-	}
-
-	return -1
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
@@ -70,7 +71,7 @@ func BinaryName(moduleName string) string {
 // FindMainPackages locates buildable main package directories.
 // Checks root main.go first, then cmd/ subdirectories.
 func FindMainPackages() []string {
-	if fileExists(constants.GoMainFile) {
+	if fsutil.FileExists(constants.GoMainFile) {
 		return []string{"."}
 	}
 
@@ -90,7 +91,7 @@ func FindMainPackages() []string {
 		}
 
 		mainPath := filepath.Join(entryPath, constants.GoMainFile)
-		if fileExists(mainPath) {
+		if fsutil.FileExists(mainPath) {
 			packages = append(packages, entryPath)
 		}
 	}

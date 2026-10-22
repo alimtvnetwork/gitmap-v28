@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func TestGenerateWpConfigContentDefaults(t *testing.T) {
@@ -119,7 +121,7 @@ func TestSetupWordPressDryRun(t *testing.T) {
 	}
 
 	wpConfig := filepath.Join(dir, "wp-config.php")
-	hasFile := fileExists(wpConfig)
+	hasFile := fsutil.FileOrDirExists(wpConfig)
 	if hasFile {
 		t.Error("wp-config.php should not be written during dry-run")
 	}

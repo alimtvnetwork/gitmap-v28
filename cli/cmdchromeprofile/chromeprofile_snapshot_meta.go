@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 func readSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
@@ -17,7 +18,7 @@ func readSnapshotMetadata(srcFile string) (*snapshotMetadata, error) {
 		return readZipSnapshotMetadata(srcFile)
 	}
 
-	if isDirectoryPath(srcFile) {
+	if fsutil.DirExists(srcFile) {
 		return readDirectorySnapshotMetadata(srcFile)
 	}
 
