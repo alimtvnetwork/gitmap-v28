@@ -1,23 +1,26 @@
 ---
 name: go-appwriter-and-result
-description: Implement enterprise Go packages using structured AppError, monadic Result wrappers, deterministic enums, and pluggable StreamWriter pipelines.
+description: Implement enterprise Go packages using structured AppError, monadic Result wrappers (result.Wrap, WrapSlice, WrapMap), deterministic enums, and pluggable StreamWriter pipelines.
 ---
 
 # Go Architecture: AppWriter, Result Wrappers, & AppError
 
-This skill provides guidelines for writing and maintaining enterprise Go code within `04-code/golang/pkg/`.
+This skill provides guidelines for writing and maintaining enterprise Go code within `04-code/golang/pkg/` and `cli/`.
 
 ## Core Pillars
 
-1. **Structured Failure Standard (`*appfault.AppError`):**
-   - Standard failure return type across all packages: `*appfault.AppError`.
-   - Classification via `errtype.Variation uint16` enum (`None`, `Validation`, `NotFound`, `Execution`, `Database`, `Network`, `Timeout`, `Internal`).
+1. **Structured Failure Standard (`*apperror.AppError` / `*appfault.AppError`):**
+   - Standard failure return type across all packages: `*apperror.AppError` (or `*appfault.AppError`).
+   - Classification via `errtype.Variation uint16` or `ErrorType` enum (`None`, `Validation`, `NotFound`, `Execution`, `Database`, `Network`, `Timeout`, `Internal`).
    - Structured caller tracking: `CallerInfo` (Function, File, Line), never a raw string.
 
-2. **Monadic Result Container (`result.Wrap[T]`):**
-   - Functions returning a value along with possible failure must return `result.Wrap[T]`.
-   - Eliminates bare tuples `(T, error)` in domain boundaries.
-   - Provides methods: `.IsSuccess()`, `.IsFailure()`, `.Value()`, `.AppError()`, `.Match()`.
+2. **Monadic Result Containers (`result.Wrap[T]`, `result.WrapSlice[T]`, `result.WrapMap[K, V]`):**
+   - Single entities: Functions returning a value along with possible failure must return `result.Wrap[T]`.
+   - Collections / Slices: Functions returning slices must return `result.WrapSlice[T]`.
+   - Keyed lookups: Functions returning maps must return `result.WrapMap[K, V]`.
+   - Eliminates bare tuples `(T, error)`, `([]T, error)`, and `(map[K]V, error)` across all domain boundaries.
+   - Centralizes domain aliases in `types.go`: `type ItemWrap = result.Wrap[Item]`, `type ItemSliceWrap = result.WrapSlice[Item]`.
+   - Provides fluent methods: `.IsSuccess()`, `.IsFailure()`, `.HasError()`, `.IsEmpty()`, `.HasRecord()`, `.IsCountOtherThan(N)`, `.Items()`, `.Value`, `.AppError()`.
 
 3. **Pluggable Write Pipelines (`pkg/streamwriter`):**
    - Universal `Writer[T]` interface satisfying `sync.Locker`.
@@ -25,5 +28,5 @@ This skill provides guidelines for writing and maintaining enterprise Go code wi
    - Supported targets: Console, File (with POSIX permissions), JSON serializer, REST API client.
 
 4. **No Bare Void in Go:**
-   - Every function must return either a value container (`result.Wrap[T]`) or an error (`*appfault.AppError`).
+   - Every function must return either a value container (`result.Wrap[T]`, `result.WrapSlice[T]`, `result.WrapMap[K, V]`) or an error (`*apperror.AppError`).
    - Parameter structs: Use `*Params` structs when arguments exceed 2-3 loose parameters.
