@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/repo_query_filter.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -59,8 +59,8 @@ func (db *DB) ListReposUnpushed() ([]model.ScanRecord, error) {
 ---
 
 ## 5. Verification Criteria
-- [ ] Method `ListReposUnpushed() ([]model.ScanRecord, error)` is declared on `*DB` in `cli/store/repo_query_filter.go`.
-- [ ] Executes `sqlSelectUnpushedRepos` filtering notes for `unpushed` / `ahead` or dirty heatmap status.
-- [ ] Closes `rows` via `defer rows.Close()`.
-- [ ] Maps rows using package helper `scanRows(rows)`.
-- [ ] Function is 9 lines with zero nested ifs.
+- [x] Method `ListReposUnpushed() ([]model.ScanRecord, error)` is declared on `*DB` in `cli/store/repo_query_filter.go`.
+- [x] Executes `sqlSelectUnpushedRepos` filtering notes for `unpushed` / `ahead` or dirty heatmap status.
+- [x] Closes `rows` via `defer rows.Close()`.
+- [x] Maps rows using package helper `scanRows(rows)`.
+- [x] Function is 9 lines with zero nested ifs.

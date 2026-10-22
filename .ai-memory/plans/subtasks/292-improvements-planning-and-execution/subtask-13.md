@@ -1,6 +1,6 @@
 # Subtask 13: Define Table WrapModeType Enum and RowStripe in Termtable Types
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/termout/termtable_types.go`
@@ -50,8 +50,8 @@ Define the strongly-typed enum `WrapModeType` (`WrapClip`, `WrapEllipsis`, `Wrap
 
 ## 4. Verification Checklist
 
-- [ ] `WrapModeType` type and constants (`WrapClip`, `WrapEllipsis`, `WrapWord`) declared in `cli/termout/termtable_types.go`.
-- [ ] `WrapMode WrapModeType` field added to `ColumnConfig`.
-- [ ] `WrapMode WrapModeType` field added to `TableConfig`.
-- [ ] `RowStripe bool` field added to `TableConfig`.
-- [ ] Comprehensive Go docstrings added to all newly exported types and fields.
+- [x] `WrapModeType` type and constants (`WrapClip`, `WrapEllipsis`, `WrapWord`) declared in `cli/termout/termtable_types.go`.
+- [x] `WrapMode WrapModeType` field added to `ColumnConfig`.
+- [x] `WrapMode WrapModeType` field added to `TableConfig`.
+- [x] `RowStripe bool` field added to `TableConfig`.
+- [x] Comprehensive Go docstrings added to all newly exported types and fields.

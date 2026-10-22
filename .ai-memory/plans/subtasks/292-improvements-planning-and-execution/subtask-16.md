@@ -1,6 +1,6 @@
 # Subtask 16: Extract Status Table Renderer to status_render.go
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/cmdstatus/status_render.go`, `cli/cmdstatus/helpers_shim.go`
@@ -53,8 +53,8 @@ Extract monolithic status table formatting out of `cli/cmdstatus/helpers_shim.go
 
 ## 4. Verification Checklist
 
-- [ ] Dedicated companion module `cli/cmdstatus/status_render.go` created.
-- [ ] Status table rendered via `termout.PrintTable` with `BorderRounded` and `RowStripe: true`.
-- [ ] Manual formatting code in `helpers_shim.go` cleanly refactored.
-- [ ] Missing repository remediation guidance preserved and displayed.
-- [ ] All functions $\le 15$ lines of executable code.
+- [x] Dedicated companion module `cli/cmdstatus/status_render.go` created.
+- [x] Status table rendered via `termout.PrintTable` with `BorderRounded` and `RowStripe: true`.
+- [x] Manual formatting code in `helpers_shim.go` cleanly refactored.
+- [x] Missing repository remediation guidance preserved and displayed.
+- [x] All functions $\le 15$ lines of executable code.

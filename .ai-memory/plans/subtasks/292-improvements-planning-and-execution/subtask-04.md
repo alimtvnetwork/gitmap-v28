@@ -82,11 +82,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] Blank identifier discard `_ = exec.Command(..., "add", "-A").Run()` is completely eliminated.
-- [ ] `git add` failures are captured, logged to internal error store, and abort the commit step for that repository.
-- [ ] `dispatchCPARBatch` returns `*apperror.AppError` and propagates failure counts.
-- [ ] `RunCPAR` returns a non-nil `*apperror.AppError` if any repository fails during batch commit/push.
-- [ ] All functions in `cli/cmdcpar/cpar.go` strictly comply with $\le 15$ lines limit.
-- [ ] Zero nested `if` statements throughout.
-- [ ] Vertical blank lines strictly present after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Blank identifier discard `_ = exec.Command(..., "add", "-A").Run()` is completely eliminated.
+- [x] `git add` failures are captured, logged to internal error store, and abort the commit step for that repository.
+- [x] `dispatchCPARBatch` returns `*apperror.AppError` and propagates failure counts.
+- [x] `RunCPAR` returns a non-nil `*apperror.AppError` if any repository fails during batch commit/push.
+- [x] All functions in `cli/cmdcpar/cpar.go` strictly comply with $\le 15$ lines limit.
+- [x] Zero nested `if` statements throughout.
+- [x] Vertical blank lines strictly present after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.

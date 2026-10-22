@@ -1,6 +1,6 @@
 # Subtask 15: Implement TruncateLeftWithEllipsis in Truncate Utilities
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/termout/truncate.go`
@@ -47,9 +47,9 @@ Implement `TruncateLeftWithEllipsis(text string, maxWidth int) string` in `cli/t
 
 ## 4. Verification Checklist
 
-- [ ] `TruncateLeftWithEllipsis(text string, maxWidth int) string` exported in `cli/termout/truncate.go`.
-- [ ] Correctly truncates paths from the left (e.g. `.../subpackage/main.go`).
-- [ ] Safe handling for non-positive widths (`maxWidth <= 0` returns `""`).
-- [ ] Safe handling for small widths (`maxWidth <= 3` returns partial ellipsis).
-- [ ] Accurately accounts for double-width runes without tearing characters.
-- [ ] Complies with $\le 15$-line function limit and vertical spacing rules.
+- [x] `TruncateLeftWithEllipsis(text string, maxWidth int) string` exported in `cli/termout/truncate.go`.
+- [x] Correctly truncates paths from the left (e.g. `.../subpackage/main.go`).
+- [x] Safe handling for non-positive widths (`maxWidth <= 0` returns `""`).
+- [x] Safe handling for small widths (`maxWidth <= 3` returns partial ellipsis).
+- [x] Accurately accounts for double-width runes without tearing characters.
+- [x] Complies with $\le 15$-line function limit and vertical spacing rules.

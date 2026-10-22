@@ -67,9 +67,9 @@
 
 ## 3. Verification Criteria
 
-- [ ] `GitInspectCommandType` is declared with `GitCmdCherry`, `GitCmdDiff`, and `GitCmdMergeBase`.
-- [ ] `GitFlagType` is declared with `GitFlagStat`.
-- [ ] String constants `GitCherry`, `GitDiff`, `GitMergeBase`, and `GitStatFlag` are present.
-- [ ] All new types end with `Type` suffix in full compliance with coding guidelines.
-- [ ] File length of `cli/constants/constants_git.go` remains strictly under 500 lines.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] `GitInspectCommandType` is declared with `GitCmdCherry`, `GitCmdDiff`, and `GitCmdMergeBase`.
+- [x] `GitFlagType` is declared with `GitFlagStat`.
+- [x] String constants `GitCherry`, `GitDiff`, `GitMergeBase`, and `GitStatFlag` are present.
+- [x] All new types end with `Type` suffix in full compliance with coding guidelines.
+- [x] File length of `cli/constants/constants_git.go` remains strictly under 500 lines.
+- [x] Strictly relative Git paths used throughout all references.

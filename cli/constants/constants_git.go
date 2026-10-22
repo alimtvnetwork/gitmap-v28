@@ -94,6 +94,32 @@ const (
 	GitCountFlag = "--count"
 )
 
+// GitInspectCommandType represents Git subcommands inspecting histories, diffs, and relationships.
+type GitInspectCommandType string
+
+const (
+	GitCmdCherry    GitInspectCommandType = "cherry"
+	GitCmdDiff      GitInspectCommandType = "diff"
+	GitCmdMergeBase GitInspectCommandType = "merge-base"
+)
+
+const (
+	GitCherry    = "cherry"
+	GitDiff      = "diff"
+	GitMergeBase = "merge-base"
+)
+
+// GitFlagType represents command-line flags supplied to Git subprocess executions.
+type GitFlagType string
+
+const (
+	GitFlagStat GitFlagType = "--stat"
+)
+
+const (
+	GitStatFlag = "--stat"
+)
+
 // GitRemoteNameType represents standard remote identifiers across Git repositories.
 type GitRemoteNameType string
 

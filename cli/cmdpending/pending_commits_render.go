@@ -2,31 +2,66 @@ package cmdpending
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func renderTableBanner(border, reset string) {
-	bold := constants.ColorBold
 	fmt.Println()
-	fmt.Printf("  %s┌──────────────────────────────────────────────────────────────────────────────┐%s\n", border, reset)
-	fmt.Printf("  %s│%s%s                    GITMAP PENDING COMMITS SUMMARY                            %s%s│%s\n", border, reset, bold, reset, border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+	topBorder := strings.Repeat("─", 78)
+	fmt.Printf("  %s╭%s╮%s\n", border, topBorder, reset)
+	styledTitle := termout.SafeTokyoStyle(termout.TokyoPrimary).Bold(true).Render("GITMAP PENDING COMMITS SUMMARY")
+	paddedTitle := centerVisual(styledTitle, 78)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, paddedTitle, border, reset)
+	fmt.Printf("  %s├%s┤%s\n", border, topBorder, reset)
+}
+
+func centerVisual(s string, target int) string {
+	vis := termout.VisualStringWidth(s)
+	if vis >= target {
+		return s
+	}
+	pad := (target - vis) / 2
+	rightPad := target - vis - pad
+
+	return termout.SpacePool(pad) + s + termout.SpacePool(rightPad)
 }
 
 func renderTableSummary(payload PendingCommitsPayload, border, reset string) {
-	summaryText := fmt.Sprintf(" Scanned: %d repos │ Dirty: %d repos │ Uncommitted: %d files │ Unpushed: %d",
-		payload.TotalReposScanned, payload.TotalDirtyRepos, payload.TotalUncommittedFiles, payload.TotalUnpushedCommits)
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, termout.PadRightMax(summaryText, 78), border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+	summaryText := formatSummaryMetrics(payload)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRightVisual(" "+summaryText, 78), border, reset)
+	midBorder := strings.Repeat("─", 78)
+	fmt.Printf("  %s├%s┤%s\n", border, midBorder, reset)
+}
+
+func formatSummaryMetrics(payload PendingCommitsPayload) string {
+	pills := []string{
+		termout.TokyoMetricPill("Scanned", payload.TotalReposScanned),
+		termout.TokyoMetricPill("Dirty", payload.TotalDirtyRepos),
+		termout.TokyoMetricPill("Uncommitted", payload.TotalUncommittedFiles),
+		termout.TokyoMetricPill("Unpushed", payload.TotalUnpushedCommits),
+	}
+
+	return strings.Join(pills, "  ")
+}
+
+func padRightVisual(s string, target int) string {
+	vis := termout.VisualStringWidth(s)
+	if vis >= target {
+		return s
+	}
+
+	return s + termout.SpacePool(target-vis)
 }
 
 func renderTableHeader(border, reset string) {
 	headerText := fmt.Sprintf(" %-22s  %-16s  %12s  %10s  %-9s",
 		"REPOSITORY", "VER/BRANCH", "UNCOMMITTED", "UNPUSHED", "STATUS")
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, termout.PadRightMax(headerText, 78), border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
+	midBorder := strings.Repeat("─", 78)
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRightVisual(headerText, 78), border, reset)
+	fmt.Printf("  %s├%s┤%s\n", border, midBorder, reset)
 }
 
 func renderTableRows(repos []RepoPendingCommitRecord, border, reset string) {
@@ -75,29 +110,49 @@ func renderSingleRemediationSubtree(opt RemediationOption, isLastOption bool, bo
 }
 
 func renderRemediationTitleBranch(opt RemediationOption, isLastOption bool, border, reset string) {
-	prefix := "├──"
-	if isLastOption {
-		prefix = "└──"
-	}
-	rawTitle := fmt.Sprintf("   %s Option %d: %s", prefix, opt.OptionNumber, opt.Label)
-	formattedTitle := formatTreeLine(rawTitle)
+	branchGlyph := resolveTreeBranchGlyph(isLastOption)
+	optLabel := fmt.Sprintf("Option %d: %s", opt.OptionNumber, opt.Label)
+	titleText := formatRemediationTitle(branchGlyph, optLabel)
+	formattedTitle := padRightVisual("   "+titleText, 78)
 	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedTitle, border, reset)
 }
 
-func renderRemediationChildBranch(opt RemediationOption, isLastOption bool, border, reset string) {
-	childPrefix := "   │   └── "
+func resolveTreeBranchGlyph(isLastOption bool) string {
+	branch := "├──"
 	if isLastOption {
-		childPrefix = "       └── "
+		branch = "└──"
 	}
-	rawChild := childPrefix + opt.Command
-	formattedChild := formatTreeLine(rawChild)
+
+	return termout.SafeTokyoStyle(termout.TokyoMuted).Render(branch)
+}
+
+func formatRemediationTitle(branch, label string) string {
+	styledLabel := termout.SafeTokyoStyle(termout.TokyoPrimary).Render(label)
+
+	return fmt.Sprintf("%s %s", branch, styledLabel)
+}
+
+func renderRemediationChildBranch(opt RemediationOption, isLastOption bool, border, reset string) {
+	childGlyph := resolveChildBranchGlyph(isLastOption)
+	styledCmd := termout.SafeTokyoStyle(termout.TokyoAccent).Render(opt.Command)
+	formattedChild := padRightVisual(childGlyph+styledCmd, 78)
 	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, formattedChild, border, reset)
+}
+
+func resolveChildBranchGlyph(isLastOption bool) string {
+	if isLastOption {
+		branch := "       └── "
+		return termout.SafeTokyoStyle(termout.TokyoMuted).Render(branch)
+	}
+	branch := "   │   └── "
+
+	return termout.SafeTokyoStyle(termout.TokyoMuted).Render(branch)
 }
 
 func formatTreeLine(raw string) string {
 	truncated := termout.TruncateRightWithEllipsis(raw, 78)
 
-	return termout.PadRightMax(truncated, 78)
+	return padRightVisual(truncated, 78)
 }
 
 func renderCleanSummaryIfNeeded(payload PendingCommitsPayload, totalScanned int, allInspected []RepoPendingCommitRecord, border, reset string) {
@@ -130,8 +185,18 @@ func renderCleanSummaryRow(cleanCount int, border, reset string) {
 }
 
 func renderTableFooter(border, reset string) {
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	footerMsg := ` Fleet Remediation: gitmap sends cp all "wip: save changes" (or gitmap cpar)`
-	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, termout.PadRightMax(footerMsg, 78), border, reset)
-	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
+	midBorder := strings.Repeat("─", 78)
+	botBorder := strings.Repeat("─", 78)
+	fmt.Printf("  %s├%s┤%s\n", border, midBorder, reset)
+	footerMsg := formatFooterMessage()
+	fmt.Printf("  %s│%s%s%s│%s\n", border, reset, padRightVisual(footerMsg, 78), border, reset)
+	fmt.Printf("  %s╰%s╯%s\n", border, botBorder, reset)
+}
+
+func formatFooterMessage() string {
+	prefix := termout.SafeTokyoStyle(termout.TokyoMuted).Render(" Fleet Remediation: ")
+	cmd1 := termout.SafeTokyoStyle(termout.TokyoAccent).Render(`gitmap sends cp all "wip: save changes"`)
+	cmd2 := termout.SafeTokyoStyle(termout.TokyoPrimary).Render(`gitmap cpar`)
+
+	return fmt.Sprintf("%s%s (or %s)", prefix, cmd1, cmd2)
 }

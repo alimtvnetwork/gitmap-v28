@@ -321,3 +321,33 @@ func (h *HeatmapDB) PurgeStaleActionLogs(olderThanDays int) (int64, error) {
 	return res.RowsAffected()
 }
 
+const sqlHeatmapTaskSummary = `SELECT
+    COUNT(*),
+    COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('READ', 'READ_FILE', 'INSPECT') THEN 1 ELSE 0 END), 0),
+    COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('EDIT', 'EDIT_FILE', 'MODIFY') THEN 1 ELSE 0 END), 0),
+    COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('CREATE', 'WRITE_FILE', 'NEW') THEN 1 ELSE 0 END), 0)
+FROM HeatmapActionLog
+WHERE (? = '' OR TaskSlug = ?)`
+
+// GetHeatmapTaskSummary returns aggregated read, edit, and create counts for a specified task.
+func (h *HeatmapDB) GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary, error) {
+	cleanSlug := strings.TrimSpace(taskSlug)
+	var total, reads, edits, creates int
+	err := h.conn.QueryRow(sqlHeatmapTaskSummary, cleanSlug, cleanSlug).Scan(&total, &reads, &edits, &creates)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "heatmap.taskSummary")
+	}
+
+	other := max(0, total-(reads+edits+creates))
+
+	return &HeatmapTaskSummary{
+		TaskSlug:     cleanSlug,
+		TotalActions: total,
+		ReadCount:    reads,
+		EditCount:    edits,
+		CreateCount:  creates,
+		OtherCount:   other,
+	}, nil
+}
+
+

@@ -1,6 +1,6 @@
 # Subtask 17: Add TokyoTag Formatting to HasChange Multi-Dimension Output
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/cmdhaschange/haschange.go`
@@ -52,8 +52,8 @@ Enhance the multi-dimension output (`--all`) in `cli/cmdhaschange/haschange.go` 
 
 ## 4. Verification Checklist
 
-- [ ] `gitmap hc <repo> --all` formats output with `termout.TokyoTag` in TTY / color mode.
-- [ ] Non-TTY / piped output for `--all` preserves plain `dirty=true ahead=false behind=true`.
-- [ ] Single mode `gitmap hc <repo>` retains pure `"true"` / `"false"` stdout.
-- [ ] Decomposed helper functions conform to $\le 15$-line rule.
-- [ ] Blank line before `return` strictly preserved.
+- [x] `gitmap hc <repo> --all` formats output with `termout.TokyoTag` in TTY / color mode.
+- [x] Non-TTY / piped output for `--all` preserves plain `dirty=true ahead=false behind=true`.
+- [x] Single mode `gitmap hc <repo>` retains pure `"true"` / `"false"` stdout.
+- [x] Decomposed helper functions conform to $\le 15$-line rule.
+- [x] Blank line before `return` strictly preserved.

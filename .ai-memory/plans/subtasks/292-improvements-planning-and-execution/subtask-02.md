@@ -65,11 +65,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] Zero calls to `cliexit.HandleUsageError`, `cliexit.HandleError`, or `os.Exit` exist in `cli/cmdhaschange/`.
-- [ ] `isWorkingTreeDirty` declares `(bool, error)` return and never silently swallows git output errors.
-- [ ] `printHasChangeOne` and `printHasChangeAll` return `error` directly.
-- [ ] `RunHasChange` bubbles all errors to the root command dispatcher.
-- [ ] All functions in `cli/cmdhaschange/` are $\le 15$ lines.
-- [ ] Zero nested `if` statements throughout.
-- [ ] Blank lines strictly maintained after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Zero calls to `cliexit.HandleUsageError`, `cliexit.HandleError`, or `os.Exit` exist in `cli/cmdhaschange/`.
+- [x] `isWorkingTreeDirty` declares `(bool, error)` return and never silently swallows git output errors.
+- [x] `printHasChangeOne` and `printHasChangeAll` return `error` directly.
+- [x] `RunHasChange` bubbles all errors to the root command dispatcher.
+- [x] All functions in `cli/cmdhaschange/` are $\le 15$ lines.
+- [x] Zero nested `if` statements throughout.
+- [x] Blank lines strictly maintained after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.

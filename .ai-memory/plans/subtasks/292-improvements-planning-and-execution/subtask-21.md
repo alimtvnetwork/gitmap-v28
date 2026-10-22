@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/repo_query_filter.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -74,9 +74,9 @@ func (db *DB) ListReposByTag(tag string) ([]model.ScanRecord, error) {
 ---
 
 ## 5. Verification Criteria
-- [ ] Method `ListReposByTag(tag string) ([]model.ScanRecord, error)` is declared on `*DB` in `cli/store/repo_query_filter.go`.
-- [ ] Trims whitespace from `tag` and returns `db.ListRepos()` if empty.
-- [ ] Uses parameterized `pattern := "%" + cleanTag + "%"` preventing SQL injection.
-- [ ] Closes `rows` with `defer rows.Close()`.
-- [ ] Returns structured error or slice mapped via `scanRows(rows)`.
-- [ ] File and function satisfy all sizing and guidelines invariants.
+- [x] Method `ListReposByTag(tag string) ([]model.ScanRecord, error)` is declared on `*DB` in `cli/store/repo_query_filter.go`.
+- [x] Trims whitespace from `tag` and returns `db.ListRepos()` if empty.
+- [x] Uses parameterized `pattern := "%" + cleanTag + "%"` preventing SQL injection.
+- [x] Closes `rows` with `defer rows.Close()`.
+- [x] Returns structured error or slice mapped via `scanRows(rows)`.
+- [x] File and function satisfy all sizing and guidelines invariants.

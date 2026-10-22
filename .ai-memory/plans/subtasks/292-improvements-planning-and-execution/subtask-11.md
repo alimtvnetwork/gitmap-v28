@@ -1,6 +1,6 @@
 # Subtask 11: Implement TokyoBadge and TokyoHeader in Lipgloss Theme System
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/termout/theme_lipgloss.go`
@@ -50,9 +50,9 @@ Implement `TokyoBadge(label, bgHex, fgHex string) string` and `TokyoHeader(title
 
 ## 4. Verification Checklist
 
-- [ ] `TokyoBadge(label, bgHex, fgHex string) string` exported in `cli/termout/theme_lipgloss.go`.
-- [ ] `TokyoHeader(title string) string` exported in `cli/termout/theme_lipgloss.go`.
-- [ ] Safe fallback `[label]` returned when `!colorAllowed()`.
-- [ ] Safe uppercase fallback returned for `TokyoHeader` when `!colorAllowed()`.
-- [ ] All functions decomposed to $\le 15$ lines with zero nested `if` statements.
-- [ ] Blank line after `}` and blank line before `return` strictly preserved.
+- [x] `TokyoBadge(label, bgHex, fgHex string) string` exported in `cli/termout/theme_lipgloss.go`.
+- [x] `TokyoHeader(title string) string` exported in `cli/termout/theme_lipgloss.go`.
+- [x] Safe fallback `[label]` returned when `!colorAllowed()`.
+- [x] Safe uppercase fallback returned for `TokyoHeader` when `!colorAllowed()`.
+- [x] All functions decomposed to $\le 15$ lines with zero nested `if` statements.
+- [x] Blank line after `}` and blank line before `return` strictly preserved.

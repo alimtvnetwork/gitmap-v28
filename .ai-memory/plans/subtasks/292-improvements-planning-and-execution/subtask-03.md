@@ -75,9 +75,9 @@
 
 ## 3. Verification Criteria
 
-- [ ] Zero swallowed errors in `RunRepoManageUI` and `_ = cmdWeb.Start()` is completely removed.
-- [ ] Fallback failure is captured and returned as a typed `*apperror.AppError`.
-- [ ] All functions in `cli/cmd/cmd_see.go` adhere to the $\le 15$ lines limit.
-- [ ] Mandatory blank lines present after `}` and before every `return`.
-- [ ] All booleans adhere to positive `is*` / `has*` naming conventions.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Zero swallowed errors in `RunRepoManageUI` and `_ = cmdWeb.Start()` is completely removed.
+- [x] Fallback failure is captured and returned as a typed `*apperror.AppError`.
+- [x] All functions in `cli/cmd/cmd_see.go` adhere to the $\le 15$ lines limit.
+- [x] Mandatory blank lines present after `}` and before every `return`.
+- [x] All booleans adhere to positive `is*` / `has*` naming conventions.
+- [x] Strictly relative Git paths used throughout all references.

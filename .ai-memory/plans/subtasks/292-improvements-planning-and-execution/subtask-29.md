@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/cmdstatus/status_resolve.go`, `cli/cmdstatus/status.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -237,8 +237,8 @@ Remove the extracted resolution functions from `cli/cmdstatus/status.go`. In `Ex
 ---
 
 ## 5. Verification Criteria
-- [ ] File `cli/cmdstatus/status_resolve.go` created in package `cmdstatus`.
-- [ ] All 9 scope and resolution helpers moved to `status_resolve.go`.
-- [ ] Leaf error sovereignty established: direct `error` returns replace `cliexit` calls.
-- [ ] `status.go` reduced from 267 lines to ~75 lines.
-- [ ] Zero build/test executions performed.
+- [x] File `cli/cmdstatus/status_resolve.go` created in package `cmdstatus`.
+- [x] All 9 scope and resolution helpers moved to `status_resolve.go`.
+- [x] Leaf error sovereignty established: direct `error` returns replace `cliexit` calls.
+- [x] `status.go` reduced from 267 lines to ~75 lines.
+- [x] Zero build/test executions performed.

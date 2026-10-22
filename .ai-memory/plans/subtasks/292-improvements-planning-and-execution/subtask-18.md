@@ -1,6 +1,6 @@
 # Subtask 18: Modernize Pending Commits Table and Tree Remediation with Tokyo Night
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/cmdpending/pending_commits_render.go`
@@ -49,8 +49,8 @@ Modernize the pending commits table banner, header, and footer in `cli/cmdpendin
 
 ## 4. Verification Checklist
 
-- [ ] Banner and table borders use rounded box characters matching `termout.BorderRounded`.
-- [ ] Summary metrics formatted with `termout.TokyoMetricPill`.
-- [ ] Tree remediation branches (`├──`, `└──`) styled with Tokyo Night tokens.
-- [ ] Table footer uses rounded bottom framing.
-- [ ] All functions decomposed to $\le 15$ lines with zero nested `if` statements.
+- [x] Banner and table borders use rounded box characters matching `termout.BorderRounded`.
+- [x] Summary metrics formatted with `termout.TokyoMetricPill`.
+- [x] Tree remediation branches (`├──`, `└──`) styled with Tokyo Night tokens.
+- [x] Table footer uses rounded bottom framing.
+- [x] All functions decomposed to $\le 15$ lines with zero nested `if` statements.

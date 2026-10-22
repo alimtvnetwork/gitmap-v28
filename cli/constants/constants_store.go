@@ -30,28 +30,32 @@ type TableNameType string
 type DatabaseTableType = TableNameType
 
 const (
-	TableNameRepo               TableNameType = "Repo"
-	TableNameGroup              TableNameType = "Group"
-	TableNameGroupRepo          TableNameType = "GroupRepo"
-	TableNameRelease            TableNameType = "Release"
-	TableNameAlias              TableNameType = "Alias"
-	TableNameRepoVersionHistory TableNameType = "RepoVersionHistory"
-	TableNameDetectedProject    TableNameType = "DetectedProject"
-	TableNamePipelineRun        TableNameType = "PipelineRun"
-	TableNameHeatmapActionLog   TableNameType = "HeatmapActionLog"
+	TableNameRepo                 TableNameType = "Repo"
+	TableNameGroup                TableNameType = "Group"
+	TableNameGroupRepo            TableNameType = "GroupRepo"
+	TableNameRelease              TableNameType = "Release"
+	TableNameAlias                TableNameType = "Alias"
+	TableNameRepoVersionHistory   TableNameType = "RepoVersionHistory"
+	TableNameDetectedProject      TableNameType = "DetectedProject"
+	TableNamePipelineRun          TableNameType = "PipelineRun"
+	TableNameHeatmapActionLog     TableNameType = "HeatmapActionLog"
+	TableNameHeatmapLocalTracking TableNameType = "HeatmapLocalTracking"
+	TableNamePipelineErrorLog     TableNameType = "PipelineErrorLog"
 )
 
 // Table names (v15: PascalCase + singular + {Table}Id PK).
 const (
-	TableRepo               = "Repo"
-	TableGroup              = "Group"
-	TableGroupRepo          = "GroupRepo"
-	TableRelease            = "Release"
-	TableAlias              = "Alias"
-	TableRepoVersionHistory = "RepoVersionHistory"
-	TableDetectedProject    = "DetectedProject"
-	TablePipelineRun        = "PipelineRun"
-	TableHeatmapActionLog   = "HeatmapActionLog"
+	TableRepo                 = "Repo"
+	TableGroup                = "Group"
+	TableGroupRepo            = "GroupRepo"
+	TableRelease              = "Release"
+	TableAlias                = "Alias"
+	TableRepoVersionHistory   = "RepoVersionHistory"
+	TableDetectedProject      = "DetectedProject"
+	TablePipelineRun          = "PipelineRun"
+	TableHeatmapActionLog     = "HeatmapActionLog"
+	TableHeatmapLocalTracking = "HeatmapLocalTracking"
+	TablePipelineErrorLog     = "PipelineErrorLog"
 )
 
 // RepoTransportQueryType represents the query target strategy for repository transport lookups.

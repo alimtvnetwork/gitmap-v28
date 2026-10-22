@@ -1,6 +1,6 @@
 # Subtask 14: Implement Table Cell Wrap Modes and Row Striping
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/termout/table.go`
@@ -54,8 +54,8 @@ Enhance the table rendering engine in `cli/termout/table.go` to support configur
 
 ## 4. Verification Checklist
 
-- [ ] `formatCellWithWrap` correctly implements `WrapClip` and `WrapEllipsis`.
-- [ ] Column-level `WrapMode` takes precedence over table-level `WrapMode`.
-- [ ] `RowStripe: true` renders subtle background on odd rows when color is allowed.
-- [ ] Even rows and non-TTY outputs remain unstriped without ANSI leakage.
-- [ ] All functions decomposed to $\le 15$ lines.
+- [x] `formatCellWithWrap` correctly implements `WrapClip` and `WrapEllipsis`.
+- [x] Column-level `WrapMode` takes precedence over table-level `WrapMode`.
+- [x] `RowStripe: true` renders subtle background on odd rows when color is allowed.
+- [x] Even rows and non-TTY outputs remain unstriped without ANSI leakage.
+- [x] All functions decomposed to $\le 15$ lines.

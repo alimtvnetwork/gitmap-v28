@@ -33,6 +33,7 @@ func RunFixAuth(args []string) error {
 	if err := checkUserFlag(user); err != nil {
 		return err
 	}
+
 	if err := checkGitRepo(); err != nil {
 		return err
 	}

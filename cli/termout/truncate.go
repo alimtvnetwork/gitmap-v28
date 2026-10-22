@@ -138,3 +138,28 @@ func reverseRunesToString(runes []rune) string {
 	return sb.String()
 }
 
+// TruncateLeftWithEllipsis shortens text exceeding maxWidth by placing "..." at the left,
+// preserving the rightmost characters based on rune visual display width.
+func TruncateLeftWithEllipsis(text string, maxWidth int) string {
+	if maxWidth <= 0 {
+		return ""
+	}
+	if VisualStringWidth(text) <= maxWidth {
+		return text
+	}
+	if maxWidth <= 3 {
+		return "..."[:maxWidth]
+	}
+
+	return assembleLeftEllipsis(text, maxWidth)
+}
+
+func assembleLeftEllipsis(text string, maxWidth int) string {
+	budget := maxWidth - 3
+	runes := []rune(text)
+	suffix := sliceSuffixRunes(runes, budget)
+
+	return "..." + suffix
+}
+
+

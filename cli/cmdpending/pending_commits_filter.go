@@ -20,6 +20,7 @@ func buildPendingCommitsPayload(inspected []RepoPendingCommitRecord, opts Pendin
 	dirtyCount, totalUncommitted, totalUnpushed := aggregatePendingCounts(inspected)
 	displayed := filterDisplayedPendingCommits(inspected, opts.IsDirtyOnly)
 	sortPendingCommits(displayed, opts.SortMode)
+
 	return PendingCommitsPayload{
 		Timestamp:             time.Now().UTC(),
 		TotalReposScanned:     len(inspected),
@@ -41,6 +42,7 @@ func aggregatePendingCounts(inspected []RepoPendingCommitRecord) (int, int, int)
 		totalUncommitted += item.TotalUncommitted
 		totalUnpushed += item.UnpushedCommitsCount
 	}
+
 	return dirtyCount, totalUncommitted, totalUnpushed
 }
 
@@ -51,6 +53,7 @@ func filterDisplayedPendingCommits(inspected []RepoPendingCommitRecord, isDirtyO
 			displayed = append(displayed, item)
 		}
 	}
+
 	return displayed
 }
 
@@ -68,7 +71,6 @@ func filterWorkspaceRepositories(records []model.ScanRecord, targetRepo string) 
 	if targetRepo == "" || strings.EqualFold(targetRepo, "all") {
 		return records, nil
 	}
-
 	var matched []model.ScanRecord
 	for _, r := range records {
 		if strings.EqualFold(r.RepoName, targetRepo) ||
@@ -80,6 +82,7 @@ func filterWorkspaceRepositories(records []model.ScanRecord, targetRepo string) 
 	if len(matched) == 0 {
 		return nil, apperror.NewSimple(fmt.Sprintf("repository '%s' not found", targetRepo), "E9002")
 	}
+
 	return matched, nil
 }
 
@@ -87,6 +90,7 @@ func isPendingCommitDisplayed(item RepoPendingCommitRecord, isDirtyOnly bool) bo
 	if !isDirtyOnly {
 		return true
 	}
+
 	return item.IsDirty || item.HasUnpushed
 }
 
@@ -95,7 +99,6 @@ func ResolveWorkspaceRepositories(cwd string) []model.ScanRecord {
 	if len(targets) > 0 {
 		return targets
 	}
-
 	gitPath := filepath.Join(cwd, ".git")
 	if _, err := os.Stat(gitPath); err == nil {
 		base := filepath.Base(cwd)
@@ -120,11 +123,13 @@ func buildRepoRemediationOptions(rec RepoPendingCommitRecord) []RemediationOptio
 	if targetPath == "" || targetPath == "." || looksLikeHashOrOpaqueID(targetPath) {
 		targetPath = rec.RepoName
 	}
+
 	return createRemediationOptionsPair(targetPath)
 }
 
 func createRemediationOptionsList(targetPath string) []RemediationOption {
 	target := quoteRemediationTarget(targetPath)
+
 	return []RemediationOption{
 		{OptionNumber: 1, Label: "Commit & Push WIP", Command: fmt.Sprintf(`gitmap sends cp %s "wip: save changes"`, target)},
 		{OptionNumber: 2, Label: "Stash WIP", Command: fmt.Sprintf(`gitmap stash %s`, target)},
@@ -140,34 +145,49 @@ func quoteRemediationTarget(s string) string {
 	if strings.Contains(s, " ") && !strings.HasPrefix(s, "\"") {
 		return fmt.Sprintf(`"%s"`, s)
 	}
+
 	return s
 }
 
 func sortPendingCommits(records []RepoPendingCommitRecord, sortMode string) {
 	switch sortMode {
 	case "count":
-		sort.SliceStable(records, func(i, j int) bool {
-			countI := resolvePendingSortCount(records[i])
-			countJ := resolvePendingSortCount(records[j])
-			if countI != countJ {
-				return countI > countJ
-			}
-			return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
-		})
+		sortByCount(records)
 	case "name":
-		sort.SliceStable(records, func(i, j int) bool {
-			return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
-		})
-	default: // "priority"
-		sort.SliceStable(records, func(i, j int) bool {
-			pI := calculatePriorityRank(records[i])
-			pJ := calculatePriorityRank(records[j])
-			if pI != pJ {
-				return pI < pJ
-			}
-			return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
-		})
+		sortByName(records)
+	default:
+		sortByPriority(records)
 	}
+}
+
+func sortByCount(records []RepoPendingCommitRecord) {
+	sort.SliceStable(records, func(i, j int) bool {
+		countI := resolvePendingSortCount(records[i])
+		countJ := resolvePendingSortCount(records[j])
+		if countI != countJ {
+			return countI > countJ
+		}
+
+		return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
+	})
+}
+
+func sortByName(records []RepoPendingCommitRecord) {
+	sort.SliceStable(records, func(i, j int) bool {
+		return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
+	})
+}
+
+func sortByPriority(records []RepoPendingCommitRecord) {
+	sort.SliceStable(records, func(i, j int) bool {
+		pI := calculatePriorityRank(records[i])
+		pJ := calculatePriorityRank(records[j])
+		if pI != pJ {
+			return pI < pJ
+		}
+
+		return strings.ToLower(records[i].RepoName) < strings.ToLower(records[j].RepoName)
+	})
 }
 
 func calculatePriorityRank(r RepoPendingCommitRecord) int {
@@ -180,6 +200,7 @@ func calculatePriorityRank(r RepoPendingCommitRecord) int {
 	if r.HasUnpushed {
 		return 3
 	}
+
 	return 4
 }
 
@@ -188,6 +209,7 @@ func resolvePendingSortCount(r RepoPendingCommitRecord) int {
 	if total == 0 {
 		total = r.UntrackedFilesCount + r.ModifiedFilesCount + r.StagedFilesCount
 	}
+
 	return total + r.UnpushedCommitsCount
 }
 
@@ -197,6 +219,7 @@ func emitPendingCommitsJSON(payload PendingCommitsPayload) error {
 		return apperror.WrapSimple(err, "marshal pending commits json")
 	}
 	fmt.Println(string(b))
+
 	return nil
 }
 
@@ -218,23 +241,52 @@ func renderPendingCommitsDetailsAll(records []RepoPendingCommitRecord) {
 		if rec.IsClean {
 			continue
 		}
-		fmt.Printf("\n  %s● %s%s (%s)\n", constants.ColorCyan, rec.RepoName, constants.ColorReset, rec.CurrentBranch)
-		if len(rec.PendingFiles) > 0 {
-			fmt.Printf("    %sModified Files (%d):%s\n", constants.ColorYellow, len(rec.PendingFiles), constants.ColorReset)
-			for _, f := range rec.PendingFiles {
-				fmt.Printf("      %s\n", f)
-			}
-		}
-		if len(rec.UnpushedCommitSHAs) > 0 {
-			fmt.Printf("    %sUnpushed Commits (%d):%s\n", constants.ColorYellow, len(rec.UnpushedCommitSHAs), constants.ColorReset)
-			for _, sha := range rec.UnpushedCommitSHAs {
-				fmt.Printf("      %s\n", sha)
-			}
-		}
+		renderPendingCommitDetailRecord(rec)
+	}
+}
+
+func renderPendingCommitDetailRecord(rec RepoPendingCommitRecord) {
+	fmt.Printf("\n  %s● %s%s (%s)\n", constants.ColorCyan, rec.RepoName, constants.ColorReset, rec.CurrentBranch)
+	printDetailRecordFiles(rec.PendingFiles)
+	printDetailRecordSHAs(rec.UnpushedCommitSHAs)
+}
+
+func printDetailRecordFiles(files []string) {
+	if len(files) == 0 {
+		return
+	}
+	fmt.Printf("    %sModified Files (%d):%s\n", constants.ColorYellow, len(files), constants.ColorReset)
+	for _, f := range files {
+		fmt.Printf("      %s\n", f)
+	}
+}
+
+func printDetailRecordSHAs(shas []string) {
+	if len(shas) == 0 {
+		return
+	}
+	fmt.Printf("    %sUnpushed Commits (%d):%s\n", constants.ColorYellow, len(shas), constants.ColorReset)
+	for _, sha := range shas {
+		fmt.Printf("      %s\n", sha)
 	}
 }
 
 func renderPendingCommitsInteractive(records []RepoPendingCommitRecord) {
+	dirtyList := collectDirtyPendingRecords(records)
+	if len(dirtyList) == 0 {
+		fmt.Fprintln(os.Stderr, "  All repositories are clean. Nothing to step through.")
+		return
+	}
+	scanner := bufio.NewScanner(os.Stdin)
+	for idx, rec := range dirtyList {
+		renderInteractiveRecordStep(rec, idx, len(dirtyList))
+		if idx < len(dirtyList)-1 && isDetailPromptTerminated(scanner) {
+			break
+		}
+	}
+}
+
+func collectDirtyPendingRecords(records []RepoPendingCommitRecord) []RepoPendingCommitRecord {
 	var dirtyList []RepoPendingCommitRecord
 	for _, r := range records {
 		if !r.IsClean {
@@ -242,42 +294,42 @@ func renderPendingCommitsInteractive(records []RepoPendingCommitRecord) {
 		}
 	}
 
-	if len(dirtyList) == 0 {
-		fmt.Println("  All repositories are clean. Nothing to step through.")
+	return dirtyList
+}
+
+func renderInteractiveRecordStep(rec RepoPendingCommitRecord, idx, total int) {
+	fmt.Fprintf(os.Stderr, "\n  [%d/%d] Repository: %s%s%s (branch: %s)\n",
+		idx+1, total, constants.ColorCyan, rec.RepoName, constants.ColorReset, rec.CurrentBranch)
+	printInteractiveStepFiles(rec.PendingFiles)
+	printInteractiveStepSHAs(rec.UnpushedCommitSHAs)
+}
+
+func printInteractiveStepFiles(files []string) {
+	if len(files) == 0 {
 		return
 	}
+	fmt.Fprintf(os.Stderr, "    Files (%d):\n", len(files))
+	for _, f := range files {
+		fmt.Fprintf(os.Stderr, "      %s\n", f)
+	}
+}
 
-	scanner := bufio.NewScanner(os.Stdin)
-	for idx, rec := range dirtyList {
-		fmt.Printf("\n  [%d/%d] Repository: %s%s%s (branch: %s)\n",
-			idx+1, len(dirtyList), constants.ColorCyan, rec.RepoName, constants.ColorReset, rec.CurrentBranch)
-		if len(rec.PendingFiles) > 0 {
-			fmt.Printf("    Files (%d):\n", len(rec.PendingFiles))
-			for _, f := range rec.PendingFiles {
-				fmt.Printf("      %s\n", f)
-			}
-		}
-		if len(rec.UnpushedCommitSHAs) > 0 {
-			fmt.Printf("    Unpushed Commits (%d):\n", len(rec.UnpushedCommitSHAs))
-			for _, sha := range rec.UnpushedCommitSHAs {
-				fmt.Printf("      %s\n", sha)
-			}
-		}
-
-		if idx >= len(dirtyList)-1 {
-			continue
-		}
-		if isDetailPromptTerminated(scanner) {
-			break
-		}
+func printInteractiveStepSHAs(shas []string) {
+	if len(shas) == 0 {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "    Unpushed Commits (%d):\n", len(shas))
+	for _, sha := range shas {
+		fmt.Fprintf(os.Stderr, "      %s\n", sha)
 	}
 }
 
 func isDetailPromptTerminated(scanner *bufio.Scanner) bool {
-	fmt.Printf("  Press [Enter] for next, or 'q' to quit: ")
+	fmt.Fprintf(os.Stderr, "  Press [Enter] for next, or 'q' to quit: ")
 	if !scanner.Scan() {
 		return true
 	}
 	input := strings.TrimSpace(scanner.Text())
+
 	return strings.EqualFold(input, "q") || strings.EqualFold(input, "quit")
 }

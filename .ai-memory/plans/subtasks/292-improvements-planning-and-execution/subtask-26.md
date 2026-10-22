@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/gitutil/git_repo_commits.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -69,9 +69,9 @@ func GetRepoUnpushedCommitCount(repoPath string) (int, error) {
 ---
 
 ## 5. Verification Criteria
-- [ ] File `cli/gitutil/git_repo_commits.go` created in package `gitutil`.
-- [ ] Method `GetRepoUnpushedCommitCount(repoPath string) (int, error)` declared.
-- [ ] Invokes `RunGitInDir` with arguments `"rev-list"`, `"--count"`, `"@{u}..HEAD"`.
-- [ ] Parses integer count from trimmed output via `strconv.Atoi`.
-- [ ] Returns 0 and error when command fails or parsing fails.
-- [ ] File size is ~30 lines, well within 100-line cap.
+- [x] File `cli/gitutil/git_repo_commits.go` created in package `gitutil`.
+- [x] Method `GetRepoUnpushedCommitCount(repoPath string) (int, error)` declared.
+- [x] Invokes `RunGitInDir` with arguments `"rev-list"`, `"--count"`, `"@{u}..HEAD"`.
+- [x] Parses integer count from trimmed output via `strconv.Atoi`.
+- [x] Returns 0 and error when command fails or parsing fails.
+- [x] File size is ~30 lines, well within 100-line cap.

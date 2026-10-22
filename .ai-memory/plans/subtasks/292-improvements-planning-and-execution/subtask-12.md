@@ -1,6 +1,6 @@
 # Subtask 12: Implement Visual-Aligned Key-Value Pair Output
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/termout/render.go`
@@ -52,9 +52,9 @@ Implement `FormatKeyValuePair(key, val string, keyWidth int, theme Theme) string
 
 ## 4. Verification Checklist
 
-- [ ] `FormatKeyValuePair(key, val string, keyWidth int, theme Theme) string` exported in `cli/termout/render.go`.
-- [ ] `PrintKeyValuePair(key, val string, keyWidth int, theme Theme)` exported in `cli/termout/render.go`.
-- [ ] Visual column padding accurately handles multi-byte and wide runes.
-- [ ] Non-TTY output safely generates unstyled padded key-value output.
-- [ ] Output routed to `output.UI()` for clean test redirection and output capture.
-- [ ] All functions $\le 15$ lines without nested conditional branching.
+- [x] `FormatKeyValuePair(key, val string, keyWidth int, theme Theme) string` exported in `cli/termout/render.go`.
+- [x] `PrintKeyValuePair(key, val string, keyWidth int, theme Theme)` exported in `cli/termout/render.go`.
+- [x] Visual column padding accurately handles multi-byte and wide runes.
+- [x] Non-TTY output safely generates unstyled padded key-value output.
+- [x] Output routed to `output.UI()` for clean test redirection and output capture.
+- [x] All functions $\le 15$ lines without nested conditional branching.

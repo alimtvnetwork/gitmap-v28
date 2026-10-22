@@ -95,11 +95,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] Zero invocations of `cliexit.HandleGeneralError`, `cliexit.HandleError`, or `os.Exit` exist within `cli/cmdstatus/status.go` or `cli/cmdstatus/helpers_shim.go`.
-- [ ] `loadRecordsByGroup`, `loadAllRecordsDB`, and `loadStatusByScope` declare explicit `([]model.ScanRecord, error)` return signatures.
-- [ ] `handleStatusDBError` returns `*apperror.AppError` instead of calling exit handlers.
-- [ ] `RunStatus` captures and returns errors from `loadStatusByScope`.
-- [ ] All functions in touched files strictly comply with the $\le 15$ lines ceiling.
-- [ ] Zero nested `if` statements; all conditions flattened with guard clauses.
-- [ ] Vertical blank lines strictly placed after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Zero invocations of `cliexit.HandleGeneralError`, `cliexit.HandleError`, or `os.Exit` exist within `cli/cmdstatus/status.go` or `cli/cmdstatus/helpers_shim.go`.
+- [x] `loadRecordsByGroup`, `loadAllRecordsDB`, and `loadStatusByScope` declare explicit `([]model.ScanRecord, error)` return signatures.
+- [x] `handleStatusDBError` returns `*apperror.AppError` instead of calling exit handlers.
+- [x] `RunStatus` captures and returns errors from `loadStatusByScope`.
+- [x] All functions in touched files strictly comply with the $\le 15$ lines ceiling.
+- [x] Zero nested `if` statements; all conditions flattened with guard clauses.
+- [x] Vertical blank lines strictly placed after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.

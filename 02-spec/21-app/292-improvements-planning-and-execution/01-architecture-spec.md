@@ -111,7 +111,7 @@ flowchart TD
 
 1. **Strictly Relative Git Paths Only**:
    - All references to files and directories across specifications, subtask plans, code changes, and documentation MUST use strictly relative forward-slash paths (e.g., `cli/cmdstatus/status.go`).
-   - Absolute file paths (including drive letters like `C:` or `D:`) and URI schemes (`file:///`) are strictly prohibited in all authored artifacts, subtask files, and messages.
+   - Absolute file paths (including drive letters) and URI schemes are strictly prohibited in all authored artifacts, subtask files, and messages.
 
 2. **Zero Test & Build Execution**:
    - Running compilers (`go build`, `go run`) and test runners (`go test`, `pytest`) is strictly forbidden during this specification and planning phase.

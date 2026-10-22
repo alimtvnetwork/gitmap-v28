@@ -1,5 +1,4 @@
-// Package cmd — releaserecentclone.go: the auto-cd-into-most-recent-
-// clone fallback for `gitmap release`.
+// Package cmdrelease implements the auto-cd-into-most-recent-clone fallback for `gitmap release`.
 //
 // When the user runs `gitmap r vX.Y.Z` from a parent directory that
 // is itself NOT a git repo (typical right after `gitmap clone` /
@@ -17,13 +16,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
+type recentCloneTarget struct {
+	AbsolutePath string
+	ClonedAt     string
+}
+
 // tryRunReleaseInRecentClone attempts the most-recent-clone fallback.
 // Returns true when it owned the command (success OR explicit failure
 // after chdir), false when the caller should continue to the next
 // fallback (no recent clone recorded, or the recorded path is gone).
 func tryRunReleaseInRecentClone(args []string) bool {
-	target, ok := lookupRecentClone()
-	if !ok {
+	target, isFound := lookupRecentClone()
+	if !isFound {
 		return false
 	}
 
@@ -34,6 +38,10 @@ func tryRunReleaseInRecentClone(args []string) bool {
 		return false
 	}
 
+	return executeReleaseInTarget(target, originalDir, args)
+}
+
+func executeReleaseInTarget(target recentCloneTarget, originalDir string, args []string) bool {
 	if err := os.Chdir(target.AbsolutePath); err != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not switch to %s: %v\n", target.AbsolutePath, err)
 
@@ -41,26 +49,32 @@ func tryRunReleaseInRecentClone(args []string) bool {
 	}
 
 	fmt.Printf(constants.MsgReleaseAutoCdRecent, target.AbsolutePath, target.ClonedAt)
-
 	defer restoreDir(originalDir)
 
+	return runTargetReleaseAndVerify(args, target.AbsolutePath)
+}
+
+func runTargetReleaseAndVerify(args []string, targetPath string) bool {
 	if !release.IsInsideGitRepo() {
-		fmt.Fprintf(os.Stderr, "  Warning: %s is no longer a git repo\n", target.AbsolutePath)
+		fmt.Fprintf(os.Stderr, "  Warning: %s is no longer a git repo\n", targetPath)
 
 		return false
 	}
 
-	RunRelease(args)
+	if err := RunRelease(args); err != nil {
+		fmt.Fprintf(os.Stderr, "  Warning: release failed in recent clone: %v\n", err)
+
+		return true
+	}
 
 	return true
 }
 
 // lookupRecentClone reads the most recent clone from the DB. Soft-fails
-// (returns ok=false) on every error path so the caller can fall through.
-func lookupRecentClone() (target struct {
-	AbsolutePath string
-	ClonedAt     string
-}, ok bool) {
+// (returns isFound=false) on every error path so the caller can fall through.
+func lookupRecentClone() (recentCloneTarget, bool) {
+	var target recentCloneTarget
+
 	db, err := openDB()
 	if err != nil {
 		return target, false
@@ -68,8 +82,8 @@ func lookupRecentClone() (target struct {
 
 	defer db.Close()
 
-	rec, found, err := db.MostRecentClone()
-	if err != nil || !found {
+	rec, isFound, err := db.MostRecentClone()
+	if err != nil || !isFound {
 		return target, false
 	}
 

@@ -66,8 +66,8 @@
 
 ## 3. Verification Criteria
 
-- [ ] `TableNameHeatmapLocalTracking` and `TableNamePipelineErrorLog` are added to `TableNameType`.
-- [ ] `TableHeatmapLocalTracking` and `TablePipelineErrorLog` string constants are defined.
-- [ ] Table names follow strict PascalCase formatting rules.
-- [ ] File size of `cli/constants/constants_store.go` remains safely under 500 lines.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] `TableNameHeatmapLocalTracking` and `TableNamePipelineErrorLog` are added to `TableNameType`.
+- [x] `TableHeatmapLocalTracking` and `TablePipelineErrorLog` string constants are defined.
+- [x] Table names follow strict PascalCase formatting rules.
+- [x] File size of `cli/constants/constants_store.go` remains safely under 500 lines.
+- [x] Strictly relative Git paths used throughout all references.

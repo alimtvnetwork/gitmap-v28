@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/gitutil/git_repo_commits.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -58,8 +58,8 @@ func GetRepoMergeBase(repoPath, ref1, ref2 string) (string, error) {
 ---
 
 ## 5. Verification Criteria
-- [ ] Method `GetRepoMergeBase(repoPath, ref1, ref2 string) (string, error)` declared in `cli/gitutil/git_repo_commits.go`.
-- [ ] Invokes `RunGitInDir` with `"merge-base"`, `ref1`, `ref2`.
-- [ ] Trims output string to return clean SHA string.
-- [ ] Returns error if references do not share a common ancestor or command fails.
-- [ ] Function is 7 lines with zero nested ifs.
+- [x] Method `GetRepoMergeBase(repoPath, ref1, ref2 string) (string, error)` declared in `cli/gitutil/git_repo_commits.go`.
+- [x] Invokes `RunGitInDir` with `"merge-base"`, `ref1`, `ref2`.
+- [x] Trims output string to return clean SHA string.
+- [x] Returns error if references do not share a common ancestor or command fails.
+- [x] Function is 7 lines with zero nested ifs.

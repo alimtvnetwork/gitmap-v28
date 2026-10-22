@@ -29,6 +29,8 @@ type ActionLogFilter struct {
 	TouchType  string
 	SubtaskId  string
 	Search     string
+	SortBy     string
+	Order      string
 	Limit      int
 	Offset     int
 }

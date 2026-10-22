@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/cmdagent/agent_ui_server.go`, `cli/cmdagent/agent_ui_logs.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -112,8 +112,8 @@ func appendPaginationLimitOffset(base string, args []any, f ActionLogFilter) (st
 ---
 
 ## 5. Verification Criteria
-- [ ] `ActionLogFilter` struct updated with `SortBy` and `Order` fields.
-- [ ] `parseSortColumn` strictly maps input to valid columns (`CreatedAt`, `ActionType`, `AgentRole`, `SubtaskId`, `ActionLogId`).
-- [ ] `parseSortOrder` strictly maps input to `"ASC"` or `"DESC"`.
-- [ ] `appendPaginationLimitOffset` formats dynamic `ORDER BY <column> <order> LIMIT ?`.
-- [ ] Maintains backward compatibility when sort parameters are omitted.
+- [x] `ActionLogFilter` struct updated with `SortBy` and `Order` fields.
+- [x] `parseSortColumn` strictly maps input to valid columns (`CreatedAt`, `ActionType`, `AgentRole`, `SubtaskId`, `ActionLogId`).
+- [x] `parseSortOrder` strictly maps input to `"ASC"` or `"DESC"`.
+- [x] `appendPaginationLimitOffset` formats dynamic `ORDER BY <column> <order> LIMIT ?`.
+- [x] Maintains backward compatibility when sort parameters are omitted.

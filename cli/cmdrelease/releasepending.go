@@ -1,4 +1,4 @@
-// Package cmd implements the CLI commands for gitmap.
+// Package cmdrelease implements the CLI commands for gitmap.
 package cmdrelease
 
 import (
@@ -12,8 +12,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 // versionLikeArgPattern matches positional args the user probably meant
@@ -22,14 +20,19 @@ import (
 // (pull-release) confusion — see v5.19.0 changelog.
 var versionLikeArgPattern = regexp.MustCompile(`^v?\d+(\.\d+){0,2}(-[A-Za-z0-9.]+)?$`)
 
-// runReleasePending handles the 'release-pending' command.
+// RunReleasePending handles the 'release-pending' command.
 func RunReleasePending(args []string) error {
 	checkHelp("release-pending", args)
 	if isRunningProjectsAliasArg(args) {
 		return cmdagy.RunRunningProjectsCLI(args)
 	}
+
 	printCanonicalCmdBanner(constants.CmdReleasePending, constants.CmdReleasePendingAlias)
-	rejectVersionArgOnPending(args)
+
+	if err := rejectVersionArgOnPending(args); err != nil {
+		return err
+	}
+
 	return executeReleasePendingRun(args)
 }
 
@@ -49,7 +52,9 @@ func isRunningProjectsAliasArg(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
+
 	first := strings.ToLower(args[0])
+
 	return first == "ls" || first == "list"
 }
 
@@ -63,33 +68,31 @@ func printCanonicalCmdBanner(canonical, alias string) {
 
 // rejectVersionArgOnPending catches the classic mis-invocation
 // `gitmap rp v3.1` where the user meant `gitmap pr v3.1`
-// (pull-release). release-pending takes NO positional version — it
-// scans for already-pending branches/metadata and releases all of
-// them. Silently ignoring the version arg (the pre-v5.19.0 behavior)
-// caused users to release unrelated versions (e.g. v2.233.0) when they
-// asked for v3.1. Exit 2 with a precise diag.
-func rejectVersionArgOnPending(args []string) {
+// (pull-release). release-pending takes NO positional version.
+func rejectVersionArgOnPending(args []string) error {
 	for _, a := range args {
-		if strings.HasPrefix(a, "-") {
+		if strings.HasPrefix(a, "-") || !versionLikeArgPattern.MatchString(a) {
 			continue
 		}
 
-		if !versionLikeArgPattern.MatchString(a) {
-			continue
-		}
-
-		fmt.Fprintf(os.Stderr,
-			"  ✗ gitmap release-pending (rp) takes no version argument (got %q).\n"+
-				"    It releases EVERY pending branch + orphan metadata file — not a specific version.\n\n"+
-				"    Did you mean:  gitmap pr %s        # pull-release: pull, then release %s\n"+
-				"               or  gitmap release %s   # release %s directly\n\n",
-			a, a, a, a, a)
-		cliexit.HandleUsageError(nil)
+		return apperror.NewUsageError(fmt.Sprintf(
+			"gitmap release-pending takes no version argument (got %q); did you mean: gitmap pr %s or gitmap release %s",
+			a, a, a,
+		))
 	}
+
+	return nil
 }
 
 // parseReleasePendingFlags parses flags for the release-pending command.
-func parseReleasePendingFlags(args []string) (assets, notes string, draft, dryRun, verbose, noCommit, yes bool) {
+func parseReleasePendingFlags(args []string) (string, string, bool, bool, bool, bool, bool) {
+	fs, assetsFlag, notesFlag, draftFlag, dryRunFlag, verboseFlag, noCommitFlag, yesFlag := initReleasePendingFlags()
+	fs.Parse(args)
+
+	return *assetsFlag, *notesFlag, *draftFlag, *dryRunFlag, *verboseFlag, *noCommitFlag, *yesFlag
+}
+
+func initReleasePendingFlags() (*flag.FlagSet, *string, *string, *bool, *bool, *bool, *bool, *bool) {
 	fs := flag.NewFlagSet(constants.CmdReleasePending, flag.ExitOnError)
 	assetsFlag := fs.String("assets", "", constants.FlagDescAssets)
 	notesFlag := fs.String("notes", "", constants.FlagDescNotes)
@@ -98,12 +101,8 @@ func parseReleasePendingFlags(args []string) (assets, notes string, draft, dryRu
 	verboseFlag := fs.Bool("verbose", false, constants.FlagDescVerbose)
 	noCommitFlag := fs.Bool("no-commit", false, constants.FlagDescNoCommit)
 	yesFlag := fs.Bool("yes", false, constants.FlagDescYes)
-
-	// Register -N as shorthand for --notes, -y as shorthand for --yes.
 	fs.StringVar(notesFlag, "N", "", constants.FlagDescNotes)
 	fs.BoolVar(yesFlag, "y", false, constants.FlagDescYes)
 
-	fs.Parse(args)
-
-	return *assetsFlag, *notesFlag, *draftFlag, *dryRunFlag, *verboseFlag, *noCommitFlag, *yesFlag
+	return fs, assetsFlag, notesFlag, draftFlag, dryRunFlag, verboseFlag, noCommitFlag, yesFlag
 }

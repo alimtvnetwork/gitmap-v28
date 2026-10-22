@@ -34,6 +34,29 @@ func parseQueryOffset(val string) int {
 	return offset
 }
 
+func parseSortColumn(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "createdat", "time", "date":
+		return "CreatedAt"
+	case "actiontype", "type":
+		return "ActionType"
+	case "agentrole", "role":
+		return "AgentRole"
+	case "subtaskid", "subtask":
+		return "SubtaskId"
+	default:
+		return "ActionLogId"
+	}
+}
+
+func parseSortOrder(raw string) string {
+	if strings.EqualFold(strings.TrimSpace(raw), "asc") {
+		return "ASC"
+	}
+
+	return "DESC"
+}
+
 func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
 	return ActionLogFilter{
 		TaskId:     resolveTaskId(r.URL.Query().Get("taskId"), defaultTaskId),
@@ -42,6 +65,8 @@ func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
 		TouchType:  strings.TrimSpace(r.URL.Query().Get("touchType")),
 		SubtaskId:  strings.TrimSpace(r.URL.Query().Get("subtask")),
 		Search:     strings.TrimSpace(r.URL.Query().Get("q")),
+		SortBy:     parseSortColumn(r.URL.Query().Get("sort")),
+		Order:      parseSortOrder(r.URL.Query().Get("order")),
 		Limit:      parseQueryInt(r.URL.Query().Get("limit"), 100),
 		Offset:     parseQueryOffset(r.URL.Query().Get("offset")),
 	}
@@ -88,15 +113,17 @@ func buildActionLogsSQL(f ActionLogFilter) (string, []any) {
 		base += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	return appendPaginationLimitOffset(base, args, f.Limit, f.Offset)
+	return appendPaginationLimitOffset(base, args, f)
 }
 
-func appendPaginationLimitOffset(base string, args []any, limit, offset int) (string, []any) {
-	base += " ORDER BY ActionLogId DESC LIMIT ?"
-	args = append(args, limit)
-	if offset > 0 {
+func appendPaginationLimitOffset(base string, args []any, f ActionLogFilter) (string, []any) {
+	sortCol := parseSortColumn(f.SortBy)
+	sortDir := parseSortOrder(f.Order)
+	base += fmt.Sprintf(" ORDER BY %s %s LIMIT ?", sortCol, sortDir)
+	args = append(args, f.Limit)
+	if f.Offset > 0 {
 		base += " OFFSET ?"
-		args = append(args, offset)
+		args = append(args, f.Offset)
 	}
 
 	return base, args

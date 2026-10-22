@@ -25,8 +25,21 @@ func resolveTargetCredentialStore(args []string) constants.CredentialStoreType {
 	return gitutil.ResolveWindowsCredentialStore()
 }
 
-func unsetLegacyCredentialHelper() {
-	_ = exec.Command("git", "config", "--global", "--unset-all", "credential.helper").Run()
+func unsetLegacyCredentialHelper() *apperror.AppError {
+	cmd := exec.Command("git", "config", "--global", "--unset-all", "credential.helper")
+	if err := cmd.Run(); err != nil && !isBenignUnsetExit(err) {
+		return apperror.WrapSimple(err, "git config unset credential.helper")
+	}
+
+	return nil
+}
+
+func isBenignUnsetExit(err error) bool {
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.ExitCode() == 5
+	}
+
+	return false
 }
 
 func setCredentialManagerHelper() *apperror.AppError {
@@ -41,8 +54,13 @@ func setCredentialManagerHelper() *apperror.AppError {
 	return nil
 }
 
-func applyCredentialStoreType(storeType constants.CredentialStoreType) {
-	_ = exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType)).Run()
+func applyCredentialStoreType(storeType constants.CredentialStoreType) *apperror.AppError {
+	cmd := exec.Command("git", "config", "--global", "credential.credentialStore", string(storeType))
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out))), "git config set credentialStore")
+	}
+
+	return nil
 }
 
 func printFixCredentialSuccess(storeType constants.CredentialStoreType) {
@@ -61,13 +79,19 @@ func isWindowsPlatform() bool {
 }
 
 func applyWindowsCredentialFix(args []string) *apperror.AppError {
-	unsetLegacyCredentialHelper()
+	if appErr := unsetLegacyCredentialHelper(); appErr != nil {
+		return appErr
+	}
+
 	if appErr := setCredentialManagerHelper(); appErr != nil {
 		return appErr
 	}
 
 	storeType := resolveTargetCredentialStore(args)
-	applyCredentialStoreType(storeType)
+	if appErr := applyCredentialStoreType(storeType); appErr != nil {
+		return appErr
+	}
+
 	printFixCredentialSuccess(storeType)
 
 	return nil

@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/heatmap/heatmap_tracker_agent.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -89,9 +89,9 @@ func recordAgentActionAtRoot(cwd, taskSlug, actionType, summary string) error {
 ---
 
 ## 5. Verification Criteria
-- [ ] File `cli/heatmap/heatmap_tracker_agent.go` created in package `heatmap`.
-- [ ] Declares `TrackAgentAction(taskSlug, actionType, summary string) error`.
-- [ ] Gracefully ignores empty task slug or action type without error.
-- [ ] Closes database connection via `defer hdb.Close()`.
-- [ ] Returns structured error wrapped with `apperror.WrapSimple`.
-- [ ] File is ~40 lines, well below the 100-line cap.
+- [x] File `cli/heatmap/heatmap_tracker_agent.go` created in package `heatmap`.
+- [x] Declares `TrackAgentAction(taskSlug, actionType, summary string) error`.
+- [x] Gracefully ignores empty task slug or action type without error.
+- [x] Closes database connection via `defer hdb.Close()`.
+- [x] Returns structured error wrapped with `apperror.WrapSimple`.
+- [x] File is ~40 lines, well below the 100-line cap.

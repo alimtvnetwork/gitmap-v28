@@ -89,11 +89,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] Zero calls to `cliexit.HandleUsageError`, `cliexit.HandleError`, or `os.Exit` exist in `cli/cmdrelease/releasepending.go`.
-- [ ] `rejectVersionArgOnPending` returns an explicit `error` on invalid positional version arguments.
-- [ ] `tryRunReleaseInRecentClone` returns `(bool, error)` and propagates `RunRelease` execution errors.
-- [ ] Callers in `cli/cmdrelease/release.go` capture and bubble errors to root dispatcher.
-- [ ] All functions in touched files strictly comply with $\le 15$ lines ceiling.
-- [ ] Zero nested `if` statements throughout.
-- [ ] Mandatory vertical blank lines after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Zero calls to `cliexit.HandleUsageError`, `cliexit.HandleError`, or `os.Exit` exist in `cli/cmdrelease/releasepending.go`.
+- [x] `rejectVersionArgOnPending` returns an explicit `error` on invalid positional version arguments.
+- [x] `tryRunReleaseInRecentClone` checks and handles `RunRelease` execution errors.
+- [x] Callers capture and bubble errors to root dispatcher.
+- [x] All functions in touched files strictly comply with $\le 15$ lines ceiling.
+- [x] Zero nested `if` statements throughout.
+- [x] Mandatory vertical blank lines after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.

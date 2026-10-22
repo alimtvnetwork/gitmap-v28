@@ -108,11 +108,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] `cli/store/repo_query_filter.go` is designed with clean value semantics (passing `RepoFilterOptions` by value).
-- [ ] `ListReposByFilter` and `ListUnpushedRepos` declare explicit `([]model.ScanRecord, error)` returns.
-- [ ] No pointers to basic types or lightweight option structs are used.
-- [ ] All functions in `cli/store/repo_query_filter.go` strictly comply with $\le 15$ lines limit.
-- [ ] Zero nested `if` statements throughout; all conditionals flattened.
-- [ ] All boolean fields and variables use strictly positive `is*` or `has*` prefixes.
-- [ ] Both `cli/store/repo.go` and `cli/store/repo_query_filter.go` stay well under the 500-line ceiling.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] `cli/store/repo_query_filter.go` is designed with clean value semantics (passing `RepoFilterOptions` by value).
+- [x] `ListReposByFilter` and `ListUnpushedRepos` declare explicit `([]model.ScanRecord, error)` returns.
+- [x] No pointers to basic types or lightweight option structs are used.
+- [x] All functions in `cli/store/repo_query_filter.go` strictly comply with $\le 15$ lines limit.
+- [x] Zero nested `if` statements throughout; all conditionals flattened.
+- [x] All boolean fields and variables use strictly positive `is*` or `has*` prefixes.
+- [x] Both `cli/store/repo.go` and `cli/store/repo_query_filter.go` stay well under the 500-line ceiling.
+- [x] Strictly relative Git paths used throughout all references.

@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/cmd/see_ops.go`, `cli/cmd/cmd_see.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -189,9 +189,9 @@ Remove lines 104 through 204 from `cli/cmd/cmd_see.go`. All calls from `cmd_see.
 ---
 
 ## 5. Verification Criteria
-- [ ] File `cli/cmd/see_ops.go` created in `package cmd`.
-- [ ] 10 operational functions and handlers moved into `see_ops.go`.
-- [ ] Extracted functions removed from `cli/cmd/cmd_see.go`.
-- [ ] `cmd_see.go` line count reduced to ~100 lines.
-- [ ] All functions satisfy <= 15 lines and zero nested ifs.
-- [ ] Zero build or test commands executed.
+- [x] File `cli/cmd/see_ops.go` created in `package cmd`.
+- [x] 10 operational functions and handlers moved into `see_ops.go`.
+- [x] Extracted functions removed from `cli/cmd/cmd_see.go`.
+- [x] `cmd_see.go` line count reduced to ~100 lines.
+- [x] All functions satisfy <= 15 lines and zero nested ifs.
+- [x] Zero build or test commands executed.

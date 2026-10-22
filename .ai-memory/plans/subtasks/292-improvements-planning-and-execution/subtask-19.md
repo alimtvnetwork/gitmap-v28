@@ -1,6 +1,6 @@
 # Subtask 19: Modernize See Command Pending Commits and Help Menu
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/cmd/cmd_see.go`
@@ -55,8 +55,8 @@ Modernize `printPendingCommits` in `cli/cmd/cmd_see.go` using Tokyo Night design
 
 ## 4. Verification Checklist
 
-- [ ] `printPendingCommits` formatted with Tokyo Night header and metric tags.
-- [ ] `PrintSeeHelp` renders standard `termout.HelpMenu` via `termout.RenderMenu`.
-- [ ] Raw multiline `fmt.Printf` block in `PrintSeeHelp` eliminated.
-- [ ] Whitespace rules satisfied (blank lines before `return`).
-- [ ] All functions conform to $\le 15$ lines of code.
+- [x] `printPendingCommits` formatted with Tokyo Night header and metric tags.
+- [x] `PrintSeeHelp` renders standard `termout.HelpMenu` via `termout.RenderMenu`.
+- [x] Raw multiline `fmt.Printf` block in `PrintSeeHelp` eliminated.
+- [x] Whitespace rules satisfied (blank lines before `return`).
+- [x] All functions conform to $\le 15$ lines of code.

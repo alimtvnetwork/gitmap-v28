@@ -1,4 +1,4 @@
-// Package cmd — haschange.go implements `gitmap has-change (hc) <repo>`.
+// Package cmdhaschange implements `gitmap has-change (hc) <repo>`.
 //
 // Prints "true" or "false" depending on whether the named repo has uncommitted
 // changes (default), is ahead of origin, or is behind origin. Use --mode to
@@ -15,95 +15,134 @@ package cmdhaschange
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 )
 
-// runHasChange handles the `has-change` command.
+// RunHasChange handles the `has-change` command.
 func RunHasChange(args []string) error {
 	checkHelp(constants.CmdHasChange, args)
 
-	alias, mode, all, fetch := parseHasChangeFlags(args)
+	alias, mode, hasAll, hasFetch, err := parseHasChangeFlags(args)
+	if err != nil {
+		return err
+	}
+
 	if len(alias) == 0 {
-		fmt.Fprintln(os.Stderr, constants.ErrHCUsage)
-		cliexit.HandleUsageError(nil)
+		return apperror.NewUsageError(constants.ErrHCUsage)
 	}
 
+	return executeHasChange(alias, mode, hasAll, hasFetch)
+}
+
+func executeHasChange(alias, mode string, hasAll, hasFetch bool) error {
 	target := resolveReleaseAliasPath(alias)
-
-	if fetch {
-		fetchRemoteIn(target)
+	if hasFetch {
+		_ = fetchRemoteIn(target)
 	}
 
-	if all {
-		printHasChangeAll(target)
-
-		return nil
+	if hasAll {
+		return printHasChangeAll(target)
 	}
 
-	printHasChangeOne(target, mode)
-
-	return nil
+	return printHasChangeOne(target, mode)
 }
 
 // parseHasChangeFlags extracts the repo alias and mode flags.
-func parseHasChangeFlags(args []string) (alias, mode string, all, fetch bool) {
-	fs := flag.NewFlagSet(constants.CmdHasChange, flag.ExitOnError)
+func parseHasChangeFlags(args []string) (string, string, bool, bool, error) {
+	fs := flag.NewFlagSet(constants.CmdHasChange, flag.ContinueOnError)
 	modeFlag := fs.String(constants.FlagHCMode, constants.HCModeDirty, constants.FlagDescHCMode)
 	allFlag := fs.Bool(constants.FlagHCAll, false, constants.FlagDescHCAll)
 	fetchFlag := fs.Bool(constants.FlagHCFetch, true, constants.FlagDescHCFetch)
 	if err := fs.Parse(flagutil.ReorderFlagsBeforeArgs(args)); err != nil {
-		cliexit.HandleError(err, 2)
+		return "", "", false, false, apperror.WrapSimple(err, "parse has-change flags")
 	}
 
-	rest := fs.Args()
-	if len(rest) >= 1 {
-		alias = rest[0]
+	alias := extractAliasArg(fs.Args())
+
+	return alias, *modeFlag, *allFlag, *fetchFlag, nil
+}
+
+func extractAliasArg(args []string) string {
+	if len(args) >= 1 {
+		return args[0]
 	}
 
-	return alias, *modeFlag, *allFlag, *fetchFlag
+	return ""
 }
 
 // printHasChangeOne prints true/false for a single dimension.
-func printHasChangeOne(target, mode string) {
-	switch mode {
-	case constants.HCModeDirty:
-		fmt.Println(boolStr(isWorkingTreeDirty(target)))
-	case constants.HCModeAhead:
-		ahead, _, _ := readAheadBehind(target)
-		fmt.Println(boolStr(ahead > 0))
-	case constants.HCModeBehind:
-		_, behind, _ := readAheadBehind(target)
-		fmt.Println(boolStr(behind > 0))
-	default:
-		fmt.Fprintf(os.Stderr, constants.ErrHCBadMode, mode)
-		cliexit.HandleUsageError(nil)
+func printHasChangeOne(target, mode string) error {
+	if mode == constants.HCModeDirty {
+		return printHasChangeDirty(target)
 	}
+
+	if mode == constants.HCModeAhead || mode == constants.HCModeBehind {
+		return printHasChangeSync(target, mode)
+	}
+
+	return apperror.NewUsageError(fmt.Sprintf(constants.ErrHCBadMode, mode))
+}
+
+func printHasChangeDirty(target string) error {
+	isDirty, err := isWorkingTreeDirty(target)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(boolStr(isDirty))
+
+	return nil
+}
+
+func printHasChangeSync(target, mode string) error {
+	ahead, behind, _, err := readAheadBehind(target)
+	if err != nil {
+		return err
+	}
+
+	hasChange := (mode == constants.HCModeAhead && ahead > 0) || (mode == constants.HCModeBehind && behind > 0)
+	fmt.Println(boolStr(hasChange))
+
+	return nil
 }
 
 // printHasChangeAll prints structured output for all three dimensions.
-func printHasChangeAll(target string) {
-	dirty := isWorkingTreeDirty(target)
-	ahead, behind, ok := readAheadBehind(target)
-	if !ok {
-		fmt.Printf(constants.MsgHCAllNoUpstream, boolStr(dirty))
-
-		return
+func printHasChangeAll(target string) error {
+	isDirty, err := isWorkingTreeDirty(target)
+	if err != nil {
+		return err
 	}
 
-	fmt.Printf(constants.MsgHCAllFmt, boolStr(dirty), boolStr(ahead > 0), boolStr(behind > 0))
+	return formatHasChangeAllUpstream(target, isDirty)
+}
+
+func formatHasChangeAllUpstream(target string, isDirty bool) error {
+	ahead, behind, hasUpstream, err := readAheadBehind(target)
+	if err != nil {
+		return err
+	}
+
+	if !hasUpstream {
+		fmt.Printf(constants.MsgHCAllNoUpstream, boolStr(isDirty))
+
+		return nil
+	}
+
+	fmt.Printf(constants.MsgHCAllFmt, boolStr(isDirty), boolStr(ahead > 0), boolStr(behind > 0))
+
+	return nil
 }
 
 // boolStr returns "true" or "false" for printing.
-func boolStr(b bool) string {
-	if b {
+func boolStr(hasValue bool) string {
+	if hasValue {
 		return constants.HCTrue
 	}
 
@@ -111,33 +150,37 @@ func boolStr(b bool) string {
 }
 
 // readAheadBehind runs `git rev-list --left-right --count HEAD...@{upstream}`
-// in target and returns the (ahead, behind, ok) tuple. ok is false when there
+// in target and returns the (ahead, behind, hasUpstream, err) tuple. hasUpstream is false when there
 // is no configured upstream.
-func readAheadBehind(target string) (int, int, bool) {
+func readAheadBehind(target string) (int, int, bool, error) {
 	cmd := exec.Command(constants.GitBin, "rev-list", "--left-right", "--count", "HEAD...@{upstream}")
 	cmd.Dir = target
 	out, err := cmd.Output()
 	if err != nil {
-		return 0, 0, false
+		return 0, 0, false, nil
 	}
 
 	parts := strings.Fields(strings.TrimSpace(string(out)))
 	if len(parts) != 2 {
-		return 0, 0, false
+		return 0, 0, false, apperror.WrapSimple(fmt.Errorf("unexpected output: %s", string(out)), "parse rev-list count")
 	}
 
 	ahead, _ := strconv.Atoi(parts[0])
 	behind, _ := strconv.Atoi(parts[1])
 
-	return ahead, behind, true
+	return ahead, behind, true, nil
 }
 
 // fetchRemoteIn runs `git fetch` in target. Errors are printed but do not
 // fail the command — the user gets a stale ahead/behind result with a warning.
-func fetchRemoteIn(target string) {
+func fetchRemoteIn(target string) error {
 	cmd := exec.Command(constants.GitBin, "fetch")
 	cmd.Dir = target
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, constants.WarnHCFetchFailed, target, err)
+
+		return apperror.WrapSimple(err, "git fetch in "+target)
 	}
+
+	return nil
 }

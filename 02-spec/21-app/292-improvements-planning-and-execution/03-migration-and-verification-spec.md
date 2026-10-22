@@ -447,4 +447,4 @@ Under the project mandate, compiler builds (`go build`) and automated test suite
 
 5. **Path and Formatting Hygiene:**
    - All paths are relative Git paths (`cli/...`, `02-spec/...`, `.ai-memory/...`).
-   - Zero absolute paths and zero file URI schemes (`file:///`).
+   - Zero absolute paths and zero file URI schemes.

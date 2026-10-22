@@ -86,11 +86,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] Zero calls to `cliexit.HandleError` or `os.Exit` exist in `cli/cmdtemprelease/temprelease.go`.
-- [ ] `dispatchTempRelease` declares an `error` return and never discards subcommand errors.
-- [ ] `runTempReleaseList` returns JSON encoding errors directly rather than swallowing them.
-- [ ] `RunTempRelease` bubbles all validation and dispatch errors to root dispatcher.
-- [ ] All functions in touched files strictly comply with $\le 15$ lines ceiling.
-- [ ] Zero nested `if` statements throughout.
-- [ ] Mandatory vertical blank lines after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] Zero calls to `cliexit.HandleError` or `os.Exit` exist in `cli/cmdtemprelease/temprelease.go`.
+- [x] `dispatchTempRelease` declares an `error` return and never discards subcommand errors.
+- [x] `runTempReleaseList` returns JSON encoding errors directly rather than swallowing them.
+- [x] `RunTempRelease` bubbles all validation and dispatch errors to root dispatcher.
+- [x] All functions in touched files strictly comply with $\le 15$ lines ceiling.
+- [x] Zero nested `if` statements throughout.
+- [x] Mandatory vertical blank lines after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.

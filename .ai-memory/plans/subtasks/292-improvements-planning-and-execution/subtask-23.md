@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/heatmap_schema.go`, `cli/store/heatmap_store.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -93,9 +93,9 @@ func (h *HeatmapDB) GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary,
 ---
 
 ## 5. Verification Criteria
-- [ ] `HeatmapTaskSummary` struct declared with JSON tags in `cli/store/heatmap_schema.go`.
-- [ ] Method `GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary, error)` declared on `*HeatmapDB` in `cli/store/heatmap_store.go`.
-- [ ] Uses parameterized query `sqlHeatmapTaskSummary` preventing injection.
-- [ ] Calculates `OtherCount` safely with non-negative lower bound guard.
-- [ ] Returns structured error wrapped with `apperror.WrapSimple`.
-- [ ] All touched files remain under their respective file size limits.
+- [x] `HeatmapTaskSummary` struct declared with JSON tags in `cli/store/heatmap_schema.go`.
+- [x] Method `GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary, error)` declared on `*HeatmapDB` in `cli/store/heatmap_store.go`.
+- [x] Uses parameterized query `sqlHeatmapTaskSummary` preventing injection.
+- [x] Calculates `OtherCount` safely with non-negative lower bound guard.
+- [x] Returns structured error wrapped with `apperror.WrapSimple`.
+- [x] All touched files remain under their respective file size limits.

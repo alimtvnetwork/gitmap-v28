@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/292-improvements-planning-and-execution.md`  
 > **Parent Spec:** `02-spec/21-app/292-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/cmdcpar/cpar_target.go`, `cli/cmdcpar/cpar.go`  
-> **Status:** Pending  
+> **Status:** Completed  
 
 ---
 
@@ -124,8 +124,8 @@ Remove the extracted functions (`CollectDirtyRepositories`, `resolveRelativePath
 ---
 
 ## 5. Verification Criteria
-- [ ] File `cli/cmdcpar/cpar_target.go` created in package `cmdcpar`.
-- [ ] Functions `CollectDirtyRepositories`, `resolveRelativePath`, `appendDirty`, `resolveAllRecords`, and `queryStoreRecords` present in `cpar_target.go`.
-- [ ] Functions removed from `cli/cmdcpar/cpar.go`.
-- [ ] `cpar.go` line count decreased by ~60 lines.
-- [ ] Zero changes to external signatures or public behavior.
+- [x] File `cli/cmdcpar/cpar_target.go` created in package `cmdcpar`.
+- [x] Functions `CollectDirtyRepositories`, `resolveRelativePath`, `appendDirty`, `resolveAllRecords`, and `queryStoreRecords` present in `cpar_target.go`.
+- [x] Functions removed from `cli/cmdcpar/cpar.go`.
+- [x] `cpar.go` line count decreased by ~60 lines.
+- [x] Zero changes to external signatures or public behavior.

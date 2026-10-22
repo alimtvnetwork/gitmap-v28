@@ -1,6 +1,6 @@
 # Subtask 20: Isolate Interactive Candidate Selection Prompts to Stderr
 
-## Status: Pending
+## Status: Completed
 ## Parent Plan: .ai-memory/plans/292-improvements-planning-and-execution.md
 ## Component Spec: 02-spec/21-app/292-improvements-planning-and-execution/02-component-spec.md
 ## Target Files: `cli/cmdpending/pending_commits_filter.go`
@@ -50,8 +50,8 @@ Enforce the standard error isolation invariant in `cli/cmdpending/pending_commit
 
 ## 4. Verification Checklist
 
-- [ ] Interactive prompts in `isDetailPromptTerminated` write strictly to `os.Stderr`.
-- [ ] Interactive step status messages write to `os.Stderr`.
-- [ ] Standard output remains pure and unpolluted when piping or redirecting.
-- [ ] Blank lines precede every return statement.
-- [ ] All functions conform to $\le 15$-line limit.
+- [x] Interactive prompts in `isDetailPromptTerminated` write strictly to `os.Stderr`.
+- [x] Interactive step status messages write to `os.Stderr`.
+- [x] Standard output remains pure and unpolluted when piping or redirecting.
+- [x] Blank lines precede every return statement.
+- [x] All functions conform to $\le 15$-line limit.

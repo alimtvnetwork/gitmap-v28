@@ -1,4 +1,4 @@
-// Package cmd implements CLI command handlers for gitmap.
+// Package cmdtemprelease implements CLI command handlers for gitmap.
 package cmdtemprelease
 
 import (
@@ -12,7 +12,7 @@ import (
 
 // runTempReleaseList lists all temp-release branches.
 func runTempReleaseList(args []string) error {
-	jsonOutput := hasTRListFlag(args, "--json")
+	isJSONOutput := hasTRListFlag(args, "--json")
 
 	db, err := openDB()
 	if err != nil {
@@ -29,15 +29,18 @@ func runTempReleaseList(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrBareFmt)
 	}
 
-	if !jsonOutput {
+	return renderTRListOutput(releases, isJSONOutput)
+}
+
+func renderTRListOutput(releases []model.TempRelease, isJSONOutput bool) error {
+	if !isJSONOutput {
 		printTRList(releases)
 
 		return nil
 	}
 
-	errEncode := encodeTempReleaseListJSON(os.Stdout, releases)
-	if errEncode != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Failed to encode temp releases to JSON: %v\n", errEncode)
+	if errEncode := encodeTempReleaseListJSON(os.Stdout, releases); errEncode != nil {
+		return apperror.WrapSimple(errEncode, "encode temp release json")
 	}
 
 	return nil
@@ -54,18 +57,22 @@ func printTRList(releases []model.TempRelease) {
 	fmt.Printf(constants.MsgTRListHeader, len(releases))
 
 	for _, r := range releases {
-		short := r.CommitSha
-		if len(short) > constants.ShaDisplayLength {
-			short = short[:constants.ShaDisplayLength]
-		}
-
-		msg := r.CommitMessage
-		if len(msg) > 50 {
-			msg = msg[:50]
-		}
-
-		fmt.Printf(constants.MsgTRListRow, r.Branch, short, msg, r.CreatedAt)
+		printTRListRow(r)
 	}
+}
+
+func printTRListRow(r model.TempRelease) {
+	short := r.CommitSha
+	if len(short) > constants.ShaDisplayLength {
+		short = short[:constants.ShaDisplayLength]
+	}
+
+	msg := r.CommitMessage
+	if len(msg) > 50 {
+		msg = msg[:50]
+	}
+
+	fmt.Printf(constants.MsgTRListRow, r.Branch, short, msg, r.CreatedAt)
 }
 
 // hasTRListFlag checks if a flag is present in the args.

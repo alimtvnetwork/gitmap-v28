@@ -84,11 +84,11 @@
 
 ## 3. Verification Criteria
 
-- [ ] All `_ = exec.Command(...).Run()` discards are eliminated from `cli/cmdfixauth/fixcredential.go`.
-- [ ] `unsetLegacyCredentialHelper` and `applyCredentialStoreType` return `*apperror.AppError`.
-- [ ] `applyWindowsCredentialFix` halts immediately upon any error and bubbles the `*apperror.AppError`.
-- [ ] `printFixCredentialSuccess` is only called if all Git configuration commands succeed.
-- [ ] All functions in `cli/cmdfixauth/` satisfy the $\le 15$ lines limit.
-- [ ] Zero nested `if` statements throughout.
-- [ ] Mandatory blank lines maintained after `}` and before `return`.
-- [ ] Strictly relative Git paths used throughout all references.
+- [x] All `_ = exec.Command(...).Run()` discards are eliminated from `cli/cmdfixauth/fixcredential.go`.
+- [x] `unsetLegacyCredentialHelper` and `applyCredentialStoreType` return `*apperror.AppError`.
+- [x] `applyWindowsCredentialFix` halts immediately upon any error and bubbles the `*apperror.AppError`.
+- [x] `printFixCredentialSuccess` is only called if all Git configuration commands succeed.
+- [x] All functions in `cli/cmdfixauth/` satisfy the $\le 15$ lines limit.
+- [x] Zero nested `if` statements throughout.
+- [x] Mandatory blank lines maintained after `}` and before `return`.
+- [x] Strictly relative Git paths used throughout all references.
