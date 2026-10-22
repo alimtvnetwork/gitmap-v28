@@ -14,12 +14,12 @@ This skill provides guidelines for writing and maintaining enterprise Go code wi
    - Classification via `errtype.Variation uint16` or `ErrorType` enum (`None`, `Validation`, `NotFound`, `Execution`, `Database`, `Network`, `Timeout`, `Internal`).
    - Structured caller tracking: `CallerInfo` (Function, File, Line), never a raw string.
 
-2. **Monadic Result Containers (`result.Wrap[T]`, `result.WrapSlice[T]`, `result.WrapMap[K, V]`):**
+2. **Monadic Result Containers with DRY `types.go` Reuse:**
    - Single entities: Functions returning a value along with possible failure must return `result.Wrap[T]`.
    - Collections / Slices: Functions returning slices must return `result.WrapSlice[T]`.
    - Keyed lookups: Functions returning maps must return `result.WrapMap[K, V]`.
    - Eliminates bare tuples `(T, error)`, `([]T, error)`, and `(map[K]V, error)` across all domain boundaries.
-   - Centralizes domain aliases in `types.go`: `type ItemWrap = result.Wrap[Item]`, `type ItemSliceWrap = result.WrapSlice[Item]`.
+   - **DRY `types.go` Mandate:** Declare a single named type alias in the package's `types.go` first (e.g. `type ItemWrap = result.Wrap[Item]`, `type ItemSliceWrap = result.WrapSlice[Item]`, `type ItemMapWrap = result.WrapMap[string, Item]`). Implementation functions and callers MUST reuse this single type alias rather than writing raw generic brackets inline.
    - Provides fluent methods: `.IsSuccess()`, `.IsFailure()`, `.HasError()`, `.IsEmpty()`, `.HasRecord()`, `.IsCountOtherThan(N)`, `.Items()`, `.Value`, `.AppError()`.
 
 3. **Pluggable Write Pipelines (`pkg/streamwriter`):**

@@ -7,6 +7,22 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+)
+
+type (
+	// ScanRecordWrap is the canonical single reusable result container for ScanRecord.
+	ScanRecordWrap = result.Wrap[model.ScanRecord]
+
+	// ScanRecordSliceWrap is the canonical single reusable collection container for ScanRecord.
+	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
+
+	// ScanRecordMapWrap is the canonical single reusable keyed lookup container for ScanRecord.
+	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
+
+	// ScanRecordsResult is the canonical single reusable result container for []model.ScanRecord.
+	ScanRecordsResult = result.Result[[]model.ScanRecord]
 )
 
 // IRepository defines the generic domain repository interface for CRUD persistence operations.

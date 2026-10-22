@@ -87,10 +87,23 @@ if rec == nil {
 fmt.Println(rec.Slug)
 ```
 
-##### ✅ MANDATORY: Single Monadic Container (`result.Wrap[T]`)
+##### ✅ MANDATORY: Single Monadic Container with DRY types.go Definition
+
 ```go
-// ✅ MANDATORY: Single return container, value semantics, strongly-typed AppError
-func (r *RepoRepository) FindBySlug(slug string) result.Wrap[model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+// Declare the single reusable named type alias — NEVER leak raw generic brackets in implementation signatures!
+package store
+
+type (
+	// ScanRecordWrap is the canonical single reusable result container for ScanRecord.
+	ScanRecordWrap = result.Wrap[model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordWrap from types.go for 100% DRY code with value semantics
+func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	row := r.conn.QueryRow(SQLSelectBySlug, slug)
 	var rec model.ScanRecord
 	if err := row.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); err != nil {
@@ -137,10 +150,20 @@ func (r *RepoRepository) ListDirty() ([]model.ScanRecord, error) {
 }
 ```
 
-##### ✅ MANDATORY: Canonical Slice Container (`result.WrapSlice[T]`)
+##### ✅ MANDATORY: Canonical Slice Container with DRY types.go Definition
+
 ```go
-// ✅ MANDATORY: Single ResultSlice container returning result.WrapSlice[T]
-func (r *RepoRepository) ListDirty() result.WrapSlice[model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+type (
+	// ScanRecordSliceWrap is the canonical single reusable collection container for ScanRecord.
+	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordSliceWrap from types.go — clean, DRY single-type reuse
+func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	rows, err := r.conn.Query(SQLSelectDirtyRepos)
 	if err != nil {
 		return result.FailWrapSlice[model.ScanRecord](apperror.WrapSimple(err, "ListDirty"))
@@ -185,10 +208,20 @@ func (r *RepoRepository) IndexBySlug() (map[string]model.ScanRecord, error) {
 }
 ```
 
-##### ✅ MANDATORY: Canonical Map Container (`result.WrapMap[K, V]`)
+##### ✅ MANDATORY: Canonical Map Container with DRY types.go Definition
+
 ```go
-// ✅ MANDATORY: Single ResultMap container returning result.WrapMap[K, V]
-func (r *RepoRepository) IndexBySlug() result.WrapMap[string, model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+type (
+	// ScanRecordMapWrap is the canonical single reusable keyed lookup container for ScanRecord.
+	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordMapWrap from types.go — clean, DRY single-type reuse
+func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 	recordsRes := r.ListAll()
 	if recordsRes.HasError() {
 		return result.FailWrapMap[string, model.ScanRecord](recordsRes.Err)
@@ -215,12 +248,16 @@ if res.Has("gitmap") {
 
 ---
 
-#### Pattern 4: Domain Types Centralization (`types.go` Mandate)
+#### Pattern 4: Domain Types Centralization (`types.go` DRY Mandate)
 
-Never scatter raw generic Result declarations like `result.Wrap[MyEntity]` or unexported structs inline across implementation files. All domain structs and Result wrappers MUST be aliased in a dedicated package-level `types.go` file:
+**Why defining single types in `types.go` is mandatory for DRY code:**
+1. **Zero Repetitive Generic Noise:** Prevents raw generic brackets (e.g. `result.Wrap[model.ScanRecord]`) from being copy-pasted across multiple repository, service, coordinator, and handler files.
+2. **Single Point of Evolution:** If an entity container evolves or acquires special metadata, changing the single alias in `types.go` updates the entire package automatically without refactoring dozens of function signatures.
+3. **Encapsulation & Clean Public Contracts:** Callers consume clean, domain-named types like `ScanRecordWrap` and `ScanRecordSliceWrap`, making package APIs self-documenting.
+4. **Enforces Function & File Limits:** Eliminating verbose inline generic signatures keeps function headers on a single line and prevents file bloat, directly supporting the 15-line function limit.
 
 ```go
-// cli/mydomain/types.go
+// cli/mydomain/types.go (in the package where the domain is defined)
 package mydomain
 
 import (

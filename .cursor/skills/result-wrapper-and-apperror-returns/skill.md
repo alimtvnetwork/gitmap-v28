@@ -39,12 +39,25 @@ All fallible operations MUST return a single strongly-typed monadic container fr
 
 ---
 
-## 3. Concrete Implementation Examples
+## 3. Concrete Implementation Examples with DRY `types.go` Reuse
 
-### Single Item Lookup (`result.Wrap[T]`)
+### 3.1 Single Item Lookup (`ScanRecordWrap`)
+
 ```go
-// Implementation in repository/service
-func (r *RepoRepository) FindBySlug(slug string) result.Wrap[model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+// Declare the single reusable named type alias — NEVER leak raw generic brackets in function signatures!
+package store
+
+type (
+	// ScanRecordWrap is the canonical single reusable result container for ScanRecord.
+	ScanRecordWrap = result.Wrap[model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordWrap from types.go for 100% DRY code with value semantics
+func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	row := r.conn.QueryRow(SQLSelectBySlug, slug)
 	var rec model.ScanRecord
 	if err := row.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); err != nil {
@@ -65,10 +78,20 @@ if res.IsEmpty() {
 rec := res.Value
 ```
 
-### Slice Collection Query (`result.WrapSlice[T]`)
+### 3.2 Slice Collection Query (`ScanRecordSliceWrap`)
+
 ```go
-// Implementation in repository/service
-func (r *RepoRepository) ListDirty() result.WrapSlice[model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+type (
+	// ScanRecordSliceWrap is the canonical single reusable collection container for ScanRecord.
+	ScanRecordSliceWrap = result.WrapSlice[model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordSliceWrap from types.go — clean, DRY single-type reuse
+func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	rows, err := r.conn.Query(SQLSelectDirtyRepos)
 	if err != nil {
 		return result.FailWrapSlice[model.ScanRecord](apperror.WrapSimple(err, "ListDirty"))
@@ -97,10 +120,20 @@ for _, rec := range res.Items() {
 }
 ```
 
-### Keyed Map Lookup (`result.WrapMap[K, V]`)
+### 3.3 Keyed Map Lookup (`ScanRecordMapWrap`)
+
 ```go
-// Implementation in repository/service
-func (r *RepoRepository) IndexBySlug() result.WrapMap[string, model.ScanRecord] {
+// Step 1: In cli/store/types.go (in the package where it is defined)
+type (
+	// ScanRecordMapWrap is the canonical single reusable keyed lookup container for ScanRecord.
+	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
+)
+```
+
+```go
+// Step 2: In cli/store/repo_repository.go
+// ✅ MANDATORY: Reuses ScanRecordMapWrap from types.go — clean, DRY single-type reuse
+func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 	recordsRes := r.ListAll()
 	if recordsRes.HasError() {
 		return result.FailWrapMap[string, model.ScanRecord](recordsRes.Err)

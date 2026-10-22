@@ -29,7 +29,7 @@ func DefaultDB() (*DB, error) {
 }
 
 // ListByBranch returns repositories configured for the specified branch.
-func (r *RepoRepository) ListByBranch(branch string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListByBranch(branch string) ScanRecordsResult {
 	clean := strings.TrimSpace(branch)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -39,22 +39,22 @@ func (r *RepoRepository) ListByBranch(branch string) result.Result[[]model.ScanR
 }
 
 // FindByBranch delegates to ListByBranch.
-func (r *RepoRepository) FindByBranch(branch string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) FindByBranch(branch string) ScanRecordsResult {
 	return r.ListByBranch(branch)
 }
 
 // ListDirty returns repositories flagged as dirty or requiring synchronization.
-func (r *RepoRepository) ListDirty() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListDirty() ScanRecordsResult {
 	return r.queryScanRecords(constants.SQLSelectDirtyRepos)
 }
 
 // FindDirty delegates to ListDirty.
-func (r *RepoRepository) FindDirty() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) FindDirty() ScanRecordsResult {
 	return r.ListDirty()
 }
 
 // ListByTag returns repositories matching a specific tag stored in metadata or notes.
-func (r *RepoRepository) ListByTag(tag string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListByTag(tag string) ScanRecordsResult {
 	clean := strings.TrimSpace(tag)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -66,22 +66,22 @@ func (r *RepoRepository) ListByTag(tag string) result.Result[[]model.ScanRecord]
 }
 
 // FindByTag delegates to ListByTag.
-func (r *RepoRepository) FindByTag(tag string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) FindByTag(tag string) ScanRecordsResult {
 	return r.ListByTag(tag)
 }
 
 // ListUnpushed returns repositories flagged with unpushed commits in metadata or local tracking.
-func (r *RepoRepository) ListUnpushed() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListUnpushed() ScanRecordsResult {
 	return r.queryScanRecords(constants.SQLSelectUnpushedRepos)
 }
 
 // FindUnpushed delegates to ListUnpushed.
-func (r *RepoRepository) FindUnpushed() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) FindUnpushed() ScanRecordsResult {
 	return r.ListUnpushed()
 }
 
 // FindPathBySlug resolves the absolute path of a repository by full or short slug.
-func (r *RepoRepository) FindPathBySlug(slug string) result.Result[string] {
+func (r *RepoRepository) FindPathBySlug(slug string) result.StringResult {
 	rq, ok := r.conn.(sqlRowQueryer)
 	if !ok {
 		return result.Fail[string](apperror.NewSimple("database executor does not support row query", "E_DB_EXECUTOR"))
@@ -100,7 +100,7 @@ func (r *RepoRepository) FindPathBySlug(slug string) result.Result[string] {
 	return result.Ok(absPath)
 }
 
-func (r *RepoRepository) queryScanRecords(query string, args ...any) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) queryScanRecords(query string, args ...any) ScanRecordsResult {
 	q, ok := r.conn.(sqlQueryer)
 	if !ok {
 		return result.Fail[[]model.ScanRecord](apperror.NewSimple("database executor does not support query", "E_DB_EXECUTOR"))
