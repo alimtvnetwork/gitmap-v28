@@ -197,6 +197,7 @@ const MergeAIPage = () => {
     setSources((prev) => {
       const updated = [...prev];
       updated[index] = value;
+
       return updated;
     });
   };
@@ -211,16 +212,19 @@ const MergeAIPage = () => {
 
     if (modality === "positional") {
       const srcList = validSources.length > 0 ? validSources.join(" ") : "<source1> <source2>";
+
       return `gitmap merge-ai ${dest} ${srcList}`;
     }
 
     if (modality === "flags") {
       const srcFlags = validSources.length > 0 ? validSources.map((s) => `-s ${s}`).join(" ") : "-s <source1> -s <source2>";
+
       return `gitmap ma -d ${dest} ${srcFlags}`;
     }
 
     if (modality === "comma") {
       const commaList = validSources.length > 0 ? validSources.join(",") : "<source1>,<source2>";
+
       return `gitmap ma -d ${dest} --source "${commaList}"`;
     }
 

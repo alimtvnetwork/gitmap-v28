@@ -250,6 +250,7 @@ export default function AGYPromptsPage() {
 
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
+
       return (
         item.title.toLowerCase().includes(q) ||
         item.command.toLowerCase().includes(q) ||

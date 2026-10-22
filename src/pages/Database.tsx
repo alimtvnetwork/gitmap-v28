@@ -138,6 +138,7 @@ export default function DatabasePage() {
     if (!filterQuery.trim()) {
       return rawRows;
     }
+
     const q = filterQuery.toLowerCase();
 
     return rawRows.filter((row) =>
@@ -452,6 +453,7 @@ function CellInspectionModal({ target, hasCopied, onClose, onCopyRaw }: ModalPro
     if (typeof raw === "object" && raw !== null) {
       return JSON.stringify(raw, null, 2);
     }
+
     if (typeof raw === "string") {
       try {
         return JSON.stringify(JSON.parse(raw), null, 2);
@@ -605,9 +607,11 @@ function formatByteSize(bytes: number): string {
   if (bytes <= 0) {
     return "0 B";
   }
+
   if (bytes < 1024) {
     return `${bytes} B`;
   }
+
   if (bytes < 1024 * 1024) {
     return `${(bytes / 1024).toFixed(1)} KB`;
   }
@@ -619,6 +623,7 @@ function isBinaryString(str: string): boolean {
   if (!str || str.length === 0) {
     return false;
   }
+
   if (str.includes("\uFFFD") || str.includes("\x00")) {
     return true;
   }
@@ -638,12 +643,15 @@ function classifyCell(val: unknown): ClassifiedCell {
   if (val === null || val === undefined) {
     return { cellType: "null", badgeText: "NULL", rawValue: val, sizeBytes: 0 };
   }
+
   if (typeof val === "boolean") {
     return { cellType: "bool", badgeText: val ? "[BOOL true]" : "[BOOL false]", rawValue: val, sizeBytes: 1 };
   }
+
   if (typeof val === "object") {
     return classifyObjectCell(val as object);
   }
+
   if (typeof val === "string") {
     return classifyStringCell(val);
   }
@@ -744,6 +752,7 @@ function formatHexLine(offset: number, chunk: number[]): string {
   while (hexParts.length < 16) {
     hexParts.push("  ");
   }
+
   const ascii = chunk.map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : ".")).join("");
   const left = hexParts.slice(0, 8).join(" ");
   const right = hexParts.slice(8).join(" ");
