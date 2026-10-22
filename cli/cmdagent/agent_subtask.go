@@ -3,11 +3,13 @@ package cmdagent
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/types"
 )
@@ -178,29 +180,36 @@ func RunSubtaskClaim(opts SubtaskClaimOptions) *appfault.AppError {
 	if claimErr != nil {
 		return claimErr
 	}
-	renderClaimResult(sub, opts.AgentRole)
+	renderClaimResult(sub, opts.AgentRole, dbPath)
 
 	return nil
 }
 
-func renderClaimResult(sub *types.Subtask, role string) {
+func renderClaimResult(sub *types.Subtask, role, dbPath string) {
+	out := buildClaimResultMap(sub, role, dbPath)
+	b, _ := json.MarshalIndent(out, "", "  ")
+	fmt.Println(string(b))
+}
+
+func buildClaimResultMap(sub *types.Subtask, role, dbPath string) map[string]any {
 	if sub == nil {
-		out := map[string]any{"status": "empty", "message": "No pending subtasks available to claim"}
-		b, _ := json.MarshalIndent(out, "", "  ")
-		fmt.Println(string(b))
-		return
+		return map[string]any{"status": "empty", "message": "No pending subtasks available to claim"}
 	}
-	out := map[string]any{
+	cwd, _ := os.Getwd()
+	relDbPath := toRelativePath(cwd, dbPath)
+	classifiedFiles := fsutil.ClassifyFileTargets(sub.OwnedFilesJson, "", cwd)
+
+	return map[string]any{
 		"status":            "claimed",
 		"subtaskId":         sub.SubtaskId,
 		"parentTaskId":      sub.ParentTaskId,
 		"taskCode":          sub.TaskCode,
 		"title":             sub.Title,
 		"assignedAgentRole": role,
+		"databasePath":      relDbPath,
+		"files":             classifiedFiles,
 		"ownedFilesJson":    sub.OwnedFilesJson,
 	}
-	b, _ := json.MarshalIndent(out, "", "  ")
-	fmt.Println(string(b))
 }
 
 func resolveSubtaskTarget(taskID, subtaskID, code, slug string) (string, string, *appfault.AppError) {
@@ -275,6 +284,11 @@ func RunSubtaskLs(opts SubtaskLsOptions) *appfault.AppError {
 		return listErr
 	}
 	if opts.IsJson {
+		cwd, _ := os.Getwd()
+		for i := range subtasks {
+			subtasks[i].Files = fsutil.ClassifyFileTargets(subtasks[i].OwnedFilesJson, "", cwd)
+		}
+
 		return renderSubtasksJson(subtasks)
 	}
 	renderSubtasksTable(subtasks)

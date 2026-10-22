@@ -62,6 +62,7 @@ type Subtask struct {
 	Title             string `json:"title"`
 	AssignedAgentRole string `json:"assignedAgentRole"`
 	OwnedFilesJson    string `json:"ownedFilesJson"`
+	Files             any    `json:"files,omitempty"`
 	Status            string `json:"status"`
 	Evidence          string `json:"evidence"`
 	CreatedAt         string `json:"createdAt"`

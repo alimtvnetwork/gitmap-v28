@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -29,8 +31,15 @@ func buildAgentLikeLogMap(rec store.HeatmapActionLogRecord, dbPath string) map[s
 	if hasDbPath {
 		resp["databasePath"] = computeRelativeDbPath(dbPath)
 	}
+	resp["files"] = buildHeatmapFilesSection(rec)
 
 	return resp
+}
+
+func buildHeatmapFilesSection(rec store.HeatmapActionLogRecord) fsutil.ClassifiedFiles {
+	cwd, _ := os.Getwd()
+
+	return fsutil.ClassifyFileTargets(rec.FilePath, rec.ActionType, cwd)
 }
 
 func populateLogRecordFields(resp map[string]any, rec store.HeatmapActionLogRecord) {
@@ -98,8 +107,8 @@ func renderRcHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord,
 	return writeIndentedJSON(out, resp)
 }
 
-func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, statusStr string) map[string]any {
-	return map[string]any{
+func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, dbPath, statusStr string) map[string]any {
+	resp := map[string]any{
 		"actionLogId":       updated.HeatmapActionLogId,
 		"status":            "UPDATED",
 		"actualOutcome":     updated.ActualOutcome,
@@ -107,6 +116,13 @@ func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, statusStr str
 		"isExpectationMet":  updated.IsExpectationMet,
 		"expectationStatus": statusStr,
 	}
+	hasDbPath := dbPath != ""
+	if hasDbPath {
+		resp["databasePath"] = computeRelativeDbPath(dbPath)
+	}
+	resp["files"] = buildHeatmapFilesSection(updated)
+
+	return resp
 }
 
 func renderHeatmapUpdateResponse(out io.Writer, updated store.HeatmapActionLogRecord, dbPath, statusStr string, flags map[string]string) error {
@@ -125,7 +141,7 @@ func renderHeatmapUpdateResponse(out io.Writer, updated store.HeatmapActionLogRe
 		return writeIndentedJSON(out, env)
 	}
 
-	resp := buildAgentLikeUpdateMap(updated, statusStr)
+	resp := buildAgentLikeUpdateMap(updated, dbPath, statusStr)
 
 	return writeIndentedJSON(out, resp)
 }
@@ -146,7 +162,7 @@ func renderRcUpdateResponse(out io.Writer, updated store.HeatmapActionLogRecord,
 		return writeIndentedJSON(out, env)
 	}
 
-	resp := buildAgentLikeUpdateMap(updated, statusStr)
+	resp := buildAgentLikeUpdateMap(updated, dbPath, statusStr)
 	resp["aiName"] = aiName
 	resp["repoSlug"] = repoSlug
 

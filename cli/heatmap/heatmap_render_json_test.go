@@ -117,4 +117,18 @@ func TestRenderHeatmapUpdateResponse_Default(t *testing.T) {
 	if parsed["status"] != "UPDATED" || parsed["expectationStatus"] != "MET" {
 		t.Fatalf("unexpected update fields: %+v", parsed)
 	}
+
+	if parsed["databasePath"] == nil || parsed["databasePath"] == "" {
+		t.Fatalf("expected non-empty databasePath, got %+v", parsed["databasePath"])
+	}
+
+	filesRaw, hasFiles := parsed["files"].(map[string]any)
+	if !hasFiles {
+		t.Fatalf("expected files map in response, got %+v", parsed["files"])
+	}
+
+	readList, isList := filesRaw["read"].([]any)
+	if !isList || len(readList) != 1 || readList[0] != "02-spec/21-app/spec.md" {
+		t.Fatalf("expected read file in files.read, got %+v", filesRaw["read"])
+	}
 }

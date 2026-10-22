@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 type subtaskInput struct {
@@ -203,12 +205,18 @@ func runTaskSQLiteClaim(args []string) error {
 	var ownedFiles []string
 	_ = json.Unmarshal([]byte(ownedJson), &ownedFiles)
 
+	cwd, _ := os.Getwd()
+	relDbPath := toRelativePath(cwd, dbPath)
+	classifiedFiles := fsutil.ClassifyFileTargets(ownedJson, "", cwd)
+
 	out := map[string]any{
 		"status":            "CLAIMED",
 		"subtaskId":         id,
 		"taskCode":          code,
 		"title":             title,
 		"assignedAgentRole": *agent,
+		"databasePath":      relDbPath,
+		"files":             classifiedFiles,
 		"ownedFiles":        ownedFiles,
 	}
 
