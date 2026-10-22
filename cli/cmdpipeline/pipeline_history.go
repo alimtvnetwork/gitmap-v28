@@ -448,7 +448,7 @@ func isSemverLike(s string) bool {
 	raw := strings.TrimPrefix(s, "v")
 	parts := strings.Split(raw, ".")
 	hasEnoughParts := len(parts) >= 2
-	if hasEnoughParts == false {
+	if !hasEnoughParts {
 		return false
 	}
 

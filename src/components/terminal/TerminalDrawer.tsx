@@ -69,6 +69,7 @@ export function TerminalDrawer() {
     };
 
     window.addEventListener("storage", handleStorageChange);
+
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
@@ -98,6 +99,7 @@ export function TerminalDrawer() {
     // Add command to history navigation
     setCmdHistory((prev) => {
       const filtered = prev.filter((c) => c !== cleanCmd);
+
       return [...filtered, cleanCmd];
     });
     setHistoryIndex(-1);
@@ -238,6 +240,7 @@ export function TerminalDrawer() {
         setInputVal("");
         return;
       }
+
       setHistoryIndex(nextIdx);
       setInputVal(cmdHistory[nextIdx]);
       return;
@@ -522,4 +525,5 @@ export function TerminalDrawer() {
     </>
   );
 }
+
 export default TerminalDrawer;

@@ -76,7 +76,13 @@ func RecordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run GhRunIt
 
 // SaveParsedFailedJobs records parsed failure structures into the split DB.
 func SaveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run GhRunItem, jobs []FailedJobItem, rawLogs string) {
-	saveParsedFailedJobs(db, repo, run, jobs, rawLogs)
+	saveParsedFailedJobs(SaveParsedFailedJobsParams{
+		DB:      db,
+		Repo:    repo,
+		Run:     run,
+		Jobs:    jobs,
+		RawLogs: rawLogs,
+	})
 }
 
 // FetchLatestPipelineErrorReport returns the formatted error report string and whether failures exist.

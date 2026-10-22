@@ -193,14 +193,14 @@ func recordRunInSplitDb(db *pipelinedb.PipelineSplitDb, repo string, run ghRunIt
 	return nil
 }
 
-func saveParsedFailedJobs(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, jobs []FailedJobItem, rawLogs string) {
-	for _, job := range jobs {
-		detailRec := buildParsedFailedJobRecord(repo, run, job, rawLogs)
+func saveParsedFailedJobs(params SaveParsedFailedJobsParams) {
+	for _, job := range params.Jobs {
+		detailRec := buildParsedFailedJobRecord(params.Repo, params.Run, job, params.RawLogs)
 		compactSummary, filteredCount := FilterCompactLogText(job.FailureSummary)
-		compactRaw, _ := FilterCompactLogText(rawLogs)
-		compactRec := buildParsedCompactRecord(repo, run, job, compactSummary, compactRaw, filteredCount)
-		if err := db.RecordDualErrorLog(detailRec, compactRec); err != nil {
-			fmt.Fprintf(os.Stderr, "  ⚠ Could not record dual pipeline error log for run %d: %v\n", run.DatabaseId, err)
+		compactRaw, _ := FilterCompactLogText(params.RawLogs)
+		compactRec := buildParsedCompactRecord(params.Repo, params.Run, job, compactSummary, compactRaw, filteredCount)
+		if err := params.DB.RecordDualErrorLog(detailRec, compactRec); err != nil {
+			fmt.Fprintf(os.Stderr, "  ⚠ Could not record dual pipeline error log for run %d: %v\n", params.Run.DatabaseId, err)
 		}
 	}
 }
@@ -255,7 +255,13 @@ func saveFallbackErrorLog(db *pipelinedb.PipelineSplitDb, repo string, run ghRun
 func saveJobsOrFallback(db *pipelinedb.PipelineSplitDb, repo string, run ghRunItem, jobs []FailedJobItem, rawLogs string) {
 	hasJobs := len(jobs) > 0
 	if hasJobs {
-		saveParsedFailedJobs(db, repo, run, jobs, rawLogs)
+		saveParsedFailedJobs(SaveParsedFailedJobsParams{
+			DB:      db,
+			Repo:    repo,
+			Run:     run,
+			Jobs:    jobs,
+			RawLogs: rawLogs,
+		})
 
 		return
 	}
