@@ -52,14 +52,52 @@ All fallible operations MUST return a single monadic container from `cli/result`
 
 | Container Type | Canonical Alias | Payload Representation | Primary Constructor Helpers |
 | :--- | :--- | :--- | :--- |
-| **`result.Result[T]`** | **`result.Wrap[T]`** | Single entity, scalar, or struct | `result.Ok(val)` / `result.OkWrap(val)`, `result.Fail[T](err)` / `result.FailWrap[T](err)` |
-| **`result.ResultSlice[T]`** | **`result.WrapSlice[T]`** | Slice of entities or items | `result.OkSlice(items)` / `result.OkWrapSlice(items)`, `result.FailSlice[T](err)` / `result.FailWrapSlice[T](err)` |
-| **`result.ResultMap[K, V]`** | **`result.WrapMap[K, V]`** | Keyed lookup dictionary or index | `result.OkMap(mapData)` / `result.OkWrapMap(mapData)`, `result.FailMap[K, V](err)` / `result.FailWrapMap[K, V](err)` |
+| **`result.Result[T]`** | **`result.Wrap[T]`** | Single entity, scalar, or struct | `result.Ok(val)`, `result.Fail[T](err)` |
+| **`result.ResultSlice[T]`** | **`result.WrapSlice[T]`** | Slice of entities or items | `result.OkSlice(items)`, `result.FailSlice[T](err)` |
+| **`result.ResultMap[K, V]`** | **`result.WrapMap[K, V]`** | Keyed lookup dictionary or index | `result.OkMap(mapData)`, `result.FailMap[K, V](err)` |
 | **`*apperror.AppError`** | **`*appfault.AppError`** | Structured enterprise error | `apperror.New(...)`, `apperror.Wrap(...)`, `apperror.WrapSimple(err, op)` |
 
 ---
 
-### 0.2 Concrete Before vs. After Go Code Examples
+### 0.2 ❌ Anti-Pattern: The Double-Wrap Anti-Pattern (`FailWrap` + `WrapSimple`)
+
+> [!CAUTION]
+> **STRICT BAN ON DOUBLE-WRAPPING:**
+> Never call a constructor with "Wrap" in its name that wraps another "Wrap" in its argument:
+> ```go
+> // ❌ FORBIDDEN: Double-wrap anti-pattern — calling "wrap" twice in the same invocation!
+> return result.FailWrapSlice[model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.queryScanRecords"))
+>
+> // ❌ FORBIDDEN: Double-wrap anti-pattern on single entity
+> return result.FailWrap[string](apperror.WrapSimple(scanErr, "store.RepoRepository.FindPathBySlug"))
+> ```
+>
+> **Root Cause & Mandate:**
+> 1. `result.Wrap[T]`, `result.WrapSlice[T]`, and `result.WrapMap[K, V]` are strictly **TYPE ALIASES** for return signatures, NOT constructor functions.
+> 2. The constructor functions are strictly:
+>    - `result.Ok(val)` and `result.Fail[T](err)` for single entities.
+>    - `result.OkSlice(items)` and `result.FailSlice[T](err)` for slices.
+>    - `result.OkMap(data)` and `result.FailMap[K, V](err)` for maps.
+> 3. Constructors must NEVER be named `FailWrap` or `FailWrapSlice`. Defining or calling `FailWrap(WrapSimple(...))` is redundant, creates API confusion, and calls "wrap" twice.
+> 4. Use single canonical constructors:
+> ```go
+> // ✅ MANDATORY: Single wrap — canonical constructor + wrapped AppError
+> return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.queryScanRecords"))
+>
+> // ✅ MANDATORY: Single wrap for single entity
+> return result.Fail[string](apperror.WrapSimple(scanErr, "store.RepoRepository.FindPathBySlug"))
+>
+> // ✅ MANDATORY: Propagating existing AppError from another Result container
+> return result.Fail[model.ScanRecord](sliceRes.Err)
+>
+> // ✅ MANDATORY: Canonical success constructors
+> return result.Ok(absPath)
+> return result.OkSlice(records)
+> ```
+
+---
+
+### 0.3 Concrete Before vs. After Go Code Examples
 
 #### Pattern 1: Fallible Single-Entity Lookup (`result.Wrap[T]`)
 
@@ -107,19 +145,19 @@ func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	row := r.conn.QueryRow(SQLSelectBySlug, slug)
 	var rec model.ScanRecord
 	if err := row.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); err != nil {
-		return result.FailWrap[model.ScanRecord](apperror.WrapSimple(err, "FindBySlug"))
+		return result.Fail[model.ScanRecord](apperror.WrapSimple(err, "FindBySlug"))
 	}
 
-	return result.OkWrap(rec)
+	return result.Ok(rec)
 }
 
 // ✅ MANDATORY: Clean, fluent inspection via Result guard rule
 res := repo.FindBySlug("gitmap")
 if res.HasError() {
-	return result.FailWrap[Output](res.Err)
+	return result.Fail[Output](res.Err)
 }
 if res.IsEmpty() {
-	return result.FailWrap[Output](apperror.NewNotFound("slug not found"))
+	return result.Fail[Output](apperror.NewNotFound("slug not found"))
 }
 rec := res.Value
 fmt.Println(rec.Slug)
@@ -166,7 +204,7 @@ type (
 func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	rows, err := r.conn.Query(SQLSelectDirtyRepos)
 	if err != nil {
-		return result.FailWrapSlice[model.ScanRecord](apperror.WrapSimple(err, "ListDirty"))
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "ListDirty"))
 	}
 	defer rows.Close()
 
@@ -174,21 +212,21 @@ func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	for rows.Next() {
 		var rec model.ScanRecord
 		if scanErr := rows.Scan(&rec.RepoId, &rec.Slug); scanErr != nil {
-			return result.FailWrapSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "ListDirty.Scan"))
+			return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "ListDirty.Scan"))
 		}
 		records = append(records, rec)
 	}
 
-	return result.OkWrapSlice(records)
+	return result.OkSlice(records)
 }
 
 // ✅ MANDATORY: Fluent caller consumption
 res := repo.ListDirty()
 if res.HasError() {
-	return result.FailWrapSlice[Output](res.Err)
+	return result.FailSlice[Output](res.Err)
 }
 if res.IsEmpty() {
-	return result.OkWrapSlice([]Output{})
+	return result.OkSlice([]Output{})
 }
 for _, rec := range res.Items() {
 	processRecord(rec)
@@ -224,7 +262,7 @@ type (
 func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 	recordsRes := r.ListAll()
 	if recordsRes.HasError() {
-		return result.FailWrapMap[string, model.ScanRecord](recordsRes.Err)
+		return result.FailMap[string, model.ScanRecord](recordsRes.Err)
 	}
 
 	lookup := make(map[string]model.ScanRecord, recordsRes.Count())
@@ -232,13 +270,13 @@ func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 		lookup[rec.Slug] = rec
 	}
 
-	return result.OkWrapMap(lookup)
+	return result.OkMap(lookup)
 }
 
 // ✅ MANDATORY: Keyed lookup caller
 res := repo.IndexBySlug()
 if res.HasError() {
-	return result.FailWrap[Output](res.Err)
+	return result.Fail[Output](res.Err)
 }
 if res.Has("gitmap") {
 	rec, isFound := res.Get("gitmap")

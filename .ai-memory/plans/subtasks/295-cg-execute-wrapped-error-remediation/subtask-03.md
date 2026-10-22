@@ -3,7 +3,7 @@
 ## Status: Completed
 - **Parent Plan:** [295-cg-execute-wrapped-error-remediation.md](../../pending/295-cg-execute-wrapped-error-remediation.md)
 - **Target File:** `cli/cmdpipeline/pipeline_history_render.go`
-- **Objective:** Update `queryRepoPathFromConn` to consume `result.Result[string]` from `repo.FindPathBySlug(slug)`.
+- **Objective:** Update `queryRepoPathFromConn` to consume `RepoPathWrap` from `repo.FindPathBySlug(slug)`.
 
 ---
 

@@ -121,17 +121,17 @@ func FindTask(db *sql.DB, id string) TaskWrap {
 	var task Task
 	err := db.QueryRow("SELECT ...", id).Scan(&task.Id)
 	if err != nil {
-		return result.FailWrap[Task](apperror.WrapSimple(err, "FindTask"))
+		return result.Fail[Task](apperror.WrapSimple(err, "FindTask"))
 	}
 
-	return result.OkWrap(task)
+	return result.Ok(task)
 }
 
 // ✅ MANDATORY: Return strongly-typed TaskSliceWrap for list queries
 func ListTasks(db *sql.DB) TaskSliceWrap {
 	rows, err := db.Query("SELECT ...")
 	if err != nil {
-		return result.FailWrapSlice[Task](apperror.WrapSimple(err, "ListTasks"))
+		return result.FailSlice[Task](apperror.WrapSimple(err, "ListTasks"))
 	}
 	defer rows.Close()
 
@@ -139,15 +139,20 @@ func ListTasks(db *sql.DB) TaskSliceWrap {
 	for rows.Next() {
 		var task Task
 		if scanErr := rows.Scan(&task.Id); scanErr != nil {
-			return result.FailWrapSlice[Task](apperror.WrapSimple(scanErr, "ListTasks.Scan"))
+			return result.FailSlice[Task](apperror.WrapSimple(scanErr, "ListTasks.Scan"))
 		}
 		tasks = append(tasks, task)
 	}
 
-	return result.OkWrapSlice(tasks)
+	return result.OkSlice(tasks)
 }
 ```
 *The outer command orchestrator receives the single Result object, inspects `res.HasError()`, passes structured errors to `finishCommandAudit`, and decides whether to display an error or exit.*
+
+> [!CAUTION]
+> **Total Ban on Double-Wrapping (`FailWrap` + `WrapSimple`):**
+> Never invoke constructors named `FailWrap` or `FailWrapSlice` that wrap an `apperror.WrapSimple` argument. `Wrap[T]` and `WrapSlice[T]` are purely **TYPE ALIASES**, never constructor functions. The constructor functions are strictly `result.Ok`, `result.Fail[T]`, `result.OkSlice`, `result.FailSlice[T]`, `result.OkMap`, and `result.FailMap[K, V]`.
+
 
 ---
 

@@ -28,8 +28,32 @@ func DefaultDB() (*DB, error) {
 	return OpenDefault()
 }
 
+// ListAll returns all repositories tracked in the catalog.
+func (r *RepoRepository) ListAll() ScanRecordSliceWrap {
+	return r.queryScanRecords(constants.SQLSelectAllRepos)
+}
+
+// FindBySlug returns the first repository matching the given slug.
+func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
+	clean := strings.TrimSpace(slug)
+	if clean == "" {
+		return result.Fail[model.ScanRecord](apperror.NewValidation("slug is required", "E_PARAM_REQUIRED"))
+	}
+
+	sliceRes := r.queryScanRecords(constants.SQLSelectRepoBySlug, clean)
+	if sliceRes.HasError() {
+		return result.Fail[model.ScanRecord](sliceRes.Err)
+	}
+
+	if sliceRes.IsEmpty() {
+		return result.Fail[model.ScanRecord](NewRepoNotFoundError("FindBySlug", "Repo", clean))
+	}
+
+	return result.Ok(sliceRes.Items()[0])
+}
+
 // ListByBranch returns repositories configured for the specified branch.
-func (r *RepoRepository) ListByBranch(branch string) ScanRecordsResult {
+func (r *RepoRepository) ListByBranch(branch string) ScanRecordSliceWrap {
 	clean := strings.TrimSpace(branch)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -39,22 +63,22 @@ func (r *RepoRepository) ListByBranch(branch string) ScanRecordsResult {
 }
 
 // FindByBranch delegates to ListByBranch.
-func (r *RepoRepository) FindByBranch(branch string) ScanRecordsResult {
+func (r *RepoRepository) FindByBranch(branch string) ScanRecordSliceWrap {
 	return r.ListByBranch(branch)
 }
 
 // ListDirty returns repositories flagged as dirty or requiring synchronization.
-func (r *RepoRepository) ListDirty() ScanRecordsResult {
+func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	return r.queryScanRecords(constants.SQLSelectDirtyRepos)
 }
 
 // FindDirty delegates to ListDirty.
-func (r *RepoRepository) FindDirty() ScanRecordsResult {
+func (r *RepoRepository) FindDirty() ScanRecordSliceWrap {
 	return r.ListDirty()
 }
 
 // ListByTag returns repositories matching a specific tag stored in metadata or notes.
-func (r *RepoRepository) ListByTag(tag string) ScanRecordsResult {
+func (r *RepoRepository) ListByTag(tag string) ScanRecordSliceWrap {
 	clean := strings.TrimSpace(tag)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -66,22 +90,22 @@ func (r *RepoRepository) ListByTag(tag string) ScanRecordsResult {
 }
 
 // FindByTag delegates to ListByTag.
-func (r *RepoRepository) FindByTag(tag string) ScanRecordsResult {
+func (r *RepoRepository) FindByTag(tag string) ScanRecordSliceWrap {
 	return r.ListByTag(tag)
 }
 
 // ListUnpushed returns repositories flagged with unpushed commits in metadata or local tracking.
-func (r *RepoRepository) ListUnpushed() ScanRecordsResult {
+func (r *RepoRepository) ListUnpushed() ScanRecordSliceWrap {
 	return r.queryScanRecords(constants.SQLSelectUnpushedRepos)
 }
 
 // FindUnpushed delegates to ListUnpushed.
-func (r *RepoRepository) FindUnpushed() ScanRecordsResult {
+func (r *RepoRepository) FindUnpushed() ScanRecordSliceWrap {
 	return r.ListUnpushed()
 }
 
 // FindPathBySlug resolves the absolute path of a repository by full or short slug.
-func (r *RepoRepository) FindPathBySlug(slug string) result.StringResult {
+func (r *RepoRepository) FindPathBySlug(slug string) RepoPathWrap {
 	rq, ok := r.conn.(sqlRowQueryer)
 	if !ok {
 		return result.Fail[string](apperror.NewSimple("database executor does not support row query", "E_DB_EXECUTOR"))
@@ -100,23 +124,23 @@ func (r *RepoRepository) FindPathBySlug(slug string) result.StringResult {
 	return result.Ok(absPath)
 }
 
-func (r *RepoRepository) queryScanRecords(query string, args ...any) ScanRecordsResult {
+func (r *RepoRepository) queryScanRecords(query string, args ...any) ScanRecordSliceWrap {
 	q, ok := r.conn.(sqlQueryer)
 	if !ok {
-		return result.Fail[[]model.ScanRecord](apperror.NewSimple("database executor does not support query", "E_DB_EXECUTOR"))
+		return result.FailSlice[model.ScanRecord](apperror.NewSimple("database executor does not support query", "E_DB_EXECUTOR"))
 	}
 
 	res := QueryWrapper(q, query, args...)
 	rows, err := res.Destruct()
 	if err != nil {
-		return result.Fail[[]model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.queryScanRecords"))
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.RepoRepository.queryScanRecords"))
 	}
 	defer rows.Close()
 
 	records, scanErr := scanRows(rows)
 	if scanErr != nil {
-		return result.Fail[[]model.ScanRecord](apperror.WrapSimple(scanErr, "store.RepoRepository.scanRows"))
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "store.RepoRepository.scanRows"))
 	}
 
-	return result.Ok(records)
+	return result.OkSlice(records)
 }

@@ -23,9 +23,9 @@ All fallible operations MUST return a single strongly-typed monadic container fr
 
 | Container Type | Primary Constructor Helpers | Data Payload Representation | Core Inspection Predicates |
 | :--- | :--- | :--- | :--- |
-| **`result.Wrap[T]`** | `result.WrapSuccess(val)` / `result.WrapFailure[T](err)` | Single scalar, model, or struct | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.AppError()` |
-| **`result.WrapSlice[T]`** | `result.WrapSuccess(slice)` / `result.WrapFailure[T](err)` | Slice / collection of items | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Count()`, `res.AppError()` |
-| **`result.WrapMap[K, V]`** | `result.WrapSuccess(mapData)` / `result.WrapFailure[T](err)` | Keyed lookup dictionary or index | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Has(key)`, `res.Get(key)` |
+| **`result.Wrap[T]`** | `result.Ok(val)` / `result.Fail[T](err)` | Single scalar, model, or struct | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.AppError()` |
+| **`result.WrapSlice[T]`** | `result.OkSlice(slice)` / `result.FailSlice[T](err)` | Slice / collection of items | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Count()`, `res.AppError()` |
+| **`result.WrapMap[K, V]`** | `result.OkMap(mapData)` / `result.FailMap[K, V](err)` | Keyed lookup dictionary or index | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Has(key)`, `res.Get(key)` |
 | **`*appfault.AppError`** (`*apperror.AppError`) | `appfault.New(...)`, `appfault.Wrap(...)`, `apperror.WrapSimple(err, op)` | Structured enterprise error | `err.Message()`, `err.Code()`, `err.StackTrace()` |
 
 ---
@@ -34,9 +34,10 @@ All fallible operations MUST return a single strongly-typed monadic container fr
 
 1. **Single Return Object:** Every function returning fallible data must return exactly one value: `result.Wrap[T]`, `result.WrapSlice[T]`, or `result.WrapMap[K, V]`.
 2. **Zero Raw Error Returns:** Never return standard library `error`. All failures must wrap an underlying cause as `*appfault.AppError` (or `*apperror.AppError`).
-3. **Pointer-Attached Null Safety:** All Result inspection methods (`IsSuccess`, `IsFailure`, `HasError`, `IsEmpty`, `HasRecord`, `IsCountOtherThan`, `Count`, `Data`) must attach to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) with line-1 `if r == nil` guards returning safe defaults.
-4. **Affirmative Predicate Inspection:** Callers MUST check `if res.IsFailure()` (or `if res.IsSuccess()`) before accessing payload data (`res.Data()`). Never access payload data without guarding against failure.
-5. **Centralization in `types.go`:** Never leak raw generic brackets like `result.Wrap[MyEntity]` or declare domain structs inline in implementation files. Every package MUST alias Result containers in a dedicated `types.go` file as single reusable named types:
+3. **Zero Double-Wrapping (`FailWrap` + `WrapSimple`):** Never invoke constructors named `FailWrap` or `FailWrapSlice` that wrap an `apperror.WrapSimple` argument. `Wrap[T]` and `WrapSlice[T]` are purely **TYPE ALIASES**, never constructor functions. The constructor functions are strictly `result.Ok`, `result.Fail[T]`, `result.OkSlice`, `result.FailSlice[T]`, `result.OkMap`, and `result.FailMap[K, V]`.
+4. **Pointer-Attached Null Safety:** All Result inspection methods (`IsSuccess`, `IsFailure`, `HasError`, `IsEmpty`, `HasRecord`, `IsCountOtherThan`, `Count`, `Data`) must attach to pointer receivers (`(r *Result[T])`, `(rs *ResultSlice[T])`, `(rm *ResultMap[K, V])`) with line-1 `if r == nil` guards returning safe defaults.
+5. **Affirmative Predicate Inspection:** Callers MUST check `if res.IsFailure()` (or `if res.IsSuccess()`) before accessing payload data (`res.Data()`). Never access payload data without guarding against failure.
+6. **Centralization in `types.go`:** Never leak raw generic brackets like `result.Wrap[MyEntity]` or declare domain structs inline in implementation files. Every package MUST alias Result containers in a dedicated `types.go` file as single reusable named types:
    ```go
    type (
        ItemWrap      = result.Wrap[Item]
@@ -76,10 +77,10 @@ func (r *RepoRepository) FindBySlug(slug string) ScanRecordWrap {
 	row := r.conn.QueryRow(SQLSelectBySlug, slug)
 	var rec model.ScanRecord
 	if err := row.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); err != nil {
-		return result.WrapFailure[model.ScanRecord](apperror.WrapSimple(err, "FindBySlug"))
+		return result.Fail[model.ScanRecord](apperror.WrapSimple(err, "FindBySlug"))
 	}
 
-	return result.WrapSuccess(rec)
+	return result.Ok(rec)
 }
 
 // Caller consumption via affirmative predicates (IsFailure, IsSuccess)
@@ -87,7 +88,7 @@ res := repo.FindBySlug("gitmap")
 
 // Affirmative failure guard:
 if res.IsFailure() {
-	return result.WrapFailure[Output](res.AppError())
+	return result.Fail[Output](res.AppError())
 }
 
 // Affirmative success branch:
@@ -161,7 +162,7 @@ type (
 func (db *DB) ListReposByBranch(branch string) ScanRecordSliceWrap {
 	rows, err := db.conn.Query(SQLSelectByBranch, branch)
 	if err != nil {
-		return result.WrapFailure[ScanRecordSlice](apperror.WrapSimple(err, "ListReposByBranch"))
+		return result.FailSlice[ScanRecordSlice](apperror.WrapSimple(err, "ListReposByBranch"))
 	}
 	defer rows.Close()
 
@@ -169,12 +170,12 @@ func (db *DB) ListReposByBranch(branch string) ScanRecordSliceWrap {
 	for rows.Next() {
 		var rec model.ScanRecord
 		if scanErr := rows.Scan(&rec.RepoId, &rec.Slug, &rec.Branch); scanErr != nil {
-			return result.WrapFailure[ScanRecordSlice](apperror.WrapSimple(scanErr, "ListReposByBranch.Scan"))
+			return result.FailSlice[ScanRecordSlice](apperror.WrapSimple(scanErr, "ListReposByBranch.Scan"))
 		}
 		records = append(records, rec)
 	}
 
-	return result.WrapSuccess(records)
+	return result.OkSlice(records)
 }
 
 // Caller consumption with affirmative predicates (IsFailure, IsSuccess)
@@ -182,7 +183,7 @@ res := db.ListReposByBranch("main")
 
 // Affirmative failure guard:
 if res.IsFailure() {
-	return result.WrapFailure[OutputSlice](res.AppError())
+	return result.FailSlice[OutputSlice](res.AppError())
 }
 
 // Affirmative success branch:
@@ -221,7 +222,7 @@ type (
 func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 	recordsRes := r.ListDirty()
 	if recordsRes.IsFailure() {
-		return result.WrapFailure[ScanRecordMap](recordsRes.AppError())
+		return result.FailMap[string, model.ScanRecord](recordsRes.AppError())
 	}
 
 	lookup := make(ScanRecordMap, recordsRes.Count())
@@ -229,7 +230,7 @@ func (r *RepoRepository) IndexBySlug() ScanRecordMapWrap {
 		lookup[rec.Slug] = rec
 	}
 
-	return result.WrapSuccess(lookup)
+	return result.OkMap(lookup)
 }
 
 // Caller consumption with affirmative predicates (IsFailure, IsSuccess)
@@ -237,7 +238,7 @@ res := repo.IndexBySlug()
 
 // Affirmative failure guard:
 if res.IsFailure() {
-	return result.WrapFailure[Output](res.AppError())
+	return result.Fail[Output](res.AppError())
 }
 
 // Affirmative success branch:

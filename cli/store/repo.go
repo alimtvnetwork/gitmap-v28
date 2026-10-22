@@ -127,12 +127,12 @@ func (db *DB) ListReposByTransport(transport string) ([]model.ScanRecord, error)
 }
 
 // ListReposByBranch returns all repositories configured for the specified branch.
-func (db *DB) ListReposByBranch(branch string) ScanRecordsResult {
+func (db *DB) ListReposByBranch(branch string) ScanRecordSliceWrap {
 	return NewRepoRepository(db.conn).ListByBranch(branch)
 }
 
 // ListReposDirtyStatus returns repositories flagged as dirty or requiring synchronization.
-func (db *DB) ListReposDirtyStatus() ScanRecordsResult {
+func (db *DB) ListReposDirtyStatus() ScanRecordSliceWrap {
 	return NewRepoRepository(db.conn).ListDirty()
 }
 

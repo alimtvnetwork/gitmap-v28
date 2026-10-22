@@ -21,6 +21,9 @@ type (
 	// ScanRecordMapWrap is the canonical single reusable keyed lookup container for ScanRecord.
 	ScanRecordMapWrap = result.WrapMap[string, model.ScanRecord]
 
+	// RepoPathWrap is the canonical single reusable result container for repository paths.
+	RepoPathWrap = result.Wrap[string]
+
 	// ScanRecordsResult is the canonical single reusable result container for []model.ScanRecord.
 	ScanRecordsResult = result.Result[[]model.ScanRecord]
 )

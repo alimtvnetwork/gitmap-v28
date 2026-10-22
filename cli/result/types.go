@@ -63,33 +63,3 @@ type (
 	WrapMap[K comparable, V any] = ResultMap[K, V]
 )
 
-// OkWrap constructs a successful Wrap[T] envelope.
-func OkWrap[T any](val T) Wrap[T] {
-	return Ok(val)
-}
-
-// FailWrap constructs a failed Wrap[T] envelope with *apperror.AppError.
-func FailWrap[T any](err *apperror.AppError) Wrap[T] {
-	return Fail[T](err)
-}
-
-// OkWrapSlice constructs a successful WrapSlice[T] envelope.
-func OkWrapSlice[T any](data []T) WrapSlice[T] {
-	return OkSlice(data)
-}
-
-// FailWrapSlice constructs a failed WrapSlice[T] envelope with *apperror.AppError.
-func FailWrapSlice[T any](err *apperror.AppError) WrapSlice[T] {
-	return FailSlice[T](err)
-}
-
-// OkWrapMap constructs a successful WrapMap[K, V] envelope.
-func OkWrapMap[K comparable, V any](data map[K]V) WrapMap[K, V] {
-	return OkMap(data)
-}
-
-// FailWrapMap constructs a failed WrapMap[K, V] envelope with *apperror.AppError.
-func FailWrapMap[K comparable, V any](err *apperror.AppError) WrapMap[K, V] {
-	return FailMap[K, V](err)
-}
-

@@ -12,7 +12,7 @@
 1. **Zero External Breakages:**
    Existing legacy methods like `db.ListRepos()` (with 60+ callers) are preserved to respect the micro-batch rule.
 2. **Targeted Refactoring:**
-   Only the newly introduced repository methods (`RepoRepository` and its delegators `ListReposUnpushed`, `ListReposByTag`, `ListReposByBranch`, `ListReposDirtyStatus`, `FindPathBySlug`) are transformed into `result.Result[T]` containers.
+   The repository methods (`RepoRepository` and its delegators `ListReposUnpushed`, `ListReposByTag`, `ListReposByBranch`, `ListReposDirtyStatus`, `FindPathBySlug`) are transformed into canonical monadic wrapped containers (`ScanRecordSliceWrap`, `ScanRecordWrap`, `RepoPathWrap`) declared in `cli/store/repository_types.go`.
 3. **Consumer Updates:**
    `cli/cmdpipeline/pipeline_history_render.go` updated to check `pathRes.HasError()` and read `pathRes.Value`.
 

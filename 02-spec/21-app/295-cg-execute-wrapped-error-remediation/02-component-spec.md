@@ -11,18 +11,22 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
+│ cli/store/repository_types.go                                                │
+│ • ScanRecordWrap, ScanRecordSliceWrap, ScanRecordMapWrap, RepoPathWrap       │
+├──────────────────────────────────────────────────────────────────────────────┤
 │ cli/store/repo_repository.go                                                 │
-│ • ListByBranch, ListDirty, ListByTag, ListUnpushed, FindPathBySlug           │
-│ • queryScanRecords internal helper returning result.Result[[]model.ScanRecord]│
+│ • ListByBranch, ListDirty, ListByTag, ListUnpushed, ListAll -> ScanRecordSliceWrap
+│ • FindBySlug -> ScanRecordWrap, FindPathBySlug -> RepoPathWrap              │
+│ • queryScanRecords internal helper returning ScanRecordSliceWrap             │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ cli/store/repo_query_filter.go                                               │
-│ • ListReposByTag, ListReposUnpushed delegators returning result.Result[...]  │
+│ • ListReposByTag, ListReposUnpushed delegators returning ScanRecordSliceWrap │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ cli/store/repo.go                                                            │
-│ • ListReposByBranch, ListReposDirtyStatus delegators returning result.Result │
+│ • ListReposByBranch, ListReposDirtyStatus returning ScanRecordSliceWrap      │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ cli/cmdpipeline/pipeline_history_render.go                                   │
-│ • queryRepoPathFromConn consuming result.Result[string]                      │
+│ • queryRepoPathFromConn consuming RepoPathWrap                               │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -53,7 +57,7 @@ func NewRepoRepository(conn sqlExecutor) *RepoRepository {
 	return &RepoRepository{conn: conn}
 }
 
-func (r *RepoRepository) ListByBranch(branch string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListByBranch(branch string) ScanRecordSliceWrap {
 	clean := strings.TrimSpace(branch)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -62,11 +66,11 @@ func (r *RepoRepository) ListByBranch(branch string) result.Result[[]model.ScanR
 	return r.queryScanRecords(constants.SQLSelectReposByBranch, clean)
 }
 
-func (r *RepoRepository) ListDirty() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListDirty() ScanRecordSliceWrap {
 	return r.queryScanRecords(constants.SQLSelectDirtyRepos)
 }
 
-func (r *RepoRepository) ListByTag(tag string) result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListByTag(tag string) ScanRecordSliceWrap {
 	clean := strings.TrimSpace(tag)
 	if clean == "" {
 		return r.queryScanRecords(constants.SQLSelectAllRepos)
@@ -77,11 +81,11 @@ func (r *RepoRepository) ListByTag(tag string) result.Result[[]model.ScanRecord]
 	return r.queryScanRecords(constants.SQLSelectReposByTag, pattern)
 }
 
-func (r *RepoRepository) ListUnpushed() result.Result[[]model.ScanRecord] {
+func (r *RepoRepository) ListUnpushed() ScanRecordSliceWrap {
 	return r.queryScanRecords(constants.SQLSelectUnpushedRepos)
 }
 
-func (r *RepoRepository) FindPathBySlug(slug string) result.Result[string] {
+func (r *RepoRepository) FindPathBySlug(slug string) RepoPathWrap {
 	rq, ok := r.conn.(sqlRowQueryer)
 	if !ok {
 		return result.Fail[string](apperror.NewSimple("database executor does not support row query", "E_DB_EXECUTOR"))

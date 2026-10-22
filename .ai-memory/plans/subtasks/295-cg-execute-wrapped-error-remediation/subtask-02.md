@@ -11,11 +11,9 @@
 
 ## Action Items
 1. In `cli/store/repo_query_filter.go`:
-   - Import `github.com/alimtvnetwork/gitmap-v28/cli/result`.
-   - Update `(db *DB) ListReposByTag(tag string) result.Result[[]model.ScanRecord]`.
-   - Update `(db *DB) ListReposUnpushed() result.Result[[]model.ScanRecord]`.
+   - Update `(db *DB) ListReposByTag(tag string) ScanRecordSliceWrap`.
+   - Update `(db *DB) ListReposUnpushed() ScanRecordSliceWrap`.
 2. In `cli/store/repo.go`:
-   - Import `github.com/alimtvnetwork/gitmap-v28/cli/result`.
-   - Update `(db *DB) ListReposByBranch(branch string) result.Result[[]model.ScanRecord]`.
-   - Update `(db *DB) ListReposDirtyStatus() result.Result[[]model.ScanRecord]`.
+   - Update `(db *DB) ListReposByBranch(branch string) ScanRecordSliceWrap`.
+   - Update `(db *DB) ListReposDirtyStatus() ScanRecordSliceWrap`.
 3. Preserve existing legacy methods to protect micro-batch boundaries.
