@@ -1,4 +1,6 @@
-# Detail Plans and Improvements for Review
+# Next Detail Out 100 Improvements
+
+## slug: next-detail-out-100-improvements
 
 ```text
 N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
@@ -17,10 +19,10 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > Prompt Version: 1.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
-> Invoke: `/detail-plans-and-improvements <target-scope-or-plan>`
+> Invoke: /next-detail-out-100-improvements <target-scope-or-plan>
 >
 > **Trigger Keywords & Aliases:**
-> `detail-plans-and-improvements`, `detail-improvements-for-review`, `detail-plans-for-ai`, `detail-plan-review`, `detail-all-plans`
+> `next-detail-out-100-improvements`, `next-detail-improvements`, `detail-100-improvements`, `next-detail-plans`, `detail-plans-for-review`
 >
 > **Canonical User Trigger Quote:**
 > > *"Can you please detail out all the plans that you have done and improvements so that it can be improved by any AI easily? Okay? So detail out as much as"*
@@ -57,10 +59,9 @@ WAVES = ceil(subtasks / (A x H))
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/detail-plans-and-improvements-for-review/skill.md` does not exist in the workspace, create it now.
-2. Mirror the skill into `.cursor/skills/detail-plans-and-improvements-for-review/skill.md` using Cursor skill link syntax (`[detail-plans-and-improvements-for-review](file;.cursor/skills/detail-plans-and-improvements-for-review)`).
-3. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
-4. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
+1. If `.agents/skills/next-detail-out-100-improvements/skill.md` does not exist in the workspace, create it now.
+2. If `.cursor/skills/next-detail-out-100-improvements/skill.md` does not exist in the workspace, create it now with IDE-detectable Cursor skill link syntax `[next-detail-out-100-improvements](file;.cursor/skills/next-detail-out-100-improvements)`.
+3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
 
@@ -726,8 +727,8 @@ Please select an action:
 > [!IMPORTANT]
 > **Mandatory Plan Enqueueing & Subtask Directory Structure:**
 > All detailed plans MUST be persisted into the repository so that any AI agent can resume and execute them upon review approval:
-> 1. Master Plan File: `.ai-memory/plans/pending/XX-detail-plans-and-improvements-review.md` (where `XX` is the zero-padded sequential number in `pending/`).
-> 2. Modular Subtask Directory: `.ai-memory/plans/subtasks/XX-detail-plans-and-improvements-review/` containing:
+> 1. Master Plan File: `.ai-memory/plans/pending/XX-next-detail-out-100-improvements.md` (where `XX` is the zero-padded sequential number in `pending/`).
+> 2. Modular Subtask Directory: `.ai-memory/plans/subtasks/XX-next-detail-out-100-improvements/` containing:
 >    - `01-codebase-session-validator.md` (CB-DET-001)
 >    - `02-system-sqlite-task-engine.md` (SYS-DET-001)
 >    - `03-ui-glassmorphic-sticky-header.md` (UI-DET-001)
@@ -796,8 +797,14 @@ Run only fast, file-scoped checks on modified markdown documents (NO builds, NO 
 
 ## Companion Skills & Links
 
-- Antigravity Skill: [`detail-plans-and-improvements-for-review`](file;.agents/skills/detail-plans-and-improvements-for-review)
-- Cursor IDE Skill: [`detail-plans-and-improvements-for-review`](file;.cursor/skills/detail-plans-and-improvements-for-review)
+- Antigravity Skill: [`next-detail-out-100-improvements`](file;.agents/skills/next-detail-out-100-improvements)
+- Cursor IDE Skill: [`next-detail-out-100-improvements`](file;.cursor/skills/next-detail-out-100-improvements)
+- Related Skills:
+  - [`next-100-ui-improvements`](file;.agents/skills/next-100-ui-improvements)
+  - [`next-100-code-improvements`](file;.agents/skills/next-100-code-improvements)
+  - [`next-100-whole-system-improvements`](file;.agents/skills/next-100-whole-system-improvements)
+  - [`next-detail-out-100-improvements`](file;.agents/skills/next-detail-out-100-improvements)
+  - [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6)
 - Slash Commands: [`[/goal]`](slashCommand;goal), [`[/learn]`](slashCommand;learn), [`[/plan]`](slashCommand;plan)
 - Master Prompts Catalog: [`01-prompts/readme.md`](01-prompts/readme.md)
 - Improvements Index: [`01-prompts/30-improvements/readme.md`](01-prompts/30-improvements/readme.md)

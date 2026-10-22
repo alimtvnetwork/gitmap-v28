@@ -1,11 +1,11 @@
 ---
-name: find-100-improvements-in-code-base
+name: next-100-code-improvements
 description: Autonomously scan, audit, discover, and document 100 grounded code improvements across 10 coding guideline families using a 10-field specification schema, GitMap streaming search, micro-batching, and pending plan enqueueing.
 ---
 
-# Find 100 Improvements in the Code Base
+# Next 100 Code Improvements
 
-Source Prompt: `01-prompts/30-improvements/02-find-100-improvements-in-code-base.md`
+Source Prompt: `01-prompts/30-improvements/02-next-100-code-improvements.md`
 
 This skill governs the systematic, autonomous discovery, technical specification, and backlog enqueueing of exactly 100 high-impact code improvements across the repository. It enforces structured 10-field specification cards, balances discovery across 10 canonical rule families, and writes actionable execution plans into `.ai-memory/plans/pending/`.
 
@@ -13,7 +13,7 @@ This skill governs the systematic, autonomous discovery, technical specification
 
 - When tasked with running a deep, grounded code audit across a codebase or module.
 - When generating a structured backlog of 100 refactoring opportunities grounded in repository standards.
-- When invoked via slash command `[/find-100-improvements-in-code-base](file;.agents/skills/find-100-improvements-in-code-base)` or direct user request.
+- When invoked via slash command `[/next-100-code-improvements](file;.cursor/skills/next-100-code-improvements)` or direct user request.
 - When preparing an architectural roadmap before major refactoring sprints.
 - When auditing codebases against `02-spec/02-coding-guidelines/` and `02-spec/03-error-manage/`.
 
@@ -102,8 +102,8 @@ Every improvement card must provide all 10 fields verbatim:
 ## Enqueueing Plans to `.ai-memory/plans/pending/`
 
 All 100 improvements must be enqueued as pending plans in the repository:
-1. **Master Plan:** Authored at `.ai-memory/plans/pending/XX-find-100-improvements-wave-YY.md`.
-2. **Subtasks:** Authored at `.ai-memory/plans/subtasks/XX-find-100-improvements-wave-YY/` (10 family files).
+1. **Master Plan:** Authored at `.ai-memory/plans/pending/XX-next-100-code-improvements-wave-YY.md`.
+2. **Subtasks:** Authored at `.ai-memory/plans/subtasks/XX-next-100-code-improvements-wave-YY/` (10 family files).
 3. **Register:** Listed in `.ai-memory/plans/readme.md` under `## Pending Plans`.
 4. **Context Register:** Enqueued in `.ai-memory/what-to-read.md`.
 5. **Next 100 Continuity:** Subsequent executions read existing waves and generate wave `YY + 1`.
@@ -120,9 +120,9 @@ All 100 improvements must be enqueued as pending plans in the repository:
 
 ## Related Skills
 
-- [execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
-- [coding-guidelines](file;.agents/skills/coding-guidelines)
-- [cg-error-management](file;.agents/skills/cg-error-management)
-- [cg-boolean-and-naming](file;.agents/skills/cg-boolean-and-naming)
-- [gitmap](file;.agents/skills/gitmap)
-- [ai-verification](file;.agents/skills/ai-verification)
+- [execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)
+- [coding-guidelines](file;.cursor/skills/coding-guidelines)
+- [cg-error-management](file;.cursor/skills/cg-error-management)
+- [cg-boolean-and-naming](file;.cursor/skills/cg-boolean-and-naming)
+- [gitmap](file;.cursor/skills/gitmap)
+- [ai-verification](file;.cursor/skills/ai-verification)

@@ -348,6 +348,14 @@ def copy_single_file(
         if dst_file.exists():
             return 0
 
+    # Fast-Path: If destination exists and matches source size & bytes, skip immediately
+    if dst_file.exists():
+        try:
+            if src_file.stat().st_size == dst_file.stat().st_size and src_file.read_bytes() == dst_file.read_bytes():
+                return 0
+        except Exception:
+            pass
+
     # Boundary 2: Additive-Only AI Scripts with repo modification checks
     if is_additive_only:
         if dst_file.exists():
@@ -371,6 +379,31 @@ def copy_single_file(
                     return 0
             else:
                 return 0
+
+    # Regression Protection for Skills & Prompts:
+    # If dst_file exists and is a markdown file, check if dst_file was modified in the target repo
+    # by a non-sync commit AND contains sections/headings that are missing in src_file.
+    # Never overwrite and destroy sections added by the target repository!
+    if dst_file.exists() and dst_file.suffix.lower() in (".md", ".markdown"):
+        if repo_root is not None:
+            try:
+                rel_to_repo = dst_file.relative_to(repo_root)
+                code_log, out_log, _ = run_cmd(["git", "log", "-n", "1", "--format=%s", "--", rel_to_repo.as_posix()], repo_root)
+
+                if code_log == 0 and out_log.strip():
+                    last_commit = out_log.strip().lower()
+
+                    if "sync" not in last_commit:
+                        dst_text = dst_file.read_text(encoding="utf-8", errors="replace")
+                        src_text = src_file.read_text(encoding="utf-8", errors="replace")
+                        dst_headings = {line.strip() for line in dst_text.splitlines() if re.match(r"^#{1,6}\s+", line.strip())}
+                        src_headings = {line.strip() for line in src_text.splitlines() if re.match(r"^#{1,6}\s+", line.strip())}
+                        missing_in_src = dst_headings - src_headings
+
+                        if missing_in_src:
+                            return 0
+            except Exception:
+                pass
 
     is_copy_needed = False
 
@@ -661,6 +694,38 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
                 except Exception:
                     pass
 
+        # Purge deprecated 100-improvements prompts superseded by next-100 suite
+        for dep_prompt in (
+            "01-prompts/30-improvements/01-find-100-improvements-in-ui-level.md",
+            "01-prompts/30-improvements/02-find-100-improvements-in-code-base.md",
+            "01-prompts/30-improvements/03-find-100-improvements-in-whole-system.md",
+            "01-prompts/30-improvements/04-detail-plans-and-improvements-for-review.md",
+        ):
+            dep_path = target / dep_prompt
+            if dep_path.exists():
+                try:
+                    dep_path.unlink()
+                except Exception:
+                    pass
+
+        # Purge deprecated 100-improvements skill directories superseded by next-100 suite
+        for dep_skill_dir in (
+            ".agents/skills/find-100-improvements-in-ui-level",
+            ".agents/skills/find-100-improvements-in-code-base",
+            ".agents/skills/find-100-improvements-in-whole-system",
+            ".agents/skills/detail-plans-and-improvements-for-review",
+            ".cursor/skills/find-100-improvements-in-ui-level",
+            ".cursor/skills/find-100-improvements-in-code-base",
+            ".cursor/skills/find-100-improvements-in-whole-system",
+            ".cursor/skills/detail-plans-and-improvements-for-review",
+        ):
+            dep_dir_path = target / dep_skill_dir
+            if dep_dir_path.exists():
+                try:
+                    shutil.rmtree(dep_dir_path, ignore_errors=True)
+                except Exception:
+                    pass
+
     # 4. Mirror directories and conditional coding guidelines cleanly
     total_copied = 0
     total_removed = 0
@@ -689,6 +754,10 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
         has_dry_changes = (total_copied + total_removed) > 0
         result["changed"] = has_dry_changes
         result["release_tag"] = f"v{bump_patch_version(current_ver)}" if has_dry_changes else pre_tag
+        print(
+            f"[DRY-RUN] {target.name:<30} | Pre: {pre_tag:<9} | Post: {result['release_tag']:<9} | +{total_copied}/-{total_removed}",
+            flush=True,
+        )
 
         return result
 
@@ -707,7 +776,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
     # 6. Commit changes on base branch and push
     run_cmd("git add -A", target)
     commit_msg = (
-        "feat(sync) - sync canonical prompts, skills, gitmap agent standards, and purge deprecated 46 task manager"
+        "feat(sync) - sync canonical v6 execute suite, gitmap heatmap telemetry, skills, and prompts"
     )
     code, out, err = run_cmd(f'git commit -m "{commit_msg}"', target)
 
@@ -802,7 +871,8 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_no_push: bool = False) 
             result["error"] = f"Push failed: {p_err or p_out}"
 
     print(
-        f"[OK] {target.name:<32} | Pre: {pre_tag:<9} | Post: {release_tag:<9} | +{total_copied}/-{total_removed}"
+        f"[OK] {target.name:<32} | Pre: {pre_tag:<9} | Post: {release_tag:<9} | +{total_copied}/-{total_removed}",
+        flush=True,
     )
 
     return result

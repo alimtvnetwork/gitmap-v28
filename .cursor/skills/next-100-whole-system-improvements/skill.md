@@ -1,9 +1,9 @@
 ---
-name: find-100-improvements-in-whole-system
+name: next-100-whole-system-improvements
 description: "Autonomously audit, discover, plan, and orchestrate 100 high-impact improvements across the whole system focusing strictly on user and developer experience, Zero Harm regression safety, and automated plan enqueuing into .ai-memory/plans/pending/."
 ---
 
-# Find 100 Improvements in the Whole System (`find-100-improvements-in-whole-system`)
+# Next 100 Whole System Improvements (`next-100-whole-system-improvements`)
 
 > **[/goal](slashCommand;goal)** Autonomously audit the entire system architecture, discover 100 high-leverage improvements focused strictly on user experience, developer ergonomics, agent friction reduction, performance, reliability, error clarity, and spec governance. Enqueue all 100 improvements as structured pending plans in `.ai-memory/plans/pending/` with subtasks in `.ai-memory/plans/subtasks/` using the Continuous Improvement Flywheel.
 > **[/learn](slashCommand;learn)** Enforce the 8-Part Specification Schema, Zero Harm / Regression Safety Matrix, backward compatibility guarantees (e.g. `type Fault = AppError`), strict relative Git paths, lowercase naming, and GitMap command primacy.
@@ -13,12 +13,13 @@ description: "Autonomously audit, discover, plan, and orchestrate 100 high-impac
 **Updated:** 2026-10-22  
 **Status:** Active  
 **AI Confidence:** Production-Ready  
-**Canonical Prompt:** `01-prompts/30-improvements/03-find-100-improvements-in-whole-system.md`  
+**Canonical Prompt:** `01-prompts/30-improvements/03-next-100-whole-system-improvements.md`  
 **Related Skills:**
-- [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6)
-- [`ai-memory-consolidate-reduce`](file;.agents/skills/ai-memory-consolidate-reduce)
-- [`spec-authoring-and-validation`](file;.agents/skills/spec-authoring-and-validation)
-- [`gitmap`](file;.agents/skills/gitmap)
+- [`unified-ai-prompt-v4`](file;.cursor/skills/unified-ai-prompt-v4)
+- [`execute-parent-task-with-n-steps-v6`](file;.cursor/skills/execute-parent-task-with-n-steps-v6)
+- [`ai-memory-consolidate-reduce`](file;.cursor/skills/ai-memory-consolidate-reduce)
+- [`spec-authoring-and-validation`](file;.cursor/skills/spec-authoring-and-validation)
+- [`gitmap`](file;.cursor/skills/gitmap)
 
 ---
 
@@ -103,8 +104,8 @@ Execute this workflow adhering to canonical V6 multi-agent orchestration:
 
 ### Phase 2: Plan Enqueueing & Flywheel Activation
 - Enqueue all 100 improvements as pending plans:
-  - Parent plan: `.ai-memory/plans/pending/XX-<slug>.md`
-  - Modular subtasks: `.ai-memory/plans/subtasks/XX-<slug>/01-task.md` through `NN-task.md`
+  - Parent plan: `.ai-memory/plans/pending/XX-next-100-whole-system-improvements.md`
+  - Modular subtasks: `.ai-memory/plans/subtasks/XX-next-100-whole-system-improvements/01-task.md` through `NN-task.md`
 - Register the newly enqueued tasks in `.ai-memory/plans/readme.md` and `.ai-memory/what-to-read.md`.
 - Synthesize next 100 improvement candidates for subsequent flywheel cycles.
 
@@ -115,7 +116,7 @@ Execute this workflow adhering to canonical V6 multi-agent orchestration:
 - Verify cognitive heatmap: `gitmap heatmap tree --task <task>`
 - Stage and commit atomically using GitMap semantic commit command:
   ```bash
-  gitmap cpf "Improvements - find 100 improvements in whole system and enqueue plans"
+  gitmap cpf "Improvements - next 100 whole system improvements and enqueue plans"
   ```
 - Format strictly with hyphen `-` (no colons in GitMap arguments).
 - Ensure `git status --porcelain` is 100% clean and upstream remote reflects the commit ('No Push = Not Done').
@@ -124,8 +125,8 @@ Execute this workflow adhering to canonical V6 multi-agent orchestration:
 
 ## 6. Verification & Acceptance Criteria
 
-- [ ] Source prompt `01-prompts/30-improvements/03-find-100-improvements-in-whole-system.md` exists and contains all 100 improvements in the 8-part schema.
-- [ ] Category index `01-prompts/30-improvements/readme.md` lists all 3 improvement prompts.
+- [ ] Source prompt `01-prompts/30-improvements/03-next-100-whole-system-improvements.md` exists and contains all 100 improvements in the 8-part schema.
+- [ ] Category index `01-prompts/30-improvements/readme.md` lists all 4 improvement prompts.
 - [ ] All file references strictly use relative paths from repository root (TOTAL BAN on absolute paths and `file:///` URIs).
 - [ ] All filenames are strictly lowercase.
 - [ ] Working tree is clean and changes pushed upstream to GitHub.

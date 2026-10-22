@@ -1,4 +1,6 @@
-# Find 100 Improvements in the Whole System
+# Next 100 Whole System Improvements
+
+## slug: next-100-whole-system-improvements
 
 ```text
 N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
@@ -17,7 +19,10 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > Prompt Version: 1.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
-> Invoke: /find-100-improvements-in-whole-system <target-scope>
+> Invoke: /next-100-whole-system-improvements <target-scope>
+>
+> **Trigger Keywords & Aliases:**
+> `next-100-whole-system-improvements`, `next-100-system`, `whole-system-100`, `next-system-improvements`, `find-100-system`
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -50,10 +55,9 @@ WAVES = ceil(subtasks / (A x H))
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/find-100-improvements-in-whole-system/skill.md` does not exist in the workspace, create it now.
-2. Mirror the skill into `.cursor/skills/find-100-improvements-in-whole-system/skill.md` using Cursor link syntax (`[<skill>](file;.cursor/skills/<skill>)`).
-3. Extract the core instructions of this prompt and save it into that `skill.md` using the standard YAML frontmatter (with `name` and `description`).
-4. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
+1. If `.agents/skills/next-100-whole-system-improvements/skill.md` does not exist in the workspace, create it now.
+2. If `.cursor/skills/next-100-whole-system-improvements/skill.md` does not exist in the workspace, create it now with IDE-detectable Cursor skill link syntax `[next-100-whole-system-improvements](file;.cursor/skills/next-100-whole-system-improvements)`.
+3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
 
@@ -655,7 +659,7 @@ Every single improvement across the 10 System Clusters MUST strictly adhere to t
 6. **Backward Compatibility Guarantee:** Renders as clean readable markdown in standard text viewers.
 7. **Concrete Implementation Blueprint:**
    ```markdown
-   [find-100-improvements-in-whole-system](file;.agents/skills/find-100-improvements-in-whole-system)
+   [next-100-whole-system-improvements](file;.agents/skills/next-100-whole-system-improvements)
    [/plan](slashCommand;plan)
    ```
 8. **Binary Verification & Acceptance Criteria:** Skill path linter confirms zero occurrences of `.md` inside link URI targets.
@@ -1704,8 +1708,8 @@ Every single improvement across the 10 System Clusters MUST strictly adhere to t
 7. **Concrete Implementation Blueprint:**
    ```markdown
    # Continuous Improvement Flywheel
-   - Enqueue current 100 improvements -> .ai-memory/plans/pending/XX-system-improvements-v1.md
-   - Decompose subtasks -> .ai-memory/plans/subtasks/XX-system-improvements-v1/
+   - Enqueue current 100 improvements -> .ai-memory/plans/pending/XX-next-100-whole-system-improvements.md
+   - Decompose subtasks -> .ai-memory/plans/subtasks/XX-next-100-whole-system-improvements/
    - Trigger next cycle -> Generate next 100 system improvement candidates (SYS-IMP-101 to SYS-IMP-200)
    ```
 8. **Binary Verification & Acceptance Criteria:** `.ai-memory/plans/pending/` contains the generated improvement plan, subtask folder contains all decomposed subtasks, and pending task registers are fully updated.
@@ -1781,7 +1785,7 @@ GitMap is your **PRIMARY** acceleration engine. Banned ALL variants of `Get-Chil
 At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, plans enqueued in `.ai-memory/plans/pending/XX-<slug>.md`, and subtasks placed in `.ai-memory/plans/subtasks/XX-<slug>/`, use GitMap semantic commit commands exclusively:
 
 ```bash
-gitmap cpf "<module> - find 100 improvements in whole system and enqueue plans"
+gitmap cpf "<module> - next 100 whole system improvements and enqueue plans"
 ```
 
 - Format message strictly with a hyphen `-` to separate module and summary.

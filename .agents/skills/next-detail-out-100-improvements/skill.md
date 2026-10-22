@@ -1,10 +1,10 @@
 ---
-name: detail-plans-and-improvements-for-review
+name: next-detail-out-100-improvements
 description: >-
   Autonomously detail out all active, pending, and completed plans and improvements into exhaustive multi-step roadmaps, structural contracts, and review dockets with strict review-first gating (no immediate execution without user review).
 ---
 
-# Detail Plans and Improvements for Review (`detail-plans-and-improvements-for-review`)
+# Next Detail Out 100 Improvements (`next-detail-out-100-improvements`)
 
 ```text
 N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
@@ -23,7 +23,7 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > Prompt Version: 1.0.0  
 > Runtime: Google Antigravity 2.0 (IDE and CLI)  
-> Invoke: `/detail-plans-and-improvements-for-review <target-plan-or-improvement-catalog>`  
+> Invoke: `/next-detail-out-100-improvements <target-plan-or-improvement-catalog>`  
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**  
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -38,12 +38,12 @@ WAVES = ceil(subtasks / (A x H))
 **Updated:** 2026-10-22  
 **Status:** Active  
 **AI Confidence:** Production-Ready  
-**Canonical Prompt:** `01-prompts/30-improvements/04-detail-plans-and-improvements-for-review.md`  
+**Canonical Prompt:** `01-prompts/30-improvements/04-next-detail-out-100-improvements.md`  
 **Related Skills:**  
+- [`next-100-ui-improvements`](file;.agents/skills/next-100-ui-improvements)  
+- [`next-100-code-improvements`](file;.agents/skills/next-100-code-improvements)  
+- [`next-100-whole-system-improvements`](file;.agents/skills/next-100-whole-system-improvements)  
 - [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6)  
-- [`find-100-improvements-in-whole-system`](file;.agents/skills/find-100-improvements-in-whole-system)  
-- [`find-100-improvements-in-code-base`](file;.agents/skills/find-100-improvements-in-code-base)  
-- [`find-100-improvements-in-ui-level`](file;.agents/skills/find-100-improvements-in-ui-level)  
 - [`ai-memory-consolidate-reduce`](file;.agents/skills/ai-memory-consolidate-reduce)  
 - [`spec-authoring-and-validation`](file;.agents/skills/spec-authoring-and-validation)  
 - [`gitmap`](file;.agents/skills/gitmap)  
@@ -53,11 +53,11 @@ WAVES = ceil(subtasks / (A x H))
 ## 1. When to Use This Skill
 
 Activate this skill when:
-- **Expanding Discovered Improvements:** Converting raw improvement findings (from `find-100-improvements-in-whole-system`, `find-100-improvements-in-code-base`, or `find-100-improvements-in-ui-level`) into rigorous, fully-specified execution blueprints.
+- **Expanding Discovered Improvements:** Converting raw improvement findings (from `next-100-whole-system-improvements`, `next-100-code-improvements`, or `next-100-ui-improvements`) into rigorous, fully-specified execution blueprints.
 - **Preparing Review Dockets for Human Sign-Off:** Generating comprehensive pre-implementation review dockets detailing architectural choices, risk assessments, dependency DAGs, and rollback strategies.
 - **Decomposing Monolithic Plans into Micro-Tasks:** Breaking down oversized architectural proposals or pending backlog plans into bounded 5–8 file micro-tasks with discrete verification criteria.
 - **Review-First Gating Enforcement:** Whenever a user or project policy mandates that plans, specifications, and improvements must be reviewed and approved by stakeholders before a single line of production code is written or modified.
-- **Trigger Keywords & Aliases:** `detail plans for review`, `detail improvements`, `elaborate plan`, `expand pending plans`, `generate review docket`, `prepare improvements for user sign-off`, `detail out 100 improvements`, `roadmap pending plans`, `structural contracts for improvements`, `review-first improvements`, `architect review docket`.
+- **Trigger Keywords & Aliases:** `next-detail-out-100-improvements`, `next-detail-improvements`, `detail-100-improvements`, `next-detail-plans`, `detail-plans-for-review`, `detail plans for review`, `detail improvements`, `elaborate plan`, `expand pending plans`, `generate review docket`, `prepare improvements for user sign-off`, `detail out 100 improvements`, `roadmap pending plans`, `structural contracts for improvements`, `review-first improvements`, `architect review docket`.
 
 ---
 
@@ -225,12 +225,16 @@ The detailing workflow strictly follows canonical multi-agent coordination acros
 All skill references, command triggers, and tool documentation links MUST strictly follow IDE-detectable syntax:
 
 - **Antigravity Agents:**
-  - [`detail-plans-and-improvements-for-review`](file;.agents/skills/detail-plans-and-improvements-for-review)
-  - [`find-100-improvements-in-whole-system`](file;.agents/skills/find-100-improvements-in-whole-system)
+  - [`next-detail-out-100-improvements`](file;.agents/skills/next-detail-out-100-improvements)
+  - [`next-100-ui-improvements`](file;.agents/skills/next-100-ui-improvements)
+  - [`next-100-code-improvements`](file;.agents/skills/next-100-code-improvements)
+  - [`next-100-whole-system-improvements`](file;.agents/skills/next-100-whole-system-improvements)
   - [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6)
 - **Cursor IDE:**
-  - [`detail-plans-and-improvements-for-review`](file;.cursor/skills/detail-plans-and-improvements-for-review)
-  - [`find-100-improvements-in-whole-system`](file;.cursor/skills/find-100-improvements-in-whole-system)
+  - [`next-detail-out-100-improvements`](file;.cursor/skills/next-detail-out-100-improvements)
+  - [`next-100-ui-improvements`](file;.cursor/skills/next-100-ui-improvements)
+  - [`next-100-code-improvements`](file;.cursor/skills/next-100-code-improvements)
+  - [`next-100-whole-system-improvements`](file;.cursor/skills/next-100-whole-system-improvements)
   - [`execute-parent-task-with-n-steps-v6`](file;.cursor/skills/execute-parent-task-with-n-steps-v6)
 - **Interactive Slash Commands:**
   - [`[/plan](slashCommand;plan)`](slashCommand;plan)
@@ -244,8 +248,8 @@ All skill references, command triggers, and tool documentation links MUST strict
 
 Before concluding this skill workflow, verify all following acceptance criteria:
 
-- [ ] YAML frontmatter is valid and specifies `name: detail-plans-and-improvements-for-review` with descriptive text.
-- [ ] Source canonical prompt `01-prompts/30-improvements/04-detail-plans-and-improvements-for-review.md` is referenced.
+- [ ] YAML frontmatter is valid and specifies `name: next-detail-out-100-improvements` with descriptive text.
+- [ ] Source canonical prompt `01-prompts/30-improvements/04-next-detail-out-100-improvements.md` is referenced.
 - [ ] Review-First Gate is strictly enforced: zero code mutations occurred during detailing turns.
 - [ ] All detailed plan items strictly implement the complete 8-Field Specification Schema.
 - [ ] Centralized Review Docket is authored at `02-spec/21-app/XX-<slug>/00-review-docket.md` with risk matrix and dependency DAG.

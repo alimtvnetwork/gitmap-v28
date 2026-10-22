@@ -1,9 +1,9 @@
 ---
-name: find-100-improvements-in-ui-level
+name: next-100-ui-improvements
 description: Autonomously scan, discover, plan, and refactor 100 UI-level improvements across color tokens, WCAG contrast, 4-plane depth hierarchy, 60/30/10 balance, typography stacks, button systems, sticky navigation physics, spacing rhythm, CSS3 motion, and React component hygiene.
 ---
 
-# Find 100 Improvements in the UI Level
+# Next 100 UI Improvements
 
 > **[/goal](slashCommand;goal)** Autonomously audit, catalog, plan, and execute 100 concrete UI improvements across the target frontend codebase, enforcing strict design token architecture, WCAG 2.2 AA/AAA contrast, 4-plane depth hierarchy, 60/30/10 visual balance, typography stacks, button systems, sticky navigation physics, and React component decomposition.
 > **[/learn](slashCommand;learn)** Ingest the 10 UI improvement clusters and design tokens from `02-spec/07-design-system/` before applying modifications. Enqueue all 100 improvements as structured pending plans in `.ai-memory/plans/pending/` and execute in bounded micro-batches via GitMap.
@@ -125,7 +125,7 @@ $$L = 0.299 R + 0.587 G + 0.114 B$$
 9. **Cluster 09: CSS3 Hardware-Accelerated Motion & Accessibility** (Items 81–90)
 10. **Cluster 10: Frontend Code Hygiene & React Component Deconstruction** (Items 91–100)
 
-Refer to `01-prompts/30-improvements/01-find-100-improvements-in-ui-level.md` for the exhaustive 100-item specification catalog.
+Refer to `01-prompts/30-improvements/01-next-100-ui-improvements.md` for the exhaustive 100-item specification catalog.
 
 ---
 
@@ -182,8 +182,8 @@ Every execution cycle MUST preserve continuity:
 
 ## Related Skills
 
-- [follow-ui-ux-design-system](file;.agents/skills/follow-ui-ux-design-system)
-- [theming-guidelines](file;.agents/skills/theming-guidelines)
-- [update-theming](file;.agents/skills/update-theming)
-- [react-frontend-guidelines](file;.agents/skills/react-frontend-guidelines)
-- [execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
+- [follow-ui-ux-design-system](file;.cursor/skills/follow-ui-ux-design-system)
+- [theming-guidelines](file;.cursor/skills/theming-guidelines)
+- [update-theming](file;.cursor/skills/update-theming)
+- [react-frontend-guidelines](file;.cursor/skills/react-frontend-guidelines)
+- [execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)

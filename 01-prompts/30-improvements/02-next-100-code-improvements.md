@@ -1,4 +1,6 @@
-# Find 100 Improvements in the Code Base
+# Next 100 Code Improvements
+
+## slug: next-100-code-improvements
 
 ```text
 N = 400 (Total self-loop steps budget — editable top-header parameter, default: 400)
@@ -17,7 +19,10 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > Prompt Version: 1.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
-> Invoke: /find-100-improvements-in-code-base <codebase-or-path>
+> Invoke: /next-100-code-improvements <codebase-or-path>
+>
+> **Trigger Keywords & Aliases:**
+> `next-100-code-improvements`, `next-100-code`, `code-100-improvements`, `next-code-improvements`, `find-100-code`
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.
@@ -49,8 +54,8 @@ WAVES = ceil(subtasks / (A x H))
 
 Before executing the tasks below, check if this prompt is already installed as a native Antigravity Skill.
 
-1. If `.agents/skills/find-100-improvements-in-code-base/skill.md` does not exist in the workspace, create it now.
-2. If `.cursor/skills/find-100-improvements-in-code-base/skill.md` does not exist in the workspace, create it now with IDE-detectable Cursor skill link syntax.
+1. If `.agents/skills/next-100-code-improvements/skill.md` does not exist in the workspace, create it now.
+2. If `.cursor/skills/next-100-code-improvements/skill.md` does not exist in the workspace, create it now with IDE-detectable Cursor skill link syntax `[next-100-code-improvements](file;.cursor/skills/next-100-code-improvements)`.
 3. Once installed, rely on progressive disclosure for future runs. Do not keep the entire prompt in active memory if not needed.
 
 ---
@@ -355,7 +360,7 @@ Every single one of the 100 improvements MUST be documented using the strict, st
    - Pre-action heatmap logging: `gitmap heatmap log --task <task> --action READ --file <path> --state EXPLORATION --expected "<goal>"`
 5. **SQLite Task DB & Deterministic Slug Initialization:**
    `gitmap agent task init --name "100-improvements-<codebase>" --budget 400`
-6. **Ledger Creation:** Create `.ai-memory/temp-agents/<nn>-find-100-improvements/ledger.md` tracking all 100 items across the 10 families.
+6. **Ledger Creation:** Create `.ai-memory/temp-agents/<nn>-next-100-code-improvements/ledger.md` tracking all 100 items across the 10 families.
 
 ---
 
@@ -400,8 +405,8 @@ All 100 improvements are grouped into micro-batches of 5–8 files to preserve b
 > [!IMPORTANT]
 > **Mandatory Plan Enqueueing & Sequential Next-Wave Generation:**
 > All 100 improvements MUST be systematically preserved and enqueued as pending execution plans in the repository so they can be executed by subsequent refactoring sessions:
-> 1. Write the Master Plan to `.ai-memory/plans/pending/XX-find-100-improvements-wave-YY.md` (where `XX` is the zero-padded sequence number in `pending/`, and `YY` is the wave counter).
-> 2. Decompose the 100 improvements into modular subtasks stored in `.ai-memory/plans/subtasks/XX-find-100-improvements-wave-YY/`:
+> 1. Write the Master Plan to `.ai-memory/plans/pending/XX-next-100-code-improvements-wave-YY.md` (where `XX` is the zero-padded sequence number in `pending/`, and `YY` is the wave counter).
+> 2. Decompose the 100 improvements into modular subtasks stored in `.ai-memory/plans/subtasks/XX-next-100-code-improvements-wave-YY/`:
 >    - `01-family-01-error-management.md` (Items 001–010)
 >    - `02-family-02-monadic-results.md` (Items 011–020)
 >    - `03-family-03-positive-booleans.md` (Items 021–030)
@@ -414,7 +419,7 @@ All 100 improvements are grouped into micro-batches of 5–8 files to preserve b
 >    - `10-family-10-testing-hygiene.md` (Items 091–100)
 > 3. Register the new pending plan in `.ai-memory/plans/readme.md` under `## Pending Plans`.
 > 4. Enqueue the roadmap in `.ai-memory/what-to-read.md`.
-> 5. **Sequential Generation Rule:** Each subsequent run of `/find-100-improvements-in-code-base` MUST inspect existing pending and completed improvement plans, increment the wave counter (`wave-02`, `wave-03`, ...), scan unaddressed files or deeper architectural layers, and generate the NEXT 100 unique improvements without duplicate cards.
+> 5. **Sequential Generation Rule:** Each subsequent run of `/next-100-code-improvements` MUST inspect existing pending and completed improvement plans, increment the wave counter (`wave-02`, `wave-03`, ...), scan unaddressed files or deeper architectural layers, and generate the NEXT 100 unique improvements without duplicate cards.
 
 ---
 
@@ -463,8 +468,8 @@ The generated audit specification MUST contain the Master Catalog Summary Table 
 1. **Verify Deliverables:**
    - Confirm all 100 specification cards are present and complete (zero placeholders, zero missing fields).
    - Confirm Master Catalog Summary Table indexes exactly 100 rows across all 10 rule families.
-   - Confirm pending plan file exists at `.ai-memory/plans/pending/XX-find-100-improvements-wave-YY.md`.
-   - Confirm 10 subtask files exist under `.ai-memory/plans/subtasks/XX-find-100-improvements-wave-YY/`.
+   - Confirm pending plan file exists at `.ai-memory/plans/pending/XX-next-100-code-improvements-wave-YY.md`.
+   - Confirm 10 subtask files exist under `.ai-memory/plans/subtasks/XX-next-100-code-improvements-wave-YY/`.
    - Confirm `.ai-memory/plans/readme.md` registers the new plan.
 2. **Push Gate Verification:**
    - Targeted checks exit 0 (>0 files scanned; every time code is written, do not build code).
