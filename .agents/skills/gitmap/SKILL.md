@@ -22,6 +22,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | :--- | :--- | :--- |
 | ❌ `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr` | ✅ `gitmap aum search "<pattern>" [dir] [--ext <ext>]` or `gitmap search "<pattern>"` | Multi-core streaming live search (<15ms) with binary null-byte probe, 500 KB file cap, and DH2D SQLite hot cache. Prevents buffer bloat and terminal freezing. |
 | ❌ `Get-ChildItem` (all variants: bare `Get-ChildItem`, `-Path`, `-Filter`, `-Recurse`, etc.), `dir`, `ls` (in shell), `find . -name "..."`, `dir /s /b` | ✅ `gitmap lf <dir>` or `gitmap list-files [dir]` or `gitmap find "<pattern>" [dir]` | Sub-millisecond directory listing and file glob discovery without shell traversal overhead. TOTAL BAN on PowerShell Get-ChildItem. |
+| ❌ Inspecting plans manually via `Get-ChildItem -Path ".ai-memory/plans"` or `dir` | ✅ `gitmap plans [--json\|--yaml] [N]` (alias: `gitmap plan`) | Instant Tokyo Night styled inventory of completed and pending plans with sequence IDs, status pills, and backlog overflow navigation. |
 | ❌ Directory File Inventory: `Get-ChildItem -Path <dir>`, `dir <dir>`, `ls <dir>` | ✅ `gitmap lf <dir>` (e.g. `gitmap lf src-tauri/src/modules/repo_db`) or `gitmap find "*.*" <dir>` | Instant directory file listing and inventory without PowerShell object pipeline or shell traversal latency. TOTAL BAN on PowerShell Get-ChildItem. |
 | ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents directly into process stdout for resource-constrained CLI sessions. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
@@ -711,6 +712,40 @@ gitmap prnt "https://prnt.sc/abcdef" -o assets/screenshots --json
 
 # Batch download multiple screenshot URLs in parallel
 gitmap prnt "https://prnt.sc/url1" "https://prnt.sc/url2" "https://prnt.sc/url3"
+```
+
+### 13. Plan & Task Discovery (`gitmap plans`)
+Automated plan discovery and inventory across `.ai-memory/plans/` (root, `pending/`, and `completed/`) with Tokyo Night Lipgloss tables and machine-readable exports.
+
+```bash
+# Default view: shows last 10 completed plans and top 10 pending plans
+gitmap plans
+gitmap plan
+
+# Specify custom limit per section (e.g. 20 items per table)
+gitmap plans 20
+gitmap plans --limit 20
+gitmap plans -n 20
+
+# View all plans without truncation
+gitmap plans --all
+gitmap plans -a
+
+# Filter exclusively to pending and in-progress plans
+gitmap plans --pending
+gitmap plans -p
+
+# Filter exclusively to completed plans
+gitmap plans --completed
+gitmap plans -c
+
+# Emit pure machine-readable JSON to stdout (pipeable to jq)
+gitmap plans --json
+gitmap plans -j 20
+
+# Emit pure machine-readable YAML to stdout
+gitmap plans --yaml
+gitmap plans --yml
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Subtask 06: Skills Documentation in Gitmap & Coding-Guidelines
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** [293-gitmap-plans-command-and-fleet-sync.md](../../pending/293-gitmap-plans-command-and-fleet-sync.md)
 - **Target Files:**
   - `.agents/skills/gitmap/SKILL.md`

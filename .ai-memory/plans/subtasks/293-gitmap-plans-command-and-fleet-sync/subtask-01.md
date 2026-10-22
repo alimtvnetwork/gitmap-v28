@@ -1,6 +1,6 @@
 # Subtask 01: CLI Flags, Arguments, & Types Architecture
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** [293-gitmap-plans-command-and-fleet-sync.md](../../pending/293-gitmap-plans-command-and-fleet-sync.md)
 - **Target Files:**
   - `cli/constants/constants_commands_extra.go`

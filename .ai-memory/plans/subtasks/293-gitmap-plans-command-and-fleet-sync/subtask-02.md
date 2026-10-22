@@ -1,6 +1,6 @@
 # Subtask 02: Plan File Discovery & Metadata Parser
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** [293-gitmap-plans-command-and-fleet-sync.md](../../pending/293-gitmap-plans-command-and-fleet-sync.md)
 - **Target Files:**
   - `cli/cmdplans/plans_parser.go`
