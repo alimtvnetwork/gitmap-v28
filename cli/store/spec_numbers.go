@@ -18,10 +18,20 @@ const sqlCreateSpecNumbersTable = `CREATE TABLE IF NOT EXISTS spec_numbers (
   UNIQUE(number)
 );`
 
+const sqlCreateSpecNumbersView = `
+CREATE VIEW IF NOT EXISTS SpecNumber AS
+SELECT
+    number AS SpecNumberId,
+    number AS Number,
+    repo_root AS RepoRoot,
+    task_slug AS TaskSlug,
+    issued_at AS IssuedAt
+FROM spec_numbers;`
+
 // EnsureSpecNumbersSchema creates the spec_numbers table when missing.
 // Idempotent; runs at every DB open.
 func EnsureSpecNumbersSchema(conn *sql.DB) *appfault.AppError {
-	for _, ddl := range []string{sqlCreateSpecNumbersTable} {
+	for _, ddl := range []string{sqlCreateSpecNumbersTable, sqlCreateSpecNumbersView} {
 		res := ExecWrapper(conn, ddl)
 		if res.IsFailure {
 			return appfault.WrapSimple(res.Error, "EnsureSpecNumbersSchema")

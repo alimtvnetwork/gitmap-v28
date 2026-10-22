@@ -138,6 +138,39 @@ CREATE TABLE IF NOT EXISTS schedule_logs (
     error_msg TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );`
+
+	sqlCreateScheduleConfigView = `
+CREATE VIEW IF NOT EXISTS ScheduleConfig AS
+SELECT
+    id AS ScheduleConfigId,
+    name AS Name,
+    slug AS Slug,
+    macro_name AS MacroName,
+    command_line AS CommandLine,
+    interval_val AS IntervalVal,
+    delay_val AS DelayVal,
+    is_enabled AS IsEnabled,
+    is_startup AS IsStartup,
+    created_at AS CreatedAt,
+    updated_at AS UpdatedAt
+FROM schedule_config;`
+
+	sqlCreateScheduleLogsView = `
+CREATE VIEW IF NOT EXISTS ScheduleLog AS
+SELECT
+    id AS ScheduleLogId,
+    run_number AS RunNumber,
+    trigger_type AS TriggerType,
+    runner_user AS RunnerUser,
+    started_at AS StartedAt,
+    finished_at AS FinishedAt,
+    duration_ms AS DurationMs,
+    is_success AS IsSuccess,
+    exit_code AS ExitCode,
+    output AS Output,
+    error_msg AS ErrorMsg,
+    created_at AS CreatedAt
+FROM schedule_logs;`
 )
 
 // InitSchema creates tables and indexes in the split DB.
@@ -148,6 +181,14 @@ func (s *ScheduleSplitDB) InitSchema() error {
 
 	if _, err := s.conn.Exec(sqlCreateScheduleLogs); err != nil {
 		return apperror.WrapSimple(err, "init schedule_logs table")
+	}
+
+	if _, err := s.conn.Exec(sqlCreateScheduleConfigView); err != nil {
+		return apperror.WrapSimple(err, "init ScheduleConfig view")
+	}
+
+	if _, err := s.conn.Exec(sqlCreateScheduleLogsView); err != nil {
+		return apperror.WrapSimple(err, "init ScheduleLog view")
 	}
 
 	return nil
