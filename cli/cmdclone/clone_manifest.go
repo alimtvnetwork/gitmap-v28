@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
@@ -18,29 +17,42 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
-// executeClone runs the clone operation and prints the summary.
-func executeClone(cf CloneFlags) {
-	workers, ok := cloneconcurrency.Resolve(cf.MaxConcurrency)
-	if !ok {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
-		cliexit.HandleError(nil, 1)
-	}
-	cf.MaxConcurrency = workers
-
+func initManifestCloneTask(cf CloneFlags) (int64, *store.DB) {
 	absTarget, _ := filepath.Abs(cf.TargetDir)
 	workDir, _ := os.Getwd()
 	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
-	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absTarget, workDir, "clone", cmdArgs)
+
+	return createPendingTask(constants.TaskTypeClone, absTarget, workDir, "clone", cmdArgs)
+}
+
+func handleManifestCloneFailure(taskDB *store.DB, taskID int64, source string, err error) error {
+	failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, source, err))
+	closeTaskDB(taskDB)
+	fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, source, err)
+
+	return err
+}
+
+// executeClone runs the clone operation and prints the summary.
+func executeClone(cf CloneFlags) error {
+	workers, ok := cloneconcurrency.Resolve(cf.MaxConcurrency)
+	if !ok {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
+
+		return fmt.Errorf(constants.ErrCloneMaxConcurrencyInvalid, cf.MaxConcurrency)
+	}
+
+	cf.MaxConcurrency = workers
+	taskID, taskDB := initManifestCloneTask(cf)
 
 	summary, err := runCloneExecution(cf)
 	if err != nil {
-		failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneFailed, cf.Source, err))
-		closeTaskDB(taskDB)
-		fmt.Fprintf(os.Stderr, constants.ErrCloneFailed, cf.Source, err)
-		cliexit.HandleError(err, 1)
+		return handleManifestCloneFailure(taskDB, taskID, cf.Source, err)
 	}
 
 	finalizeCloneExecution(summary, cf, taskDB, taskID)
+
+	return nil
 }
 
 func finalizeCloneExecution(summary model.CloneSummary, cf CloneFlags, taskDB *store.DB, taskID int64) {
@@ -90,18 +102,28 @@ func runCloneExecution(cf CloneFlags) (model.CloneSummary, error) {
 	records = filterRecordsByExclude(records, cf.ExcludeFilter)
 	if countMissingCloneRecords(records, cf.TargetDir) == 0 && !cf.Clean {
 		fmt.Printf("✓ All %d repository(ies) in %s already exist on disk. Nothing to clone.\n", len(records), cf.Source)
+
 		return model.CloneSummary{Succeeded: len(records)}, nil
 	}
-	if cf.UseSSH {
-		records = convertRecordsToSSH(records)
-	} else {
-		records = resolveAuthForRecords(records, cf.TargetDir, cf.MissingOnly || !cf.Clean)
+	records, err = prepareManifestRecordsAuth(records, cf)
+	if err != nil {
+		return model.CloneSummary{}, err
 	}
 	if len(records) == 0 {
 		fmt.Println("Warning: no repositories matched clone filters")
+
 		return model.CloneSummary{}, nil
 	}
+
 	return cloner.CloneRecords(records, cf.TargetDir, opts), nil
+}
+
+func prepareManifestRecordsAuth(records []model.ScanRecord, cf CloneFlags) ([]model.ScanRecord, error) {
+	if cf.UseSSH {
+		return convertRecordsToSSH(records), nil
+	}
+
+	return resolveAuthForRecords(records, cf.TargetDir, cf.MissingOnly || !cf.Clean)
 }
 
 func countMissingCloneRecords(records []model.ScanRecord, targetDir string) int {
@@ -115,36 +137,49 @@ func countMissingCloneRecords(records []model.ScanRecord, targetDir string) int 
 			missing++
 		}
 	}
+
 	return missing
 }
 
-func resolveAuthForRecords(records []model.ScanRecord, targetDir string, skipExisting bool) []model.ScanRecord {
+func resolveAuthForRecords(records []model.ScanRecord, targetDir string, skipExisting bool) ([]model.ScanRecord, error) {
 	out := make([]model.ScanRecord, 0, len(records))
 	for _, r := range records {
-		dest := filepath.Join(targetDir, r.RelativePath)
-		if r.RelativePath == "" {
-			dest = filepath.Join(targetDir, r.RepoName)
+		resolved, hasResolved, err := resolveSingleRecordAuth(r, targetDir, skipExisting)
+		if err != nil {
+			return nil, err
 		}
-		if skipExisting && isGitRepo(dest) {
-			out = append(out, r)
-			continue
+		if hasResolved {
+			out = append(out, resolved)
 		}
-		resolved, err := ResolveRepoAuth(r)
-		if err == ErrAuthSkipped {
-			fmt.Printf("  Skipping %s per user request.\n", getRecordDisplayName(r))
-
-			continue
-		}
-		if errors.Is(err, ErrAuthNonInteractive) {
-			fmt.Fprintf(os.Stderr, "\n%s\n", err.Error())
-			cliexit.HandleError(err, 1)
-
-			return nil
-		}
-		out = append(out, resolved)
 	}
 
-	return out
+	return out, nil
+}
+
+func resolveSingleRecordAuth(r model.ScanRecord, targetDir string, skipExisting bool) (model.ScanRecord, bool, error) {
+	dest := filepath.Join(targetDir, r.RelativePath)
+	if r.RelativePath == "" {
+		dest = filepath.Join(targetDir, r.RepoName)
+	}
+
+	if skipExisting && isGitRepo(dest) {
+		return r, true, nil
+	}
+
+	resolved, err := ResolveRepoAuth(r)
+	if err == ErrAuthSkipped {
+		fmt.Printf("  Skipping %s per user request.\n", getRecordDisplayName(r))
+
+		return model.ScanRecord{}, false, nil
+	}
+
+	if errors.Is(err, ErrAuthNonInteractive) {
+		fmt.Fprintf(os.Stderr, "\n%s\n", err.Error())
+
+		return model.ScanRecord{}, false, err
+	}
+
+	return resolved, true, nil
 }
 
 func pickResolvedURL(rec model.ScanRecord, fallback string) string {

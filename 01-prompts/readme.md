@@ -81,6 +81,12 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 ├── 28-mastery-prompts/
 ├── 29-chat-management/
 └── 30-improvements/
+    ├── 01-next-100-ui-improvements.md
+    ├── 02-next-100-code-improvements.md
+    ├── 03-next-100-whole-system-improvements.md
+    ├── 04-next-detail-out-100-improvements.md
+    ├── 05-next-100-ideas-for-improvements.md
+    └── readme.md
 ```
 
 ---
@@ -119,4 +125,4 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 | **27** | `27-muse-prompts/` | `01-muse-master-prompt.md` (Unified) | Unified Muse master onboarding & fleet execution prompt (SSH auth, GitMap scan, 14+ repo clone/pull-all, side chats, V6 multi-agent engine) |
 | **28** | `28-mastery-prompts/` | `01-mastery-bootstrap-prompt.md` | Foolproof standalone bootstrap prompt: reproduces the full working environment (GitHub, GitMap, repos, memory, chats) from any fresh chat on any machine |
 | **29** | `29-chat-management/` | `01-chat-histories-reread-remove-and-recreate.md` | Chat-history recovery: re-read per-repo side chats, prune stale ones (archive by default, delete only on explicit word), and recreate one `<repo> repo` chat per repo after a VM replacement |
-| **30** | `30-improvements/` | `01-next-100-ui-improvements.md`, `02-next-100-code-improvements.md`, `03-next-100-whole-system-improvements.md`, `04-next-detail-out-100-improvements.md` | Autonomous continuous improvement flywheel across UI, codebase, whole-system UX, and multi-step plan detailing with review-first gates |
+| **30** | `30-improvements/` | `01-next-100-ui-improvements.md`, `02-next-100-code-improvements.md`, `03-next-100-whole-system-improvements.md`, `04-next-detail-out-100-improvements.md`, `05-next-100-ideas-for-improvements.md` | Autonomous continuous improvement, ideation flywheel, and innovation value multiplication across UI, codebase, whole-system UX, multi-step plan detailing with review-first gates, and next 100 high-leverage innovation ideas |

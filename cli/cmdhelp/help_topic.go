@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 // helpTopicStep is one ordered step inside a topic: the command plus a
@@ -116,7 +115,8 @@ var helpTopics = []helpTopic{
 func RunHelpTopic(args []string) *appfault.AppError {
 	if isHelpRequested(args) {
 		fmt.Print(helpTopicHelpText)
-		cliexit.Exit(0)
+
+		return nil
 	}
 
 	if len(args) == 0 {

@@ -26,6 +26,9 @@ const (
 // TableNameType represents strongly-typed database table names across the Split-DB tiers.
 type TableNameType string
 
+// DatabaseTableType aliases TableNameType for unified table identifier semantics.
+type DatabaseTableType = TableNameType
+
 const (
 	TableNameRepo               TableNameType = "Repo"
 	TableNameGroup              TableNameType = "Group"
@@ -34,6 +37,8 @@ const (
 	TableNameAlias              TableNameType = "Alias"
 	TableNameRepoVersionHistory TableNameType = "RepoVersionHistory"
 	TableNameDetectedProject    TableNameType = "DetectedProject"
+	TableNamePipelineRun        TableNameType = "PipelineRun"
+	TableNameHeatmapActionLog   TableNameType = "HeatmapActionLog"
 )
 
 // Table names (v15: PascalCase + singular + {Table}Id PK).
@@ -45,6 +50,8 @@ const (
 	TableAlias              = "Alias"
 	TableRepoVersionHistory = "RepoVersionHistory"
 	TableDetectedProject    = "DetectedProject"
+	TablePipelineRun        = "PipelineRun"
+	TableHeatmapActionLog   = "HeatmapActionLog"
 )
 
 // RepoTransportQueryType represents the query target strategy for repository transport lookups.

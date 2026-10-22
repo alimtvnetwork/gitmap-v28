@@ -30,6 +30,7 @@ type ActionLogFilter struct {
 	SubtaskId  string
 	Search     string
 	Limit      int
+	Offset     int
 }
 
 // StartAgentUIServer binds HTTP server and serves the visualizer dashboard.

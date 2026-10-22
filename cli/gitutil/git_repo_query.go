@@ -45,3 +45,39 @@ func HasUnpushedCommits(repoPath string) (bool, error) {
 
 	return hasCommits, nil
 }
+
+// GetRepoDirtyFiles returns relative paths of uncommitted, modified, or untracked files in repoPath.
+func GetRepoDirtyFiles(repoPath string) ([]string, error) {
+	out, err := RunGitInDir(repoPath, constants.GitStatus, constants.GitPorcelainFlag)
+	if err != nil {
+		return nil, err
+	}
+
+	return parsePorcelainDirtyLines(string(out)), nil
+}
+
+func parsePorcelainDirtyLines(output string) []string {
+	var files []string
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		clean := strings.TrimSpace(line)
+		if len(clean) > 3 {
+			files = append(files, strings.TrimSpace(clean[3:]))
+		}
+	}
+
+	return files
+}
+
+// IsRepoDetached reports whether the repository is in a detached HEAD state.
+func IsRepoDetached(repoPath string) (bool, error) {
+	out, err := RunGitInDir(repoPath, constants.GitSymbolicRef, constants.GitQuietFlag, constants.GitHEAD)
+	if err != nil {
+		return true, nil
+	}
+
+	isDetached := len(strings.TrimSpace(string(out))) == 0
+
+	return isDetached, nil
+}
+

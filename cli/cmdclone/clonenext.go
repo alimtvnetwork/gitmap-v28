@@ -59,7 +59,9 @@ func dispatchCloneNext(cnFlags CloneNextFlags) error {
 	}
 
 	requireOnline()
-	applySSHKey(cnFlags.SSHKeyName)
+	if err := applySSHKey(cnFlags.SSHKeyName); err != nil {
+		return err
+	}
 
 	return executeSingleCloneNext(cnFlags)
 }

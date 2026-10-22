@@ -14,14 +14,14 @@ import (
 )
 
 // LookupRepoRemoteAndID finds the RepoId and remote URL for a given repository path.
-func LookupRepoRemoteAndID(repoPath string) (int64, string) {
+func LookupRepoRemoteAndID(repoPath string) (int64, string, error) {
 	if repoPath == "" {
-		return 0, ""
+		return 0, "", nil
 	}
 
 	db, err := store.OpenDefault()
 	if err != nil {
-		return 0, ""
+		return 0, "", err
 	}
 
 	defer db.Close()
@@ -29,13 +29,8 @@ func LookupRepoRemoteAndID(repoPath string) (int64, string) {
 	return queryRepoRemoteAndID(db, repoPath)
 }
 
-func queryRepoRemoteAndID(db *store.DB, repoPath string) (int64, string) {
-	repoID, primaryURL, err := db.GetRepoPrimaryURLByPath(repoPath)
-	if err != nil {
-		return 0, ""
-	}
-
-	return repoID, primaryURL
+func queryRepoRemoteAndID(db *store.DB, repoPath string) (int64, string, error) {
+	return db.GetRepoPrimaryURLByPath(repoPath)
 }
 
 // DeleteRepoRecordByPath removes the repository row from gitmap.db.
@@ -87,7 +82,7 @@ func resolveMissingRemoteURL(f PullFailureSummary) string {
 		return f.RemoteURL
 	}
 
-	_, remoteURL := LookupRepoRemoteAndID(f.RepoPath)
+	_, remoteURL, _ := LookupRepoRemoteAndID(f.RepoPath)
 
 	return remoteURL
 }

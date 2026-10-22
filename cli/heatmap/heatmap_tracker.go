@@ -1,6 +1,7 @@
 package heatmap
 
 import (
+	"database/sql"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,3 +41,52 @@ func recordFileTouchAtRoot(cwd, cleanPath string, touchType store.FileTouchType)
 
 	return logErr
 }
+
+// TrackBatchFileTouches records multiple file touch records in a single database transaction.
+func TrackBatchFileTouches(cwd string, touches []store.FileTouchCount) error {
+	if len(touches) == 0 {
+		return nil
+	}
+
+	hdb, err := store.OpenHeatmapRootDB(cwd)
+	if err != nil {
+		return err
+	}
+
+	defer hdb.Close()
+
+	return insertBatchTouchesTx(hdb.Conn(), touches)
+}
+
+func insertBatchTouchesTx(conn *sql.DB, touches []store.FileTouchCount) error {
+	tx, err := conn.Begin()
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.batchTx")
+	}
+
+	defer tx.Rollback()
+
+	if execErr := executeTouchInserts(tx, touches); execErr != nil {
+		return execErr
+	}
+
+	return tx.Commit()
+}
+
+func executeTouchInserts(tx *sql.Tx, touches []store.FileTouchCount) error {
+	stmt, err := tx.Prepare(`INSERT INTO HeatmapActionLog (TaskSlug, ActionType, FilePath, ExecutionDepth, ExecutionOrder) VALUES ('batch-touch', 'BATCH_TOUCH', ?, 0, 1)`)
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.prepareBatch")
+	}
+
+	defer stmt.Close()
+
+	for _, t := range touches {
+		if _, err := stmt.Exec(t.FilePath); err != nil {
+			return apperror.WrapSimple(err, "heatmap.execTouch")
+		}
+	}
+
+	return nil
+}
+

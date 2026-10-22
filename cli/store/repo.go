@@ -125,6 +125,39 @@ func (db *DB) ListReposByTransport(transport string) ([]model.ScanRecord, error)
 	return scanRows(rows)
 }
 
+const sqlSelectReposByBranch = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Branch = ? COLLATE NOCASE ORDER BY Slug ASC"
+
+// ListReposByBranch returns all repositories configured for the specified branch.
+func (db *DB) ListReposByBranch(branch string) ([]model.ScanRecord, error) {
+	clean := strings.TrimSpace(branch)
+	if clean == "" {
+		return db.ListRepos()
+	}
+
+	rows, err := QueryWrapper(db.conn, sqlSelectReposByBranch, clean).Destruct()
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+	}
+
+	defer rows.Close()
+
+	return scanRows(rows)
+}
+
+const sqlSelectDirtyRepos = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Notes LIKE '%dirty%' OR RepoName IN (SELECT RepoSlug FROM HeatmapLocalTracking WHERE IsDirty = 1) ORDER BY Slug ASC"
+
+// ListReposDirtyStatus returns repositories flagged as dirty or requiring synchronization.
+func (db *DB) ListReposDirtyStatus() ([]model.ScanRecord, error) {
+	rows, err := QueryWrapper(db.conn, sqlSelectDirtyRepos).Destruct()
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+	}
+
+	defer rows.Close()
+
+	return scanRows(rows)
+}
+
 // CountRepos returns the total number of repositories tracked in the database.
 func (db *DB) CountRepos() (int, error) {
 	var total int

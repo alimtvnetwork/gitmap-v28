@@ -1,13 +1,19 @@
 package termout
 
-// AlignType defines column text alignment.
-type AlignType string
+// AlignmentType defines column text alignment for terminal tables.
+type AlignmentType string
 
 const (
-	AlignLeft   AlignType = "left"
-	AlignRight  AlignType = "right"
-	AlignCenter AlignType = "center"
+	// AlignLeft positions text flush with the left margin.
+	AlignLeft AlignmentType = "left"
+	// AlignRight positions text flush with the right margin (ideal for numeric metrics).
+	AlignRight AlignmentType = "right"
+	// AlignCenter centers text symmetrically within the column width.
+	AlignCenter AlignmentType = "center"
 )
+
+// AlignType is maintained as a type alias for AlignmentType for backward compatibility.
+type AlignType = AlignmentType
 
 // BorderStyleType defines the visual framing style for rendered terminal tables.
 type BorderStyleType string
@@ -23,13 +29,17 @@ const (
 	BorderMinimal BorderStyleType = "minimal"
 )
 
-// Column defines a table column specification.
-type Column struct {
-	Title    string
-	MaxWidth int
-	MinWidth int
-	Align    AlignType
+// ColumnConfig defines configuration options for an individual table column.
+type ColumnConfig struct {
+	Title     string
+	MaxWidth  int
+	MinWidth  int
+	Alignment AlignmentType
+	Align     AlignmentType // Backward-compatible field alias
 }
+
+// Column is maintained as a type alias for ColumnConfig for backward compatibility.
+type Column = ColumnConfig
 
 // Row defines a single row containing column cell data.
 type Row struct {
@@ -39,7 +49,7 @@ type Row struct {
 
 // TableConfig defines full configuration for table rendering.
 type TableConfig struct {
-	Columns      []Column
+	Columns      []ColumnConfig
 	Rows         []Row
 	HeaderColor  string
 	BorderColor  string

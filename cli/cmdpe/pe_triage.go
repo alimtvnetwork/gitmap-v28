@@ -102,7 +102,7 @@ func parsePeTriageFlags(args []string) (peTriageConfig, *appfault.AppError) {
 	}
 
 	return peTriageConfig{
-		workdir: resolveWorkdir(*w),
+		workdir: ResolveWorkdir(*w),
 		filter:  resolveRepoFilter(*r, *s),
 		limit:   *l,
 	}, nil
@@ -165,15 +165,6 @@ func processPeTriageFailures(repos []triageRepo, cfg peTriageConfig) *appfault.A
 	return nil
 }
 
-func matchRepoFilter(repoName, filter string) bool {
-	hasFilter := len(filter) > 0
-	if !hasFilter {
-		return true
-	}
-
-	return strings.Contains(strings.ToLower(repoName), strings.ToLower(filter))
-}
-
 func probeLatestRepoRun(slug string) (ghRun, bool) {
 	var runs []ghRun
 	err := ghJSON(&runs, "run", "list", "-R", slug, "--limit", "1",
@@ -189,7 +180,7 @@ func probeLatestRepoRun(slug string) (ghRun, bool) {
 }
 
 func tryProbeRepo(r triageRepo, cfg peTriageConfig) (peFailure, bool, bool) {
-	if !matchRepoFilter(r.name, cfg.filter) || r.slug == "" {
+	if !MatchRepoFilter(r.name, cfg.filter) || r.slug == "" {
 		return peFailure{}, false, false
 	}
 

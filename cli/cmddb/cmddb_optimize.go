@@ -12,34 +12,55 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-func runDBOptimize(args []string) error {
-	fmt.Printf("%s● Optimizing all Gitmap SQLite databases (VACUUM & PRAGMA optimize)...%s\n\n",
-		constants.ColorCyan, constants.ColorReset)
-
-	var totalReclaimed int64
-	var optimizedCount int
-
+func optimizeMasterDB() (int64, int) {
 	masterPath := store.DefaultDBPath()
 	if _, err := os.Stat(masterPath); err == nil {
-		rec, cnt := tryOptimizeDBFile(masterPath, "Master Database")
-		totalReclaimed += rec
-		optimizedCount += cnt
+		return tryOptimizeDBFile(masterPath, "Master Database")
 	}
 
-	splitDBs := collectSplitDBs()
-	for _, s := range splitDBs {
+	return 0, 0
+}
+
+func optimizeSplitRepoDBs() (int64, int) {
+	var totalReclaimed int64
+	var optimizedCount int
+	for _, s := range collectSplitDBs() {
 		rec, cnt := tryOptimizeDBFile(s.Path, "Split Repo DB")
 		totalReclaimed += rec
 		optimizedCount += cnt
 	}
 
+	return totalReclaimed, optimizedCount
+}
+
+func optimizePipelineDBs() (int64, int) {
+	var totalReclaimed int64
+	var optimizedCount int
 	pipeDir := pipelinedb.PipelineDBDir()
-	pipeEntries, _ := os.ReadDir(pipeDir)
+	pipeEntries, err := os.ReadDir(pipeDir)
+	if err != nil {
+		return 0, 0
+	}
+
 	for _, p := range pipeEntries {
 		rec, cnt := tryOptimizePipelineFile(pipeDir, p)
 		totalReclaimed += rec
 		optimizedCount += cnt
 	}
+
+	return totalReclaimed, optimizedCount
+}
+
+func runDBOptimize(args []string) error {
+	fmt.Printf("%s● Optimizing all Gitmap SQLite databases (VACUUM & PRAGMA optimize)...%s\n\n",
+		constants.ColorCyan, constants.ColorReset)
+
+	mRec, mCnt := optimizeMasterDB()
+	sRec, sCnt := optimizeSplitRepoDBs()
+	pRec, pCnt := optimizePipelineDBs()
+
+	totalReclaimed := mRec + sRec + pRec
+	optimizedCount := mCnt + sCnt + pCnt
 
 	fmt.Println()
 	fmt.Printf("%s✓ Optimization complete across %d database file(s). Total disk space reclaimed: %s%s\n",
@@ -61,6 +82,8 @@ func tryOptimizePipelineFile(dir string, p os.DirEntry) (int64, int) {
 func tryOptimizeDBFile(path, label string) (int64, int) {
 	reclaimed, err := optimizeSingleDBFile(path)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Failed to optimize %s (%s): %v\n", label, filepath.Base(path), err)
+
 		return 0, 0
 	}
 

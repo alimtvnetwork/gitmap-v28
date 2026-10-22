@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/pipelinedb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func extractReleaseFromTitle(title string) string {
@@ -278,26 +279,39 @@ func formatWorkflowShortStatus(wf CommitWorkflowItem) string {
 
 func renderCachedErrorsList(errors []pipelinedb.PipelineErrorRecord) {
 	if len(errors) == 0 {
-		fmt.Println("  │ Error: (No error diagnostic logs cached for this run)")
+		fmt.Println("    (No error diagnostic logs cached for this run)")
 
 		return
 	}
 
 	for _, e := range errors {
-		fmt.Printf("  │ Step:  %s\n", e.StepName)
-		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
+		fmt.Printf("    %s %s\n", termout.TokyoErrorPill("STEP"), e.StepName)
+		fmt.Printf("      %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
 	}
 }
 
+func buildFailureCardHeader(r pipelinedb.PipelineRunRecord, idx, total int) string {
+	tag := termout.TokyoTag("FAIL", fmt.Sprintf("[%d/%d] #%d", idx, total, r.RunId))
+	title := termout.SafeTokyoStyle(termout.TokyoPrimary).Bold(true).Render(r.WorkflowName)
+
+	return fmt.Sprintf("%s %s", tag, title)
+}
+
+func buildFailureCardMeta(r pipelinedb.PipelineRunRecord) string {
+	bTag := termout.TokyoTag("Branch", r.Branch)
+	sTag := termout.TokyoTag("SHA", r.Sha)
+	dTag := termout.TokyoTag("Duration", formatDurationSeconds(r.DurationSeconds))
+	tTag := termout.TokyoTag("Date", formatRunTimestamp(r.CreatedAt))
+
+	return fmt.Sprintf("%s  %s\n%s  %s", bTag, sTag, dTag, tTag)
+}
+
 func renderSingleCachedFailureCard(db *pipelinedb.PipelineSplitDb, r pipelinedb.PipelineRunRecord, idx, total int, isDetailed bool) {
-	fmt.Printf("  %s┌─ [%d/%d] %s #%d ──────────────────────────%s\n",
-		constants.ColorRed, idx, total, r.WorkflowName, r.RunId, constants.ColorReset)
-	fmt.Printf("  │ Branch / Commit: %s (%s)\n", r.Branch, r.Sha)
-	fmt.Printf("  │ When Run:        %s | Duration: %s\n",
-		formatRunTimestamp(r.CreatedAt), formatDurationSeconds(r.DurationSeconds))
+	header := buildFailureCardHeader(r, idx, total)
+	meta := buildFailureCardMeta(r)
+	boxContent := fmt.Sprintf("%s\n\n%s", header, meta)
+	fmt.Printf("\n%s\n", termout.TokyoBoxStyle(boxContent))
 	renderRunErrorsByDetailMode(db, r.RunId, isDetailed)
-	fmt.Printf("  %s└──────────────────────────────────────────────────────────%s\n\n",
-		constants.ColorRed, constants.ColorReset)
 }
 
 func renderRunErrorsByDetailMode(db *pipelinedb.PipelineSplitDb, runId uint64, isDetailed bool) {
@@ -336,14 +350,14 @@ func renderCompactOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
 
 func renderCachedCompactErrorsList(errors []pipelinedb.PipelineCompactErrorRecord) {
 	if len(errors) == 0 {
-		fmt.Println("  │ Error: (No error diagnostic logs cached for this run)")
+		fmt.Println("    (No error diagnostic logs cached for this run)")
 
 		return
 	}
 
 	for _, e := range errors {
-		fmt.Printf("  │ Step:  %s\n", e.StepName)
-		fmt.Printf("  │ Error: %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
+		fmt.Printf("    %s %s\n", termout.TokyoErrorPill("STEP"), e.StepName)
+		fmt.Printf("      %s%s%s\n", constants.ColorRed, e.ErrorText, constants.ColorReset)
 	}
 }
 

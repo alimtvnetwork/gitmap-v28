@@ -7,6 +7,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
+type transportRequest struct {
+	isSSH        bool
+	isActionable bool
+}
+
 // ApplyTransportFlag rewrites the `remote.origin.url` of dir to the
 // requested transport and persists it via `git remote set-url`.
 // Returns (changed, oldURL, newURL, err).
@@ -20,8 +25,8 @@ import (
 //
 // Spec: 02-spec/01-app/111-push-pull-transport-flags.md
 func ApplyTransportFlag(dir string, isSSH, isHTTPS bool) (bool, string, string, error) {
-	isRequestedSSH, isActionable := resolveRequestedTransport(isSSH, isHTTPS)
-	if !isActionable {
+	req := resolveRequestedTransport(isSSH, isHTTPS)
+	if !req.isActionable {
 		return false, "", "", nil
 	}
 
@@ -30,21 +35,22 @@ func ApplyTransportFlag(dir string, isSSH, isHTTPS bool) (bool, string, string, 
 		return false, "", "", err
 	}
 
-	return rewriteTransportURL(dir, old, isRequestedSSH)
+	return rewriteTransportURL(dir, old, req.isSSH)
 }
 
-func resolveRequestedTransport(isSSH, isHTTPS bool) (bool, bool) {
-	if !isSSH && !isHTTPS {
-		return false, false
+func resolveRequestedTransport(isSSH, isHTTPS bool) transportRequest {
+	hasTransport := isSSH || isHTTPS
+	if !hasTransport {
+		return transportRequest{isSSH: false, isActionable: false}
 	}
 
 	if isSSH && isHTTPS {
 		fmt.Fprintln(os.Stderr, "⚠ both --ssh and --https set; --ssh wins")
 
-		return true, true
+		return transportRequest{isSSH: true, isActionable: true}
 	}
 
-	return isSSH, true
+	return transportRequest{isSSH: isSSH, isActionable: true}
 }
 
 func rewriteTransportURL(dir, old string, isSSH bool) (bool, string, string, error) {

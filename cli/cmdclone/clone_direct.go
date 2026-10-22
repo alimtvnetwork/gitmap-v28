@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/desktop"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -80,8 +79,10 @@ func handleExistingGitRepo(params DirectCloneParams, repoName, absPath string) {
 			Message:  fmt.Sprintf("already exists on disk (%s)", absPath),
 			Path:     absPath,
 		})
+
 		return
 	}
+
 	fmt.Printf("~ %s already exists on disk (%s), skipping clone and workspace re-registration.\n", repoName, absPath)
 }
 
@@ -89,11 +90,12 @@ func printCloneStartup(params DirectCloneParams, url, absPath, repoName, folderN
 	if params.IsJSON {
 		return
 	}
+
 	printCloneTermBlockForURL(params.Output, 1, url, absPath)
 	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
 }
 
-func handleDirectCloneFailure(params DirectCloneParams, taskDB *store.DB, taskID int64, url, repoName, absPath string, cloneErr error) {
+func handleDirectCloneFailure(params DirectCloneParams, taskDB *store.DB, taskID int64, url, repoName, absPath string, cloneErr error) error {
 	failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 	closeTaskDB(taskDB)
 	if params.IsJSON {
@@ -104,12 +106,14 @@ func handleDirectCloneFailure(params DirectCloneParams, taskDB *store.DB, taskID
 			Message:  cloneErr.Error(),
 			Path:     absPath,
 		})
-		cliexit.HandleError(cloneErr, 1)
-		return
+
+		return cloneErr
 	}
+
 	fmt.Fprintf(os.Stderr, constants.ErrCloneURLFailed, url, cloneErr)
 	printRepoSlugSuggestions(url)
-	cliexit.HandleError(cloneErr, 1)
+
+	return cloneErr
 }
 
 func handleDirectCloneSuccess(params DirectCloneParams, repoName, absPath string) {
@@ -121,82 +125,139 @@ func handleDirectCloneSuccess(params DirectCloneParams, repoName, absPath string
 			Message:  fmt.Sprintf("cloned %s successfully", repoName),
 			Path:     absPath,
 		})
+
 		return
 	}
+
 	fmt.Printf(constants.MsgCloneURLDone, repoName)
 }
 
-// executeDirectClone clones a single repo from a direct URL.
-func executeDirectClone(params DirectCloneParams) {
-	escapeNestedGitRepo()
-	params.URL = ResolveRepoSlug(params.URL)
-	repoName := repoNameFromURL(params.URL)
-
-	folderName := params.FolderName
+func resolveDirectFolderName(folderName, repoName string) string {
 	if len(folderName) == 0 {
-		folderName = repoName
+		return repoName
 	}
 
-	if isDirectURL(folderName) {
-		fmt.Fprintf(os.Stderr, constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
-		cliexit.HandleError(nil, 1)
-	}
+	return folderName
+}
 
+func resolveDirectAbsPath(folderName string) string {
 	absPath, err := filepath.Abs(folderName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "  Warning: could not resolve absolute path for %s: %v\n", folderName, err)
-		absPath = folderName
+
+		return folderName
 	}
 
-	cleanDirectCloneTarget(absPath, params.IsClean)
+	return absPath
+}
 
+func checkDirectTargetCollision(absPath string, noReplace bool) error {
 	_, statErr := os.Stat(absPath)
-	if params.NoReplace && statErr == nil {
+	if noReplace && statErr == nil {
 		fmt.Fprintf(os.Stderr, constants.ErrCloneURLExists, absPath)
-		cliexit.HandleError(nil, 1)
+
+		return fmt.Errorf(constants.ErrCloneURLExists, absPath)
 	}
 
-	if isGitRepo(absPath) {
-		handleExistingGitRepo(params, repoName, absPath)
+	return nil
+}
+
+func validateDirectCloneFolder(folderName string, noReplace bool) (string, error) {
+	if isDirectURL(folderName) {
+		fmt.Fprintf(os.Stderr, constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
+
+		return "", fmt.Errorf(constants.ErrCloneStaleBinaryFolderURL, folderName, constants.Version)
+	}
+
+	absPath := resolveDirectAbsPath(folderName)
+	if err := checkDirectTargetCollision(absPath, noReplace); err != nil {
+		return "", err
+	}
+
+	return absPath, nil
+}
+
+func resolveDirectCloneURL(rawURL string, useSSH bool, repoName string) string {
+	url := coerceURLToStoredTransport(rawURL)
+	url = resolveDirectSSHURL(url, useSSH)
+	if isSSHCloneURL(url) {
+		return url
+	}
+
+	return resolveDirectHTTPSURL(url, repoName)
+}
+
+func initDirectCloneTask(absPath string) (int64, *store.DB) {
+	workDir, _ := os.Getwd()
+	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
+
+	return createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
+}
+
+func applyWinningProfile(absPath string, winningProfile *model.UserContextConfig) {
+	if winningProfile == nil {
 		return
 	}
 
-	workDir, _ := os.Getwd()
-	cmdArgs := buildCommandArgs(append([]string{"clone"}, os.Args[2:]...))
-	taskID, taskDB := createPendingTask(constants.TaskTypeClone, absPath, workDir, "clone", cmdArgs)
+	_ = usercontext.BindProject(absPath, winningProfile.Name)
+	_ = usercontext.SyncProjectUser(absPath, *winningProfile)
+}
 
-	url := coerceURLToStoredTransport(params.URL)
-	url = resolveDirectSSHURL(url, params.UseSSH)
-	if !isSSHCloneURL(url) {
-		url = resolveDirectHTTPSURL(url, repoName)
-	}
-
-	printCloneStartup(params, url, absPath, repoName, folderName)
-
-	winningProfile, cloneErr := runDirectCloneWithProfileFallback(params, url, absPath)
-	if cloneErr != nil {
-		handleDirectCloneFailure(params, taskDB, taskID, url, repoName, absPath, cloneErr)
-	}
-
-	if winningProfile != nil {
-		_ = usercontext.BindProject(absPath, winningProfile.Name)
-		_ = usercontext.SyncProjectUser(absPath, *winningProfile)
-	}
-
+func postCloneRegistration(params DirectCloneParams, url, repoName, folderName, absPath string) {
 	persistRecloneTransport(url)
 	handleDirectCloneSuccess(params, repoName, absPath)
-
 	upsertDirectClone(url, repoName, folderName, absPath)
 	registerSingleDesktop(repoName, absPath)
 	WriteShellHandoff(absPath)
+}
 
+func postCloneEditors(params DirectCloneParams, repoName, absPath string) {
 	if !params.IsJSON {
 		openInVSCode(absPath)
 	}
 
 	syncSingleClonedRepoToVSCodePM(absPath, repoName, params.NoVSCodeSync)
+}
+
+func performDirectCloneRun(params DirectCloneParams, repoName, folderName, absPath string) error {
+	taskID, taskDB := initDirectCloneTask(absPath)
+	url := resolveDirectCloneURL(params.URL, params.UseSSH, repoName)
+	printCloneStartup(params, url, absPath, repoName, folderName)
+
+	winningProfile, cloneErr := runDirectCloneWithProfileFallback(params, url, absPath)
+	if cloneErr != nil {
+		return handleDirectCloneFailure(params, taskDB, taskID, url, repoName, absPath, cloneErr)
+	}
+
+	applyWinningProfile(absPath, winningProfile)
+	postCloneRegistration(params, url, repoName, folderName, absPath)
+	postCloneEditors(params, repoName, absPath)
 	completePendingTask(taskDB, taskID)
 	closeTaskDB(taskDB)
+
+	return nil
+}
+
+// executeDirectClone clones a single repo from a direct URL.
+func executeDirectClone(params DirectCloneParams) error {
+	escapeNestedGitRepo()
+	params.URL = ResolveRepoSlug(params.URL)
+	repoName := repoNameFromURL(params.URL)
+	folderName := resolveDirectFolderName(params.FolderName, repoName)
+
+	absPath, err := validateDirectCloneFolder(folderName, params.NoReplace)
+	if err != nil {
+		return err
+	}
+
+	cleanDirectCloneTarget(absPath, params.IsClean)
+	if isGitRepo(absPath) {
+		handleExistingGitRepo(params, repoName, absPath)
+
+		return nil
+	}
+
+	return performDirectCloneRun(params, repoName, folderName, absPath)
 }
 
 func upsertDirectClone(url, repoName, folderName, absPath string) {

@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
 // howtoRecipe maps a task keyword cluster to an ordered command recipe.
@@ -140,7 +139,8 @@ var howtoRecipes = []howtoRecipe{
 func RunHowto(args []string) *appfault.AppError {
 	if isHelpRequested(args) {
 		fmt.Print(howtoHelpText)
-		cliexit.Exit(0)
+
+		return nil
 	}
 
 	task := strings.ToLower(strings.TrimSpace(strings.Join(args, " ")))

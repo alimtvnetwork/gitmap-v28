@@ -115,7 +115,11 @@ func renderDoctorDiagnosis(diag CGDoctorDiagnosis) {
 func buildDoctorSummaryContent(totalRepos, healthyRepos int) string {
 	issuesCount := totalRepos - healthyRepos
 	bar := termout.RenderTokyoProgress(healthyRepos, totalRepos, 24)
-	header := fmt.Sprintf("Doctor Summary | Health: %s (%d/%d healthy)", bar, healthyRepos, totalRepos)
+	totalPill := termout.TokyoMetricPill("Total", totalRepos)
+	healthyPill := termout.TokyoMetricPill("Healthy", healthyRepos)
+	issuesPill := termout.TokyoMetricPill("Issues", issuesCount)
+	pills := fmt.Sprintf("%s  %s  %s", totalPill, healthyPill, issuesPill)
+	header := fmt.Sprintf("Doctor Summary | Health: %s\n%s", bar, pills)
 	if issuesCount == 0 {
 		return fmt.Sprintf("%s\nAll %d repositories are in optimal state.", header, totalRepos)
 	}
@@ -141,7 +145,8 @@ func runDoctorCheck(repo string) int {
 
 // RunCGDoctor diagnoses health issues and outputs actionable remediation commands.
 func RunCGDoctor(repos []string) error {
-	fmt.Printf("%s\n\n", cgAuditTitleStyle.Render("=== Coding Guidelines Doctor Diagnostics ==="))
+	termout.PrintSectionDivider("Coding Guidelines Doctor Diagnostics", termout.DefaultTheme())
+	fmt.Println()
 	healthyCount := 0
 
 	for _, repo := range repos {

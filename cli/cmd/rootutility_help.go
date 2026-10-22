@@ -17,8 +17,7 @@ import (
 func runHelpDispatch() error {
 	isHelpExample := len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "example")
 	if isHelpExample {
-		dispatchHelpExample(os.Args[3:])
-		return nil
+		return dispatchHelpExample(os.Args[3:])
 	}
 
 	isHelpTopicCmd := len(os.Args) >= 3 && strings.EqualFold(os.Args[2], "topic")
@@ -28,12 +27,12 @@ func runHelpDispatch() error {
 
 	hasTopic := len(os.Args) >= 3 && !isFlagToken(os.Args[2])
 	if hasTopic {
-		dispatchHelpTopic(os.Args[2])
-		return nil
+		return dispatchHelpTopic(os.Args[2])
 	}
 
 	if cmdupdate.HasFlag(constants.FlagJSON) {
 		printUsageJSON(resolveFilterQuery())
+
 		return nil
 	}
 
@@ -41,49 +40,65 @@ func runHelpDispatch() error {
 	needsFilter := len(q) > 0 || cmdupdate.HasFlag(constants.FlagFilter) || cmdupdate.HasFlag(constants.FlagFilterShort)
 	if needsFilter {
 		printUsageFiltered(q)
+
 		return nil
 	}
 
 	printUsage()
+
 	return nil
 }
 
-// dispatchHelpTopic renders help for a named topic, falling back to filtered
-// usage when the topic has no dedicated help text.
-func dispatchHelpTopic(rawTopic string) {
-	topic := normalizeHelpTopic(rawTopic)
-	if isHelpCategoryGroup(topic) {
-		printUsageCategoryGroup(topic)
-		return
-	}
-	_, mode := ParsePrettyFlag(os.Args[3:])
+func renderSpecificHelpTopic(topic string, mode render.PrettyMode) {
 	prettyOff := mode == render.PrettyOff
-	if tryRenderRichTopic(topic) {
-		helpdoc.PrintExampleSection(topic, prettyOff)
-		return
-	}
-	_, err := helpdoc.ReadRaw(topic)
-	if err != nil {
-		printUsageFiltered(topic)
-		return
-	}
-
 	helpdoc.PrintWithMode(topic, mode)
 	helpdoc.PrintExampleSection(topic, prettyOff)
 	printUsageFooterShort()
 }
 
+// dispatchHelpTopic renders help for a named topic, falling back to filtered
+// usage when the topic has no dedicated help text.
+func dispatchHelpTopic(rawTopic string) error {
+	topic := normalizeHelpTopic(rawTopic)
+	if isHelpCategoryGroup(topic) {
+		printUsageCategoryGroup(topic)
+
+		return nil
+	}
+
+	_, mode := ParsePrettyFlag(os.Args[3:])
+	prettyOff := mode == render.PrettyOff
+	if tryRenderRichTopic(topic) {
+		helpdoc.PrintExampleSection(topic, prettyOff)
+
+		return nil
+	}
+
+	if _, err := helpdoc.ReadRaw(topic); err != nil {
+		printUsageFiltered(topic)
+
+		return nil
+	}
+
+	renderSpecificHelpTopic(topic, mode)
+
+	return nil
+}
+
 // dispatchHelpExample handles `gitmap help example [cmd]`.
-func dispatchHelpExample(args []string) {
+func dispatchHelpExample(args []string) error {
 	cleaned, mode := ParsePrettyFlag(args)
 	prettyOff := mode == render.PrettyOff
 
 	if len(cleaned) == 0 {
 		helpdoc.PrintHelpExampleIndex(prettyOff)
-		return
+
+		return nil
 	}
 
 	helpdoc.PrintHelpExample(cleaned[0], prettyOff)
+
+	return nil
 }
 
 func normalizeHelpTopic(topic string) string {

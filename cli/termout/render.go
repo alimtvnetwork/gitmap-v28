@@ -152,3 +152,51 @@ func PrintKeyValPadded(key, val string, keyWidth int, theme Theme) {
 	fmt.Fprintln(output.UI(), FormatKeyValPadded(key, val, keyWidth, theme))
 }
 
+// FormatSectionDivider builds a horizontal subtle line divider with an optional title.
+func FormatSectionDivider(title string, theme Theme) string {
+	trimmed := strings.TrimSpace(title)
+	if trimmed == "" {
+		return formatEmptyDivider()
+	}
+
+	return formatTitledDivider(trimmed, theme)
+}
+
+func formatEmptyDivider() string {
+	rule := strings.Repeat("─", 64)
+	if !colorAllowed() {
+		return rule
+	}
+
+	return fmt.Sprintf("%s%s%s", RoleSGR(RoleFGSubtle), rule, Reset())
+}
+
+func formatTitledDivider(title string, theme Theme) string {
+	trailingCount := 64 - 4 - len(title) - 1
+	if trailingCount < 3 {
+		trailingCount = 3
+	}
+	trail := strings.Repeat("─", trailingCount)
+	if !colorAllowed() {
+		return fmt.Sprintf("─── %s %s", title, trail)
+	}
+
+	titleColor := resolveDividerTitleColor(theme)
+	subtle := RoleSGR(RoleFGSubtle)
+
+	return fmt.Sprintf("%s─── %s%s%s %s%s%s", subtle, titleColor, title, Reset(), subtle, trail, Reset())
+}
+
+func resolveDividerTitleColor(theme Theme) string {
+	if theme.HeaderColor != "" {
+		return theme.HeaderColor
+	}
+
+	return RoleSGRBold(RolePrimary)
+}
+
+// PrintSectionDivider outputs FormatSectionDivider directly to output.UI().
+func PrintSectionDivider(title string, theme Theme) {
+	fmt.Fprintln(output.UI(), FormatSectionDivider(title, theme))
+}
+

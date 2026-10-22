@@ -301,3 +301,23 @@ func scanTopTouchedRows(rows *sql.Rows, s *HeatmapStatusSummary) error {
 
 	return nil
 }
+
+const sqlPurgeStaleActionLogs = `DELETE FROM HeatmapActionLog 
+WHERE CreatedAt < datetime('now', printf('-%d days', ?))
+  AND TaskSlug NOT IN (SELECT TaskSlug FROM HeatmapParentTask WHERE UPPER(Status) = 'IN_PROGRESS')`
+
+// PurgeStaleActionLogs removes action logs older than the specified retention window,
+// strictly preserving logs associated with tasks currently in progress.
+func (h *HeatmapDB) PurgeStaleActionLogs(olderThanDays int) (int64, error) {
+	if olderThanDays <= 0 {
+		return 0, nil
+	}
+
+	res, err := h.conn.Exec(sqlPurgeStaleActionLogs, olderThanDays)
+	if err != nil {
+		return 0, apperror.WrapSimple(err, "heatmap.purgeStale")
+	}
+
+	return res.RowsAffected()
+}
+

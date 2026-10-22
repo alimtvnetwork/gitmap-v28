@@ -169,12 +169,22 @@ func hasHelpFlag(args []string) bool {
 	return false
 }
 
-// requireOnline checks network connectivity and exits if offline.
+// requireOnline checks network connectivity and reports warnings if offline.
 func requireOnline() {
 	if gitutil.IsOnline() {
 		return
 	}
 
 	gitutil.PrintOfflineWarning()
-	cliexit.HandleGeneralError(apperror.NewSimple("network offline", "E9000"))
+}
+
+// requireOnlineCheck checks network connectivity and returns an error if offline.
+func requireOnlineCheck() error {
+	if gitutil.IsOnline() {
+		return nil
+	}
+
+	gitutil.PrintOfflineWarning()
+
+	return apperror.NewSimple("network offline", "E9000")
 }

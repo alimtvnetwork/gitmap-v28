@@ -82,6 +82,18 @@ const (
 	GitRefCmdForEachRef  GitRefCommandType = "for-each-ref"
 )
 
+// GitRevCommandType represents Git subcommands operating on revision lists and ranges.
+type GitRevCommandType string
+
+const (
+	GitRevList GitRevCommandType = "rev-list"
+)
+
+// Git revision query flags.
+const (
+	GitCountFlag = "--count"
+)
+
 // GitRemoteNameType represents standard remote identifiers across Git repositories.
 type GitRemoteNameType string
 

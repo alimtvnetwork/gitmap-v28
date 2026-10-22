@@ -244,18 +244,14 @@ func isExactMatch(r model.ScanRecord, clean string) bool {
 	return isMatchBase || isMatchSlug || isMatchRepo
 }
 
-// promptCDPick shows a numbered list and reads user selection.
+// promptCDPick shows a formatted selection table and reads user selection.
 func promptCDPick(name string, records []model.ScanRecord) (string, error) {
 	if len(records) == 0 {
 		return "", fmt.Errorf(constants.ErrCDNotFound, name)
 	}
 
-	fmt.Fprintf(os.Stderr, constants.MsgCDMultipleHeader, name)
-
-	for i, r := range records {
-		fmt.Fprintf(os.Stderr, constants.MsgCDMultipleRowFmt, i+1, r.AbsolutePath)
-	}
-
+	title := fmt.Sprintf("Multiple repositories matching '%s':", name)
+	RenderCDSelectionTable(title, records)
 	fmt.Fprintf(os.Stderr, "\nPick [1-%d] (default 1): ", len(records))
 
 	return readCDSelection(records, name)
@@ -385,14 +381,13 @@ func loadCDGroupRepos(db *store.DB, group string) []model.ScanRecord {
 	return repos
 }
 
-// promptCDReposPick shows all repos and reads user selection.
+// promptCDReposPick shows all repos in a formatted table and reads user selection.
 func promptCDReposPick(records []model.ScanRecord) (string, error) {
-	fmt.Fprint(os.Stderr, constants.MsgCDReposHeader)
-
-	for i, r := range records {
-		fmt.Fprintf(os.Stderr, constants.MsgCDReposRowFmt, i+1, r.RepoName)
+	if len(records) == 0 {
+		return "", fmt.Errorf("no repositories found")
 	}
 
+	RenderCDSelectionTable("Available Repositories:", records)
 	fmt.Fprintf(os.Stderr, constants.MsgCDPickPrompt, len(records))
 
 	return readCDSelection(records)

@@ -100,6 +100,80 @@ func TokyoErrorPill(text string) string {
 	return TokyoPill(text, style)
 }
 
+// TokyoTag renders a key-value pair formatted with Tokyo Night tokens.
+// In non-TTY or no-color environments, returns "[label: value]" or "[label]".
+func TokyoTag(label, value string) string {
+	if !colorAllowed() {
+		return formatPlainTag(label, value)
+	}
+
+	return formatColoredTag(label, value)
+}
+
+func formatPlainTag(label, value string) string {
+	if value == "" {
+		return fmt.Sprintf("[%s]", label)
+	}
+
+	return fmt.Sprintf("[%s: %s]", label, value)
+}
+
+func formatColoredTag(label, value string) string {
+	lbl := renderTagLabel(label)
+	if value == "" {
+		return lbl
+	}
+
+	val := renderTagValue(value)
+
+	return lbl + val
+}
+
+func renderTagLabel(label string) string {
+	style := SafeTokyoStyle(TokyoFG).
+		Bold(true).
+		Background(lipgloss.Color(TokyoSurface)).
+		Padding(0, 1)
+
+	return style.Render(label)
+}
+
+func renderTagValue(value string) string {
+	style := SafeTokyoStyle(TokyoPrimary).
+		Background(lipgloss.Color(TokyoBase)).
+		Padding(0, 1)
+
+	return style.Render(value)
+}
+
+func resolveMetricColor(label string, count int) string {
+	lower := strings.ToLower(label)
+	if lower == "healthy" || lower == "pass" || lower == "ok" {
+		return TokyoOK
+	}
+	if count > 0 && (lower == "issues" || lower == "errors" || lower == "fail") {
+		return TokyoWarn
+	}
+
+	return TokyoPrimary
+}
+
+// TokyoMetricPill renders a labeled count metric with Tokyo Night styling.
+// In non-TTY or no-color environments, returns "[label: count]".
+func TokyoMetricPill(label string, count int) string {
+	if !colorAllowed() {
+		return fmt.Sprintf("[%s: %d]", label, count)
+	}
+
+	color := resolveMetricColor(label, count)
+	style := SafeTokyoStyle(color).
+		Bold(true).
+		Background(lipgloss.Color(TokyoSurface)).
+		Padding(0, 1)
+
+	return style.Render(fmt.Sprintf("%s: %d", label, count))
+}
+
 // RenderTokyoProgress renders an inline Tokyo Night progress bar.
 func RenderTokyoProgress(current, total, barWidth int) string {
 	if total <= 0 || barWidth <= 0 {

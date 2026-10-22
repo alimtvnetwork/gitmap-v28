@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -14,29 +13,46 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
-// applySSHKey sets GIT_SSH_COMMAND if an SSH key name is provided.
-func applySSHKey(name string) {
-	if len(name) == 0 {
-		return
-	}
-
+func lookupSSHKeyPath(name string) (string, error) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, constants.ErrSSHQuery, err)
-		cliexit.HandleError(err, 1)
+
+		return "", err
 	}
 
 	defer db.Close()
 
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
-		cliexit.HandleError(err, 1)
+		return "", err
 	}
 
-	sshCmd := fmt.Sprintf("ssh -i %s -o IdentitiesOnly=yes", key.PrivatePath)
+	return key.PrivatePath, nil
+}
+
+func setSSHKeyEnv(name, privatePath string) {
+	sshCmd := fmt.Sprintf("ssh -i %s -o IdentitiesOnly=yes", privatePath)
 	os.Setenv("GIT_SSH_COMMAND", sshCmd)
-	fmt.Fprintf(os.Stdout, constants.MsgSSHCloneUsing, name, key.PrivatePath)
+	fmt.Fprintf(os.Stdout, constants.MsgSSHCloneUsing, name, privatePath)
+}
+
+// applySSHKey sets GIT_SSH_COMMAND if an SSH key name is provided.
+func applySSHKey(name string) error {
+	if len(name) == 0 {
+		return nil
+	}
+
+	privatePath, err := lookupSSHKeyPath(name)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrSSHNotFound, name)
+
+		return err
+	}
+
+	setSSHKeyEnv(name, privatePath)
+
+	return nil
 }
 
 func handleCloneFixFlag(cf CloneFlags) bool {
@@ -57,18 +73,20 @@ func runCloneFixOptimization() {
 	_ = RunGitHubDesktopOptimize(nil)
 }
 
-func resolveCloneManifest(source string) string {
+func resolveCloneManifest(source string) (string, error) {
 	if len(source) > 0 {
-		return resolveExplicitCloneSource(source)
+		return resolveExplicitCloneSource(source), nil
 	}
+
 	discovered := discoverDefaultCloneManifest()
 	if len(discovered) > 0 {
-		return discovered
+		return discovered, nil
 	}
+
 	fmt.Fprintln(os.Stderr, "Error: no clone manifest found (searched *.json, gitmap.json, .gitmap/gitmap.json)")
 	fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
-	cliexit.HandleError(nil, 1)
-	return ""
+
+	return "", fmt.Errorf(constants.ErrCloneUsage)
 }
 
 func resolveExplicitCloneSource(source string) string {
@@ -154,10 +172,17 @@ func executeParsedClone(cf CloneFlags) error {
 	if handleCloneFixFlag(cf) {
 		return nil
 	}
-	cf.Source = resolveCloneManifest(cf.Source)
+
+	source, err := resolveCloneManifest(cf.Source)
+	if err != nil {
+		return err
+	}
+
+	cf.Source = source
 	if cf.IsListOnly {
 		return runCloneListTable(cf.Source, cf.TargetDir, cf.UseSSH, cf.OnlyFilter, cf.ExcludeFilter)
 	}
+
 	prepareCloneEnv(cf)
 	if cf.Audit {
 		runCloneAudit(cf)
@@ -165,12 +190,21 @@ func executeParsedClone(cf CloneFlags) error {
 
 		return nil
 	}
-	cf = prepareCloneTransport(cf)
 
+	cf, err = prepareCloneTransport(cf)
+	if err != nil {
+		return err
+	}
+
+	return executeAndSuggestClone(cf)
+}
+
+func executeAndSuggestClone(cf CloneFlags) error {
 	err := dispatchCloneExecution(cf)
 	if err == nil && !cf.DryRun && !cf.IsListOnly && !cf.Audit && !cf.IsJSON {
 		MaybePrintFleetCloneSuggestion(cf.Source)
 	}
+
 	return err
 }
 
@@ -183,15 +217,18 @@ func prepareCloneEnv(cf CloneFlags) {
 	setCmdPrintArgv(cf.PrintCloneArgv)
 }
 
-func prepareCloneTransport(cf CloneFlags) CloneFlags {
+func prepareCloneTransport(cf CloneFlags) (CloneFlags, error) {
 	requireOnline()
-	applySSHKey(cf.SSHKeyName)
+	if err := applySSHKey(cf.SSHKeyName); err != nil {
+		return cf, err
+	}
+
 	applyCloneAssumeYesEnv(cf.IsAssumeYes || cf.UseSSH)
 	if len(cf.AccessToken) > 0 {
 		SetGlobalAccessToken(cf.AccessToken)
 	}
 
-	return applyURLSchemeFlags(cf)
+	return applyURLSchemeFlags(cf), nil
 }
 
 func dispatchCloneExecution(cf CloneFlags) error {
@@ -201,28 +238,43 @@ func dispatchCloneExecution(cf CloneFlags) error {
 
 		return nil
 	}
+
 	if isDirectURL(cf.Source) {
-		executeDirectClone(DirectCloneParams{
-			URL:          cf.Source,
-			FolderName:   cf.FolderName,
-			GHDesktop:    cf.GHDesktop,
-			NoReplace:    cf.NoReplace,
-			Output:       cf.Output,
-			NoVSCodeSync: cf.NoVSCodeSync,
-			IsClean:      cf.Clean,
-			IsJSON:       cf.IsJSON,
-			UseSSH:       cf.UseSSH,
-			Profile:      cf.Profile,
-		})
+		err := executeDirectClone(buildDirectCloneParams(cf))
 		maybeExitOnCmdFaithfulMismatch()
 
-		return nil
+		return err
 	}
-	cf.Source = resolveCloneShorthand(cf.Source)
-	executeClone(cf)
+
+	return executeManifestCloneFlow(cf)
+}
+
+func buildDirectCloneParams(cf CloneFlags) DirectCloneParams {
+	return DirectCloneParams{
+		URL:          cf.Source,
+		FolderName:   cf.FolderName,
+		GHDesktop:    cf.GHDesktop,
+		NoReplace:    cf.NoReplace,
+		Output:       cf.Output,
+		NoVSCodeSync: cf.NoVSCodeSync,
+		IsClean:      cf.Clean,
+		IsJSON:       cf.IsJSON,
+		UseSSH:       cf.UseSSH,
+		Profile:      cf.Profile,
+	}
+}
+
+func executeManifestCloneFlow(cf CloneFlags) error {
+	shorthand, err := resolveCloneShorthand(cf.Source)
+	if err != nil {
+		return err
+	}
+
+	cf.Source = shorthand
+	err = executeClone(cf)
 	maybeExitOnCmdFaithfulMismatch()
 
-	return nil
+	return err
 }
 
 // initCloneVerbose sets up verbose logging if enabled.
@@ -242,7 +294,7 @@ func initCloneVerbose(enabled bool) {
 }
 
 // resolveCloneShorthand maps "json", "csv", and "text" to default output paths.
-func resolveCloneShorthand(source string) string {
+func resolveCloneShorthand(source string) (string, error) {
 	shorthandMap := map[string]string{
 		constants.ShorthandJSON: filepath.Join(constants.DefaultOutputFolder, constants.DefaultJSONFile),
 		constants.ShorthandCSV:  filepath.Join(constants.DefaultOutputFolder, constants.DefaultCSVFile),
@@ -250,22 +302,21 @@ func resolveCloneShorthand(source string) string {
 	}
 
 	resolved, ok := shorthandMap[strings.ToLower(source)]
-	if ok {
-		return validateShorthandPath(resolved)
+	if !ok {
+		return source, nil
 	}
 
-	return source
+	return validateShorthandPath(resolved)
 }
 
 // validateShorthandPath checks that the resolved shorthand file exists.
-func validateShorthandPath(resolved string) string {
+func validateShorthandPath(resolved string) (string, error) {
 	_, err := os.Stat(resolved)
 	if err == nil {
-		return resolved
+		return resolved, nil
 	}
 
 	fmt.Fprintf(os.Stderr, constants.ErrShorthandNotFound, resolved)
-	cliexit.HandleError(nil, 1)
 
-	return ""
+	return "", fmt.Errorf(constants.ErrShorthandNotFound, resolved)
 }

@@ -47,37 +47,13 @@ func ghJSON(out any, ghArgs ...string) *appfault.AppError {
 	return nil
 }
 
-// resolveWorkdir returns the repo workdir from flag/env/default.
-func resolveWorkdir(flagVal string) string {
-	if strings.TrimSpace(flagVal) != "" {
-		return flagVal
-	}
-
-	if envVal := strings.TrimSpace(os.Getenv("GITMAP_WORKDIR")); envVal != "" {
-		return envVal
-	}
-
-	home, homeErr := os.UserHomeDir()
-	if homeErr != nil {
-		return "."
-	}
-
-	return filepath.Join(home, "workspace", "repos")
-}
-
-func isGitRepoDir(dirPath string) bool {
-	_, statErr := os.Stat(filepath.Join(dirPath, constants.DotGit))
-
-	return statErr == nil
-}
-
 func appendTriageRepo(repos []triageRepo, workdir string, e os.DirEntry) []triageRepo {
 	if !e.IsDir() {
 		return repos
 	}
 
 	repoPath := filepath.Join(workdir, e.Name())
-	if !isGitRepoDir(repoPath) {
+	if !IsGitRepoDir(repoPath) {
 		return repos
 	}
 

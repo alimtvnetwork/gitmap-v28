@@ -20,6 +20,20 @@ func resolveTaskId(raw, defaultId string) string {
 	return defaultId
 }
 
+func parseQueryOffset(val string) int {
+	clean := strings.TrimSpace(val)
+	if clean == "" {
+		return 0
+	}
+
+	offset, err := strconv.Atoi(clean)
+	if err != nil || offset < 0 {
+		return 0
+	}
+
+	return offset
+}
+
 func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
 	return ActionLogFilter{
 		TaskId:     resolveTaskId(r.URL.Query().Get("taskId"), defaultTaskId),
@@ -29,6 +43,7 @@ func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
 		SubtaskId:  strings.TrimSpace(r.URL.Query().Get("subtask")),
 		Search:     strings.TrimSpace(r.URL.Query().Get("q")),
 		Limit:      parseQueryInt(r.URL.Query().Get("limit"), 100),
+		Offset:     parseQueryOffset(r.URL.Query().Get("offset")),
 	}
 }
 
@@ -72,8 +87,17 @@ func buildActionLogsSQL(f ActionLogFilter) (string, []any) {
 	if hasCond {
 		base += " WHERE " + strings.Join(conditions, " AND ")
 	}
+
+	return appendPaginationLimitOffset(base, args, f.Limit, f.Offset)
+}
+
+func appendPaginationLimitOffset(base string, args []any, limit, offset int) (string, []any) {
 	base += " ORDER BY ActionLogId DESC LIMIT ?"
-	args = append(args, f.Limit)
+	args = append(args, limit)
+	if offset > 0 {
+		base += " OFFSET ?"
+		args = append(args, offset)
+	}
 
 	return base, args
 }

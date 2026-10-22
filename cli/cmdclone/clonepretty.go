@@ -47,6 +47,15 @@ func SetCloneAssumeYes(on bool) { isCloneAssumeYes.Store(on) }
 // or CI where carriage-return updates clutter captured output.
 func SetCloneSpinnerOff(off bool) { cloneSpinnerOff.Store(off) }
 
+func executeCloneCommand(cmd *exec.Cmd, stopSpinner func()) (error, time.Duration) {
+	start := time.Now()
+	runErr := cmd.Run()
+	stopSpinner()
+	elapsed := time.Since(start).Truncate(time.Millisecond)
+
+	return runErr, elapsed
+}
+
 // runCloneCommandPretty replaces the bare `exec.Command("git",
 // "clone", url, dest).Run()` pattern with a colorful, timed, and
 // dry-run-aware runner. The exact git argv is printed up-front so
@@ -60,11 +69,8 @@ func runCloneCommandPretty(url, dest string) error {
 	}
 
 	stopSpinner := startCloneSpinnerForURL(url)
-	start := time.Now()
 	cmd := newCloneCommand(url, dest)
-	runErr := cmd.Run()
-	stopSpinner()
-	elapsed := time.Since(start).Truncate(time.Millisecond)
+	runErr, elapsed := executeCloneCommand(cmd, stopSpinner)
 	if runErr != nil {
 		printClonePrettyFailure(url, dest, runErr, elapsed)
 
@@ -114,20 +120,38 @@ func printClonePrettyHeader(url, dest string) {
 
 var clonePrettyCounter uint64
 
+func resolveExitCodeFromError(runErr error) int {
+	var exitErr *exec.ExitError
+	if errors.As(runErr, &exitErr) {
+		return exitErr.ExitCode()
+	}
+
+	return -1
+}
+
 // printClonePrettyFailure renders the red failure panel: exact
 // argv that ran, exit code (when available), and a list of concrete
 // retry hints. Hint set was tuned for the failure modes we see most
 // often in support tickets (auth, transport, half-cloned trees).
 func printClonePrettyFailure(url, dest string, runErr error, elapsed time.Duration) {
-	code := -1
-	var exitErr *exec.ExitError
-	if errors.As(runErr, &exitErr) {
-		code = exitErr.ExitCode()
-	}
-
+	code := resolveExitCodeFromError(runErr)
 	cmdline := fmt.Sprintf("%s %s %s %s", constants.GitBin, constants.GitClone, url, dest)
 	fmt.Fprintf(os.Stderr, constants.MsgClonePrettyFail,
 		cmdline, code, runErr, elapsed, buildClonePrettyHints(url, dest))
+}
+
+func appendTransportCloneHints(hints []string, url string) []string {
+	lower := strings.ToLower(url)
+	if strings.HasPrefix(lower, "https://") {
+		return append(hints, "  • switch transport (SSH):   "+constants.ColorCyan+"gitmap clone "+url+" --ssh"+constants.ColorReset)
+	}
+
+	if strings.HasPrefix(lower, "git@") || strings.HasPrefix(lower, "ssh://") {
+		hints = append(hints, "  • switch transport (HTTPS): "+constants.ColorCyan+"gitmap clone "+url+" --https"+constants.ColorReset)
+		hints = append(hints, "  • accept new SSH host key: "+constants.ColorCyan+"gitmap clone "+url+" -y"+constants.ColorReset)
+	}
+
+	return hints
 }
 
 // buildClonePrettyHints picks retry suggestions based on URL shape.
@@ -139,16 +163,7 @@ func buildClonePrettyHints(url, dest string) string {
 		"  • retry without replace:    " + constants.ColorCyan + "gitmap clone " + url + " --no-replace" + constants.ColorReset,
 	}
 
-	if strings.HasPrefix(strings.ToLower(url), "https://") {
-		hints = append(hints, "  • switch transport (SSH):   "+constants.ColorCyan+"gitmap clone "+url+" --ssh"+constants.ColorReset)
-	}
-
-	if strings.HasPrefix(strings.ToLower(url), "git@") ||
-		strings.HasPrefix(strings.ToLower(url), "ssh://") {
-		hints = append(hints, "  • switch transport (HTTPS): "+constants.ColorCyan+"gitmap clone "+url+" --https"+constants.ColorReset)
-		hints = append(hints, "  • accept new SSH host key: "+constants.ColorCyan+"gitmap clone "+url+" -y"+constants.ColorReset)
-	}
-
+	hints = appendTransportCloneHints(hints, url)
 	hints = append(hints,
 		"  • preview without cloning:  "+constants.ColorCyan+"gitmap clone "+url+" --dry-run"+constants.ColorReset)
 

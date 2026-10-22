@@ -109,7 +109,7 @@ func formatFramedHeader(cfg TableConfig, widths []int, g tableBorderGlyphs, bCol
 		color = constants.ColorYellow
 	}
 	for i, col := range cfg.Columns {
-		cell := formatCell(col.Title, widths[i], col.Align, cfg.EllipsisText)
+		cell := formatCell(col.Title, widths[i], getColAlign(cfg.Columns, i), cfg.EllipsisText)
 		parts = append(parts, fmt.Sprintf("%s%s%s", color, cell, constants.ColorReset))
 	}
 	vPipe := g.vert
@@ -234,7 +234,7 @@ func formatHeader(cfg TableConfig, widths []int) string {
 		color = constants.ColorYellow
 	}
 	for i, col := range cfg.Columns {
-		cell := formatCell(col.Title, widths[i], col.Align, cfg.EllipsisText)
+		cell := formatCell(col.Title, widths[i], getColAlign(cfg.Columns, i), cfg.EllipsisText)
 		parts = append(parts, fmt.Sprintf("%s%s%s", color, cell, constants.ColorReset))
 	}
 
@@ -276,21 +276,31 @@ func getCellText(cells []string, idx int) string {
 	return ""
 }
 
-func getColAlign(cols []Column, idx int) AlignType {
-	if idx < len(cols) {
+func getColAlign(cols []Column, idx int) AlignmentType {
+	if idx >= len(cols) {
+		return AlignLeft
+	}
+	if cols[idx].Alignment != "" {
+		return cols[idx].Alignment
+	}
+	if cols[idx].Align != "" {
 		return cols[idx].Align
 	}
 
 	return AlignLeft
 }
 
-func formatCell(text string, width int, align AlignType, ellipsis string) string {
+func formatCell(text string, width int, align AlignmentType, ellipsis string) string {
 	truncated := TruncateMiddle(text, width, ellipsis)
-	visWidth := VisualStringWidth(truncated)
-	padLen := width - visWidth
+	padLen := width - VisualStringWidth(truncated)
 	if padLen <= 0 {
 		return truncated
 	}
+
+	return alignPaddedCell(truncated, padLen, align)
+}
+
+func alignPaddedCell(truncated string, padLen int, align AlignmentType) string {
 	if align == AlignRight {
 		return SpacePool(padLen) + truncated
 	}
