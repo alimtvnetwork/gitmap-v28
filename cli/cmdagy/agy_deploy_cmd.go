@@ -276,7 +276,7 @@ func populateDryRunResults(res *AgyDeployResultJSON, opts AgyDeployOptions, star
 	res.Items = append(res.Items, AgyDeployItemResult{
 		Component: ComponentSanitization,
 		Status:    DeployStatusSuccess,
-		Details:   "DRY RUN: Would sanitize Windows backslash paths to canonical XDG (/home/a/.config/Antigravity)",
+		Details:   "DRY RUN: Would sanitize Windows backslash paths to canonical XDG (~/.config/Antigravity)",
 	})
 
 	res.Metrics = AgyDeployMetrics{
@@ -295,7 +295,7 @@ func executeLiveDeployment(client *ssh.Client, node db.SSHConnection, res *AgyDe
 
 	res.ActiveInstanceID = opts.ActiveInstanceID
 
-	cleanCmd := "rm -rf /home/a/C:* /home/a/'C:\\Users'* 2>/dev/null || true"
+	cleanCmd := "rm -rf $HOME/C:* $HOME/'C:\\Users'* 2>/dev/null || true"
 	if isWin {
 		cleanCmd = "cmd.exe /c echo sanitization verified"
 	}

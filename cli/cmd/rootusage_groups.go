@@ -37,6 +37,7 @@ func printGroupGitOps() {
 	renderLine(constants.HelpRepoFlatten)
 	renderLine(constants.HelpExec)
 	renderLine(constants.HelpStatus)
+	renderLine(constants.HelpPendingCommits)
 	renderLine(constants.HelpWatch)
 	renderLine(constants.HelpHasAnyUpdates)
 	renderLine(constants.HelpLatestBr)
@@ -85,6 +86,7 @@ func printGroupData() {
 	renderLine(constants.HelpRm)
 	renderLine(constants.HelpDB)
 	renderLine(constants.HelpDBReset)
+	renderLine(constants.HelpDBMigrate)
 	renderLine(constants.HelpStartFresh)
 	renderLine(constants.HelpFindDuplicates)
 }
@@ -221,6 +223,7 @@ func printGroupInstallers() {
 	renderLine(constants.HelpPower)
 	renderLine(constants.HelpMacro)
 	renderLine(constants.HelpSetup)
+	renderLine(constants.HelpInstalledDir)
 }
 
 func printGroupIntegrations() {
@@ -231,6 +234,9 @@ func printGroupIntegrations() {
 	renderLine(constants.HelpShutdownUntil)
 	renderLine(constants.HelpSchedule)
 	renderLine(constants.HelpStartup)
+	renderLine(constants.HelpStartupAdd)
+	renderLine(constants.HelpStartupList)
+	renderLine(constants.HelpStartupRemove)
 	renderLine(constants.HelpStorage)
 	renderLine(constants.HelpPipeline)
 	renderLine(constants.HelpUI)

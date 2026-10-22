@@ -1,3 +1,5 @@
+//go:build e2e
+
 // Package e2e — prompt_repo_e2e_test.go validates PromptBackupRepository and prompt management.
 package e2e
 

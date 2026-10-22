@@ -177,7 +177,7 @@ After the last error section, list every repo WITHOUT errors so nothing is hidde
 ## Repo: gitmap-v28
 
 - **Repo Slug:** `gitmap-v28`
-- **Repo Path:** `/home/hatch/workspace/repos/gitmap-v28`
+- **Repo Path:** `/home/user/workspace/repos/gitmap-v28`
 - **Branch:** `main`
 - **Latest Run:** `18422001107` (ci.yml, SHA `8c9259e`, 2026-10-09T11:45:02Z)
 - **Status:** FAILING (2 error(s))
@@ -215,8 +215,8 @@ FAIL	github.com/alimtvnetwork/gitmap-v28/cli	0.042s
 
 | Repo | Path | Status |
 | ---- | ---- | ------ |
-| alim-seo-writing | /home/hatch/workspace/repos/alim-seo-writing | clean |
-| wp-exam-v2 | /home/hatch/workspace/repos/wp-exam-v2 | no pipeline data |
+| alim-seo-writing | /home/user/workspace/repos/alim-seo-writing | clean |
+| wp-exam-v2 | /home/user/workspace/repos/wp-exam-v2 | no pipeline data |
 ```
 
 ## 6. Machine-parseability rules

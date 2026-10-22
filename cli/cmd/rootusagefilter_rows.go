@@ -26,7 +26,7 @@ func allHelpRows() []helpRow {
 		constants.HelpResolve, constants.HelpConflicts,
 		constants.HelpFix, constants.HelpLowerCaseFix, constants.HelpLowerCaseReadme,
 		constants.HelpSplitLargeFiles, constants.HelpLFSConvert, constants.HelpRepoFlatten,
-		constants.HelpExec, constants.HelpStatus,
+		constants.HelpExec, constants.HelpStatus, constants.HelpPendingCommits,
 		constants.HelpWatch, constants.HelpHasAnyUpdates, constants.HelpLatestBr)
 	addGroup(&rows, constants.HelpGroupNavigation,
 		constants.HelpCD, constants.HelpGroup, constants.HelpMultiGroup,
@@ -41,7 +41,8 @@ func allHelpRows() []helpRow {
 		constants.HelpClearReleaseJSON, constants.HelpPrune)
 	addGroup(&rows, constants.HelpGroupData,
 		constants.HelpExport, constants.HelpImport, constants.HelpProfile,
-		constants.HelpBookmark, constants.HelpMV, constants.HelpRm, constants.HelpDBReset)
+		constants.HelpBookmark, constants.HelpMV, constants.HelpRm, constants.HelpDBReset,
+		constants.HelpDBMigrate)
 	addGroup(&rows, constants.HelpGroupImportExport,
 		constants.HelpImportExport, constants.HelpExportSummary, constants.HelpImportSummary,
 		constants.HelpExportConfig, constants.HelpImportConfig)
@@ -81,17 +82,20 @@ func allHelpRows() []helpRow {
 		constants.HelpFindFiles, constants.HelpFindFilesAny, constants.HelpFindFilesStart,
 		constants.HelpFindFilesEnd, constants.HelpFind, constants.HelpListFiles)
 	addGroup(&rows, constants.HelpGroupInstallers,
-		constants.HelpInstall, constants.HelpUninstall, constants.HelpInstaller, constants.HelpMacro, constants.HelpSetup)
+		constants.HelpInstall, constants.HelpUninstall, constants.HelpInstaller, constants.HelpMacro, constants.HelpSetup,
+		constants.HelpPower, constants.HelpInstalledDir)
 	addGroup(&rows, constants.HelpGroupIntegrations,
 		constants.HelpVSCode, constants.HelpAgy, constants.HelpRerun, constants.HelpShutdownUntil, constants.HelpSchedule,
-		constants.HelpStartup, constants.HelpStorage, constants.HelpPipeline, constants.HelpUI, constants.HelpVmware)
+		constants.HelpStartup, constants.HelpStartupAdd, constants.HelpStartupList,
+		constants.HelpStartupRemove, constants.HelpStorage, constants.HelpPipeline, constants.HelpUI, constants.HelpVmware)
 	addGroup(&rows, constants.HelpGroupCluster,
 		constants.HelpServersClients, constants.HelpClients, constants.HelpCluster, constants.HelpSSHJoin, constants.HelpServe)
 	addGroup(&rows, constants.HelpGroupUtilities,
 		constants.HelpDoctor, constants.HelpUpdate,
 		constants.HelpUpdateCleanup, constants.HelpVersion, constants.HelpCompletion,
-		constants.HelpInteractive, constants.HelpDocs, constants.HelpHelpDash,
-		constants.HelpGoMod, constants.HelpSEOWrite, constants.HelpLLMDocs,
+		constants.HelpInteractive, constants.HelpDocs, constants.HelpNewCommands,
+		constants.HelpHelpDash,
+		constants.HelpGoMod, constants.HelpSEOWrite, constants.HelpLLMDocs, constants.HelpAi,
 		constants.HelpFixRepo, constants.HelpMakePublic, constants.HelpMakePrivate,
 		constants.HelpCloneFixRepo, constants.HelpCloneFixRepoPub,
 		constants.HelpCmdOpen, constants.HelpHelp)

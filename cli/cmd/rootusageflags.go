@@ -14,11 +14,13 @@ func printGroupUtilities() {
 	renderLine(constants.HelpCompletion)
 	renderLine(constants.HelpInteractive)
 	renderLine(constants.HelpDocs)
+	renderLine(constants.HelpNewCommands)
 	renderLine(constants.HelpHelpDash)
 	renderLine(constants.HelpGoMod)
 	renderLine(constants.HelpServe)
 	renderLine(constants.HelpSEOWrite)
 	renderLine(constants.HelpLLMDocs)
+	renderLine(constants.HelpAi)
 	renderLine(constants.HelpFixRepo)
 	renderLine(constants.HelpMakePublic)
 	renderLine(constants.HelpMakePrivate)
@@ -76,6 +78,10 @@ func printUsageCloneNextFlags() {
 	renderLine(constants.HelpCNSSHKey)
 	renderLine(constants.HelpCNVerbose)
 	renderLine(constants.HelpCNCreateRemote)
+	renderLine(constants.HelpCNCSV)
+	renderLine(constants.HelpCNAll)
+	renderLine(constants.HelpCNForce)
+	renderLine(constants.HelpCNMaxConc)
 }
 
 // printUsageInteractiveFlags prints the interactive flags section.
