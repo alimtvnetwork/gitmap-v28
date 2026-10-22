@@ -29,7 +29,7 @@ type UnaliasedRepo struct {
 func (db *DB) CreateAlias(alias string, repoID int64) (model.Alias, error) {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertAlias, alias, repoID).Destruct()
 	if err != nil {
-		return model.Alias{}, fmt.Errorf(constants.ErrAliasCreate, err)
+		return model.Alias{}, apperror.WrapSimple(err, "failed to create alias")
 	}
 
 	return db.FindAliasByName(alias)
@@ -50,7 +50,7 @@ func (db *DB) CreateAliasWithDetails(alias string, repoID int64, isPrimary bool,
 	}
 	_, err := ExecWrapper(db.conn, constants.SQLInsertAliasFull, alias, repoID, primaryVal, source).Destruct()
 	if err != nil {
-		return model.Alias{}, fmt.Errorf(constants.ErrAliasCreate, err)
+		return model.Alias{}, apperror.WrapSimple(err, "failed to create alias")
 	}
 
 	return db.FindAliasByName(alias)
@@ -60,7 +60,7 @@ func (db *DB) CreateAliasWithDetails(alias string, repoID int64, isPrimary bool,
 func (db *DB) UpdateAlias(alias string, repoID int64) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateAlias, repoID, alias).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrAliasCreate, err)
+		return apperror.WrapSimple(err, "failed to create alias")
 	}
 
 	return nil
@@ -141,7 +141,7 @@ func (db *DB) ResolveAlias(alias string) (AliasWithRepo, error) {
 
 	err := row.Scan(&a.ID, &a.Alias.Alias, &a.RepoID, &a.CreatedAt, &a.AbsolutePath, &a.Slug)
 	if err != nil {
-		return AliasWithRepo{}, fmt.Errorf(constants.ErrAliasNotFound+": %w", alias, err)
+		return AliasWithRepo{}, apperror.WrapNotFound(err, fmt.Sprintf("no alias found: %s", alias))
 	}
 
 	return a, nil
@@ -185,7 +185,7 @@ func (db *DB) ListAliasesWithRepoWrap() AliasWithRepoSliceWrap {
 func (db *DB) DeleteAlias(alias string) error {
 	result, err := ExecWrapper(db.conn, constants.SQLDeleteAlias, alias).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrAliasDelete, err)
+		return apperror.WrapSimple(err, "failed to delete alias")
 	}
 
 	return checkDeleted(result, alias)

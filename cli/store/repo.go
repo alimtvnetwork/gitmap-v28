@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -41,7 +40,7 @@ func (db *DB) UpsertRepos(records []model.ScanRecord) error {
 		return db.upsertReposTx(tx.Tx(), records)
 	})
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrDBUpsert, appErr)
+		return apperror.WrapSimple(appErr, "failed to upsert repo")
 	}
 
 	if OnRepoAddedHook != nil && len(records) > 0 {
@@ -152,7 +151,7 @@ func (db *DB) ListReposByTransport(transport string) ([]model.ScanRecord, error)
 
 	rows, err := QueryWrapper(db.conn, sqlSelectReposByTransport, clean).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()
@@ -196,7 +195,7 @@ func (db *DB) CountRepos() (int, error) {
 func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByID, id).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()
@@ -207,7 +206,7 @@ func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
 func findBySlugRunner(runner sqlQueryer, slug string) ([]model.ScanRecord, error) {
 	rows, err := QueryWrapper(runner, constants.SQLSelectRepoBySlug, slug).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()

@@ -3,6 +3,7 @@ package runlog
 import (
 	"database/sql"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -22,12 +23,12 @@ func StartRun(
 ) (int64, error) {
 	statusID, err := lookupEnumID(db, constants.TableCommitInRunStatus, "RunStatusId", constants.CommitInRunStatusRunning)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: lookup RunStatus: %w", err)
+		return 0, apperror.WrapSimple(err, "runlog: lookup RunStatus")
 	}
 
 	res, err := db.Exec(sqlInsertRun, sourceRepoPath, sourceURL, boolToInt(wasFreshlyInit), startedAt.Format(time.RFC3339), statusID, profileID)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: insert CommitInRun: %w", err)
+		return 0, apperror.WrapSimple(err, "runlog: insert CommitInRun")
 	}
 
 	return res.LastInsertId()
@@ -38,11 +39,11 @@ func StartRun(
 func FinishRun(db *sql.DB, runID int64, status string, finishedAt time.Time) error {
 	statusID, err := lookupEnumID(db, constants.TableCommitInRunStatus, "RunStatusId", status)
 	if err != nil {
-		return fmt.Errorf("runlog: lookup status %q: %w", status, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup status %q", status))
 	}
 
 	if _, err := db.Exec(sqlUpdateRunFinish, finishedAt.Format(time.RFC3339), statusID, runID); err != nil {
-		return fmt.Errorf("runlog: finish run %d: %w", runID, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("runlog: finish run %d", runID))
 	}
 
 	return nil

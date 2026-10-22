@@ -12,6 +12,7 @@ package store
 import (
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -60,7 +61,7 @@ func (db *DB) migrateV15Phase2() error {
 
 	for _, spec := range specs {
 		if err := db.runV15Rebuild(spec); err != nil {
-			return fmt.Errorf("phase 1.2 %s: %w", spec.OldTable, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("phase 1.2 %s", spec.OldTable))
 		}
 	}
 
@@ -73,7 +74,7 @@ func (db *DB) migrateV15Phase2() error {
 	}
 
 	if err := db.rebuildGroupRepoFK(); err != nil {
-		return fmt.Errorf("rebuild GroupRepo FK: %w", err)
+		return apperror.WrapSimple(err, "rebuild GroupRepo FK")
 	}
 
 	return nil
@@ -104,7 +105,7 @@ func (db *DB) rebuildGroupRepoFK() error {
 
 	for _, s := range stmts {
 		if _, err := ExecWrapper(db.conn, s).Destruct(); err != nil {
-			return fmt.Errorf("groupRepo rebuild step (%s): %w", firstWords(s, 4), err)
+			return apperror.WrapSimple(err, fmt.Sprintf("groupRepo rebuild step (%s)", firstWords(s, 4)))
 		}
 	}
 

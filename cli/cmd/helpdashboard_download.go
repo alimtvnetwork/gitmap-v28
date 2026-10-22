@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"net/http"
 	"os"
@@ -51,41 +52,41 @@ func downloadDocsSiteArchive(destPath string) (string, int64, error) {
 		fmt.Fprintf(os.Stderr, "    skip: %v\n", err)
 	}
 
-	return "", 0, fmt.Errorf("tried %d source(s): %w", len(sources), lastErr)
+	return "", 0, apperror.WrapSimple(lastErr, fmt.Sprintf("tried %d source(s)", len(sources)))
 }
 
 // fetchToFile streams an HTTP GET into destPath, capped at maxDocsSiteSize.
 func fetchToFile(client *http.Client, url, destPath string) (int64, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return 0, fmt.Errorf("build request: %w", err)
+		return 0, apperror.WrapSimple(err, "build request")
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, fmt.Errorf("http get: %w", err)
+		return 0, apperror.WrapSimple(err, "http get")
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return 0, fmt.Errorf("http %d", resp.StatusCode)
+		return 0, apperror.NewExecutionError(fmt.Sprintf("http %d", resp.StatusCode))
 	}
 
 	out, err := os.Create(destPath) // #nosec G304 — destPath derived from resolveBinaryDir
 	if err != nil {
-		return 0, fmt.Errorf("create file: %w", err)
+		return 0, apperror.WrapSimple(err, "create file")
 	}
 
 	defer out.Close()
 
 	n, err := io.CopyN(out, resp.Body, maxDocsSiteSize)
 	if err != nil && !errors.Is(err, io.EOF) {
-		return n, fmt.Errorf("download body: %w", err)
+		return n, apperror.WrapSimple(err, "download body")
 	}
 
 	if n == 0 {
-		return 0, fmt.Errorf("empty response body")
+		return 0, apperror.NewExecutionError("empty response body")
 	}
 
 	return n, nil

@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -121,7 +122,7 @@ func resolveRepoOrLocalPath(clean string) (string, error) {
 func checkLocalDirFallback(clean string) (string, error) {
 	info, err := os.Stat(clean)
 	if err != nil || !info.IsDir() {
-		return "", fmt.Errorf("repository or target %q not found", clean)
+		return "", apperror.NewNotFoundError(fmt.Sprintf("repository or target %q not found", clean))
 	}
 
 	abs, absErr := filepath.Abs(clean)
@@ -137,7 +138,7 @@ func outputJSONPathResult(target, resolved string, isValid bool) error {
 	data, _ := json.MarshalIndent(res, "", "  ")
 	fmt.Println(string(data))
 	if !isValid {
-		return fmt.Errorf("target %q not found", target)
+		return apperror.NewNotFoundError(fmt.Sprintf("target %q not found", target))
 	}
 	return nil
 }

@@ -3,6 +3,7 @@ package runlog
 import (
 	"database/sql"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // lookupEnumID resolves an enum-mirror Name → Id. Centralized so every
@@ -13,7 +14,7 @@ func lookupEnumID(db *sql.DB, table, idCol, name string) (int64, error) {
 	q := fmt.Sprintf("SELECT %s FROM %s WHERE Name = ?", idCol, table)
 	var id int64
 	if err := db.QueryRow(q, name).Scan(&id); err != nil {
-		return 0, fmt.Errorf("lookup %s.%s where Name=%q: %w", table, idCol, name, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("lookup %s.%s where Name=%q", table, idCol, name))
 	}
 
 	return id, nil

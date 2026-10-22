@@ -2,8 +2,7 @@
 package store
 
 import (
-	"fmt"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -18,7 +17,7 @@ func (db *DB) InsertTempRelease(
 ) error {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertTempRelease, branch, versionPrefix, seq, commit, message).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrTRCreate, err)
+		return apperror.WrapSimple(err, "failed to create temp-release")
 	}
 
 	return nil
@@ -28,7 +27,7 @@ func (db *DB) InsertTempRelease(
 func (db *DB) ListTempReleases() ([]model.TempRelease, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllTempReleases).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrTRQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query temp-releases")
 	}
 
 	defer rows.Close()
@@ -65,7 +64,7 @@ func (db *DB) MaxTempReleaseSeq(versionPrefix string) (int, error) {
 func (db *DB) DeleteTempRelease(branch string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLDeleteTempRelease, branch).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrTRDelete, err)
+		return apperror.WrapSimple(err, "failed to delete temp-release")
 	}
 
 	return nil
@@ -75,7 +74,7 @@ func (db *DB) DeleteTempRelease(branch string) error {
 func (db *DB) DeleteAllTempReleases() error {
 	_, err := ExecWrapper(db.conn, constants.SQLDeleteAllTempReleases).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrTRDelete, err)
+		return apperror.WrapSimple(err, "failed to delete temp-release")
 	}
 
 	return nil

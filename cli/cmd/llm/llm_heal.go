@@ -69,7 +69,7 @@ func runHealGitState(opts TrainOptions) *apperror.AppError {
 	action := strings.ToLower(opts.HealApply)
 	if action != "stash" && action != "wip" && action != "discard" {
 		return apperror.WrapSimple(
-			fmt.Errorf("invalid --heal-apply %q: want stash|wip|discard", opts.HealApply),
+			apperror.NewValidationError(fmt.Sprintf("invalid --heal-apply %q: want stash|wip|discard", opts.HealApply)),
 			"healPhase.apply")
 	}
 	fmt.Printf("[heal] applying %q recipes across all pending repos...\n", action)

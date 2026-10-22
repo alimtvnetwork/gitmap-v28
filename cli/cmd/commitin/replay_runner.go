@@ -3,6 +3,7 @@ package commitin
 import (
 	"bytes"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"strings"
@@ -31,7 +32,7 @@ func defaultGitRunner(repoDir, sub string, args ...string) (string, error) {
 	out, err := exec.Command("git", full...).CombinedOutput()
 	trimmed := strings.TrimRight(string(out), "\n")
 	if err != nil {
-		return trimmed, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(trimmed))
+		return trimmed, apperror.WrapSimple(err, fmt.Sprintf("git %s (%s)", sub, strings.TrimSpace(trimmed)))
 	}
 
 	return trimmed, nil
@@ -46,7 +47,7 @@ func defaultGitRunnerBytes(repoDir, sub string, args ...string) ([]byte, error) 
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		return out, fmt.Errorf("git %s: %w (%s)", sub, err, strings.TrimSpace(stderr.String()))
+		return out, apperror.WrapSimple(err, fmt.Sprintf("git %s (%s)", sub, strings.TrimSpace(stderr.String())))
 	}
 
 	return out, nil
@@ -60,7 +61,7 @@ func defaultGitRunnerEnv(repoDir string, extraEnv []string, args ...string) (str
 	out, err := cmd.CombinedOutput()
 	trimmed := strings.TrimRight(string(out), "\n")
 	if err != nil {
-		return trimmed, fmt.Errorf("git %s: %w (%s)", args[0], err, strings.TrimSpace(trimmed))
+		return trimmed, apperror.WrapSimple(err, fmt.Sprintf("git %s (%s)", args[0], strings.TrimSpace(trimmed)))
 	}
 
 	return trimmed, nil
@@ -73,7 +74,7 @@ func defaultHashObjectStdin(repoDir string, data []byte) (string, error) {
 	out, err := cmd.CombinedOutput()
 	trimmed := strings.TrimSpace(string(out))
 	if err != nil {
-		return trimmed, fmt.Errorf("git hash-object: %w (%s)", err, trimmed)
+		return trimmed, apperror.WrapSimple(err, fmt.Sprintf("git hash-object (%s)", trimmed))
 	}
 
 	return trimmed, nil

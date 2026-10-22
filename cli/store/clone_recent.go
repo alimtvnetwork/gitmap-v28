@@ -6,8 +6,8 @@ package store
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -23,7 +23,7 @@ type RecentClone struct {
 // upsert is the only thing that creates Repo rows.
 func (db *DB) MarkCloned(absPath string) error {
 	if _, err := ExecWrapper(db.conn, constants.SQLUpdateRepoLastClonedAt, absPath).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrDBUpsert, err)
+		return apperror.WrapSimple(err, "failed to upsert repo")
 	}
 
 	return nil
@@ -40,7 +40,7 @@ func (db *DB) MostRecentClone() (RecentClone, bool, error) {
 	}
 
 	if err != nil {
-		return RecentClone{}, false, fmt.Errorf(constants.ErrDBQuery, err)
+		return RecentClone{}, false, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	return r, true, nil

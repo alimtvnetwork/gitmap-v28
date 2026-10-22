@@ -18,7 +18,7 @@ import (
 func currentRepoOwnerRepo() (string, string, error) {
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
-		return "", "", fmt.Errorf("no origin remote: %w", err)
+		return "", "", apperror.WrapSimple(err, "no origin remote")
 	}
 
 	u := strings.TrimSpace(string(out))
@@ -27,7 +27,7 @@ func currentRepoOwnerRepo() (string, string, error) {
 	u = strings.TrimPrefix(u, "https://github.com/")
 	parts := strings.SplitN(u, "/", 2)
 	if len(parts) != 2 {
-		return "", "", fmt.Errorf("unparseable remote url: %s", u)
+		return "", "", apperror.NewValidationError(fmt.Sprintf("unparseable remote url: %s", u))
 	}
 
 	return parts[0], parts[1], nil

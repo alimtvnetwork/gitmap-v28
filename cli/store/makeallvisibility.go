@@ -16,7 +16,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -32,7 +31,7 @@ func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (in
 		r.PatternList, boolToInt(r.IsYesFlag), boolToInt(r.IsVerboseFlag),
 		r.OwnerRepoTotal, r.MatchedCount, r.StartedAt).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrMakeAllRunInsertFmt, err, err.Error())
+		return 0, apperror.WrapSimple(err, "insert MakeAllVisibilityRun failed (operation: SQLInsertMakeAllVisibilityRun)")
 	}
 
 	return res.LastInsertId()
@@ -45,7 +44,7 @@ func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (in
 func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
 	if appErr != nil {
-		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, appErr, appErr.Error())
+		return nil, apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)")
 	}
 
 	var ids []int64
@@ -57,7 +56,7 @@ func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.Ma
 		return err
 	})
 	if appErr != nil {
-		return nil, fmt.Errorf(constants.ErrMakeAllResultInsertFmt, appErr, appErr.Error())
+		return nil, apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)")
 	}
 
 	return ids, nil
@@ -114,7 +113,7 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, appErr, appErr.Error())
+		return apperror.WrapSimple(appErr, "exclude MakeAllVisibilityResult rows failed (operation: SQLUpdateMakeAllVisibilityResultExcluded)")
 	}
 
 	ctx := context.Background()
@@ -122,7 +121,7 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 		return markIdsExcludedInTx(ctx, tx, ids, finishedAt)
 	})
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrMakeAllResultExcludeFmt, appErr, appErr.Error())
+		return apperror.WrapSimple(appErr, "exclude MakeAllVisibilityResult rows failed (operation: SQLUpdateMakeAllVisibilityResultExcluded)")
 	}
 
 	return nil
@@ -146,7 +145,7 @@ func (db *DB) UpdateMakeAllVisibilityResult(r model.MakeAllVisibilityResultRecor
 		r.Status, r.PrevVisibility, r.NewVisibility, r.FailureMessage,
 		r.FinishedAt, r.DurationMs, r.ID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrMakeAllResultUpdateFmt, err, err.Error())
+		return apperror.WrapSimple(err, "update MakeAllVisibilityResult failed (operation: SQLUpdateMakeAllVisibilityResult)")
 	}
 
 	return nil
@@ -159,7 +158,7 @@ func (db *DB) FinalizeMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) e
 		r.ExcludedCount, r.OkCount, r.SkippedCount, r.FailedCount,
 		r.ExitCode, r.FinishedAt, r.ID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrMakeAllRunFinalizeFmt, err, err.Error())
+		return apperror.WrapSimple(err, "finalize MakeAllVisibilityRun failed (operation: SQLUpdateMakeAllVisibilityRunCounts)")
 	}
 
 	return nil

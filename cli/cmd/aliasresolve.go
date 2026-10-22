@@ -47,7 +47,7 @@ func extractStandaloneAliasFlag(args []string, index int) (string, []string) {
 	}
 
 	fmt.Fprintln(os.Stderr, constants.ErrAliasEmpty)
-	cliexit.HandleValidationError(fmt.Errorf("%s", constants.ErrAliasEmpty))
+	cliexit.HandleValidationError(apperror.NewValidationError(constants.ErrAliasEmpty))
 
 	return "", nil
 }

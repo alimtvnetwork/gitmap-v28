@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -16,7 +17,7 @@ import (
 // to mutate the DB-side multi-root list.
 func (db *DB) UpsertVSCodeProject(rootPath, name string) error {
 	if _, err := ExecWrapper(db.conn, constants.SQLUpsertVSCodeProject, rootPath, name).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrVSCodePMUpsert, rootPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to upsert VSCodeProject %q", rootPath))
 	}
 
 	return nil
@@ -26,7 +27,7 @@ func (db *DB) UpsertVSCodeProject(rootPath, name string) error {
 func (db *DB) ListVSCodeProjects() ([]model.VSCodeProject, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllVSCodeProjects).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodePMList, err)
+		return nil, apperror.WrapSimple(err, "failed to list VSCodeProject rows")
 	}
 
 	defer rows.Close()
@@ -56,7 +57,7 @@ func (db *DB) FindVSCodeProjectByName(name string) (model.VSCodeProject, error) 
 func (db *DB) RenameVSCodeProjectByPath(rootPath, newName string) (int64, error) {
 	res, err := ExecWrapper(db.conn, constants.SQLRenameVSCodeProject, newName, rootPath).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrVSCodePMRename, rootPath, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("failed to rename VSCodeProject %q", rootPath))
 	}
 
 	affected, _ := res.RowsAffected()
@@ -73,7 +74,7 @@ func (db *DB) SetVSCodeProjectPaths(rootPath string, paths []string) error {
 	}
 
 	if _, err := ExecWrapper(db.conn, constants.SQLUpdateVSCodeProjectPaths, encoded, rootPath).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrVSCodePMUpdatePaths, rootPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to update Paths for VSCodeProject %q", rootPath))
 	}
 
 	return nil
@@ -82,7 +83,7 @@ func (db *DB) SetVSCodeProjectPaths(rootPath string, paths []string) error {
 // DeleteVSCodeProjectByPath removes a row by RootPath.
 func (db *DB) DeleteVSCodeProjectByPath(rootPath string) error {
 	if _, err := ExecWrapper(db.conn, constants.SQLDeleteVSCodeProjectByPath, rootPath).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrVSCodePMDelete, rootPath, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("failed to delete VSCodeProject %q", rootPath))
 	}
 
 	return nil
@@ -96,7 +97,7 @@ func scanOneVSCodeProjectRow(row interface{ Scan(dest ...any) error }) (model.VS
 	}
 
 	if err != nil {
-		return model.VSCodeProject{}, fmt.Errorf(constants.ErrVSCodePMList, err)
+		return model.VSCodeProject{}, apperror.WrapSimple(err, "failed to list VSCodeProject rows")
 	}
 
 	return p, nil
@@ -139,7 +140,7 @@ func scanVSCodeProjectRows(rows interface {
 	for rows.Next() {
 		p, err := scanOneVSCodeProject(rows)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrVSCodePMList, err)
+			return nil, apperror.WrapSimple(err, "failed to list VSCodeProject rows")
 		}
 
 		results = append(results, p)
@@ -158,7 +159,7 @@ func encodePaths(rootPath string, paths []string) (string, error) {
 
 	bytes, err := json.Marshal(paths)
 	if err != nil {
-		return "", fmt.Errorf(constants.ErrVSCodePMPathsEncode, rootPath, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("failed to encode Paths for VSCodeProject %q", rootPath))
 	}
 
 	return string(bytes), nil
@@ -173,7 +174,7 @@ func decodePaths(rootPath, encoded string) ([]string, error) {
 
 	var paths []string
 	if err := json.Unmarshal([]byte(encoded), &paths); err != nil {
-		return nil, fmt.Errorf(constants.ErrVSCodePMPathsDecode, rootPath, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("failed to decode Paths for VSCodeProject %q", rootPath))
 	}
 
 	if paths == nil {

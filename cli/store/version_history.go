@@ -1,8 +1,7 @@
 package store
 
 import (
-	"fmt"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -13,7 +12,7 @@ func (db *DB) InsertVersionHistory(r model.RepoVersionHistoryRecord) (int64, err
 		r.RepoID, r.FromVersionTag, r.FromVersionNum,
 		r.ToVersionTag, r.ToVersionNum, r.FlattenedPath).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrDBVersionHistory, err)
+		return 0, apperror.WrapSimple(err, "failed to query version history")
 	}
 
 	return result.LastInsertId()
@@ -23,7 +22,7 @@ func (db *DB) InsertVersionHistory(r model.RepoVersionHistoryRecord) (int64, err
 func (db *DB) UpdateRepoVersion(repoID int64, versionTag string, versionNum int) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateRepoVersion, versionTag, versionNum, repoID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBVersionHistory, err)
+		return apperror.WrapSimple(err, "failed to query version history")
 	}
 
 	return nil
@@ -33,7 +32,7 @@ func (db *DB) UpdateRepoVersion(repoID int64, versionTag string, versionNum int)
 func (db *DB) ListVersionHistory(repoID int64) ([]model.RepoVersionHistoryRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectVersionHistory, repoID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBVersionHistory, err)
+		return nil, apperror.WrapSimple(err, "failed to query version history")
 	}
 
 	defer rows.Close()
@@ -45,7 +44,7 @@ func (db *DB) ListVersionHistory(repoID int64) ([]model.RepoVersionHistoryRecord
 		scanErr := rows.Scan(&r.ID, &r.RepoID, &r.FromVersionTag, &r.FromVersionNum,
 			&r.ToVersionTag, &r.ToVersionNum, &r.FlattenedPath, &r.CreatedAt)
 		if scanErr != nil {
-			return nil, fmt.Errorf(constants.ErrDBVersionHistory, scanErr)
+			return nil, apperror.WrapSimple(scanErr, "failed to query version history")
 		}
 
 		results = append(results, r)

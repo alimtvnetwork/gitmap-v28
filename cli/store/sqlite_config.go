@@ -41,7 +41,7 @@ func ConfigureSQLiteConn(conn *sql.DB) error {
 func applySQLitePragmas(conn *sql.DB) error {
 	for _, pragma := range sqlitePragmas {
 		if _, err := conn.Exec(pragma); err != nil {
-			return fmt.Errorf("apply sqlite pragma %q: %w", pragma, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("apply sqlite pragma %q", pragma))
 		}
 	}
 

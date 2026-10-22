@@ -36,7 +36,7 @@ func resolveContextRunner(tx any) (sqlContextQueryExecer, error) {
 		return wrap.Conn(), nil
 	}
 
-	return nil, fmt.Errorf("unsupported executor type: %T", tx)
+	return nil, apperror.NewValidationError(fmt.Sprintf("unsupported executor type: %T", tx))
 }
 
 func resolveContextExecer(tx any) (sqlContextExecer, error) {

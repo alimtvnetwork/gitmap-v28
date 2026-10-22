@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os/exec"
 	"strings"
 )
@@ -19,7 +20,7 @@ func defaultGitRunner(sub string, args ...string) error {
 	cmd := exec.Command("git", full...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("git %s: %w (output: %s)", sub, err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git %s (output: %s)", sub, strings.TrimSpace(string(out))))
 	}
 
 	return nil

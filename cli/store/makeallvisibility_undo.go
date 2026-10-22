@@ -7,8 +7,8 @@ package store
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -28,7 +28,7 @@ func (db *DB) SelectLatestUndoableMakeAllVisibilityRun() (model.MakeAllVisibilit
 	}
 
 	if err != nil {
-		return model.MakeAllVisibilityRunRecord{}, fmt.Errorf(constants.ErrUndoSelectRunFmt, err, err.Error())
+		return model.MakeAllVisibilityRunRecord{}, apperror.WrapSimple(err, "select latest undoable run failed (operation: SQLSelectLatestUndoableRun)")
 	}
 
 	return r, nil
@@ -40,7 +40,7 @@ func (db *DB) SelectLatestUndoableMakeAllVisibilityRun() (model.MakeAllVisibilit
 func (db *DB) SelectUndoableResultsForRun(runID int64) ([]model.MakeAllVisibilityResultRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectUndoableResultsForRun, runID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
+		return nil, apperror.WrapSimple(err, "select undoable results failed (operation: SQLSelectUndoableResultsForRun)")
 	}
 
 	defer rows.Close()
@@ -55,14 +55,14 @@ func scanUndoableResults(rows *sql.Rows) ([]model.MakeAllVisibilityResultRecord,
 	for rows.Next() {
 		var r model.MakeAllVisibilityResultRecord
 		if err := rows.Scan(&r.ID, &r.RepoName, &r.MatchedPattern, &r.PrevVisibility, &r.NewVisibility); err != nil {
-			return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
+			return nil, apperror.WrapSimple(err, "select undoable results failed (operation: SQLSelectUndoableResultsForRun)")
 		}
 
 		out = append(out, r)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf(constants.ErrUndoSelectResultsFmt, err, err.Error())
+		return nil, apperror.WrapSimple(err, "select undoable results failed (operation: SQLSelectUndoableResultsForRun)")
 	}
 
 	return out, nil
@@ -93,7 +93,7 @@ func scanRunRow(row *sql.Row) (model.MakeAllVisibilityRunRecord, error) {
 	}
 
 	if err != nil {
-		return model.MakeAllVisibilityRunRecord{}, fmt.Errorf(constants.ErrUndoSelectRunFmt, err, err.Error())
+		return model.MakeAllVisibilityRunRecord{}, apperror.WrapSimple(err, "select latest undoable run failed (operation: SQLSelectLatestUndoableRun)")
 	}
 
 	return r, nil

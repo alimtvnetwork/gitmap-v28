@@ -7,10 +7,10 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonepick"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -42,7 +42,7 @@ func (db *DB) LoadClonePickByName(name string) (clonepick.Plan, int64, error) {
 func (db *DB) TouchClonePickCreatedAt(id int64) error {
 	_, err := ExecWrapper(db.conn, constants.SQLTouchClonePickCreatedAt, id).Destruct()
 	if err != nil {
-		return fmt.Errorf("clone-pick: touch CreatedAt: %w", err)
+		return apperror.WrapSimple(err, "clone-pick: touch CreatedAt")
 	}
 
 	return nil

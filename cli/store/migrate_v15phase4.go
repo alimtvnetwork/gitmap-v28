@@ -22,6 +22,7 @@ package store
 import (
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -31,7 +32,7 @@ func (db *DB) migrateV15Phase4() error {
 
 	for _, spec := range specs {
 		if err := db.runV15Rebuild(spec); err != nil {
-			return fmt.Errorf("phase 1.4 %s: %w", spec.OldTable, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("phase 1.4 %s", spec.OldTable))
 		}
 	}
 

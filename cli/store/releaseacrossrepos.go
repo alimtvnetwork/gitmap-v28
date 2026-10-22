@@ -1,8 +1,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -39,7 +39,7 @@ func (db *DB) ListReleasesAcrossRepos() ([]ReleaseAcrossRepos, error) {
 
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllReleasesAcrossRepos).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBReleaseQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query releases")
 	}
 
 	defer rows.Close()

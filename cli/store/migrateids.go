@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -115,29 +116,29 @@ func (db *DB) rebuildReposTable() error {
 	)`
 
 	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
-		return fmt.Errorf("disable foreign keys: %w", err)
+		return apperror.WrapSimple(err, "disable foreign keys")
 	}
 
 	if _, err := ExecWrapper(db.conn, "ALTER TABLE Repos RENAME TO Repos_legacy").Destruct(); err != nil {
-		return fmt.Errorf("rename Repos to Repos_legacy: %w", err)
+		return apperror.WrapSimple(err, "rename Repos to Repos_legacy")
 	}
 
 	if _, err := ExecWrapper(db.conn, legacyCreate).Destruct(); err != nil {
-		return fmt.Errorf("create new Repos table: %w", err)
+		return apperror.WrapSimple(err, "create new Repos table")
 	}
 
 	if _, err := ExecWrapper(db.conn, `INSERT INTO Repos (Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes)
 		SELECT Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes
 		FROM Repos_legacy`).Destruct(); err != nil {
-		return fmt.Errorf("copy data from Repos_legacy: %w", err)
+		return apperror.WrapSimple(err, "copy data from Repos_legacy")
 	}
 
 	if _, err := ExecWrapper(db.conn, "DROP TABLE IF EXISTS Repos_legacy").Destruct(); err != nil {
-		return fmt.Errorf("drop Repos_legacy: %w", err)
+		return apperror.WrapSimple(err, "drop Repos_legacy")
 	}
 
 	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = ON").Destruct(); err != nil {
-		return fmt.Errorf("re-enable foreign keys: %w", err)
+		return apperror.WrapSimple(err, "re-enable foreign keys")
 	}
 
 	return nil

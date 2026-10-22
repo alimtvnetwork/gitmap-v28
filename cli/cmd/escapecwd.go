@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,7 +40,7 @@ func escapeCwdToParent(cwd, target string) (string, error) {
 		tgtClean, parent)
 
 	if chErr := os.Chdir(parent); chErr != nil {
-		return cwd, fmt.Errorf("escapeCwdIfInside: chdir %q: %w", parent, chErr)
+		return cwd, apperror.WrapSimple(chErr, fmt.Sprintf("escapeCwdIfInside: chdir %q", parent))
 	}
 
 	return parent, nil

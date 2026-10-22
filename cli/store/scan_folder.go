@@ -18,7 +18,7 @@ import (
 // non-empty (so subsequent scans don't wipe a manually set label).
 func (db *DB) EnsureScanFolder(absPath, label, notes string) (model.ScanFolder, error) {
 	if _, err := ExecWrapper(db.conn, constants.SQLUpsertScanFolder, absPath, label, notes).Destruct(); err != nil {
-		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFEnsure, absPath, err)
+		return model.ScanFolder{}, apperror.WrapSimple(err, fmt.Sprintf("failed to ensure scan folder %q", absPath))
 	}
 
 	return db.findScanFolderByPath(absPath)
@@ -28,7 +28,7 @@ func (db *DB) EnsureScanFolder(absPath, label, notes string) (model.ScanFolder, 
 func (db *DB) ListScanFolders() ([]model.ScanFolder, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllScanFolders).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrSFList, err)
+		return nil, apperror.WrapSimple(err, "failed to list scan folders")
 	}
 
 	defer rows.Close()
@@ -42,7 +42,7 @@ func (db *DB) CountReposInScanFolder(scanFolderID int64) (int, error) {
 	var count int
 	err := db.conn.QueryRow(constants.SQLCountReposInScanFolder, scanFolderID).Scan(&count)
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrSFList, err)
+		return 0, apperror.WrapSimple(err, "failed to list scan folders")
 	}
 
 	return count, nil
@@ -114,11 +114,11 @@ func (db *DB) findScanFolderByPath(absPath string) (model.ScanFolder, error) {
 	row := QueryRowWrapper(db.conn, constants.SQLSelectScanFolderByPath, absPath)
 	folder, err := scanOneScanFolder(row)
 	if errors.Is(err, sql.ErrNoRows) {
-		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByPath, absPath)
+		return model.ScanFolder{}, apperror.NewNotFoundError(fmt.Sprintf("no scan folder registered for path: %s", absPath))
 	}
 
 	if err != nil {
-		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
+		return model.ScanFolder{}, apperror.WrapSimple(err, "failed to list scan folders")
 	}
 
 	return folder, nil
@@ -129,11 +129,11 @@ func (db *DB) findScanFolderByID(id int64) (model.ScanFolder, error) {
 	row := QueryRowWrapper(db.conn, constants.SQLSelectScanFolderByID, id)
 	folder, err := scanOneScanFolder(row)
 	if errors.Is(err, sql.ErrNoRows) {
-		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFFindByID, id)
+		return model.ScanFolder{}, apperror.NewNotFoundError(fmt.Sprintf("no scan folder with id: %d", id))
 	}
 
 	if err != nil {
-		return model.ScanFolder{}, fmt.Errorf(constants.ErrSFList, err)
+		return model.ScanFolder{}, apperror.WrapSimple(err, "failed to list scan folders")
 	}
 
 	return folder, nil
@@ -156,7 +156,7 @@ func scanScanFolderRows(rows interface {
 	for rows.Next() {
 		f, err := scanOneScanFolder(rows)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrSFList, err)
+			return nil, apperror.WrapSimple(err, "failed to list scan folders")
 		}
 
 		results = append(results, f)

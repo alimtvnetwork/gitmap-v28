@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os/exec"
 	"strings"
 
@@ -58,7 +59,7 @@ func executeGitPush() error {
 
 	cmdSimple := exec.Command("git", "push")
 	if outSimple, errSimple := cmdSimple.CombinedOutput(); errSimple != nil {
-		return fmt.Errorf("push failed: %w (%s)", errSimple, strings.TrimSpace(string(outSimple)))
+		return apperror.WrapSimple(errSimple, fmt.Sprintf("push failed (%s)", strings.TrimSpace(string(outSimple))))
 	}
 
 	return nil
@@ -67,7 +68,7 @@ func executeGitPush() error {
 func stageRenamedFiles() error {
 	cmd := exec.Command("git", "add", "-A")
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("git add -A failed: %w (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git add -A failed (%s)", strings.TrimSpace(string(out))))
 	}
 
 	return nil
@@ -76,7 +77,7 @@ func stageRenamedFiles() error {
 func executeGitCommit(msg string) error {
 	cmd := exec.Command("git", "commit", "-m", msg)
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("git commit failed: %w (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git commit failed (%s)", strings.TrimSpace(string(out))))
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -49,7 +50,7 @@ func EnsureSource(rawSource string) (*SourceHandle, error) {
 
 	abs, err := filepath.Abs(rawSource)
 	if err != nil {
-		return nil, fmt.Errorf("absolutize source: %w", err)
+		return nil, apperror.WrapSimple(err, "absolutize source")
 	}
 
 	info, statErr := os.Stat(abs)
@@ -62,10 +63,10 @@ func EnsureSource(rawSource string) (*SourceHandle, error) {
 	}
 
 	if statErr != nil {
-		return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, statErr)
+		return nil, apperror.WrapSimple(statErr, "commit-in: source: mkdir failed")
 	}
 
-	return nil, fmt.Errorf("commit-in: source: %q is not a directory", abs)
+	return nil, apperror.NewValidationError(fmt.Sprintf("commit-in: source: %q is not a directory", abs))
 }
 
 // isGitURL matches spec §2.3 case 1 prefixes. Trailing `.git` is
@@ -92,12 +93,12 @@ func isGitURL(s string) bool {
 func resolveByClone(url string) (*SourceHandle, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("getwd: %w", err)
+		return nil, apperror.WrapSimple(err, "getwd")
 	}
 
 	target := filepath.Join(cwd, cloneBasename(url))
 	if err := runGitClone(url, target); err != nil {
-		return nil, fmt.Errorf(constants.CommitInErrSourceClone, err)
+		return nil, apperror.WrapSimple(err, "commit-in: source: clone failed")
 	}
 
 	return &SourceHandle{Path: target, Kind: SourceKindCloned}, nil
@@ -110,7 +111,7 @@ func resolveExistingDir(abs string) (*SourceHandle, error) {
 	}
 
 	if err := runGitInit(abs); err != nil {
-		return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)
+		return nil, apperror.WrapSimple(err, "commit-in: source: git init failed")
 	}
 
 	return &SourceHandle{Path: abs, Kind: SourceKindInitInPlace, IsFreshlyInit: true}, nil
@@ -119,11 +120,11 @@ func resolveExistingDir(abs string) (*SourceHandle, error) {
 // resolveMissingDir handles spec §2.3 case 4.
 func resolveMissingDir(abs string) (*SourceHandle, error) {
 	if err := os.MkdirAll(abs, 0o755); err != nil {
-		return nil, fmt.Errorf(constants.CommitInErrSourceMkdir, err)
+		return nil, apperror.WrapSimple(err, "commit-in: source: mkdir failed")
 	}
 
 	if err := runGitInit(abs); err != nil {
-		return nil, fmt.Errorf(constants.CommitInErrSourceInit, err)
+		return nil, apperror.WrapSimple(err, "commit-in: source: git init failed")
 	}
 
 	tryCreateRemoteForSource(abs)

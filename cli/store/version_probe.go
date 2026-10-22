@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -28,7 +29,7 @@ func (db *DB) TagReposByScanFolder(scanFolderID int64, paths []string) error {
 	}
 
 	if _, err := ExecWrapper(db.conn, query, args...).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrProbeTagFail, scanFolderID, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("scan: failed to tag repos with scan folder %d", scanFolderID))
 	}
 
 	return nil
@@ -46,7 +47,7 @@ func (db *DB) RecordVersionProbe(p model.VersionProbe) error {
 		p.Method, available, p.Error,
 	).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrProbeRecord, p.RepoID, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("version probe: failed to record result for repo %d", p.RepoID))
 	}
 
 	return nil
@@ -69,7 +70,7 @@ func (db *DB) LatestVersionProbe(repoID int64) (model.VersionProbe, error) {
 	}
 
 	if err != nil {
-		return model.VersionProbe{}, fmt.Errorf(constants.ErrProbeRecord, repoID, err)
+		return model.VersionProbe{}, apperror.WrapSimple(err, fmt.Sprintf("version probe: failed to record result for repo %d", repoID))
 	}
 
 	p.IsAvailable = available == 1

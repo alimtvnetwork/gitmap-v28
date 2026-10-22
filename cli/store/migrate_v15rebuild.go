@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // v15RebuildSpec describes one legacy-plural → v15-singular table rebuild.
@@ -66,7 +68,7 @@ func (db *DB) runV15Rebuild(spec v15RebuildSpec) error {
 
 	oldCount, err := db.countRows(spec.OldTable)
 	if err != nil {
-		return fmt.Errorf("count %s: %w", spec.OldTable, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("count %s", spec.OldTable))
 	}
 
 	if err := db.execV15Rebuild(spec); err != nil {
@@ -75,7 +77,7 @@ func (db *DB) runV15Rebuild(spec v15RebuildSpec) error {
 
 	newCount, err := db.countRows(spec.NewTable)
 	if err != nil {
-		return fmt.Errorf("count %s: %w", spec.NewTable, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("count %s", spec.NewTable))
 	}
 
 	if oldCount != newCount {
@@ -83,8 +85,8 @@ func (db *DB) runV15Rebuild(spec v15RebuildSpec) error {
 			"  ✗ v15 %s→%s row-count mismatch: old=%d new=%d\n",
 			spec.OldTable, spec.NewTable, oldCount, newCount)
 
-		return fmt.Errorf("v15 %s→%s row-count mismatch: old=%d new=%d",
-			spec.OldTable, spec.NewTable, oldCount, newCount)
+		return apperror.NewExecutionError(fmt.Sprintf("v15 %s→%s row-count mismatch: old=%d new=%d",
+			spec.OldTable, spec.NewTable, oldCount, newCount))
 	}
 
 	if spec.DoneMsg != "" {
@@ -115,7 +117,7 @@ func (db *DB) hasCanonicalV15Shape(spec v15RebuildSpec) bool {
 // execV15Rebuild performs the table-rebuild dance for one spec.
 func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {
 	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
-		return fmt.Errorf("disable foreign keys: %w", err)
+		return apperror.WrapSimple(err, "disable foreign keys")
 	}
 
 	defer func() {
@@ -123,7 +125,7 @@ func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {
 	}()
 
 	if _, err := ExecWrapper(db.conn, spec.NewCreateSQL).Destruct(); err != nil {
-		return fmt.Errorf("create %s: %w", spec.NewTable, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("create %s", spec.NewTable))
 	}
 
 	copySQL := fmt.Sprintf(
@@ -132,11 +134,11 @@ func (db *DB) execV15Rebuild(spec v15RebuildSpec) error {
 	)
 
 	if _, err := ExecWrapper(db.conn, copySQL).Destruct(); err != nil {
-		return fmt.Errorf("copy %s→%s: %w", spec.OldTable, spec.NewTable, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("copy %s→%s", spec.OldTable, spec.NewTable))
 	}
 
 	if _, err := ExecWrapper(db.conn, `DROP TABLE "`+spec.OldTable+`"`).Destruct(); err != nil {
-		return fmt.Errorf("drop %s: %w", spec.OldTable, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("drop %s", spec.OldTable))
 	}
 
 	return nil

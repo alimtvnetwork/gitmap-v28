@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -21,11 +22,11 @@ type Verdict struct {
 // constants.CommitInExitDbFailed.
 func Lookup(db *sql.DB, sourceSha string) (Verdict, error) {
 	if db == nil {
-		return Verdict{}, fmt.Errorf("dedupe: nil db")
+		return Verdict{}, apperror.NewValidationError("dedupe: nil db")
 	}
 
 	if sourceSha == "" {
-		return Verdict{}, fmt.Errorf("dedupe: empty source sha")
+		return Verdict{}, apperror.NewValidationError("dedupe: empty source sha")
 	}
 
 	row := db.QueryRow(sqlSelectShaMap, sourceSha)
@@ -36,7 +37,7 @@ func Lookup(db *sql.DB, sourceSha string) (Verdict, error) {
 	}
 
 	if err != nil {
-		return Verdict{}, fmt.Errorf("dedupe: select %s: %w", constants.TableCommitInShaMap, err)
+		return Verdict{}, apperror.WrapSimple(err, fmt.Sprintf("dedupe: select %s", constants.TableCommitInShaMap))
 	}
 
 	return Verdict{IsHit: true, PreviousRewrittenId: rewrittenId}, nil

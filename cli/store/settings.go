@@ -1,8 +1,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -21,7 +21,7 @@ func (db *DB) GetSetting(key string) string {
 func (db *DB) SetSetting(key, value string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpsertSetting, key, value).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBSettingUpsert, err)
+		return apperror.WrapSimple(err, "failed to save setting")
 	}
 
 	return nil
@@ -31,7 +31,7 @@ func (db *DB) SetSetting(key, value string) error {
 func (db *DB) DeleteSetting(key string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLDeleteSetting, key).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBSettingUpsert, err)
+		return apperror.WrapSimple(err, "failed to save setting")
 	}
 
 	return nil

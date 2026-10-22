@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -138,7 +139,7 @@ func removeSfTarget(db *store.DB, target string) (model.ScanFolder, int, error) 
 
 	absPath, err := filepath.Abs(target)
 	if err != nil {
-		return model.ScanFolder{}, 0, fmt.Errorf(constants.ErrSFAbsResolve, target, err)
+		return model.ScanFolder{}, 0, apperror.WrapSimple(err, fmt.Sprintf("failed to resolve absolute path for %q", target))
 	}
 
 	return db.RemoveScanFolderByPath(absPath)

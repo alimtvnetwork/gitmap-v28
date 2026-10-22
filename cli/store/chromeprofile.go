@@ -10,7 +10,7 @@
 package store
 
 import (
-	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 const sqlCreateChromeProfile = `
@@ -66,7 +66,7 @@ type ChromeProfileRow struct {
 func (db *DB) EnsureChromeProfileTables() error {
 	for _, stmt := range []string{sqlCreateChromeProfile, sqlCreateChromeProfileExport} {
 		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
-			return fmt.Errorf("ensure chrome-profile tables: %w", err)
+			return apperror.WrapSimple(err, "ensure chrome-profile tables")
 		}
 	}
 
@@ -86,12 +86,12 @@ func (db *DB) UpsertChromeProfile(name, sourcePath string, isOffline bool) (int6
 	}
 
 	if _, err := ExecWrapper(db.conn, sqlUpsertChromeProfile, name, sourcePath, offline).Destruct(); err != nil {
-		return 0, fmt.Errorf("upsert chrome-profile: %w", err)
+		return 0, apperror.WrapSimple(err, "upsert chrome-profile")
 	}
 
 	var id int64
 	if err := db.conn.QueryRow(sqlSelectChromeProfileId, name).Scan(&id); err != nil {
-		return 0, fmt.Errorf("read chrome-profile id: %w", err)
+		return 0, apperror.WrapSimple(err, "read chrome-profile id")
 	}
 
 	return id, nil
@@ -109,7 +109,7 @@ func (db *DB) InsertChromeProfileExport(
 	}
 
 	if _, err := ExecWrapper(db.conn, sqlInsertChromeProfileExport, profileID, format, filePath, byteSize).Destruct(); err != nil {
-		return fmt.Errorf("insert chrome-profile-export: %w", err)
+		return apperror.WrapSimple(err, "insert chrome-profile-export")
 	}
 
 	return nil
@@ -123,7 +123,7 @@ func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {
 
 	rows, err := QueryWrapper(db.conn, sqlListChromeProfiles).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf("list chrome-profiles: %w", err)
+		return nil, apperror.WrapSimple(err, "list chrome-profiles")
 	}
 
 	defer rows.Close()
@@ -131,7 +131,7 @@ func (db *DB) ListChromeProfilesDB() ([]ChromeProfileRow, error) {
 	for rows.Next() {
 		var r ChromeProfileRow
 		if err := rows.Scan(&r.Name, &r.ExportCount, &r.LastSeen); err != nil {
-			return nil, fmt.Errorf("scan chrome-profile row: %w", err)
+			return nil, apperror.WrapSimple(err, "scan chrome-profile row")
 		}
 
 		out = append(out, r)

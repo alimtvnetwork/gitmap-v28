@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"regexp"
 	"sync"
 
@@ -74,13 +75,13 @@ var ErrLightweightVersionTag = errors.New("runlog: lightweight tag cannot be a v
 // annotated semver tags — no upstream filter can quietly drift.
 func RecordTagReplay(db *sql.DB, runID, rewrittenID int64, f TagReplayFacts) (int64, error) {
 	if f.IsVersionTag && !f.IsAnnotated {
-		return 0, fmt.Errorf("runlog: tag %q: %w", f.SourceTagName, ErrLightweightVersionTag)
+		return 0, apperror.WrapSimple(ErrLightweightVersionTag, fmt.Sprintf("runlog: tag %q", f.SourceTagName))
 	}
 
 	outcomeID, err := lookupEnumID(db, constants.TableCommitInTagOutcome,
 		"TagReplayOutcomeId", f.Outcome)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: lookup tag outcome %q: %w", f.Outcome, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup tag outcome %q", f.Outcome))
 	}
 
 	res, err := db.Exec(constants.SQLInsertCommitInReplayMap,
@@ -91,7 +92,7 @@ func RecordTagReplay(db *sql.DB, runID, rewrittenID int64, f TagReplayFacts) (in
 		boolToInt(f.IsVersionTag), outcomeID,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: insert CommitInReplayMap: %w", err)
+		return 0, apperror.WrapSimple(err, "runlog: insert CommitInReplayMap")
 	}
 
 	return res.LastInsertId()
@@ -110,7 +111,7 @@ func LookupTagReplay(db *sql.DB, sourceTagName, sourceTagSha string) (TagReplayL
 	}
 
 	if err != nil {
-		return got, fmt.Errorf("runlog: lookup tag replay %q: %w", sourceTagName, err)
+		return got, apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup tag replay %q", sourceTagName))
 	}
 
 	got.DestTagSha = dt.String

@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os/exec"
 	"strconv"
@@ -67,7 +68,7 @@ func probeSingleDryRunSlot(ctx *runContext, in workspace.ResolvedInput) DryRunSl
 
 func probeLocalFolderSlot(in workspace.ResolvedInput) DryRunSlot {
 	if !workspace.HasGitMetadata(in.AbsPath) {
-		return DryRunSlot{Input: in, IsReady: true, IsFound: false, Status: "not found", Err: fmt.Errorf("no git repository")}
+		return DryRunSlot{Input: in, IsReady: true, IsFound: false, Status: "not found", Err: apperror.NewNotFoundError("no git repository")}
 	}
 	count := countCommitsAt(in.AbsPath)
 	return DryRunSlot{Input: in, WorkPath: in.AbsPath, IsReady: true, IsFound: true, CommitCount: count, Status: "local"}

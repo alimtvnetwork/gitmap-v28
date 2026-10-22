@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
@@ -156,7 +157,7 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		}
 		return buf.String(), nil
 	default:
-		return "", fmt.Errorf("unsupported shell: %s", shell)
+		return "", apperror.NewValidationError(fmt.Sprintf("unsupported shell: %s", shell))
 	}
 }
 

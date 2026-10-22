@@ -3,6 +3,7 @@ package runlog
 import (
 	"database/sql"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -13,7 +14,7 @@ import (
 func RecordRewritten(db *sql.DB, runID, sourceCommitID int64, r RewrittenRow) (int64, error) {
 	outcomeID, err := lookupEnumID(db, constants.TableCommitInOutcome, "CommitOutcomeId", r.Outcome)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: lookup outcome %q: %w", r.Outcome, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup outcome %q", r.Outcome))
 	}
 
 	rewrittenID, err := insertRewritten(db, runID, sourceCommitID, outcomeID, r)
@@ -45,11 +46,11 @@ func RecordSkip(
 ) error {
 	reasonID, err := lookupEnumID(db, constants.TableCommitInSkipReason, "SkipReasonId", reason)
 	if err != nil {
-		return fmt.Errorf("runlog: lookup skip reason %q: %w", reason, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup skip reason %q", reason))
 	}
 
 	if _, err := db.Exec(sqlInsertSkipLog, runID, sourceCommitID, reasonID, previousRewrittenID); err != nil {
-		return fmt.Errorf("runlog: insert SkipLog: %w", err)
+		return apperror.WrapSimple(err, "runlog: insert SkipLog")
 	}
 
 	return nil
@@ -75,7 +76,7 @@ func insertRewritten(
 		r.AuthorDateRFC3339, r.CommitterDateRFC3339, outcomeID,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: insert RewrittenCommit: %w", err)
+		return 0, apperror.WrapSimple(err, "runlog: insert RewrittenCommit")
 	}
 
 	return res.LastInsertId()
@@ -84,7 +85,7 @@ func insertRewritten(
 // insertShaMap upserts the cross-run dedupe row.
 func insertShaMap(db *sql.DB, sourceSha string, rewrittenID int64) error {
 	if _, err := db.Exec(sqlInsertShaMap, sourceSha, rewrittenID); err != nil {
-		return fmt.Errorf("runlog: insert ShaMap %s: %w", sourceSha, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("runlog: insert ShaMap %s", sourceSha))
 	}
 
 	return nil

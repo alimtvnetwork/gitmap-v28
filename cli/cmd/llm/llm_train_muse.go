@@ -205,7 +205,7 @@ func cloneTrainingRepo(log *decisionLog, dest string) *apperror.AppError {
 	cmd.Stdout = &combined
 	cmd.Stderr = &combined
 	if err := cmd.Run(); err != nil {
-		return apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(combined.String())), "clone "+repoName)
+		return apperror.WrapSimple(err, "clone "+repoName).WithContext("output", strings.TrimSpace(combined.String()))
 	}
 	return nil
 }
@@ -250,7 +250,7 @@ func runGitCmd(dir string, args ...string) ([]byte, *apperror.AppError) {
 	cmd.Stdin = bytes.NewReader(nil)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, apperror.WrapSimple(fmt.Errorf("%w: %s", err, strings.TrimSpace(string(out))), "git "+strings.Join(args, " "))
+		return nil, apperror.WrapSimple(err, "git "+strings.Join(args, " ")).WithContext("output", strings.TrimSpace(string(out)))
 	}
 	return out, nil
 }

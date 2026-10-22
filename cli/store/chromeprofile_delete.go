@@ -5,7 +5,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
@@ -86,7 +85,7 @@ func (db *DB) ChromeProfileExists(name string) bool {
 func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {
 	rows, err := QueryWrapper(db.conn, sqlSelectChromeProfileExports, name).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf("query chrome-profile artifacts: %w", err)
+		return nil, apperror.WrapSimple(err, "query chrome-profile artifacts")
 	}
 
 	defer rows.Close()
@@ -94,7 +93,7 @@ func (db *DB) collectChromeArtifactPaths(name string) ([]string, error) {
 	for rows.Next() {
 		var p string
 		if err := rows.Scan(&p); err != nil {
-			return nil, fmt.Errorf("scan artifact: %w", err)
+			return nil, apperror.WrapSimple(err, "scan artifact")
 		}
 
 		out = append(out, p)

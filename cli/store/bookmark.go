@@ -1,8 +1,6 @@
 package store
 
 import (
-	"fmt"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -14,7 +12,7 @@ func (db *DB) InsertBookmark(r model.BookmarkRecord) error {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertBookmark,
 		r.Name, r.Command, r.Args, r.Flags).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrBookmarkQuery, err)
+		return apperror.WrapSimple(err, "failed to query bookmarks")
 	}
 
 	return nil
@@ -53,7 +51,7 @@ func (db *DB) FindBookmarkByName(name string) (model.BookmarkRecord, error) {
 	var r model.BookmarkRecord
 	err := row.Scan(&r.ID, &r.Name, &r.Command, &r.Args, &r.Flags, &r.CreatedAt)
 	if err != nil {
-		return r, fmt.Errorf(constants.ErrBookmarkQuery, err)
+		return r, apperror.WrapSimple(err, "failed to query bookmarks")
 	}
 
 	return r, nil
@@ -63,7 +61,7 @@ func (db *DB) FindBookmarkByName(name string) (model.BookmarkRecord, error) {
 func (db *DB) DeleteBookmark(name string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLDeleteBookmark, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrBookmarkQuery, err)
+		return apperror.WrapSimple(err, "failed to query bookmarks")
 	}
 
 	return nil
@@ -80,7 +78,7 @@ func scanBookmarkRows(rows interface {
 		var r model.BookmarkRecord
 		err := rows.Scan(&r.ID, &r.Name, &r.Command, &r.Args, &r.Flags, &r.CreatedAt)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrBookmarkQuery, err)
+			return nil, apperror.WrapSimple(err, "failed to query bookmarks")
 		}
 
 		results = append(results, r)

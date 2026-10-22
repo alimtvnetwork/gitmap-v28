@@ -6,8 +6,8 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -16,7 +16,7 @@ import (
 func (db *DB) SelectRecentMakeAllVisibilityRuns(limit int) ([]model.MakeAllVisibilityRunRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectRecentRuns, limit).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
+		return nil, apperror.WrapSimple(err, "select recent runs failed (operation: SQLSelectRecentRuns)")
 	}
 
 	defer rows.Close()
@@ -32,14 +32,14 @@ func scanRecentRuns(rows *sql.Rows) ([]model.MakeAllVisibilityRunRecord, error) 
 		if err := rows.Scan(&r.ID, &r.CommandKind, &r.TargetVisibility, &r.Provider,
 			&r.Owner, &r.MatchedCount, &r.OkCount, &r.SkippedCount, &r.FailedCount,
 			&r.ExcludedCount, &r.ExitCode, &r.StartedAt, &r.FinishedAt); err != nil {
-			return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
+			return nil, apperror.WrapSimple(err, "select recent runs failed (operation: SQLSelectRecentRuns)")
 		}
 
 		out = append(out, r)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
+		return nil, apperror.WrapSimple(err, "select recent runs failed (operation: SQLSelectRecentRuns)")
 	}
 
 	return out, nil

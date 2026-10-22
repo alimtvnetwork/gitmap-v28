@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -50,12 +51,12 @@ func (db *DB) resolveProjectRepoID(p model.DetectedProject) (int64, error) {
 		return id, nil
 	}
 
-	return 0, fmt.Errorf("cannot upsert detected project: RepoId %d not found in Repo table for %s", p.RepoID, p.AbsolutePath)
+	return 0, apperror.NewNotFoundError(fmt.Sprintf("cannot upsert detected project: RepoId %d not found in Repo table for %s", p.RepoID, p.AbsolutePath))
 }
 
 func (db *DB) ensureProjectTypeExists(typeID int64) error {
 	if typeID <= 0 {
-		return fmt.Errorf("cannot upsert detected project: invalid ProjectTypeID %d", typeID)
+		return apperror.NewValidationError(fmt.Sprintf("cannot upsert detected project: invalid ProjectTypeID %d", typeID))
 	}
 
 	var exists bool
@@ -66,7 +67,7 @@ func (db *DB) ensureProjectTypeExists(typeID int64) error {
 	}
 
 	if !exists {
-		return fmt.Errorf("cannot upsert detected project: ProjectTypeId %d not found in ProjectType table", typeID)
+		return apperror.NewNotFoundError(fmt.Sprintf("cannot upsert detected project: ProjectTypeId %d not found in ProjectType table", typeID))
 	}
 
 	return nil
@@ -89,7 +90,7 @@ func (db *DB) SelectDetectedProjectID(
 func (db *DB) SelectProjectsByTypeKey(key string) ([]model.DetectedProject, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectProjectsByTypeKey, key).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query projects")
 	}
 
 	defer rows.Close()

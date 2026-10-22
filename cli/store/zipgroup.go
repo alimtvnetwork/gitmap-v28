@@ -4,6 +4,7 @@ package store
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -18,7 +19,7 @@ type ZipGroupWithCount struct {
 func (db *DB) CreateZipGroup(name, archiveName string) (model.ZipGroup, error) {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertZipGroup, name, archiveName).Destruct()
 	if err != nil {
-		return model.ZipGroup{}, fmt.Errorf(constants.ErrZGCreate, err)
+		return model.ZipGroup{}, apperror.WrapSimple(err, "failed to create zip group")
 	}
 
 	return db.FindZipGroupByName(name)
@@ -32,7 +33,7 @@ func (db *DB) FindZipGroupByName(name string) (model.ZipGroup, error) {
 
 	err := row.Scan(&g.ID, &g.Name, &g.ArchiveName, &g.CreatedAt)
 	if err != nil {
-		return model.ZipGroup{}, fmt.Errorf(constants.ErrZGNotFound+": %w", name, err)
+		return model.ZipGroup{}, apperror.WrapNotFound(err, fmt.Sprintf("no zip group found: %s", name))
 	}
 
 	return g, nil
@@ -42,7 +43,7 @@ func (db *DB) FindZipGroupByName(name string) (model.ZipGroup, error) {
 func (db *DB) ListZipGroups() ([]model.ZipGroup, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllZipGroups).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrZGQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query zip groups")
 	}
 
 	defer rows.Close()
@@ -67,7 +68,7 @@ func (db *DB) ListZipGroups() ([]model.ZipGroup, error) {
 func (db *DB) ListZipGroupsWithCount() ([]ZipGroupWithCount, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllZipGroupsWithCount).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrZGQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query zip groups")
 	}
 
 	defer rows.Close()
@@ -92,7 +93,7 @@ func (db *DB) ListZipGroupsWithCount() ([]ZipGroupWithCount, error) {
 func (db *DB) DeleteZipGroup(name string) error {
 	result, err := ExecWrapper(db.conn, constants.SQLDeleteZipGroup, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrZGDelete, err)
+		return apperror.WrapSimple(err, "failed to delete zip group")
 	}
 
 	return checkDeleted(result, name)
@@ -102,7 +103,7 @@ func (db *DB) DeleteZipGroup(name string) error {
 func (db *DB) UpdateZipGroupArchive(name, archiveName string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateZipGroupArchive, archiveName, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrZGCreate, err)
+		return apperror.WrapSimple(err, "failed to create zip group")
 	}
 
 	return nil
@@ -128,7 +129,7 @@ func (db *DB) AddZipGroupItem(
 
 	_, err = ExecWrapper(db.conn, constants.SQLInsertZipGroupItem, g.ID, repoPath, relativePath, fullPath, folderFlag).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrZGAddItem, err)
+		return apperror.WrapSimple(err, "failed to add item to zip group")
 	}
 
 	return nil
@@ -143,7 +144,7 @@ func (db *DB) RemoveZipGroupItem(groupName, fullPath string) error {
 
 	_, err = ExecWrapper(db.conn, constants.SQLDeleteZipGroupItem, g.ID, fullPath).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrZGRemoveItem, err)
+		return apperror.WrapSimple(err, "failed to remove item from zip group")
 	}
 
 	return nil
@@ -158,7 +159,7 @@ func (db *DB) ListZipGroupItems(groupName string) ([]model.ZipGroupItem, error) 
 
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectZipGroupItems, g.ID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrZGQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query zip groups")
 	}
 
 	defer rows.Close()

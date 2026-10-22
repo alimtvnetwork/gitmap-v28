@@ -2,8 +2,8 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -14,7 +14,7 @@ import (
 func (db *DB) FindNext(scanFolderID int64) ([]model.FindNextRow, error) {
 	rows, err := queryFindNext(db.conn, scanFolderID)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrFindNextQuery, err)
+		return nil, apperror.WrapSimple(err, "find-next: failed to query")
 	}
 
 	defer rows.Close()
@@ -37,7 +37,7 @@ func scanFindNextRows(rows *sql.Rows) ([]model.FindNextRow, error) {
 	for rows.Next() {
 		row, err := scanOneFindNextRow(rows)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrFindNextScanRow, err)
+			return nil, apperror.WrapSimple(err, "find-next: failed to scan row")
 		}
 
 		results = append(results, row)

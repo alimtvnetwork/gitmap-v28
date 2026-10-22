@@ -3,7 +3,6 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -21,7 +20,7 @@ func (db *DB) InsertSSHKey(
 ) (model.SSHKey, error) {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertSSHKey, name, privatePath, publicKey, fingerprint, email).Destruct()
 	if err != nil {
-		return model.SSHKey{}, fmt.Errorf(constants.ErrSSHCreate, err)
+		return model.SSHKey{}, apperror.WrapSimple(err, "failed to create SSH key record")
 	}
 
 	return db.FindSSHKeyByName(name)
@@ -31,7 +30,7 @@ func (db *DB) InsertSSHKey(
 func (db *DB) UpdateSSHKey(name, privatePath, publicKey, fingerprint, email string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateSSHKey, privatePath, publicKey, fingerprint, email, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrSSHCreate, err)
+		return apperror.WrapSimple(err, "failed to create SSH key record")
 	}
 
 	return nil
@@ -74,7 +73,7 @@ func (db *DB) ListSSHKeys() ([]model.SSHKey, error) {
 func (db *DB) DeleteSSHKey(name string) error {
 	result, err := ExecWrapper(db.conn, constants.SQLDeleteSSHKeyByName, name).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrSSHDelete, err)
+		return apperror.WrapSimple(err, "failed to delete SSH key")
 	}
 
 	return checkDeleted(result, name)

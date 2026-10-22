@@ -4,6 +4,7 @@ package store
 import (
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -51,7 +52,7 @@ func (db *DB) SelectCsharpMetadata(detectedProjectID int64) (*model.CsharpProjec
 func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectFile, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectCsharpProjectFiles, metadataID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query projects")
 	}
 
 	defer rows.Close()
@@ -63,7 +64,7 @@ func (db *DB) SelectCsharpProjectFiles(metadataID int64) ([]model.CsharpProjectF
 func (db *DB) SelectCsharpKeyFiles(metadataID int64) ([]model.CsharpKeyFile, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectCsharpKeyFiles, metadataID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query projects")
 	}
 
 	defer rows.Close()

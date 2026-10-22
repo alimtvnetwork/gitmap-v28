@@ -2,6 +2,7 @@ package commitin
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 	"time"
 )
@@ -37,12 +38,12 @@ func hydrate(repoDir, sha string, orderIndex int) (SourceCommit, error) {
 func readCommitMeta(repoDir, sha string) (SourceCommit, error) {
 	out, err := gitRunner(repoDir, "show", "-s", "--format="+commitFormat, sha)
 	if err != nil {
-		return SourceCommit{}, fmt.Errorf("show %s: %w", sha, err)
+		return SourceCommit{}, apperror.WrapSimple(err, fmt.Sprintf("show %s", sha))
 	}
 
 	parts := strings.SplitN(out, "\x1f", 6)
 	if len(parts) != 6 {
-		return SourceCommit{}, fmt.Errorf("malformed git show output for %s: %q", sha, out)
+		return SourceCommit{}, apperror.NewExecutionError(fmt.Sprintf("malformed git show output for %s: %q", sha, out))
 	}
 
 	return assembleMeta(parts)
@@ -53,12 +54,12 @@ func readCommitMeta(repoDir, sha string) (SourceCommit, error) {
 func assembleMeta(parts []string) (SourceCommit, error) {
 	authorDate, err := time.Parse(time.RFC3339, strings.TrimSpace(parts[2]))
 	if err != nil {
-		return SourceCommit{}, fmt.Errorf("parse author date: %w", err)
+		return SourceCommit{}, apperror.WrapSimple(err, "parse author date")
 	}
 
 	committerDate, err := time.Parse(time.RFC3339, strings.TrimSpace(parts[3]))
 	if err != nil {
-		return SourceCommit{}, fmt.Errorf("parse committer date: %w", err)
+		return SourceCommit{}, apperror.WrapSimple(err, "parse committer date")
 	}
 
 	return SourceCommit{
@@ -88,7 +89,7 @@ func assembleMessage(subject, body string) string {
 func readCommitFiles(repoDir, sha string) ([]string, error) {
 	out, err := gitRunner(repoDir, "show", "--first-parent", "--name-only", "--format=", sha)
 	if err != nil {
-		return nil, fmt.Errorf("show files %s: %w", sha, err)
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("show files %s", sha))
 	}
 
 	out = strings.TrimSpace(out)

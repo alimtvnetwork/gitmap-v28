@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"strings"
@@ -51,7 +52,7 @@ func (a *Asker) AskString(field, question, fallback string) (string, error) {
 
 	line, err := a.reader.ReadString('\n')
 	if err != nil && err != io.EOF {
-		return "", fmt.Errorf("read answer: %w", err)
+		return "", apperror.WrapSimple(err, "read answer")
 	}
 
 	line = strings.TrimRight(line, "\r\n")

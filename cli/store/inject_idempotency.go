@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -32,7 +33,7 @@ func (db *DB) GetInjectTimestamps(absPath string) (InjectTimestamps, error) {
 	}
 
 	if err != nil {
-		return InjectTimestamps{}, fmt.Errorf(constants.ErrDBQuery, err)
+		return InjectTimestamps{}, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	return ts, nil
@@ -49,11 +50,11 @@ func (db *DB) MarkInjected(absPath string, kind constants.InjectKindType) error 
 	case constants.InjectKindVSCode:
 		stmt = constants.SQLUpdateInjectVSCodeTimestamp
 	default:
-		return fmt.Errorf("inject_idempotency: unknown InjectKind %d", kind)
+		return apperror.NewValidationError(fmt.Sprintf("inject_idempotency: unknown InjectKind %d", kind))
 	}
 
 	if _, err := ExecWrapper(db.conn, stmt, absPath).Destruct(); err != nil {
-		return fmt.Errorf(constants.ErrDBUpsert, err)
+		return apperror.WrapSimple(err, "failed to upsert repo")
 	}
 
 	return nil

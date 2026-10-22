@@ -3,6 +3,7 @@ package profile
 import (
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 
@@ -49,11 +50,11 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 	path := ProfilePath(workspaceRoot, p.Name)
 	fileAlreadyExists := isExistingFile(path)
 	if !allowOverwrite && fileAlreadyExists {
-		return fmt.Errorf("profile %q already exists", p.Name)
+		return apperror.NewValidationError(fmt.Sprintf("profile %q already exists", p.Name))
 	}
 
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return fmt.Errorf("mkdir profiles: %w", err)
+		return apperror.WrapSimple(err, "mkdir profiles")
 	}
 
 	out, err := Encode(p)
@@ -63,11 +64,11 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, out, 0o644); err != nil {
-		return fmt.Errorf("write tmp: %w", err)
+		return apperror.WrapSimple(err, "write tmp")
 	}
 
 	if err := os.Rename(tmp, path); err != nil {
-		return fmt.Errorf("rename: %w", err)
+		return apperror.WrapSimple(err, "rename")
 	}
 
 	return nil
@@ -79,7 +80,7 @@ func SaveToDisk(workspaceRoot string, p *Profile, allowOverwrite bool) error {
 func profileExists(path string) error {
 	_, err := os.Stat(path)
 	if err == nil {
-		return fmt.Errorf("profile %q already exists", filepath.Base(path))
+		return apperror.NewValidationError(fmt.Sprintf("profile %q already exists", filepath.Base(path)))
 	}
 
 	return nil

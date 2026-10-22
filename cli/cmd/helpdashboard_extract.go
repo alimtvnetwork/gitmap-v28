@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,14 +18,14 @@ import (
 func extractDocsSiteZip(zipPath, targetDir string) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return fmt.Errorf("open zip: %w", err)
+		return apperror.WrapSimple(err, "open zip")
 	}
 
 	defer r.Close()
 
 	absTarget, err := filepath.Abs(targetDir)
 	if err != nil {
-		return fmt.Errorf("resolve target dir: %w", err)
+		return apperror.WrapSimple(err, "resolve target dir")
 	}
 
 	var totalSize int64
@@ -37,7 +38,7 @@ func extractDocsSiteZip(zipPath, targetDir string) error {
 
 		totalSize += written
 		if totalSize >= maxDocsSiteSize {
-			return fmt.Errorf("archive exceeds maximum extraction size (%d bytes)", maxDocsSiteSize)
+			return apperror.NewValidationError(fmt.Sprintf("archive exceeds maximum extraction size (%d bytes)", maxDocsSiteSize))
 		}
 	}
 
@@ -50,10 +51,10 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 	destPath := filepath.Join(absTarget, f.Name) // #nosec G305 — validated below
 	absDestPath, absErr := filepath.Abs(destPath)
 	if absErr != nil {
-		return 0, fmt.Errorf("illegal file path in zip %s: %w", f.Name, absErr)
+		return 0, apperror.WrapSimple(absErr, fmt.Sprintf("illegal file path in zip %s", f.Name))
 	}
 	if !strings.HasPrefix(absDestPath, absTarget+string(os.PathSeparator)) {
-		return 0, fmt.Errorf("illegal file path in zip: %s", f.Name)
+		return 0, apperror.NewValidationError(fmt.Sprintf("illegal file path in zip: %s", f.Name))
 	}
 
 	if f.FileInfo().IsDir() {
@@ -61,26 +62,26 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 	}
 
 	if mkErr := os.MkdirAll(filepath.Dir(absDestPath), constants.DirPermission); mkErr != nil {
-		return 0, fmt.Errorf("create parent dir: %w", mkErr)
+		return 0, apperror.WrapSimple(mkErr, "create parent dir")
 	}
 
 	rc, openErr := f.Open()
 	if openErr != nil {
-		return 0, fmt.Errorf("open entry %s: %w", f.Name, openErr)
+		return 0, apperror.WrapSimple(openErr, fmt.Sprintf("open entry %s", f.Name))
 	}
 
 	defer rc.Close()
 
 	outFile, createErr := os.Create(absDestPath) // #nosec G304 — absDestPath validated above
 	if createErr != nil {
-		return 0, fmt.Errorf("create file %s: %w", absDestPath, createErr)
+		return 0, apperror.WrapSimple(createErr, fmt.Sprintf("create file %s", absDestPath))
 	}
 
 	written, copyErr := io.CopyN(outFile, rc, maxDocsSiteSize-totalSize) // #nosec G110 — size-limited
 	outFile.Close()
 
 	if copyErr != nil && !errors.Is(copyErr, io.EOF) {
-		return written, fmt.Errorf("write file %s: %w", absDestPath, copyErr)
+		return written, apperror.WrapSimple(copyErr, fmt.Sprintf("write file %s", absDestPath))
 	}
 
 	return written, nil
@@ -90,7 +91,7 @@ func extractDocsZipEntry(f *zip.File, absTarget string, totalSize int64) (int64,
 func handleExtractDir(absDestPath string) (int64, error) {
 	mkErr := os.MkdirAll(absDestPath, constants.DirPermission)
 	if mkErr != nil {
-		return 0, fmt.Errorf("create dir %s: %w", absDestPath, mkErr)
+		return 0, apperror.WrapSimple(mkErr, fmt.Sprintf("create dir %s", absDestPath))
 	}
 
 	return 0, nil

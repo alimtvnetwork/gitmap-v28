@@ -279,7 +279,7 @@ func handleGlobalError(command string, err error) {
 
 	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeValidation {
 		msg := getValidationErrorMessage(appErr)
-		cliexit.Reportf(command, "validation", "", fmt.Errorf("%s", msg))
+		cliexit.Reportf(command, "validation", "", apperror.NewValidationError(msg))
 		cliexit.HandleError(nil, 1)
 
 		return
@@ -287,14 +287,14 @@ func handleGlobalError(command string, err error) {
 
 	if isAppErr && appErr != nil && appErr.Type == apperror.ErrorTypeNotFound {
 		msg := getNotFoundErrorMessage(appErr)
-		cliexit.Reportf(command, "not found", "", fmt.Errorf("%s", msg))
+		cliexit.Reportf(command, "not found", "", apperror.NewNotFoundError(msg))
 		cliexit.HandleError(nil, 1)
 
 		return
 	}
 
 	if display == "simple" && isAppErr && appErr != nil {
-		cliexit.Reportf(command, "execute", "", fmt.Errorf("%s: %w", appErr.Op, getRootCause(err)))
+		cliexit.Reportf(command, "execute", "", apperror.WrapSimple(getRootCause(err), appErr.Op))
 		cliexit.HandleError(nil, 1)
 
 		return

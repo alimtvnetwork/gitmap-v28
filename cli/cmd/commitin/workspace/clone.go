@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,7 +64,7 @@ func stageAllInputs(runDir string, inputs []ResolvedInput) ([]StagedInput, error
 		return nil, err
 	}
 	if len(out) == 0 {
-		return nil, fmt.Errorf("all %d input repositories failed to clone or do not exist", len(inputs))
+		return nil, apperror.NewExecutionError(fmt.Sprintf("all %d input repositories failed to clone or do not exist", len(inputs)))
 	}
 	return out, nil
 }
@@ -204,7 +205,7 @@ func tryStageInput(runDir string, in ResolvedInput, total int) (StagedInput, boo
 func ensureRunTempDir(p *Paths, runID int64) (string, error) {
 	dir := filepath.Join(p.TempRoot, fmt.Sprintf("%d", runID))
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", fmt.Errorf("mkdir temp run dir %s: %w", dir, err)
+		return "", apperror.WrapSimple(err, fmt.Sprintf("mkdir temp run dir %s", dir))
 	}
 
 	return dir, nil
@@ -222,18 +223,18 @@ func stageOneInput(runDir string, in ResolvedInput) (StagedInput, error) {
 		return stageVersionedSibling(runDir, in)
 	}
 
-	return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("unknown kind %q", in.Kind))
+	return StagedInput{}, apperror.WrapSimple(apperror.NewValidationError(fmt.Sprintf("unknown kind %q", in.Kind)), fmt.Sprintf("commit-in: input %q: open failed", in.Original))
 }
 
 // stageLocalFolder verifies the directory exists (read-only walk).
 func stageLocalFolder(in ResolvedInput) (StagedInput, error) {
 	info, err := os.Stat(in.AbsPath)
 	if err != nil {
-		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, err)
+		return StagedInput{}, apperror.WrapSimple(err, fmt.Sprintf("commit-in: input %q: open failed", in.Original))
 	}
 
 	if !info.IsDir() {
-		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputOpen, in.Original, fmt.Errorf("not a directory"))
+		return StagedInput{}, apperror.WrapSimple(apperror.NewValidationError("not a directory"), fmt.Sprintf("commit-in: input %q: open failed", in.Original))
 	}
 
 	return StagedInput{Input: in, WorkPath: in.AbsPath}, nil
@@ -246,7 +247,7 @@ func stageRemoteUrl(runDir string, in ResolvedInput) (StagedInput, error) {
 	}
 	target := filepath.Join(runDir, fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, cloneBasename(in.URL)))
 	if err := gitRunner("clone", in.URL, target); err != nil {
-		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)
+		return StagedInput{}, apperror.WrapSimple(err, fmt.Sprintf("commit-in: input %q: clone failed", in.Original))
 	}
 
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil
@@ -266,7 +267,7 @@ func FindCachedCloneDir(runDir string, in ResolvedInput) string {
 func stageVersionedSibling(runDir string, in ResolvedInput) (StagedInput, error) {
 	target := filepath.Join(runDir, fmt.Sprintf(constants.CommitInTempInputFormat, in.OrderIndex, filepath.Base(in.AbsPath)))
 	if err := gitRunner("clone", in.AbsPath, target); err != nil {
-		return StagedInput{}, fmt.Errorf(constants.CommitInErrInputClone, in.Original, err)
+		return StagedInput{}, apperror.WrapSimple(err, fmt.Sprintf("commit-in: input %q: clone failed", in.Original))
 	}
 
 	return StagedInput{Input: in, WorkPath: target, IsClone: true}, nil

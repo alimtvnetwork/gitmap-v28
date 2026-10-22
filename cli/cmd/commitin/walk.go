@@ -2,6 +2,7 @@ package commitin
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 	"sync"
 	"time"
@@ -30,7 +31,7 @@ type SourceCommit struct {
 func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 	shas, err := listFirstParentShas(repoDir)
 	if err != nil {
-		return nil, fmt.Errorf("walk: list shas: %w", err)
+		return nil, apperror.WrapSimple(err, "walk: list shas")
 	}
 
 	if len(shas) == 0 {
@@ -45,7 +46,7 @@ func WalkFirstParent(repoDir string) ([]SourceCommit, error) {
 	for i, sha := range shas {
 		c, hyErr := hydrate(repoDir, sha, i+1)
 		if hyErr != nil {
-			return nil, fmt.Errorf("walk: hydrate %s: %w", sha, hyErr)
+			return nil, apperror.WrapSimple(hyErr, fmt.Sprintf("walk: hydrate %s", sha))
 		}
 
 		out = append(out, c)
@@ -70,7 +71,7 @@ func hydrateConcurrent(repoDir string, shas []string) ([]SourceCommit, error) {
 			defer func() { <-sem }()
 			c, err := hydrate(repoDir, s, idx+1)
 			if err != nil {
-				once.Do(func() { firstErr = fmt.Errorf("walk: hydrate %s: %w", s, err) })
+				once.Do(func() { firstErr = apperror.WrapSimple(err, fmt.Sprintf("walk: hydrate %s", s)) })
 				return
 			}
 			out[idx] = c

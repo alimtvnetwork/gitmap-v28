@@ -2,8 +2,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -22,7 +22,7 @@ func scanPendingTaskRows(rows interface {
 			&r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 			&r.FailureReason, &r.CreatedAt, &r.UpdatedAt)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
+			return nil, apperror.WrapSimple(err, "failed to query pending tasks (operation: query)")
 		}
 
 		results = append(results, r)
@@ -45,7 +45,7 @@ func scanCompletedTaskRows(rows interface {
 			&r.TargetPath, &r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 			&r.CompletedAt, &r.CreatedAt)
 		if err != nil {
-			return nil, fmt.Errorf(constants.ErrPendingTaskQuery, err)
+			return nil, apperror.WrapSimple(err, "failed to query pending tasks (operation: query)")
 		}
 
 		results = append(results, r)

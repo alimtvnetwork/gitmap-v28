@@ -1,9 +1,9 @@
 package store
 
 import (
-	"fmt"
 	"math"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -18,7 +18,7 @@ func (db *DB) QueryCommandStats() ([]model.CommandStats, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLStatsPerCommand).Destruct()
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query stats")
 	}
 
 	defer rows.Close()
@@ -31,7 +31,7 @@ func (db *DB) QueryCommandStatsFor(command string) ([]model.CommandStats, error)
 	rows, err := QueryWrapper(db.conn, constants.SQLStatsForCommand, command).Destruct()
 
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrStatsQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query stats")
 	}
 
 	defer rows.Close()
@@ -48,7 +48,7 @@ func (db *DB) QueryOverallStats() (model.OverallStats, error) {
 		&s.TotalSuccess, &s.TotalFail, &s.OverallFailRate, &avgDuration)
 
 	if err != nil {
-		return s, fmt.Errorf(constants.ErrStatsQuery, err)
+		return s, apperror.WrapSimple(err, "failed to query stats")
 	}
 
 	s.AvgDuration = RoundAvgDuration(avgDuration)
@@ -65,7 +65,7 @@ func scanSingleStatRow(rows interface{ Scan(dest ...any) error }) (model.Command
 		&s.MinDuration, &s.MaxDuration, &s.LastUsed)
 
 	if err != nil {
-		return s, fmt.Errorf(constants.ErrStatsQuery, err)
+		return s, apperror.WrapSimple(err, "failed to query stats")
 	}
 
 	s.AvgDuration = RoundAvgDuration(avgDuration)

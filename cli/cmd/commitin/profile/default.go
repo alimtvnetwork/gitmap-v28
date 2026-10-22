@@ -2,7 +2,7 @@ package profile
 
 import (
 	"errors"
-	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 
@@ -24,7 +24,7 @@ func ClearOtherDefaults(workspaceRoot, sourceRepoPath, keepName string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("read profiles dir: %w", err)
+		return apperror.WrapSimple(err, "read profiles dir")
 	}
 
 	for _, e := range entries {

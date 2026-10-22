@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strings"
 
@@ -139,7 +140,7 @@ func ensureGitWorkingTreeReady(opts LowerCaseFixOptions, isGit bool) (bool, erro
 func prepareGitWorkingTree(opts LowerCaseFixOptions) (bool, error) {
 	treeStatus := checkGitWorkingTreeStatus()
 	if treeStatus.HasConflicts {
-		return false, fmt.Errorf("git repository has %d unresolved merge conflict(s). Resolve conflicts before running lowercase renames:\n  %s", len(treeStatus.ConflictFiles), strings.Join(treeStatus.ConflictFiles, "\n  "))
+		return false, apperror.NewValidationError(fmt.Sprintf("git repository has %d unresolved merge conflict(s). Resolve conflicts before running lowercase renames:\n  %s", len(treeStatus.ConflictFiles), strings.Join(treeStatus.ConflictFiles, "\n  ")))
 	}
 	if len(treeStatus.DirtyFiles) == 0 {
 		return true, nil
@@ -167,7 +168,7 @@ func handleDirtyWorkingTree(status GitWorkingTreeStatus, opts LowerCaseFixOption
 
 func executeDiscardDirty(status GitWorkingTreeStatus) error {
 	if err := discardGitWorkingTreeChanges(); err != nil {
-		return fmt.Errorf("failed to discard pending changes: %w", err)
+		return apperror.WrapSimple(err, "failed to discard pending changes")
 	}
 	fmt.Printf("%s✓ Discarded %d uncommitted pending change(s) before renaming.%s\n\n",
 		constants.ColorYellow, len(status.DirtyFiles), constants.ColorReset)

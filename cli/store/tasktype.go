@@ -4,6 +4,7 @@ package store
 import (
 	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -11,7 +12,7 @@ import (
 func (db *DB) SeedTaskTypes() error {
 	_, err := ExecWrapper(db.conn, constants.SQLSeedTaskTypes).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrPendingTaskInsert, err)
+		return apperror.WrapSimple(err, "failed to insert pending task (operation: insert)")
 	}
 
 	return nil
@@ -25,7 +26,7 @@ func (db *DB) GetTaskTypeID(name string) (int64, error) {
 
 	err := row.Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrTaskTypeNotFound+": %w", name, err)
+		return 0, apperror.WrapNotFound(err, fmt.Sprintf("task type not found: %s", name))
 	}
 
 	return id, nil
@@ -40,7 +41,7 @@ func (db *DB) EnsureTaskTypeID(name string) (int64, error) {
 
 	res, insErr := ExecWrapper(db.conn, "INSERT OR IGNORE INTO TaskType (Name) VALUES (?)", name).Destruct()
 	if insErr != nil {
-		return 0, fmt.Errorf(constants.ErrPendingTaskInsert, insErr)
+		return 0, apperror.WrapSimple(insErr, "failed to insert pending task (operation: insert)")
 	}
 
 	lastID, _ := res.LastInsertId()

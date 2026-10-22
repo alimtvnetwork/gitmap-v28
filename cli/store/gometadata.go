@@ -4,6 +4,7 @@ package store
 import (
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -42,7 +43,7 @@ func (db *DB) SelectGoMetadata(detectedProjectID int64) (*model.GoProjectMetadat
 func (db *DB) SelectGoRunnables(goMetadataID int64) ([]model.GoRunnableFile, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectGoRunnables, goMetadataID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrProjectQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query projects")
 	}
 
 	defer rows.Close()

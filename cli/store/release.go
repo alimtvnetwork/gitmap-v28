@@ -17,7 +17,7 @@ import (
 // v17: requires RepoID FK pointing at an existing Repo row.
 func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 	if r.RepoID == 0 {
-		return fmt.Errorf(constants.ErrReleaseNoRepo, "<unset>")
+		return apperror.NewValidationError(fmt.Sprintf("cannot persist release: no repo registered for path %q. Run `gitmap scan` first to register the repo, then retry.", "<unset>"))
 	}
 
 	return db.runUpsertReleaseTx(r)
@@ -33,7 +33,7 @@ func (db *DB) runUpsertReleaseTx(r model.ReleaseRecord) error {
 		return executeUpsertReleaseTx(tx.Tx(), r)
 	})
 	if appErr != nil {
-		return fmt.Errorf(constants.ErrDBReleaseUpsert, appErr)
+		return apperror.WrapSimple(appErr, "failed to upsert release")
 	}
 
 	return nil
@@ -79,7 +79,7 @@ func insertOrUpdateRelease(runner sqlExecutor, r model.ReleaseRecord) error {
 func clearLatestRunner(runner sqlExecutor, repoID int64) error {
 	_, err := ExecWrapper(runner, constants.SQLClearLatestRelease, repoID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBReleaseUpsert, err)
+		return apperror.WrapSimple(err, "failed to upsert release")
 	}
 
 	return nil
@@ -189,7 +189,7 @@ func (db *DB) ResolveCurrentRepoID(absPath string) (int64, error) {
 	}
 
 	if len(repos) == 0 {
-		return 0, fmt.Errorf(constants.ErrReleaseNoRepo, absPath)
+		return 0, apperror.NewValidationError(fmt.Sprintf("cannot persist release: no repo registered for path %q. Run `gitmap scan` first to register the repo, then retry.", absPath))
 	}
 
 	return repos[0].ID, nil

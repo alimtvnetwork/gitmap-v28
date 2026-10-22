@@ -3,6 +3,7 @@ package workspace
 import (
 	"errors"
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strconv"
 	"strings"
@@ -24,11 +25,11 @@ type LockHandle struct {
 // stale lock files (PID no longer running) are reclaimed.
 func AcquireLock(p *Paths) (*LockHandle, error) {
 	if isLockHeldByLive(p.LockFile) {
-		return nil, fmt.Errorf(constants.CommitInErrLockBusy, p.LockFile)
+		return nil, apperror.NewExecutionError(fmt.Sprintf("commit-in: another commit-in run is in progress (lock at %s)", p.LockFile))
 	}
 
 	if err := writeLockPid(p.LockFile); err != nil {
-		return nil, fmt.Errorf("commit-in: lock write failed: %w", err)
+		return nil, apperror.WrapSimple(err, "commit-in: lock write failed")
 	}
 
 	return &LockHandle{Path: p.LockFile}, nil

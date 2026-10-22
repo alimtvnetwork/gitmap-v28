@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"os/exec"
 	"strings"
@@ -38,7 +39,7 @@ func performTwoStepGitMv(src, tmp, dst string) error {
 	if err := runGitMvForLcf(tmp, dst); err != nil {
 		_ = runGitMvForLcf(tmp, src)
 
-		return fmt.Errorf("git mv step 2 (%s -> %s) failed: %w", tmp, dst, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("git mv step 2 (%s -> %s) failed", tmp, dst))
 	}
 
 	return nil
@@ -47,12 +48,12 @@ func performTwoStepGitMv(src, tmp, dst string) error {
 func performTwoStepFSRename(src, tmp, dst string) error {
 	_ = os.Remove(tmp)
 	if err := os.Rename(src, tmp); err != nil {
-		return fmt.Errorf("fs rename step 1 (%s -> %s) failed: %w", src, tmp, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("fs rename step 1 (%s -> %s) failed", src, tmp))
 	}
 	if err := os.Rename(tmp, dst); err != nil {
 		_ = os.Rename(tmp, src)
 
-		return fmt.Errorf("fs rename step 2 (%s -> %s) failed: %w", tmp, dst, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("fs rename step 2 (%s -> %s) failed", tmp, dst))
 	}
 	if isGitRepository() {
 		_ = exec.Command("git", "add", dst).Run()
@@ -64,10 +65,10 @@ func performTwoStepFSRename(src, tmp, dst string) error {
 func fallbackRename(src, tmp, dst string, gitErr error) error {
 	_ = os.Remove(tmp)
 	if err := os.Rename(src, tmp); err != nil {
-		return fmt.Errorf("git mv failed (%v) and fs rename to tmp failed: %w", gitErr, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("git mv failed (%v) and fs rename to tmp failed", gitErr))
 	}
 	if err := os.Rename(tmp, dst); err != nil {
-		return fmt.Errorf("fs rename tmp to %s failed: %w", dst, err)
+		return apperror.WrapSimple(err, fmt.Sprintf("fs rename tmp to %s failed", dst))
 	}
 	if isGitRepository() {
 		_ = exec.Command("git", "add", dst).Run()
@@ -80,7 +81,7 @@ func runGitMvForLcf(src, dst string) error {
 	cmd := exec.Command("git", "mv", src, dst)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("git mv %s to %s failed: %w (output: %s)", src, dst, err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git mv %s to %s failed (output: %s)", src, dst, strings.TrimSpace(string(out))))
 	}
 
 	return nil
@@ -128,12 +129,12 @@ func isGitConflictCode(code string) bool {
 func discardGitWorkingTreeChanges() error {
 	cmdReset := exec.Command("git", "reset", "--hard", "HEAD")
 	if out, err := cmdReset.CombinedOutput(); err != nil {
-		return fmt.Errorf("git reset --hard failed: %w (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git reset --hard failed (%s)", strings.TrimSpace(string(out))))
 	}
 
 	cmdClean := exec.Command("git", "clean", "-fd")
 	if out, err := cmdClean.CombinedOutput(); err != nil {
-		return fmt.Errorf("git clean -fd failed: %w (%s)", err, strings.TrimSpace(string(out)))
+		return apperror.WrapSimple(err, fmt.Sprintf("git clean -fd failed (%s)", strings.TrimSpace(string(out))))
 	}
 
 	return nil

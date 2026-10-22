@@ -2,8 +2,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -19,7 +19,7 @@ type CommitTemplate struct {
 func (db *DB) InsertTemplate(kind, template string) error {
 	_, err := ExecWrapper(db.conn, constants.SQLInsertTemplate, kind, template).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrSEODBInsert, err)
+		return apperror.WrapSimple(err, "failed to insert template")
 	}
 
 	return nil
@@ -29,7 +29,7 @@ func (db *DB) InsertTemplate(kind, template string) error {
 func (db *DB) ListTemplatesByKind(kind string) ([]CommitTemplate, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectTemplatesByKind, kind).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()

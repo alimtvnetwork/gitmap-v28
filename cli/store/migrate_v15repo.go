@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -42,7 +43,7 @@ func (db *DB) migrateV15Repo() error {
 
 	oldCount, err := db.countRows(constants.LegacyTableRepos)
 	if err != nil {
-		return fmt.Errorf("count Repos: %w", err)
+		return apperror.WrapSimple(err, "count Repos")
 	}
 
 	if err := db.execV15RepoRebuild(); err != nil {
@@ -51,7 +52,7 @@ func (db *DB) migrateV15Repo() error {
 
 	newCount, err := db.countRows(constants.TableRepo)
 	if err != nil {
-		return fmt.Errorf("count Repo: %w", err)
+		return apperror.WrapSimple(err, "count Repo")
 	}
 
 	if oldCount != newCount {
@@ -59,7 +60,7 @@ func (db *DB) migrateV15Repo() error {
 			"  ✗ v15 Repo migration row-count mismatch: old=%d new=%d\n",
 			oldCount, newCount)
 
-		return fmt.Errorf(constants.ErrV15RepoCountMismatch, oldCount, newCount)
+		return apperror.NewExecutionError(fmt.Sprintf("v15 Repo migration count mismatch: old=%d new=%d", oldCount, newCount))
 	}
 
 	fmt.Println(constants.MsgV15RepoMigrationDone)
@@ -73,7 +74,7 @@ func (db *DB) migrateV15Repo() error {
 // reference Repos at this point) survive the rename.
 func (db *DB) execV15RepoRebuild() error {
 	if _, err := ExecWrapper(db.conn, "PRAGMA foreign_keys = OFF").Destruct(); err != nil {
-		return fmt.Errorf("disable foreign keys: %w", err)
+		return apperror.WrapSimple(err, "disable foreign keys")
 	}
 
 	defer func() {
@@ -81,11 +82,11 @@ func (db *DB) execV15RepoRebuild() error {
 	}()
 
 	if _, err := ExecWrapper(db.conn, constants.SQLCreateRepo).Destruct(); err != nil {
-		return fmt.Errorf("create Repo table: %w", err)
+		return apperror.WrapSimple(err, "create Repo table")
 	}
 
 	if _, err := ExecWrapper(db.conn, constants.SQLCreateAbsPathIndex).Destruct(); err != nil {
-		return fmt.Errorf("create AbsPath index: %w", err)
+		return apperror.WrapSimple(err, "create AbsPath index")
 	}
 
 	const copySQL = `INSERT INTO Repo
@@ -96,11 +97,11 @@ func (db *DB) execV15RepoRebuild() error {
 		FROM Repos`
 
 	if _, err := ExecWrapper(db.conn, copySQL).Destruct(); err != nil {
-		return fmt.Errorf("copy Repos -> Repo: %w", err)
+		return apperror.WrapSimple(err, "copy Repos -> Repo")
 	}
 
 	if _, err := ExecWrapper(db.conn, "DROP TABLE Repos").Destruct(); err != nil {
-		return fmt.Errorf("drop legacy Repos: %w", err)
+		return apperror.WrapSimple(err, "drop legacy Repos")
 	}
 
 	// Drop the legacy index name; SQLCreateAbsPathIndex above created the

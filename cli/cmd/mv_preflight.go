@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
@@ -33,19 +34,19 @@ func calculateDestPath(srcPath, destTarget string) (string, error) {
 
 func preflightMove(srcPath, destPath string) error {
 	if !fsutil.DirExists(srcPath) {
-		return fmt.Errorf("source directory %q does not exist", srcPath)
+		return apperror.NewNotFoundError(fmt.Sprintf("source directory %q does not exist", srcPath))
 	}
 
 	if fsutil.EqualPaths(srcPath, destPath) {
-		return fmt.Errorf("source and destination are identical")
+		return apperror.NewValidationError("source and destination are identical")
 	}
 
 	if fsutil.FileOrDirExists(destPath) {
-		return fmt.Errorf("destination %q already exists", destPath)
+		return apperror.NewValidationError(fmt.Sprintf("destination %q already exists", destPath))
 	}
 
 	if fsutil.IsSubdirectory(srcPath, destPath) {
-		return fmt.Errorf("cannot move repository into its own subdirectory")
+		return apperror.NewValidationError("cannot move repository into its own subdirectory")
 	}
 
 	return nil

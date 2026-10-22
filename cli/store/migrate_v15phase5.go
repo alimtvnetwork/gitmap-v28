@@ -14,8 +14,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -46,7 +46,7 @@ func (db *DB) migrateV15Phase5() error {
 	}
 
 	if err := db.runV15Rebuild(spec); err != nil {
-		return fmt.Errorf("phase 1.5 Release: %w", err)
+		return apperror.WrapSimple(err, "phase 1.5 Release")
 	}
 
 	// Final swap: Release_v15phase5 → Release. The standard CREATE pass

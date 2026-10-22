@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 
@@ -29,7 +30,7 @@ type Paths struct {
 func EnsureWorkspace(sourceRoot string) (*Paths, error) {
 	abs, err := filepath.Abs(sourceRoot)
 	if err != nil {
-		return nil, fmt.Errorf("absolutize source: %w", err)
+		return nil, apperror.WrapSimple(err, "absolutize source")
 	}
 
 	p := buildPaths(abs)
@@ -66,7 +67,7 @@ func buildPaths(sourceRoot string) *Paths {
 func makeDirs(p *Paths) error {
 	for _, dir := range []string{p.GitmapRoot, p.CommitInRoot, p.ProfilesDir, p.TempRoot} {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return fmt.Errorf("mkdir %s: %w", dir, err)
+			return apperror.WrapSimple(err, fmt.Sprintf("mkdir %s", dir))
 		}
 	}
 

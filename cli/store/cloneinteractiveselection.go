@@ -5,10 +5,10 @@ package store
 // constants/constants_clonepick_store.go for the schema rationale.
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonepick"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -35,7 +35,7 @@ func (db *DB) SaveClonePickSelection(plan clonepick.Plan) (int64, error) {
 	args := clonePickInsertArgs(plan)
 	res, err := ExecWrapper(db.conn, constants.SQLInsertClonePickSelection, args...).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrClonePickDBInsert, err)
+		return 0, apperror.WrapSimple(err, "clone-pick: save selection")
 	}
 
 	return res.LastInsertId()

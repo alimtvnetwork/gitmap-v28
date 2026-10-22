@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -93,7 +94,7 @@ func handleExistingLock(cleanDir, lockPath string) error {
 	}
 
 	if processRunning(pid) {
-		return fmt.Errorf(constants.ErrLockHeld, pid, lockPath)
+		return apperror.NewExecutionError(fmt.Sprintf("another gitmap process is running (PID %d). If incorrect, delete: %s", pid, lockPath))
 	}
 
 	_ = os.Remove(lockPath)

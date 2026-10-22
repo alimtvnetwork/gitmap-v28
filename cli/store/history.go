@@ -1,8 +1,7 @@
 package store
 
 import (
-	"fmt"
-
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -13,7 +12,7 @@ func (db *DB) InsertHistory(r model.CommandHistoryRecord) (int64, error) {
 		r.Command, r.Alias, r.Args, r.Flags,
 		r.StartedAt, r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrHistoryQuery, err)
+		return 0, apperror.WrapSimple(err, "failed to query command history")
 	}
 
 	return result.LastInsertId()
@@ -24,7 +23,7 @@ func (db *DB) UpdateHistory(r model.CommandHistoryRecord) error {
 	_, err := ExecWrapper(db.conn, constants.SQLUpdateHistory,
 		r.FinishedAt, r.DurationMs, r.ExitCode, r.Summary, r.RepoCount, r.ID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrHistoryQuery, err)
+		return apperror.WrapSimple(err, "failed to query command history")
 	}
 
 	return nil
@@ -34,7 +33,7 @@ func (db *DB) UpdateHistory(r model.CommandHistoryRecord) error {
 func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllHistory).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query command history")
 	}
 
 	defer rows.Close()
@@ -46,7 +45,7 @@ func (db *DB) ListHistory() ([]model.CommandHistoryRecord, error) {
 func (db *DB) ListHistoryByCommand(command string) ([]model.CommandHistoryRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectHistoryByCommand, command).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrHistoryQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query command history")
 	}
 
 	defer rows.Close()

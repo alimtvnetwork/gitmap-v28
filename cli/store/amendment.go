@@ -2,8 +2,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -43,7 +43,7 @@ func (db *DB) InsertAmendment(
 		prevName, prevEmail, newName, newEmail, mode, fp).Destruct()
 
 	if err != nil {
-		return fmt.Errorf(constants.ErrDBUpsert, err)
+		return apperror.WrapSimple(err, "failed to upsert repo")
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func (db *DB) InsertAmendment(
 func (db *DB) ListAmendments() ([]AmendmentRow, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllAmendments).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()
@@ -65,7 +65,7 @@ func (db *DB) ListAmendments() ([]AmendmentRow, error) {
 func (db *DB) ListAmendmentsByBranch(branch string) ([]AmendmentRow, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectAmendmentsByBranch, branch).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return nil, apperror.WrapSimple(err, "failed to query repos")
 	}
 
 	defer rows.Close()

@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -43,7 +44,7 @@ func ExpandInputs(
 // expandExplicit classifies each user-supplied token. Order preserved.
 func expandExplicit(inputs []string) ([]ResolvedInput, error) {
 	if len(inputs) == 0 {
-		return nil, fmt.Errorf(constants.CommitInErrBadArgs, "no inputs to expand")
+		return nil, apperror.NewValidationError(fmt.Sprintf("commit-in: bad args: %s", "no inputs to expand"))
 	}
 
 	out := make([]ResolvedInput, 0, len(inputs))
@@ -117,7 +118,7 @@ func expandKeyword(source, keyword string, tail int) ([]ResolvedInput, error) {
 	}
 
 	if len(siblings) == 0 {
-		return nil, fmt.Errorf(constants.CommitInErrBadArgs, fmt.Sprintf("keyword %q matched zero siblings of %s", keyword, source))
+		return nil, apperror.NewValidationError(fmt.Sprintf("commit-in: bad args: %s", fmt.Sprintf("keyword %q matched zero siblings of %s", keyword, source)))
 	}
 
 	if keyword != constants.CommitInInputKeywordAll && tail > 0 && tail < len(siblings) {
@@ -148,14 +149,14 @@ var versionSuffix = regexp.MustCompile(`-v(\d+)$`)
 func discoverSiblings(source string) ([]ResolvedInput, error) {
 	abs, err := filepath.Abs(source)
 	if err != nil {
-		return nil, fmt.Errorf("absolutize source: %w", err)
+		return nil, apperror.WrapSimple(err, "absolutize source")
 	}
 
 	parent := filepath.Dir(abs)
 	base := stripVersionSuffix(filepath.Base(abs))
 	entries, readErr := os.ReadDir(parent)
 	if readErr != nil {
-		return nil, fmt.Errorf("read parent %s: %w", parent, readErr)
+		return nil, apperror.WrapSimple(readErr, fmt.Sprintf("read parent %s", parent))
 	}
 
 	return collectMatchingSiblings(parent, base, abs, entries), nil

@@ -2,6 +2,7 @@ package commitin
 
 import (
 	"fmt"
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"strings"
 )
 
@@ -24,7 +25,7 @@ func DetectClobbers(p Plan) ([]string, error) {
 	for _, rel := range p.Files {
 		isClobber, err := oneFileClobbers(p, head, rel)
 		if err != nil {
-			return nil, fmt.Errorf("clobber check %s: %w", rel, err)
+			return nil, apperror.WrapSimple(err, fmt.Sprintf("clobber check %s", rel))
 		}
 
 		if isClobber {

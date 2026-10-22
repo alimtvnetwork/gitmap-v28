@@ -2,8 +2,8 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -16,7 +16,7 @@ func (db *DB) InsertTransactionAction(r model.TransactionActionRecord) (int64, e
 		r.TransactionID, r.Seq, r.Kind, r.ForwardJSON, r.ReverseJSON,
 		r.BackupRef, nowUnix()).Destruct()
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrActionInsert, err)
+		return 0, apperror.WrapSimple(err, "transaction action insert")
 	}
 
 	return res.LastInsertId()
@@ -27,7 +27,7 @@ func (db *DB) NextActionSeq(txnID int64) (int64, error) {
 	row := QueryRowWrapper(db.conn, constants.SQLSelectMaxActionSeq, txnID)
 	var maxSeq int64
 	if err := row.Scan(&maxSeq); err != nil {
-		return 0, fmt.Errorf(constants.ErrActionList, err)
+		return 0, apperror.WrapSimple(err, "transaction action list")
 	}
 
 	return maxSeq + 1, nil
@@ -48,7 +48,7 @@ func (db *DB) ListTransactionActionsReverse(txnID int64) ([]model.TransactionAct
 func (db *DB) queryActions(query string, txnID int64) ([]model.TransactionActionRecord, error) {
 	rows, err := QueryWrapper(db.conn, query, txnID).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrActionList, err)
+		return nil, apperror.WrapSimple(err, "transaction action list")
 	}
 
 	defer rows.Close()
@@ -61,7 +61,7 @@ func (db *DB) MarkTransactionActionReverted(actionID int64) error {
 	_, err := ExecWrapper(db.conn, constants.SQLMarkTransactionActionReverted,
 		nowUnix(), actionID).Destruct()
 	if err != nil {
-		return fmt.Errorf(constants.ErrActionMarkReverted, err)
+		return apperror.WrapSimple(err, "transaction action mark reverted")
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func scanOneAction(rows *sql.Rows) (model.TransactionActionRecord, error) {
 		&r.ForwardJSON, &r.ReverseJSON, &r.BackupRef,
 		&r.AppliedAt, &reverted)
 	if err != nil {
-		return r, fmt.Errorf(constants.ErrActionList, err)
+		return r, apperror.WrapSimple(err, "transaction action list")
 	}
 
 	r.RevertedAt = nullInt(reverted)

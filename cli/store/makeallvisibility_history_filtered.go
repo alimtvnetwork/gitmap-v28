@@ -11,8 +11,8 @@
 package store
 
 import (
-	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
@@ -63,7 +63,7 @@ func (db *DB) SelectRecentMakeAllVisibilityRunsFiltered(f RecentRunsFilter) ([]m
 	sql, args := BuildRecentRunsQuery(f)
 	rows, err := QueryWrapper(db.conn, sql, args...).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrHistorySelectFmt, err, err.Error())
+		return nil, apperror.WrapSimple(err, "select recent runs failed (operation: SQLSelectRecentRuns)")
 	}
 
 	defer rows.Close()

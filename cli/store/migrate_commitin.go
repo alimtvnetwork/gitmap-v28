@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 
+t"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -71,7 +72,7 @@ func commitInDDL() []string {
 func (db *DB) migrateCommitIn() error {
 	for _, stmt := range commitInDDL() {
 		if _, err := ExecWrapper(db.conn, stmt).Destruct(); err != nil {
-			return fmt.Errorf("commit-in migration failed: %w (statement: %s)", err, stmt)
+			return apperror.WrapSimple(err, fmt.Sprintf("commit-in migration failed (statement: %s)", stmt))
 		}
 	}
 

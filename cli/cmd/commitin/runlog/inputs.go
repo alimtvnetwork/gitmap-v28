@@ -22,12 +22,12 @@ func InsertInputRepo(
 ) (int64, error) {
 	kindID, err := lookupEnumID(db, constants.TableCommitInInputKind, "InputKindId", kind)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: lookup InputKind %q: %w", kind, err)
+		return 0, apperror.WrapSimple(err, fmt.Sprintf("runlog: lookup InputKind %q", kind))
 	}
 
 	res, err := db.Exec(sqlInsertInputRepo, runID, orderIndex, originalRef, resolvedPath, kindID)
 	if err != nil {
-		return 0, fmt.Errorf("runlog: insert InputRepo: %w", err)
+		return 0, apperror.WrapSimple(err, "runlog: insert InputRepo")
 	}
 
 	return res.LastInsertId()
@@ -39,7 +39,7 @@ func InsertInputRepo(
 func InsertSourceCommit(db *sql.DB, inputRepoID int64, c SourceCommitRow) (int64, error) {
 	wrapper, appErr := dbengine.WrapDb(db, dbengine.DbSQLite)
 	if appErr != nil {
-		return 0, fmt.Errorf("runlog: wrap db: %w", appErr)
+		return 0, apperror.WrapSimple(appErr, "runlog: wrap db")
 	}
 
 	var id int64
