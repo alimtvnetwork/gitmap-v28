@@ -134,14 +134,14 @@ type FormatGoResult struct {
 
 type (
 	// CleanArtifactsResultMonad wraps CleanArtifactsResult with AppError.
-	CleanArtifactsResultMonad = result.Result[CleanArtifactsResult]
+	CleanArtifactsResultMonad = result.Wrap[CleanArtifactsResult]
 
 	// ChangedFilesResultMonad wraps ChangedFilesResult with AppError.
-	ChangedFilesResultMonad = result.Result[ChangedFilesResult]
+	ChangedFilesResultMonad = result.Wrap[ChangedFilesResult]
 
 	// PurgeHistoryResultMonad wraps PurgeHistoryResult with AppError.
-	PurgeHistoryResultMonad = result.Result[PurgeHistoryResult]
+	PurgeHistoryResultMonad = result.Wrap[PurgeHistoryResult]
 
 	// FormatGoResultMonad wraps FormatGoResult with AppError.
-	FormatGoResultMonad = result.Result[FormatGoResult]
+	FormatGoResultMonad = result.Wrap[FormatGoResult]
 )

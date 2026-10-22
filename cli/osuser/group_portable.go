@@ -19,14 +19,16 @@ type PortableGroup struct {
 }
 
 // ExportGroup gathers group details for an OS group.
-func ExportGroup(name string) result.Result[PortableGroup] {
+func ExportGroup(name string) PortableGroupWrap {
 	if name == "" {
 		return result.Fail[PortableGroup](apperror.NewSimple("empty group name", "E_INVALID_GROUP"))
 	}
+
 	pg := PortableGroup{
 		Name:    name,
 		Members: listGroupMembers(name),
 	}
+
 	return result.Ok(pg)
 }
 
@@ -39,44 +41,51 @@ func ExportAllGroups() result.ResultSlice[PortableGroup] {
 			groups = append(groups, res.Value)
 		}
 	}
+
 	return result.OkSlice(groups)
 }
 
 // ImportGroup creates an OS group from a portable representation.
-func ImportGroup(pg PortableGroup) result.Result[bool] {
+func ImportGroup(pg PortableGroup) result.BoolResult {
 	if pg.Name == "" {
 		return result.Fail[bool](apperror.NewSimple("missing group name", "E_INVALID_GROUP"))
 	}
+
 	cmd := buildCreateGroupCmd(pg.Name)
 	if err := cmd.Run(); err != nil {
 		return result.Fail[bool](apperror.WrapSimple(err, "import group "+pg.Name))
 	}
+
 	return result.Ok(true)
 }
 
 // ImportAllGroups batch provisions groups from a slice.
-func ImportAllGroups(groups []PortableGroup) result.Result[int] {
+func ImportAllGroups(groups []PortableGroup) result.IntResult {
 	successCount := 0
 	for _, g := range groups {
 		if res := ImportGroup(g); res.IsSuccess() {
 			successCount++
 		}
 	}
+
 	return result.Ok(successCount)
 }
 
 // EditGroup renames an OS group.
-func EditGroup(oldName, newName string) result.Result[bool] {
+func EditGroup(oldName, newName string) result.BoolResult {
 	if oldName == "" || newName == "" {
 		return result.Fail[bool](apperror.NewSimple("empty group name for edit", "E_INVALID_GROUP"))
 	}
+
 	if runtime.GOOS == constants.OSWindows {
 		return result.Ok(true)
 	}
+
 	cmd := exec.Command("groupmod", "-n", newName, oldName)
 	if err := cmd.Run(); err != nil {
 		return result.Fail[bool](apperror.WrapSimple(err, "rename group"))
 	}
+
 	return result.Ok(true)
 }
 

@@ -9,7 +9,7 @@ import (
 )
 
 // AgentAPISendMessage sends a message into an existing conversation.
-func AgentAPISendMessage(convID, title, content string) result.Result[string] {
+func AgentAPISendMessage(convID, title, content string) result.StringResult {
 	args := buildSendMessageArgs(convID, title, content)
 	rawRes := executeAgentAPICmd(args)
 	if rawRes.IsFailure() {
@@ -28,7 +28,7 @@ func buildSendMessageArgs(convID, title, content string) []string {
 	return []string{"send-message", convID, content}
 }
 
-func parseSendMessageResponse(data []byte) result.Result[string] {
+func parseSendMessageResponse(data []byte) result.StringResult {
 	var resp rawAgentAPIResponse
 	err := json.Unmarshal(data, &resp)
 	hasErr := err != nil
@@ -41,24 +41,24 @@ func parseSendMessageResponse(data []byte) result.Result[string] {
 	}
 	hasMsg := resp.Response.SendMessage != nil
 	if hasMsg {
-		return result.Ok(resp.Response.SendMessage.RecipientID)
+		return result.StringOk(resp.Response.SendMessage.RecipientID)
 	}
 
-	return result.Ok("")
+	return result.StringOk("")
 }
 
 // AgentAPINewConversation creates a new conversation with an initial prompt.
-func AgentAPINewConversation(title, prompt string) result.Result[string] {
+func AgentAPINewConversation(title, prompt string) result.StringResult {
 	return AgentAPINewConversationWithOptions(title, "", "", prompt)
 }
 
 // AgentAPINewConversationWithOptions creates a new conversation with model, profile, title, and initial prompt.
-func AgentAPINewConversationWithOptions(title, model, profile, prompt string) result.Result[string] {
+func AgentAPINewConversationWithOptions(title, model, profile, prompt string) result.StringResult {
 	return AgentAPINewConversationInDir("", title, model, profile, prompt)
 }
 
 // AgentAPINewConversationInDir creates a new conversation scoped to workDir with options.
-func AgentAPINewConversationInDir(workDir, title, model, profile, prompt string) result.Result[string] {
+func AgentAPINewConversationInDir(workDir, title, model, profile, prompt string) result.StringResult {
 	args := buildNewConvArgsWithOptions(title, model, profile, prompt)
 	rawRes := executeAgentAPICmdInDir(workDir, args)
 	if rawRes.IsFailure() {
@@ -84,7 +84,7 @@ func buildNewConvArgsWithOptions(title, model, profile, prompt string) []string 
 	return args
 }
 
-func parseNewConversationResponse(data []byte) result.Result[string] {
+func parseNewConversationResponse(data []byte) result.StringResult {
 	var resp rawAgentAPIResponse
 	err := json.Unmarshal(data, &resp)
 	hasErr := err != nil
@@ -97,7 +97,7 @@ func parseNewConversationResponse(data []byte) result.Result[string] {
 	}
 	hasConv := resp.Response.NewConversation != nil
 	if hasConv {
-		return result.Ok(resp.Response.NewConversation.ConversationID)
+		return result.StringOk(resp.Response.NewConversation.ConversationID)
 	}
 
 	return result.Fail[string](apperror.NewSimple("empty new conversation response", "E9034"))

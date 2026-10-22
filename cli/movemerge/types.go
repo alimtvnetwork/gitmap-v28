@@ -136,7 +136,7 @@ type Resolver struct {
 }
 
 // DiffEntryResult wraps a single DiffEntry in a Result envelope.
-type DiffEntryResult = result.Result[DiffEntry]
+type DiffEntryResult = result.Wrap[DiffEntry]
 
 // FileMetaMapResult wraps a map of relative paths to FileMeta.
 type FileMetaMapResult = result.ResultMap[string, FileMeta]

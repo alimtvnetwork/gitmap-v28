@@ -11,7 +11,7 @@ type (
 	MacroSliceResult = result.ResultSlice[Macro]
 
 	// MacroResult is the canonical single reusable result envelope for a single macro.
-	MacroResult = result.Result[Macro]
+	MacroResult = result.Wrap[Macro]
 
 	// MacroStepsMapResult is the canonical single reusable result envelope for macro steps mapping.
 	MacroStepsMapResult = result.ResultMap[string, []MacroStep]
@@ -63,7 +63,7 @@ type MacroFailureContext struct {
 }
 
 // MacroLogResult is the canonical single reusable result envelope for log path operations.
-type MacroLogResult = result.Result[string]
+type MacroLogResult = result.Wrap[string]
 
 // AsyncStepOpts defines parameters for asynchronous step execution in macros.
 type AsyncStepOpts struct {

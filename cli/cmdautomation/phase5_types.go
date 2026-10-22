@@ -114,14 +114,14 @@ type SpecMigrateResult struct {
 
 type (
 	// HelpAuditResultMonad wraps HelpAuditResult with AppError.
-	HelpAuditResultMonad = result.Result[HelpAuditResult]
+	HelpAuditResultMonad = result.Wrap[HelpAuditResult]
 
 	// PlanConsolidateResultMonad wraps PlanConsolidateResult with AppError.
-	PlanConsolidateResultMonad = result.Result[PlanConsolidateResult]
+	PlanConsolidateResultMonad = result.Wrap[PlanConsolidateResult]
 
 	// DocLinksResultMonad wraps DocLinksResult with AppError.
-	DocLinksResultMonad = result.Result[DocLinksResult]
+	DocLinksResultMonad = result.Wrap[DocLinksResult]
 
 	// SpecMigrateResultMonad wraps SpecMigrateResult with AppError.
-	SpecMigrateResultMonad = result.Result[SpecMigrateResult]
+	SpecMigrateResultMonad = result.Wrap[SpecMigrateResult]
 )

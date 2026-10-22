@@ -14,7 +14,7 @@ import (
 )
 
 // CleanTerminalHistory clears terminal command history and re-seeds suggestions.
-func CleanTerminalHistory(opts TerminalCleanOptions) result.Result[TerminalCleanSummary] {
+func CleanTerminalHistory(opts TerminalCleanOptions) TerminalCleanSummaryWrap {
 	start := time.Now()
 	summary := TerminalCleanSummary{
 		IsDryRun: opts.IsDryRun,
@@ -34,6 +34,7 @@ func CleanTerminalHistory(opts TerminalCleanOptions) result.Result[TerminalClean
 	}
 
 	summary.DurationMs = time.Since(start).Milliseconds()
+
 	return result.Ok(summary)
 }
 

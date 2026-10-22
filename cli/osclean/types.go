@@ -24,3 +24,9 @@ type CleanWrap = result.Wrap[CleanStats]
 
 // CleanResult is a backward-compatible alias for CleanWrap.
 type CleanResult = CleanWrap
+
+// DevCleanSummaryWrap encapsulates DevCleanSummary result wrapper.
+type DevCleanSummaryWrap = result.Wrap[DevCleanSummary]
+
+// TerminalCleanSummaryWrap encapsulates TerminalCleanSummary result wrapper.
+type TerminalCleanSummaryWrap = result.Wrap[TerminalCleanSummary]

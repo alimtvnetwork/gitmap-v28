@@ -79,4 +79,10 @@ type (
 
 	// UserStringsResult encapsulates a slice of strings outcome.
 	UserStringsResult = result.StringSliceResult
+
+	// PortableGroupWrap encapsulates a PortableGroup outcome.
+	PortableGroupWrap = result.Wrap[PortableGroup]
+
+	// PortableUserWrap encapsulates a PortableUser outcome.
+	PortableUserWrap = result.Wrap[PortableUser]
 )

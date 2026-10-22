@@ -13,11 +13,12 @@ type categoryCleaner struct {
 	Clean   func(bool) CategoryCleanStats
 }
 
-func CleanDevCaches(opts DevCleanOptions) result.Result[DevCleanSummary] {
+func CleanDevCaches(opts DevCleanOptions) DevCleanSummaryWrap {
 	start := time.Now()
 	summary := DevCleanSummary{IsDryRun: opts.IsDryRun}
 	runSelectedCleaners(&summary, opts.OnlyCategories, opts.IsDryRun)
 	summary.DurationMs = time.Since(start).Milliseconds()
+
 	return result.Ok(summary)
 }
 

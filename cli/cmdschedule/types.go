@@ -26,7 +26,7 @@ type (
 	ScheduleExportBundleResult = result.ResultSlice[ScheduleExportBundle]
 
 	// ScheduleExportBundleSingleResult is the canonical single reusable result envelope for a single bundle.
-	ScheduleExportBundleSingleResult = result.Result[ScheduleExportBundle]
+	ScheduleExportBundleSingleResult = result.Wrap[ScheduleExportBundle]
 
 	// SchedulerTaskSliceResult is the canonical single reusable result envelope for scheduler task slices.
 	SchedulerTaskSliceResult = result.ResultSlice[store.SchedulerTask]

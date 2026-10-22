@@ -166,4 +166,7 @@ type (
 
 	// ReplayPlanWrap is the canonical result wrapper for ReplayPlan.
 	ReplayPlanWrap = result.Wrap[ReplayPlan]
+
+	// PRCommitInfoWrap is the canonical result wrapper for PRCommitInfo.
+	PRCommitInfoWrap = result.Wrap[PRCommitInfo]
 )

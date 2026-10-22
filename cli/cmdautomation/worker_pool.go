@@ -37,7 +37,7 @@ func clampWorkerCount(requested, total int) int {
 }
 
 // BuildFileContext populates relative/absolute paths, sizes, and timestamps for a file.
-func BuildFileContext(path, encoding string, isPreRead bool) result.Result[FileContext] {
+func BuildFileContext(path, encoding string, isPreRead bool) result.Wrap[FileContext] {
 	absPath, size, modTime := resolveFileStats(path)
 	normRel := filepath.ToSlash(path)
 	ctx := FileContext{

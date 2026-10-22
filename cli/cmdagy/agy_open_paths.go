@@ -14,7 +14,7 @@ import (
 )
 
 // ResolveAntigravityIDE locates the desktop GUI editor executable (Antigravity.exe / Antigravity).
-func ResolveAntigravityIDE() result.Result[string] {
+func ResolveAntigravityIDE() result.StringResult {
 	pathRes := findBinaryInPath([]string{"antigravity", "Antigravity"})
 	if pathRes.IsSuccess() {
 		return pathRes
@@ -24,7 +24,7 @@ func ResolveAntigravityIDE() result.Result[string] {
 }
 
 // ResolveAntigravityCLI locates the command-line assistant executable (agy / agy.exe).
-func ResolveAntigravityCLI() result.Result[string] {
+func ResolveAntigravityCLI() result.StringResult {
 	pathRes := findBinaryInPath([]string{"agy", "agy.exe", "antigravity-cli"})
 	if pathRes.IsSuccess() {
 		return pathRes
@@ -34,7 +34,7 @@ func ResolveAntigravityCLI() result.Result[string] {
 }
 
 // ResolveAntigravityBinary locates either the Antigravity IDE or CLI executable.
-func ResolveAntigravityBinary() result.Result[string] {
+func ResolveAntigravityBinary() result.StringResult {
 	ideRes := ResolveAntigravityIDE()
 	if ideRes.IsSuccess() {
 		return ideRes
@@ -51,7 +51,7 @@ func IsAntigravityIDERunning() bool {
 }
 
 // DetectRunningAntigravityIDE inspects running processes via tasklist or ps.
-func DetectRunningAntigravityIDE() result.Result[AgyProcessInfo] {
+func DetectRunningAntigravityIDE() AgyProcessInfoWrap {
 	if runtime.GOOS == "windows" {
 		return detectRunningIDEWindows()
 	}
@@ -59,7 +59,7 @@ func DetectRunningAntigravityIDE() result.Result[AgyProcessInfo] {
 	return detectRunningIDEUnix()
 }
 
-func detectRunningIDEWindows() result.Result[AgyProcessInfo] {
+func detectRunningIDEWindows() AgyProcessInfoWrap {
 	cmd := exec.Command("tasklist", "/FO", "CSV", "/NH")
 	out, err := cmd.Output()
 	if err != nil {
@@ -69,7 +69,7 @@ func detectRunningIDEWindows() result.Result[AgyProcessInfo] {
 	return parseRunningIDEFromTasklist(string(out))
 }
 
-func parseRunningIDEFromTasklist(output string) result.Result[AgyProcessInfo] {
+func parseRunningIDEFromTasklist(output string) AgyProcessInfoWrap {
 	reader := csv.NewReader(strings.NewReader(output))
 	records, err := reader.ReadAll()
 	if err != nil {
@@ -79,7 +79,7 @@ func parseRunningIDEFromTasklist(output string) result.Result[AgyProcessInfo] {
 	return findIDEProcessInRecords(records)
 }
 
-func findIDEProcessInRecords(records [][]string) result.Result[AgyProcessInfo] {
+func findIDEProcessInRecords(records [][]string) AgyProcessInfoWrap {
 	for _, rec := range records {
 		matchRes := extractIDEProcessRecord(rec)
 		if matchRes.IsSuccess() {
@@ -90,7 +90,7 @@ func findIDEProcessInRecords(records [][]string) result.Result[AgyProcessInfo] {
 	return result.Fail[AgyProcessInfo](apperror.NewSimple("Antigravity IDE process is not running", "E9002"))
 }
 
-func extractIDEProcessRecord(rec []string) result.Result[AgyProcessInfo] {
+func extractIDEProcessRecord(rec []string) AgyProcessInfoWrap {
 	if len(rec) < 2 {
 		return result.Fail[AgyProcessInfo](apperror.NewSimple("invalid record", "E9003"))
 	}
@@ -115,7 +115,7 @@ func isAntigravityProcessName(name string) bool {
 	return strings.HasPrefix(base, "antigravity") && strings.HasSuffix(base, ".exe")
 }
 
-func detectRunningIDEUnix() result.Result[AgyProcessInfo] {
+func detectRunningIDEUnix() AgyProcessInfoWrap {
 	cmd := exec.Command("ps", "-eo", "pid,comm")
 	out, err := cmd.Output()
 	if err != nil {
@@ -125,7 +125,7 @@ func detectRunningIDEUnix() result.Result[AgyProcessInfo] {
 	return parseRunningIDEFromPs(string(out))
 }
 
-func parseRunningIDEFromPs(output string) result.Result[AgyProcessInfo] {
+func parseRunningIDEFromPs(output string) AgyProcessInfoWrap {
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
 		matchRes := extractIDEProcessLine(line)
@@ -137,7 +137,7 @@ func parseRunningIDEFromPs(output string) result.Result[AgyProcessInfo] {
 	return result.Fail[AgyProcessInfo](apperror.NewSimple("Antigravity IDE process is not running", "E9002"))
 }
 
-func extractIDEProcessLine(line string) result.Result[AgyProcessInfo] {
+func extractIDEProcessLine(line string) AgyProcessInfoWrap {
 	fields := strings.Fields(line)
 	if len(fields) < 2 {
 		return result.Fail[AgyProcessInfo](apperror.NewSimple("invalid line", "E9003"))
@@ -146,7 +146,7 @@ func extractIDEProcessLine(line string) result.Result[AgyProcessInfo] {
 	return buildUnixIDEProcessInfo(fields[0], fields[1])
 }
 
-func buildUnixIDEProcessInfo(pidStr, rawName string) result.Result[AgyProcessInfo] {
+func buildUnixIDEProcessInfo(pidStr, rawName string) AgyProcessInfoWrap {
 	pid, convErr := strconv.Atoi(pidStr)
 	name := filepath.Base(rawName)
 	hasValidPid := convErr == nil && pid > 0 && strings.EqualFold(name, "antigravity")

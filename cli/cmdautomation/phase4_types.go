@@ -97,11 +97,11 @@ type MilestonesResult struct {
 
 type (
 	// VersionSyncResultMonad wraps VersionSyncResult with AppError.
-	VersionSyncResultMonad = result.Result[VersionSyncResult]
+	VersionSyncResultMonad = result.Wrap[VersionSyncResult]
 
 	// ReleaseBumpResultMonad wraps ReleaseBumpResult with AppError.
-	ReleaseBumpResultMonad = result.Result[ReleaseBumpResult]
+	ReleaseBumpResultMonad = result.Wrap[ReleaseBumpResult]
 
 	// MilestonesResultMonad wraps MilestonesResult with AppError.
-	MilestonesResultMonad = result.Result[MilestonesResult]
+	MilestonesResultMonad = result.Wrap[MilestonesResult]
 )

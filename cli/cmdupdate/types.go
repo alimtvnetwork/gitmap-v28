@@ -48,4 +48,4 @@ type AlreadyUpdatedResult struct {
 }
 
 // ResultUpdate wraps UpdateResult in monadic Result.
-type ResultUpdate = result.Result[UpdateResult]
+type ResultUpdate = result.Wrap[UpdateResult]

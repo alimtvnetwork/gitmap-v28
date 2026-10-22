@@ -78,11 +78,11 @@ type RuleAuditResult struct {
 
 type (
 	// RelPathResultMonad wraps RelPathResult with AppError.
-	RelPathResultMonad = result.Result[RelPathResult]
+	RelPathResultMonad = result.Wrap[RelPathResult]
 
 	// NamingResultMonad wraps NamingResult with AppError.
-	NamingResultMonad = result.Result[NamingResult]
+	NamingResultMonad = result.Wrap[NamingResult]
 
 	// RuleAuditResultMonad wraps RuleAuditResult with AppError.
-	RuleAuditResultMonad = result.Result[RuleAuditResult]
+	RuleAuditResultMonad = result.Wrap[RuleAuditResult]
 )

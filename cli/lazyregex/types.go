@@ -27,7 +27,7 @@ type CompileResult struct {
 }
 
 // RegexpResult wraps a compiled regular expression in a Result envelope.
-type RegexpResult = result.Result[*regexp.Regexp]
+type RegexpResult = result.Wrap[*regexp.Regexp]
 
 // MatchGroup represents a single matched pattern with all captured submatches and named groups.
 type MatchGroup struct {

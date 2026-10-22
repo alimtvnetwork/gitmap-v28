@@ -126,14 +126,14 @@ type TableSchemaInfo struct {
 
 type (
 	// TopologyResultMonad wraps TopologyResult with AppError.
-	TopologyResultMonad = result.Result[TopologyResult]
+	TopologyResultMonad = result.Wrap[TopologyResult]
 
 	// DbGenerateResultMonad wraps DbGenerateResult with AppError.
-	DbGenerateResultMonad = result.Result[DbGenerateResult]
+	DbGenerateResultMonad = result.Wrap[DbGenerateResult]
 
 	// DbMigrateResultMonad wraps DbMigrateResult with AppError.
-	DbMigrateResultMonad = result.Result[DbMigrateResult]
+	DbMigrateResultMonad = result.Wrap[DbMigrateResult]
 
 	// SchemaAuditResultMonad wraps SchemaAuditResult with AppError.
-	SchemaAuditResultMonad = result.Result[SchemaAuditResult]
+	SchemaAuditResultMonad = result.Wrap[SchemaAuditResult]
 )

@@ -64,7 +64,7 @@ var automationSchemaDDL = []string{
 }
 
 // OpenAutomationDB opens the repository automation database with WAL mode and pragmas.
-func OpenAutomationDB(repoPath string) result.Result[*sql.DB] {
+func OpenAutomationDB(repoPath string) result.Wrap[*sql.DB] {
 	dbPath := ResolveAutomationDbPath(repoPath)
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
@@ -133,7 +133,7 @@ func initAutomationSchema(db *sql.DB) *apperror.AppError {
 }
 
 // GetCachedRuntime retrieves a cached runtime record by name.
-func GetCachedRuntime(db *sql.DB, name string) result.Result[RuntimeRecord] {
+func GetCachedRuntime(db *sql.DB, name string) result.Wrap[RuntimeRecord] {
 	if db == nil {
 		return result.Fail[RuntimeRecord](apperror.NewSimple("nil db", "E7102"))
 	}
@@ -141,7 +141,7 @@ func GetCachedRuntime(db *sql.DB, name string) result.Result[RuntimeRecord] {
 	return scanRuntimeRecord(row)
 }
 
-func scanRuntimeRecord(row *sql.Row) result.Result[RuntimeRecord] {
+func scanRuntimeRecord(row *sql.Row) result.Wrap[RuntimeRecord] {
 	var r RuntimeRecord
 	var validInt int
 	err := row.Scan(&r.ID, &r.Name, &r.BinaryName, &r.BinaryPath, &r.Version,

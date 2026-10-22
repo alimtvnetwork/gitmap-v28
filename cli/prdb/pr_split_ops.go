@@ -52,7 +52,7 @@ func normalizePullRequestRecord(rec *PullRequestRecord) {
 }
 
 // CreatePullRequest inserts a new pull request record and returns its generated ID.
-func (p *PrSplitDb) CreatePullRequest(rec PullRequestRecord) result.Result[int64] {
+func (p *PrSplitDb) CreatePullRequest(rec PullRequestRecord) result.Int64Result {
 	normalizePullRequestRecord(&rec)
 	res, err := p.conn.Exec(
 		constants.SQLInsertPullRequest,
@@ -70,7 +70,7 @@ func (p *PrSplitDb) CreatePullRequest(rec PullRequestRecord) result.Result[int64
 	return result.Ok(id)
 }
 
-func scanPullRequestRecord(row *sql.Row) result.Result[*PullRequestRecord] {
+func scanPullRequestRecord(row *sql.Row) PullRequestWrap {
 	var (
 		rec                      PullRequestRecord
 		rawMergeSha, rawNotes    any
@@ -98,14 +98,14 @@ func scanPullRequestRecord(row *sql.Row) result.Result[*PullRequestRecord] {
 }
 
 // GetPullRequestByNumber retrieves a pull request record by its PR number.
-func (p *PrSplitDb) GetPullRequestByNumber(prNum int) result.Result[*PullRequestRecord] {
+func (p *PrSplitDb) GetPullRequestByNumber(prNum int) PullRequestWrap {
 	row := p.conn.QueryRow(constants.SQLSelectPullRequestByNumber, prNum)
 
 	return scanPullRequestRecord(row)
 }
 
 // UpdatePullRequestStatus updates status and merge SHA for a PR number.
-func (p *PrSplitDb) UpdatePullRequestStatus(prNum int, status, mergeSha string) result.Result[bool] {
+func (p *PrSplitDb) UpdatePullRequestStatus(prNum int, status, mergeSha string) result.BoolResult {
 	now := time.Now().UTC().Unix()
 	res, err := p.conn.Exec(
 		constants.SQLUpdatePullRequestStatus,
@@ -121,7 +121,7 @@ func (p *PrSplitDb) UpdatePullRequestStatus(prNum int, status, mergeSha string) 
 }
 
 // AddPrRelease inserts a new PR release record and returns its generated ID.
-func (p *PrSplitDb) AddPrRelease(rec PrReleaseRecord) result.Result[int64] {
+func (p *PrSplitDb) AddPrRelease(rec PrReleaseRecord) result.Int64Result {
 	if rec.CreatedAt == 0 {
 		rec.CreatedAt = time.Now().UTC().Unix()
 	}
@@ -153,7 +153,7 @@ func normalizePrBranchRecord(rec *PrBranchRecord) {
 }
 
 // UpsertPrBranch creates or updates a tracked PR branch record.
-func (p *PrSplitDb) UpsertPrBranch(rec PrBranchRecord) result.Result[bool] {
+func (p *PrSplitDb) UpsertPrBranch(rec PrBranchRecord) result.BoolResult {
 	normalizePrBranchRecord(&rec)
 	_, err := p.conn.Exec(
 		constants.SQLUpsertPrBranch,
@@ -180,7 +180,7 @@ func populatePrBranchFields(
 	b.Comments = dbengine.ScanString(rawComments)
 }
 
-func scanSinglePrBranch(rows *sql.Rows) result.Result[PrBranchRecord] {
+func scanSinglePrBranch(rows *sql.Rows) PrBranchRecordWrap {
 	var (
 		b                         PrBranchRecord
 		rawMerged, rawDeleted     any
@@ -238,7 +238,7 @@ func (p *PrSplitDb) ListMergedPrBranches() PrBranchListResult {
 }
 
 // MarkPrBranchDeleted marks a branch record as deleted with timestamp.
-func (p *PrSplitDb) MarkPrBranchDeleted(branchName string) result.Result[bool] {
+func (p *PrSplitDb) MarkPrBranchDeleted(branchName string) result.BoolResult {
 	now := time.Now().UTC().Unix()
 	res, err := p.conn.Exec(constants.SQLMarkPrBranchDeleted, now, now, branchName)
 	if err != nil {

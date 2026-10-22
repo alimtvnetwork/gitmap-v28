@@ -48,7 +48,7 @@ func isMergeCommit(dir, sha string) bool {
 	return len(parents) > 1
 }
 
-func runGit(dir string, args ...string) result.Result[string] {
+func runGit(dir string, args ...string) result.StringResult {
 	out, err := gitOut(dir, args...)
 	if err != nil {
 		return result.Fail[string](apperror.WrapSimple(err, "git "+strings.Join(args, " ")))
@@ -130,21 +130,29 @@ func fetchIngressSHAs(sourceDir, sha string) []string {
 	return strings.Split(strings.TrimSpace(out), "\n")
 }
 
-func replaySingleIngress(plan ReplayPlan, sha string, opts Options) result.Result[PRCommitInfo] {
+func replaySingleIngress(plan ReplayPlan, sha string, opts Options) PRCommitInfoWrap {
 	sub, body, author, short, when, err := readCommit(plan.SourceDir, sha)
 	if err != nil {
 		return result.Fail[PRCommitInfo](apperror.WrapSimple(err, "read ingress commit"))
 	}
-	if cErr := checkoutDetached(plan.SourceDir, sha); cErr != nil {
-		return result.Fail[PRCommitInfo](apperror.WrapSimple(cErr, "checkout detached"))
+	if err := executeIngressSnapshot(plan, sha, opts); err != nil {
+		return result.Fail[PRCommitInfo](err)
 	}
-	if sErr := snapshotCopy(plan.SourceDir, plan.TargetDir, opts); sErr != nil {
-		return result.Fail[PRCommitInfo](apperror.WrapSimple(sErr, "snapshot copy"))
-	}
-	_ = addAll(plan.TargetDir)
 	commitIngressChanges(plan.TargetDir, sub, body, author, short, when, opts)
 
 	return result.Ok(PRCommitInfo{ShortSHA: short, Author: author, Subject: sub})
+}
+
+func executeIngressSnapshot(plan ReplayPlan, sha string, opts Options) *apperror.AppError {
+	if err := checkoutDetached(plan.SourceDir, sha); err != nil {
+		return apperror.WrapSimple(err, "checkout detached")
+	}
+	if err := snapshotCopy(plan.SourceDir, plan.TargetDir, opts); err != nil {
+		return apperror.WrapSimple(err, "snapshot copy")
+	}
+	_ = addAll(plan.TargetDir)
+
+	return nil
 }
 
 func commitIngressChanges(dir, sub, body, author, short string, when time.Time, opts Options) {
@@ -248,7 +256,7 @@ func insertPRRecords(db *prdb.PrSplitDb, branchName, mainline, desc string, prNu
 	})
 }
 
-func recordPRInDatabase(targetDir, branchName, mainline, desc string, meta *PRMetadata) result.Result[*prdb.PrSplitDb] {
+func recordPRInDatabase(targetDir, branchName, mainline, desc string, meta *PRMetadata) prdb.PrSplitDbWrap {
 	slug := prdb.SanitizeRepoSlug(filepath.Base(targetDir))
 	dbRes := prdb.OpenPrSplitDb(slug, targetDir)
 	if dbRes.IsFailure() {
@@ -285,7 +293,7 @@ func formatPRMergeMessage(meta PRMetadata, branchName string) string {
 	return fmt.Sprintf("Merge branch '%s'\n\n%s", branchName, meta.Title)
 }
 
-func mergeFeatureBranch(targetDir, branchName, msg string) result.Result[string] {
+func mergeFeatureBranch(targetDir, branchName, msg string) result.StringResult {
 	mergeRes := runGit(targetDir, "merge", "--no-ff", branchName, "-m", msg)
 	if mergeRes.IsFailure() {
 		return mergeRes
@@ -294,19 +302,23 @@ func mergeFeatureBranch(targetDir, branchName, msg string) result.Result[string]
 	return runGit(targetDir, "rev-parse", "HEAD")
 }
 
-func executePRReplayAndMerge(plan ReplayPlan, commit SourceCommit, opts Options, mainline, branchName string) result.Result[string] {
+func executePRReplayAndMerge(plan ReplayPlan, commit SourceCommit, opts Options, mainline, branchName string) result.StringResult {
 	ingressRes := replayIngressCommits(plan, commit, opts)
 	if ingressRes.IsFailure() {
 		_ = runGit(plan.TargetDir, "checkout", mainline)
 
 		return result.Fail[string](ingressRes.Err)
 	}
-	meta := assemblePRMetadata(plan.TargetDir, commit, branchName, mainline, ingressRes.Value)
+
+	return processSuccessfulReplay(plan, commit, opts, mainline, branchName, ingressRes.Value)
+}
+
+func processSuccessfulReplay(plan ReplayPlan, commit SourceCommit, opts Options, mainline, branchName string, commits []PRCommitInfo) result.StringResult {
+	meta := assemblePRMetadata(plan.TargetDir, commit, branchName, mainline, commits)
 	desc := GeneratePRDescription(meta)
 	dbRes := recordPRInDatabase(plan.TargetDir, branchName, mainline, desc, &meta)
 	_ = runGit(plan.TargetDir, "checkout", mainline)
-	mergeMsg := formatPRMergeMessage(meta, branchName)
-	mergeRes := mergeFeatureBranch(plan.TargetDir, branchName, mergeMsg)
+	mergeRes := mergeFeatureBranch(plan.TargetDir, branchName, formatPRMergeMessage(meta, branchName))
 	if dbRes.IsSuccess() && mergeRes.IsSuccess() {
 		defer dbRes.Value.Close()
 		finalizePRInDatabase(dbRes.Value, meta.PRNumber, branchName, mergeRes.Value)
@@ -316,12 +328,16 @@ func executePRReplayAndMerge(plan ReplayPlan, commit SourceCommit, opts Options,
 }
 
 // ProcessPR orchestrates local Git PR simulation for a merge or PR-eligible commit.
-func ProcessPR(plan ReplayPlan, commit SourceCommit, opts Options) result.Result[string] {
+func ProcessPR(plan ReplayPlan, commit SourceCommit, opts Options) result.StringResult {
 	mainlineRes := runGit(plan.TargetDir, "rev-parse", "--abbrev-ref", "HEAD")
 	if mainlineRes.IsFailure() {
 		return mainlineRes
 	}
-	mainline := mainlineRes.Value
+
+	return runPRSimulation(plan, commit, opts, mainlineRes.Value)
+}
+
+func runPRSimulation(plan ReplayPlan, commit SourceCommit, opts Options, mainline string) result.StringResult {
 	branchName := extractBranchName(commit.Subject, commit.ShortSHA, filepath.Base(plan.TargetDir))
 	if res := runGit(plan.TargetDir, "checkout", "-B", branchName); res.IsFailure() {
 		return res

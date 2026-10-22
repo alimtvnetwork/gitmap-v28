@@ -12,7 +12,7 @@ import (
 )
 
 // DurationResult represents a single reusable result envelope wrapping time.Duration.
-type DurationResult = result.Result[time.Duration]
+type DurationResult = result.Wrap[time.Duration]
 
 var (
 	colonPattern  = regexp.MustCompile(`^(\d+):(\d+)(?::(\d+))?\s*(hr|h|m|s)?$`)

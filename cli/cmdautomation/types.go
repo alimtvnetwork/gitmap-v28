@@ -119,17 +119,17 @@ type SequenceAuditorResult struct {
 
 type (
 	// SearchResultMonad wraps SearchResult with an AppError.
-	SearchResultMonad = result.Result[SearchResult]
+	SearchResultMonad = result.Wrap[SearchResult]
 
 	// NewlineResultMonad wraps NewlineResult with an AppError.
-	NewlineResultMonad = result.Result[NewlineResult]
+	NewlineResultMonad = result.Wrap[NewlineResult]
 
 	// BenchmarkMetricMonad wraps BenchmarkMetric with an AppError.
-	BenchmarkMetricMonad = result.Result[BenchmarkMetric]
+	BenchmarkMetricMonad = result.Wrap[BenchmarkMetric]
 
 	// GuardResultMonad wraps GuardResult with an AppError.
-	GuardResultMonad = result.Result[GuardResult]
+	GuardResultMonad = result.Wrap[GuardResult]
 
 	// SequenceAuditorResultMonad wraps SequenceAuditorResult with an AppError.
-	SequenceAuditorResultMonad = result.Result[SequenceAuditorResult]
+	SequenceAuditorResultMonad = result.Wrap[SequenceAuditorResult]
 )

@@ -85,7 +85,7 @@ type ZshStatus struct {
 
 type (
 	// ZshStatusResult encapsulates a ZshStatus outcome.
-	ZshStatusResult = result.Result[ZshStatus]
+	ZshStatusResult = result.Wrap[ZshStatus]
 
 	// ZshStringResult encapsulates a string outcome.
 	ZshStringResult = result.StringResult

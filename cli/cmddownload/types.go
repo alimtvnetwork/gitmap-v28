@@ -56,4 +56,4 @@ type DownloadResult struct {
 }
 
 // ResultDownload wraps DownloadResult in monadic Result.
-type ResultDownload = result.Result[DownloadResult]
+type ResultDownload = result.Wrap[DownloadResult]

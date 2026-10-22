@@ -23,10 +23,11 @@ type PortableUser struct {
 }
 
 // ExportUser collects attributes for an OS user.
-func ExportUser(username string) result.Result[PortableUser] {
+func ExportUser(username string) PortableUserWrap {
 	if username == "" {
 		return result.Fail[PortableUser](apperror.NewSimple("empty username", "E_INVALID_USER"))
 	}
+
 	pu := PortableUser{
 		Username: username,
 		HomeDir:  resolveUserHome(username, ""),
@@ -34,6 +35,7 @@ func ExportUser(username string) result.Result[PortableUser] {
 		IsSudoer: isUserSudoer(username),
 		SSHKeys:  readUserAuthorizedKeys(username),
 	}
+
 	return result.Ok(pu)
 }
 
@@ -46,14 +48,16 @@ func ExportAllUsers() result.ResultSlice[PortableUser] {
 			users = append(users, res.Value)
 		}
 	}
+
 	return result.OkSlice(users)
 }
 
 // ImportUser provisions an OS user from a portable representation.
-func ImportUser(pu PortableUser) result.Result[bool] {
+func ImportUser(pu PortableUser) result.BoolResult {
 	if pu.Username == "" {
 		return result.Fail[bool](apperror.NewSimple("missing username in import", "E_INVALID_USER"))
 	}
+
 	opts := UserCreateOptions{
 		Username:       pu.Username,
 		HomeDir:        pu.HomeDir,
@@ -64,7 +68,9 @@ func ImportUser(pu PortableUser) result.Result[bool] {
 	if err := CreateRoot(opts); err != nil {
 		return result.Fail[bool](err)
 	}
+
 	installImportedSSHKeys(pu.Username, pu.SSHKeys)
+
 	return result.Ok(true)
 }
 
@@ -75,28 +81,31 @@ func installImportedSSHKeys(username string, keys []string) {
 }
 
 // ImportAllUsers batch provisions users from a slice.
-func ImportAllUsers(users []PortableUser) result.Result[int] {
+func ImportAllUsers(users []PortableUser) result.IntResult {
 	successCount := 0
 	for _, u := range users {
 		if res := ImportUser(u); res.IsSuccess() {
 			successCount++
 		}
 	}
+
 	return result.Ok(successCount)
 }
 
 // EditUser modifies an existing user shell or home directory.
-func EditUser(username, newShell, newHome string) result.Result[bool] {
+func EditUser(username, newShell, newHome string) result.BoolResult {
 	if username == "" {
 		return result.Fail[bool](apperror.NewSimple("empty username", "E_INVALID_USER"))
 	}
+
 	if runtime.GOOS == constants.OSWindows {
 		return result.Ok(true)
 	}
+
 	return applyUserEditsLinux(username, newShell, newHome)
 }
 
-func applyUserEditsLinux(username, newShell, newHome string) result.Result[bool] {
+func applyUserEditsLinux(username, newShell, newHome string) result.BoolResult {
 	var args []string
 	if newShell != "" {
 		args = append(args, "-s", newShell)
@@ -107,11 +116,13 @@ func applyUserEditsLinux(username, newShell, newHome string) result.Result[bool]
 	if len(args) == 0 {
 		return result.Ok(true)
 	}
+
 	args = append(args, username)
 	cmd := exec.Command("usermod", args...)
 	if err := cmd.Run(); err != nil {
 		return result.Fail[bool](apperror.WrapSimple(err, "edit user "+username))
 	}
+
 	return result.Ok(true)
 }
 

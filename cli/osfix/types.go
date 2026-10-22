@@ -18,7 +18,7 @@ type FixItem struct {
 
 type (
 	// FixResult encapsulates a single FixItem result.
-	FixResult = result.Result[FixItem]
+	FixResult = result.Wrap[FixItem]
 
 	// FixSliceResult encapsulates a slice of FixItem results.
 	FixSliceResult = result.ResultSlice[FixItem]

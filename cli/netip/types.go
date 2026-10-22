@@ -68,16 +68,16 @@ type (
 	}
 
 	// InterfaceResult wraps single InterfaceInfo response.
-	InterfaceResult = result.Result[InterfaceInfo]
+	InterfaceResult = result.Wrap[InterfaceInfo]
 
 	// InterfaceSliceResult wraps multiple InterfaceInfo response.
 	InterfaceSliceResult = result.ResultSlice[InterfaceInfo]
 
 	// RollbackResultWrap wraps RollbackResult response.
-	RollbackResultWrap = result.Result[RollbackResult]
+	RollbackResultWrap = result.Wrap[RollbackResult]
 
 	// SnapshotResult wraps single Snapshot response.
-	SnapshotResult = result.Result[Snapshot]
+	SnapshotResult = result.Wrap[Snapshot]
 
 	// SnapshotSliceResult wraps multiple Snapshot response.
 	SnapshotSliceResult = result.ResultSlice[Snapshot]

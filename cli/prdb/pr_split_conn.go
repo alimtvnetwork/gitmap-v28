@@ -12,7 +12,7 @@ import (
 )
 
 // OpenPrSplitDb opens the split SQLite database for a repository's PR subsystem.
-func OpenPrSplitDb(repoSlug, repoRoot string) result.Result[*PrSplitDb] {
+func OpenPrSplitDb(repoSlug, repoRoot string) PrSplitDbWrap {
 	dbPath := ResolvePrDbPath(repoSlug, repoRoot)
 	slug := SanitizeRepoSlug(repoSlug)
 
@@ -20,11 +20,11 @@ func OpenPrSplitDb(repoSlug, repoRoot string) result.Result[*PrSplitDb] {
 }
 
 // OpenPrSplitDbAt opens or initializes the PR split DB at an explicit filesystem path.
-func OpenPrSplitDbAt(dbPath string) result.Result[*PrSplitDb] {
+func OpenPrSplitDbAt(dbPath string) PrSplitDbWrap {
 	return openPrSplitDbWithSlug(dbPath, "pr-custom")
 }
 
-func openPrSplitDbWithSlug(dbPath, slug string) result.Result[*PrSplitDb] {
+func openPrSplitDbWithSlug(dbPath, slug string) PrSplitDbWrap {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		return result.Fail[*PrSplitDb](apperror.WrapSimple(err, "prdb.mkdir"))
 	}
@@ -37,7 +37,7 @@ func openPrSplitDbWithSlug(dbPath, slug string) result.Result[*PrSplitDb] {
 	return initPrSplitConn(conn, slug, dbPath)
 }
 
-func initPrSplitConn(conn *sql.DB, repoSlug, dbPath string) result.Result[*PrSplitDb] {
+func initPrSplitConn(conn *sql.DB, repoSlug, dbPath string) PrSplitDbWrap {
 	if err := store.ConfigureSQLiteConn(conn); err != nil {
 		_ = conn.Close()
 

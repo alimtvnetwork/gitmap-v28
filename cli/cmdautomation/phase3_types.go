@@ -157,14 +157,14 @@ type SmokeTestResult struct {
 
 type (
 	// PreflightResultMonad wraps PreflightResult with AppError.
-	PreflightResultMonad = result.Result[PreflightResult]
+	PreflightResultMonad = result.Wrap[PreflightResult]
 
 	// TestInventoryResultMonad wraps TestInventoryResult with AppError.
-	TestInventoryResultMonad = result.Result[TestInventoryResult]
+	TestInventoryResultMonad = result.Wrap[TestInventoryResult]
 
 	// PurgeActionsResultMonad wraps PurgeActionsResult with AppError.
-	PurgeActionsResultMonad = result.Result[PurgeActionsResult]
+	PurgeActionsResultMonad = result.Wrap[PurgeActionsResult]
 
 	// SmokeTestResultMonad wraps SmokeTestResult with AppError.
-	SmokeTestResultMonad = result.Result[SmokeTestResult]
+	SmokeTestResultMonad = result.Wrap[SmokeTestResult]
 )
