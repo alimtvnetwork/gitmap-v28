@@ -2,7 +2,7 @@
 
 > **Subtask ID:** `SUBTASK-296-02`  
 > **Parent Task:** `296-result-wrapper-and-apperror-returns`  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/heatmap/heatmap_tracker.go` (modify)  
 > - `cli/heatmap/heatmap_tracker_agent.go` (modify)  

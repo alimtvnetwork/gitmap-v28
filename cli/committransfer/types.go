@@ -11,7 +11,11 @@
 // `commit-both` (Phase 3) all run on the same Plan/Replay primitives.
 package committransfer
 
-import "time"
+import (
+	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
+)
 
 // DirectionType names which side receives the new commits.
 type DirectionType int
@@ -155,3 +159,11 @@ type ReplayResult struct {
 	NewSHAs         []string // target-side SHAs in commit order
 	Pushed          bool
 }
+
+type (
+	// ReplayResultWrap is the canonical result wrapper for ReplayResult.
+	ReplayResultWrap = result.Wrap[ReplayResult]
+
+	// ReplayPlanWrap is the canonical result wrapper for ReplayPlan.
+	ReplayPlanWrap = result.Wrap[ReplayPlan]
+)

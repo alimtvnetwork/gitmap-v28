@@ -2,7 +2,7 @@
 
 > **Subtask ID:** `SUBTASK-296-01`  
 > **Parent Task:** `296-result-wrapper-and-apperror-returns`  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/store/types.go` (new file)  
 > - `cli/store/repository_types.go` (modify)  

@@ -27,11 +27,11 @@ func TryRetrievePreviousDbRun(repo string) (*pipelinedb.PipelineRunRecord, strin
 	defer db.Close()
 
 	runRes := db.QueryLastFailedRuns(1)
-	if runRes.IsFailed() || len(runRes.Data) == 0 {
+	if runRes.IsFailure() || runRes.IsEmpty() {
 		return nil, "", false
 	}
 
-	rec := runRes.Data[0]
+	rec := runRes.Items()[0]
 	errLogs := queryDbRunErrorText(db, rec.RunId)
 
 	return &rec, errLogs, true
@@ -39,13 +39,13 @@ func TryRetrievePreviousDbRun(repo string) (*pipelinedb.PipelineRunRecord, strin
 
 func queryDbRunErrorText(db *pipelinedb.PipelineSplitDb, runId uint64) string {
 	errRes := db.QueryDetailedErrorLogsByRunId(runId)
-	if !errRes.IsFailed() && len(errRes.Data) > 0 {
-		return formatDbErrorRecords(errRes.Data)
+	if errRes.HasRecord() {
+		return formatDbErrorRecords(errRes.Items())
 	}
 
 	compactRes := db.QueryCompactErrors(10)
-	if !compactRes.IsFailed() && len(compactRes.Data) > 0 {
-		return formatDbCompactRecords(compactRes.Data)
+	if compactRes.HasRecord() {
+		return formatDbCompactRecords(compactRes.Items())
 	}
 
 	return ""

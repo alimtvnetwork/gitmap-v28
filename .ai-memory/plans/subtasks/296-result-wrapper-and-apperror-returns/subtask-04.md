@@ -1,6 +1,6 @@
 # Subtask 04: Author cli/gitutil/types.go and Migrate git_repo_query.go & git_repo_commits.go to Result Containers
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/01-architecture-spec.md`
 - **Component Spec:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/02-component-spec.md`
 - **Target Files:**

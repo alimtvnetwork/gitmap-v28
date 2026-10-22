@@ -1,6 +1,6 @@
 # Master Plan 296: Result Wrapper and AppError Returns
 
-## Status: PENDING / READY FOR EXECUTION
+## Status: COMPLETED
 - **Plan ID:** 296
 - **Slug:** `296-result-wrapper-and-apperror-returns`
 - **Master Spec Reference:** [01-architecture-spec.md](../../../02-spec/21-app/296-result-wrapper-and-apperror-returns/01-architecture-spec.md)
@@ -34,58 +34,58 @@ This master plan orchestrates the architecture specification, component refactor
 
 ### Wave 1: Store & Heatmap Foundations (Subtasks 01–03)
 
-- [ ] **Subtask-01:** [subtask-01.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-01.md)
+- [x] **Subtask-01:** [subtask-01.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-01.md)
   - **Targets:** `cli/store/types.go` (new), `cli/store/repository_types.go` (modify)
   - **Objective:** Author `cli/store/types.go` centralizing 13 required canonical type aliases (`ScanRecordSlice`, `ScanRecordWrap`, `ScanRecordSliceWrap`, `ScanRecordMapWrap`, `HeatmapActionLogRecordSliceWrap`, `HeatmapExecutionTreeNodeSliceWrap`, `HeatmapStatusSummaryWrap`, `HeatmapTaskSummaryWrap`, `FileTouchCountSliceWrap`, `DuplicateRepoGroupSliceWrap`, `RowsAffectedWrap`, `RepoIDWrap`, `RepoCountWrap`, `RepoPathWrap`); remove duplicate aliases and eliminate banned anti-pattern line 28 `ScanRecordsResult = result.Result[[]model.ScanRecord]` from `cli/store/repository_types.go`.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-02:** [subtask-02.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-02.md)
+- [x] **Subtask-02:** [subtask-02.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-02.md)
   - **Targets:** `cli/heatmap/heatmap_tracker.go`, `cli/heatmap/heatmap_tracker_agent.go`
   - **Objective:** Convert `TrackFileTouch`, `TrackBatchFileTouches`, and `TrackAgentAction` from returning bare standard library `error` to returning structured `*apperror.AppError` envelopes; eliminate unhandled errors and format multiline parameters.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-03:** [subtask-03.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-03.md)
+- [x] **Subtask-03:** [subtask-03.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-03.md)
   - **Targets:** `cli/store/repo.go`
   - **Objective:** Refactor store repository query methods (`ListRepos`, `FindBySlug`, `FindOneBySlug`, `FindByPath`, `CountRepos`, `DeleteByPath`, `DeleteBySlug`) from legacy multi-value error tuples `(T, error)` to single-return monadic containers (`ScanRecordSliceWrap`, `ScanRecordWrap`, `RepoCountWrap`, `RowsAffectedWrap`).
-  - **Status:** Pending
+  - **Status:** Completed
 
 ---
 
 ### Wave 2: GitUtil & CmdPipeline Monadic Migration (Subtasks 04–06)
 
-- [ ] **Subtask-04:** [subtask-04.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-04.md)
+- [x] **Subtask-04:** [subtask-04.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-04.md)
   - **Targets:** `cli/gitutil/types.go` (new), `cli/gitutil/git_repo_query.go`, `cli/gitutil/git_repo_commits.go`
   - **Objective:** Author `cli/gitutil/types.go` defining `CaseCollisionSliceWrap` and `RemoteBranchSliceWrap`; refactor `GetRepoHeadCommitSha`, `GetRepoRemoteURL`, `GetRepoTrackingRemote`, and `GetRepoMergeBase` to `result.StringResult`; refactor `HasUnpushedCommits` and `IsRepoDetached` to `result.BoolResult`; refactor `GetRepoDirtyFiles` to `result.StringSliceResult`; refactor `GetRepoUnpushedCommitCount` to `result.IntResult`.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-05:** [subtask-05.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-05.md)
+- [x] **Subtask-05:** [subtask-05.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-05.md)
   - **Targets:** `cli/gitutil/git_cmd_exec.go`, `cli/gitutil/gitutil.go`
   - **Objective:** Refactor `RunGitInDir` and `RunGitCombinedInDir` to return `result.ByteSliceResult`; refactor `GetRepoConfig`, `ReadRemoteOriginURL`, `GetRepoCurrentBranch`, `RemoteURL`, `RepoRoot`, and `CurrentBranch` to return `result.StringResult`; refactor `IsRepoClean` to return `result.BoolResult`.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-06:** [subtask-06.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-06.md)
+- [x] **Subtask-06:** [subtask-06.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-06.md)
   - **Targets:** `cli/cmdpipeline/types.go` (new), `cli/cmdpipeline/pipeline_history_render.go`, `cli/cmdpipeline/pipeline_fallback.go`
   - **Objective:** Author `cli/cmdpipeline/types.go` defining `PEFormatProfileSliceWrap` and `PipelineSyncResultWrap`; refactor caller sites in `pipeline_history_render.go` and `pipeline_fallback.go` to use affirmative predicates (`res.IsFailure()`, `res.Items()`, `res.UnwrapOr()`).
-  - **Status:** Pending
+  - **Status:** Completed
 
 ---
 
 ### Wave 3: Stutter Elimination, FastGate Verification & Release (Subtasks 07–09)
 
-- [ ] **Subtask-07:** [subtask-07.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-07.md)
+- [x] **Subtask-07:** [subtask-07.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-07.md)
   - **Targets:** `cli/prdb/types.go`, `cli/pipelinedb/types.go`, `cli/dbengine/result_types.go`
   - **Objective:** Eliminate `result.Result[...]` package stutter across database subsystems; replace with canonical `result.Wrap[...]` and `result.WrapSlice[...]`; modernize `EntityResult[T]` and `ListResult[T]` in `dbengine`; preserve backward-compatibility aliases.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-08:** [subtask-08.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-08.md)
+- [x] **Subtask-08:** [subtask-08.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-08.md)
   - **Targets:** `cli/osuser/types.go`, `cli/osclean/types.go`, `cli/committransfer/types.go`
   - **Objective:** Modernize `UserWrap` in `osuser` and `CleanWrap` in `osclean`; define `ReplayResultWrap` and `ReplayPlanWrap` in `committransfer` to eliminate multi-value error tuples in replay operations.
-  - **Status:** Pending
+  - **Status:** Completed
 
-- [ ] **Subtask-09:** [subtask-09.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-09.md)
+- [x] **Subtask-09:** [subtask-09.md](../subtasks/296-result-wrapper-and-apperror-returns/subtask-09.md)
   - **Targets:** `.ai-memory/plans/readme.md`, `03-ai-scripts/50-fastgate.py` (runner execution only)
   - **Objective:** Execute static AST pre-commit verification via FastGate (`python 03-ai-scripts/50-fastgate.py`); register Plan 296 in `.ai-memory/plans/readme.md`; execute atomic hyphen-separated commit via `gitmap cpf`.
-  - **Status:** Pending
+  - **Status:** Completed
 
 ---
 

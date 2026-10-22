@@ -1,6 +1,6 @@
 # Subtask 05: Refactor git_cmd_exec.go and gitutil.go to Return Monadic Result Containers
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/01-architecture-spec.md`
 - **Component Spec:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/02-component-spec.md`
 - **Target Files:**

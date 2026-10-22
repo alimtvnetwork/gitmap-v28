@@ -1,6 +1,6 @@
 # Subtask 06: Author cli/cmdpipeline/types.go and Refactor Callers in pipeline_history_render.go & pipeline_fallback.go
 
-## Status: Pending
+## Status: Completed
 - **Parent Plan:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/01-architecture-spec.md`
 - **Component Spec:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/02-component-spec.md`
 - **Target Files:**

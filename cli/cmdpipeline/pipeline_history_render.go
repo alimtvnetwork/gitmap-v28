@@ -112,8 +112,8 @@ func findLocalRepoDirForSlug(slug string) string {
 
 	repo := store.NewRepoRepository(db.Conn())
 	pathRes := repo.FindPathBySlug(slug)
-	if pathRes.HasError() {
-		logRepoLookupFailure(slug, pathRes.Err)
+	if pathRes.IsFailure() {
+		logRepoLookupFailure(slug, pathRes.AppError())
 
 		return ""
 	}
@@ -329,8 +329,8 @@ func renderRunErrorsByDetailMode(db *pipelinedb.PipelineSplitDb, runId uint64, i
 
 func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
 	detailRes := db.QueryDetailedErrorLogsByRunId(runId)
-	if detailRes.HasRecord() {
-		renderCachedErrorsList(detailRes.Data)
+	if detailRes.IsSuccess() && len(detailRes.Items()) > 0 {
+		renderCachedErrorsList(detailRes.Items())
 
 		return
 	}
@@ -341,8 +341,8 @@ func renderDetailedOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) 
 
 func renderCompactOrLegacyErrors(db *pipelinedb.PipelineSplitDb, runId uint64) {
 	compactRes := db.QueryCompactErrorLogsByRunId(runId)
-	if compactRes.HasRecord() {
-		renderCachedCompactErrorsList(compactRes.Data)
+	if compactRes.IsSuccess() && len(compactRes.Items()) > 0 {
+		renderCachedCompactErrorsList(compactRes.Items())
 
 		return
 	}
@@ -413,7 +413,7 @@ func queryCachedFailedRuns(db *pipelinedb.PipelineSplitDb, count int) ([]pipelin
 		return nil, runRes.AppError()
 	}
 
-	return runRes.Data, nil
+	return runRes.Items(), nil
 }
 
 // RenderLastCachedFailures displays cached failure logs from SQLite up to count.

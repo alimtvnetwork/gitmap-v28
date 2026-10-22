@@ -6,26 +6,23 @@ import (
 )
 
 type (
-	// PipelineRunSliceResult is the canonical single reusable result envelope for pipeline run record slices.
-	PipelineRunSliceResult = result.WrapSlice[PipelineRunRecord]
+	// Canonical single reusable monadic containers for pipeline records.
+	PipelineRunSliceWrap          = result.WrapSlice[PipelineRunRecord]
+	PipelineErrorSliceWrap        = result.WrapSlice[PipelineErrorRecord]
+	PipelineCompactErrorSliceWrap = result.WrapSlice[PipelineCompactErrorRecord]
+	PipelineRunIdSliceWrap        = result.WrapSlice[uint64]
+	PipelineRunIdMapWrap          = result.WrapMap[uint64, bool]
+	PipelineDbStatsWrap           = result.Wrap[PipelineDbStats]
+	PipelineDatabaseInfoWrap      = result.Wrap[PipelineDatabaseInfo]
 
-	// PipelineErrorSliceResult is the canonical single reusable result envelope for pipeline error record slices.
-	PipelineErrorSliceResult = result.WrapSlice[PipelineErrorRecord]
-
-	// PipelineCompactErrorSliceResult is the canonical single reusable result envelope for compact error record slices.
-	PipelineCompactErrorSliceResult = result.WrapSlice[PipelineCompactErrorRecord]
-
-	// PipelineRunIdSliceResult is the canonical single reusable result envelope for run ID uint64 slices.
-	PipelineRunIdSliceResult = result.WrapSlice[uint64]
-
-	// PipelineRunIdMapResult is the canonical single reusable result envelope for run ID boolean maps.
-	PipelineRunIdMapResult = result.WrapMap[uint64, bool]
-
-	// PipelineDbStatsResult is the canonical single reusable result envelope for database statistics.
-	PipelineDbStatsResult = result.Wrap[PipelineDbStats]
-
-	// PipelineDatabaseInfoResult is the canonical single reusable result envelope for database telemetry.
-	PipelineDatabaseInfoResult = result.Wrap[PipelineDatabaseInfo]
+	// Backward-compatibility aliases for legacy callers.
+	PipelineRunSliceResult          = PipelineRunSliceWrap
+	PipelineErrorSliceResult        = PipelineErrorSliceWrap
+	PipelineCompactErrorSliceResult = PipelineCompactErrorSliceWrap
+	PipelineRunIdSliceResult        = PipelineRunIdSliceWrap
+	PipelineRunIdMapResult          = PipelineRunIdMapWrap
+	PipelineDbStatsResult           = PipelineDbStatsWrap
+	PipelineDatabaseInfoResult      = PipelineDatabaseInfoWrap
 )
 
 // PipelineDatabaseInfo encapsulates diagnostic telemetry and metadata for the pipeline SQLite database.

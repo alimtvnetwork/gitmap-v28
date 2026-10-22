@@ -65,8 +65,11 @@ type UserInfo struct {
 }
 
 type (
-	// UserResult encapsulates a UserInfo outcome.
-	UserResult = result.Wrap[UserInfo]
+	// UserWrap encapsulates a UserInfo outcome.
+	UserWrap = result.Wrap[UserInfo]
+
+	// UserResult is a legacy alias for UserWrap.
+	UserResult = UserWrap
 
 	// UserBoolResult encapsulates a boolean outcome.
 	UserBoolResult = result.BoolResult

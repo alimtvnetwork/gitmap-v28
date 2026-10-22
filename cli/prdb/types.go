@@ -51,7 +51,17 @@ type PrBranchRecord struct {
 
 // Monadic Result wrappers for PR database operations.
 type (
-	PullRequestResult  = result.Wrap[*PullRequestRecord]
-	PrBranchListResult = result.WrapSlice[PrBranchRecord]
-	PrReleaseResult    = result.Wrap[*PrReleaseRecord]
+	// PullRequestWrap is the canonical single reusable result container for PullRequestRecord.
+	PullRequestWrap = result.Wrap[*PullRequestRecord]
+
+	// PrBranchSliceWrap is the canonical single reusable collection container for PrBranchRecord.
+	PrBranchSliceWrap = result.WrapSlice[PrBranchRecord]
+
+	// PrReleaseWrap is the canonical single reusable result container for PrReleaseRecord.
+	PrReleaseWrap = result.Wrap[*PrReleaseRecord]
+
+	// Backward-compatibility aliases for legacy callers.
+	PullRequestResult  = PullRequestWrap
+	PrBranchListResult = PrBranchSliceWrap
+	PrReleaseResult    = PrReleaseWrap
 )

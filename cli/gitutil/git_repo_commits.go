@@ -3,30 +3,33 @@ package gitutil
 import (
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // GetRepoUnpushedCommitCount returns the number of unpushed commits ahead of upstream tracking.
-func GetRepoUnpushedCommitCount(repoPath string) (int, error) {
-	out, err := RunGitInDir(repoPath, "rev-list", "--count", "@{u}..HEAD")
-	if err != nil {
-		return 0, err
+func GetRepoUnpushedCommitCount(repoPath string) result.IntResult {
+	res := RunGitInDir(repoPath, "rev-list", "--count", "@{u}..HEAD")
+	if res.IsFailure() {
+		return result.Fail[int](res.AppError())
 	}
 
-	clean := strings.TrimSpace(string(out))
+	clean := strings.TrimSpace(string(res.Data))
 	count, parseErr := strconv.Atoi(clean)
 	if parseErr != nil {
-		return 0, parseErr
+		return result.Fail[int](apperror.WrapSimple(parseErr, "GetRepoUnpushedCommitCount"))
 	}
 
-	return count, nil
+	return result.Ok(count)
 }
 
 // GetRepoMergeBase finds the best common ancestor commit between two references.
-func GetRepoMergeBase(repoPath, ref1, ref2 string) (string, error) {
-	out, err := RunGitInDir(repoPath, "merge-base", ref1, ref2)
-	if err != nil {
-		return "", err
+func GetRepoMergeBase(repoPath, ref1, ref2 string) result.StringResult {
+	res := RunGitInDir(repoPath, "merge-base", ref1, ref2)
+	if res.IsFailure() {
+		return result.Fail[string](res.AppError())
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return result.Ok(strings.TrimSpace(string(res.Data)))
 }

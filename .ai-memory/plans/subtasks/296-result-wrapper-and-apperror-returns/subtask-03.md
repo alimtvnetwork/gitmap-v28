@@ -2,7 +2,7 @@
 
 > **Subtask ID:** `SUBTASK-296-03`  
 > **Parent Task:** `296-result-wrapper-and-apperror-returns`  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/store/repo.go` (modify)  
 > **Related Architecture Spec:** `02-spec/21-app/296-result-wrapper-and-apperror-returns/01-architecture-spec.md`  
@@ -17,63 +17,63 @@ Refactor multi-value error tuple methods in `cli/store/repo.go` (`ListRepos`, `F
 
 ## 2. Action Checklist
 
-- [ ] 1. Refactor query methods in `cli/store/repo.go`:
-  - [ ] `ListRepos() ScanRecordSliceWrap`:
+- [x] 1. Refactor query methods in `cli/store/repo.go`:
+  - [x] `ListRepos() ScanRecordSliceWrap`:
     - Replaces `func (db *DB) ListRepos() ([]model.ScanRecord, error)`.
     - Query `constants.SQLSelectAllRepos`. On query error, return `result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.ListRepos.query"))`.
     - Scan records using `scanRows(rows)`. On scan error, return `result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "store.ListRepos.scan"))`.
     - On success, return `result.OkSlice(records)`.
-  - [ ] `FindBySlug(slug string) ScanRecordSliceWrap`:
+  - [x] `FindBySlug(slug string) ScanRecordSliceWrap`:
     - Replaces `func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error)`.
     - Delegates to `findBySlugRunner(db.conn, slug)`.
     - On query error, return `result.FailSlice[model.ScanRecord](...)`.
     - On success, return `result.OkSlice(records)`.
-  - [ ] `FindOneBySlug(slug string) ScanRecordWrap`:
+  - [x] `FindOneBySlug(slug string) ScanRecordWrap`:
     - Replaces `func (db *DB) FindOneBySlug(slug string) (*model.ScanRecord, error)`.
     - Call `db.FindBySlug(slug)`.
     - If `sliceRes.IsFailure()`, propagate error: `result.Fail[model.ScanRecord](sliceRes.AppError())`.
     - If `sliceRes.IsEmpty() || sliceRes.Count() == 0`, return `result.Fail[model.ScanRecord](NewRepoNotFoundError("FindOneBySlug", "Repo", slug))`.
     - On success, return `result.Ok(sliceRes.Data()[0])`.
-  - [ ] `FindByPath(absPath string) ScanRecordSliceWrap`:
+  - [x] `FindByPath(absPath string) ScanRecordSliceWrap`:
     - Replaces `func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error)`.
     - Normalize path with `NormalizeStoragePath(absPath)`.
     - Execute query `constants.SQLSelectRepoByPath`.
     - On error, return `result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.FindByPath"))`.
     - On success, return `result.OkSlice(records)`.
-  - [ ] `CountRepos() RepoCountWrap`:
+  - [x] `CountRepos() RepoCountWrap`:
     - Replaces `func (db *DB) CountRepos() (int, error)`.
     - Execute `SELECT COUNT(*) FROM Repo`.
     - On query/scan error, return `result.Fail[int](apperror.WrapSimple(err, "store.CountRepos"))`.
     - On success, return `result.Ok(total)`.
 
-- [ ] 2. Refactor mutation methods in `cli/store/repo.go`:
-  - [ ] `DeleteByPath(absPath string) RowsAffectedWrap`:
+- [x] 2. Refactor mutation methods in `cli/store/repo.go`:
+  - [x] `DeleteByPath(absPath string) RowsAffectedWrap`:
     - Replaces `func (db *DB) DeleteByPath(absPath string) (int64, error)`.
     - Normalize path with `NormalizeStoragePath(absPath)`.
     - Execute `constants.SQLDeleteRepoByPath`.
     - On exec error: `result.Fail[int64](apperror.WrapSimple(err, "store.DeleteByPath.exec"))`.
     - On rows affected error: `result.Fail[int64](apperror.WrapSimple(rowsErr, "store.DeleteByPath.rows"))`.
     - On success: `result.Ok(rows)`.
-  - [ ] `DeleteBySlug(slug string) RowsAffectedWrap`:
+  - [x] `DeleteBySlug(slug string) RowsAffectedWrap`:
     - Replaces `func (db *DB) DeleteBySlug(slug string) (int64, error)`.
     - Execute `constants.SQLDeleteRepoBySlug`.
     - On exec error: `result.Fail[int64](apperror.WrapSimple(err, "store.DeleteBySlug.exec"))`.
     - On rows affected error: `result.Fail[int64](apperror.WrapSimple(rowsErr, "store.DeleteBySlug.rows"))`.
     - On success: `result.Ok(rows)`.
 
-- [ ] 3. Refactor internal helpers in `cli/store/repo.go`:
-  - [ ] Update `scanRows` signature to return `(ScanRecordSlice, *apperror.AppError)` for clean monadic assembly.
-  - [ ] Update `findBySlugRunner(runner sqlQueryer, slug string) ScanRecordSliceWrap`.
-  - [ ] Update `findFirstRepoRecord(repoPath string)` to inspect `db.FindByPath(repoPath)` with `IsFailure()` / `IsEmpty()`.
+- [x] 3. Refactor internal helpers in `cli/store/repo.go`:
+  - [x] Update `scanRows` signature to return `(ScanRecordSlice, *apperror.AppError)` for clean monadic assembly.
+  - [x] Update `findBySlugRunner(runner sqlQueryer, slug string) ScanRecordSliceWrap`.
+  - [x] Update `findFirstRepoRecord(repoPath string)` to inspect `db.FindByPath(repoPath)` with `IsFailure()` / `IsEmpty()`.
 
-- [ ] 4. Coding Standard & Invariant Verification:
-  - [ ] Use centralized aliases from `cli/store/types.go` (`ScanRecordSliceWrap`, `ScanRecordWrap`, `RepoCountWrap`, `RowsAffectedWrap`).
-  - [ ] Never leak raw generic brackets like `result.Wrap[model.ScanRecord]` in method signatures.
-  - [ ] Zero double-wrapping: Never call `FailWrap` (does not exist) or double-wrap `*apperror.AppError`.
-  - [ ] Functions strictly <= 15 lines with 0 nested ifs.
-  - [ ] Strictly relative Git paths only.
-  - [ ] Zero compiler builds and zero tests (`go build` / `go test` strictly banned).
-  - [ ] Zero git commands.
+- [x] 4. Coding Standard & Invariant Verification:
+  - [x] Use centralized aliases from `cli/store/types.go` (`ScanRecordSliceWrap`, `ScanRecordWrap`, `RepoCountWrap`, `RowsAffectedWrap`).
+  - [x] Never leak raw generic brackets like `result.Wrap[model.ScanRecord]` in method signatures.
+  - [x] Zero double-wrapping: Never call `FailWrap` (does not exist) or double-wrap `*apperror.AppError`.
+  - [x] Functions strictly <= 15 lines with 0 nested ifs.
+  - [x] Strictly relative Git paths only.
+  - [x] Zero compiler builds and zero tests (`go build` / `go test` strictly banned).
+  - [x] Zero git commands.
 
 ---
 

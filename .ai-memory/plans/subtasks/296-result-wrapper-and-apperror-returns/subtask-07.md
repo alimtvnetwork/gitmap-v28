@@ -3,7 +3,7 @@
 > **Subtask ID:** `SUBTASK-296-07`  
 > **Parent Task:** `296-result-wrapper-and-apperror-returns`  
 > **Wave:** Wave 3 (Stutter Elimination, FastGate Verification & Release)  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/prdb/types.go` (modify)  
 > - `cli/pipelinedb/types.go` (modify)  
@@ -22,53 +22,53 @@ Modernize database domain types across `cli/prdb/types.go`, `cli/pipelinedb/type
 
 ## 2. Action Checklist
 
-- [ ] 1. Modernize `cli/prdb/types.go`:
-  - [ ] Replace package stutter in lines 52–57:
-    - [ ] `PullRequestWrap = result.Wrap[*PullRequestRecord]`
-    - [ ] `PrBranchSliceWrap = result.WrapSlice[PrBranchRecord]`
-    - [ ] `PrReleaseWrap = result.Wrap[*PrReleaseRecord]`
-  - [ ] Preserve backward-compatibility aliases:
-    - [ ] `PullRequestResult = PullRequestWrap`
-    - [ ] `PrBranchListResult = PrBranchSliceWrap`
-    - [ ] `PrReleaseResult = PrReleaseWrap`
-  - [ ] Ensure formatting strictly complies with Go conventions (blank line after `}`, docstrings for exported types).
+- [x] 1. Modernize `cli/prdb/types.go`:
+  - [x] Replace package stutter in lines 52–57:
+    - [x] `PullRequestWrap = result.Wrap[*PullRequestRecord]`
+    - [x] `PrBranchSliceWrap = result.WrapSlice[PrBranchRecord]`
+    - [x] `PrReleaseWrap = result.Wrap[*PrReleaseRecord]`
+  - [x] Preserve backward-compatibility aliases:
+    - [x] `PullRequestResult = PullRequestWrap`
+    - [x] `PrBranchListResult = PrBranchSliceWrap`
+    - [x] `PrReleaseResult = PrReleaseWrap`
+  - [x] Ensure formatting strictly complies with Go conventions (blank line after `}`, docstrings for exported types).
 
-- [ ] 2. Modernize `cli/pipelinedb/types.go`:
-  - [ ] Modernize type alias block lines 8–29:
-    - [ ] `PipelineRunSliceWrap = result.WrapSlice[PipelineRunRecord]`
-    - [ ] `PipelineErrorSliceWrap = result.WrapSlice[PipelineErrorRecord]`
-    - [ ] `PipelineCompactErrorSliceWrap = result.WrapSlice[PipelineCompactErrorRecord]`
-    - [ ] `PipelineRunIdSliceWrap = result.WrapSlice[uint64]`
-    - [ ] `PipelineRunIdMapWrap = result.WrapMap[uint64, bool]`
-    - [ ] `PipelineDbStatsWrap = result.Wrap[PipelineDbStats]`
-    - [ ] `PipelineDatabaseInfoWrap = result.Wrap[PipelineDatabaseInfo]`
-  - [ ] Preserve backward-compatibility aliases pointing to the new `*Wrap` definitions:
-    - [ ] `PipelineRunSliceResult = PipelineRunSliceWrap`
-    - [ ] `PipelineErrorSliceResult = PipelineErrorSliceWrap`
-    - [ ] `PipelineCompactErrorSliceResult = PipelineCompactErrorSliceWrap`
-    - [ ] `PipelineRunIdSliceResult = PipelineRunIdSliceWrap`
-    - [ ] `PipelineRunIdMapResult = PipelineRunIdMapWrap`
-    - [ ] `PipelineDbStatsResult = PipelineDbStatsWrap`
-    - [ ] `PipelineDatabaseInfoResult = PipelineDatabaseInfoWrap`
+- [x] 2. Modernize `cli/pipelinedb/types.go`:
+  - [x] Modernize type alias block lines 8–29:
+    - [x] `PipelineRunSliceWrap = result.WrapSlice[PipelineRunRecord]`
+    - [x] `PipelineErrorSliceWrap = result.WrapSlice[PipelineErrorRecord]`
+    - [x] `PipelineCompactErrorSliceWrap = result.WrapSlice[PipelineCompactErrorRecord]`
+    - [x] `PipelineRunIdSliceWrap = result.WrapSlice[uint64]`
+    - [x] `PipelineRunIdMapWrap = result.WrapMap[uint64, bool]`
+    - [x] `PipelineDbStatsWrap = result.Wrap[PipelineDbStats]`
+    - [x] `PipelineDatabaseInfoWrap = result.Wrap[PipelineDatabaseInfo]`
+  - [x] Preserve backward-compatibility aliases pointing to the new `*Wrap` definitions:
+    - [x] `PipelineRunSliceResult = PipelineRunSliceWrap`
+    - [x] `PipelineErrorSliceResult = PipelineErrorSliceWrap`
+    - [x] `PipelineCompactErrorSliceResult = PipelineCompactErrorSliceWrap`
+    - [x] `PipelineRunIdSliceResult = PipelineRunIdSliceWrap`
+    - [x] `PipelineRunIdMapResult = PipelineRunIdMapWrap`
+    - [x] `PipelineDbStatsResult = PipelineDbStatsWrap`
+    - [x] `PipelineDatabaseInfoResult = PipelineDatabaseInfoWrap`
 
-- [ ] 3. Modernize `cli/dbengine/result_types.go`:
-  - [ ] Eliminate package stutter and raw generic slice brackets in lines 14–16:
-    - [ ] `type EntityResult[T any] = result.Wrap[*T]`
-    - [ ] `type ListResult[T any] = result.WrapSlice[T]`
-    - [ ] `type CompiledQueryWrap = result.Wrap[CompiledQuery]`
-    - [ ] `type CompiledQueryResult = CompiledQueryWrap`
-  - [ ] Modernize constructor helper functions lines 67–100:
-    - [ ] `SuccessEntity[T any](val *T) EntityResult[T]` -> delegates to `result.Ok(val)`
-    - [ ] `FailureEntity[T any](err *apperror.AppError) EntityResult[T]` -> delegates to `result.Fail[*T](err)`
-    - [ ] `SuccessList[T any](val []T) ListResult[T]` -> delegates to `result.OkSlice(val)`
-    - [ ] `FailureList[T any](err *apperror.AppError) ListResult[T]` -> delegates to `result.FailSlice[T](err)`
-    - [ ] `SuccessCompiledQuery(val CompiledQuery) CompiledQueryResult` -> delegates to `result.Ok(val)`
+- [x] 3. Modernize `cli/dbengine/result_types.go`:
+  - [x] Eliminate package stutter and raw generic slice brackets in lines 14–16:
+    - [x] `type EntityResult[T any] = result.Wrap[*T]`
+    - [x] `type ListResult[T any] = result.WrapSlice[T]`
+    - [x] `type CompiledQueryWrap = result.Wrap[CompiledQuery]`
+    - [x] `type CompiledQueryResult = CompiledQueryWrap`
+  - [x] Modernize constructor helper functions lines 67–100:
+    - [x] `SuccessEntity[T any](val *T) EntityResult[T]` -> delegates to `result.Ok(val)`
+    - [x] `FailureEntity[T any](err *apperror.AppError) EntityResult[T]` -> delegates to `result.Fail[*T](err)`
+    - [x] `SuccessList[T any](val []T) ListResult[T]` -> delegates to `result.OkSlice(val)`
+    - [x] `FailureList[T any](err *apperror.AppError) ListResult[T]` -> delegates to `result.FailSlice[T](err)`
+    - [x] `SuccessCompiledQuery(val CompiledQuery) CompiledQueryResult` -> delegates to `result.Ok(val)`
 
-- [ ] 4. Invariant Verification:
-  - [ ] Strictly relative Git paths only.
-  - [ ] Zero compiler builds (`go build` strictly banned).
-  - [ ] Zero tests (`go test` strictly banned).
-  - [ ] Zero git commands.
+- [x] 4. Invariant Verification:
+  - [x] Strictly relative Git paths only.
+  - [x] Zero compiler builds (`go build` strictly banned).
+  - [x] Zero tests (`go test` strictly banned).
+  - [x] Zero git commands.
 
 ---
 

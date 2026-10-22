@@ -9,7 +9,7 @@ import (
 )
 
 // TrackAgentAction records a discrete agent lifecycle event into the root heatmap database.
-func TrackAgentAction(taskSlug, actionType, summary string) error {
+func TrackAgentAction(taskSlug, actionType, summary string) *apperror.AppError {
 	cleanSlug := strings.TrimSpace(taskSlug)
 	cleanAction := strings.TrimSpace(actionType)
 	hasMissingInput := cleanSlug == "" || cleanAction == ""
@@ -25,10 +25,10 @@ func TrackAgentAction(taskSlug, actionType, summary string) error {
 	return recordAgentActionAtRoot(cwd, cleanSlug, cleanAction, summary)
 }
 
-func recordAgentActionAtRoot(cwd, taskSlug, actionType, summary string) error {
+func recordAgentActionAtRoot(cwd, taskSlug, actionType, summary string) *apperror.AppError {
 	hdb, err := store.OpenHeatmapRootDB(cwd)
 	if err != nil {
-		return err
+		return apperror.WrapSimple(err, "heatmap.openDB")
 	}
 
 	defer hdb.Close()
@@ -39,6 +39,9 @@ func recordAgentActionAtRoot(cwd, taskSlug, actionType, summary string) error {
 		ReasoningNotes: summary,
 		ReasoningState: "EXPLORATION",
 	})
+	if logErr != nil {
+		return apperror.WrapSimple(logErr, "heatmap.logAction")
+	}
 
-	return logErr
+	return nil
 }

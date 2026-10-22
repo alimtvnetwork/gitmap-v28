@@ -3,7 +3,7 @@
 > **Subtask ID:** `SUBTASK-296-08`  
 > **Parent Task:** `296-result-wrapper-and-apperror-returns`  
 > **Wave:** Wave 3 (Stutter Elimination, FastGate Verification & Release)  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/osuser/types.go` (modify)  
 > - `cli/osclean/types.go` (modify)  
@@ -22,34 +22,34 @@ Modernize OS and transfer domain types across `cli/osuser/types.go`, `cli/osclea
 
 ## 2. Action Checklist
 
-- [ ] 1. Modernize `cli/osuser/types.go`:
-  - [ ] Update type alias block lines 67–79:
-    - [ ] Introduce canonical alias: `UserWrap = result.Wrap[UserInfo]`
-    - [ ] Forward legacy alias: `UserResult = UserWrap`
-    - [ ] Ensure scalar result aliases are clean:
+- [x] 1. Modernize `cli/osuser/types.go`:
+  - [x] Update type alias block lines 67–79:
+    - [x] Introduce canonical alias: `UserWrap = result.Wrap[UserInfo]`
+    - [x] Forward legacy alias: `UserResult = UserWrap`
+    - [x] Ensure scalar result aliases are clean:
       - `UserBoolResult = result.BoolResult`
       - `UserStringResult = result.StringResult`
       - `UserStringsResult = result.StringSliceResult`
-  - [ ] Enforce Go coding standards (blank line after `}`, doc comments for exported types).
+  - [x] Enforce Go coding standards (blank line after `}`, doc comments for exported types).
 
-- [ ] 2. Modernize `cli/osclean/types.go`:
-  - [ ] Update line 23:
-    - [ ] Replace `CleanResult = result.Result[CleanStats]` with canonical `CleanWrap = result.Wrap[CleanStats]`
-    - [ ] Add backward-compatibility alias: `CleanResult = CleanWrap`
-  - [ ] Enforce Go formatting rules.
+- [x] 2. Modernize `cli/osclean/types.go`:
+  - [x] Update line 23:
+    - [x] Replace `CleanResult = result.Result[CleanStats]` with canonical `CleanWrap = result.Wrap[CleanStats]`
+    - [x] Add backward-compatibility alias: `CleanResult = CleanWrap`
+  - [x] Enforce Go formatting rules.
 
-- [ ] 3. Modernize `cli/committransfer/types.go`:
-  - [ ] Import `github.com/alimtvnetwork/gitmap-v28/cli/result`.
-  - [ ] Define canonical single-return monadic Result wrappers for replay operations:
-    - [ ] `ReplayResultWrap = result.Wrap[ReplayResult]`
-    - [ ] `ReplayPlanWrap = result.Wrap[ReplayPlan]`
-  - [ ] Document the wrappers for eliminating multi-value error tuples in commit replay flows.
+- [x] 3. Modernize `cli/committransfer/types.go`:
+  - [x] Import `github.com/alimtvnetwork/gitmap-v28/cli/result`.
+  - [x] Define canonical single-return monadic Result wrappers for replay operations:
+    - [x] `ReplayResultWrap = result.Wrap[ReplayResult]`
+    - [x] `ReplayPlanWrap = result.Wrap[ReplayPlan]`
+  - [x] Document the wrappers for eliminating multi-value error tuples in commit replay flows.
 
-- [ ] 4. Invariant Verification:
-  - [ ] Strictly relative Git paths only.
-  - [ ] Zero compiler builds (`go build` strictly banned).
-  - [ ] Zero tests (`go test` strictly banned).
-  - [ ] Zero git commands.
+- [x] 4. Invariant Verification:
+  - [x] Strictly relative Git paths only.
+  - [x] Zero compiler builds (`go build` strictly banned).
+  - [x] Zero tests (`go test` strictly banned).
+  - [x] Zero git commands.
 
 ---
 

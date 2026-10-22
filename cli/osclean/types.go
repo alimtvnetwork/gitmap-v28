@@ -19,5 +19,8 @@ type CleanStats struct {
 	HasErrors         bool
 }
 
-// CleanResult encapsulates CleanStats result wrapper.
-type CleanResult = result.Wrap[CleanStats]
+// CleanWrap encapsulates CleanStats result wrapper.
+type CleanWrap = result.Wrap[CleanStats]
+
+// CleanResult is a backward-compatible alias for CleanWrap.
+type CleanResult = CleanWrap

@@ -72,39 +72,73 @@ func upsertOneRepo(runner sqlExecutor, r model.ScanRecord) error {
 	return err
 }
 
+// DeleteByPathWrap removes repo rows matching absolute path encapsulated in RowsAffectedWrap.
+func (db *DB) DeleteByPathWrap(absPath string) RowsAffectedWrap {
+	cleanPath := NormalizeStoragePath(absPath)
+
+	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoByPath, cleanPath).Destruct()
+	if err != nil {
+		return result.Fail[int64](apperror.WrapSimple(err, "store.DeleteByPath"))
+	}
+
+	rows, rowsErr := res.RowsAffected()
+	if rowsErr != nil {
+		return result.Fail[int64](apperror.WrapSimple(rowsErr, "store.DeleteByPath.rows"))
+	}
+
+	return result.Ok(rows)
+}
+
 // DeleteByPath removes the repo row whose AbsolutePath matches.
 // Returns the number of rows deleted (0 when no match).
 func (db *DB) DeleteByPath(absPath string) (int64, error) {
-	cleanPath := NormalizeStoragePath(absPath)
-	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoByPath, cleanPath).Destruct()
-	if err != nil {
-		return 0, err
+	res := db.DeleteByPathWrap(absPath)
+	if res.IsFailure() {
+		return 0, res.AppError()
 	}
 
-	return res.RowsAffected()
+	return res.Unwrap()
+}
+
+// DeleteBySlugWrap removes repo rows matching slug encapsulated in RowsAffectedWrap.
+func (db *DB) DeleteBySlugWrap(slug string) RowsAffectedWrap {
+	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoBySlug, slug).Destruct()
+	if err != nil {
+		return result.Fail[int64](apperror.WrapSimple(err, "store.DeleteBySlug"))
+	}
+
+	rows, rowsErr := res.RowsAffected()
+	if rowsErr != nil {
+		return result.Fail[int64](apperror.WrapSimple(rowsErr, "store.DeleteBySlug.rows"))
+	}
+
+	return result.Ok(rows)
 }
 
 // DeleteBySlug removes every repo row whose Slug matches.
 // Returns the number of rows deleted.
 func (db *DB) DeleteBySlug(slug string) (int64, error) {
-	res, err := ExecWrapper(db.conn, constants.SQLDeleteRepoBySlug, slug).Destruct()
-	if err != nil {
-		return 0, err
+	res := db.DeleteBySlugWrap(slug)
+	if res.IsFailure() {
+		return 0, res.AppError()
 	}
 
-	return res.RowsAffected()
+	return res.Unwrap()
+}
+
+// ListReposWrap returns all tracked repositories encapsulated in ScanRecordSliceWrap.
+func (db *DB) ListReposWrap() ScanRecordSliceWrap {
+	return NewRepoRepository(db.conn).ListAll()
 }
 
 // ListRepos returns all tracked repositories ordered by slug.
 func (db *DB) ListRepos() ([]model.ScanRecord, error) {
-	rows, err := QueryWrapper(db.conn, constants.SQLSelectAllRepos).Destruct()
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+	res := db.ListReposWrap()
+	if res.IsFailure() {
+		return nil, res.AppError()
 	}
 
-	defer rows.Close()
-
-	return scanRows(rows)
+	return res.Items(), nil
 }
 
 const sqlSelectReposByTransport = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE IdentifiedTransport = ? COLLATE NOCASE ORDER BY Slug ASC"
@@ -136,15 +170,26 @@ func (db *DB) ListReposDirtyStatus() ScanRecordSliceWrap {
 	return NewRepoRepository(db.conn).ListDirty()
 }
 
-// CountRepos returns the total number of repositories tracked in the database.
-func (db *DB) CountRepos() (int, error) {
+// CountReposWrap returns the total number of repositories encapsulated in RepoCountWrap.
+func (db *DB) CountReposWrap() RepoCountWrap {
 	var total int
+
 	err := db.conn.QueryRow("SELECT COUNT(*) FROM Repo").Scan(&total)
 	if err != nil {
-		return 0, fmt.Errorf(constants.ErrDBQuery, err)
+		return result.Fail[int](apperror.WrapSimple(err, "store.CountRepos"))
 	}
 
-	return total, nil
+	return result.Ok(total)
+}
+
+// CountRepos returns the total number of repositories tracked in the database.
+func (db *DB) CountRepos() (int, error) {
+	res := db.CountReposWrap()
+	if res.IsFailure() {
+		return 0, res.AppError()
+	}
+
+	return res.Unwrap()
 }
 
 // FindByID returns all repos matching the given ID.
@@ -170,36 +215,83 @@ func findBySlugRunner(runner sqlQueryer, slug string) ([]model.ScanRecord, error
 	return scanRows(rows)
 }
 
+func isMissingError(err *apperror.AppError) bool {
+	if err == nil {
+		return false
+	}
+
+	return err.Code == "E_NOT_FOUND" || strings.Contains(err.Error(), "not found")
+}
+
+// FindBySlugWrap returns repository matching slug encapsulated in ScanRecordWrap.
+func (db *DB) FindBySlugWrap(slug string) ScanRecordWrap {
+	return NewRepoRepository(db.conn).FindBySlug(slug)
+}
+
 // FindBySlug returns all repos matching the given slug.
 func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
-	return findBySlugRunner(db.conn, slug)
+	res := db.FindBySlugWrap(slug)
+	if res.IsSuccess() {
+		rec, _ := res.Unwrap()
+
+		return []model.ScanRecord{rec}, nil
+	}
+
+	if isMissingError(res.AppError()) {
+		return nil, nil
+	}
+
+	return nil, res.AppError()
+}
+
+// FindOneBySlugWrap returns the first repository matching slug encapsulated in ScanRecordWrap.
+func (db *DB) FindOneBySlugWrap(slug string) ScanRecordWrap {
+	return NewRepoRepository(db.conn).FindBySlug(slug)
 }
 
 // FindOneBySlug returns the first repository matching the given slug or nil if not found.
 func (db *DB) FindOneBySlug(slug string) (*model.ScanRecord, error) {
-	records, err := db.FindBySlug(slug)
-	if err != nil {
-		return nil, err
+	res := db.FindOneBySlugWrap(slug)
+	if res.IsSuccess() {
+		rec, _ := res.Unwrap()
+
+		return &rec, nil
 	}
 
-	if len(records) == 0 {
+	if isMissingError(res.AppError()) {
 		return nil, nil
 	}
 
-	return &records[0], nil
+	return nil, res.AppError()
 }
 
-// FindByPath returns the repo at the given absolute path.
-func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
+// FindByPathWrap returns repositories matching absolute path encapsulated in ScanRecordSliceWrap.
+func (db *DB) FindByPathWrap(absPath string) ScanRecordSliceWrap {
 	cleanPath := NormalizeStoragePath(absPath)
+
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByPath, cleanPath).Destruct()
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(err, "store.FindByPath"))
 	}
 
 	defer rows.Close()
 
-	return scanRows(rows)
+	records, scanErr := scanRows(rows)
+	if scanErr != nil {
+		return result.FailSlice[model.ScanRecord](apperror.WrapSimple(scanErr, "store.FindByPath.scan"))
+	}
+
+	return result.OkSlice(records)
+}
+
+// FindByPath returns the repo at the given absolute path.
+func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
+	res := db.FindByPathWrap(absPath)
+	if res.IsFailure() {
+		return nil, res.AppError()
+	}
+
+	return res.Items(), nil
 }
 
 // RepoExists returns true if a repository with the given RepoId exists.

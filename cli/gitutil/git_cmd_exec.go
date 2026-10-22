@@ -4,7 +4,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // buildGitDirArgs constructs arguments prepended with the git directory flag when repoPath is provided.
@@ -31,69 +33,77 @@ func createGitCmd(repoPath string, args ...string) *exec.Cmd {
 }
 
 // RunGitInDir executes a git command with directory arguments and returns stdout output.
-func RunGitInDir(repoPath string, args ...string) ([]byte, error) {
+func RunGitInDir(repoPath string, args ...string) result.ByteSliceResult {
 	cmd := createGitCmd(repoPath, args...)
+	out, err := cmd.Output()
+	if err != nil {
+		return result.Fail[[]byte](apperror.WrapSimple(err, "RunGitInDir"))
+	}
 
-	return cmd.Output()
+	return result.Ok(out)
 }
 
 // RunGitCombinedInDir executes a git command with directory arguments and returns combined stdout and stderr.
-func RunGitCombinedInDir(repoPath string, args ...string) ([]byte, error) {
+func RunGitCombinedInDir(repoPath string, args ...string) result.ByteSliceResult {
 	cmd := createGitCmd(repoPath, args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return result.Fail[[]byte](apperror.WrapSimple(err, "RunGitCombinedInDir"))
+	}
 
-	return cmd.CombinedOutput()
+	return result.Ok(out)
 }
 
 // GetRepoConfig retrieves a git configuration value for key in repoPath.
-func GetRepoConfig(repoPath, key string) (string, error) {
-	out, err := RunGitInDir(repoPath, constants.GitConfigCmd, constants.GitGetFlag, key)
-	if err != nil {
-		return "", err
+func GetRepoConfig(repoPath, key string) result.StringResult {
+	res := RunGitInDir(repoPath, constants.GitConfigCmd, constants.GitGetFlag, key)
+	if res.IsFailure() {
+		return result.Fail[string](res.AppError())
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return result.Ok(strings.TrimSpace(string(res.Data)))
 }
 
 // GetRemoteOriginURL retrieves the origin remote URL or an empty string on error.
 func GetRemoteOriginURL(repoPath string) string {
-	val, err := GetRepoConfig(repoPath, constants.GitRemoteOrigin)
-	if err != nil {
-		return ""
-	}
+	res := GetRepoConfig(repoPath, constants.GitRemoteOrigin)
 
-	return val
+	return res.UnwrapOr("")
 }
 
 // ReadRemoteOriginURL retrieves the configured remote.origin.url for repoPath.
-func ReadRemoteOriginURL(repoPath string) (string, error) {
+func ReadRemoteOriginURL(repoPath string) result.StringResult {
 	return GetRepoConfig(repoPath, constants.GitRemoteOrigin)
 }
 
 // SetRemoteOriginURL updates the remote origin URL for repoPath.
 func SetRemoteOriginURL(repoPath, url string) error {
-	_, err := RunGitCombinedInDir(repoPath, "remote", "set-url", constants.GitOrigin, url)
+	res := RunGitCombinedInDir(repoPath, "remote", "set-url", constants.GitOrigin, url)
+	if res.IsFailure() {
+		return res.AppError()
+	}
 
-	return err
+	return nil
 }
 
 // GetRepoCurrentBranch returns the active branch name of the repository at repoPath.
-func GetRepoCurrentBranch(repoPath string) (string, error) {
-	out, err := RunGitInDir(repoPath, constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
-	if err != nil {
-		return "", err
+func GetRepoCurrentBranch(repoPath string) result.StringResult {
+	res := RunGitInDir(repoPath, constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
+	if res.IsFailure() {
+		return result.Fail[string](res.AppError())
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return result.Ok(strings.TrimSpace(string(res.Data)))
 }
 
 // IsRepoClean reports whether the working tree at repoPath has no uncommitted changes.
-func IsRepoClean(repoPath string) (bool, error) {
-	out, err := RunGitInDir(repoPath, "status", "--porcelain")
-	if err != nil {
-		return false, err
+func IsRepoClean(repoPath string) result.BoolResult {
+	res := RunGitInDir(repoPath, "status", "--porcelain")
+	if res.IsFailure() {
+		return result.Fail[bool](res.AppError())
 	}
 
-	isClean := len(strings.TrimSpace(string(out))) == 0
+	isClean := len(strings.TrimSpace(string(res.Data))) == 0
 
-	return isClean, nil
+	return result.Ok(isClean)
 }

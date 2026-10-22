@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // RepoStatus holds the live state of a Git repository.
@@ -23,7 +24,7 @@ type RepoStatus struct {
 }
 
 // RemoteURL returns the origin remote URL for a repo at the given path.
-func RemoteURL(repoPath string) (string, error) {
+func RemoteURL(repoPath string) result.StringResult {
 	return GetRepoConfig(repoPath, constants.GitRemoteOrigin)
 }
 
@@ -47,13 +48,13 @@ func HasRemote(repoPath string) bool {
 // RepoRoot returns the absolute path of the working-tree root for the
 // repo containing `startPath`. Returns the underlying git error when
 // startPath is not inside a git working tree.
-func RepoRoot(startPath string) (string, error) {
-	out, err := runGit(startPath, constants.GitRevParse, "--show-toplevel")
-	if err != nil {
-		return "", err
+func RepoRoot(startPath string) result.StringResult {
+	res := RunGitInDir(startPath, constants.GitRevParse, "--show-toplevel")
+	if res.IsFailure() {
+		return result.Fail[string](res.AppError())
 	}
 
-	return strings.TrimSpace(out), nil
+	return result.Ok(strings.TrimSpace(string(res.Data)))
 }
 
 // Branch source labels describe how a repo's branch was determined.
@@ -66,14 +67,14 @@ const (
 )
 
 // CurrentBranch returns the current branch name for a repo.
-func CurrentBranch(repoPath string) (string, error) {
-	out, err := runGit(repoPath,
+func CurrentBranch(repoPath string) result.StringResult {
+	res := RunGitInDir(repoPath,
 		constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
-	if err != nil {
-		return constants.DefaultBranch, err
+	if res.IsFailure() {
+		return result.Fail[string](res.AppError())
 	}
 
-	return strings.TrimSpace(out), nil
+	return result.Ok(strings.TrimSpace(string(res.Data)))
 }
 
 // DetectBranch returns the branch name and a label describing how it was
@@ -290,10 +291,10 @@ func countStashes(repoPath string) int {
 
 // runGit executes a git command in the given directory and returns stdout.
 func runGit(dir string, args ...string) (string, error) {
-	out, err := RunGitInDir(dir, args...)
-	if err != nil {
-		return "", err
+	res := RunGitInDir(dir, args...)
+	if res.IsFailure() {
+		return "", res.AppError()
 	}
 
-	return string(out), nil
+	return string(res.Data), nil
 }
