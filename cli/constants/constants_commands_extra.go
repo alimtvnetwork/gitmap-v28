@@ -72,7 +72,10 @@ const (
 	CmdSpec = "spec" // gitmap:cmd skip
 	// CmdSpecNext is the `spec next` subcommand — issues the next
 	// free spec number and prints it on stdout.
-	CmdSpecNext          = "next" // gitmap:cmd skip
+	CmdSpecNext = "next" // gitmap:cmd skip
+	// CmdPlans lists and summarizes completed and pending repository plans.
+	CmdPlans             = "plans"
+	CmdPlansAlias        = "plan"
 	CmdRecreateRepo      = "recreate-repo"
 	CmdRecreateRepoAlias = "recreate"
 	CmdRestEnable        = "rest-enable"

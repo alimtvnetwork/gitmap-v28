@@ -118,6 +118,7 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `15-cg-execute` | [`15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/37-string-normalization-and-equalfoldany.md`](../01-prompts/15-cg-execute/37-string-normalization-and-equalfoldany.md) | Ledger: NN-<slug> |
 | `15-cg-execute` | [`15-cg-execute/38-map-dispatch-and-handler-lookup.md`](../01-prompts/15-cg-execute/38-map-dispatch-and-handler-lookup.md) | Ledger: NN-<slug> |
+| `15-cg-execute` | [`15-cg-execute/39-golang-pointers-and-mutation-reduction.md`](../01-prompts/15-cg-execute/39-golang-pointers-and-mutation-reduction.md) | Golang Pointers Reduction & Mutation Reduction — Value Semantics & Pure Immutability (slug: cg-golang-pointers-and-mutation-reduction, invoke: /golang-pointers-and-mutation-reduction) |
 | `15-cg-execute` | [`15-cg-execute/readme.md`](../01-prompts/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
 | `16-ci-cd` | [`16-ci-cd/01-ci-cd-fix-tweak.md`](../01-prompts/16-ci-cd/01-ci-cd-fix-tweak.md) | CI/CD Fix Tweak with Targeted Smart Testing & RCA — Workflow (must follow) |
 | `16-ci-cd` | [`16-ci-cd/02-ci-cd-fix-with-release-tweak.md`](../01-prompts/16-ci-cd/02-ci-cd-fix-with-release-tweak.md) | Release-Triggered CI/CD Fix Tweak with Targeted Smart Testing — Workflow (must follow) |

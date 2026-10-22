@@ -1,0 +1,35 @@
+package cmdplans
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+
+	"gopkg.in/yaml.v3"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+)
+
+// RenderJSON serializes the plans report as pretty-printed JSON to standard output.
+func RenderJSON(report PlansReport) error {
+	data, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return apperror.Wrap(err, "json.MarshalIndent plans")
+	}
+
+	fmt.Fprintln(os.Stdout, string(data))
+
+	return nil
+}
+
+// RenderYAML serializes the plans report as YAML document to standard output.
+func RenderYAML(report PlansReport) error {
+	data, err := yaml.Marshal(report)
+	if err != nil {
+		return apperror.Wrap(err, "yaml.Marshal plans")
+	}
+
+	fmt.Fprint(os.Stdout, string(data))
+
+	return nil
+}

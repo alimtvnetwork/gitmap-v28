@@ -118,6 +118,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 | **36** | [`36-variadic-and-spread-parameters.md`](./36-variadic-and-spread-parameters.md) | Variadic & Spread Parameters, Rest Elements & Slices | `cg-variadic`, `cg-spread-params`, `cg-execute variadic`, `audit variadic` | Replace rigid slice/array parameters with variadic/spread (`...T`, `...items`, `&[T]`), eliminate single-item wrapper allocations (`[]string{id}`), enforce parameter count caps and safe empty handling | `validate-guidelines.py`, `check-function-lengths.py` |
 | **37** | [`37-string-normalization-and-equalfoldany.md`](./37-string-normalization-and-equalfoldany.md) | String Normalization, `EqualFoldAny` & Centralized Utility Discovery | `cg-string-normalization`, `cg-equalfoldany`, `strutil-normalization`, `audit-string-comparisons` | Replace repetitive trimming and chained `EqualFold` / `ToLower` OR-chains with centralized `strutil.EqualFoldAny` and `strutil.EqualFoldAnyTrim` helpers, enforce Search First Directive for `pkg/strutil` (or repo string utility), zero-allocation case folding | `validate-guidelines.py`, `check-function-lengths.py` |
 | **38** | [`38-map-dispatch-and-handler-lookup.md`](./38-map-dispatch-and-handler-lookup.md) | Declarative Map Dispatch & Handler Lookup Table | `cg-map-dispatch`, `cg-dispatch-table`, `cg-execute map-dispatch`, `audit map dispatch` | Replace chained `if-else if` / `switch` statement code smells matching keys/tokens to invoke functions with declarative lookup maps (`Record<string, () => void>`, `map[string]func()`, `dict[str, Callable]`), positive boolean containment checks, and single-line dispatch execution | `validate-guidelines.py`, `check-function-lengths.py` |
+| **39** | [`39-golang-pointers-and-mutation-reduction.md`](./39-golang-pointers-and-mutation-reduction.md) | Golang Pointers Reduction & Mutation Reduction | `golang-pointers-and-mutation-reduction`, `cg-golang-pointers`, `reduce-pointers-and-mutation` | Value semantics for small structs (<=64B), value receivers on queries, eliminate `*T`, single-assignment immutability, pure constructors, copy-on-write, mutex encapsulation | `validate-guidelines.py`, `check-boolean-guidelines.py` |
 
 ### Directory Tree
 
@@ -161,6 +162,7 @@ Prompts are sequenced according to priority. Error management, control-flow flat
 ├── 36-variadic-and-spread-parameters.md
 ├── 37-string-normalization-and-equalfoldany.md
 ├── 38-map-dispatch-and-handler-lookup.md
+├── 39-golang-pointers-and-mutation-reduction.md
 └── readme.md
 ```
 

@@ -34,6 +34,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -141,6 +142,7 @@ func utilityToolEntries() []dispatchEntry {
 		{[]string{"peat", "pea"}, func() error { return runPeatCmd(argsTail()) }},
 		{[]string{"install-exec", "in-exec", "setup-exec"}, func() error { return cmdssh.RunSSHInstallExecCLI(argsTail()) }},
 		{[]string{"py", "python"}, func() error { return cmdpy.RunPy(argsTail()) }},
+		{[]string{constants.CmdPlans, constants.CmdPlansAlias}, func() error { return cmdplans.RunPlans(argsTail()) }},
 		{[]string{"download", "dl"}, func() error { return cmddownload.RunDownloadCLI(argsTail()) }},
 	}
 }
