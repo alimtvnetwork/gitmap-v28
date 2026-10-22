@@ -19,8 +19,8 @@ import (
 // error is returned, so the caller can still run git push/pull.
 //
 // Spec: 02-spec/01-app/111-push-pull-transport-flags.md
-func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, error) {
-	isSSH, isActionable := resolveRequestedTransport(useSSH, useHTTPS)
+func ApplyTransportFlag(dir string, isSSH, isHTTPS bool) (bool, string, string, error) {
+	isRequestedSSH, isActionable := resolveRequestedTransport(isSSH, isHTTPS)
 	if !isActionable {
 		return false, "", "", nil
 	}
@@ -30,21 +30,21 @@ func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string
 		return false, "", "", err
 	}
 
-	return rewriteTransportURL(dir, old, isSSH)
+	return rewriteTransportURL(dir, old, isRequestedSSH)
 }
 
-func resolveRequestedTransport(useSSH, useHTTPS bool) (bool, bool) {
-	if !useSSH && !useHTTPS {
+func resolveRequestedTransport(isSSH, isHTTPS bool) (bool, bool) {
+	if !isSSH && !isHTTPS {
 		return false, false
 	}
 
-	if useSSH && useHTTPS {
+	if isSSH && isHTTPS {
 		fmt.Fprintln(os.Stderr, "⚠ both --ssh and --https set; --ssh wins")
 
 		return true, true
 	}
 
-	return useSSH, true
+	return isSSH, true
 }
 
 func rewriteTransportURL(dir, old string, isSSH bool) (bool, string, string, error) {

@@ -79,7 +79,11 @@ func RunPeTriage(args []string) *appfault.AppError {
 		filter = *repoFilterShort
 	}
 	workdir := resolveWorkdir(*workdirFlag)
-	repos := listGitRepos(workdir)
+	repos, errRepos := listGitRepos(workdir)
+	if errRepos != nil {
+		return apperror.WrapSimple(errRepos, "pe.triage.listGitRepos")
+	}
+
 	if len(repos) == 0 {
 		fmt.Printf("pe triage: no git repos found in %s\n", workdir)
 		return nil

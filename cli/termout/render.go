@@ -70,11 +70,24 @@ func PrintSection(sec HelpSection, colWidth int, theme Theme) {
 	if len(headerColor) == 0 {
 		headerColor = theme.HeaderColor
 	}
-	fmt.Fprintf(output.UI(), "  %s%s:%s\n", headerColor, sec.Title, Reset())
+	badge := ""
+	if sec.BadgeText != "" {
+		badge = formatSectionBadge(sec, theme)
+	}
+	fmt.Fprintf(output.UI(), "  %s%s%s%s:\n", headerColor, sec.Title, Reset(), badge)
 	for _, entry := range sec.Entries {
 		printEntryLine(entry, colWidth, theme)
 	}
 	fmt.Fprintln(output.UI())
+}
+
+func formatSectionBadge(sec HelpSection, theme Theme) string {
+	badgeColor := sec.BadgeColor
+	if badgeColor == "" {
+		badgeColor = RoleSGR(RoleFGSubtle)
+	}
+
+	return fmt.Sprintf(" %s[%s]%s", badgeColor, sec.BadgeText, Reset())
 }
 
 func printEntryLine(entry CommandEntry, colWidth int, theme Theme) {

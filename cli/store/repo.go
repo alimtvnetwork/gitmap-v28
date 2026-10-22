@@ -134,6 +134,20 @@ func (db *DB) FindBySlug(slug string) ([]model.ScanRecord, error) {
 	return findBySlugRunner(db.conn, slug)
 }
 
+// FindOneBySlug returns the first repository matching the given slug or nil if not found.
+func (db *DB) FindOneBySlug(slug string) (*model.ScanRecord, error) {
+	records, err := db.FindBySlug(slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(records) == 0 {
+		return nil, nil
+	}
+
+	return &records[0], nil
+}
+
 // FindByPath returns the repo at the given absolute path.
 func (db *DB) FindByPath(absPath string) ([]model.ScanRecord, error) {
 	cleanPath := NormalizeStoragePath(absPath)

@@ -126,7 +126,7 @@ During the specification authoring and planning phase, the following invariants 
 
 1. **Strictly Relative Git Paths Only:**
    - Every file path referenced in specifications, plans, and documentation MUST be relative to the repository root (e.g. `02-spec/21-app/...`, `.ai-memory/...`, `cli/...`).
-   - Absolute filesystem paths (e.g. `d:\work\gitmap` or `C:\...`) and `file:///` URIs are strictly forbidden.
+   - Absolute filesystem paths (e.g. workspace paths) and file URIs are strictly forbidden.
 
 2. **All Filenames and Paths Strictly Lowercase:**
    - All directories and files created under `02-spec/21-app/289-improvements-planning-and-execution/` and `.ai-memory/plans/subtasks/289-improvements-planning-and-execution/` must be 100% lowercase.

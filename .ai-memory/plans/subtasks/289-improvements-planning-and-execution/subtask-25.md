@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/cmdagent/agent_ui_server.go`  
-> **Status:** PENDING  
+> **Status:** Completed  
 
 ---
 
@@ -66,8 +66,8 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Action logs endpoint `/api/action-logs` includes `touchType` in JSON objects.
-- [ ] Actions containing "READ" yield `"touchType": "READ"`.
-- [ ] Actions containing "EDIT" yield `"touchType": "EDIT"`.
-- [ ] Actions containing "CREATE" or "WRITE" yield `"touchType": "CREATED"`.
-- [ ] Existing client consumers continue functioning without breaking changes.
+- [x] Action logs endpoint `/api/action-logs` includes `touchType` in JSON objects.
+- [x] Actions containing "READ" yield `"touchType": "READ"`.
+- [x] Actions containing "EDIT" yield `"touchType": "EDIT"`.
+- [x] Actions containing "CREATE" or "WRITE" yield `"touchType": "CREATED"`.
+- [x] Existing client consumers continue functioning without breaking changes.

@@ -30,13 +30,26 @@ func ResolvePipelineTargetAndPath(target string) (string, string) {
 		return parseSlugFromGitURL(trimmed), ""
 	}
 
-	if info, err := os.Stat(trimmed); err == nil && info.IsDir() {
-		abs, _ := filepath.Abs(trimmed)
-
-		return resolveDirectorySlug(trimmed), abs
+	if isDirectoryTarget(trimmed) {
+		return resolveDirectoryTarget(trimmed)
 	}
 
 	return resolveDBOrExplicitSlug(trimmed)
+}
+
+func isDirectoryTarget(target string) bool {
+	info, err := os.Stat(target)
+
+	return err == nil && info.IsDir()
+}
+
+func resolveDirectoryTarget(dirPath string) (string, string) {
+	abs, absErr := filepath.Abs(dirPath)
+	if absErr != nil {
+		return resolveDirectorySlug(dirPath), dirPath
+	}
+
+	return resolveDirectorySlug(dirPath), abs
 }
 
 func resolveDBOrExplicitSlug(target string) (string, string) {
@@ -98,18 +111,60 @@ func resolveLocalOrCwdSlug(target string) string {
 	return resolveCurrentRepoSlug()
 }
 
+// DirectorySlugResult wraps resolved directory slug provenance.
+type DirectorySlugResult struct {
+	Slug      string
+	IsFound   bool
+	IsGuessed bool
+	Err       error
+}
+
 func resolveDirectorySlug(dirPath string) string {
+	res := resolveDirectorySlugWithProvenance(dirPath)
+
+	return res.Slug
+}
+
+func resolveOriginDirectorySlug(dirPath string) (DirectorySlugResult, bool) {
 	origin := gitutil.GetRemoteOriginURL(dirPath)
 	if origin != "" {
-		return parseSlugFromGitURL(origin)
+		return DirectorySlugResult{
+			Slug:    parseSlugFromGitURL(origin),
+			IsFound: true,
+		}, true
+	}
+
+	return DirectorySlugResult{}, false
+}
+
+func resolveDBDirectorySlug(dirPath string) (DirectorySlugResult, bool) {
+	base := filepath.Base(dirPath)
+	if slug, isFound := queryRepoSlugFromDB(base); isFound {
+		return DirectorySlugResult{
+			Slug:    slug,
+			IsFound: true,
+		}, true
+	}
+
+	return DirectorySlugResult{}, false
+}
+
+func resolveDirectorySlugWithProvenance(dirPath string) DirectorySlugResult {
+	if res, hasOrigin := resolveOriginDirectorySlug(dirPath); hasOrigin {
+		return res
+	}
+
+	if res, hasDB := resolveDBDirectorySlug(dirPath); hasDB {
+		return res
 	}
 
 	base := filepath.Base(dirPath)
-	if slug, isFound := queryRepoSlugFromDB(base); isFound {
-		return slug
-	}
 
-	return constants.DefaultGitHubOwner + "/" + base
+	return DirectorySlugResult{
+		Slug:      constants.DefaultGitHubOwner + "/" + base,
+		IsFound:   false,
+		IsGuessed: true,
+	}
 }
 
 func isPipelineGitURL(s string) bool {

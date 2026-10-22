@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/heatmap/heatmap_cmd_render.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -80,7 +80,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Tree glyphs (`├── `, `└── `) display in subtle muted tone.
-- [ ] Action Log IDs (`#102`, `#103`) pop with distinct accent color.
-- [ ] Status labels reflect success (green), warning (amber), and failure (red).
-- [ ] Indentation hierarchy remains visually aligned across nested children.
+- [x] Tree glyphs (`├── `, `└── `) display in subtle muted tone.
+- [x] Action Log IDs (`#102`, `#103`) pop with distinct accent color.
+- [x] Status labels reflect success (green), warning (amber), and failure (red).
+- [x] Indentation hierarchy remains visually aligned across nested children.

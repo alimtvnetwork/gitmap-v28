@@ -48,6 +48,19 @@ const (
 	ThemeMonokaiPro     = "monokai-pro"
 )
 
+// Tokyo Night truecolor palette constants (24-bit hex).
+const (
+	TokyoBase    = "#1A1B26"
+	TokyoSurface = "#24283B"
+	TokyoPrimary = "#7AA2F7"
+	TokyoAccent  = "#BB9AF7"
+	TokyoOK      = "#9ECE6A"
+	TokyoWarn    = "#E0AF68"
+	TokyoError   = "#F7768E"
+	TokyoMuted   = "#565F89"
+	TokyoFG      = "#C0CAF5"
+)
+
 // Palette is one named terminal palette: the design-system hex ground
 // plus the nearest SGR parameter bytes per semantic role (e.g.
 // "38;5;135" — callers wrap with Role()/RoleSGRBold()).
@@ -170,11 +183,9 @@ func resolveThemeLabel(label string) (slug string, strip bool) {
 	if norm == constants.ThemeMonochrome || norm == constants.ThemeMono {
 		return "", true
 	}
-
 	if aliased, ok := themeAlias[norm]; ok {
 		return aliased, false
 	}
-
 	if _, ok := paletteRegistry[norm]; ok {
 		return norm, false
 	}

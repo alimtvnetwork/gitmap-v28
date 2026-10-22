@@ -10,9 +10,11 @@ type CommandEntry struct {
 
 // HelpSection groups related command entries under a styled heading.
 type HelpSection struct {
-	Title   string
-	Color   string
-	Entries []CommandEntry
+	Title      string
+	Color      string
+	BadgeText  string
+	BadgeColor string
+	Entries    []CommandEntry
 }
 
 // HelpMenu holds complete menu configuration for a command suite.

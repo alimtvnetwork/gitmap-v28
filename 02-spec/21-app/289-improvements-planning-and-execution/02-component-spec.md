@@ -117,9 +117,7 @@ flowchart TD
       if badgeColor == "" {
           badgeColor = RoleSGR(RoleFGSubtle)
       }
-      return fmt.Sprintf("  %s%s%s %s[%s]%s:\n",
-          headerColor, sec.Title, Reset(),
-          badgeColor, sec.BadgeText, Reset())
+      return fmt.Sprintf(" %s[%s]%s", badgeColor, sec.BadgeText, Reset())
   }
   ```
 - **Integration in `PrintSection`:**

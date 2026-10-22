@@ -7,7 +7,7 @@
 - **Target Files:**
   - `cli/cmdpull/pull_remediation_ssh.go`
   - `cli/cmdpull/pull_remediation.go`
-- **Status:** APPROVED & READY FOR IMPLEMENTATION
+- **Status:** Completed
 
 ---
 

@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/heatmap_schema.go`  
-> **Status:** PENDING  
+> **Status:** Completed  
 
 ---
 
@@ -56,7 +56,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `FileTouchType` compiles cleanly under Go 1.22+.
-- [ ] Constants `FileTouchRead`, `FileTouchEdit`, `FileTouchCreated` exported and accessible across packages.
-- [ ] `IsValid()` returns true for all three defined enum values and false for unrecognized strings.
-- [ ] Zero compiler builds and zero tests executed during planning.
+- [x] `FileTouchType` compiles cleanly under Go 1.22+.
+- [x] Constants `FileTouchRead`, `FileTouchEdit`, `FileTouchCreated` exported and accessible across packages.
+- [x] `IsValid()` returns true for all three defined enum values and false for unrecognized strings.
+- [x] Zero compiler builds and zero tests executed during planning.

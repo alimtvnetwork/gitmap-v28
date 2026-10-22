@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/heatmap_schema.go`  
-> **Status:** PENDING  
+> **Status:** Completed  
 
 ---
 
@@ -54,7 +54,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `FileTouchCount` compiles cleanly with new fields.
-- [ ] JSON serialization produces `readCount`, `editCount`, and `createdCount` properties.
-- [ ] Unmarshaling legacy JSON payloads without the new fields populates default 0 values without error.
-- [ ] Relative paths verified across all spec references.
+- [x] `FileTouchCount` compiles cleanly with new fields.
+- [x] JSON serialization produces `readCount`, `editCount`, and `createdCount` properties.
+- [x] Unmarshaling legacy JSON payloads without the new fields populates default 0 values without error.
+- [x] Relative paths verified across all spec references.

@@ -26,6 +26,7 @@ type healthFacts struct {
 	fleetNote    string
 	staleDBs     int
 	staleNames   []string
+	diagErrors   []error
 }
 
 // collectHealthFacts gathers the read-only signals health reports on.
@@ -47,15 +48,25 @@ func appendDirtyName(facts *healthFacts, name string) {
 	facts.dirtyNames = append(facts.dirtyNames, name)
 }
 
+func recordDirtyRepo(name string, facts *healthFacts) {
+	facts.repoDirty++
+	appendDirtyName(facts, name)
+}
+
 func probeRepoDirty(repoPath, name string, facts *healthFacts) {
 	facts.repoTotal++
-	out, runErr := gitutil.RunGitInDir(repoPath, "status", "--porcelain")
-	if runErr != nil || strings.TrimSpace(string(out)) == "" {
+	out, runErr := gitutil.RunGitInDir(repoPath, constants.GitStatus, constants.GitPorcelainFlag)
+	if runErr != nil {
+		facts.diagErrors = append(facts.diagErrors, runErr)
+
 		return
 	}
 
-	facts.repoDirty++
-	appendDirtyName(facts, name)
+	if strings.TrimSpace(string(out)) == "" {
+		return
+	}
+
+	recordDirtyRepo(name, facts)
 }
 
 func inspectRepoEntry(workdir string, e os.DirEntry, facts *healthFacts) {
@@ -95,20 +106,24 @@ func appendRedName(facts *healthFacts, name string) {
 	facts.redNames = append(facts.redNames, name)
 }
 
+func recordPipelineRed(name string, facts *healthFacts) {
+	facts.pipelineRed++
+	appendRedName(facts, name)
+}
+
 func probePipelineSlug(slug, name string, facts *healthFacts) {
-	cmd := exec.Command("gh", "run", "list", "-R", slug, "--limit", "1", "--json", "conclusion")
+	cmd := exec.Command(constants.GHBin, constants.GHRun, constants.GHList, "-R", slug, "--limit", "1", "--json", "conclusion")
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	if runErr := cmd.Run(); runErr != nil {
+		facts.diagErrors = append(facts.diagErrors, runErr)
+
 		return
 	}
 
-	if !strings.Contains(stdout.String(), `"failure"`) {
-		return
+	if strings.Contains(stdout.String(), `"failure"`) {
+		recordPipelineRed(name, facts)
 	}
-
-	facts.pipelineRed++
-	appendRedName(facts, name)
 }
 
 func inspectPipelineEntry(workdir string, e os.DirEntry, facts *healthFacts) bool {
@@ -241,7 +256,7 @@ func checkStaleDb(binDir, name string, cutoff time.Duration, facts *healthFacts)
 func collectDbFacts(facts *healthFacts) {
 	binDir := store.BinaryDataDir()
 	cutoff := 30 * 24 * time.Hour
-	for _, name := range []string{"gitmap.db", "installation.db", "pipeline.db"} {
+	for _, name := range []string{string(constants.DBFileMaster), string(constants.DBFileInstallation), string(constants.DBFilePipeline)} {
 		checkStaleDb(binDir, name, cutoff, facts)
 	}
 }

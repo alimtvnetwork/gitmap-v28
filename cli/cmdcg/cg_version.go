@@ -9,16 +9,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 var (
-	cgStatusHeaderStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd"))
-	cgActiveBadgeStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	cgMissingBadgeStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff5555"))
-	cgDateStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	cgStatusHeaderStyle = termout.TokyoHeaderStyle
+	cgActiveBadgeStyle  = termout.TokyoActiveBadgeStyle
+	cgMissingBadgeStyle = termout.TokyoMissingBadgeStyle
+	cgDateStyle         = termout.TokyoMutedStyle
+	cgVersionStyle      = termout.TokyoAccentStyle
 )
 
 // CGMetadata represents the coding guidelines section inside version.json.

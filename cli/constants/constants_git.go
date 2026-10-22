@@ -7,6 +7,18 @@ const (
 	GitClone                   = "clone"
 	GitPull                    = "pull"
 	GitRebase                  = "rebase"
+	GitStatus                  = "status"
+	GitPorcelainFlag           = "--porcelain"
+	GitRemoteCmd               = "remote"
+	GitSetURLCmd               = "set-url"
+	GitProgressFlag            = "--progress"
+	GitNoEditFlag              = "--no-edit"
+	GitAutostashFlag           = "--autostash"
+	GitLimitOneFlag            = "-1"
+	GitFormatRelative          = "--format=%ar"
+	GHBin                      = "gh"
+	GHRun                      = "run"
+	GHList                     = "list"
 	GitBranchFlag              = "-b"
 	GitDirFlag                 = "-C"
 	GitFFOnlyFlag              = "--ff-only"
@@ -179,11 +191,18 @@ const (
 	BitbucketSSHPrefix       GitURLPrefixType = "git@bitbucket.org:"
 	BitbucketSSHSchemePrefix GitURLPrefixType = "ssh://git@bitbucket.org/"
 
+	// Azure DevOps remote prefixes.
+	AzureHTTPSPrefix GitURLPrefixType = "https://dev.azure.com/"
+	AzureSSHPrefix   GitURLPrefixType = "git@ssh.dev.azure.com:v3/"
+
 	// Generic transport scheme prefixes.
 	GitPrefixHTTPS     GitURLPrefixType = "https://"
 	GitPrefixHTTP      GitURLPrefixType = "http://"
 	GitPrefixSSH       GitURLPrefixType = "git@"
 	GitPrefixSSHScheme GitURLPrefixType = "ssh://"
+	GitPrefixGit       GitURLPrefixType = "git://"
+	GitPrefixFile      GitURLPrefixType = "file://"
+	GitPrefixSSHGitAt  GitURLPrefixType = "ssh://git@"
 )
 
 // Git URL formats, delimiters, and default values.

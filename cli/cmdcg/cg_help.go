@@ -1,7 +1,6 @@
 package cmdcg
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -13,7 +12,7 @@ func RenderCGHelp() {
 func buildCGHelpMenu() termout.HelpMenu {
 	return termout.HelpMenu{
 		Title:       "Coding Guidelines, Prompts & Quality Standards (gitmap cg)",
-		BannerColor: constants.ColorCyan,
+		BannerColor: termout.RoleSGRBold(termout.RolePrimary),
 		UsageLines:  buildCGUsageLines(),
 		Sections: []termout.HelpSection{
 			buildCGOpsSection(),
@@ -37,8 +36,10 @@ func buildCGUsageLines() []string {
 
 func buildCGOpsSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Coding Guidelines Operations",
-		Color: constants.ColorGreen,
+		Title:      "Coding Guidelines Operations",
+		Color:      termout.RoleSGRBold(termout.RoleOK),
+		BadgeText:  "OPS",
+		BadgeColor: termout.RoleSGR(termout.RoleFGSubtle),
 		Entries: []termout.CommandEntry{
 			{Command: "status, stat, ls", Description: "View tabulated Coding Guidelines install status & version across repos"},
 			{Command: "audit, check", Description: "Deep audit of coding standards compliance (specs, rules, memory)"},
@@ -52,8 +53,10 @@ func buildCGOpsSection() termout.HelpSection {
 
 func buildCGPromptSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Prompt Architect & AI Standards",
-		Color: constants.ColorCyan,
+		Title:      "Prompt Architect & AI Standards",
+		Color:      termout.RoleSGRBold(termout.RoleAccent),
+		BadgeText:  "AI",
+		BadgeColor: termout.RoleSGR(termout.RoleAccent),
 		Entries: []termout.CommandEntry{
 			{Command: "install-prompts", Description: "Install Prompt Architect v2 suite and canonical prompt library"},
 			{Command: "update-prompts", Description: "In-place update of Prompt Architect templates across target repos"},
@@ -66,8 +69,10 @@ func buildCGPromptSection() termout.HelpSection {
 
 func buildCGVersioningSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Canonical Versioning & SSOT",
-		Color: constants.ColorYellow,
+		Title:      "Canonical Versioning & SSOT",
+		Color:      termout.RoleSGRBold(termout.RoleWarn),
+		BadgeText:  "SSOT",
+		BadgeColor: termout.RoleSGR(termout.RoleWarn),
 		Entries: []termout.CommandEntry{
 			{Command: "version, ver, -v", Description: "Display installed Coding Guidelines version"},
 			{Command: "install-version-json, init-version", Description: "Initialize canonical version.json SSOT with version tag"},

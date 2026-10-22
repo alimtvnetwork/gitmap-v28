@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/repo.go`  
-> **Status:** PENDING  
+> **Status:** Completed  
 
 ---
 
@@ -51,8 +51,8 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `FindOneBySlug` compiles cleanly under Go 1.22+.
-- [ ] Returns `(*model.ScanRecord, nil)` when matching record is found.
-- [ ] Returns `(nil, nil)` when no record matches.
-- [ ] Returns `(nil, err)` when database query encounters an error.
-- [ ] All paths are relative lowercase without absolute paths or URIs.
+- [x] `FindOneBySlug` compiles cleanly under Go 1.22+.
+- [x] Returns `(*model.ScanRecord, nil)` when matching record is found.
+- [x] Returns `(nil, nil)` when no record matches.
+- [x] Returns `(nil, err)` when database query encounters an error.
+- [x] All paths are relative lowercase without absolute paths or URIs.

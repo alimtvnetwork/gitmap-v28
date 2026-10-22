@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/termout/table.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -119,7 +119,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Cells with emojis (e.g., `✔`, `💡`, `📋`) do not push subsequent columns out of vertical alignment.
-- [ ] ANSI escape codes inside cells do not distort column width calculations.
-- [ ] Middle-truncation preserves string aesthetics when cells exceed `MaxWidth`.
-- [ ] Left, right, and center alignment remain visually accurate.
+- [x] Cells with emojis (e.g., `✔`, `💡`, `📋`) do not push subsequent columns out of vertical alignment.
+- [x] ANSI escape codes inside cells do not distort column width calculations.
+- [x] Middle-truncation preserves string aesthetics when cells exceed `MaxWidth`.
+- [x] Left, right, and center alignment remain visually accurate.

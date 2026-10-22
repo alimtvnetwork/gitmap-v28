@@ -6,6 +6,16 @@ const (
 	DBFile = "gitmap.db"
 )
 
+// DatabaseFileType represents strongly-typed database file names.
+type DatabaseFileType string
+
+const (
+	DBFileMaster       DatabaseFileType = "gitmap.db"
+	DBFileInstallation DatabaseFileType = "installation.db"
+	DBFilePipeline     DatabaseFileType = "pipeline.db"
+	DBFileHeatmap      DatabaseFileType = "heatmap.db"
+)
+
 // Lock file.
 const (
 	LockFileName       = "gitmap.lock"
@@ -19,6 +29,25 @@ const (
 	TableGroup     = "Group"
 	TableGroupRepo = "GroupRepo"
 	TableRelease   = "Release"
+	TableAlias     = "Alias"
+)
+
+// RepoTransportQueryType represents the query target strategy for repository transport lookups.
+type RepoTransportQueryType string
+
+const (
+	RepoTransportQueryByPath RepoTransportQueryType = "by_path"
+	RepoTransportQueryBySlug RepoTransportQueryType = "by_slug"
+	RepoTransportQueryByID   RepoTransportQueryType = "by_id"
+)
+
+// RepoTransportActionType represents the database operation type for transport management.
+type RepoTransportActionType string
+
+const (
+	RepoTransportActionUpdate RepoTransportActionType = "update"
+	RepoTransportActionClear  RepoTransportActionType = "clear"
+	RepoTransportActionVerify RepoTransportActionType = "verify"
 )
 
 // Legacy table names retained only for migration detection (do not use in new SQL).

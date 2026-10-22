@@ -56,8 +56,23 @@ func DeleteRepoRecordByPath(repoPath string) error {
 	return err
 }
 
-// RemediateMissingRepo attempts to restore a missing repository using clone fallback.
-func RemediateMissingRepo(f PullFailureSummary) bool {
+func remediateMissingRepoTransport(repoPath, remoteURL string) error {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	transport := constants.TransportSSH
+	if strings.HasPrefix(strings.ToLower(remoteURL), string(constants.GitPrefixHTTPS)) {
+		transport = constants.TransportHTTPS
+	}
+
+	return db.UpdateRepoTransport(repoPath, remoteURL, transport)
+}
+
+func printMissingRepoNotice(f PullFailureSummary) {
 	relPath := formatRelativeOrCleanPath(f.RepoPath)
 	if relPath == "" || relPath == "." {
 		relPath = f.RepoName
@@ -65,32 +80,60 @@ func RemediateMissingRepo(f PullFailureSummary) bool {
 
 	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
 	fmt.Printf("    %s Repository directory missing on disk: %s\n", constants.TreeBranch, relPath)
+}
 
-	remoteURL := f.RemoteURL
-	if remoteURL == "" {
-		_, remoteURL = LookupRepoRemoteAndID(f.RepoPath)
+func resolveMissingRemoteURL(f PullFailureSummary) string {
+	if f.RemoteURL != "" {
+		return f.RemoteURL
 	}
 
-	if remoteURL == "" {
-		fmt.Printf("    %s %s✗%s Cannot clone: no remote URL recorded in database.\n",
-			constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+	_, remoteURL := LookupRepoRemoteAndID(f.RepoPath)
+
+	return remoteURL
+}
+
+func printMissingRemoteURLError() {
+	fmt.Printf("    %s %s✗%s Cannot clone: no remote URL recorded in database.\n",
+		constants.TreeCorner, constants.ColorRed, constants.ColorReset)
+}
+
+func printCloneFailure(err error) {
+	fmt.Printf("    %s %s✗%s Clone fallback failed: %v\n",
+		constants.TreeCorner, constants.ColorRed, constants.ColorReset, err)
+}
+
+func execCloneAndRecord(repoPath, remoteURL string) bool {
+	if err := ExecCloneRepo(remoteURL, repoPath); err != nil {
+		printCloneFailure(err)
 
 		return false
 	}
 
-	fmt.Printf("    %s Attempting clone fallback from %s...\n", constants.TreeBranch, remoteURL)
-
-	if err := ExecCloneRepo(remoteURL, f.RepoPath); err != nil {
-		fmt.Printf("    %s %s✗%s Clone fallback failed: %v\n",
-			constants.TreeCorner, constants.ColorRed, constants.ColorReset, err)
-
-		return false
+	if errTrans := remediateMissingRepoTransport(repoPath, remoteURL); errTrans != nil {
+		fmt.Printf("    %s %s⚠%s Notice: cloned successfully, but failed to record transport in DB: %v\n",
+			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errTrans)
 	}
 
 	fmt.Printf("    %s %s✓%s Successfully restored repository via clone fallback.\n",
 		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 
 	return true
+}
+
+// RemediateMissingRepo attempts to restore a missing repository using clone fallback.
+func RemediateMissingRepo(f PullFailureSummary) bool {
+	printMissingRepoNotice(f)
+
+	remoteURL := resolveMissingRemoteURL(f)
+	if remoteURL == "" {
+		printMissingRemoteURLError()
+
+		return false
+	}
+
+	fmt.Printf("    %s Attempting clone fallback from %s...\n", constants.TreeBranch, remoteURL)
+
+	return execCloneAndRecord(f.RepoPath, remoteURL)
 }
 
 // ExecCloneRepo clones a remote repository into destination path.
@@ -100,20 +143,55 @@ func ExecCloneRepo(remoteURL, destination string) error {
 		return err
 	}
 
-	cmd := exec.Command("git", "clone", "--progress", remoteURL, destination)
+	cmd := exec.Command(constants.GitBin, constants.GitClone, constants.GitProgressFlag, remoteURL, destination)
 	cmd.Env = gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 
 	return cmd.Run()
 }
 
-// PromptMissingRepoAction provides an interactive prompt for missing repository remediation.
-// Returns (shouldContinue, isResolved).
-func PromptMissingRepoAction(reader *bufio.Reader, f PullFailureSummary) (bool, bool) {
-	remoteURL := f.RemoteURL
-	if remoteURL == "" {
-		_, remoteURL = LookupRepoRemoteAndID(f.RepoPath)
+func isCloneChoice(choice string) bool {
+	return choice == "c" || choice == "clone" || choice == "1" || choice == "y" || choice == "yes" || choice == ""
+}
+
+func isSkipChoice(choice string) bool {
+	return choice == "s" || choice == "skip" || choice == "3"
+}
+
+func isQuitChoice(choice string) bool {
+	return choice == "q" || choice == "quit"
+}
+
+func isDeleteChoice(choice string) bool {
+	return choice == "d" || choice == "delete" || choice == "2"
+}
+
+func handleCloneOrFallback(choice, remoteURL string, f PullFailureSummary) (bool, bool) {
+	if isCloneChoice(choice) {
+		f.RemoteURL = remoteURL
+
+		return true, RemediateMissingRepo(f)
 	}
 
+	return true, false
+}
+
+func dispatchPromptMissingChoice(choice, remoteURL string, f PullFailureSummary) (bool, bool) {
+	if isQuitChoice(choice) {
+		return false, false
+	}
+
+	if isSkipChoice(choice) {
+		return true, false
+	}
+
+	if isDeleteChoice(choice) {
+		return handlePromptDeleteAction(f)
+	}
+
+	return handleCloneOrFallback(choice, remoteURL, f)
+}
+
+func printPromptMissingOptions(remoteURL string) {
 	if remoteURL != "" {
 		fmt.Printf("    Remote: %s\n", remoteURL)
 	} else {
@@ -126,30 +204,22 @@ func PromptMissingRepoAction(reader *bufio.Reader, f PullFailureSummary) (bool, 
 	fmt.Println("      [s/3] Skip")
 	fmt.Println("      [q]   Quit")
 	fmt.Printf("  %sChoice [c/d/s/q]:%s ", constants.ColorCyan, constants.ColorReset)
+}
 
-	line, _ := reader.ReadString('\n')
-	choice := strings.ToLower(strings.TrimSpace(line))
+// PromptMissingRepoAction provides an interactive prompt for missing repository remediation.
+// Returns (shouldContinue, isResolved).
+func PromptMissingRepoAction(reader *bufio.Reader, f PullFailureSummary) (bool, bool) {
+	remoteURL := resolveMissingRemoteURL(f)
+	printPromptMissingOptions(remoteURL)
 
-	if choice == "q" || choice == "quit" {
+	line, readErr := reader.ReadString('\n')
+	if readErr != nil {
 		return false, false
 	}
 
-	if choice == "s" || choice == "skip" || choice == "3" {
-		return true, false
-	}
+	choice := strings.ToLower(strings.TrimSpace(line))
 
-	if choice == "d" || choice == "delete" || choice == "2" {
-		return handlePromptDeleteAction(f)
-	}
-
-	// Default to clone if choice is c / clone / 1 / y / enter
-	if choice == "c" || choice == "clone" || choice == "1" || choice == "y" || choice == "yes" || choice == "" {
-		f.RemoteURL = remoteURL
-
-		return true, RemediateMissingRepo(f)
-	}
-
-	return true, false
+	return dispatchPromptMissingChoice(choice, remoteURL, f)
 }
 
 func handlePromptDeleteAction(f PullFailureSummary) (bool, bool) {

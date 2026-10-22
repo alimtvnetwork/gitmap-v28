@@ -140,5 +140,9 @@ func clearResolvedPullError(repoName, repoPath string) error {
 
 	defer db.Close()
 
-	return db.ClearPullErrorsForRepo(repoName, repoPath)
+	if clearErr := db.ClearPullErrorsForRepo(repoName, repoPath); clearErr != nil {
+		return clearErr
+	}
+
+	return nil
 }

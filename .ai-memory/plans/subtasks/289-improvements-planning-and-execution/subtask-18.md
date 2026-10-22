@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/cmdcg/cg_version.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -73,7 +73,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Active repositories display bright Tokyo Green (`#9ece6a`) `✔ active` badge.
-- [ ] Missing repositories display Tokyo Red (`#f7768e`) `✖ missing` badge.
-- [ ] Piped output (`gitmap cg status | cat`) emits plain characters without ANSI code corruption.
-- [ ] Column widths and alignment are cleanly preserved.
+- [x] Active repositories display bright Tokyo Green (`#9ece6a`) `✔ active` badge.
+- [x] Missing repositories display Tokyo Red (`#f7768e`) `✖ missing` badge.
+- [x] Piped output (`gitmap cg status | cat`) emits plain characters without ANSI code corruption.
+- [x] Column widths and alignment are cleanly preserved.

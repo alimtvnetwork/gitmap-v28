@@ -134,10 +134,32 @@ type HeatmapStatusSummary struct {
 	TopTouchedFiles      []FileTouchCount `json:"topTouchedFiles"`
 }
 
-// FileTouchCount represents file touch frequency.
+// FileTouchType represents the categorical operation applied to a touched file.
+type FileTouchType string
+
+const (
+	FileTouchRead    FileTouchType = "READ"
+	FileTouchEdit    FileTouchType = "EDIT"
+	FileTouchCreated FileTouchType = "CREATED"
+)
+
+// IsValid reports whether the touch type is a recognized enumeration value.
+func (t FileTouchType) IsValid() bool {
+	switch t {
+	case FileTouchRead, FileTouchEdit, FileTouchCreated:
+		return true
+	default:
+		return false
+	}
+}
+
+// FileTouchCount represents file touch frequency with granular operation metrics.
 type FileTouchCount struct {
-	FilePath string `json:"filePath"`
-	Count    int    `json:"count"`
+	FilePath     string `json:"filePath"`
+	Count        int    `json:"count"`
+	ReadCount    int    `json:"readCount,omitempty"`
+	EditCount    int    `json:"editCount,omitempty"`
+	CreatedCount int    `json:"createdCount,omitempty"`
 }
 
 // EnsureHeatmapTables ensures the heatmap parent task, reasoning state, and action log tables exist.
@@ -190,6 +212,22 @@ func scanActionLogs(rows *sql.Rows) ([]HeatmapActionLogRecord, error) {
 	return records, nil
 }
 
+func tryAttachNodeToParent(node *HeatmapExecutionTreeNode, parentID *int64, nodeMap map[int64]*HeatmapExecutionTreeNode) bool {
+	hasParent := parentID != nil && *parentID > 0
+	if !hasParent {
+		return false
+	}
+
+	parent, hasNode := nodeMap[*parentID]
+	if !hasNode {
+		return false
+	}
+
+	parent.Children = append(parent.Children, *node)
+
+	return true
+}
+
 func assembleTreeNodes(records []HeatmapActionLogRecord) []HeatmapExecutionTreeNode {
 	nodeMap := make(map[int64]*HeatmapExecutionTreeNode, len(records))
 	var roots []HeatmapExecutionTreeNode
@@ -204,12 +242,11 @@ func assembleTreeNodes(records []HeatmapActionLogRecord) []HeatmapExecutionTreeN
 
 	for _, rec := range records {
 		node := nodeMap[rec.HeatmapActionLogId]
-		if rec.ParentLogId != nil && *rec.ParentLogId > 0 {
-			if parent, exists := nodeMap[*rec.ParentLogId]; exists {
-				parent.Children = append(parent.Children, *node)
-				continue
-			}
+		hasAttached := tryAttachNodeToParent(node, rec.ParentLogId, nodeMap)
+		if hasAttached {
+			continue
 		}
+
 		roots = append(roots, *node)
 	}
 

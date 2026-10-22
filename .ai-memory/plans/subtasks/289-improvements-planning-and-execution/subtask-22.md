@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/pending/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/03-migration-and-verification-spec.md`  
 > **Target Path:** `cli/store/store.go`  
-> **Status:** PENDING  
+> **Status:** Completed  
 
 ---
 
@@ -72,7 +72,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `DB.path` is initialized on all non-memory and memory database opens.
-- [ ] `db.GetDatabasePath()` returns the exact file path passed to `OpenAt` or resolved by `Open`.
-- [ ] Nil pointer call `(*DB)(nil).GetDatabasePath()` returns `""` without panicking.
-- [ ] Zero compiler builds and zero tests executed during planning.
+- [x] `DB.path` is initialized on all non-memory and memory database opens.
+- [x] `db.GetDatabasePath()` returns the exact file path passed to `OpenAt` or resolved by `Open`.
+- [x] Nil pointer call `(*DB)(nil).GetDatabasePath()` returns `""` without panicking.
+- [x] Zero compiler builds and zero tests executed during planning.

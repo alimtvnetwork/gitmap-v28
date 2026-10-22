@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/termout/termpad.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -71,7 +71,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `PadRightMax("abc", 5)` produces `"abc  "` without heap allocations.
-- [ ] `PadRightMax("longer", 4)` returns `"longer"` unmodified.
-- [ ] Requesting width beyond 256 gracefully falls back to `strings.Repeat`.
-- [ ] Benchmarks demonstrate zero allocations for `n <= 256`.
+- [x] `PadRightMax("abc", 5)` produces `"abc  "` without heap allocations.
+- [x] `PadRightMax("longer", 4)` returns `"longer"` unmodified.
+- [x] Requesting width beyond 256 gracefully falls back to `strings.Repeat`.
+- [x] Benchmarks demonstrate zero allocations for `n <= 256`.

@@ -24,14 +24,14 @@ type triageRepo struct {
 
 // hasGh reports whether the GitHub CLI is available on PATH.
 func hasGh() bool {
-	_, lookErr := exec.LookPath("gh")
+	_, lookErr := exec.LookPath(constants.GHBin)
 
 	return lookErr == nil
 }
 
 // ghJSON runs gh with --json output and decodes stdout as JSON into out.
 func ghJSON(out any, ghArgs ...string) *appfault.AppError {
-	cmd := exec.Command("gh", ghArgs...)
+	cmd := exec.Command(constants.GHBin, ghArgs...)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -65,26 +65,35 @@ func resolveWorkdir(flagVal string) string {
 	return filepath.Join(home, "workspace", "repos")
 }
 
+func isGitRepoDir(dirPath string) bool {
+	_, statErr := os.Stat(filepath.Join(dirPath, constants.DotGit))
+
+	return statErr == nil
+}
+
 func appendTriageRepo(repos []triageRepo, workdir string, e os.DirEntry) []triageRepo {
 	if !e.IsDir() {
 		return repos
 	}
 
 	repoPath := filepath.Join(workdir, e.Name())
-	if _, statErr := os.Stat(filepath.Join(repoPath, constants.DotGit)); statErr != nil {
+	if !isGitRepoDir(repoPath) {
 		return repos
 	}
 
-	slug, _ := githubSlugForDir(repoPath)
+	slug, hasSlug := githubSlugForDir(repoPath)
+	if !hasSlug {
+		return repos
+	}
 
 	return append(repos, triageRepo{name: e.Name(), path: repoPath, slug: slug})
 }
 
 // listGitRepos enumerates directories containing a .git entry.
-func listGitRepos(workdir string) []triageRepo {
+func listGitRepos(workdir string) ([]triageRepo, error) {
 	entries, readErr := os.ReadDir(workdir)
 	if readErr != nil {
-		return nil
+		return nil, readErr
 	}
 
 	var repos []triageRepo
@@ -94,7 +103,7 @@ func listGitRepos(workdir string) []triageRepo {
 
 	sort.Slice(repos, func(i, j int) bool { return repos[i].name < repos[j].name })
 
-	return repos
+	return repos, nil
 }
 
 // githubSlugForDir resolves owner/repo from the origin remote URL.
@@ -158,7 +167,7 @@ func extractSlugPath(trimmed string) string {
 
 // gitLastCommitAge returns a human relative age of HEAD, or "unknown".
 func gitLastCommitAge(dir string) string {
-	out, runErr := gitutil.RunGitInDir(dir, constants.GitLog, "-1", "--format=%ar")
+	out, runErr := gitutil.RunGitInDir(dir, constants.GitLog, constants.GitLimitOneFlag, constants.GitFormatRelative)
 	if runErr != nil {
 		return "unknown"
 	}

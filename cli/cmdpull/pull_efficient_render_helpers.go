@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // ResolveConciseRepoColWidth dynamically calculates the repo column width to prevent overflow.
@@ -44,6 +44,7 @@ func ResolveRepoStatusLabel(changes string) string {
 	if changes == "" || changes == "synced" {
 		return "up-to-date"
 	}
+
 	return changes
 }
 
@@ -51,11 +52,11 @@ func ResolveRepoStatusLabel(changes string) string {
 func StyleRepoStatusLabel(statusLabel string) string {
 	switch statusLabel {
 	case "up-to-date":
-		return constants.ColorGreen + "up-to-date" + constants.ColorReset
+		return termout.RoleSGR(termout.RoleOK) + "up-to-date" + termout.Reset()
 	case "dirty":
-		return constants.ColorYellow + "dirty" + constants.ColorReset
+		return termout.RoleSGR(termout.RoleWarn) + "dirty" + termout.Reset()
 	case "failed":
-		return constants.ColorRed + "failed" + constants.ColorReset
+		return termout.RoleSGR(termout.RoleError) + "failed" + termout.Reset()
 	}
 
 	if strings.HasPrefix(statusLabel, "+") {
@@ -70,14 +71,14 @@ func formatDiffStatsColor(statusLabel string) string {
 	diffPart := parts[0]
 	slashIdx := strings.Index(diffPart, "/")
 	if slashIdx == -1 {
-		return constants.ColorGreen + statusLabel + constants.ColorReset
+		return termout.RoleSGR(termout.RoleOK) + statusLabel + termout.Reset()
 	}
 
-	ins := diffPart[:slashIdx]
-	del := diffPart[slashIdx:]
-	coloredDiff := constants.ColorGreen + ins + constants.ColorReset + constants.ColorRed + del + constants.ColorReset
+	ins := termout.RoleSGR(termout.RoleOK) + diffPart[:slashIdx] + termout.Reset()
+	del := termout.RoleSGR(termout.RoleError) + diffPart[slashIdx:] + termout.Reset()
+	coloredDiff := ins + del
 	if len(parts) > 1 {
-		return coloredDiff + " " + constants.ColorDim + parts[1] + constants.ColorReset
+		return coloredDiff + " " + termout.RoleSGR(termout.RoleFGSubtle) + parts[1] + termout.Reset()
 	}
 
 	return coloredDiff
@@ -90,6 +91,7 @@ func FormatConciseActiveResultLine(colWidth int, repoName, statusLabel string) s
 		displayName = displayName[:colWidth-3] + "..."
 	}
 	styledStatus := StyleRepoStatusLabel(statusLabel)
+
 	return fmt.Sprintf("    • %-*s  %s", colWidth, displayName, styledStatus)
 }
 
@@ -131,6 +133,7 @@ func detectRepoCollisions(states []*PullRepoState, allRecords ...[]model.ScanRec
 	if len(allRecords) > 0 {
 		collectRecordPaths(pathsByName, allRecords[0])
 	}
+
 	return filterCollidingNames(pathsByName)
 }
 
@@ -173,6 +176,7 @@ func filterCollidingNames(pathsByName map[string]map[string]bool) map[string]boo
 			hasCollision[name] = true
 		}
 	}
+
 	return hasCollision
 }
 
@@ -183,8 +187,10 @@ func resolveRepoDisplayName(s *PullRepoState, collisions map[string]bool) string
 	hasCollision := collisions[s.RepoName]
 	if hasCollision && s.RepoPath != "" {
 		rel := formatRelativeOrCleanPath(s.RepoPath)
+
 		return fmt.Sprintf("%s (%s)", s.RepoName, rel)
 	}
+
 	return s.RepoName
 }
 

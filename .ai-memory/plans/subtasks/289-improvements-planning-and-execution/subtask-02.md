@@ -8,7 +8,7 @@
   - `cli/cmdpull/pull_remediation_ssh.go`
   - `cli/cmdpull/pull_remediation.go`
   - `cli/cmdpull/pull_db_sync.go`
-- **Status:** APPROVED & READY FOR IMPLEMENTATION
+- **Status:** Completed
 
 ---
 

@@ -52,7 +52,7 @@ func calculateColumnWidths(cfg TableConfig) []int {
 }
 
 func resolveInitialColWidth(col Column) int {
-	width := len(col.Title)
+	width := VisualStringWidth(col.Title)
 	if col.MinWidth > width {
 		return col.MinWidth
 	}
@@ -61,14 +61,20 @@ func resolveInitialColWidth(col Column) int {
 }
 
 func evaluateRowsForColWidth(rows []Row, colIdx, curWidth, maxCap int) int {
-	res := curWidth
-	for _, r := range rows {
-		if colIdx < len(r.Cells) && len(r.Cells[colIdx]) > res {
-			res = len(r.Cells[colIdx])
-		}
-	}
+	res := maxRowWidth(rows, colIdx, curWidth)
 	if maxCap > 0 && res > maxCap {
 		return maxCap
+	}
+
+	return res
+}
+
+func maxRowWidth(rows []Row, colIdx, curWidth int) int {
+	res := curWidth
+	for _, r := range rows {
+		if colIdx < len(r.Cells) && VisualStringWidth(r.Cells[colIdx]) > res {
+			res = VisualStringWidth(r.Cells[colIdx])
+		}
 	}
 
 	return res
@@ -133,19 +139,53 @@ func getColAlign(cols []Column, idx int) AlignType {
 
 func formatCell(text string, width int, align AlignType, ellipsis string) string {
 	truncated := TruncateMiddle(text, width, ellipsis)
-	padLen := width - len(truncated)
+	visWidth := VisualStringWidth(truncated)
+	padLen := width - visWidth
 	if padLen <= 0 {
 		return truncated
 	}
 	if align == AlignRight {
-		return strings.Repeat(" ", padLen) + truncated
+		return SpacePool(padLen) + truncated
 	}
 	if align == AlignCenter {
-		left := padLen / 2
-		right := padLen - left
-
-		return strings.Repeat(" ", left) + truncated + strings.Repeat(" ", right)
+		return alignCenterCell(truncated, padLen)
 	}
 
-	return truncated + strings.Repeat(" ", padLen)
+	return truncated + SpacePool(padLen)
+}
+
+func alignCenterCell(truncated string, padLen int) string {
+	left := padLen / 2
+	right := padLen - left
+
+	return SpacePool(left) + truncated + SpacePool(right)
+}
+
+// VisualStringWidth calculates the printable terminal column width of string s,
+// stripping ANSI escape codes and accounting for double-width runes.
+func VisualStringWidth(s string) int {
+	plain := StripAnsi(s)
+	width := 0
+	for _, r := range plain {
+		if isDoubleWidthRune(r) {
+			width += 2
+			continue
+		}
+		width++
+	}
+
+	return width
+}
+
+func isDoubleWidthRune(r rune) bool {
+	return (r >= 0x1100 && r <= 0x115F) ||
+		(r >= 0x2E80 && r <= 0xA4CF) ||
+		(r >= 0xAC00 && r <= 0xD7A3) ||
+		(r >= 0xF900 && r <= 0xFAFF) ||
+		(r >= 0xFE10 && r <= 0xFE19) ||
+		(r >= 0xFE30 && r <= 0xFE6F) ||
+		(r >= 0xFF00 && r <= 0xFF60) ||
+		(r >= 0xFFE0 && r <= 0xFFE6) ||
+		(r >= 0x1F300 && r <= 0x1F64F) ||
+		(r >= 0x1F680 && r <= 0x1F6FF)
 }

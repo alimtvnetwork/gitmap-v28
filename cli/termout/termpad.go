@@ -15,6 +15,35 @@ var (
 	lastWasRule    bool
 )
 
+const spacePool = "                                                                                                                                                                                                                                                                " // 256 spaces
+
+// SpacePool returns a string of n spaces from the static pool without heap allocation.
+func SpacePool(n int) string {
+	if n <= 0 {
+		return ""
+	}
+	if n <= len(spacePool) {
+		return spacePool[:n]
+	}
+
+	return strings.Repeat(" ", n)
+}
+
+// PadRightMax pads s on the right up to targetWidth (capped by maxWidth if provided) using a static space pool.
+func PadRightMax(s string, targetWidth int, maxWidth ...int) string {
+	target := targetWidth
+	if len(maxWidth) > 0 && maxWidth[0] > 0 && target > maxWidth[0] {
+		target = maxWidth[0]
+	}
+	if len(s) >= target {
+		return s
+	}
+
+	needed := target - len(s)
+
+	return s + SpacePool(needed)
+}
+
 // SetPaddingApplied updates the global padding state.
 func SetPaddingApplied(applied bool) {
 	padMu.Lock()
@@ -46,7 +75,10 @@ func EnsureBottomPadding(lastOutput string) {
 		return
 	}
 	paddingApplied = true
+	applyBottomPadding(lastOutput)
+}
 
+func applyBottomPadding(lastOutput string) {
 	if strings.HasSuffix(lastOutput, "\n\n") {
 		return
 	}

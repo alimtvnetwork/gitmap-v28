@@ -13,11 +13,7 @@ import (
 // HealRepoPathSeparators normalizes path separators for the host OS.
 // On Unix/Linux, it converts Windows backslashes to forward slashes.
 func HealRepoPathSeparators(path string) string {
-	if runtime.GOOS == "windows" {
-		return path
-	}
-
-	if !strings.Contains(path, "\\") {
+	if runtime.GOOS == "windows" || !strings.Contains(path, "\\") {
 		return path
 	}
 
@@ -68,18 +64,20 @@ func TryHealMissingRecordPath(rec *model.ScanRecord) bool {
 	}
 
 	healed := HealRepoPathSeparators(rec.AbsolutePath)
-	if healed == rec.AbsolutePath {
+	if !isRecordHealable(rec, healed) {
 		return false
 	}
 
-	isFound := !cloner.IsMissingRepo(healed)
-	if !isFound {
-		return false
-	}
-
-	oldPath := rec.AbsolutePath
+	_ = AutoHealRepoPathInDB(rec.AbsolutePath, healed)
 	rec.AbsolutePath = healed
-	_ = AutoHealRepoPathInDB(oldPath, healed)
 
 	return true
+}
+
+func isRecordHealable(rec *model.ScanRecord, healed string) bool {
+	if rec == nil || healed == rec.AbsolutePath {
+		return false
+	}
+
+	return !cloner.IsMissingRepo(healed)
 }

@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/termout/render.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -50,9 +50,7 @@
   		badgeColor = RoleSGR(RoleFGSubtle)
   	}
 
-  	return fmt.Sprintf("  %s%s%s %s[%s]%s:\n",
-  		headerColor, sec.Title, Reset(),
-  		badgeColor, sec.BadgeText, Reset())
+  	return fmt.Sprintf(" %s[%s]%s", badgeColor, sec.BadgeText, Reset())
   }
   ```
 
@@ -67,7 +65,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Sections without badges render identically to legacy output (`  Title:`).
-- [ ] Sections with `BadgeText` render formatted brackets (`  Title [BADGE]:`).
-- [ ] Badge colors correctly reflect `BadgeColor` when specified.
-- [ ] Output suppresses ANSI escapes when redirected or piped.
+- [x] Sections without badges render identically to legacy output (`  Title:`).
+- [x] Sections with `BadgeText` render formatted brackets (`  Title [BADGE]:`).
+- [x] Badge colors correctly reflect `BadgeColor` when specified.
+- [x] Output suppresses ANSI escapes when redirected or piped.

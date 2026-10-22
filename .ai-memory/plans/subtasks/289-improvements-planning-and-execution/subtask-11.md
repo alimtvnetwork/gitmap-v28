@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/termout/themes.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -48,7 +48,7 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] Tokyo Night constants compile cleanly under Go 1.22+.
-- [ ] All 9 tokens match the canonical design system values.
-- [ ] Constants are accessible from external packages (`termout.TokyoPrimary`, etc.).
-- [ ] No regression in `ResolveTheme()` or `tokyoNightTheme` initialization.
+- [x] Tokyo Night constants compile cleanly under Go 1.22+.
+- [x] All 9 tokens match the canonical design system values.
+- [x] Constants are accessible from external packages (`termout.TokyoPrimary`, etc.).
+- [x] No regression in `ResolveTheme()` or `tokyoNightTheme` initialization.

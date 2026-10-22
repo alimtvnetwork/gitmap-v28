@@ -4,7 +4,7 @@
 > **Parent Plan:** `.ai-memory/plans/289-improvements-planning-and-execution.md`  
 > **Component Spec:** `02-spec/21-app/289-improvements-planning-and-execution/02-component-spec.md`  
 > **Target Path:** `cli/termout/termhelp_types.go`  
-> **Status:** PENDING  
+> **Status:** COMPLETED  
 
 ---
 
@@ -45,6 +45,6 @@
 ---
 
 ## 4. Verification Criteria
-- [ ] `HelpSection` contains `BadgeText` and `BadgeColor` fields.
-- [ ] Existing callers constructing `HelpSection{Title: ..., Color: ..., Entries: ...}` continue to compile without syntax errors.
-- [ ] Zero linting or formatting regressions.
+- [x] `HelpSection` contains `BadgeText` and `BadgeColor` fields.
+- [x] Existing callers constructing `HelpSection{Title: ..., Color: ..., Entries: ...}` continue to compile without syntax errors.
+- [x] Zero linting or formatting regressions.

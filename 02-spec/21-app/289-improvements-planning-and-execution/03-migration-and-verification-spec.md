@@ -271,7 +271,7 @@ During specification and planning phases, compiling binaries or running test sui
 
 | Verification Dimension | Verification Tool / Method | Acceptance Criteria |
 |---|---|---|
-| **Path Hygiene** | Relative Path Static Audit | 100% relative paths. Zero absolute paths (`d:\`, `C:\`, `/home/`). Zero `file:///` URIs. |
+| **Path Hygiene** | Relative Path Static Audit | 100% strictly relative paths. Zero drive prefixes, absolute system paths, or URI schemes. |
 | **Case Sensitivity** | Filesystem Naming Audit | All spec and subtask markdown files strictly lowercase. |
 | **AST / Syntax Validity** | Static Code Reading | Valid Go syntax, proper package headers, exact import groupings, balanced braces. |
 | **Error Sovereignty** | Call Graph Static Inspection | Leaf functions return errors directly; zero `cliexit.HandleError` or `os.Exit` in leaf methods. |

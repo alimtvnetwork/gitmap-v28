@@ -75,3 +75,25 @@ func SetRemoteOriginURL(repoPath, url string) error {
 
 	return err
 }
+
+// GetRepoCurrentBranch returns the active branch name of the repository at repoPath.
+func GetRepoCurrentBranch(repoPath string) (string, error) {
+	out, err := RunGitInDir(repoPath, constants.GitRevParse, constants.GitAbbrevRef, constants.GitHEAD)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(out)), nil
+}
+
+// IsRepoClean reports whether the working tree at repoPath has no uncommitted changes.
+func IsRepoClean(repoPath string) (bool, error) {
+	out, err := RunGitInDir(repoPath, "status", "--porcelain")
+	if err != nil {
+		return false, err
+	}
+
+	isClean := len(strings.TrimSpace(string(out))) == 0
+
+	return isClean, nil
+}
