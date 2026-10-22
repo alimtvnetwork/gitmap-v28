@@ -1,7 +1,10 @@
 package cmdapps
 
-// AppScope designates system-wide vs user-specific installations.
-type AppScope string
+// AppScopeType designates system-wide vs user-specific installations.
+type AppScopeType string
+
+// AppScope is an alias for AppScopeType for backward compatibility.
+type AppScope = AppScopeType
 
 const (
 	// ScopeSystem indicates a system-wide installed application.
@@ -10,8 +13,11 @@ const (
 	ScopeUser AppScope = "user"
 )
 
-// PackageManager represents the detected managing package manager.
-type PackageManager string
+// PackageManagerType represents the detected managing package manager.
+type PackageManagerType string
+
+// PackageManager is an alias for PackageManagerType for backward compatibility.
+type PackageManager = PackageManagerType
 
 const (
 	// ManagerApt represents Debian/Ubuntu APT.

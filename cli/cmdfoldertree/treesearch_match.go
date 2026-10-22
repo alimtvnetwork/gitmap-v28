@@ -7,21 +7,24 @@ import (
 	"strings"
 )
 
-// SearchMode defines the pattern matching strategy for tree searching.
-type SearchMode string
+// SearchModeType defines the pattern matching strategy for tree searching.
+type SearchModeType string
+
+// SearchMode is an alias for SearchModeType.
+type SearchMode = SearchModeType
 
 const (
-	ModeWildcard   SearchMode = "wildcard"
-	ModeStartsWith SearchMode = "startsWith"
-	ModeContains   SearchMode = "contains"
-	ModeEndsWith   SearchMode = "endsWith"
-	ModeGrep       SearchMode = "grep"
+	ModeWildcard   SearchModeType = "wildcard"
+	ModeStartsWith SearchModeType = "startsWith"
+	ModeContains   SearchModeType = "contains"
+	ModeEndsWith   SearchModeType = "endsWith"
+	ModeGrep       SearchModeType = "grep"
 )
 
 // TreeSearchFilter configures query parameters and search options.
 type TreeSearchFilter struct {
 	Pattern       string
-	SearchMode    SearchMode
+	SearchMode    SearchModeType
 	DirsOnly      bool
 	FilesOnly     bool
 	CaseSensitive bool
@@ -29,13 +32,14 @@ type TreeSearchFilter struct {
 }
 
 // MatchTreeItem tests whether an individual TreeItem satisfies the search mode and pattern.
-func MatchTreeItem(item TreeItem, mode SearchMode, pattern string) bool {
+func MatchTreeItem(item TreeItem, mode SearchModeType, pattern string) bool {
 	matched, _ := matchTreeItemInternal(item, mode, pattern, false)
+
 	return matched
 }
 
 // matchTreeItemInternal evaluates the match and returns compile errors if in grep mode.
-func matchTreeItemInternal(item TreeItem, mode SearchMode, pattern string, caseSensitive bool) (bool, error) {
+func matchTreeItemInternal(item TreeItem, mode SearchModeType, pattern string, caseSensitive bool) (bool, error) {
 	cleanPat := strings.TrimSpace(pattern)
 	if cleanPat == "" {
 		return true, nil
@@ -62,11 +66,7 @@ func matchTreeItemInternal(item TreeItem, mode SearchMode, pattern string, caseS
 
 		// If pattern contains slash (folder path specified), match on RelPath
 		if strings.Contains(normPattern, "/") || strings.Contains(normPattern, "\\") {
-			normPrefix := normalizeSlash(prefix)
-			if strings.HasPrefix(normRel, normPrefix+"/") || normRel == normPrefix {
-				return true, nil
-			}
-			return strings.HasPrefix(normRel, normPrefix), nil
+			return matchStartsWithSlash(normRel, prefix), nil
 		}
 
 		// Otherwise match prefix of RelPath or FileName
@@ -156,57 +156,81 @@ func wildcardToRegex(pattern string) string {
 	return sb.String()
 }
 
+func matchStartsWithSlash(normRel, prefix string) bool {
+	normPrefix := normalizeSlash(prefix)
+	if strings.HasPrefix(normRel, normPrefix+"/") || normRel == normPrefix {
+		return true
+	}
+
+	return strings.HasPrefix(normRel, normPrefix)
+}
+
+func compileGrepFilter(filter TreeSearchFilter) (*regexp.Regexp, error) {
+	if filter.SearchMode != ModeGrep || strings.TrimSpace(filter.Pattern) == "" {
+		return nil, nil
+	}
+
+	pat := strings.TrimSpace(filter.Pattern)
+	if !filter.CaseSensitive && !strings.HasPrefix(pat, "(?i)") {
+		pat = "(?i)" + pat
+	}
+
+	re, err := regexp.Compile(pat)
+	if err != nil {
+		return nil, fmt.Errorf("invalid regex %q: %w", filter.Pattern, err)
+	}
+
+	return re, nil
+}
+
+func evaluateItemMatch(item TreeItem, grepRE *regexp.Regexp, filter TreeSearchFilter) bool {
+	if strings.TrimSpace(filter.Pattern) == "" {
+		return true
+	}
+
+	if grepRE != nil {
+		return grepRE.MatchString(item.RelPath) || grepRE.MatchString(item.FileName)
+	}
+
+	return MatchTreeItem(item, filter.SearchMode, filter.Pattern)
+}
+
 // FilterTreeItems applies the search filter to a list of TreeItem entries.
 func FilterTreeItems(items []TreeItem, filter TreeSearchFilter) ([]TreeItem, error) {
-	// Pre-validate regex if grep mode
-	var grepRE *regexp.Regexp
-	if filter.SearchMode == ModeGrep && strings.TrimSpace(filter.Pattern) != "" {
-		pat := strings.TrimSpace(filter.Pattern)
-		if !filter.CaseSensitive && !strings.HasPrefix(pat, "(?i)") {
-			pat = "(?i)" + pat
-		}
-		re, err := regexp.Compile(pat)
-		if err != nil {
-			return nil, fmt.Errorf("invalid regex %q: %w", filter.Pattern, err)
-		}
-		grepRE = re
+	grepRE, err := compileGrepFilter(filter)
+	if err != nil {
+		return nil, err
 	}
 
 	matched := make([]TreeItem, 0, len(items))
-
 	for _, item := range items {
-		// Type filter
 		if filter.DirsOnly && !item.IsDir {
 			continue
 		}
+
 		if filter.FilesOnly && item.IsDir {
 			continue
 		}
 
-		if strings.TrimSpace(filter.Pattern) == "" {
-			matched = append(matched, item)
-			if filter.Limit > 0 && len(matched) >= filter.Limit {
-				break
-			}
+		if !evaluateItemMatch(item, grepRE, filter) {
 			continue
 		}
 
-		var isMatch bool
-		if grepRE != nil {
-			isMatch = grepRE.MatchString(item.RelPath) || grepRE.MatchString(item.FileName)
-		} else {
-			isMatch = MatchTreeItem(item, filter.SearchMode, filter.Pattern)
-		}
-
-		if isMatch {
-			matched = append(matched, item)
-			if filter.Limit > 0 && len(matched) >= filter.Limit {
-				break
-			}
+		matched = append(matched, item)
+		if filter.Limit > 0 && len(matched) >= filter.Limit {
+			break
 		}
 	}
 
 	return matched, nil
+}
+
+func formatItemSizeStr(sizeBytes int64) string {
+	if sizeBytes <= 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(" (%s)", formatItemBytes(sizeBytes))
 }
 
 // FormatTreeItemsText renders matched items in clean ANSI/text format.
@@ -221,13 +245,11 @@ func FormatTreeItemsText(items []TreeItem, queryDesc string) string {
 	for _, it := range items {
 		if it.IsDir {
 			sb.WriteString(fmt.Sprintf("  [DIR]  %s/\n", it.RelPath))
-		} else {
-			sizeStr := ""
-			if it.SizeBytes > 0 {
-				sizeStr = fmt.Sprintf(" (%s)", formatItemBytes(it.SizeBytes))
-			}
-			sb.WriteString(fmt.Sprintf("  [FILE] %s%s\n", it.RelPath, sizeStr))
+			continue
 		}
+
+		sizeStr := formatItemSizeStr(it.SizeBytes)
+		sb.WriteString(fmt.Sprintf("  [FILE] %s%s\n", it.RelPath, sizeStr))
 	}
 
 	return sb.String()

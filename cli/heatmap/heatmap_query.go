@@ -100,7 +100,7 @@ func firstTokenName(tokens []string) string {
 
 func stripComments(raw string) (string, bool) {
 	var sb strings.Builder
-	runes, n, inQuote, hasSemi := []rune(raw), len(raw), rune(0), false
+	runes, n, inQuote, hasSemi := []rune(raw), len(raw), '\x00', false
 	for i := 0; i < n; i++ {
 		ch := runes[i]
 		if inQuote != 0 {
@@ -150,7 +150,7 @@ func updateQuoteState(current, ch rune) rune {
 func tokenizeSql(s string) []string {
 	var tokens []string
 	var cur strings.Builder
-	inQuote := rune(0)
+	inQuote := '\x00'
 	for _, ch := range s {
 		if inQuote != 0 {
 			inQuote = updateQuoteState(inQuote, ch)

@@ -9,15 +9,18 @@ import (
 // RunSSHExecFn is the pluggable runner for remote SSH command execution.
 var RunSSHExecFn func(args []string) error
 
-// DockPosition represents cardinal screen edge orientation for desktop dock.
-type DockPosition string
+// DockPositionType represents cardinal screen edge orientation for desktop dock.
+type DockPositionType string
+
+// DockPosition is an alias for DockPositionType.
+type DockPosition = DockPositionType
 
 const (
-	DockPositionBottom DockPosition = "bottom"
-	DockPositionLeft   DockPosition = "left"
-	DockPositionRight  DockPosition = "right"
-	DockPositionTop    DockPosition = "top"
-	DockPositionCenter DockPosition = "center"
+	DockPositionBottom DockPositionType = "bottom"
+	DockPositionLeft   DockPositionType = "left"
+	DockPositionRight  DockPositionType = "right"
+	DockPositionTop    DockPositionType = "top"
+	DockPositionCenter DockPositionType = "center"
 )
 
 // DockConfig holds status metadata about the desktop dock.
@@ -32,32 +35,38 @@ type DockConfig struct {
 // DockOperator defines platform-specific querying and setting operations.
 type DockOperator interface {
 	GetDockConfig() (DockConfig, error)
-	SetDockPosition(pos DockPosition) error
+	SetDockPosition(pos DockPositionType) error
 }
 
 // DockCLIOptions holds parsed CLI parameters.
 type DockCLIOptions struct {
 	TargetNode  string
-	Position    DockPosition
+	Position    DockPositionType
 	HasPosition bool
 	IsJSON      bool
 	IsHelp      bool
 }
 
 // NormalizeDockPosition validates and normalizes raw dock position strings.
-func NormalizeDockPosition(raw string) (DockPosition, error) {
+func NormalizeDockPosition(raw string) (DockPositionType, error) {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "bottom", "b", "down":
+
 		return DockPositionBottom, nil
 	case "left", "l":
+
 		return DockPositionLeft, nil
 	case "right", "r":
+
 		return DockPositionRight, nil
 	case "top", "t", "up":
+
 		return DockPositionTop, nil
 	case "center", "c":
+
 		return DockPositionCenter, nil
 	default:
+
 		return "", apperror.NewSimple("invalid dock position: "+raw, "E_INVALID_POS")
 	}
 }

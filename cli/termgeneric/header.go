@@ -55,8 +55,11 @@ var (
 	}
 )
 
-// Alignment defines the horizontal text alignment within the box.
-type Alignment int
+// AlignmentType defines the horizontal text alignment within the box.
+type AlignmentType int
+
+// Alignment is a deprecated legacy alias for AlignmentType.
+type Alignment = AlignmentType
 
 const (
 	AlignLeft Alignment = iota

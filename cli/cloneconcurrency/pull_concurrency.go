@@ -4,8 +4,11 @@ import (
 	"runtime"
 )
 
-// CPUProfile defines the CPU auto-scaling profile for pull operations.
-type CPUProfile string
+// CPUProfileType defines the CPU auto-scaling profile for pull operations.
+type CPUProfileType string
+
+// CPUProfile is an alias for CPUProfileType for backwards compatibility.
+type CPUProfile = CPUProfileType
 
 const (
 	// CPUProfileAuto dynamically scales concurrency based on available CPU logical cores.

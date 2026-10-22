@@ -7,36 +7,45 @@ import (
 	"time"
 )
 
-// AuditReason identifies the primary cause for flagging a release tag.
-type AuditReason string
+// AuditReasonType identifies the primary cause for flagging a release tag.
+type AuditReasonType string
+
+// AuditReason is an alias for AuditReasonType.
+type AuditReason = AuditReasonType
 
 const (
-	ReasonHealthy         AuditReason = "HEALTHY"
-	ReasonOrphanTag       AuditReason = "ORPHAN_TAG"
-	ReasonDraftRelease    AuditReason = "DRAFT_RELEASE"
-	ReasonMissingAssets   AuditReason = "MISSING_ASSETS"
-	ReasonCorruptedAssets AuditReason = "CORRUPTED_ASSETS"
-	ReasonCICDFailed      AuditReason = "CICD_FAILED"
+	ReasonHealthy         AuditReasonType = "HEALTHY"
+	ReasonOrphanTag       AuditReasonType = "ORPHAN_TAG"
+	ReasonDraftRelease    AuditReasonType = "DRAFT_RELEASE"
+	ReasonMissingAssets   AuditReasonType = "MISSING_ASSETS"
+	ReasonCorruptedAssets AuditReasonType = "CORRUPTED_ASSETS"
+	ReasonCICDFailed      AuditReasonType = "CICD_FAILED"
 )
 
-// ProtectionStatus indicates whether a tag is immune to deletion.
-type ProtectionStatus string
+// ProtectionStatusType indicates whether a tag is immune to deletion.
+type ProtectionStatusType string
+
+// ProtectionStatus is an alias for ProtectionStatusType.
+type ProtectionStatus = ProtectionStatusType
 
 const (
-	StatusEligible        ProtectionStatus = "ELIGIBLE"
-	StatusProtectedActive ProtectionStatus = "PROTECTED_ACTIVE_VERSION"
-	StatusProtectedLatest ProtectionStatus = "PROTECTED_LATEST_HEALTHY"
-	StatusProtectedGrace  ProtectionStatus = "PROTECTED_GRACE_WINDOW"
+	StatusEligible        ProtectionStatusType = "ELIGIBLE"
+	StatusProtectedActive ProtectionStatusType = "PROTECTED_ACTIVE_VERSION"
+	StatusProtectedLatest ProtectionStatusType = "PROTECTED_LATEST_HEALTHY"
+	StatusProtectedGrace  ProtectionStatusType = "PROTECTED_GRACE_WINDOW"
 )
 
-// StepStatus tracks execution outcomes for individual deletion steps.
-type StepStatus string
+// StepStatusType tracks execution outcomes for individual deletion steps.
+type StepStatusType string
+
+// StepStatus is an alias for StepStatusType.
+type StepStatus = StepStatusType
 
 const (
-	StepPending StepStatus = "PENDING"
-	StepSuccess StepStatus = "SUCCESS"
-	StepSkipped StepStatus = "SKIPPED"
-	StepFailed  StepStatus = "FAILED"
+	StepPending StepStatusType = "PENDING"
+	StepSuccess StepStatusType = "SUCCESS"
+	StepSkipped StepStatusType = "SKIPPED"
+	StepFailed  StepStatusType = "FAILED"
 )
 
 // ReleaseAssetInfo details an uploaded asset file.
@@ -74,23 +83,23 @@ type ReleaseTagAuditRecord struct {
 	HasChecksumFile       bool                `json:"hasChecksumFile"`
 	HasBinaryArchives     bool                `json:"hasBinaryArchives"`
 	WorkflowRuns          []CIWorkflowRunInfo `json:"workflowRuns,omitempty"`
-	AuditReason           AuditReason         `json:"auditReason"`
-	ProtectionStatus      ProtectionStatus    `json:"protectionStatus"`
+	AuditReason           AuditReasonType     `json:"auditReason"`
+	ProtectionStatus      ProtectionStatusType `json:"protectionStatus"`
 	IsProtected           bool                `json:"isProtected"`
 	IsEligibleForDeletion bool                `json:"isEligibleForDeletion"`
 }
 
 // StepExecutionResult tracks the outcome of an individual deletion step.
 type StepExecutionResult struct {
-	StepName string     `json:"stepName"`
-	Status   StepStatus `json:"status"`
-	Detail   string     `json:"detail,omitempty"`
+	StepName string         `json:"stepName"`
+	Status   StepStatusType `json:"status"`
+	Detail   string         `json:"detail,omitempty"`
 }
 
 // ReleaseTagDeletionResult tracks the full 4-tier execution for a tag.
 type ReleaseTagDeletionResult struct {
 	Tag          string                `json:"tag"`
-	AuditReason  AuditReason           `json:"auditReason"`
+	AuditReason  AuditReasonType       `json:"auditReason"`
 	Steps        []StepExecutionResult `json:"steps"`
 	IsCompleted  bool                  `json:"isCompleted"`
 	IsSuccess    bool                  `json:"isSuccess"`

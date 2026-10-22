@@ -1,7 +1,10 @@
 package usercontext
 
-// AuthStatus defines the authorization state for GitHub CLI and provider tools.
-type AuthStatus string
+// AuthStatusType defines the authorization state for GitHub CLI and provider tools.
+type AuthStatusType string
+
+// AuthStatus is an alias for AuthStatusType for backwards compatibility.
+type AuthStatus = AuthStatusType
 
 const (
 	StatusAuthorized      AuthStatus = "authorized"

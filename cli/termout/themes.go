@@ -24,9 +24,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// Role is a semantic terminal color role. Help and UI code references
+// RoleType is a semantic terminal color role. Help and UI code references
 // these — never raw hex or literal SGR codes.
-type Role string
+type RoleType string
+
+// Role is a deprecated legacy alias for RoleType.
+type Role = RoleType
 
 // Semantic terminal roles (spec 02-theme-design.md §2).
 const (

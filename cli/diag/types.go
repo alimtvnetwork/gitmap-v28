@@ -2,8 +2,11 @@
 // and Catppuccin terminal renderers for CLI suggestions and error remediation.
 package diag
 
-// SuggestionCategory classifies the underlying intent of a suggested action.
-type SuggestionCategory string
+// SuggestionCategoryType classifies the underlying intent of a suggested action.
+type SuggestionCategoryType string
+
+// SuggestionCategory is a deprecated legacy alias for SuggestionCategoryType.
+type SuggestionCategory = SuggestionCategoryType
 
 const (
 	// CategoryTypo indicates a mistyped command, flag, or token.
@@ -50,8 +53,11 @@ type SuggestionGroup struct {
 	Suggestions []Suggestion `json:"suggestions"`
 }
 
-// RenderFormat defines the rendering style for suggestions.
-type RenderFormat string
+// RenderFormatType defines the rendering style for suggestions.
+type RenderFormatType string
+
+// RenderFormat is a deprecated legacy alias for RenderFormatType.
+type RenderFormat = RenderFormatType
 
 const (
 	// RenderFormatBox renders an elegant Catppuccin terminal box.

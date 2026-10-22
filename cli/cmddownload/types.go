@@ -6,8 +6,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-// DownloadEngine represents the active downloader backend.
-type DownloadEngine string
+// DownloadEngineType represents the active downloader backend.
+type DownloadEngineType string
+
+// DownloadEngine is an alias for DownloadEngineType for backwards compatibility.
+type DownloadEngine = DownloadEngineType
 
 const (
 	EngineAria2c DownloadEngine = "aria2c"

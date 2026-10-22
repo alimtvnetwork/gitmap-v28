@@ -11,11 +11,14 @@ import (
 	"time"
 )
 
-// UpdateStage represents a sequential execution phase in gitmap update.
-type UpdateStage int
+// UpdateStageType represents a sequential execution phase in gitmap update.
+type UpdateStageType int
+
+// UpdateStage is an alias for UpdateStageType.
+type UpdateStage = UpdateStageType
 
 const (
-	StageNone UpdateStage = iota
+	StageNone UpdateStageType = iota
 	StageResolving
 	StageDownloading
 	StageVerifying
@@ -26,29 +29,33 @@ const (
 var stageLabels = [...]string{"Preparing", "Resolving", "Downloading", "Verifying", "Swapping", "Complete"}
 
 // String returns human-readable stage label.
-func (s UpdateStage) String() string {
+func (s UpdateStageType) String() string {
 	if int(s) > 0 && int(s) < len(stageLabels) {
+
 		return stageLabels[s]
 	}
+
 	return stageLabels[0]
 }
 
 // StepNumber returns the 1-based step index.
-func (s UpdateStage) StepNumber() int {
+func (s UpdateStageType) StepNumber() int {
+
 	return int(s)
 }
 
 // TotalSteps returns total count of update stages.
-func (s UpdateStage) TotalSteps() int {
+func (s UpdateStageType) TotalSteps() int {
+
 	return 5
 }
 
 // UpdateUIRenderer coordinates progress display and summary cards.
 type UpdateUIRenderer interface {
-	OnStageStart(stage UpdateStage, message string)
+	OnStageStart(stage UpdateStageType, message string)
 	OnStageProgress(detail string)
-	OnStageSuccess(stage UpdateStage, summary string)
-	OnStageFail(stage UpdateStage, err error)
+	OnStageSuccess(stage UpdateStageType, summary string)
+	OnStageFail(stage UpdateStageType, err error)
 	RenderSummaryCard(result UpdateResult)
 	RenderAlreadyUpdated(currentVersion, targetVersion string)
 	Close()
@@ -80,31 +87,39 @@ const (
 // isUpdateTTY checks if stdout is connected to a character device terminal.
 func isUpdateTTY() bool {
 	if os.Getenv("TERM") == "dumb" {
+
 		return false
 	}
 	stat, err := os.Stdout.Stat()
 	if err != nil {
+
 		return false
 	}
+
 	return stat.Mode()&os.ModeCharDevice != 0
 }
 
 // isColorSupported checks if colored terminal output is supported.
 func isColorSupported() bool {
 	if os.Getenv("NO_COLOR") != "" {
+
 		return false
 	}
+
 	return isUpdateTTY()
 }
 
 // isVTSupported checks if virtual terminal processing is available.
 func isVTSupported() bool {
 	if !isColorSupported() {
+
 		return false
 	}
 	if runtime.GOOS != "windows" {
+
 		return true
 	}
+
 	return os.Getenv("WT_SESSION") != "" || os.Getenv("TERM_PROGRAM") != "" || isUpdateTTY()
 }
 
@@ -119,6 +134,7 @@ type ProgressReader struct {
 
 // NewProgressReader constructs a throttled ProgressReader.
 func NewProgressReader(r io.Reader, total int64, onProgress func(written, total int64)) *ProgressReader {
+
 	return &ProgressReader{Reader: r, total: total, onProgress: onProgress}
 }
 
@@ -130,6 +146,7 @@ func (pr *ProgressReader) Read(p []byte) (int, error) {
 		pr.lastUpdate = now
 		pr.onProgress(pr.read, pr.total)
 	}
+
 	return n, err
 }
 
@@ -162,12 +179,15 @@ func downloadHTTP(url, dstPath string, onProg func(w, t int64)) error {
 func computeFileSHA256(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
+
 		return "", err
 	}
 	defer f.Close()
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
+
 		return "", err
 	}
+
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
