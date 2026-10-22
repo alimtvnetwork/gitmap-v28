@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -62,42 +63,6 @@ foreach ($pj in $paths) {
     $list += $newEntry
   }
   $list | ConvertTo-Json -Depth 5 | Set-Content $pj -Encoding UTF8
-}
-`
-
-const windowsStateVscdbScript = `$vscStatePaths = @(
-  (Join-Path $appdata 'Code\User\globalStorage\state.vscdb'),
-  (Join-Path $appdata 'Cursor\User\globalStorage\state.vscdb')
-)
-$pyCode = @'
-import sqlite3, json, sys
-try:
-    conn = sqlite3.connect(sys.argv[1])
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT)")
-    c.execute("SELECT value FROM ItemTable WHERE key='history.recentlyOpenedPathsList'")
-    row = c.fetchone()
-    data = json.loads(row[0]) if (row and row[0]) else {'entries': []}
-    entry = {'folderUri': sys.argv[2], 'label': sys.argv[3]}
-    entries = [e for e in data.get('entries', []) if e.get('folderUri') != sys.argv[2]]
-    entries.insert(0, entry)
-    c.execute("INSERT OR REPLACE INTO ItemTable (key, value) VALUES ('history.recentlyOpenedPathsList', ?)", (json.dumps({'entries': entries}),))
-    conn.commit()
-    conn.close()
-except Exception:
-    pass
-'@
-$pyBin = if (Get-Command python -ErrorAction SilentlyContinue) { "python" } elseif (Get-Command python3 -ErrorAction SilentlyContinue) { "python3" } else { $null }
-if ($pyBin) {
-  foreach ($db in $vscStatePaths) {
-    $dbDir = Split-Path $db -Parent
-    if (-not (Test-Path $dbDir)) {
-      New-Item -ItemType Directory -Force -Path $dbDir | Out-Null
-    }
-    try {
-      & $pyBin -c $pyCode $db $fileUri $name 2>$null
-    } catch {}
-  }
 }
 `
 
@@ -173,160 +138,17 @@ if ($hasGh) {
 }
 `
 
-const linuxPythonImportsHeader = `import os, sys, json, subprocess, sqlite3
-from datetime import datetime, timezone
-
-home = os.path.expanduser('~')
-name = %q
-root = %q
-with_pinned = %s
-uuid_str = %q
-file_uri = %q
-
-tags = ["gitmap"]
-if with_pinned:
-    tags.append("pinned")
-
-entry = {
-    "name": name,
-    "rootPath": root,
-    "paths": [root],
-    "tags": tags,
-    "enabled": True
-}
-`
-
-const linuxPythonProjectsScript = `paths = [
-    os.path.join(home, ".config/Code/User/globalStorage/alefragnani.project-manager/projects.json"),
-    os.path.join(home, ".config/Cursor/User/globalStorage/alefragnani.project-manager/projects.json")
-]
-
-for p in paths:
-    os.makedirs(os.path.dirname(p), exist_ok=True)
-    entries = []
-    if os.path.exists(p):
-        try:
-            with open(p, 'r', encoding='utf-8') as f:
-                content = json.load(f)
-                if isinstance(content, list):
-                    entries = content
-        except Exception:
-            pass
-    matched = False
-    for i, e in enumerate(entries):
-        if e.get("rootPath") == root or e.get("name") == name:
-            entries[i] = entry
-            matched = True
-            break
-    if not matched:
-        entries.append(entry)
-    with open(p, 'w', encoding='utf-8') as f:
-        json.dump(entries, f, indent=2)
-`
-
-const linuxPythonStateVscdbScript = `vsc_dbs = [
-    os.path.join(home, ".config/Code/User/globalStorage/state.vscdb"),
-    os.path.join(home, ".config/Cursor/User/globalStorage/state.vscdb")
-]
-for vdb in vsc_dbs:
-    try:
-        os.makedirs(os.path.dirname(vdb), exist_ok=True)
-        conn = sqlite3.connect(vdb)
-        cur = conn.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value TEXT)")
-        cur.execute("SELECT value FROM ItemTable WHERE key='history.recentlyOpenedPathsList'")
-        row = cur.fetchone()
-        data = json.loads(row[0]) if (row and row[0]) else {"entries": []}
-        entries = [e for e in data.get("entries", []) if e.get("folderUri") != file_uri]
-        entries.insert(0, {"folderUri": file_uri, "label": name})
-        cur.execute("INSERT OR REPLACE INTO ItemTable (key, value) VALUES ('history.recentlyOpenedPathsList', ?)", (json.dumps({"entries": entries}),))
-        conn.commit()
-        conn.close()
-    except Exception:
-        pass
-`
-
-const linuxPythonGeminiScript = `now_iso = datetime.now(timezone.utc).isoformat()
-agy_dir = os.path.join(home, ".gemini/config/projects")
-os.makedirs(agy_dir, exist_ok=True)
-agy_cfg = {
-    "id": uuid_str,
-    "name": name,
-    "projectResources": {
-        "resources": [
-            {
-                "gitFolder": {
-                    "folderUri": file_uri,
-                    "defaultBranch": "main"
-                }
-            }
-        ]
-    },
-    "settings": {},
-    "updatedAt": now_iso,
-    "isWorkspaceOnly": False
-}
-with open(os.path.join(agy_dir, f"{uuid_str}.json"), 'w', encoding='utf-8') as f:
-    json.dump(agy_cfg, f, indent=2)
-
-if with_pinned:
-    pinned_path = os.path.join(home, ".gemini/config/pinned_projects.json")
-    os.makedirs(os.path.dirname(pinned_path), exist_ok=True)
-    pinned_store = {"version": "1.0.0", "updatedAt": now_iso, "projects": []}
-    if os.path.exists(pinned_path):
-        try:
-            with open(pinned_path, 'r', encoding='utf-8') as f:
-                loaded = json.load(f)
-                if isinstance(loaded, dict):
-                    pinned_store = loaded
-        except Exception:
-            pass
-    p_list = pinned_store.get("projects", [])
-    p_entry = {"id": uuid_str, "name": name, "path": root, "branch": "main", "pinnedAt": now_iso}
-    p_matched = False
-    for i, item in enumerate(p_list):
-        if item.get("path") == root or item.get("name") == name:
-            p_list[i] = p_entry
-            p_matched = True
-            break
-    if not p_matched:
-        p_list.append(p_entry)
-    pinned_store["projects"] = p_list
-    with open(pinned_path, 'w', encoding='utf-8') as f:
-        json.dump(pinned_store, f, indent=2)
-`
-
-const linuxPythonGitHubScript = `has_gh = False
-try:
-    if subprocess.call("command -v github", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
-        subprocess.call(["github", root], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        has_gh = True
-except Exception:
-    pass
-
-if has_gh:
-    print("REGISTERED:vscode,cursor,antigravity,github-desktop")
-else:
-    print("REGISTERED:vscode,cursor,antigravity")
-`
-
-// RegisterRemoteIDEs registers a deployed repository in remote IDE configurations.
+// RegisterRemoteIDEs registers a deployed repository in remote IDE configurations using pure Go gitmap commands.
 func RegisterRemoteIDEs(client *ssh.Client, conn db.SSHConnection, repoName, remoteRepoPath string, hasPinned bool) ([]string, error) {
-	isWin := isWindowsNode(conn)
-	uuidStr := generateDeployUUID()
-	fileURI := formatFolderFileURI(remoteRepoPath, isWin)
-
-	if isWin {
-		return registerRemoteIDEsWindows(client, repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+	if isWindowsNode(conn) {
+		return registerRemoteIDEsWindows(client, repoName, remoteRepoPath, hasPinned)
 	}
 
-	return registerRemoteIDEsLinux(client, repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
+	return registerRemoteIDEsLinux(client, repoName, remoteRepoPath, hasPinned)
 }
 
-func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) ([]string, error) {
-	script := buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
-	encoded := encodePowerShell(script)
-	cmd := "powershell.exe -NoProfile -EncodedCommand " + encoded
+func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath string, hasPinned bool) ([]string, error) {
+	cmd := buildWindowsRemoteIDECommand(repoName, remoteRepoPath, hasPinned)
 	out, err := secrets.RunCommand(client, cmd, "ps")
 	if err != nil {
 		return nil, fmt.Errorf("remote windows ide registration failed: %w", err)
@@ -335,9 +157,9 @@ func registerRemoteIDEsWindows(client *ssh.Client, repoName, remoteRepoPath, uui
 	return parseRegisteredIDEs(out), nil
 }
 
-func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) ([]string, error) {
-	script := buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
-	out, err := secrets.RunCommand(client, script, "sh")
+func registerRemoteIDEsLinux(client *ssh.Client, repoName, remoteRepoPath string, hasPinned bool) ([]string, error) {
+	cmd := buildLinuxRemoteIDECommand(repoName, remoteRepoPath, hasPinned)
+	out, err := secrets.RunCommand(client, cmd, "sh")
 	if err != nil {
 		return nil, fmt.Errorf("remote linux ide registration failed: %w", err)
 	}
@@ -439,49 +261,51 @@ func formatPinnedFlag(hasPinned bool) string {
 	return "$false"
 }
 
-func buildWindowsScriptHeader(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
-	cleanRoot := strings.ReplaceAll(remoteRepoPath, "/", "\\")
-	pinnedFlag := formatPinnedFlag(hasPinned)
-
-	return fmt.Sprintf("$name = '%s'\n$root = '%s'\n$withPinned = %s\n$uuid = '%s'\n$fileUri = '%s'\n",
-		repoName, cleanRoot, pinnedFlag, uuidStr, fileURI)
-}
-
-func buildWindowsIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
-	header := buildWindowsScriptHeader(repoName, remoteRepoPath, uuidStr, fileURI, hasPinned)
-
-	return header + windowsIDEScriptBody()
-}
-
-func windowsIDEScriptBody() string {
-	return windowsProjectsScript +
-		windowsStateVscdbScript +
-		windowsGeminiScript +
-		windowsGitHubDesktopScript
-}
-
-func formatLinuxPinnedFlag(hasPinned bool) string {
+func formatPinnedCliFlag(hasPinned bool) string {
 	if hasPinned {
-		return "True"
+		return " --pinned"
 	}
 
-	return "False"
+	return ""
 }
 
-func buildLinuxIDEScript(repoName, remoteRepoPath, uuidStr, fileURI string, hasPinned bool) string {
-	pinnedStr := formatLinuxPinnedFlag(hasPinned)
-	pyCode := fmt.Sprintf(linuxPythonScriptTemplate(), repoName, remoteRepoPath, pinnedStr, uuidStr, fileURI)
-	b64 := base64.StdEncoding.EncodeToString([]byte(pyCode))
+func buildWindowsRemoteIDECommand(repoName, remoteRepoPath string, hasPinned bool) string {
+	pinnedFlag := formatPinnedCliFlag(hasPinned)
+	cleanRoot := strings.ReplaceAll(remoteRepoPath, "/", "\\")
+	fallback := buildWindowsFallbackScript(repoName, cleanRoot, hasPinned)
+	script := fmt.Sprintf("if (Get-Command gitmap -ErrorAction SilentlyContinue) { & gitmap ide register '%s' --name '%s'%s } else { %s }",
+		cleanRoot, repoName, pinnedFlag, fallback)
 
-	return fmt.Sprintf(`sh -c "python3 -c \"import base64; exec(base64.b64decode('%s').decode('utf-8'))\""`, b64)
+	return "powershell.exe -NoProfile -EncodedCommand " + encodePowerShell(script)
 }
 
-func linuxPythonScriptTemplate() string {
-	return linuxPythonImportsHeader +
-		linuxPythonProjectsScript +
-		linuxPythonStateVscdbScript +
-		linuxPythonGeminiScript +
-		linuxPythonGitHubScript
+func buildWindowsFallbackScript(repoName, cleanRoot string, hasPinned bool) string {
+	uuidStr := generateDeployUUID()
+	fileURI := formatWindowsFileURI(cleanRoot)
+	header := fmt.Sprintf("$name = '%s'; $root = '%s'; $withPinned = %s; $uuid = '%s'; $fileUri = '%s'; ",
+		repoName, cleanRoot, formatPinnedFlag(hasPinned), uuidStr, fileURI)
+
+	return header + windowsProjectsScript + windowsGeminiScript + windowsGitHubDesktopScript
+}
+
+func buildLinuxRemoteIDECommand(repoName, remoteRepoPath string, hasPinned bool) string {
+	pinnedFlag := formatPinnedCliFlag(hasPinned)
+	fallback := buildLinuxFallbackScript(repoName, remoteRepoPath)
+
+	return fmt.Sprintf(`sh -c "if command -v gitmap >/dev/null 2>&1; then gitmap ide register '%s' --name '%s'%s; elif [ -x \"$HOME/.local/bin/gitmap\" ]; then \"$HOME/.local/bin/gitmap\" ide register '%s' --name '%s'%s; elif [ -x \"/usr/local/bin/gitmap\" ]; then \"/usr/local/bin/gitmap\" ide register '%s' --name '%s'%s; else %s; fi"`,
+		remoteRepoPath, repoName, pinnedFlag,
+		remoteRepoPath, repoName, pinnedFlag,
+		remoteRepoPath, repoName, pinnedFlag,
+		fallback)
+}
+
+func buildLinuxFallbackScript(repoName, remoteRepoPath string) string {
+	uuidStr := generateDeployUUID()
+	cleanPath := filepath.ToSlash(strings.TrimSpace(remoteRepoPath))
+	fileURI := formatUnixFileURI(cleanPath)
+
+	return fmt.Sprintf("mkdir -p ~/.gemini/config/projects && printf '{\"id\":\"%s\",\"name\":\"%s\",\"projectResources\":{\"resources\":[{\"gitFolder\":{\"folderUri\":\"%s\",\"defaultBranch\":\"main\"}}]},\"settings\":{},\"isWorkspaceOnly\":false}' > ~/.gemini/config/projects/%s.json && echo REGISTERED:antigravity",
+		uuidStr, repoName, fileURI, uuidStr)
 }
 
 func resolveLocalGeminiDirs() (string, string, bool) {
@@ -572,7 +396,7 @@ func hasConvDBMatch(dbPath, cleanTarget, slug string) bool {
 	return hasTargetOrSlug(string(blob), cleanTarget, slug)
 }
 
-func readTrajectoryBlob(conn *store.DB) []byte {
+func readTrajectoryBlob(conn *sql.DB) []byte {
 	var blob []byte
 	row := conn.QueryRow("SELECT data FROM trajectory_metadata_blob WHERE id='main'")
 	if row.Scan(&blob) != nil {

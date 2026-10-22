@@ -61,26 +61,68 @@ func performIDEAddAction(isTargeted, isDryRun bool, applyFn func() bool) bool {
 }
 
 func addVSCodeAndCursor(absPath string, opts IDEOptions, res *IDEActionResult) {
+	name := resolveRepoDisplayName(absPath, opts.Name)
+	folderURI := formatFolderURI(absPath)
 	res.IsVSCodeAffected = performIDEAddAction(opts.IsVSCodeTargeted, opts.IsDryRun, func() bool {
-		pair := vscodepm.Pair{RootPath: absPath, Name: filepath.Base(absPath), Tags: []string{"gitmap"}}
-		_, err := vscodepm.SyncMode([]vscodepm.Pair{pair}, vscodepm.MergeModeUnion)
-		return err == nil
+		tags := buildProjectTags(opts.IsPinned)
+		pair := vscodepm.Pair{RootPath: absPath, Name: name, Paths: []string{absPath}, Tags: tags}
+		_, errSync := vscodepm.SyncMode([]vscodepm.Pair{pair}, vscodepm.MergeModeUnion)
+		errDb := UpdateStateVscdbForVSCode(folderURI, name)
+
+		return errSync == nil || errDb == nil
 	})
 	res.IsCursorAffected = performIDEAddAction(opts.IsCursorTargeted, opts.IsDryRun, func() bool {
-		_, _, err := cmdcursor.SyncCursorProjects([]string{absPath})
-		return err == nil
+		_, _, errSync := cmdcursor.SyncCursorProjects([]string{absPath})
+		errDb := UpdateStateVscdbForCursor(folderURI, name)
+
+		return errSync == nil || errDb == nil
 	})
 }
 
+func buildProjectTags(hasPinned bool) []string {
+	if hasPinned {
+		return []string{"gitmap", "pinned"}
+	}
+
+	return []string{"gitmap"}
+}
+
+func resolveRepoDisplayName(absPath, customName string) string {
+	if customName != "" {
+		return customName
+	}
+
+	return filepath.Base(absPath)
+}
+
+func formatFolderURI(absPath string) string {
+	clean := filepath.ToSlash(absPath)
+	if len(clean) > 1 && clean[1] == ':' {
+		return "file:///" + string(clean[0]) + "%3A" + clean[2:]
+	}
+	if strings.HasPrefix(clean, "/") {
+		return "file://" + clean
+	}
+
+	return "file:///" + clean
+}
+
 func addAntigravityAndDesktop(absPath string, opts IDEOptions, res *IDEActionResult) {
+	name := resolveRepoDisplayName(absPath, opts.Name)
 	res.IsAntigravityAffected = performIDEAddAction(opts.IsAntigravityTargeted, opts.IsDryRun, func() bool {
-		return workspacesync.SyncAntigravity(absPath, filepath.Base(absPath))
+		isSynced := workspacesync.SyncAntigravity(absPath, name)
+		if opts.IsPinned {
+			_ = SyncAntigravityPinned(absPath, name)
+		}
+
+		return isSynced
 	})
 	if !opts.IsDesktopTargeted {
 		return
 	}
 	if opts.IsDryRun {
 		res.IsDesktopAffected = true
+
 		return
 	}
 	executeDesktopAdd(absPath, res)
@@ -143,6 +185,28 @@ func printActionSummaryLines(res IDEActionResult) {
 	fmt.Printf("  • Cursor:      %s\n", formatIDEStatus(res.IsCursorAffected, "cursor", res.ErrorDetails))
 	fmt.Printf("  • Antigravity: %s\n", formatIDEStatus(res.IsAntigravityAffected, "antigravity", res.ErrorDetails))
 	fmt.Printf("  • Desktop:     %s\n", formatIDEStatus(res.IsDesktopAffected, "desktop", res.ErrorDetails))
+	tokens := formatRegisteredTokens(res)
+	if tokens != "" {
+		fmt.Printf("\nREGISTERED:%s\n", tokens)
+	}
+}
+
+func formatRegisteredTokens(res IDEActionResult) string {
+	var tokens []string
+	if res.IsVSCodeAffected {
+		tokens = append(tokens, "vscode")
+	}
+	if res.IsCursorAffected {
+		tokens = append(tokens, "cursor")
+	}
+	if res.IsAntigravityAffected {
+		tokens = append(tokens, "antigravity")
+	}
+	if res.IsDesktopAffected {
+		tokens = append(tokens, "github-desktop")
+	}
+
+	return strings.Join(tokens, ",")
 }
 
 func formatIDEStatus(isAffected bool, key string, errDetails map[string]string) string {

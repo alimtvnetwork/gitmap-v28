@@ -19,7 +19,9 @@ type IDEOptions struct {
 	IsQuiet               bool   `json:"isQuiet"`
 	IsJSON                bool   `json:"isJSON"`
 	IsForceCreate         bool   `json:"isForceCreate"`
+	IsPinned              bool   `json:"isPinned"`
 	TargetDirectory       string `json:"targetDirectory,omitempty"`
+	Name                  string `json:"name,omitempty"`
 }
 
 // IDESyncFailure records failure details for a repository synchronization attempt.

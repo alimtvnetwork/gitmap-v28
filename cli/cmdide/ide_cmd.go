@@ -16,7 +16,7 @@ func RunIDE(args []string) error {
 
 func dispatchSubcommand(subcmd string, args []string) error {
 	switch subcmd {
-	case "add":
+	case "add", "register":
 		return runIDEAdd(args)
 	case "sync":
 		return runIDESync(args)
@@ -51,20 +51,36 @@ func parseIDEOptions(args []string) (IDEOptions, []string) {
 }
 
 func parseSingleFlag(opts *IDEOptions, args []string, idx int) (int, bool) {
+	if step, hasVal := checkValueFlags(opts, args, idx); hasVal {
+		return step, true
+	}
+
+	return checkBoolFlags(opts, args[idx])
+}
+
+func checkValueFlags(opts *IDEOptions, args []string, idx int) (int, bool) {
 	arg, hasNext := args[idx], idx+1 < len(args)
-	if (arg == "-t" || arg == "--target" || arg == "-i" || arg == "--ide") && hasNext {
+	if !hasNext {
+		return 0, false
+	}
+	if arg == "-t" || arg == "--target" || arg == "-i" || arg == "--ide" {
 		applyTargetFilter(opts, args[idx+1])
 		return 1, true
 	}
-	if (arg == "-e" || arg == "--exclude" || arg == "--skip-sync" || arg == "--exclude-sync") && hasNext {
+	if arg == "-e" || arg == "--exclude" || arg == "--skip-sync" || arg == "--exclude-sync" {
 		applyExcludeFilter(opts, args[idx+1])
 		return 1, true
 	}
-	if (arg == "-d" || arg == "--dir") && hasNext {
+	if arg == "-d" || arg == "--dir" {
 		opts.TargetDirectory = args[idx+1]
 		return 1, true
 	}
-	return checkBoolFlags(opts, arg)
+	if arg == "--name" {
+		opts.Name = args[idx+1]
+		return 1, true
+	}
+
+	return 0, false
 }
 
 func checkBoolFlags(opts *IDEOptions, arg string) (int, bool) {
@@ -77,9 +93,12 @@ func checkBoolFlags(opts *IDEOptions, arg string) (int, bool) {
 		opts.IsQuiet = true
 	case "--force-create":
 		opts.IsForceCreate = true
+	case "--pinned", "-p":
+		opts.IsPinned = true
 	default:
 		return 0, false
 	}
+
 	return 0, true
 }
 
