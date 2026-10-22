@@ -214,11 +214,9 @@ export function TerminalDrawer() {
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isRunning) {
       e.preventDefault();
-      if (!isRunning) {
-        runCommand(inputVal);
-      }
+      runCommand(inputVal);
       return;
     }
 
@@ -231,17 +229,17 @@ export function TerminalDrawer() {
       return;
     }
 
-    if (e.key === "ArrowDown") {
+    if (e.key === "ArrowDown" && historyIndex !== -1) {
       e.preventDefault();
-      if (historyIndex === -1) return;
       const nextIdx = historyIndex + 1;
-      if (nextIdx >= cmdHistory.length) {
+      const isOutOfBounds = nextIdx >= cmdHistory.length;
+      if (isOutOfBounds) {
         setHistoryIndex(-1);
         setInputVal("");
-      } else {
-        setHistoryIndex(nextIdx);
-        setInputVal(cmdHistory[nextIdx]);
+        return;
       }
+      setHistoryIndex(nextIdx);
+      setInputVal(cmdHistory[nextIdx]);
       return;
     }
   };
@@ -251,51 +249,63 @@ export function TerminalDrawer() {
   const isUbuntu = termTheme === "ubuntu";
   const isWin = termTheme === "win";
 
-  let containerThemeClass = "";
-  let headerThemeClass = "";
-  let quickBarThemeClass = "";
-  let outputThemeClass = "";
-  let inputBarThemeClass = "";
-  let promptColorClass = "";
-  let textColorClass = "";
-
-  if (isUbuntu) {
-    containerThemeClass = "border-t border-[#5e2750] shadow-2xl bg-[#300a24]";
-    headerThemeClass = "bg-[#25071c] border-b border-[#5e2750] text-[#f1f1f1]";
-    quickBarThemeClass = "bg-[#2b0821] border-b border-[#5e2750] text-[#e0e0e0]";
-    outputThemeClass = "bg-[#300a24] text-[#ffffff]";
-    inputBarThemeClass = "bg-[#25071c] border-t border-[#5e2750] text-[#ffffff]";
-    promptColorClass = "text-[#e95420]";
-    textColorClass = "text-white";
-  } else if (isWin) {
-    containerThemeClass = "border-t border-[#0b3c7b] shadow-2xl bg-[#012456]";
-    headerThemeClass = "bg-[#001737] border-b border-[#0b3c7b] text-[#f1f1f1]";
-    quickBarThemeClass = "bg-[#011d45] border-b border-[#0b3c7b] text-[#e0e0e0]";
-    outputThemeClass = "bg-[#012456] text-[#ffffff]";
-    inputBarThemeClass = "bg-[#001737] border-t border-[#0b3c7b] text-[#ffffff]";
-    promptColorClass = "text-[#f9f1a5]";
-    textColorClass = "text-white";
-  } else {
-    // dark theme
-    if (isLightMode) {
-      // Sleek polished terminal surface with clear border contrast in light mode
-      containerThemeClass = "border-t-2 border-slate-700/90 shadow-[0_-12px_30px_rgba(0,0,0,0.35)] ring-1 ring-slate-800 bg-slate-900";
-      headerThemeClass = "bg-slate-900 border-b border-slate-800 text-slate-100";
-      quickBarThemeClass = "bg-slate-900/95 border-b border-slate-800 text-slate-300";
-      outputThemeClass = "bg-[#090d16] text-[#f8fafc]";
-      inputBarThemeClass = "bg-slate-900 border-t border-slate-800 text-slate-100";
-      promptColorClass = "text-emerald-400";
-      textColorClass = "text-slate-100";
-    } else {
-      containerThemeClass = "border-t border-border bg-card shadow-2xl";
-      headerThemeClass = "bg-muted/60 border-b border-border text-foreground";
-      quickBarThemeClass = "bg-background/50 border-b border-border text-muted-foreground";
-      outputThemeClass = "bg-[#0c0c0c] text-[#f1f1f1]";
-      inputBarThemeClass = "bg-background border-t border-border text-foreground";
-      promptColorClass = "text-primary";
-      textColorClass = "text-slate-200";
+  const getThemeClasses = () => {
+    if (isUbuntu) {
+      return {
+        containerThemeClass: "border-t border-[#5e2750] shadow-2xl bg-[#300a24]",
+        headerThemeClass: "bg-[#25071c] border-b border-[#5e2750] text-[#f1f1f1]",
+        quickBarThemeClass: "bg-[#2b0821] border-b border-[#5e2750] text-[#e0e0e0]",
+        outputThemeClass: "bg-[#300a24] text-[#ffffff]",
+        inputBarThemeClass: "bg-[#25071c] border-t border-[#5e2750] text-[#ffffff]",
+        promptColorClass: "text-[#e95420]",
+        textColorClass: "text-white",
+      };
     }
-  }
+
+    if (isWin) {
+      return {
+        containerThemeClass: "border-t border-[#0b3c7b] shadow-2xl bg-[#012456]",
+        headerThemeClass: "bg-[#001737] border-b border-[#0b3c7b] text-[#f1f1f1]",
+        quickBarThemeClass: "bg-[#011d45] border-b border-[#0b3c7b] text-[#e0e0e0]",
+        outputThemeClass: "bg-[#012456] text-[#ffffff]",
+        inputBarThemeClass: "bg-[#001737] border-t border-[#0b3c7b] text-[#ffffff]",
+        promptColorClass: "text-[#f9f1a5]",
+        textColorClass: "text-white",
+      };
+    }
+
+    if (isLightMode) {
+      return {
+        containerThemeClass: "border-t-2 border-slate-700/90 shadow-[0_-12px_30px_rgba(0,0,0,0.35)] ring-1 ring-slate-800 bg-slate-900",
+        headerThemeClass: "bg-slate-900 border-b border-slate-800 text-slate-100",
+        quickBarThemeClass: "bg-slate-900/95 border-b border-slate-800 text-slate-300",
+        outputThemeClass: "bg-[#090d16] text-[#f8fafc]",
+        inputBarThemeClass: "bg-slate-900 border-t border-slate-800 text-slate-100",
+        promptColorClass: "text-emerald-400",
+        textColorClass: "text-slate-100",
+      };
+    }
+
+    return {
+      containerThemeClass: "border-t border-border bg-card shadow-2xl",
+      headerThemeClass: "bg-muted/60 border-b border-border text-foreground",
+      quickBarThemeClass: "bg-background/50 border-b border-border text-muted-foreground",
+      outputThemeClass: "bg-[#0c0c0c] text-[#f1f1f1]",
+      inputBarThemeClass: "bg-background border-t border-border text-foreground",
+      promptColorClass: "text-primary",
+      textColorClass: "text-slate-200",
+    };
+  };
+
+  const {
+    containerThemeClass,
+    headerThemeClass,
+    quickBarThemeClass,
+    outputThemeClass,
+    inputBarThemeClass,
+    promptColorClass,
+    textColorClass,
+  } = getThemeClasses();
 
   return (
     <>

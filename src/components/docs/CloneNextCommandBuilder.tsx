@@ -83,10 +83,13 @@ function buildOriginURL(s: BuilderState): string {
 
   switch (s.protocol) {
     case ProtocolType.Https:
+
       return `https://github.com/${s.owner}/${repo}.git`;
     case ProtocolType.Ssh:
+
       return `git@github.com:${s.owner}/${repo}.git`;
     case ProtocolType.SshAlias:
+
       return `git@github.com-work:${s.owner}/${repo}.git`;
   }
 }
@@ -112,9 +115,9 @@ function buildGitmapCommand(s: BuilderState): string {
   if (s.sshKeyName.trim().length > 0) parts.push(`--ssh-key ${s.sshKeyName.trim()}`);
 
   if (s.branch.trim().length > 0) parts.push(`--branch ${s.branch.trim()}`);
-  const isNoFlatten = !s.flatten;
+  const isNested = !s.flatten;
 
-  if (isNoFlatten) parts.push("--no-flatten");
+  if (isNested) parts.push("--no-flatten");
 
   return parts.join(" ");
 }

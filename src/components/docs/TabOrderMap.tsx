@@ -84,8 +84,8 @@ const isCoveredByOverlay = (el: HTMLElement, rects: DOMRectList): boolean => {
 
   if (r.width < 1 || r.height < 1) return true;
   const samples = getOverlaySamples(r);
-  const inViewport = samples.some(([x, y]) => x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight);
-  const isOutsideViewport = !inViewport;
+  const isInViewport = samples.some(([x, y]) => x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight);
+  const isOutsideViewport = !isInViewport;
 
   if (isOutsideViewport) return false;
   const isHitOrDescendant = samples.some(([x, y]) => isPointCovered(x, y, el));
@@ -140,7 +140,9 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
   }
 
   const formEl = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-  if (!formEl.labels || formEl.labels.length === 0) {
+  const hasLabels = Boolean(formEl.labels && formEl.labels.length > 0);
+
+  if (!hasLabels) {
     return null;
   }
 
@@ -149,7 +151,9 @@ const getFormElementLabel = (el: HTMLElement): string | null => {
     .filter(Boolean)
     .join(" ");
 
-  if (!text) {
+  const isMissingText = !text;
+
+  if (isMissingText) {
     return null;
   }
 
@@ -213,13 +217,17 @@ const getLandmarkSection = (el: HTMLElement): string | null => {
 
 const getAriaLabelledByText = (section: HTMLElement): string | null => {
   const labelId = section.getAttribute("aria-labelledby");
-  if (!labelId) {
+  const isMissingLabelId = !labelId;
+
+  if (isMissingLabelId) {
     return null;
   }
 
   const ref = document.getElementById(labelId);
   const text = ref?.textContent?.trim();
-  if (!text) {
+  const isMissingText = !text;
+
+  if (isMissingText) {
     return null;
   }
 
@@ -228,17 +236,22 @@ const getAriaLabelledByText = (section: HTMLElement): string | null => {
 
 const getAriaSection = (el: HTMLElement): string | null => {
   const section = el.closest<HTMLElement>("section[aria-labelledby], section[aria-label]");
-  if (!section) {
+  const isMissingSection = !section;
+
+  if (isMissingSection) {
     return null;
   }
 
   const labelledByText = getAriaLabelledByText(section);
+
   if (labelledByText) {
     return labelledByText;
   }
 
   const label = section.getAttribute("aria-label");
-  if (!label) {
+  const isMissingLabel = !label;
+
+  if (isMissingLabel) {
     return null;
   }
 
@@ -264,16 +277,16 @@ interface IndexedElement {
 }
 
 const compareTabOrder = (a: IndexedElement, b: IndexedElement): number => {
-  const aPositive = a.ti > 0;
-  const bPositive = b.ti > 0;
-  const isANotPositive = !aPositive;
-  const isBNotPositive = !bPositive;
+  const isAPositive = a.ti > 0;
+  const isBPositive = b.ti > 0;
+  const isANotPositive = !isAPositive;
+  const isBNotPositive = !isBPositive;
 
-  if (aPositive && isBNotPositive) return -1;
+  if (isAPositive && isBNotPositive) return -1;
 
-  if (isANotPositive && bPositive) return 1;
+  if (isANotPositive && isBPositive) return 1;
 
-  if (aPositive && bPositive && a.ti !== b.ti) return a.ti - b.ti;
+  if (isAPositive && isBPositive && a.ti !== b.ti) return a.ti - b.ti;
 
   return a.i - b.i;
 };
@@ -328,18 +341,19 @@ const groupEntriesBySection = (entries: FocusEntry[]): { section: string; items:
   for (const e of entries) {
     const last = groups[groups.length - 1];
 
-    if (last && last.section === e.section) {
-      last.items.push(e);
-    } else {
+    if (!last || last.section !== e.section) {
       groups.push({ section: e.section, items: [e] });
+      continue;
     }
+
+    last.items.push(e);
   }
 
   return groups;
 };
 
 const TabOrderMap = () => {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [entries, setEntries] = useState<FocusEntry[]>([]);
   const [focusedStep, setFocusedStep] = useState<number | null>(null);
   const selfRef = useRef<HTMLElement | null>(null);
@@ -356,7 +370,7 @@ const TabOrderMap = () => {
 
   // Recompute on open + on DOM mutations + on resize while open.
   useEffect(() => {
-    const isClosed = !open;
+    const isClosed = !isOpen;
 
     if (isClosed) return;
     refresh();
@@ -381,12 +395,12 @@ const TabOrderMap = () => {
       mo.disconnect();
       window.removeEventListener("resize", schedule);
     };
-  }, [open, refresh]);
+  }, [isOpen, refresh]);
 
   // Track focus globally while the panel is open. Uses focusin/focusout
   // (which bubble, unlike focus/blur) so we catch every change.
   useEffect(() => {
-    const isClosed = !open;
+    const isClosed = !isOpen;
 
     if (isClosed) return;
     const onFocusIn = (e: FocusEvent) => {
@@ -402,16 +416,21 @@ const TabOrderMap = () => {
       const idx = elementsRef.current.indexOf(target);
       setFocusedStep(idx >= 0 ? idx + 1 : null);
     };
+
+    const handleFocusOutUpdate = (active: HTMLElement | null) => {
+      const isMissingActive = !active || active === document.body;
+
+      if (isMissingActive) {
+        setFocusedStep(null);
+      }
+    };
+
     const onFocusOut = () => {
       requestAnimationFrame(() => {
-        const active = document.activeElement as HTMLElement | null;
-        const isMissingActive = !active || active === document.body;
-
-        if (isMissingActive) {
-          setFocusedStep(null);
-        }
+        handleFocusOutUpdate(document.activeElement as HTMLElement | null);
       });
     };
+
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("focusout", onFocusOut);
     onFocusIn({ target: document.activeElement } as unknown as FocusEvent);
@@ -420,7 +439,7 @@ const TabOrderMap = () => {
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("focusout", onFocusOut);
     };
-  }, [open]);
+  }, [isOpen]);
 
   // Group entries by section for readability while keeping global numbering.
   const grouped = useMemo(() => groupEntriesBySection(entries), [entries]);
@@ -430,22 +449,22 @@ const TabOrderMap = () => {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
+          onClick={() => setIsOpen((isCurrentOpen) => !isCurrentOpen)}
+          aria-expanded={isOpen}
           aria-controls="tab-order-map-panel"
           className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-sans text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Keyboard className="h-3.5 w-3.5" />
-          <span>{open ? "Hide" : "Show"} tab order map</span>
+          <span>{isOpen ? "Hide" : "Show"} tab order map</span>
           <motion.span
-            animate={{ rotate: open ? 180 : 0 }}
+            animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
             className="inline-flex"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </motion.span>
         </button>
-        {open && (
+        {isOpen && (
           <button
             type="button"
             onClick={refresh}
@@ -459,7 +478,7 @@ const TabOrderMap = () => {
       </div>
 
       <AnimatePresence initial={false}>
-        {open && (
+        {isOpen && (
           <motion.div
             id="tab-order-map-panel"
             initial={{ height: 0, opacity: 0 }}

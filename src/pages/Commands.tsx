@@ -52,7 +52,7 @@ function highlightElement(element: HTMLElement, onClear: () => void): void {
 function filterCommands(allCommands: CommandDef[], searchQuery: string): CommandDef[] {
   const hasSearch = searchQuery.length > 0;
 
-  if (hasSearch === false) return allCommands;
+  if (!hasSearch) return allCommands;
 
   const query = searchQuery.toLowerCase();
 
@@ -89,18 +89,19 @@ function useCommandNavigate(
   return useCallback((commandName: string) => {
     const target = commands.find((cmd) => cmd.name === commandName);
 
-    if (Boolean(target) === false) return;
+    if (!target) return;
 
     setSearch("");
     setForceOpen(target!.category);
     setHighlightCmd(commandName);
     setTimeout(() => {
       const element = commandRefs.current[commandName];
-
-      if (element) {
-        highlightElement(element, () => setHighlightCmd(null));
+      if (!element) {
+        setForceOpen(null);
+        return;
       }
 
+      highlightElement(element, () => setHighlightCmd(null));
       setForceOpen(null);
     }, 100);
   }, [commandRefs, setForceOpen, setHighlightCmd, setSearch]);
@@ -165,7 +166,7 @@ const CommandsHeader = ({ isCopied, onCopyAll, onDownload }: CommandsHeaderProps
 const CommandsSearchResults = ({ items, search, onNavigate, commandRefs }: CommandsSearchResultsProps) => {
   const hasMatches = items.length > 0;
 
-  if (hasMatches === false) {
+  if (!hasMatches) {
     return (
       <p className="text-center text-muted-foreground py-8 font-mono text-sm">
         No commands matching "{search}"
