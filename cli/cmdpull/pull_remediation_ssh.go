@@ -53,24 +53,23 @@ func hasSSHRepoForSameOwner(owner string) bool {
 		return true
 	}
 
-	repos := loadStoreRepos()
-	if len(repos) == 0 {
+	repos, err := loadStoreRepos()
+	if err != nil || len(repos) == 0 {
 		return false
 	}
 
 	return hasSSHRepoOwner(repos, owner)
 }
 
-func loadStoreRepos() []model.ScanRecord {
+func loadStoreRepos() ([]model.ScanRecord, error) {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	defer db.Close()
-	repos, _ := db.ListRepos()
 
-	return repos
+	return db.ListRepos()
 }
 
 func hasSSHRepoOwner(repos []model.ScanRecord, owner string) bool {
@@ -85,39 +84,61 @@ func hasSSHRepoOwner(repos []model.ScanRecord, owner string) bool {
 	return false
 }
 
-func remediateCredentialAndConvertToSSH(repoPath, repoName string) {
+func remediateCredentialAndConvertToSSH(repoPath, repoName string) error {
 	storeType := gitutil.ResolveWindowsCredentialStore()
-	_ = exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.helper", "manager").Run()
-	_ = exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.credentialStore", string(storeType)).Run()
-	applySSHTransportRemediation(repoPath)
+
+	errStore := configureGlobalCredentialStore(storeType)
+	if errStore != nil {
+		return errStore
+	}
+
+	return applySSHTransportRemediation(repoPath)
 }
 
-func applySSHTransportRemediation(repoPath string) {
+func configureGlobalCredentialStore(storeType constants.CredentialStoreType) error {
+	cmdHelper := exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.helper", "manager")
+	if err := cmdHelper.Run(); err != nil {
+		return err
+	}
+
+	cmdStore := exec.Command(constants.GitBin, constants.GitConfigCmd, "--global", "credential.credentialStore", string(storeType))
+
+	return cmdStore.Run()
+}
+
+func applySSHTransportRemediation(repoPath string) error {
 	hasChanged, oldURL, newURL, err := ApplyTransportFlag(repoPath, true, false)
-	if err != nil || !hasChanged {
-		return
+	if err != nil {
+		return err
+	}
+
+	if !hasChanged {
+		return nil
 	}
 
 	fmt.Printf("    %s Converted remote to SSH: %s -> %s\n", constants.TreeBranch, oldURL, newURL)
-	updateRepoTransportInDB(repoPath, newURL)
+
+	return updateRepoTransportInDB(repoPath, newURL)
 }
 
-func updateRepoTransportInDB(repoPath, sshURL string) {
+func updateRepoTransportInDB(repoPath, sshURL string) error {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return
+		return err
 	}
 
 	defer db.Close()
-	_ = db.UpdateRepoTransport(repoPath, sshURL, constants.TransportSSH)
+
+	return db.UpdateRepoTransport(repoPath, sshURL, constants.TransportSSH)
 }
 
-func clearResolvedPullError(repoName, repoPath string) {
+func clearResolvedPullError(repoName, repoPath string) error {
 	db, err := store.OpenPullSplitDB()
 	if err != nil {
-		return
+		return err
 	}
 
 	defer db.Close()
-	_ = db.ClearPullErrorsForRepo(repoName, repoPath)
+
+	return db.ClearPullErrorsForRepo(repoName, repoPath)
 }

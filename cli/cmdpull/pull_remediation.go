@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
@@ -121,15 +120,11 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 	}
 
 	fmt.Printf("  • %s%s%s\n", constants.ColorBold, f.RepoName, constants.ColorReset)
-	if isCredentialOrHTTPSFailure(f.ErrorText) || isSameOwnerHTTPSRepo(f.RepoPath) {
-		remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
-	}
+	applyPreemptiveCredentialFix(f)
 	fmt.Printf("    %s Attempting auto-merge...\n", constants.TreeBranch)
 	out, err := execPullAutoMerge(f.RepoPath)
 	if err == nil {
-		clearResolvedPullError(f.RepoName, f.RepoPath)
-		fmt.Printf("    %s %s✓%s Successfully updated.\n",
-			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+		handleSuccessfulRemediation(f)
 		return true
 	}
 
@@ -145,17 +140,54 @@ func remediateSingleRepo(f PullFailureSummary) bool {
 	return handleRemediationFailure(f.RepoPath, f.RepoName, string(outRetry))
 }
 
+func applyPreemptiveCredentialFix(f PullFailureSummary) {
+	if !isCredentialOrHTTPSFailure(f.ErrorText) && !isSameOwnerHTTPSRepo(f.RepoPath) {
+		return
+	}
+
+	errRem := remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+	if errRem != nil {
+		fmt.Printf("    %s %s⚠%s Credential remediation notice: %v\n",
+			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errRem)
+	}
+}
+
+func handleSuccessfulRemediation(f PullFailureSummary) {
+	errClear := clearResolvedPullError(f.RepoName, f.RepoPath)
+	if errClear != nil {
+		fmt.Printf("    %s %s⚠%s Warning clearing pull error: %v\n",
+			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errClear)
+	}
+
+	fmt.Printf("    %s %s✓%s Successfully updated.\n",
+		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+}
+
 func tryRetryAfterCredentialRemediation(f PullFailureSummary) (bool, []byte) {
-	remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+	errRem := remediateCredentialAndConvertToSSH(f.RepoPath, f.RepoName)
+	if errRem != nil {
+		fmt.Printf("    %s %s⚠%s SSH credential retry notice: %v\n",
+			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errRem)
+	}
+
 	outRetry, errRetry := execPullAutoMerge(f.RepoPath)
 	if errRetry == nil {
-		clearResolvedPullError(f.RepoName, f.RepoPath)
-		fmt.Printf("    %s %s✓%s Successfully updated via SSH.\n",
-			constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+		handleSuccessfulRemediationSSH(f)
 		return true, nil
 	}
 
 	return false, outRetry
+}
+
+func handleSuccessfulRemediationSSH(f PullFailureSummary) {
+	errClear := clearResolvedPullError(f.RepoName, f.RepoPath)
+	if errClear != nil {
+		fmt.Printf("    %s %s⚠%s Warning clearing pull error: %v\n",
+			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errClear)
+	}
+
+	fmt.Printf("    %s %s✓%s Successfully updated via SSH.\n",
+		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 }
 
 func isCredentialOrHTTPSFailure(msg string) bool {
@@ -164,10 +196,7 @@ func isCredentialOrHTTPSFailure(msg string) bool {
 }
 
 func execPullAutoMerge(repoPath string) ([]byte, error) {
-	cmd := exec.Command("git", "-C", repoPath, "pull", "--progress", "--no-rebase", "--no-edit", "--autostash")
-	cmd.Env = gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
-
-	return cmd.CombinedOutput()
+	return gitutil.RunGitCombinedInDir(repoPath, "pull", "--progress", "--no-rebase", "--no-edit", "--autostash")
 }
 
 func handleRemediationFailure(repoPath, repoName, out string) bool {

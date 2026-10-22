@@ -12,19 +12,27 @@ import (
 func runWorkDir(args []string) error {
 	checkHelp("workdir", args)
 
-	ensureWorkDirsTableExists()
+	errEnsure := ensureWorkDirsTableExists()
+	if errEnsure != nil {
+		return errEnsure
+	}
 
 	opts := parseWorkDirFlags(args)
 
 	return dispatchWorkDirAction(opts)
 }
 
-func ensureWorkDirsTableExists() {
+func ensureWorkDirsTableExists() error {
 	db, errDB := store.OpenDefault()
-	if errDB == nil {
-		_, _ = db.SQL().Exec(store.SQLCreateWorkDirsTable)
-		db.Close()
+	if errDB != nil {
+		return errDB
 	}
+
+	defer db.Close()
+
+	_, errExec := db.SQL().Exec(store.SQLCreateWorkDirsTable)
+
+	return errExec
 }
 
 func dispatchWorkDirAction(opts workDirOptions) error {
