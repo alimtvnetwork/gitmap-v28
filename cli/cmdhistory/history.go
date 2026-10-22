@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
@@ -149,12 +150,16 @@ type historyRowTokens struct {
 }
 
 func formatHistoryRowTokens(r model.CommandHistoryRecord) historyRowTokens {
+	paddedCmd := termout.PadRightMax(r.Command, 16)
+	truncFlags := termout.PadRightMax(termout.TruncateRightWithEllipsis(r.Flags, 22), 22)
+	durText := termout.PadRightMax(strconv.FormatInt(r.DurationMs, 10)+"ms", 10)
+
 	return historyRowTokens{
-		cmd:    colorize(constants.ColorCyan, padRight(r.Command, 16)),
-		flags:  colorize(constants.ColorDim, padRight(truncateHist(r.Flags, 22), 22)),
+		cmd:    termout.SafeTokyoStyle(termout.TokyoPrimary).Render(paddedCmd),
+		flags:  termout.SafeTokyoStyle(termout.TokyoMuted).Render(truncFlags),
 		status: colorizedStatus(r.ExitCode),
-		dur:    colorize(constants.ColorYellow, padRight(strconv.FormatInt(r.DurationMs, 10)+"ms", 10)),
-		last:   colorize(constants.ColorDim, relativeHistoryTime(r)),
+		dur:    termout.SafeTokyoStyle(termout.TokyoWarn).Render(durText),
+		last:   termout.SafeTokyoStyle(termout.TokyoMuted).Render(relativeHistoryTime(r)),
 	}
 }
 
@@ -179,20 +184,21 @@ func printHistoryRow(r model.CommandHistoryRecord, detail string) {
 }
 
 func printDetailedHistoryRow(tok historyRowTokens, r model.CommandHistoryRecord) {
-	args := colorize(constants.ColorWhite, padRight(truncateHist(r.Args, 18), 18))
-	repos := padRight(strconv.Itoa(r.RepoCount), 6)
-	summary := padRight(truncateHist(r.Summary, 30), 30)
+	truncArgs := termout.PadRightMax(termout.TruncateRightWithEllipsis(r.Args, 18), 18)
+	args := termout.SafeTokyoStyle(termout.TokyoFG).Render(truncArgs)
+	repos := termout.PadRightMax(strconv.Itoa(r.RepoCount), 6)
+	summary := termout.PadRightMax(termout.TruncateRightWithEllipsis(r.Summary, 30), 30)
 	fmt.Printf("%s %s %s %s %s %s %s %s\n",
 		tok.cmd, args, tok.flags, tok.status, tok.dur, repos, summary, tok.last)
 }
 
-// colorizedStatus renders an 8-wide colored OK / FAIL token.
+// colorizedStatus renders a colored OK / FAIL token.
 func colorizedStatus(code int) string {
 	if code == 0 {
-		return colorize(constants.ColorGreen, padRight("✓ "+constants.MsgHistoryStatusOK, 8))
+		return termout.TokyoOKPill("✓ OK")
 	}
 
-	return colorize(constants.ColorRed, padRight("✗ "+constants.MsgHistoryStatusFail, 8))
+	return termout.TokyoErrorPill("✗ FAIL")
 }
 
 // printHistoryJSON outputs history as stable JSON via the encoder
@@ -232,8 +238,8 @@ func printHistoryRevertSection(records []model.CommandHistoryRecord) {
 	}
 
 	fmt.Println()
-	fmt.Println(colorize(constants.ColorMagenta, "Revert points"))
-	fmt.Println(colorize(constants.ColorDim, "  Run the suggested command to undo the referenced state."))
+	fmt.Println(termout.SafeTokyoStyle(termout.TokyoAccent).Render("Revert points"))
+	fmt.Println(termout.SafeTokyoStyle(termout.TokyoMuted).Render("  Run the suggested command to undo the referenced state."))
 	renderRevertRows(hints)
 }
 
@@ -341,36 +347,4 @@ func humanizeDuration(d time.Duration) string {
 	}
 
 	return fmt.Sprintf("%dd", int(d.Hours()/24))
-}
-
-// padRight + truncate + colorize are tiny terminal-formatting helpers
-// kept local to history rendering so the colored width math stays
-// readable above. ANSI escapes are NOT counted by fmt's `%-Ns` width
-// directive, so we pad BEFORE colorizing.
-func padRight(s string, w int) string {
-	if len(s) >= w {
-		return s
-	}
-
-	return s + strings.Repeat(" ", w-len(s))
-}
-
-func truncateHist(s string, w int) string {
-	if len(s) <= w {
-		return s
-	}
-
-	if w <= 1 {
-		return s[:w]
-	}
-
-	return s[:w-1] + "…"
-}
-
-func colorize(color, s string) string {
-	if color == "" {
-		return s
-	}
-
-	return color + s + constants.ColorReset
 }

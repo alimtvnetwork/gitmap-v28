@@ -7,15 +7,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 var (
-	cgAuditTitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd"))
-	cgPassStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
-	cgWarnStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb86c"))
-	cgFailStyle       = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff5555"))
-	cgMutedStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
+	cgAuditTitleStyle = termout.SafeTokyoStyle(termout.TokyoPrimary).Bold(true)
+	cgPassStyle       = termout.SafeTokyoStyle(termout.TokyoOK).Bold(true)
+	cgWarnStyle       = termout.SafeTokyoStyle(termout.TokyoWarn).Bold(true)
+	cgFailStyle       = termout.SafeTokyoStyle(termout.TokyoError).Bold(true)
+	cgMutedStyle      = termout.SafeTokyoStyle(termout.TokyoMuted)
 )
 
 // CGAuditCheck represents the result of a single audit verification item.
@@ -137,9 +137,9 @@ func AuditSingleRepo(repoPath string) CGAuditSummary {
 }
 
 func renderAuditCheck(c CGAuditCheck) {
-	tag := cgPassStyle.Render("[PASS]")
+	tag := termout.TokyoOKPill("PASS")
 	if !c.IsPass {
-		tag = cgFailStyle.Render("[FAIL]")
+		tag = termout.TokyoErrorPill("FAIL")
 	}
 
 	fmt.Printf("    %s %-32s %s\n", tag, c.Name, cgMutedStyle.Render("("+c.Detail+")"))
@@ -147,20 +147,20 @@ func renderAuditCheck(c CGAuditCheck) {
 
 func renderAuditScoreBadge(score int) string {
 	if score >= 100 {
-		return cgPassStyle.Render(fmt.Sprintf("%d/100", score))
+		return termout.TokyoOKPill(fmt.Sprintf("%d/100", score))
 	}
-
 	if score >= 60 {
-		return cgWarnStyle.Render(fmt.Sprintf("%d/100", score))
+		return termout.TokyoWarnPill(fmt.Sprintf("%d/100", score))
 	}
 
-	return cgFailStyle.Render(fmt.Sprintf("%d/100", score))
+	return termout.TokyoErrorPill(fmt.Sprintf("%d/100", score))
 }
 
 func renderAuditSummary(summary CGAuditSummary) {
 	badge := renderAuditScoreBadge(summary.Score)
 	name := filepath.Base(summary.RepoPath)
-	fmt.Printf("\n  %s %s [%s]\n", cgAuditTitleStyle.Render("● "+name), cgMutedStyle.Render("("+summary.RepoPath+")"), badge)
+	progress := termout.RenderTokyoProgress(summary.Score, 100, 16)
+	fmt.Printf("\n  %s %s [%s] %s\n", cgAuditTitleStyle.Render("● "+name), cgMutedStyle.Render("("+summary.RepoPath+")"), badge, progress)
 
 	for _, check := range summary.Checks {
 		renderAuditCheck(check)
@@ -172,7 +172,7 @@ func maybeFixAuditRepo(summary CGAuditSummary, isFix bool) {
 		return
 	}
 
-	fmt.Printf("    %s Auto-remediation triggered for %s\n", cgWarnStyle.Render("[FIX]"), filepath.Base(summary.RepoPath))
+	fmt.Printf("    %s Auto-remediation triggered for %s\n", termout.TokyoWarnPill("FIX"), filepath.Base(summary.RepoPath))
 	runCGUpdateAction([]string{summary.RepoPath})
 }
 

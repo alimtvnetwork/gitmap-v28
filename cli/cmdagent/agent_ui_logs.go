@@ -10,21 +10,25 @@ import (
 	"strings"
 )
 
-func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
-	limit := parseQueryInt(r.URL.Query().Get("limit"), 100)
-	taskId := r.URL.Query().Get("taskId")
-	hasTaskId := len(strings.TrimSpace(taskId)) > 0
-	if !hasTaskId {
-		taskId = defaultTaskId
+func resolveTaskId(raw, defaultId string) string {
+	clean := strings.TrimSpace(raw)
+	hasId := len(clean) > 0
+	if hasId {
+		return clean
 	}
 
+	return defaultId
+}
+
+func parseLogFilter(r *http.Request, defaultTaskId string) ActionLogFilter {
 	return ActionLogFilter{
-		TaskId:     taskId,
+		TaskId:     resolveTaskId(r.URL.Query().Get("taskId"), defaultTaskId),
 		AgentRole:  strings.TrimSpace(r.URL.Query().Get("agent")),
 		ActionType: strings.TrimSpace(r.URL.Query().Get("actionType")),
+		TouchType:  strings.TrimSpace(r.URL.Query().Get("touchType")),
 		SubtaskId:  strings.TrimSpace(r.URL.Query().Get("subtask")),
 		Search:     strings.TrimSpace(r.URL.Query().Get("q")),
-		Limit:      limit,
+		Limit:      parseQueryInt(r.URL.Query().Get("limit"), 100),
 	}
 }
 
@@ -75,25 +79,73 @@ func buildActionLogsSQL(f ActionLogFilter) (string, []any) {
 }
 
 func appendLogFilterConditions(c []string, args []any, f ActionLogFilter) ([]string, []any) {
-	hasRole := len(f.AgentRole) > 0 && f.AgentRole != "ALL"
-	if hasRole {
-		c = append(c, "LOWER(AgentRole) = LOWER(?)")
-		args = append(args, f.AgentRole)
-	}
-
-	hasType := len(f.ActionType) > 0 && f.ActionType != "ALL"
-	if hasType {
-		c = append(c, "ActionType = ?")
-		args = append(args, f.ActionType)
-	}
-
-	hasSub := len(f.SubtaskId) > 0 && f.SubtaskId != "ALL"
-	if hasSub {
-		c = append(c, "(SubtaskId = ? OR CAST(SubtaskId AS TEXT) = ?)")
-		args = append(args, f.SubtaskId, f.SubtaskId)
-	}
+	c, args = appendRoleCondition(c, args, f.AgentRole)
+	c, args = appendActionTypeCondition(c, args, f.ActionType)
+	c, args = appendTouchTypeCondition(c, args, f.TouchType)
+	c, args = appendSubtaskCondition(c, args, f.SubtaskId)
 
 	return appendSearchCondition(c, args, f.Search)
+}
+
+func appendRoleCondition(c []string, args []any, role string) ([]string, []any) {
+	hasRole := len(role) > 0 && role != "ALL"
+	if !hasRole {
+		return c, args
+	}
+
+	c = append(c, "LOWER(AgentRole) = LOWER(?)")
+
+	return c, append(args, role)
+}
+
+func appendActionTypeCondition(c []string, args []any, actionType string) ([]string, []any) {
+	hasType := len(actionType) > 0 && actionType != "ALL"
+	if !hasType {
+		return c, args
+	}
+
+	c = append(c, "ActionType = ?")
+
+	return c, append(args, actionType)
+}
+
+func appendSubtaskCondition(c []string, args []any, subtaskId string) ([]string, []any) {
+	hasSub := len(subtaskId) > 0 && subtaskId != "ALL"
+	if !hasSub {
+		return c, args
+	}
+
+	c = append(c, "(SubtaskId = ? OR CAST(SubtaskId AS TEXT) = ?)")
+
+	return c, append(args, subtaskId, subtaskId)
+}
+
+func appendTouchTypeCondition(c []string, args []any, touchType string) ([]string, []any) {
+	hasTouch := len(touchType) > 0 && touchType != "ALL"
+	if !hasTouch {
+		return c, args
+	}
+
+	clause, param := resolveTouchTypeClause(strings.ToUpper(touchType))
+	c = append(c, clause)
+	if len(param) > 0 {
+		args = append(args, param)
+	}
+
+	return c, args
+}
+
+func resolveTouchTypeClause(upper string) (string, string) {
+	switch upper {
+	case "READ":
+		return "UPPER(ActionType) IN ('READ', 'READ_FILE', 'INSPECT')", ""
+	case "EDIT":
+		return "UPPER(ActionType) IN ('EDIT', 'EDIT_FILE', 'MODIFY')", ""
+	case "CREATED":
+		return "UPPER(ActionType) IN ('CREATE', 'WRITE_FILE', 'NEW')", ""
+	default:
+		return "UPPER(ActionType) = UPPER(?)", upper
+	}
 }
 
 func appendSearchCondition(c []string, args []any, search string) ([]string, []any) {

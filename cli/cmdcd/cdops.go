@@ -43,7 +43,9 @@ func handleCDPathOnly(name string, records []model.ScanRecord, pick bool) error 
 	if err != nil {
 		return err
 	}
+
 	fmt.Println(path)
+
 	return nil
 }
 
@@ -51,9 +53,12 @@ func printAliasPathResult(isPathOnly bool) error {
 	aliasPath := GetAliasPath()
 	if isPathOnly {
 		fmt.Println(strings.TrimSpace(aliasPath))
+
 		return nil
 	}
+
 	fmt.Print(aliasPath)
+
 	return nil
 }
 
@@ -63,12 +68,14 @@ func runCDLookup(name string, args []string) error {
 	if HasAlias() {
 		return printAliasPathResult(isPathOnly)
 	}
+
 	cleanArgs := filterCDPathArgs(args)
 	pick, yes, rest := parseCDPickFlag(cleanArgs)
 	records, err := lookupCDRecords(name)
 	if err != nil {
 		return err
 	}
+
 	return routeCDLookupTarget(name, records, rest, pick, yes, isPathOnly)
 }
 
@@ -79,6 +86,7 @@ func routeCDLookupTarget(name string, records []model.ScanRecord, rest []string,
 	if isPathOnly {
 		return handleCDPathOnly(name, records, pick)
 	}
+
 	return dispatchCDPath(name, records, rest, pick, yes)
 }
 
@@ -136,23 +144,29 @@ func lookupCDRecords(name string) ([]model.ScanRecord, error) {
 
 	defer db.Close()
 
-	return findCDRecords(db, name), nil
+	return findCDRecords(db, name)
 }
 
-func findCDRecords(db *store.DB, name string) []model.ScanRecord {
+func findCDRecords(db *store.DB, name string) ([]model.ScanRecord, error) {
 	cleanName := strings.TrimRight(name, "/\\")
 	repos, err := db.FindBySlug(strings.ToLower(cleanName))
-	hasValidRepos := err == nil && len(repos) > 0
-	if hasValidRepos {
-		return deduplicateCDRecords(repos)
+	if err != nil {
+		return nil, err
+	}
+	if len(repos) > 0 {
+		return deduplicateCDRecords(repos), nil
 	}
 
+	return fallbackCDRecords(db, cleanName)
+}
+
+func fallbackCDRecords(db *store.DB, cleanName string) ([]model.ScanRecord, error) {
 	all, listErr := db.ListRepos()
 	if listErr != nil {
-		fmt.Fprintf(os.Stderr, "  ⚠ Could not list repos: %v\n", listErr)
+		return nil, listErr
 	}
 
-	return deduplicateCDRecords(cmdpull.FindBySlug(all, cleanName))
+	return deduplicateCDRecords(cmdpull.FindBySlug(all, cleanName)), nil
 }
 
 func deduplicateCDRecords(records []model.ScanRecord) []model.ScanRecord {

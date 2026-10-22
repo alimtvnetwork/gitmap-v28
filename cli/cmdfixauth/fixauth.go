@@ -22,15 +22,25 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// runFixAuth parses flags and orchestrates the auth-fix pipeline.
+// RunFixAuth parses flags and orchestrates the auth-fix pipeline.
 func RunFixAuth(args []string) error {
 	user, email, assumeYes, force := parseFixAuthFlags(args)
+	if err := checkUserFlag(user); err != nil {
+		return err
+	}
+	if err := checkGitRepo(); err != nil {
+		return err
+	}
+
+	return executeFixAuthPipeline(user, email, assumeYes, force)
+}
+
+func checkUserFlag(user string) error {
 	if user == "" {
 		fmt.Fprintln(os.Stderr, "✗ --user <github-username> is required")
 		fmt.Fprintln(os.Stderr, "  example: gitmap fix-auth --user aukgit --email me@example.com")
@@ -38,46 +48,75 @@ func RunFixAuth(args []string) error {
 		return apperror.NewSimple("--user <github-username> is required", "E_FIXAUTH_USER")
 	}
 
-	isNonGitRepoCWD := !cmdpull.IsGitRepoCWD()
-	if isNonGitRepoCWD {
+	return nil
+}
+
+func checkGitRepo() error {
+	isGitRepo := cmdpull.IsGitRepoCWD()
+	if !isGitRepo {
 		fmt.Fprintln(os.Stderr, "✗ not a git repository (run inside the repo you want to fix)")
 
 		return apperror.NewSimple("not a git repository (run inside the repo you want to fix)", "E_NOT_GIT_REPO")
 	}
 
-	keyPath := fixAuthKeyPath(user)
-	if err := cmdssh.EnsureSSHDir(filepath.Dir(keyPath)); err != nil {
-		fmt.Fprintf(os.Stderr, "✗ mkdir ~/.ssh failed: %v\n", err)
+	return nil
+}
 
+func executeFixAuthPipeline(user, email string, assumeYes, force bool) error {
+	keyPath := fixAuthKeyPath(user)
+	if err := setupSSHDirAndKey(keyPath, email, assumeYes, force); err != nil {
+		return err
+	}
+
+	return bindAndAnnounceAuth(user, keyPath)
+}
+
+func setupSSHDirAndKey(keyPath, email string, assumeYes, force bool) error {
+	if err := cmdssh.EnsureSSHDir(filepath.Dir(keyPath)); err != nil {
 		return apperror.WrapSimple(err, "mkdir ~/.ssh")
 	}
 
-	fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
-	fixAuthBind(keyPath)
-	fixAuthAnnounce(user, keyPath)
+	return fixAuthGenerate(keyPath, resolveFixAuthEmail(email), assumeYes, force)
+}
+
+func bindAndAnnounceAuth(user, keyPath string) error {
+	if err := fixAuthBind(keyPath); err != nil {
+		return err
+	}
+
+	if err := fixAuthAnnounce(user, keyPath); err != nil {
+		return err
+	}
+
 	_, _ = cmdssh.SanitizeSSHConfigFile("")
 
 	return nil
 }
 
+func setupFixAuthFlags(fs *flag.FlagSet) (*string, *string, *bool, *bool) {
+	user := fs.String("user", "", "GitHub username (required)")
+	fs.StringVar(user, "u", "", "GitHub username (short)")
+	email := fs.String("email", "", "Email comment")
+	fs.StringVar(email, "e", "", "Email (short)")
+	yes := fs.Bool("yes", false, "Skip confirmation prompts")
+	fs.BoolVar(yes, "y", false, "Yes (short)")
+	force := fs.Bool("force", false, "Overwrite existing key")
+	fs.BoolVar(force, "f", false, "Force (short)")
+
+	return user, email, yes, force
+}
+
 // parseFixAuthFlags parses fix-auth CLI flags with short aliases.
-func parseFixAuthFlags(args []string) (user, email string, assumeYes, force bool) {
+func parseFixAuthFlags(args []string) (string, string, bool, bool) {
 	fs := flag.NewFlagSet(constants.CmdFixAuth, flag.ExitOnError)
-	userFlag := fs.String("user", "", "GitHub username (required)")
-	fs.StringVar(userFlag, "u", "", "GitHub username (short)")
-	emailFlag := fs.String("email", "", "Email comment (defaults to git config user.email)")
-	fs.StringVar(emailFlag, "e", "", "Email (short)")
-	yesFlag := fs.Bool("yes", false, "Skip confirmation prompts")
-	fs.BoolVar(yesFlag, "y", false, "Yes (short)")
-	forceFlag := fs.Bool("force", false, "Overwrite existing key")
-	fs.BoolVar(forceFlag, "f", false, "Force (short)")
+	u, e, y, f := setupFixAuthFlags(fs)
 	fs.Parse(args)
-	// First positional token acts as --user when flag is empty.
-	if *userFlag == "" && fs.NArg() > 0 {
-		*userFlag = fs.Arg(0)
+	userVal := *u
+	if userVal == "" && fs.NArg() > 0 {
+		userVal = fs.Arg(0)
 	}
 
-	return *userFlag, *emailFlag, *yesFlag, *forceFlag
+	return userVal, *e, *y, *f
 }
 
 // resolveFixAuthEmail falls back to git global user.email.
@@ -107,28 +146,22 @@ func fixAuthKeyPath(user string) string {
 }
 
 // fixAuthGenerate runs ssh-keygen unless the key already exists.
-func fixAuthGenerate(keyPath, email string, assumeYes, force bool) {
-	keyExists := false
-	if _, err := os.Stat(keyPath); err == nil {
-		keyExists = true
+func fixAuthGenerate(keyPath, email string, assumeYes, force bool) error {
+	_, err := os.Stat(keyPath)
+	hasKey := err == nil
+	if !validateKeyGeneration(hasKey, keyPath, assumeYes, force) {
+		return nil
 	}
 
-	if !validateKeyGeneration(keyExists, keyPath, assumeYes, force) {
-		return
+	if valErr := cmdssh.ValidateSSHKeygen(); valErr != nil {
+		return apperror.WrapSimple(valErr, constants.ErrSSHKeygenMissing)
 	}
 
-	if err := cmdssh.ValidateSSHKeygen(); err != nil {
-		fmt.Fprint(os.Stderr, constants.ErrSSHKeygenMissing)
-		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrSSHKeygenMissing))
-
-		return
-	}
-
-	runSSHKeygenEd25519(keyPath, email)
+	return runSSHKeygenEd25519(keyPath, email)
 }
 
-func validateKeyGeneration(keyExists bool, keyPath string, assumeYes, force bool) bool {
-	if !keyExists {
+func validateKeyGeneration(hasKey bool, keyPath string, assumeYes, force bool) bool {
+	if !hasKey {
 		return true
 	}
 
@@ -138,10 +171,13 @@ func validateKeyGeneration(keyExists bool, keyPath string, assumeYes, force bool
 		return false
 	}
 
+	return confirmAndRemoveOldKey(keyPath, assumeYes)
+}
+
+func confirmAndRemoveOldKey(keyPath string, assumeYes bool) bool {
 	isConfirmed := assumeYes || confirmOverwrite(keyPath)
 	if !isConfirmed {
 		fmt.Println("• aborted; existing key kept")
-		cliexit.HandleSuccess()
 
 		return false
 	}
@@ -159,8 +195,7 @@ func runSSHKeygenEd25519(keyPath, email string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "✗ ssh-keygen failed: %v\n", err)
-		cliexit.HandleError(apperror.WrapSimple(err, "ssh-keygen"))
+		return apperror.WrapSimple(err, "ssh-keygen")
 	}
 
 	return nil
@@ -176,18 +211,17 @@ func confirmOverwrite(keyPath string) bool {
 }
 
 // fixAuthBind pins the given key to the cwd repo's core.sshCommand.
-func fixAuthBind(keyPath string) {
+func fixAuthBind(keyPath string) error {
 	ref := sshBindRefForKey(keyPath)
 	cmdStr := fmt.Sprintf("ssh -i %s -F /dev/null -o IdentitiesOnly=yes", ref)
 	out, err := exec.Command("git", "config", "core.sshCommand", cmdStr).CombinedOutput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "✗ git config core.sshCommand failed: %v\n%s", err, out)
-		cliexit.HandleError(apperror.WrapSimple(err, "git config core.sshCommand"))
-
-		return
+		return apperror.WrapSimple(err, fmt.Sprintf("git config core.sshCommand: %s", out))
 	}
 
 	fmt.Printf("✓ pinned repo → %s\n", cmdStr)
+
+	return nil
 }
 
 // sshBindRefForKey shortens $HOME/.ssh/... to ~/.ssh/... for portability.
@@ -206,16 +240,18 @@ func sshBindRefForKey(keyPath string) string {
 
 // fixAuthAnnounce prints the public key + next-step guidance and
 // pushes the key into the OS clipboard.
-func fixAuthAnnounce(user, keyPath string) {
+func fixAuthAnnounce(user, keyPath string) error {
 	pub, err := os.ReadFile(keyPath + ".pub")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "✗ read public key failed: %v\n", err)
-		cliexit.HandleError(apperror.WrapSimple(err, "read public key"))
-
-		return
+		return apperror.WrapSimple(err, "read public key")
 	}
 
-	trimmed := strings.TrimSpace(string(pub))
+	printPublicKeyBanner(user, strings.TrimSpace(string(pub)))
+
+	return nil
+}
+
+func printPublicKeyBanner(user, trimmed string) {
 	fmt.Println("\n=== PUBLIC KEY (add this to GitHub) ===")
 	fmt.Println(trimmed)
 	fmt.Println("=======================================")

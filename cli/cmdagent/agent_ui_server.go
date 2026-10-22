@@ -26,6 +26,7 @@ type ActionLogFilter struct {
 	TaskId     string
 	AgentRole  string
 	ActionType string
+	TouchType  string
 	SubtaskId  string
 	Search     string
 	Limit      int

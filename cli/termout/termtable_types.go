@@ -9,6 +9,20 @@ const (
 	AlignCenter AlignType = "center"
 )
 
+// BorderStyleType defines the visual framing style for rendered terminal tables.
+type BorderStyleType string
+
+const (
+	// BorderNone indicates no border framing (standard spaced table).
+	BorderNone BorderStyleType = "none"
+	// BorderRounded uses curved UTF-8 box-drawing characters (╭, ╮, ╯, ╰).
+	BorderRounded BorderStyleType = "rounded"
+	// BorderSharp uses classic rectangular box-drawing characters (┌, ┐, ┘, └).
+	BorderSharp BorderStyleType = "sharp"
+	// BorderMinimal uses understated separator lines without outer vertical bars.
+	BorderMinimal BorderStyleType = "minimal"
+)
+
 // Column defines a table column specification.
 type Column struct {
 	Title    string
@@ -30,5 +44,6 @@ type TableConfig struct {
 	HeaderColor  string
 	BorderColor  string
 	HasBorders   bool
+	BorderStyle  BorderStyleType
 	EllipsisText string
 }

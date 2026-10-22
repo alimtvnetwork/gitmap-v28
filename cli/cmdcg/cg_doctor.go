@@ -4,6 +4,8 @@ package cmdcg
 import (
 	"fmt"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 // CGDoctorDiagnosis encapsulates health issues and suggested fixes for a repository.
@@ -98,29 +100,33 @@ func DiagnoseSingleRepo(repoPath string) CGDoctorDiagnosis {
 func renderDoctorDiagnosis(diag CGDoctorDiagnosis) {
 	name := filepath.Base(diag.RepoPath)
 	if diag.IsHealthy {
-		fmt.Printf("  %s %s: Healthy (all checks passed)\n", cgPassStyle.Render("✔"), cgAuditTitleStyle.Render(name))
+		fmt.Printf("  %s %s: Healthy (all checks passed)\n", termout.TokyoOKPill("HEALTHY"), cgAuditTitleStyle.Render(name))
 
 		return
 	}
 
-	fmt.Printf("  %s %s: %d issue(s) detected\n", cgFailStyle.Render("✖"), cgAuditTitleStyle.Render(name), len(diag.Issues))
+	fmt.Printf("  %s %s: %d issue(s) detected\n", termout.TokyoWarnPill("ACTION"), cgAuditTitleStyle.Render(name), len(diag.Issues))
 	for i, issue := range diag.Issues {
 		fmt.Printf("    • %s %s\n", cgWarnStyle.Render("Issue:"), issue)
-		fmt.Printf("      %s %s\n", cgPassStyle.Render("Fix:"), diag.Suggestions[i])
+		fmt.Printf("      %s %s\n", termout.TokyoOKPill("FIX"), diag.Suggestions[i])
 	}
 }
 
-func renderDoctorOverall(totalRepos, healthyRepos int) {
+func buildDoctorSummaryContent(totalRepos, healthyRepos int) string {
 	issuesCount := totalRepos - healthyRepos
-	fmt.Printf("\n%s\n", cgAuditTitleStyle.Render("── Doctor Summary ──"))
-	fmt.Printf("  Total scanned: %d | Healthy: %d | Needs action: %d\n", totalRepos, healthyRepos, issuesCount)
+	bar := termout.RenderTokyoProgress(healthyRepos, totalRepos, 24)
+	header := fmt.Sprintf("Doctor Summary | Health: %s (%d/%d healthy)", bar, healthyRepos, totalRepos)
 	if issuesCount == 0 {
-		fmt.Printf("  %s All repositories are in optimal state.\n", cgPassStyle.Render("✔"))
-
-		return
+		return fmt.Sprintf("%s\nAll %d repositories are in optimal state.", header, totalRepos)
 	}
 
-	fmt.Printf("  %s Action required on %d repository(ies).\n", cgWarnStyle.Render("!"), issuesCount)
+	return fmt.Sprintf("%s\nAction required on %d repository(ies).", header, issuesCount)
+}
+
+func renderDoctorOverall(totalRepos, healthyRepos int) {
+	fmt.Println()
+	content := buildDoctorSummaryContent(totalRepos, healthyRepos)
+	fmt.Println(termout.TokyoBoxStyle(content))
 }
 
 func runDoctorCheck(repo string) int {

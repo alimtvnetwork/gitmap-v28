@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
 func runCloneListTable(sourcePath, targetDir string, isSSH bool, onlyFilter, excludeFilter string) error {
@@ -20,26 +21,70 @@ func runCloneListTable(sourcePath, targetDir string, isSSH bool, onlyFilter, exc
 	records = filterRecordsByExclude(records, excludeFilter)
 	if len(records) == 0 {
 		fmt.Printf("No repositories found in %s\n", sourcePath)
+
 		return nil
 	}
 	printCloneRecordsTable(records, targetDir, isSSH)
+
 	return nil
 }
 
 func printCloneRecordsTable(records []model.ScanRecord, targetDir string, isSSH bool) {
-	fmt.Printf("%-5s %-32s %-16s %-8s %-8s %s\n", "ID", "SLUG / REPOSITORY", "BRANCH", "METHOD", "EXISTS", "REMOTE URL")
-	fmt.Println(strings.Repeat("-", 100))
-	for i, r := range records {
-		slug := resolveRecordSlug(r)
-		branch := r.Branch
-		if branch == "" {
-			branch = "-"
-		}
-		method, remoteURL := resolveRecordMethodAndURL(r, isSSH)
-		exists := resolveRecordLocalExists(r, targetDir)
-		fmt.Printf("%-5d %-32s %-16s %-8s %-8s %s\n", i+1, slug, branch, method, exists, remoteURL)
+	cfg := termout.TableConfig{
+		BorderStyle:  termout.BorderRounded,
+		HasBorders:   true,
+		HeaderColor:  termout.RoleSGRBold(termout.RolePrimary),
+		BorderColor:  termout.SafeTokyoStyle(termout.TokyoMuted).Render(""),
+		EllipsisText: "…",
+		Columns:      buildCloneColumns(),
+		Rows:         buildCloneTableRows(records, targetDir, isSSH),
+	}
+
+	termout.PrintTable(cfg)
+}
+
+func buildCloneColumns() []termout.Column {
+	return []termout.Column{
+		{Title: "ID", MinWidth: 4, MaxWidth: 6, Align: termout.AlignRight},
+		{Title: "SLUG / REPOSITORY", MinWidth: 24, MaxWidth: 36, Align: termout.AlignLeft},
+		{Title: "BRANCH", MinWidth: 12, MaxWidth: 18, Align: termout.AlignLeft},
+		{Title: "METHOD", MinWidth: 8, MaxWidth: 8, Align: termout.AlignCenter},
+		{Title: "EXISTS", MinWidth: 8, MaxWidth: 8, Align: termout.AlignCenter},
+		{Title: "REMOTE URL", MinWidth: 28, MaxWidth: 44, Align: termout.AlignLeft},
 	}
 }
+
+func buildCloneTableRow(idx int, r model.ScanRecord, targetDir string, isSSH bool) termout.Row {
+	slug := resolveRecordSlug(r)
+	branch := r.Branch
+	if branch == "" {
+		branch = "-"
+	}
+	method, remoteURL := resolveRecordMethodAndURL(r, isSSH)
+	exists := formatExistsCell(resolveRecordLocalExists(r, targetDir))
+
+	return termout.Row{
+		Cells: []string{strconv.Itoa(idx), slug, branch, method, exists, remoteURL},
+	}
+}
+
+func formatExistsCell(exists string) string {
+	if exists == "YES" {
+		return termout.TokyoOKPill("YES")
+	}
+
+	return termout.SafeTokyoStyle(termout.TokyoMuted).Render("-")
+}
+
+func buildCloneTableRows(records []model.ScanRecord, targetDir string, isSSH bool) []termout.Row {
+	rows := make([]termout.Row, 0, len(records))
+	for i, r := range records {
+		rows = append(rows, buildCloneTableRow(i+1, r, targetDir, isSSH))
+	}
+
+	return rows
+}
+
 
 func resolveRecordMethodAndURL(r model.ScanRecord, isSSH bool) (string, string) {
 	rawURL := resolveRecordRemoteURL(r)

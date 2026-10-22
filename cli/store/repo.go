@@ -106,6 +106,36 @@ func (db *DB) ListRepos() ([]model.ScanRecord, error) {
 	return scanRows(rows)
 }
 
+const sqlSelectReposByTransport = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE IdentifiedTransport = ? COLLATE NOCASE ORDER BY Slug ASC"
+
+// ListReposByTransport returns all repositories configured for the specified transport protocol.
+func (db *DB) ListReposByTransport(transport string) ([]model.ScanRecord, error) {
+	clean := strings.TrimSpace(transport)
+	if clean == "" {
+		return db.ListRepos()
+	}
+
+	rows, err := QueryWrapper(db.conn, sqlSelectReposByTransport, clean).Destruct()
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrDBQuery, err)
+	}
+
+	defer rows.Close()
+
+	return scanRows(rows)
+}
+
+// CountRepos returns the total number of repositories tracked in the database.
+func (db *DB) CountRepos() (int, error) {
+	var total int
+	err := db.conn.QueryRow("SELECT COUNT(*) FROM Repo").Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf(constants.ErrDBQuery, err)
+	}
+
+	return total, nil
+}
+
 // FindByID returns all repos matching the given ID.
 func (db *DB) FindByID(id int64) ([]model.ScanRecord, error) {
 	rows, err := QueryWrapper(db.conn, constants.SQLSelectRepoByID, id).Destruct()

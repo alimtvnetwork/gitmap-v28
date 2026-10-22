@@ -16,6 +16,7 @@ func runAlias(args []string) *apperror.AppError {
 	if err := cmdos.RunAliasCLI(args); err != nil {
 		return apperror.New(err.Error(), "E9000", nil)
 	}
+
 	return nil
 }
 
@@ -32,6 +33,7 @@ func isMachineAliasInvocation(args []string) bool {
 	if first == "set" && len(args) >= 3 {
 		return false
 	}
+
 	return first == "ls" || first == "set"
 }
 
@@ -41,27 +43,57 @@ func dispatchAlias(sub string, args []string) *apperror.AppError {
 		return dispatchAliasSet(args)
 	}
 	if sub == constants.SubCmdAliasRm {
-		runAliasRemove(args)
-		return nil
+		return dispatchAliasRemove(args)
 	}
 	if sub == constants.SubCmdAliasList {
-		runAliasList()
-		return nil
+		return dispatchAliasList()
 	}
 	if sub == constants.SubCmdAliasShow {
-		runAliasShow(args)
-		return nil
+		return dispatchAliasShow(args)
 	}
 	if sub == constants.SubCmdAliasSug {
-		runAliasSuggest(args)
-		return nil
+		return dispatchAliasSuggest(args)
 	}
+
 	return apperror.New(fmt.Sprintf(constants.ErrUnknownCommand, sub), "E9000", nil)
 }
 
 func dispatchAliasSet(args []string) *apperror.AppError {
 	if err := runAliasSet(args); err != nil {
-		return apperror.New(err.Error(), "E9000", nil)
+		return apperror.WrapSimple(err, "alias set")
 	}
+
+	return nil
+}
+
+func dispatchAliasRemove(args []string) *apperror.AppError {
+	if err := runAliasRemove(args); err != nil {
+		return apperror.WrapSimple(err, "alias remove")
+	}
+
+	return nil
+}
+
+func dispatchAliasList() *apperror.AppError {
+	if err := runAliasList(); err != nil {
+		return apperror.WrapSimple(err, "alias list")
+	}
+
+	return nil
+}
+
+func dispatchAliasShow(args []string) *apperror.AppError {
+	if err := runAliasShow(args); err != nil {
+		return apperror.WrapSimple(err, "alias show")
+	}
+
+	return nil
+}
+
+func dispatchAliasSuggest(args []string) *apperror.AppError {
+	if err := runAliasSuggest(args); err != nil {
+		return apperror.WrapSimple(err, "alias suggest")
+	}
+
 	return nil
 }

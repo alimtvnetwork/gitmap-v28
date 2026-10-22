@@ -73,6 +73,23 @@ const (
 	GitRefsRemotesOriginHEAD = "refs/remotes/origin/HEAD"
 )
 
+// GitRefCommandType represents Git subcommands operating on references and symbolic pointers.
+type GitRefCommandType string
+
+const (
+	GitRefCmdSymbolicRef GitRefCommandType = "symbolic-ref"
+	GitRefCmdRevParse    GitRefCommandType = "rev-parse"
+	GitRefCmdForEachRef  GitRefCommandType = "for-each-ref"
+)
+
+// GitRemoteNameType represents standard remote identifiers across Git repositories.
+type GitRemoteNameType string
+
+const (
+	GitRemoteNameOrigin   GitRemoteNameType = "origin"
+	GitRemoteNameUpstream GitRemoteNameType = "upstream"
+)
+
 // SSH environment and option constants used by git clone wrappers.
 const (
 	TransportSSH              = "ssh"

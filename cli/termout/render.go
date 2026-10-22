@@ -131,3 +131,24 @@ func PrintFlags(flags []CommandEntry, colWidth int, theme Theme) {
 	}
 	fmt.Fprintln(output.UI())
 }
+
+// FormatKeyValPadded formats a key-value pair padded to keyWidth with theme styling.
+func FormatKeyValPadded(key, val string, keyWidth int, theme Theme) string {
+	paddedKey := PadRightMax(key+":", keyWidth)
+	if !colorAllowed() {
+		return fmt.Sprintf("  %s %s", paddedKey, val)
+	}
+
+	keyColor := theme.HeaderColor
+	if keyColor == "" {
+		keyColor = RoleSGRBold(RolePrimary)
+	}
+
+	return fmt.Sprintf("  %s%s%s %s", keyColor, paddedKey, Reset(), val)
+}
+
+// PrintKeyValPadded prints a formatted key-value pair directly to output.UI().
+func PrintKeyValPadded(key, val string, keyWidth int, theme Theme) {
+	fmt.Fprintln(output.UI(), FormatKeyValPadded(key, val, keyWidth, theme))
+}
+

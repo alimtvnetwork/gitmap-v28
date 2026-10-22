@@ -97,31 +97,33 @@ func (h *HeatmapDB) LogAction(log HeatmapActionLogRecord) (int64, error) {
 
 func (h *HeatmapDB) calculateDepthAndOrder(parentLogID *int64, taskSlug string) (int, int, error) {
 	if parentLogID == nil || *parentLogID <= 0 {
-		var maxOrder sql.NullInt64
-		err := h.conn.QueryRow(
-			`SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE TaskSlug = ? AND ParentLogId IS NULL`,
-			taskSlug,
-		).Scan(&maxOrder)
-		if err != nil && err != sql.ErrNoRows {
-			return 0, 0, apperror.WrapSimple(err, "heatmap.calcRootOrder")
-		}
-		return 0, int(maxOrder.Int64) + 1, nil
+		return h.calculateRootDepthAndOrder(taskSlug)
 	}
 
+	return h.calculateChildDepthAndOrder(*parentLogID)
+}
+
+func (h *HeatmapDB) calculateRootDepthAndOrder(taskSlug string) (int, int, error) {
+	var maxOrder sql.NullInt64
+	query := `SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE TaskSlug = ? AND ParentLogId IS NULL`
+	err := h.conn.QueryRow(query, taskSlug).Scan(&maxOrder)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, 0, apperror.WrapSimple(err, "heatmap.calcRootOrder")
+	}
+
+	return 0, int(maxOrder.Int64) + 1, nil
+}
+
+func (h *HeatmapDB) calculateChildDepthAndOrder(parentLogID int64) (int, int, error) {
 	var parentDepth int
-	err := h.conn.QueryRow(
-		`SELECT ExecutionDepth FROM HeatmapActionLog WHERE HeatmapActionLogId = ?`,
-		*parentLogID,
-	).Scan(&parentDepth)
-	if err != nil {
+	queryParent := `SELECT ExecutionDepth FROM HeatmapActionLog WHERE HeatmapActionLogId = ?`
+	if err := h.conn.QueryRow(queryParent, parentLogID).Scan(&parentDepth); err != nil {
 		return 0, 0, apperror.WrapSimple(err, "heatmap.parentLookup")
 	}
 
 	var maxChildOrder sql.NullInt64
-	err = h.conn.QueryRow(
-		`SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE ParentLogId = ?`,
-		*parentLogID,
-	).Scan(&maxChildOrder)
+	queryOrder := `SELECT MAX(ExecutionOrder) FROM HeatmapActionLog WHERE ParentLogId = ?`
+	err := h.conn.QueryRow(queryOrder, parentLogID).Scan(&maxChildOrder)
 	if err != nil && err != sql.ErrNoRows {
 		return 0, 0, apperror.WrapSimple(err, "heatmap.calcChildOrder")
 	}
@@ -268,21 +270,34 @@ func (h *HeatmapDB) populateReasoningStates(s *HeatmapStatusSummary, taskSlug st
 	return nil
 }
 
+const sqlTopTouchedFiles = `SELECT FilePath, COUNT(*) AS c,
+	COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('READ', 'READ_FILE', 'INSPECT') THEN 1 ELSE 0 END), 0) AS reads,
+	COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('EDIT', 'EDIT_FILE', 'MODIFY') THEN 1 ELSE 0 END), 0) AS edits,
+	COALESCE(SUM(CASE WHEN UPPER(TRIM(ActionType)) IN ('CREATE', 'WRITE_FILE', 'NEW') THEN 1 ELSE 0 END), 0) AS creates
+	FROM HeatmapActionLog WHERE (? = '' OR TaskSlug = ?) AND FilePath != ''
+	GROUP BY FilePath ORDER BY c DESC LIMIT 10`
+
 func (h *HeatmapDB) populateTopTouchedFiles(s *HeatmapStatusSummary, taskSlug string) error {
-	const sqlTop = `SELECT FilePath, COUNT(*) AS c FROM HeatmapActionLog
-		WHERE (? = '' OR TaskSlug = ?) AND FilePath != ''
-		GROUP BY FilePath ORDER BY c DESC LIMIT 10`
-	rows, err := h.conn.Query(sqlTop, taskSlug, taskSlug)
+	rows, err := h.conn.Query(sqlTopTouchedFiles, taskSlug, taskSlug)
 	if err != nil {
 		return apperror.WrapSimple(err, "heatmap.statusTopFiles")
 	}
+
 	defer rows.Close()
 
+	return scanTopTouchedRows(rows, s)
+}
+
+func scanTopTouchedRows(rows *sql.Rows, s *HeatmapStatusSummary) error {
 	for rows.Next() {
 		var item FileTouchCount
-		if err := rows.Scan(&item.FilePath, &item.Count); err == nil {
-			s.TopTouchedFiles = append(s.TopTouchedFiles, item)
+		err := rows.Scan(&item.FilePath, &item.Count, &item.ReadCount, &item.EditCount, &item.CreatedCount)
+		if err != nil {
+			return apperror.WrapSimple(err, "heatmap.scanTopFiles")
 		}
+
+		s.TopTouchedFiles = append(s.TopTouchedFiles, item)
 	}
+
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -34,9 +34,7 @@ func runExportConfig(args []string) error {
 func dispatchExportArgs(args []string) error {
 	canonicalTool, inputTool, targetArg := parseExportArgs(args)
 	if !isSupportedExportTool(canonicalTool) {
-		cliexit.Reportf("export-config", "export", inputTool, fmt.Errorf("unsupported tool '%s'", inputTool))
-
-		return nil
+		return appfault.NewValidationError(fmt.Sprintf("unsupported tool '%s'", inputTool))
 	}
 
 	if canonicalTool == "all" {
@@ -89,8 +87,6 @@ func exportSingleToolConfig(canonicalTool, inputTool, targetArg string) error {
 	bundle := buildConfigBundle(canonicalTool, srcDir, files, extensions)
 	err := writeBundleJSON(bundle, finalPath)
 	if err != nil {
-		cliexit.Reportf("export-config", "export", canonicalTool, err)
-
 		return err
 	}
 

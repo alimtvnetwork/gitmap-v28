@@ -23,13 +23,28 @@ const (
 	ErrLockHeld        = "another gitmap process is running (PID %d).\n  If incorrect, delete: %s"
 )
 
+// TableNameType represents strongly-typed database table names across the Split-DB tiers.
+type TableNameType string
+
+const (
+	TableNameRepo               TableNameType = "Repo"
+	TableNameGroup              TableNameType = "Group"
+	TableNameGroupRepo          TableNameType = "GroupRepo"
+	TableNameRelease            TableNameType = "Release"
+	TableNameAlias              TableNameType = "Alias"
+	TableNameRepoVersionHistory TableNameType = "RepoVersionHistory"
+	TableNameDetectedProject    TableNameType = "DetectedProject"
+)
+
 // Table names (v15: PascalCase + singular + {Table}Id PK).
 const (
-	TableRepo      = "Repo"
-	TableGroup     = "Group"
-	TableGroupRepo = "GroupRepo"
-	TableRelease   = "Release"
-	TableAlias     = "Alias"
+	TableRepo               = "Repo"
+	TableGroup              = "Group"
+	TableGroupRepo          = "GroupRepo"
+	TableRelease            = "Release"
+	TableAlias              = "Alias"
+	TableRepoVersionHistory = "RepoVersionHistory"
+	TableDetectedProject    = "DetectedProject"
 )
 
 // RepoTransportQueryType represents the query target strategy for repository transport lookups.

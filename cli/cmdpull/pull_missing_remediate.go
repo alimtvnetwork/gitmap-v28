@@ -102,13 +102,7 @@ func printCloneFailure(err error) {
 		constants.TreeCorner, constants.ColorRed, constants.ColorReset, err)
 }
 
-func execCloneAndRecord(repoPath, remoteURL string) bool {
-	if err := ExecCloneRepo(remoteURL, repoPath); err != nil {
-		printCloneFailure(err)
-
-		return false
-	}
-
+func reportPostCloneStatus(repoPath, remoteURL string) {
 	if errTrans := remediateMissingRepoTransport(repoPath, remoteURL); errTrans != nil {
 		fmt.Printf("    %s %s⚠%s Notice: cloned successfully, but failed to record transport in DB: %v\n",
 			constants.TreeBranch, constants.ColorYellow, constants.ColorReset, errTrans)
@@ -116,6 +110,16 @@ func execCloneAndRecord(repoPath, remoteURL string) bool {
 
 	fmt.Printf("    %s %s✓%s Successfully restored repository via clone fallback.\n",
 		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
+}
+
+func execCloneAndRecord(repoPath, remoteURL string) bool {
+	if err := ExecCloneRepo(remoteURL, repoPath); err != nil {
+		printCloneFailure(err)
+
+		return false
+	}
+
+	reportPostCloneStatus(repoPath, remoteURL)
 
 	return true
 }
@@ -191,12 +195,19 @@ func dispatchPromptMissingChoice(choice, remoteURL string, f PullFailureSummary)
 	return handleCloneOrFallback(choice, remoteURL, f)
 }
 
-func printPromptMissingOptions(remoteURL string) {
-	if remoteURL != "" {
+func printPromptRemote(remoteURL string) {
+	hasRemote := len(remoteURL) > 0
+	if hasRemote {
 		fmt.Printf("    Remote: %s\n", remoteURL)
-	} else {
-		fmt.Println("    Remote: (none)")
+
+		return
 	}
+
+	fmt.Println("    Remote: (none)")
+}
+
+func printPromptMissingOptions(remoteURL string) {
+	printPromptRemote(remoteURL)
 
 	fmt.Println("    Options:")
 	fmt.Println("      [1/c] Clone from remote URL")
@@ -229,6 +240,7 @@ func handlePromptDeleteAction(f PullFailureSummary) (bool, bool) {
 
 		return true, false
 	}
+
 	fmt.Printf("  %s✓%s [%s] Stale record removed from database.\n",
 		constants.ColorGreen, constants.ColorReset, f.RepoName)
 

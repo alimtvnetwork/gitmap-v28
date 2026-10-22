@@ -90,6 +90,8 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 func parseRunsOrFallback(out []byte, repo string) []ghRunItem {
 	var runs []ghRunItem
 	if err := json.Unmarshal(out, &runs); err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Warning: failed to parse GitHub runs JSON for %s: %v\n", repo, err)
+
 		return queryRunsFromDB(repo)
 	}
 
@@ -106,16 +108,21 @@ func queryPendingPRs(repo string) int {
 		return 0
 	}
 
-	return parseOpenPRsCount(out)
-}
-
-func parseOpenPRsCount(out []byte) int {
-	var prs []map[string]any
-	if err := json.Unmarshal(out, &prs); err != nil {
+	count, parseErr := parseOpenPRsCount(out)
+	if parseErr != nil {
 		return 0
 	}
 
-	return len(prs)
+	return count
+}
+
+func parseOpenPRsCount(out []byte) (int, error) {
+	var prs []map[string]any
+	if err := json.Unmarshal(out, &prs); err != nil {
+		return 0, err
+	}
+
+	return len(prs), nil
 }
 
 func queryLatestTagRelease(repo string) string {

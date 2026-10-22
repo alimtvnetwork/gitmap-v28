@@ -13,18 +13,165 @@ func PrintTable(cfg TableConfig) {
 	fmt.Fprint(output.UI(), RenderTable(cfg))
 }
 
+func isFramedTable(cfg TableConfig) bool {
+	if cfg.BorderStyle == BorderNone {
+		return false
+	}
+
+	return cfg.BorderStyle != "" || cfg.HasBorders
+}
+
 // RenderTable builds a complete formatted table string.
 func RenderTable(cfg TableConfig) string {
 	if len(cfg.Columns) == 0 {
 		return ""
 	}
 	widths := calculateColumnWidths(cfg)
+	if isFramedTable(cfg) {
+		return renderFramedTable(cfg, widths)
+	}
 	var sb strings.Builder
 
 	appendHeaderBlock(&sb, cfg, widths)
 	appendRowBlocks(&sb, cfg, widths)
 
 	return sb.String()
+}
+
+type tableBorderGlyphs struct {
+	topL     string
+	topT     string
+	topR     string
+	midL     string
+	cross    string
+	midR     string
+	botL     string
+	botT     string
+	botR     string
+	vert     string
+	horiz    string
+	hasOuter bool
+}
+
+func resolveBorderGlyphs(style BorderStyleType) tableBorderGlyphs {
+	if style == BorderSharp {
+		return tableBorderGlyphs{
+			topL: "┌", topT: "┬", topR: "┐",
+			midL: "├", cross: "┼", midR: "┤",
+			botL: "└", botT: "┴", botR: "┘",
+			vert: "│", horiz: "─", hasOuter: true,
+		}
+	}
+	if style == BorderMinimal {
+		return tableBorderGlyphs{
+			midL: "─", cross: "──", midR: "─",
+			botL: "─", botT: "──", botR: "─",
+			vert: "  ", horiz: "─", hasOuter: false,
+		}
+	}
+
+	return tableBorderGlyphs{
+		topL: "╭", topT: "┬", topR: "╮",
+		midL: "├", cross: "┼", midR: "┤",
+		botL: "╰", botT: "┴", botR: "╯",
+		vert: "│", horiz: "─", hasOuter: true,
+	}
+}
+
+func resolveBorderColor(cfg TableConfig) string {
+	if cfg.BorderColor != "" {
+		return cfg.BorderColor
+	}
+	if colorAllowed() {
+		return RoleSGR(RoleFGSubtle)
+	}
+
+	return ""
+}
+
+func buildBorderLine(widths []int, left, mid, right, horiz, color string) string {
+	var parts []string
+	for _, w := range widths {
+		parts = append(parts, strings.Repeat(horiz, w+2))
+	}
+	line := "  " + left + strings.Join(parts, mid) + right
+	if color != "" {
+		return fmt.Sprintf("%s%s%s", color, line, constants.ColorReset)
+	}
+
+	return line
+}
+
+func formatFramedHeader(cfg TableConfig, widths []int, g tableBorderGlyphs, bColor string) string {
+	var parts []string
+	color := cfg.HeaderColor
+	if len(color) == 0 {
+		color = constants.ColorYellow
+	}
+	for i, col := range cfg.Columns {
+		cell := formatCell(col.Title, widths[i], col.Align, cfg.EllipsisText)
+		parts = append(parts, fmt.Sprintf("%s%s%s", color, cell, constants.ColorReset))
+	}
+	vPipe := g.vert
+	if bColor != "" {
+		vPipe = fmt.Sprintf("%s%s%s", bColor, g.vert, constants.ColorReset)
+	}
+	if !g.hasOuter {
+		return "  " + strings.Join(parts, "  ")
+	}
+
+	return "  " + vPipe + " " + strings.Join(parts, " "+vPipe+" ") + " " + vPipe
+}
+
+func formatFramedRow(row Row, widths []int, cfg TableConfig, g tableBorderGlyphs, bColor string) string {
+	var parts []string
+	rowColor := row.Color
+	if len(rowColor) == 0 {
+		rowColor = constants.ColorWhite
+	}
+	for i, w := range widths {
+		raw := getCellText(row.Cells, i)
+		cell := formatCell(raw, w, getColAlign(cfg.Columns, i), cfg.EllipsisText)
+		parts = append(parts, fmt.Sprintf("%s%s%s", rowColor, cell, constants.ColorReset))
+	}
+	vPipe := g.vert
+	if bColor != "" {
+		vPipe = fmt.Sprintf("%s%s%s", bColor, g.vert, constants.ColorReset)
+	}
+	if !g.hasOuter {
+		return "  " + strings.Join(parts, "  ")
+	}
+
+	return "  " + vPipe + " " + strings.Join(parts, " "+vPipe+" ") + " " + vPipe
+}
+
+func renderFramedTable(cfg TableConfig, widths []int) string {
+	g := resolveBorderGlyphs(cfg.BorderStyle)
+	bColor := resolveBorderColor(cfg)
+	var sb strings.Builder
+
+	if g.hasOuter {
+		sb.WriteString(buildBorderLine(widths, g.topL, g.topT, g.topR, g.horiz, bColor))
+		sb.WriteString("\n")
+	}
+	sb.WriteString(formatFramedHeader(cfg, widths, g, bColor))
+	sb.WriteString("\n")
+	sb.WriteString(buildBorderLine(widths, g.midL, g.cross, g.midR, g.horiz, bColor))
+	sb.WriteString("\n")
+	appendFramedRows(&sb, cfg, widths, g, bColor)
+	if g.hasOuter {
+		sb.WriteString(buildBorderLine(widths, g.botL, g.botT, g.botR, g.horiz, bColor))
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+func appendFramedRows(sb *strings.Builder, cfg TableConfig, widths []int, g tableBorderGlyphs, bColor string) {
+	for _, row := range cfg.Rows {
+		sb.WriteString(formatFramedRow(row, widths, cfg, g, bColor))
+		sb.WriteString("\n")
+	}
 }
 
 func appendHeaderBlock(sb *strings.Builder, cfg TableConfig, widths []int) {
