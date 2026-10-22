@@ -78,7 +78,7 @@ func buildAgyQueryResult(projects []cmdagy.RunningProjectRecord) NodesAgyQueryRe
 	}
 }
 
-func extractIDEProcessDetails(proc result.Result[cmdagy.AgyProcessInfo]) (int, string) {
+func extractIDEProcessDetails(proc cmdagy.AgyProcessInfoWrap) (int, string) {
 	if proc.IsSuccess() {
 		return proc.Value.PID, proc.Value.Name
 	}

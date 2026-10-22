@@ -8,7 +8,7 @@ import (
 )
 
 // GenerateScriptContent builds the complete Python script based on options.
-func GenerateScriptContent(opts CreateScriptOptions) result.Result[string] {
+func GenerateScriptContent(opts CreateScriptOptions) result.StringResult {
 	slug := sanitizeScriptSlug(opts.Name)
 	desc := resolveScriptDesc(opts.Description, slug)
 	head := buildScriptHeader(slug, desc)

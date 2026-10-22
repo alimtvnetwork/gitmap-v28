@@ -73,7 +73,7 @@ func buildSpecOverviewResult(specFiles []string, start time.Time) SpecMigrateRes
 	}
 }
 
-func planSpecMigration(specDir string, fromNum, toNum int) result.Result[SpecMigrateChange] {
+func planSpecMigration(specDir string, fromNum, toNum int) result.Wrap[SpecMigrateChange] {
 	fromPrefix := fmt.Sprintf("%02d-", fromNum)
 	if fromNum >= 100 {
 		fromPrefix = fmt.Sprintf("%d-", fromNum)

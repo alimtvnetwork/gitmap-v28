@@ -26,7 +26,7 @@ func InjectAgyFixTask(repoDir, absPayloadPath string, isSkipInject bool) AgyInje
 	return handleIDEInjection(repoRoot, promptPath, pid)
 }
 
-func resolveActiveOrZeroPID(ideProcRes result.Result[AgyProcessInfo]) int {
+func resolveActiveOrZeroPID(ideProcRes AgyProcessInfoWrap) int {
 	if ideProcRes.IsSuccess() {
 		return ideProcRes.Value.PID
 	}

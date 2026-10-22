@@ -167,7 +167,7 @@ func isValidBinaryPath(path string) bool {
 	return err == nil
 }
 
-func checkCandidatePaths(candidates []string) result.Result[string] {
+func checkCandidatePaths(candidates []string) result.StringResult {
 	for _, candidate := range candidates {
 		if isValidBinaryPath(candidate) {
 			return result.Ok(candidate)
@@ -177,7 +177,7 @@ func checkCandidatePaths(candidates []string) result.Result[string] {
 	return result.Fail[string](apperror.NewSimple("binary not found in candidate paths", "E9006"))
 }
 
-func findBinaryInPath(names []string) result.Result[string] {
+func findBinaryInPath(names []string) result.StringResult {
 	for _, name := range names {
 		path, err := exec.LookPath(name)
 		hasPath := err == nil && len(path) > 0

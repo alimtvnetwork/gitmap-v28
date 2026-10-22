@@ -90,7 +90,7 @@ func checkIDEProcess() AgyPingProcessCheck {
 	}
 }
 
-func extractResultError[T any](res result.Result[T], fallback string) string {
+func extractResultError[T any](res result.Wrap[T], fallback string) string {
 	if res.Err != nil {
 		return res.Err.Error()
 	}

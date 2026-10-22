@@ -16,7 +16,7 @@ import (
 )
 
 // ProbeRuntime probes the runtime with two-tier caching and system detection.
-func ProbeRuntime(name string) result.Result[RuntimeRecord] {
+func ProbeRuntime(name string) result.Wrap[RuntimeRecord] {
 	dbRes := OpenAutomationDB("")
 	if dbRes.IsSuccess() {
 		defer func() { _ = dbRes.Value.Close() }()
@@ -26,7 +26,7 @@ func ProbeRuntime(name string) result.Result[RuntimeRecord] {
 }
 
 // ProbeRuntimeWithDB executes the two-tier runtime discovery protocol.
-func ProbeRuntimeWithDB(db *sql.DB, name string) result.Result[RuntimeRecord] {
+func ProbeRuntimeWithDB(db *sql.DB, name string) result.Wrap[RuntimeRecord] {
 	norm := normalizeRuntimeKey(name)
 	if cached := checkCachedRuntime(db, norm); cached.IsSuccess() {
 		return cached
@@ -36,7 +36,7 @@ func ProbeRuntimeWithDB(db *sql.DB, name string) result.Result[RuntimeRecord] {
 	return probed
 }
 
-func checkCachedRuntime(db *sql.DB, norm string) result.Result[RuntimeRecord] {
+func checkCachedRuntime(db *sql.DB, norm string) result.Wrap[RuntimeRecord] {
 	if db == nil {
 		return result.Fail[RuntimeRecord](apperror.NewSimple("nil db", "E7102"))
 	}
@@ -55,7 +55,7 @@ func isRuntimeCacheValid(rec RuntimeRecord) bool {
 	return err == nil && time.Since(t) <= 24*time.Hour
 }
 
-func probeSystemRuntime(norm string) result.Result[RuntimeRecord] {
+func probeSystemRuntime(norm string) result.Wrap[RuntimeRecord] {
 	bin := detectBinaryPath(norm)
 	if bin == "" {
 		return result.Fail[RuntimeRecord](NewMissingRuntimeError(norm))
@@ -76,7 +76,7 @@ func buildRuntimeRecord(normName, binPath, status string, isValid bool) RuntimeR
 	}
 }
 
-func persistProbeResult(db *sql.DB, normName string, probed result.Result[RuntimeRecord]) {
+func persistProbeResult(db *sql.DB, normName string, probed result.Wrap[RuntimeRecord]) {
 	if db == nil {
 		return
 	}

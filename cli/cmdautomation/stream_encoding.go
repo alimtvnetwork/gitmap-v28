@@ -67,7 +67,7 @@ func encodeUTF16LE(data []byte) []byte {
 }
 
 // DecodeFromStream decodes raw stream bytes into a string, auto-detecting BOMs.
-func DecodeFromStream(data []byte, enc ...string) result.Result[string] {
+func DecodeFromStream(data []byte, enc ...string) result.StringResult {
 	if len(data) == 0 {
 		return result.Ok("")
 	}
