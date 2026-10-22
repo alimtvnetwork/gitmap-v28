@@ -611,8 +611,8 @@ def resolve_file_mechanically(
             # Default smart fallback: try clean union if non-colliding
             resolve_generic_union(target)
 
-    has_no_markers = verify_no_conflict_markers(target)
-    if not has_no_markers:
+    is_marker_free = verify_no_conflict_markers(target)
+    if not is_marker_free:
         return False
 
     is_syntax_valid = validate_syntax_post_resolve(target)

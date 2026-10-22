@@ -112,7 +112,7 @@ func TestPipelineErrorTruncation(t *testing.T) {
 	// Construct 35 lines of stack trace
 	var rawLines []string
 	for i := 1; i <= 35; i++ {
-		rawLines = append(rawLines, strings.Repeat("x", 10)+"-line-"+strings.Repeat("0", 2)+string(rune('A'+(i%26))))
+		rawLines = append(rawLines, strings.Repeat("x", 10)+"-line-"+strings.Repeat("0", 2)+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i%26:i%26+1])
 	}
 
 	traceLines := rawLines

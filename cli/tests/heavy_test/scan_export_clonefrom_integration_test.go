@@ -1,3 +1,5 @@
+//go:build heavy
+
 package heavy_test
 
 // Integration test: scan → export JSON/CSV → clone-from for both

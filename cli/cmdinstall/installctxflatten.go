@@ -15,7 +15,7 @@ type flatCtxEntry struct {
 	Label    string   // "gitmap: Release — Release next (bump minor)"
 	Slug     string   // filesystem-safe id derived from label, "gitmap-release-release-next"
 	Args     []string // {"release", "--bump", "minor"}
-	Mode     ctxmodetype.Variant
+	Mode     ctxmodetype.VariantType
 	Exe      string // override executable; empty => use the gitmap binary
 	Extended bool   // power-user action: confirm-gated on macOS/Linux (Shift+click on Windows)
 }

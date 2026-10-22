@@ -7,16 +7,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 )
 
-// NodesCloneKind defines the clone operation mode.
-type NodesCloneKind string
+// NodesCloneKindType defines the clone operation mode.
+type NodesCloneKindType string
 
 const (
 	// CloneKindClone executes standard multi-repo or single-repo clone.
-	CloneKindClone NodesCloneKind = "clone"
+	CloneKindClone NodesCloneKindType = "clone"
 	// CloneKindCFR executes clone-fix-repo (remediation & auto-setup).
-	CloneKindCFR NodesCloneKind = "cfr"
+	CloneKindCFR NodesCloneKindType = "cfr"
 	// CloneKindCFRP executes clone-fix-repo with public visibility promotion.
-	CloneKindCFRP NodesCloneKind = "cfrp"
+	CloneKindCFRP NodesCloneKindType = "cfrp"
 )
 
 // NodesCloneDestination describes resolved destination directory settings for clone operations.
@@ -29,7 +29,7 @@ type NodesCloneDestination struct {
 
 // NodesCloneOptions stores configuration for fleet clone execution.
 type NodesCloneOptions struct {
-	Kind                NodesCloneKind        `json:"kind"`
+	Kind                NodesCloneKindType    `json:"kind"`
 	TargetFilter        string                `json:"targetFilter,omitempty"`
 	ExcludeFilter       string                `json:"excludeFilter,omitempty"`
 	ExceptOS            string                `json:"exceptOS,omitempty"`

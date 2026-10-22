@@ -50,15 +50,15 @@ type NodesPendingCommitsAggregated struct {
 	Results            []NodePendingCommitsResult `json:"results"`
 }
 
-// CommitActionKind defines semantic action types.
-type CommitActionKind string
+// CommitActionKindType defines semantic action types.
+type CommitActionKindType string
 
 const (
-	CommitActionStandard CommitActionKind = "commits"
-	CommitActionFeature  CommitActionKind = "cpf"
-	CommitActionBug      CommitActionKind = "cpb"
-	CommitActionRelease  CommitActionKind = "cpr"
-	CommitActionFix      CommitActionKind = "commit-fix"
+	CommitActionStandard CommitActionKindType = "commits"
+	CommitActionFeature  CommitActionKindType = "cpf"
+	CommitActionBug      CommitActionKindType = "cpb"
+	CommitActionRelease  CommitActionKindType = "cpr"
+	CommitActionFix      CommitActionKindType = "commit-fix"
 )
 
 // RemoteRepoCommitOutcome captures the commit result for an individual repository on a node.

@@ -50,7 +50,7 @@ func RunAiTrain(db *sql.DB, opts LlmTrainOptions) error {
 	return writeOrPrintOutput(data, opts.Output)
 }
 
-func formatDecisionChains(chains []TaskDecisionChain, format LlmTrainingFormat) ([]byte, error) {
+func formatDecisionChains(chains []TaskDecisionChain, format LlmTrainingFormatType) ([]byte, error) {
 	cleanFormat := strings.ToLower(string(format))
 	isJsonl := cleanFormat == string(LlmFormatJsonl)
 	if isJsonl {

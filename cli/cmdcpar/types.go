@@ -27,15 +27,15 @@ type CPARRunState struct {
 	FailureCount int
 }
 
-// CPARReviewAction represents user choice in review flow.
-type CPARReviewAction string
+// CPARReviewActionType represents user choice in review flow.
+type CPARReviewActionType string
 
 const (
-	ActionCommitAllFeature CPARReviewAction = "feature"
-	ActionCommitAllBug     CPARReviewAction = "bug"
-	ActionSingleRepo       CPARReviewAction = "single"
-	ActionCommitAllChore   CPARReviewAction = "chore"
-	ActionAbort            CPARReviewAction = "abort"
+	ActionCommitAllFeature CPARReviewActionType = "feature"
+	ActionCommitAllBug     CPARReviewActionType = "bug"
+	ActionSingleRepo       CPARReviewActionType = "single"
+	ActionCommitAllChore   CPARReviewActionType = "chore"
+	ActionAbort            CPARReviewActionType = "abort"
 )
 
 func parseCPAROptions(args []string) cparOptions {

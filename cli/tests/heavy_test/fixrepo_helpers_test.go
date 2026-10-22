@@ -1,3 +1,5 @@
+//go:build heavy
+
 package heavy_test
 
 // Fixture builder for the fix-repo gofmt e2e test. Creates a throwaway

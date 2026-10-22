@@ -2,12 +2,12 @@ package cmdai
 
 import "time"
 
-// LlmTrainingFormat defines output format for LLM reasoning ingestion.
-type LlmTrainingFormat string
+// LlmTrainingFormatType defines output format for LLM reasoning ingestion.
+type LlmTrainingFormatType string
 
 const (
-	LlmFormatMarkdown LlmTrainingFormat = "markdown"
-	LlmFormatJsonl    LlmTrainingFormat = "jsonl"
+	LlmFormatMarkdown LlmTrainingFormatType = "markdown"
+	LlmFormatJsonl    LlmTrainingFormatType = "jsonl"
 )
 
 // LlmMessageItem represents a single role turn in conversational training schemas.
@@ -30,7 +30,7 @@ type TaskDecisionChain struct {
 // LlmTrainOptions configures the reasoning extraction and formatting.
 type LlmTrainOptions struct {
 	TaskId   string
-	Format   LlmTrainingFormat
+	Format   LlmTrainingFormatType
 	Limit    int
 	Output   string
 	RepoRoot string

@@ -8,37 +8,37 @@ import (
 	"strings"
 )
 
-// FileCategory defines semantic classification categories for changed files.
-type FileCategory string
+// FileCategoryType defines semantic classification categories for changed files.
+type FileCategoryType string
 
 const (
 	// CategoryStyle classifies CSS and styling assets.
-	CategoryStyle FileCategory = "style"
+	CategoryStyle FileCategoryType = "style"
 	// CategoryCore classifies core programming code logic.
-	CategoryCore FileCategory = "core"
+	CategoryCore FileCategoryType = "core"
 	// CategoryBoolean classifies boolean conventions and predicate files.
-	CategoryBoolean FileCategory = "boolean"
+	CategoryBoolean FileCategoryType = "boolean"
 	// CategoryAsset classifies static visual assets, icons, and logos.
-	CategoryAsset FileCategory = "asset"
+	CategoryAsset FileCategoryType = "asset"
 	// CategorySpec classifies documentation and architectural specifications.
-	CategorySpec FileCategory = "spec"
+	CategorySpec FileCategoryType = "spec"
 	// CategoryOther classifies auxiliary configuration and general files.
-	CategoryOther FileCategory = "other"
+	CategoryOther FileCategoryType = "other"
 )
 
 // ChangedFile represents an individual changed file with its semantic classification.
 type ChangedFile struct {
-	RelativePath string       `json:"relativePath"`
-	Category     FileCategory `json:"category"`
+	RelativePath string           `json:"relativePath"`
+	Category     FileCategoryType `json:"category"`
 }
 
 // CategorySummary aggregates changed files under a semantic category heading.
 type CategorySummary struct {
-	Category      FileCategory  `json:"category"`
-	Title         string        `json:"title"`
-	Description   string        `json:"description"`
-	Files         []ChangedFile `json:"files"`
-	OverflowCount int           `json:"overflowCount"`
+	Category      FileCategoryType `json:"category"`
+	Title         string           `json:"title"`
+	Description   string           `json:"description"`
+	Files         []ChangedFile    `json:"files"`
+	OverflowCount int              `json:"overflowCount"`
 }
 
 // CommitDescriptionPayload encapsulates title and structured categories.
@@ -50,8 +50,8 @@ type CommitDescriptionPayload struct {
 // MaxFilesInCategory defines the maximum files listed per category before truncation.
 const MaxFilesInCategory = 8
 
-// ClassifyFilePath determines the semantic FileCategory for a given relative path.
-func ClassifyFilePath(filePath string) FileCategory {
+// ClassifyFilePath determines the semantic FileCategoryType for a given relative path.
+func ClassifyFilePath(filePath string) FileCategoryType {
 	normalized := filepath.ToSlash(filepath.Clean(filePath))
 	lower := strings.ToLower(normalized)
 	base := path.Base(lower)
@@ -127,7 +127,7 @@ type CategoryMetadata struct {
 	Description string
 }
 
-func resolveCategoryMetadata(cat FileCategory) CategoryMetadata {
+func resolveCategoryMetadata(cat FileCategoryType) CategoryMetadata {
 	switch cat {
 	case CategoryStyle:
 		return CategoryMetadata{
@@ -166,7 +166,7 @@ func resolveCategoryMetadata(cat FileCategory) CategoryMetadata {
 func CategorizeChangedFiles(porcelainOutput string) []CategorySummary {
 	lines := strings.Split(porcelainOutput, "\n")
 	seen := make(map[string]bool)
-	categoryBuckets := make(map[FileCategory][]ChangedFile)
+	categoryBuckets := make(map[FileCategoryType][]ChangedFile)
 
 	for _, line := range lines {
 		cleanLine := strings.TrimRight(line, "\r")
@@ -203,7 +203,7 @@ func CategorizeChangedFiles(porcelainOutput string) []CategorySummary {
 		})
 	}
 
-	orderedCategories := []FileCategory{
+	orderedCategories := []FileCategoryType{
 		CategoryStyle,
 		CategoryCore,
 		CategoryBoolean,
@@ -217,63 +217,69 @@ func CategorizeChangedFiles(porcelainOutput string) []CategorySummary {
 		files := categoryBuckets[cat]
 		hasFiles := len(files) > 0
 		if hasFiles {
-			meta := resolveCategoryMetadata(cat)
-			summary := CategorySummary{
-				Category:    cat,
-				Title:       meta.Title,
-				Description: meta.Description,
-			}
-
-			if len(files) <= MaxFilesInCategory {
-				summary.Files = files
-			} else {
-				summary.Files = files[:MaxFilesInCategory]
-				summary.OverflowCount = len(files) - MaxFilesInCategory
-			}
-
-			summaries = append(summaries, summary)
+			summaries = append(summaries, buildCategorySummary(cat, files))
 		}
 	}
 
 	return summaries
 }
 
+// buildCategorySummary constructs the fully-formed summary for one category,
+// capping the listed files at MaxFilesInCategory and counting the overflow.
+func buildCategorySummary(cat FileCategoryType, files []ChangedFile) CategorySummary {
+	meta := resolveCategoryMetadata(cat)
+	summary := CategorySummary{
+		Category:    cat,
+		Title:       meta.Title,
+		Description: meta.Description,
+	}
+
+	if len(files) <= MaxFilesInCategory {
+		summary.Files = files
+	} else {
+		summary.Files = files[:MaxFilesInCategory]
+		summary.OverflowCount = len(files) - MaxFilesInCategory
+	}
+
+	return summary
+}
+
 // FormatMarkdownCommitBody renders a conventional multi-line commit message with relative markdown links.
 func FormatMarkdownCommitBody(title string, categories []CategorySummary) string {
 	cleanTitle := strings.TrimSpace(title)
 	hasCategories := len(categories) > 0
-	if hasCategories {
-		var b strings.Builder
-		b.WriteString(cleanTitle)
-		b.WriteString("\n\n")
-
-		for i, cat := range categories {
-			if i > 0 {
-				b.WriteString("\n\n")
-			}
-			b.WriteString("### ")
-			b.WriteString(cat.Title)
-			b.WriteString("\n")
-			b.WriteString(cat.Description)
-
-			for _, f := range cat.Files {
-				b.WriteString("\n- [")
-				b.WriteString(f.RelativePath)
-				b.WriteString("](")
-				b.WriteString(f.RelativePath)
-				b.WriteString(")")
-			}
-
-			hasOverflow := cat.OverflowCount > 0
-			if hasOverflow {
-				b.WriteString(fmt.Sprintf("\n- ... and %d additional files", cat.OverflowCount))
-			}
-		}
-
-		return b.String()
+	if !hasCategories {
+		return cleanTitle
 	}
 
-	return cleanTitle
+	var b strings.Builder
+	b.WriteString(cleanTitle)
+	b.WriteString("\n\n")
+
+	for i, cat := range categories {
+		if i > 0 {
+			b.WriteString("\n\n")
+		}
+		b.WriteString("### ")
+		b.WriteString(cat.Title)
+		b.WriteString("\n")
+		b.WriteString(cat.Description)
+
+		for _, f := range cat.Files {
+			b.WriteString("\n- [")
+			b.WriteString(f.RelativePath)
+			b.WriteString("](")
+			b.WriteString(f.RelativePath)
+			b.WriteString(")")
+		}
+
+		hasOverflow := cat.OverflowCount > 0
+		if hasOverflow {
+			b.WriteString(fmt.Sprintf("\n- ... and %d additional files", cat.OverflowCount))
+		}
+	}
+
+	return b.String()
 }
 
 // BuildGroupedCommitMessage parses porcelain and synthesizes the final commit message.

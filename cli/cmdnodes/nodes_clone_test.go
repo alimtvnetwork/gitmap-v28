@@ -11,7 +11,7 @@ import (
 func TestIsNodesCloneCommand(t *testing.T) {
 	tests := []struct {
 		input    string
-		wantKind NodesCloneKind
+		wantKind NodesCloneKindType
 		wantOk   bool
 	}{
 		{"clone", CloneKindClone, true},

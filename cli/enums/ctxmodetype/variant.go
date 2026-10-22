@@ -14,12 +14,12 @@ import (
 	"strings"
 )
 
-// Variant represents a Windows shell context-menu entry mode.
-type Variant byte
+// VariantType represents a Windows shell context-menu entry mode.
+type VariantType byte
 
 const (
 	// Invalid is the zero value (always first).
-	Invalid Variant = iota
+	Invalid VariantType = iota
 
 	// Terminal runs pwsh -NoExit; the window stays open after the command.
 	Terminal
@@ -43,7 +43,7 @@ var variantLabels = [...]string{
 }
 
 // String returns the serialized string representation.
-func (v Variant) String() string {
+func (v VariantType) String() string {
 	if v.IsInvalid() {
 		return variantLabels[Invalid]
 	}
@@ -52,61 +52,61 @@ func (v Variant) String() string {
 }
 
 // Label delegates to String.
-func (v Variant) Label() string {
+func (v VariantType) Label() string {
 	return v.String()
 }
 
 // IsValid reports whether the variant is a real mode.
-func (v Variant) IsValid() bool {
-	return v > Invalid && v < Variant(len(variantLabels))
+func (v VariantType) IsValid() bool {
+	return v > Invalid && v < VariantType(len(variantLabels))
 }
 
 // IsInvalid reports whether the variant is the zero value or out of range.
-func (v Variant) IsInvalid() bool {
-	return v <= Invalid || v >= Variant(len(variantLabels))
+func (v VariantType) IsInvalid() bool {
+	return v <= Invalid || v >= VariantType(len(variantLabels))
 }
 
 // IsTerminal reports whether the variant is Terminal.
-func (v Variant) IsTerminal() bool {
+func (v VariantType) IsTerminal() bool {
 	return v == Terminal
 }
 
 // IsSilent reports whether the variant is Silent.
-func (v Variant) IsSilent() bool {
+func (v VariantType) IsSilent() bool {
 	return v == Silent
 }
 
 // IsPrefill reports whether the variant is Prefill.
-func (v Variant) IsPrefill() bool {
+func (v VariantType) IsPrefill() bool {
 	return v == Prefill
 }
 
 // All returns all valid variants.
-func All() []Variant {
-	result := make([]Variant, 0, len(variantLabels)-1)
+func All() []VariantType {
+	result := make([]VariantType, 0, len(variantLabels)-1)
 	for i := 1; i < len(variantLabels); i++ {
-		result = append(result, Variant(i))
+		result = append(result, VariantType(i))
 	}
 
 	return result
 }
 
 // ByIndex returns the variant for an index, or Invalid when out of range.
-func ByIndex(i int) Variant {
+func ByIndex(i int) VariantType {
 	isOutOfRange := i < 0 || i >= len(variantLabels)
 	if isOutOfRange {
 		return Invalid
 	}
 
-	return Variant(i)
+	return VariantType(i)
 }
 
 // Parse parses a serialized mode using case-insensitive matching.
-func Parse(s string) (Variant, error) {
+func Parse(s string) (VariantType, error) {
 	trimmed := strings.TrimSpace(s)
 	for i, label := range variantLabels {
 		if strings.EqualFold(label, trimmed) {
-			return Variant(i), nil
+			return VariantType(i), nil
 		}
 	}
 
@@ -124,12 +124,12 @@ func Values() []string {
 }
 
 // MarshalJSON implements json.Marshaler.
-func (v Variant) MarshalJSON() ([]byte, error) {
+func (v VariantType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.String())
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (v *Variant) UnmarshalJSON(data []byte) error {
+func (v *VariantType) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err

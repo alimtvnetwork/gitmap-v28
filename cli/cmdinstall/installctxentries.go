@@ -11,7 +11,7 @@ type ctxEntry struct {
 	KeyName string // numeric prefix preserves menu order, e.g. "10_release_next"
 	MUIVerb string // visible label
 	Args    []string
-	Mode    ctxmodetype.Variant
+	Mode    ctxmodetype.VariantType
 	Exe     string // override executable; empty => use the gitmap binary
 	Icon    string // Windows: per-entry Icon registry value. Empty => no Icon written.
 	//                  Supports the constants.CtxIconExeToken ("{exe}") placeholder,

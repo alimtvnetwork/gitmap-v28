@@ -19,7 +19,7 @@ const (
 )
 
 // CtxMode moved to cli/enums/ctxmodetype (spec 243, Wave D) — see the
-// ctxmodetype.Variant enum. The constants surface keeps no alias; use the
+// ctxmodetype.VariantType enum. The constants surface keeps no alias; use the
 // enum package directly.
 
 // CtxIconExeToken is the placeholder swapped for the resolved gitmap

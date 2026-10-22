@@ -4,7 +4,7 @@ package cmdnodes
 import "fmt"
 
 // PrintNodesCloneHelp outputs the modern CLI help for fleet clone commands.
-func PrintNodesCloneHelp(kind NodesCloneKind) error {
+func PrintNodesCloneHelp(kind NodesCloneKindType) error {
 	kindStr := string(kind)
 	printHelpHeaderBox(kindStr)
 	printUsageSection(kindStr)

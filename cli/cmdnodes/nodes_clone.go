@@ -19,7 +19,7 @@ import (
 )
 
 // IsNodesCloneCommand identifies if an argument invokes fleet clone.
-func IsNodesCloneCommand(cmd string) (NodesCloneKind, bool) {
+func IsNodesCloneCommand(cmd string) (NodesCloneKindType, bool) {
 	low := strings.ToLower(cmd)
 	switch low {
 	case "clone", "clone-except-self", "clone-noself", "clones":
@@ -241,7 +241,7 @@ func finalizeCloneOptions(opts *NodesCloneOptions) {
 	resolveCloneDestination(opts)
 }
 
-func initNodesCloneOptions(kind NodesCloneKind, raw []string) NodesCloneOptions {
+func initNodesCloneOptions(kind NodesCloneKindType, raw []string) NodesCloneOptions {
 	opts := NodesCloneOptions{Kind: kind, RawArgs: raw}
 	lowKind := strings.ToLower(string(kind))
 	if strings.Contains(lowKind, "except-self") || strings.Contains(lowKind, "noself") {
@@ -250,7 +250,7 @@ func initNodesCloneOptions(kind NodesCloneKind, raw []string) NodesCloneOptions 
 	return opts
 }
 
-func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOptions, bool) {
+func parseNodesCloneOptions(kind NodesCloneKindType, raw []string) (NodesCloneOptions, bool) {
 	opts := initNodesCloneOptions(kind, raw)
 	if !parseTokens(&opts, raw) {
 		PrintNodesCloneHelp(kind)
@@ -260,7 +260,7 @@ func parseNodesCloneOptions(kind NodesCloneKind, raw []string) (NodesCloneOption
 	return opts, true
 }
 
-func validateCloneCommand(args []string) (NodesCloneKind, bool) {
+func validateCloneCommand(args []string) (NodesCloneKindType, bool) {
 	if len(args) == 0 {
 		return "", false
 	}
@@ -352,7 +352,7 @@ func captureOutput(fn func() error) (string, error) {
 	return readPipedOutput(r), runErr
 }
 
-func dispatchLocalKind(kind NodesCloneKind, args []string) error {
+func dispatchLocalKind(kind NodesCloneKindType, args []string) error {
 	switch kind {
 	case CloneKindClone:
 		return cmdclone.RunClone(args)

@@ -20,7 +20,7 @@ type ctxFlatLeaf struct {
 	Slug     string // flatten slug, e.g. "gitmap-release-release-next"
 	Label    string // user-visible flatten label, e.g. "gitmap: Release — Release next (bump minor)"
 	Args     []string
-	Mode     ctxmodetype.Variant
+	Mode     ctxmodetype.VariantType
 	Exe      string
 	Extended bool
 }

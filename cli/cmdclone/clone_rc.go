@@ -12,13 +12,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// CloneDispatchMode defines which cloning pipeline handles discovered repositories.
-type CloneDispatchMode string
+// CloneDispatchModeType defines which cloning pipeline handles discovered repositories.
+type CloneDispatchModeType string
 
 const (
-	CloneModeStandard CloneDispatchMode = "standard" // standard git clone
-	CloneModeCFR      CloneDispatchMode = "cfr"      // private clone-fix-repo
-	CloneModeCFRP     CloneDispatchMode = "cfrp"     // public clone-fix-repo-pub
+	CloneModeStandard CloneDispatchModeType = "standard" // standard git clone
+	CloneModeCFR      CloneDispatchModeType = "cfr"      // private clone-fix-repo
+	CloneModeCFRP     CloneDispatchModeType = "cfrp"     // public clone-fix-repo-pub
 )
 
 // ResolveRepoCacheRootFn is a test hook to override the repo-cache root directory.
@@ -145,7 +145,7 @@ func parseRCArgs(args []string) rcParsedFlags {
 }
 
 // RunCloneRC handles high-speed repository ingestion and cloning from repo-cache manifests.
-func RunCloneRC(args []string, mode CloneDispatchMode) error {
+func RunCloneRC(args []string, mode CloneDispatchModeType) error {
 	repoCacheRoot := ResolveRepoCacheRoot()
 	manifests, err := DiscoverRCManifests(repoCacheRoot)
 	if err != nil {
@@ -174,7 +174,7 @@ func RunCloneRC(args []string, mode CloneDispatchMode) error {
 	return executeManifestClone(targetManifest, mode, flags.passthroughFlags)
 }
 
-func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
+func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchModeType, passthrough []string) error {
 	fmt.Print(RenderShortTreeView(manifests))
 	fmt.Println("\nChoose an option:")
 	fmt.Println("  [A] Clone all repositories across all manifests")
@@ -217,7 +217,7 @@ func runInteractiveRCMenu(manifests []DiscoveredManifest, mode CloneDispatchMode
 	}
 }
 
-func runInteractiveSelectRepos(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string, reader *bufio.Reader) error {
+func runInteractiveSelectRepos(manifests []DiscoveredManifest, mode CloneDispatchModeType, passthrough []string, reader *bufio.Reader) error {
 	fmt.Printf("Select manifest number [1-%d]: ", len(manifests))
 	numStr, _ := reader.ReadString('\n')
 	num, err := strconv.Atoi(strings.TrimSpace(numStr))

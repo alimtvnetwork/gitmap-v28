@@ -1,3 +1,5 @@
+//go:build heavy
+
 package heavy_test
 
 import (

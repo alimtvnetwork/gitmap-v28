@@ -358,7 +358,7 @@ def execute_commit_and_push(
     is_dry_run: bool = False,
     is_commit_only: bool = False,
     is_push_only: bool = False,
-    is_no_pull: bool = False,
+    is_pull_disabled: bool = False,
 ) -> RepoExecutionResult:
     """Stage, commit, and push changes for a single repository with pre-commit pooling and push verification."""
     res = RepoExecutionResult(
@@ -380,7 +380,7 @@ def execute_commit_and_push(
     branch = audit.branch
 
     # 1. Pre-Staging Pull / Pooling Phase (reconcile incoming commits cleanly)
-    if not is_no_pull and audit.has_upstream and not audit.is_detached and not is_push_only:
+    if not is_pull_disabled and audit.has_upstream and not audit.is_detached and not is_push_only:
         if not is_dry_run:
             code_pull, _, err_pull = run_cmd(["git", "pull", remote, branch, "--no-rebase"], repo_path)
             if code_pull != 0:
@@ -460,7 +460,7 @@ def run_orchestration(
     is_check_only: bool = False,
     is_commit_only: bool = False,
     is_push_only: bool = False,
-    is_no_pull: bool = False,
+    is_pull_disabled: bool = False,
     custom_excludes: Optional[set[str]] = None,
     custom_message: Optional[str] = None,
     as_json: bool = False,
@@ -485,7 +485,7 @@ def run_orchestration(
                 is_dry_run=is_dry_run,
                 is_commit_only=is_commit_only,
                 is_push_only=is_push_only,
-                is_no_pull=is_no_pull,
+                is_pull_disabled=is_pull_disabled,
             )
             executions.append(exec_res)
 
@@ -732,7 +732,7 @@ def main() -> None:
             is_check_only=args.check,
             is_commit_only=args.commit_only,
             is_push_only=args.push_only,
-            is_no_pull=args.no_pull,
+            is_pull_disabled=args.no_pull,
             custom_excludes=custom_excludes,
             custom_message=args.message,
             as_json=args.json,

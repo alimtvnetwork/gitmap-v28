@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func cloneAllManifests(manifests []DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
+func cloneAllManifests(manifests []DiscoveredManifest, mode CloneDispatchModeType, passthrough []string) error {
 	for _, m := range manifests {
 		fmt.Printf("\n▸ Cloning manifest [%d]: %s (%d repositories)...\n", m.Index, m.RelativePath, m.TotalRepos)
 		if err := executeManifestClone(m, mode, passthrough); err != nil {
@@ -14,7 +14,7 @@ func cloneAllManifests(manifests []DiscoveredManifest, mode CloneDispatchMode, p
 	return nil
 }
 
-func executeManifestClone(manifest DiscoveredManifest, mode CloneDispatchMode, passthrough []string) error {
+func executeManifestClone(manifest DiscoveredManifest, mode CloneDispatchModeType, passthrough []string) error {
 	switch mode {
 	case CloneModeCFR:
 		f := cloneFixRepoFlags{
@@ -37,7 +37,7 @@ func executeManifestClone(manifest DiscoveredManifest, mode CloneDispatchMode, p
 	}
 }
 
-func executeEntriesClone(entries []RepoCacheEntry, mode CloneDispatchMode, passthrough []string) error {
+func executeEntriesClone(entries []RepoCacheEntry, mode CloneDispatchModeType, passthrough []string) error {
 	for i, e := range entries {
 		fmt.Printf("\n[%d/%d] Ingesting %s/%s (%s)...\n", i+1, len(entries), e.Owner, e.RepoName, e.CloneUrl)
 		switch mode {

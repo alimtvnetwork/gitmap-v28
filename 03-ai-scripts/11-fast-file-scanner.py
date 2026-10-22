@@ -259,8 +259,8 @@ def main():
 
     json_path, txt_path, all_txt_path = get_cache_filenames(args)
 
-    is_no_cache = args.no_cache
-    if not is_no_cache:
+    is_cache_disabled = args.no_cache
+    if not is_cache_disabled:
         write_caches(json_path, txt_path, all_txt_path, matched_files, ext_counts, args, scan_duration_ms)
 
     is_check_mode = args.check
@@ -274,7 +274,7 @@ def main():
     print(f"📁 Root: `{args.path}` | Filtered Files Found: **{len(matched_files)}**")
     print("================================================================================")
 
-    if not is_no_cache:
+    if not is_cache_disabled:
         print(f"{LINE_SEPARATOR}💾 TEMP FOLDER CACHE INVENTORY:")
         print(f"   • Full JSON Cache : `{json_path}`")
         print(f"   • Primary Pluggable: `{PRIMARY_CACHE_FILE}`")

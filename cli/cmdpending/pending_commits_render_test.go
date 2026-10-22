@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -106,7 +107,7 @@ func verifySubtreeOptionDimensions(t *testing.T, opt RemediationOption, isLast b
 		prefix = "└──"
 		childPrefix = "       └── "
 	}
-	titleLine := formatTreeLine("   " + prefix + " Option " + string(rune('0'+opt.OptionNumber)) + ": " + opt.Label)
+	titleLine := formatTreeLine("   " + prefix + " Option " + strconv.Itoa(opt.OptionNumber) + ": " + opt.Label)
 	childLine := formatTreeLine(childPrefix + opt.Command)
 	assertExactRuneLength(t, titleLine, 78)
 	assertExactRuneLength(t, childLine, 78)

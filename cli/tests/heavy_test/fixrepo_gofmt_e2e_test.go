@@ -1,3 +1,5 @@
+//go:build heavy
+
 package heavy_test
 
 // End-to-end test: build the gitmap binary, run `gitmap fix-repo --all`

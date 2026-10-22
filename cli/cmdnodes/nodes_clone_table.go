@@ -154,14 +154,14 @@ func renderFleetPreFlightTable(out io.Writer, report FleetPreFlightReport) {
 	fmt.Fprintln(out)
 }
 
-func renderBannerHeaderBox(out io.Writer, kind NodesCloneKind) {
+func renderBannerHeaderBox(out io.Writer, kind NodesCloneKindType) {
 	title := fmt.Sprintf("GITMAP FLEET NODES %s DISPATCH", strings.ToUpper(string(kind)))
 	fmt.Fprintln(out, "    ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐")
 	fmt.Fprintf(out, "    │ %-100s │\n", title)
 	fmt.Fprintln(out, "    └──────────────────────────────────────────────────────────────────────────────────────────────────────┘")
 }
 
-func formatBannerMode(kind NodesCloneKind) string {
+func formatBannerMode(kind NodesCloneKindType) string {
 	switch kind {
 	case CloneKindCFR:
 		return "cfr (clone-fix-repo)"

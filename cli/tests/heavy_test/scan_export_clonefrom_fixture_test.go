@@ -1,3 +1,5 @@
+//go:build heavy
+
 package heavy_test
 
 // Fixture helpers for the scan→export→clone-from integration test.

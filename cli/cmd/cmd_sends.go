@@ -301,7 +301,7 @@ func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, 
 }
 
 func resolveRepoCommitMessage(opts cmdpending.SendsOptions, finalMsg, porcelain string) string {
-	isEligible := shouldApplySemanticGrouping(opts)
+	isEligible := isSemanticGroupingApplicable(opts)
 	if isEligible {
 		categories := cmdsends.CategorizeChangedFiles(porcelain)
 		hasCategories := len(categories) > 0
@@ -313,7 +313,7 @@ func resolveRepoCommitMessage(opts cmdpending.SendsOptions, finalMsg, porcelain 
 	return finalMsg
 }
 
-func shouldApplySemanticGrouping(opts cmdpending.SendsOptions) bool {
+func isSemanticGroupingApplicable(opts cmdpending.SendsOptions) bool {
 	isTargetAll := strings.EqualFold(opts.Target, "all")
 	if isTargetAll {
 		return true
