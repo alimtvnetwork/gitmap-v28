@@ -222,62 +222,6 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `29-chat-management` | [`29-chat-management/01-chat-histories-reread-remove-and-recreate.md`](../01-prompts/29-chat-management/01-chat-histories-reread-remove-and-recreate.md) | Chat Histories: Re-read, Remove & Recreate (per-repo chats) |
 | `29-chat-management` | [`29-chat-management/readme.md`](../01-prompts/29-chat-management/readme.md) | 29 — Chat Management |
 | `.` | [`readme.md`](../01-prompts/readme.md) | Prompt Architect: Canonical AI Prompts Library |
-| `v4/13-plan-audit` | [`v4/13-plan-audit/01-inventory-pending-tasks.md`](../01-prompts/v4/13-plan-audit/01-inventory-pending-tasks.md) | Inventory Audit of Pending Tasks — Read-Only Proposal (must follow) |
-| `v4/13-plan-audit` | [`v4/13-plan-audit/02-plan-spec-steps-v2.md`](../01-prompts/v4/13-plan-audit/02-plan-spec-steps-v2.md) | any uppercase character, space, or underscore in an authored path = FAIL |
-| `v4/13-plan-audit` | [`v4/13-plan-audit/03-audit-app-spec.md`](../01-prompts/v4/13-plan-audit/03-audit-app-spec.md) | 1. the audited scope, with line counts |
-| `v4/13-plan-audit` | [`v4/13-plan-audit/04-fix-spec-from-audit.md`](../01-prompts/v4/13-plan-audit/04-fix-spec-from-audit.md) | 04-fix-spec-from-audit.md |
-| `v4/14-execute` | [`v4/14-execute/01-execute-pending-tasks.md`](../01-prompts/v4/14-execute/01-execute-pending-tasks.md) | [V6] Execute Pending Tasks N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
-| `v4/14-execute` | [`v4/14-execute/02-execute-parent-task-with-n-steps-v6.md`](../01-prompts/v4/14-execute/02-execute-parent-task-with-n-steps-v6.md) | [V6] Parent Task N-Step Continuous Loop & Mandatory Multi-Agent Subagent Orchestration — Workflow (must follow) |
-| `v4/14-execute` | [`v4/14-execute/03-execute-batched-loop.md`](../01-prompts/v4/14-execute/03-execute-batched-loop.md) | 03-execute-batched-loop.md |
-| `v4/14-execute` | [`v4/14-execute/04-execute-ai-instruction-writer.md`](../01-prompts/v4/14-execute/04-execute-ai-instruction-writer.md) | 04-execute-ai-instruction-writer.md |
-| `v4/14-execute` | [`v4/14-execute/05-execute-batched-loop-wor.md`](../01-prompts/v4/14-execute/05-execute-batched-loop-wor.md) | 05-execute-batched-loop-wor.md |
-| `v4/14-execute` | [`v4/14-execute/06-execute-batched-loop-v2.md`](../01-prompts/v4/14-execute/06-execute-batched-loop-v2.md) | 06-execute-batched-loop-v2.md |
-| `v4/14-execute` | [`v4/14-execute/07-run.md`](../01-prompts/v4/14-execute/07-run.md) | Run Script Orchestration — Execute Workflow (`run`) |
-| `v4/14-execute` | [`v4/14-execute/08-execute-with-e2e.md`](../01-prompts/v4/14-execute/08-execute-with-e2e.md) | Execute with End-to-End (E2E) Testing & Automated Minor Release — [execute-with-e2e](file;.agents/skills/execute-with-e2e) |
-| `v4/14-execute` | [`v4/14-execute/readme.md`](../01-prompts/v4/14-execute/readme.md) | Execution Prompts (`14-execute`) — Index & Catalog |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/01-execute-coding-guideline-fix.md`](../01-prompts/v4/15-cg-execute/01-execute-coding-guideline-fix.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/02-error-management.md`](../01-prompts/v4/15-cg-execute/02-error-management.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/03-nested-if-and-guard-clauses.md`](../01-prompts/v4/15-cg-execute/03-nested-if-and-guard-clauses.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/04-booleans-and-complex-conditions.md`](../01-prompts/v4/15-cg-execute/04-booleans-and-complex-conditions.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md`](../01-prompts/v4/15-cg-execute/05-naming-conventions-and-boolean-prefixes.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/06-constants-and-enums.md`](../01-prompts/v4/15-cg-execute/06-constants-and-enums.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/07-data-and-schema.md`](../01-prompts/v4/15-cg-execute/07-data-and-schema.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/08-react-frontend-guidelines.md`](../01-prompts/v4/15-cg-execute/08-react-frontend-guidelines.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/09-code-hygiene.md`](../01-prompts/v4/15-cg-execute/09-code-hygiene.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/10-style-guidelines.md`](../01-prompts/v4/15-cg-execute/10-style-guidelines.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/11-testing-and-coverage.md`](../01-prompts/v4/15-cg-execute/11-testing-and-coverage.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/12-relative-paths.md`](../01-prompts/v4/15-cg-execute/12-relative-paths.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/13-cli-commands-and-help.md`](../01-prompts/v4/15-cg-execute/13-cli-commands-and-help.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/14-function-signatures-and-return-types.md`](../01-prompts/v4/15-cg-execute/14-function-signatures-and-return-types.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/15-typescript-guidelines-and-types.md`](../01-prompts/v4/15-cg-execute/15-typescript-guidelines-and-types.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/16-multi-language-enums-and-traits.md`](../01-prompts/v4/15-cg-execute/16-multi-language-enums-and-traits.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/17-terminal-ui-and-cli-styling.md`](../01-prompts/v4/15-cg-execute/17-terminal-ui-and-cli-styling.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/18-function-argument-reduction-and-params.md`](../01-prompts/v4/15-cg-execute/18-function-argument-reduction-and-params.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/19-result-wrapper-and-apperror-returns.md`](../01-prompts/v4/15-cg-execute/19-result-wrapper-and-apperror-returns.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/20-extract-generic-types-to-types-go.md`](../01-prompts/v4/15-cg-execute/20-extract-generic-types-to-types-go.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/21-lazy-regex-and-pattern-matching.md`](../01-prompts/v4/15-cg-execute/21-lazy-regex-and-pattern-matching.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/22-file-size-and-function-reduction.md`](../01-prompts/v4/15-cg-execute/22-file-size-and-function-reduction.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/23-string-operations-and-efficiency.md`](../01-prompts/v4/15-cg-execute/23-string-operations-and-efficiency.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md`](../01-prompts/v4/15-cg-execute/24-isolate-destructive-os-and-heavy-unit-tests.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md`](../01-prompts/v4/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/26-python-boolean-and-conditional-enhancement.md`](../01-prompts/v4/15-cg-execute/26-python-boolean-and-conditional-enhancement.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/27-python-constants-and-magic-number-elimination.md`](../01-prompts/v4/15-cg-execute/27-python-constants-and-magic-number-elimination.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/28-python-array-constants-and-dynamic-enums.md`](../01-prompts/v4/15-cg-execute/28-python-array-constants-and-dynamic-enums.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/29-code-dryness-and-library-extraction.md`](../01-prompts/v4/15-cg-execute/29-code-dryness-and-library-extraction.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/30-clean-repo-build-and-caches.md`](../01-prompts/v4/15-cg-execute/30-clean-repo-build-and-caches.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/31-cg-execute-in-below-steps.md`](../01-prompts/v4/15-cg-execute/31-cg-execute-in-below-steps.md) | 31-cg-execute-in-below-steps.md |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/32-cg-follow-other-prompts.md`](../01-prompts/v4/15-cg-execute/32-cg-follow-other-prompts.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/33-branch-immutability-and-clean-construction.md`](../01-prompts/v4/15-cg-execute/33-branch-immutability-and-clean-construction.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md`](../01-prompts/v4/15-cg-execute/34-golang-pointer-reduction-and-value-semantics.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md`](../01-prompts/v4/15-cg-execute/35-clean-work-artifacts-and-os-caches.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/36-variadic-and-spread-parameters.md`](../01-prompts/v4/15-cg-execute/36-variadic-and-spread-parameters.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/37-string-normalization-and-equalfoldany.md`](../01-prompts/v4/15-cg-execute/37-string-normalization-and-equalfoldany.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/38-map-dispatch-and-handler-lookup.md`](../01-prompts/v4/15-cg-execute/38-map-dispatch-and-handler-lookup.md) | Ledger: NN-<slug> |
-| `v4/15-cg-execute` | [`v4/15-cg-execute/readme.md`](../01-prompts/v4/15-cg-execute/readme.md) | Coding Guideline Execution Suite (`cg-execute`) — Index & Catalog (must follow) |
-| `v4/24-sync` | [`v4/24-sync/01-sync.md`](../01-prompts/v4/24-sync/01-sync.md) | [V6] Full-Fleet Multi-Repository Synchronization & Canonical Mirroring Engine — Workflow (must follow) |
-| `v4/24-sync` | [`v4/24-sync/02-sync-other-codebase.md`](../01-prompts/v4/24-sync/02-sync-other-codebase.md) | [V6] Multi-Repository Synchronization & Downstream Codebase Mirroring — Workflow (must follow) |
-| `v4/24-sync` | [`v4/24-sync/readme.md`](../01-prompts/v4/24-sync/readme.md) | Multi-Repository Synchronization Prompts (`24-sync`) — Index & Catalog |
-| `v4` | [`v4/readme.md`](../01-prompts/v4/readme.md) | V4 Prompts Folder |
 
 ## Maintenance
 

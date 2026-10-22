@@ -24,19 +24,34 @@ This skill provides authoritative architectural guidance, code navigation, and e
 ## 2. Essential Commands
 
 ```bash
-# Check database health, connection status, and schema integrity
-gitmap db status
+# List all registered split-databases and system SQLite files
+gitmap db ls
+gitmap db-listing
 
-# Run forward schema migrations across split databases
-gitmap db migrate
+# Inspect database file sizes, table counts, and disk footprints
+gitmap db sizes list
 
-# Reclaim space and auto-prune pipeline database telemetry (10MB ceiling)
-gitmap db prune
+# Purge pipeline database telemetry and GitHub Actions run artifacts (0.0 GB quota)
 gitmap pipeline purge
 
-# Reset local database to clean state (with safety prompt)
-gitmap db reset
+# Read and explore database tables, views, and schemas (zero-lock WAL mode)
+gitmap db-read master ls
+gitmap db-read tasks table Subtask --columns
+gitmap db-read ".ai-memory/heatmap.db" "SELECT COUNT(*) FROM HeatmapActionLog"
+
+# Mutate and insert records into split-databases
+gitmap db-add tasks Subtask csv "SUB-01","my-task","PENDING"
+gitmap db-edit tasks -table Subtask -id 42 csv "SUB-01","my-task","COMPLETED"
+gitmap db-record-del tasks -table Subtask -id 42 -y
+
+# Search across split-database tables using full-text wildcard
+gitmap db-find master -table Project,Alias --find "enrichment" --json
+
+# Launch dynamic REST API server with interactive visualizer and Swagger UI
+gitmap db-rest master,tasks 8080,8081
 ```
+
+For comprehensive CRUD mutations, join views, and REST API gateway documentation, refer to `@[.cursor/skills/gitmap]` Section 11 and Section 15.
 
 ---
 

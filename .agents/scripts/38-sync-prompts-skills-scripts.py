@@ -131,6 +131,7 @@ EXCLUDE_NAMES = {
     ".DS_Store",
     "06-archive",
     "06-old-prompts",
+    "v4",
     "21-app",
     "21-app-issues",
     "21-app-db",

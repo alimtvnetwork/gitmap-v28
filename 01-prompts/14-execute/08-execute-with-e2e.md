@@ -26,7 +26,7 @@ WAVES = ceil(subtasks / (A x H))
 
 [/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives, custom requirements, checklists, or user instructions are provided ABOVE this prompt outrank everything below. Turn 1 MUST showcase the given task list, recent git commits (`git log -n 5 --oneline`), and recent test cases/suites inventory in visible chat before any background execution. Unlike standard V6, this prompt INVERTS Rule R1 into mandatory local test suite execution and INVERTS Rule R10 into an automated minor release finalization once 100% green. Each rule is stated once (R1 to R16) and cited by ID. Progress lives in the ledger and in `.ai-memory/plans/`, never only in chat.
 
-[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution. Ensure all deliverables, architecture boundaries, test matrices, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
+[/plan](slashCommand;plan) Execute thorough step-by-step planning in the repository before execution for improved work or less friction, faster work and more pure and effective work. Ensure all deliverables, architecture boundaries, test matrices, and requirements are clearly defined in the audit ledger and subtask plans before dispatching worker waves.
 
 ### 🚨 MANDATORY SUBAGENT SPAWNING GATE (A = 3, H = 2, CAPACITY = 6 — TREE SWARM & DYNAMIC JOIN)
 

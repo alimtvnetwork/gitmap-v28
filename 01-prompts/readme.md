@@ -19,7 +19,7 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
    - Substring Filename Search: `gitmap find-files-any "<str>"` (alias: `gitmap ffa`)
    - Directory Indexing: `gitmap list-files [pattern]` (alias: `gitmap lf`)
 
-3. **Pipeline AI & Zero-Credit-Waste Dynamic Waiting:**
+3. **Pipeline AI & Frictionless Dynamic Waiting:**
    - Telemetry Query: `gitmap pipeline-ai status --json`
    - Adaptive Sleep: `gitmap pipeline-ai status -t <etaSeconds>` (replaces expensive busy-polling loops)
    - Failure Log Snippets: `gitmap pipeline errors` (alias: `gitmap pe`)

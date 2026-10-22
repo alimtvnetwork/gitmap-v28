@@ -34,12 +34,26 @@ gitmap ssh "ls -la /var/log" node1 node2
 # Interactive machine join and key registration
 gitmap ssh join user@192.168.1.50 --alias worker-node-1
 
-# Check fleet liveness and port 22 connectivity
+# Check fleet liveness and port 22 connectivity across all nodes
 gitmap ssh health --all
+
+# Format canonical SSH identity token and configure git user
+gitmap ssh identity --email user@example.com --seq 1 --operator lead
 
 # Cluster status inspection and table view
 gitmap cluster status
+
+# Execute parallel command across all online cluster workers
+gitmap cluster exec workers "uptime"
+
+# Query servers-clients topology, active services, and daemon tasks
 gitmap sc list
+
+# Launch background daemon task via server-client engine
+gitmap sc bash "python -m http.server 8080"
+
+# Verify server-client connectivity with zero timeout lag
+gitmap sc ping
 ```
 
 ---
@@ -51,3 +65,4 @@ gitmap sc list
 3. **Hermetic Test Mocking:** Never execute real outbound network requests or SSH connections during unit tests. Unit tests must use mock transports or injectable runners with `defer` restoration blocks.
 4. **Zero Destructive OS Calls:** Scheduled power state alterations (`schedule shutdown`, `restart`) must use injectable executors (`DefaultOSActionExecutor`) and never execute real system calls during testing.
 5. **No Uppercase ID Acronyms:** Machine and node identifiers must strictly follow `NodeId`, `HostId`, `targetId` naming conventions. All-caps `ID` is prohibited.
+6. **Zero `--help` Commands in Automated Workflows:** Probe status and connectivity directly with `gitmap cluster status`, `gitmap sc list`, and `gitmap ssh health --all`. Never execute `--help` commands during automated execution runs.

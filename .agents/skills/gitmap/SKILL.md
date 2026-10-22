@@ -174,11 +174,14 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 ### 9. Multi-Repo, Cluster & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
-- `gitmap cluster --help` — Orchestrate multi-node clusters and health checks.
-- `gitmap sc --help` — Servers-clients topology and background task manager.
-- `gitmap ssh --help` — SSH discovery, connection pooling, and remote command execution.
+- `gitmap cluster status` — Inspect multi-node cluster status, heartbeat connectivity, and worker nodes.
+- `gitmap cluster exec workers "<cmd>"` — Execute command in parallel across online worker cluster nodes.
+- `gitmap sc list` — Query servers-clients topology, active services, and background daemon tasks.
+- `gitmap sc ping` — Verify server-client connectivity with zero timeout lag.
+- `gitmap ssh health --all` — Probe port 22 liveness across all known remote hosts and SSH nodes.
 - `gitmap ssh identity --email <email> --seq <N> --operator <name>` — Formats canonical SSH comment token `<email>-muse<muse-sequence>-<operator-name>` and sets `git config` user identity.
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status.
+- `gitmap install cargo --check` — Validate Cargo and Rust toolchain installation.
 - `gitmap install cargo` — Install Rust toolchain if missing.
 - `gitmap install --list` — Discover developer toolchains, profiles, and runtime packages.
 
@@ -322,6 +325,393 @@ gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoR
 - `gitmap prnt <url1> <url2>... -e` (or `--extract-only`, `-p`) — Resolves and displays direct image links without downloading.
 - `gitmap prnt <url1> <url2>... --json` — Emits structured Universal JSON response envelope.
 - `gitmap prnt <url1> <url2>... -o <dir>` — Saves batch downloads to designated custom directory.
+
+---
+
+## Practical Real-World Command Examples & Workflows
+
+This section provides authoritative, production-tested, copy-pasteable command examples with concrete flags, arguments, and expected behavior across all 12 operational categories. AI agents must refer directly to these concrete templates rather than probing `--help` flags.
+
+### 1. Authentication & GitHub Credential Management
+Managing credentials safely without interactive prompts, plaintext leakage, or browser popups during automated turns.
+
+```bash
+# Non-interactive token ingestion (pre-validated against GitHub API before saving to global git config)
+gitmap login --token "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+gitmap login token "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Offline token ingestion without network verification (for air-gapped runners or local testing)
+gitmap login --token "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" --no-verify
+
+# Non-interactive SSH key profile configuration
+gitmap login ssh work -y
+
+# Inspect current authenticated user and masked credential origin
+gitmap login --status
+
+# List resolved token metadata, scopes, and credential origin from git configuration
+gitmap token list
+
+# Interactive OAuth browser flow (manual developer sessions only)
+gitmap login --web
+
+# Securely purge stored credentials from global git configuration
+gitmap logout
+```
+
+### 2. Workspace & Multi-Repository Status
+High-speed workspace auditing across 40+ repositories in a single invocation without shell traversal loops.
+
+```bash
+# Multi-repository status matrix filtered strictly to dirty working trees
+gitmap status --dirty
+gitmap st -d
+
+# Check repositories with unpushed local commits waiting for remote delivery
+gitmap status --ahead
+
+# Check repositories with incoming remote commits waiting to be pulled
+gitmap status --behind
+
+# Structured machine-readable JSON status for automated agents and scripts
+gitmap status --json
+
+# Check if active repository remote tracking branch has any incoming updates
+gitmap has-any-updates
+gitmap hau
+
+# Query default remote branch name (main vs master) across repositories
+gitmap branch default
+gitmap b def
+
+# Discovers the most recently committed or updated remote branch
+gitmap latest-branch
+gitmap lb
+
+# Terminal live-refresh status monitor without background network fetching
+gitmap watch --json --no-fetch
+
+# Single-line compact status summary across all tracked repositories
+gitmap status --compact
+```
+
+### 3. Script Execution & Runner Engines
+Cross-platform polyglot execution with automatic interpreter resolution from `installation.db`, `-NoProfile` safety, and zero shell quoting breakage.
+
+```bash
+# Run file manipulator script with subcommands
+gitmap py 03-ai-scripts/03-file-manipulator.py lowercase
+
+# Run Python script with verified interpreter from installation.db
+gitmap py "03-ai-scripts/06-cicd-local-runner.py"
+
+# Inline Python expression evaluation with sub-millisecond execution (<15ms)
+gitmap py -c "import sys; print(sys.version_info[:2])"
+
+# Cross-platform PowerShell execution with deterministic -NoProfile and UTF-8
+gitmap pwsh "Get-Process | Where-Object WorkingSet -gt 500MB"
+
+# Direct inline PowerShell command evaluation
+gitmap ps -c "Test-Path .ai-memory/heatmap.db"
+
+# Cross-platform POSIX Bash execution across Windows, Linux, and macOS
+gitmap bash "chmod +x scripts/*.sh && ./scripts/check.sh"
+
+# Direct inline Bash command evaluation
+gitmap sh -c "uname -sm"
+
+# Runner dry-run preview with JSON telemetry output
+gitmap py "03-ai-scripts/14-version-sync-checker.py" --dry-run --json
+```
+
+### 4. Storage, Cache & Secrets Offloading
+Preventing repository pollution by routing scratch scripts, diagnostic fixtures, and secrets to dedicated vaults (`repo-secrets` / `repo-cache`).
+
+```bash
+# Offload sensitive environment file into repo-secrets and auto-push
+gitmap rs file .env --repo coding-guidelines
+
+# Offload private directory into repo-secrets
+gitmap rs folder private/keys --repo coding-guidelines
+
+# Write secret string directly to repo-secrets vault
+gitmap rs text "ghp_secret_pat_value" --slug github-token
+
+# Enumerate stored secret files and metadata in JSON format
+gitmap rs ls --json
+
+# Offload temporary PowerShell diagnostic script to repo-cache (rc)
+gitmap rc file debug-runner.ps1 --repo coding-guidelines
+
+# Offload fixture directory to repo-cache
+gitmap rc folder test/fixtures --repo coding-guidelines
+
+# Write reusable temporary test harness directly to repo-cache
+gitmap rc text "$env:DEBUG=1; go test -v ./..." --slug test-debug --ext .ps1
+
+# Fast navigation shortcuts to vault locations
+gitmap cd rs
+gitmap cd rc
+```
+
+### 5. High-Performance Automation (AUM) & File Discovery
+Replacing slow PowerShell `Get-ChildItem`, `Select-String`, and grep with multi-core streaming, lazy regex, and SQLite hot caches.
+
+```bash
+# Multi-core streaming live code search with extension and directory scoping
+gitmap aum search "RunFleetPASCommand" cli -e .go
+
+# Case-insensitive regex search with boundary patterns
+gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go -i
+
+# Sub-millisecond directory listing (instant replacement for Get-ChildItem)
+gitmap lf "02-spec/21-app"
+
+# Fast glob file discovery across 10,000+ files in <10ms
+gitmap find "*.md" 02-spec/21-app
+
+# Find files matching substring across entire codebase
+gitmap find-files-any "heatmap"
+gitmap ffa "heatmap"
+
+# Find files by filename prefix or suffix
+gitmap find-files-startswith "01-architecture"
+gitmap find-files-endswith "_test.go"
+
+# Direct zero-disk file content streaming into stdout
+gitmap cat "version.json"
+
+# Markdown sequence gap detector and header autofixer
+gitmap aum sequence 02-spec/21-app --fix
+
+# Normalize CRLF to LF line endings and strip trailing whitespace
+gitmap aum newlines . --fix
+
+# Enforce 500 KB file limit, large JSON exclusion, and binary probes
+gitmap aum guard . --max-kb 500 --json
+
+# Exact literal string replacement across files with audit trail
+gitmap replace "old_function_name" "new_function_name"
+```
+
+### 6. Autonomous CI/CD Self-Healing (Pipeline AI)
+Non-polling CI/CD status inspection, calculated ETA timeout waits, bounded failure extraction, and zero-storage artifact cleanup.
+
+```bash
+# Dynamic non-polling ETA wait for running GitHub Actions workflow (in seconds)
+gitmap pipeline-ai status -t 45
+gitmap pipeline-ai status -t 120
+
+# Check pipeline workflow execution state with JSON output
+gitmap pipeline-ai status --json
+
+# Extract concise failing step error summary for 4-part Root Cause Analysis (RCA)
+gitmap pe -t
+
+# Extract bounded failure frame lines (5 before, 20 after) from latest failed run
+gitmap pe -1
+
+# Clear accumulated pipeline error logs non-interactively
+gitmap pe clear -y
+
+# Analyze CI/CD pipeline historical trend across recent runs
+gitmap pe history-ai
+
+# Purge Actions workflow run artifacts to maintain strict 0.0 GB storage quota
+gitmap pipeline purge
+```
+
+### 7. Semantic & Flat Commit Suite
+Disciplined atomic commit workflow enforcing hyphen-separated messages and remote delivery invariants.
+
+```bash
+# Intermediate local checkpoint commit (auto-stages, no remote push, verbatim message)
+gitmap commit "wip - draft initial types and interfaces"
+gitmap cm "wip - draft initial types and interfaces"
+
+# Feature commit (auto-prefixes 'Feature: ', stages all, and pushes to GitHub tracking branch)
+gitmap cpf "skills - enrich gitmap skill with 12 real world categories"
+
+# Bugfix commit (auto-prefixes 'Bug: ', stages all, and pushes to GitHub tracking branch)
+gitmap cpb "cloner - correct concurrency flag parsing and worker limits"
+
+# Chore/Maintenance commit (auto-prefixes 'Chore: ', stages all, and pushes)
+gitmap cpc "docs - realign companion skills and remove help flags"
+
+# Release chore commit (auto-prefixes release chore, stages, and pushes)
+gitmap cpr "release - bump minor version and update changelog"
+
+# Pull latest with rebase, stage all, commit, and push in one verified flow
+gitmap pcp "skills - sync cross-platform runner templates"
+
+# Apply automated repository remediation (stash, discard, or auto-fix)
+gitmap fix all -y
+
+# Safe 2-step git mv file case normalization for lowercase hygiene
+gitmap lowercase *.md -y
+gitmap lowercase
+gitmap lowercase-readme
+```
+
+### 8. Multi-Repo, Cluster & Toolchain Operations
+Managing remote cluster topologies, SSH node pooling, and developer toolchains.
+
+```bash
+# Inspect cluster node status, heartbeat connectivity, and worker nodes
+gitmap cluster status
+
+# Execute command across all online cluster workers in parallel
+gitmap cluster exec workers "df -h / && free -m"
+
+# Servers-clients topology service list and status inspection
+gitmap sc list
+
+# Run background daemon task via server-client engine
+gitmap sc bash "python -m http.server 8080"
+
+# Verify server-client daemon connectivity and response latency
+gitmap sc ping
+
+# Check remote SSH fleet health and port 22 connectivity across all nodes
+gitmap ssh health --all
+
+# Register remote node with authentication vault
+gitmap ssh join user@192.168.1.50 --alias worker-node-1
+
+# Inspect Rust and Cargo toolchain status
+gitmap cargo status
+
+# Validate Cargo toolchain installation without modifying environment
+gitmap install cargo --check
+
+# Install missing toolchain or system runtime
+gitmap install cargo
+```
+
+### 9. Native Fleet Synchronization & SQLite Agent Task Engine
+Compiled native Go task tracking (<1ms WAL mode) and 43-repo synchronization.
+
+```bash
+# Synchronize canonical prompts, skills, and scripts across all 43 repositories
+gitmap sync --workers 8
+
+# Synchronize a single targeted repository by name
+gitmap sync --repo aukgit/core
+
+# Preview fleet synchronization without applying changes
+gitmap sync --dry-run
+
+# Initialize agent task tracking in .ai-memory/temp-agents/<slug>/agent-task.db
+gitmap agent task init --name "skills-enrichment" --budget 400
+
+# Interrogate task status and active subtask progress in JSON format
+gitmap agent task status --json
+
+# Add decomposed subtask bounding box with exclusive file ownership
+gitmap agent subtask add --code "ST-01" --slug "enrich-gitmap-skill" --title "Enrich gitmap skill with examples"
+
+# List pending subtasks in current task ledger
+gitmap agent task pending
+
+# Claim next available subtask atomically
+gitmap agent subtask claim --agent "worker-01"
+
+# Mark claimed subtask completed with verification evidence
+gitmap agent subtask complete 1 --agent "worker-01" --evidence "12 categories added and verified"
+
+# Mark subtask failed with explicit diagnostic rationale
+gitmap agent subtask fail 1 --agent "worker-01" --reason "syntax error in target spec"
+
+# Perform post-mortem autopsy and crash diagnosis
+gitmap agent diagnose
+gitmap agent crashed
+
+# Clean ephemeral agent task database after verified completion
+gitmap agent temp-clear
+```
+
+### 10. File Contention Heatmap, Cognitive Telemetry & RC Sync
+Sub-millisecond SQLite WAL tracking of agent decisions, active leases, and contention hotspots.
+
+```bash
+# Step 0 Pre-Flight schema and status verification
+gitmap heatmap status
+gitmap heatmap tables
+
+# Pre-Action Intent Logging (mandatory prior to reading or modifying files)
+gitmap heatmap log --task "skills-enrichment" --action "READ" --file ".agents/skills/gitmap/skill.md" --state "EXPLORATION" --expected "Analyze existing command matrix"
+
+# Post-Action Outcome Closure (mandatory immediately after operation)
+gitmap heatmap update --id 1 --outcome "Identified missing real-world examples" --met true
+
+# Render hierarchical causal tree of all actions taken during the task
+gitmap heatmap tree --task "skills-enrichment"
+
+# Multi-agent file contention analysis and collision blast radius check
+gitmap agent heatmap
+
+# Safe read-only SQL query against cognitive heatmap database
+gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, IsExpectationMet FROM HeatmapActionLog ORDER BY HeatmapActionLogId DESC LIMIT 5" --json
+
+# Companion repo-cache (rc) heatmap status and synchronization
+gitmap rc heatmap status
+gitmap rc heatmap sync
+```
+
+### 11. Native SQLite Database Exploration, REST API Server & Lifecycle Suite
+High-speed native Go SQLite exploration, mutation, join views, and dynamic REST gateways.
+
+```bash
+# List all registered and system SQLite databases with sizes and query metrics
+gitmap db-listing
+gitmap dbl
+
+# List all tables and views in database with column and row counts
+gitmap db-read master ls
+gitmap db-read ".ai-memory/heatmap.db" ls
+
+# Inspect table schema, data types, and primary key constraints
+gitmap db-read tasks table Subtask --columns
+gitmap db-read ".ai-memory/heatmap.db" table HeatmapActionLog --columns --json
+
+# Execute read-only SQL query with timing telemetry
+gitmap db-read ".ai-memory/heatmap.db" "SELECT COUNT(*) FROM HeatmapActionLog"
+
+# Insert new record into table from CSV values
+gitmap db-add tasks Subtask csv "SUB-01","my-task","PENDING"
+
+# Update existing record by primary key
+gitmap db-edit tasks -table Subtask -id 42 csv "SUB-01","my-task","COMPLETED"
+
+# Search database across multiple tables using full-text wildcard
+gitmap db-find master -table Project,Alias --find "enrichment" --json
+
+# Delete a single record by primary key
+gitmap db-record-del tasks -table Subtask -id 42 -y
+
+# Create persistent joined view across tables
+gitmap db-view tasks -t "Subtask as s, Task as t" --viewname ViewSubtasks --find "s.TaskId = t.TaskId"
+
+# Launch REST API daemon with auto-generated Swagger UI (/swagger) and Visualizer (/ui)
+gitmap db-rest master,tasks 8080,8081
+```
+
+### 12. Screenshot Extraction & Lightshot Downloading
+Native compiled parallel screenshot asset extraction, CDN resolution, and Antigravity Brain sync.
+
+```bash
+# Download single Lightshot/prnt.sc screenshot and auto-sync to Antigravity Brain
+gitmap prnt "https://prnt.sc/abcdef"
+
+# Resolve direct image URLs without downloading (dry-run probe)
+gitmap prnt "https://prnt.sc/abcdef" -e
+
+# Emits structured Universal JSON response envelope and saves to custom directory
+gitmap prnt "https://prnt.sc/abcdef" -o assets/screenshots --json
+
+# Batch download multiple screenshot URLs in parallel
+gitmap prnt "https://prnt.sc/url1" "https://prnt.sc/url2" "https://prnt.sc/url3"
+```
 
 ---
 

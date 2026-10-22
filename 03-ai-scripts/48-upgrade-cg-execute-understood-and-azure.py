@@ -134,8 +134,6 @@ def main() -> int:
 
     print(f"Discovered {len(prompt_files)} prompt files in {PROMPTS_DIR}")
 
-    V4_PROMPTS_DIR.mkdir(parents=True, exist_ok=True)
-
     upgraded_count = 0
     verification_errors = 0
 
@@ -162,20 +160,7 @@ def main() -> int:
             # Write upgraded file to 01-prompts/15-cg-execute/
             with open(prompt_path, "w", encoding="utf-8", newline="\n") as f:
                 f.write(upgraded_text)
-
-            # Mirror to 01-prompts/v4/15-cg-execute/
-            v4_path = V4_PROMPTS_DIR / filename
-            with open(v4_path, "w", encoding="utf-8", newline="\n") as f:
-                f.write(upgraded_text)
-
-            # Byte verification
-            orig_bytes = prompt_path.read_bytes()
-            v4_bytes = v4_path.read_bytes()
-            if orig_bytes != v4_bytes:
-                print(f"[ERROR] Byte verification failed for {filename} and {v4_path}")
-                verification_errors += 1
-            else:
-                upgraded_count += 1
+            upgraded_count += 1
         else:
             upgraded_count += 1
 
@@ -183,10 +168,9 @@ def main() -> int:
         print(f"[FAILED] Completed with {verification_errors} verification error(s).")
         return 1
 
-    mode_label = "Dry-run checked" if args.dry_run else "Successfully upgraded and mirrored"
+    mode_label = "Dry-run checked" if args.dry_run else "Successfully upgraded"
     print(f"[SUCCESS] {mode_label} all {upgraded_count} prompts across:")
     print(f"  - {PROMPTS_DIR} (38 files)")
-    print(f"  - {V4_PROMPTS_DIR} (38 files)")
     return 0
 
 
