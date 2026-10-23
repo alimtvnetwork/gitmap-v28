@@ -530,7 +530,7 @@ A dedicated Antigravity skill MUST be authored at `.agents/skills/heatmap/skill.
 Prior to approving pull requests or cutting releases, the following automated quality gates must be satisfied:
 
 ### 7.1 Targeted Linters & Code Hygiene
-- [ ] **Relative Path Linter:** Execute `python linter-scripts/check-relative-paths.py`. Must report 0 absolute paths (`C:\`, `/home/`, `file:///`).
+- [ ] **Relative Path Linter:** Execute `python linter-scripts/check-relative-paths.py`. Must report zero non-relative filesystem paths or URI schemes.
 - [ ] **Forbidden Strings Linter:** Execute `python linter-scripts/check-forbidden-strings.py`. Must confirm zero forbidden debugging tokens or unapproved constructs.
 - [ ] **Coding Style Linter:** Execute `python linter-scripts/check-style-guidelines.py`. Must confirm blank lines after `}` and before `return`.
 
