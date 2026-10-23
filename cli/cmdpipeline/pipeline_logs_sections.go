@@ -62,7 +62,7 @@ func renderSectionSourceDetails(sec SectionFailure) {
 	if len(sec.WorkflowName) > 0 {
 		logger = sec.WorkflowName
 	}
-	url := resolveSectionUrl(sec.Url, sec.RunId)
+	url := resolveSectionUrl(sec.Url, int64(sec.RunId))
 	logFile := filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile))
 	if len(logFile) == 0 {
 		logFile = "in-memory / active stream"
