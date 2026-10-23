@@ -2,8 +2,10 @@ package cmdcommit
 
 import (
 	"database/sql"
+	"fmt"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -59,7 +61,9 @@ func ensureHeatmapCommitLogTable(conn *sql.DB) {
     TransactionsCommittedCount INTEGER NOT NULL DEFAULT 0, CommittedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PushedSuccessfully INTEGER NOT NULL DEFAULT 1, RemoteOrigin TEXT NOT NULL DEFAULT '',
     Notes TEXT NULL, Comments TEXT NULL, CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);`
-	_, _ = conn.Exec(sqlCreate)
+	if _, err := conn.Exec(sqlCreate); err != nil {
+		fmt.Fprintf(output.UIErr(), "Warning: ensure HeatmapCommitLog table failed: %v\n", err)
+	}
 }
 
 func insertHeatmapCommitLogRow(conn *sql.DB, rec store.CommitHistoryRecord) {
@@ -70,5 +74,7 @@ func insertHeatmapCommitLogRow(conn *sql.DB, rec store.CommitHistoryRecord) {
 	if rec.HasPushed {
 		hasPushedInt = 1
 	}
-	_, _ = conn.Exec(query, rec.TaskSlug, rec.RepoSlug, rec.CommitSha, rec.CommitMessage, rec.FilesChanged, hasPushedInt)
+	if _, err := conn.Exec(query, rec.TaskSlug, rec.RepoSlug, rec.CommitSha, rec.CommitMessage, rec.FilesChanged, hasPushedInt); err != nil {
+		fmt.Fprintf(output.UIErr(), "Warning: insert HeatmapCommitLog row failed: %v\n", err)
+	}
 }

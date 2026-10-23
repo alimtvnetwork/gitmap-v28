@@ -180,19 +180,11 @@ func scanSplitDbRow(conn *sql.DB, fullSha, dbPath string, rep *CommitInfoReport)
 	rep.CrossReferences.HasSplitDbRecord = true
 	rep.CrossReferences.SplitDbPath = dbPath
 	rep.CrossReferences.SplitDbRecordId = id
-	applySplitDbProvenance(rep, aiModel, tool, agentId, sessId, isAi == 1)
-	applySplitDbTask(rep, task, spec, notes, plans, subs)
-}
-
-func applySplitDbProvenance(rep *CommitInfoReport, aiModel, tool, agentId, sessId string, isAi bool) {
 	rep.Provenance.AiModel = aiModel
 	rep.Provenance.ToolName = tool
 	rep.Provenance.AgentId = agentId
 	rep.Provenance.SessionUuid = sessId
-	rep.Provenance.IsAiCommitted = isAi
-}
-
-func applySplitDbTask(rep *CommitInfoReport, task, spec, notes string, plans, subs int) {
+	rep.Provenance.IsAiCommitted = (isAi == 1)
 	rep.Provenance.TaskSlug = task
 	rep.SpecPath = spec
 	rep.CognitiveIntention = notes
@@ -245,7 +237,9 @@ func countHeatmapActions(conn *sql.DB, taskSlug string) int {
 
 	var count int
 	q := `SELECT COUNT(*) FROM HeatmapActionLog WHERE TaskSlug = ?`
-	_ = conn.QueryRow(q, taskSlug).Scan(&count)
+	if err := conn.QueryRow(q, taskSlug).Scan(&count); err != nil {
+		return 0
+	}
 
 	return count
 }
