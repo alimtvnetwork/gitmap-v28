@@ -215,16 +215,6 @@ func hasExplicitPullTarget(opts pullOptions) bool {
 	return opts.slug != "" || opts.group != "" || opts.all || HasAlias()
 }
 
-func discoverCWDPullRecords() []model.ScanRecord {
-	cwd, _ := os.Getwd()
-	records := ResolvePullDirectoryTargets(cwd)
-	if len(records) == 0 {
-		return findChildrenOfCWD(cwd)
-	}
-
-	return records
-}
-
 func handleNoTrackedReposInCWD() {
 	arrow := resolveSubArrow()
 	fmt.Printf("    %s%s%s %snothing to pull: no tracked repositories found in or under this directory.%s\n\n",

@@ -193,25 +193,3 @@ func pullOneRepo(rec model.ScanRecord) {
 		fmt.Fprintf(os.Stderr, constants.MsgPullFailed, rec.RepoName, result.Error)
 	}
 }
-
-func findChildrenOfCWD(cwd string) []model.ScanRecord {
-	all := loadAllRecordsDB()
-	var children []model.ScanRecord
-	prefix := ensureTrailingPathSep(cwd)
-	for _, r := range all {
-		if strings.HasPrefix(r.AbsolutePath, prefix) || r.AbsolutePath == cwd {
-			children = append(children, r)
-		}
-	}
-
-	return deduplicatePullRecords(children)
-}
-
-func ensureTrailingPathSep(path string) string {
-	sep := string(os.PathSeparator)
-	if strings.HasSuffix(path, sep) {
-		return path
-	}
-
-	return path + sep
-}

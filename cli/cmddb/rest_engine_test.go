@@ -75,14 +75,14 @@ func TestCatalogAndSchemaEndpoints(t *testing.T) {
 	defer cache.Close()
 
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/api/v1/databases", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/databases", nil)
 	mux.ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)
 	}
 
 	recTables := httptest.NewRecorder()
-	reqTables := httptest.NewRequest("GET", "/api/v1/db/testdb/tables", nil)
+	reqTables := httptest.NewRequest(http.MethodGet, "/api/v1/db/testdb/tables", nil)
 	mux.ServeHTTP(recTables, reqTables)
 	if recTables.Code != http.StatusOK {
 		t.Fatalf("expected 200 for tables, got %d", recTables.Code)
@@ -98,7 +98,7 @@ func TestCrudRecordLifecycle(t *testing.T) {
 	// Insert
 	body := bytes.NewBufferString(`{"Name": "Charlie", "Age": 28, "IsActive": 1}`)
 	recIns := httptest.NewRecorder()
-	reqIns := httptest.NewRequest("POST", "/api/v1/db/testdb/User", body)
+	reqIns := httptest.NewRequest(http.MethodPost, "/api/v1/db/testdb/User", body)
 	mux.ServeHTTP(recIns, reqIns)
 	if recIns.Code != http.StatusCreated {
 		t.Fatalf("insert record expected 201, got %d", recIns.Code)
@@ -106,7 +106,7 @@ func TestCrudRecordLifecycle(t *testing.T) {
 
 	// Query list
 	recList := httptest.NewRecorder()
-	reqList := httptest.NewRequest("GET", "/api/v1/db/testdb/User?page=1&limit=10", nil)
+	reqList := httptest.NewRequest(http.MethodGet, "/api/v1/db/testdb/User?page=1&limit=10", nil)
 	mux.ServeHTTP(recList, reqList)
 	if recList.Code != http.StatusOK {
 		t.Fatalf("query records expected 200, got %d", recList.Code)
@@ -115,7 +115,7 @@ func TestCrudRecordLifecycle(t *testing.T) {
 	// Update
 	updBody := bytes.NewBufferString(`{"Age": 29}`)
 	recUpd := httptest.NewRecorder()
-	reqUpd := httptest.NewRequest("PUT", "/api/v1/db/testdb/User/1", updBody)
+	reqUpd := httptest.NewRequest(http.MethodPut, "/api/v1/db/testdb/User/1", updBody)
 	mux.ServeHTTP(recUpd, reqUpd)
 	if recUpd.Code != http.StatusOK {
 		t.Fatalf("update record expected 200, got %d", recUpd.Code)
@@ -123,7 +123,7 @@ func TestCrudRecordLifecycle(t *testing.T) {
 
 	// Delete
 	recDel := httptest.NewRecorder()
-	reqDel := httptest.NewRequest("DELETE", "/api/v1/db/testdb/User/1", nil)
+	reqDel := httptest.NewRequest(http.MethodDelete, "/api/v1/db/testdb/User/1", nil)
 	mux.ServeHTTP(recDel, reqDel)
 	if recDel.Code != http.StatusOK {
 		t.Fatalf("delete record expected 200, got %d", recDel.Code)
