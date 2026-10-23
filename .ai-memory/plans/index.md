@@ -4,67 +4,55 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-None.
+None. All active execution tracks are maintained directly under `.ai-memory/plans/subtasks/`.
 
-## Recent Completed Tasks Register (Last 20 Tasks)
+## Completed Plans (Consolidated Milestones 01–32)
 
-1. [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
-2. [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
-2. [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
-2. [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
-2. [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
-3. [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
-4. [24-os-management-and-power-lifecycle.md](completed/24-os-management-and-power-lifecycle.md): OS Management, Clean Profiles, Service Scheduling & Power Lifecycle
-5. [23-installers-antigravity-and-archives.md](completed/23-installers-antigravity-and-archives.md): Installers, Antigravity Setup, Linux Archives & Scripts-Fixer Parity
-6. [22-database-transactions-and-schemas.md](completed/22-database-transactions-and-schemas.md): Database Architecture: Transactions, SQLite Schemas, Profiles & Telemetry
-7. [21-type-safety-result-and-types-go.md](completed/21-type-safety-result-and-types-go.md): Type Safety: Monadic Result Wrappers, types.go Centralization & Parameter Structs
-8. [20-error-management-and-errorwrapper.md](completed/20-error-management-and-errorwrapper.md): Error Management, AppError Envelopes, Stack Traces & ErrorWrapper Architecture
-9. [19-smart-test-runner-and-inventory.md](completed/19-smart-test-runner-and-inventory.md): Smart Test Runner, Inventory Manifests & Dynamic ETA Sleep Sync
-10. [18-nuclear-package-modularization.md](completed/18-nuclear-package-modularization.md): Nuclear Package Modularization & Codebase Reorganization
-11. [17-macro-streaming-export-and-schedule.md](completed/17-macro-streaming-export-and-schedule.md): Macro Engine: Streaming, Export/Import, Run-Until, Storage & Scheduling
-12. [16-cluster-sc-and-kubernetes-suite.md](completed/16-cluster-sc-and-kubernetes-suite.md): Cluster, Servers-Clients (SC), Kubernetes Runner & Node Management
-13. [15-ssh-multicommand-and-liveness-parity.md](completed/15-ssh-multicommand-and-liveness-parity.md): SSH Multi-Command, Multi-Machine Join, Liveness & AGY Help Parity
-14. [14-pipeline-agy-fix-injection-suite.md](completed/14-pipeline-agy-fix-injection-suite.md): Pipeline Errors AGY Fix Injection, Queue & Multi-Project Batching
-15. [13-pipeline-sqlite-logs-and-history.md](completed/13-pipeline-sqlite-logs-and-history.md): CI/CD Pipeline Logs, SQLite Error History & Incremental DB
-16. [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): 12-git-deleted-files-tracer-and-purger.md
-17. [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): 79-completed-plans-consolidation.md
-18. [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Scripts & Web Stacks
-19. [09-chrome-profile-management-picker-and-token-vault.md](completed/09-chrome-profile-management-picker-and-token-vault.md): Chrome Profile Management, Picker & Token Vault
-20. [08-terminal-ui-help-parity-and-cli-commands.md](completed/08-terminal-ui-help-parity-and-cli-commands.md): Terminal UI, Help Parity & Interactive Macro Builder
+All completed work has been merged into 32 dense, authoritative milestone summaries in `completed/`:
 
-## Completed Plans
-
-- [38-polyglot-worker-orchestrator-and-automation-runner.md](completed/38-polyglot-worker-orchestrator-and-automation-runner.md): Polyglot Worker Orchestrator & Automation Runner
-- [37-aum-helptext-documentation-parity-and-cli-catalog.md](completed/37-aum-helptext-documentation-parity-and-cli-catalog.md): AUM Helptext Documentation Parity & CLI Catalog Alignment
-- [36-aum-polyglot-script-migration-and-llm-train-suite.md](completed/36-aum-polyglot-script-migration-and-llm-train-suite.md): AUM Polyglot Script Migration & LLM Train Chained Curriculum Suite
-- [01-coding-guidelines-and-style-audits.md](completed/01-coding-guidelines-and-style-audits.md): Coding Guidelines, Sizing, Booleans & Style Quality
-- [02-error-management-and-cliexit-architecture.md](completed/02-error-management-and-cliexit-architecture.md): Centralized Error Architecture & Cliexit Engine
-- [03-type-safety-function-signatures-and-contracts.md](completed/03-type-safety-function-signatures-and-contracts.md): Type Safety, Signatures, Enums & React Architecture
-- [04-cicd-pipelines-runners-and-streaming-telemetry.md](completed/04-cicd-pipelines-runners-and-streaming-telemetry.md): CI/CD Pipelines, Multi-Worker Runners & Real-Time Streaming
-- [05-database-engine-sqlite-joins-and-scanners.md](completed/05-database-engine-sqlite-joins-and-scanners.md): Database Engine, SQLite Schema, Joins & Typed Scanners
-- [06-git-operations-commit-engines-and-remediation.md](completed/06-git-operations-commit-engines-and-remediation.md): Git Operations, Commit Engines & Interactive Remediation
-- [07-ssh-nodes-cluster-delegation-and-remote-exec.md](completed/07-ssh-nodes-cluster-delegation-and-remote-exec.md): SSH Nodes, Cluster Delegation & Remote Execution Engine
-- [08-terminal-ui-help-parity-and-cli-commands.md](completed/08-terminal-ui-help-parity-and-cli-commands.md): Terminal UI, Help Parity & Interactive Macro Builder
-- [09-chrome-profile-management-picker-and-token-vault.md](completed/09-chrome-profile-management-picker-and-token-vault.md): Chrome Profile Management, Picker & Token Vault
-- [10-installers-multios-setup-and-web-stacks.md](completed/10-installers-multios-setup-and-web-stacks.md): Multi-OS Installers, Scripts & Web Stacks
-- [11-completed-plans-consolidation.md](completed/11-completed-plans-consolidation.md): 79-completed-plans-consolidation.md
-- [12-git-deleted-files-tracer-and-purger.md](completed/12-git-deleted-files-tracer-and-purger.md): 12-git-deleted-files-tracer-and-purger.md
-- [13-pipeline-sqlite-logs-and-history.md](completed/13-pipeline-sqlite-logs-and-history.md): CI/CD Pipeline Logs, SQLite Error History & Incremental DB
-- [14-pipeline-agy-fix-injection-suite.md](completed/14-pipeline-agy-fix-injection-suite.md): Pipeline Errors AGY Fix Injection, Queue & Multi-Project Batching
-- [15-ssh-multicommand-and-liveness-parity.md](completed/15-ssh-multicommand-and-liveness-parity.md): SSH Multi-Command, Multi-Machine Join, Liveness & AGY Help Parity
-- [16-cluster-sc-and-kubernetes-suite.md](completed/16-cluster-sc-and-kubernetes-suite.md): Cluster, Servers-Clients (SC), Kubernetes Runner & Node Management
-- [17-macro-streaming-export-and-schedule.md](completed/17-macro-streaming-export-and-schedule.md): Macro Engine: Streaming, Export/Import, Run-Until, Storage & Scheduling
-- [18-nuclear-package-modularization.md](completed/18-nuclear-package-modularization.md): Nuclear Package Modularization & Codebase Reorganization
-- [19-smart-test-runner-and-inventory.md](completed/19-smart-test-runner-and-inventory.md): Smart Test Runner, Inventory Manifests & Dynamic ETA Sleep Sync
-- [20-error-management-and-errorwrapper.md](completed/20-error-management-and-errorwrapper.md): Error Management, AppError Envelopes, Stack Traces & ErrorWrapper Architecture
-- [21-type-safety-result-and-types-go.md](completed/21-type-safety-result-and-types-go.md): Type Safety: Monadic Result Wrappers, types.go Centralization & Parameter Structs
-- [22-database-transactions-and-schemas.md](completed/22-database-transactions-and-schemas.md): Database Architecture: Transactions, SQLite Schemas, Profiles & Telemetry
-- [23-installers-antigravity-and-archives.md](completed/23-installers-antigravity-and-archives.md): Installers, Antigravity Setup, Linux Archives & Scripts-Fixer Parity
-- [24-os-management-and-power-lifecycle.md](completed/24-os-management-and-power-lifecycle.md): OS Management, Clean Profiles, Service Scheduling & Power Lifecycle
-- [25-terminal-ui-help-and-agy-prompts.md](completed/25-terminal-ui-help-and-agy-prompts.md): Terminal UI, Help Text Parity, Aligned Tables & AGY CLI Prompts
-- [26-coding-guidelines-and-linter-audits.md](completed/26-coding-guidelines-and-linter-audits.md): Coding Guidelines & Linter Audits (Booleans, Nesting, Enums, Sizes, Paths)
-- [27-completed-plans-consolidation.md](completed/27-completed-plans-consolidation.md): Completed Plans Aggressive Consolidation & Memory Reduction (v2.2.0)
+- [01-generation-1-core-foundation-milestones.md](completed/01-generation-1-core-foundation-milestones.md): Core Architecture, Scanner, Types, Database, Git Operations, Terminal UI, Installers & Chrome Profile Vault
+- [02-generation-2-fleet-automation-and-modularization.md](completed/02-generation-2-fleet-automation-and-modularization.md): Cluster Fleet, Macro Engine, Nuclear Modularization, Smart Test Runner, DB Locking, Antigravity Packaging & Quality Gates
+- [03-agy-prompts-templates-and-rerun-suite.md](completed/03-agy-prompts-templates-and-rerun-suite.md): AGY Prompt Templates, Decision Logs, Non-Destructive Rerun Commands & Prompt Sync
+- [04-auto-aliasing-and-error-storage-reset.md](completed/04-auto-aliasing-and-error-storage-reset.md): Auto-Aliasing Migration, Internal Errors Database & Safe DB Reset
+- [05-ssh-exec-copy-mv-env-and-rm-sync-resilience.md](completed/05-ssh-exec-copy-mv-env-and-rm-sync-resilience.md): Remote SSH Operations, Streaming Upload, Deploy Keys & Sync Modes
+- [06-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md](completed/06-pipeline-repo-folder-forward-slash-clear-and-accurate-eta.md): Pipeline Path Normalization, Cache Clearing & Accurate ETA Forecasting
+- [07-pipeline-deep-eta-and-repo-folder-parity.md](completed/07-pipeline-deep-eta-and-repo-folder-parity.md): Deep ETA Profiling, Heatmap Telemetry & Unit Test Traceback Extraction
+- [08-ai-scripts-engine-ssh-authkey-and-feature-parity.md](completed/08-ai-scripts-engine-ssh-authkey-and-feature-parity.md): Automation Scripts Engine, SSH Authorized Keys & Platform Parity
+- [09-generic-ai-scripts-creator-and-scaffolding-engine.md](completed/09-generic-ai-scripts-creator-and-scaffolding-engine.md): Scaffolding Engine, Toolchain Scripts & Automation Runners
+- [10-native-automation-engine-lazy-regex-and-benchmarks.md](completed/10-native-automation-engine-lazy-regex-and-benchmarks.md): Native Automation Engine, Lazy Regex Compilation & AUM Search Benchmarks
+- [11-fleet-nodes-ping-envelope-and-remote-clone.md](completed/11-fleet-nodes-ping-envelope-and-remote-clone.md): Unified Fleet Nodes Command, Dual-Stack Ping, Typed JSON Envelopes & Remote Clone
+- [12-pas-worker-concurrency-pull-cache-and-split-db.md](completed/12-pas-worker-concurrency-pull-cache-and-split-db.md): GitMap PAS Formula, Worker Concurrency, Ignore Engine & Split-DB Repo Cache
+- [13-semantic-flat-commit-and-macro-execution-resilience.md](completed/13-semantic-flat-commit-and-macro-execution-resilience.md): Semantic Flat Commit Suite (`gitmap c`), Auto-Staging & Macro Idempotency
+- [14-ssh-password-interception-and-rsa-credential-vault.md](completed/14-ssh-password-interception-and-rsa-credential-vault.md): Masked Password Interception, RSA-OAEP Salt Credential Vault & Push Self-Healing
+- [15-ubuntu-fleet-migration-workstation-governance-and-customization.md](completed/15-ubuntu-fleet-migration-workstation-governance-and-customization.md): Windows to Ubuntu Fleet Migration, GNOME 140% Scaling & Workstation Governance
+- [16-antigravity-fleet-parity-prompting-freeze-and-ide-sync.md](completed/16-antigravity-fleet-parity-prompting-freeze-and-ide-sync.md): AGY UI Plugins, Skills Sync, Terminal Freeze Remediation & Multi-IDE Scan Sync
+- [17-codebase-review-remediation-and-preconsolidation-baseline.md](completed/17-codebase-review-remediation-and-preconsolidation-baseline.md): Root Clutter Purge, README Index Reduction, Security Token Purge & Baseline Release
+- [18-app-spec-and-completed-plans-consolidation-and-reduction.md](completed/18-app-spec-and-completed-plans-consolidation-and-reduction.md): Application Specifications Consolidation, 8 Canonical Clusters & Memory Compaction
+- [19-deep-spec-consolidation-and-canonical-reduction.md](completed/19-deep-spec-consolidation-and-canonical-reduction.md): Deep Spec Consolidation, Canonical 8-Cluster Reduction & Memory Unification
+- [20-git-history-purge-and-undo.md](completed/20-git-history-purge-and-undo.md): Git History Purge & Undo Engine with Pre-Flight Graph Diff & SplitDB Journal
+- [21-aria2c-download-and-multi-user-switching.md](completed/21-aria2c-download-and-multi-user-switching.md): Aria2c Download Method, Smart Update Engine, Multi-User Project Switching & GitHub CLI Auth Sync
+- [22-path-normalization-and-backup-guard-suite.md](completed/22-path-normalization-and-backup-guard-suite.md): Forward Slash Path Normalization, Backup Branch Clean Tree Guard & E2E Verification
+- [23-agm-update-tui-and-update-ui-alignment.md](completed/23-agm-update-tui-and-update-ui-alignment.md): AGM Update TUI Fix, UI Color Alignment & Inline Release Notes
+- [24-pull-remediation-automerge-and-large-files.md](completed/24-pull-remediation-automerge-and-large-files.md): Pull Remediation Optimization, Auto-Merge Conflict Resolution & Large Files Split Engine
+- [25-pipeline-parallel-download-and-heartbeat.md](completed/25-pipeline-parallel-download-and-heartbeat.md): Pipeline Parallel Download, Heartbeat Telemetry & Caching
+- [26-codebase-improvements-and-fleet-sync.md](completed/26-codebase-improvements-and-fleet-sync.md): Codebase Improvement Suite, Prompt Catalog & Fleet Sync
+- [27-result-wrapper-and-monadic-containers.md](completed/27-result-wrapper-and-monadic-containers.md): Monadic Result Containers, AppError Architecture & Stutter Eradication
+- [28-coding-guidelines-and-code-hygiene-suite.md](completed/28-coding-guidelines-and-code-hygiene-suite.md): Coding Guidelines, Condition Flattening & Code Hygiene Suite
+- [29-workspace-pull-all-and-ssh-fleet-acceleration.md](completed/29-workspace-pull-all-and-ssh-fleet-acceleration.md): Workspace-Wide Default Pull & Accelerated SSH Fleet Remote Execution
+- [30-commit-tracking-heatmap-url-and-database.md](completed/30-commit-tracking-heatmap-url-and-database.md): Commit Tracking, Heatmap Telemetry, URL Correlation & Split-DB
+- [31-historical-commands-stores-and-email-daemon.md](completed/31-historical-commands-stores-and-email-daemon.md): Historical Commands, Stores Architecture & Email Automation
+- [32-installer-discovery-warning-suppression-and-release.md](completed/32-installer-discovery-warning-suppression-and-release.md): Installer Discovery Warning Suppression, Dual Installer Sync & Release v6.596.0
 
 ## Subtasks
 
-Zero active subtask directories. All 16 historical subtask sets have been synthesized and folded directly into their parent consolidated milestone documents in completed/.
+Active subtask directories maintained under `subtasks/`:
+- [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/)
+- [226-ubuntu-cursor-memories-conversations-and-projects-migration](subtasks/226-ubuntu-cursor-memories-conversations-and-projects-migration/)
+- [56-vmware-hardware-batch-and-macro-orchestration](subtasks/56-vmware-hardware-batch-and-macro-orchestration/)
+- [75-gitmap-u1-ubuntu-agm-fleet-integration](subtasks/75-gitmap-u1-ubuntu-agm-fleet-integration/)
+- [git-prime-machine-os-version-and-ui-help-docs-improvement](subtasks/git-prime-machine-os-version-and-ui-help-docs-improvement/)
+- [gitmap-enhancement-and-issue-resolution](subtasks/gitmap-enhancement-and-issue-resolution/)
+- [gitmap-node-and-prompt-system-issues](subtasks/gitmap-node-and-prompt-system-issues/)
+- [goemailsender-connection-and-testing](subtasks/goemailsender-connection-and-testing/)
+- [muse-memory-io-and-gitmap-integration](subtasks/muse-memory-io-and-gitmap-integration/)
+- [update-antigravity-ide](subtasks/update-antigravity-ide/)
