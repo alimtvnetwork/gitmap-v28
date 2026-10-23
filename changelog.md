@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.598.0] - 2026-10-23
+
+### Added
+- fix installer scripts and CI pipeline compilation
+
+---
+
 ## [v6.597.0] - 2026-10-23
 
 ### Added
