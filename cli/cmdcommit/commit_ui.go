@@ -29,6 +29,31 @@ func isGitNoiseLine(line string) bool {
 	return false
 }
 
+func printPaddedInfo(format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("  %s%s%s %s\n", constants.ColorCyan, "INFO", constants.ColorReset, msg)
+}
+
+func printPaddedSuccess(format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("  %s%s%s %s\n", constants.ColorGreen, "SUCCESS", constants.ColorReset, msg)
+}
+
+func printPaddedWarning(format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("  %s%s%s %s\n", constants.ColorYellow, "WARN", constants.ColorReset, msg)
+}
+
+func printPaddedError(format string, a ...any) {
+	msg := fmt.Sprintf(format, a...)
+	fmt.Printf("  %s%s%s %s\n", constants.ColorRed, "ERROR", constants.ColorReset, msg)
+}
+
+func printCommandVersionFooter() {
+	fmt.Println()
+	fmt.Printf("  %sgitmap v%s%s\n", constants.ColorDim, constants.Version, constants.ColorReset)
+}
+
 // execGitPaddedFiltered runs a git command, filters noise lines, and indents lines by 4 spaces.
 func execGitPaddedFiltered(gitArgs ...string) error {
 	cmd := exec.Command("git", gitArgs...)
