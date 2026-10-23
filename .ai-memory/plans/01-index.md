@@ -4,7 +4,7 @@ Master directory of architectural and execution plans.
 
 ## Pending Plans
 
-- [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md): VMware Hardware Customization, Multi-VM Batch Operations, and Macro Orchestration (Spec: [190](../../02-spec/21-app/190-vmware-macro-audit-task-and-installer-chain.md))
+None.
 
 ## Recent Completed Tasks Register (Last 20 Tasks)
 
@@ -124,5 +124,14 @@ Master directory of architectural and execution plans.
 
 ## Subtasks
 
-- [91-ssh-join-common-scan-and-agy-rop](subtasks/91-ssh-join-common-scan-and-agy-rop/): 5 subtask specifications for SSH batch common join, subnet scanner, OS detection/info, AGY ROP, and AUM search benchmarks (completed in Plan 91).
-- [52-winutil-linutil](subtasks/): 5 subtasks (52.1–52.5) for advanced WinUtil & LinUtil native Go integration (DM, privacy tweaks, DNS switcher, updater, Bubbletea TUI).
+Active subtask directories maintained under `subtasks/`:
+- [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/)
+- [226-ubuntu-cursor-memories-conversations-and-projects-migration](subtasks/226-ubuntu-cursor-memories-conversations-and-projects-migration/)
+- [56-vmware-hardware-batch-and-macro-orchestration](subtasks/56-vmware-hardware-batch-and-macro-orchestration/)
+- [75-gitmap-u1-ubuntu-agm-fleet-integration](subtasks/75-gitmap-u1-ubuntu-agm-fleet-integration/)
+- [git-prime-machine-os-version-and-ui-help-docs-improvement](subtasks/git-prime-machine-os-version-and-ui-help-docs-improvement/)
+- [gitmap-enhancement-and-issue-resolution](subtasks/gitmap-enhancement-and-issue-resolution/)
+- [gitmap-node-and-prompt-system-issues](subtasks/gitmap-node-and-prompt-system-issues/)
+- [goemailsender-connection-and-testing](subtasks/goemailsender-connection-and-testing/)
+- [muse-memory-io-and-gitmap-integration](subtasks/muse-memory-io-and-gitmap-integration/)
+- [update-antigravity-ide](subtasks/update-antigravity-ide/)
