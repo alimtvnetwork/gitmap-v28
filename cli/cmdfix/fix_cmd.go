@@ -207,6 +207,15 @@ func executeFixWorkerStep(mu *sync.Mutex, completed *int, total int, action stri
 	return res.Err
 }
 
+func resolveRecipeIdx(action string, recipes []gitutil.RemediationRecipe) int {
+	idx := parseRecipeIndex(action, recipes)
+	if idx < 0 || idx >= len(recipes) {
+		return 0
+	}
+
+	return idx
+}
+
 func reportFixBatchResult(mu *sync.Mutex, completed *int, total int, res FixStepResult, failedRepos *[]string) {
 	mu.Lock()
 	defer mu.Unlock()
