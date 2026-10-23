@@ -244,4 +244,3 @@ func scanNegativeIndex(args []string) (int, bool) {
 
 	return 0, false
 }
-

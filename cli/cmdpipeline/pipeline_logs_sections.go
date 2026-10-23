@@ -42,20 +42,27 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	}
 }
 
+func resolveSectionUrl(url string, runId int64) string {
+	if len(url) > 0 {
+		return url
+	}
+	if runId <= 0 {
+		return ""
+	}
+	repo := resolveCurrentRepoSlug()
+	if len(repo) > 0 {
+		return fmt.Sprintf("https://github.com/%s/actions/runs/%d", repo, runId)
+	}
+
+	return fmt.Sprintf("https://github.com/actions/runs/%d", runId)
+}
+
 func renderSectionSourceDetails(sec SectionFailure) {
 	logger := "github-actions"
 	if len(sec.WorkflowName) > 0 {
 		logger = sec.WorkflowName
 	}
-	url := sec.Url
-	if len(url) == 0 {
-		repo := resolveCurrentRepoSlug()
-		if len(repo) > 0 && sec.RunId > 0 {
-			url = fmt.Sprintf("https://github.com/%s/actions/runs/%d", repo, sec.RunId)
-		} else if sec.RunId > 0 {
-			url = fmt.Sprintf("https://github.com/actions/runs/%d", sec.RunId)
-		}
-	}
+	url := resolveSectionUrl(sec.Url, sec.RunId)
 	logFile := filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile))
 	if len(logFile) == 0 {
 		logFile = "in-memory / active stream"

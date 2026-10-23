@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.595.0] - 2026-10-23
+
+### Added
+- fix legacy refs in tests, gofmt trailing newline, and flatten nested ifs in pipeline logs
+
+---
+
 ## [v6.594.0] - 2026-10-23
 
 ### Added

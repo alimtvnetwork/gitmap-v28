@@ -134,14 +134,14 @@ func fetchJobLevelFailedLogs(repo string, runId uint64, jobs []ghJobItem) (strin
 }
 
 func resolveJobLogConcurrency(total int) int {
-	if total <= 8 {
-		if total < 1 {
-			return 1
-		}
-		return total
+	if total < 1 {
+		return 1
+	}
+	if total > 8 {
+		return 8
 	}
 
-	return 8
+	return total
 }
 
 func executeParallelJobLogFetches(repo string, jobs []ghJobItem) []string {

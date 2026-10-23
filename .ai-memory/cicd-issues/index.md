@@ -114,4 +114,5 @@
 - [123-file-size-gate-root-cobra-and-completion-install-rca.md](./123-file-size-gate-root-cobra-and-completion-install-rca.md): Fix file size gate 300-line cap on root_cobra_completion.go and completion/install.go by decomposing into smaller modules.
 - [124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md](./124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md): Fix go vet duplicate json tags, gofmt formatting, file size gate 300-line cap, and nested if linter violations across lemon subsystem.
 - [125-unused-injectcolumnfor-gencommands-and-helpdoc-lemon-rca.md](./125-unused-injectcolumnfor-gencommands-and-helpdoc-lemon-rca.md): Fix unused injectColumnFor dead code, gencommands top-level opt-in marker, and helpdoc coverage for lemon command.
+- [126-legacy-refs-test-gofmt-and-nested-ifs-rca.md](./126-legacy-refs-test-gofmt-and-nested-ifs-rca.md): Fix CI failures on Legacy Refs Check, gofmt formatting, and nested ifs in pipeline logs.
 
