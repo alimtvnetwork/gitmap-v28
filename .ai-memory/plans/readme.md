@@ -152,6 +152,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [294-code-refactoring-and-coding-guideline-update.md](completed/294-code-refactoring-and-coding-guideline-update.md) — Code Refactoring and Coding Guideline Update (Status: `completed` 2026-10-23)
 - [67-nodes-cfr-remote-fleet-clone-enhancement.md](completed/67-nodes-cfr-remote-fleet-clone-enhancement.md) — Nodes CFR Remote Fleet Clone Enhancement & Async Delegation (Status: `completed` 2026-10-23)
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](completed/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Status: `completed` 2026-10-23)
+- [313-gitmap-execution-and-optimization-instructions.md](completed/313-gitmap-execution-and-optimization-instructions.md) — GitMap Execution and Optimization Instructions: Windows SSH Fleet Quoting Fix, Pull Split-DB Concurrency Locking, Encrypted SSH Key Vault & Auto-Relogin, Heatmap JSON & AI Provenance, CPU Scaling, Update Optimization, and Repository Scan Disable/Enable Controls (Status: `completed` 2026-10-23)
 
 ---
 

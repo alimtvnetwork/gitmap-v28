@@ -30,3 +30,42 @@ const (
 	MsgPullNoAvailable     = "No repos with available updates. Run `gitmap probe --all` first.\n"
 	WarnPullFilterFallback = "  ⚠ --only-available filter unavailable (probe DB unreadable); falling back to full target set"
 )
+
+// Pull Task table names.
+const (
+	TablePullTask       = "PullTask"
+	TablePullTaskRepo   = "PullTaskRepo"
+	TablePullEtaHistory = "PullEtaHistory"
+)
+
+// Pull task execution status enums.
+const (
+	PullTaskStatusPending   = "pending"
+	PullTaskStatusRunning   = "running"
+	PullTaskStatusCompleted = "completed"
+	PullTaskStatusFailed    = "failed"
+	PullTaskStatusCancelled = "cancelled"
+)
+
+// Pull task repo progress status enums.
+const (
+	PullTaskRepoStatusPending = "pending"
+	PullTaskRepoStatusPulling = "pulling"
+	PullTaskRepoStatusSuccess = "success"
+	PullTaskRepoStatusSkipped = "skipped"
+	PullTaskRepoStatusFailed  = "failed"
+)
+
+// Pull task settings and operational tuning constants.
+const (
+	SettingPullRetentionDays       = "pull_retention_days"
+	DefaultPullRetentionDays       = 7
+	PullTaskHeartbeatIntervalSec   = 5
+	PullTaskHeartbeatExpirySec     = 30
+	PullTaskStaleLockThresholdSec  = 60
+	PullTaskWatcherPollIntervalSec = 10
+	PullTaskDefaultBaselineEtaSec  = 0.85
+	PullTaskRollingEtaSampleLimit  = 8
+	PullTaskRollingEtaMinSamples   = 2
+	SQLPragmaBusyTimeout10s        = "PRAGMA busy_timeout = 10000"
+)

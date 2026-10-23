@@ -154,6 +154,66 @@ export const commands: CommandDef[] = [
   },
   {
     category: "scanning",
+    name: "disable-scan",
+    alias: "ds",
+    description: "Disable repository paths from background scanning and fleet pull operations",
+    usage: "gitmap disable-scan [repos/ranges] [--all]",
+    flags: [
+      { flag: "--all", description: "Disable all scanned repositories" },
+      { flag: "--json", description: "Emit structured JSON output" },
+    ],
+    examples: [
+      { command: "gitmap disable-scan", description: "Interactive numbered sequence menu" },
+      { command: "gitmap disable-scan 1-5, 8", description: "Disable repositories by index range" },
+      { command: "gitmap ds auth-service, docs", description: "Disable repositories by slug name" },
+    ],
+    seeAlso: [
+      { name: "enable-scan", description: "Re-enable previously disabled repositories" },
+      { name: "scan disable-repos", description: "Subcommand variant under gitmap scan" },
+      { name: "scan", description: "Scan directory tree for Git repositories" },
+    ],
+  },
+  {
+    category: "scanning",
+    name: "enable-scan",
+    alias: "es",
+    description: "Re-enable repository paths for background scanning and fleet pull operations",
+    usage: "gitmap enable-scan [repos/ranges] [--all]",
+    flags: [
+      { flag: "--all", description: "Re-enable all excluded repositories" },
+      { flag: "--json", description: "Emit structured JSON output" },
+    ],
+    examples: [
+      { command: "gitmap enable-scan", description: "Interactive numbered sequence menu of excluded repos" },
+      { command: "gitmap enable-scan 1-3", description: "Re-enable repositories by index range" },
+      { command: "gitmap es auth-service", description: "Re-enable repository by slug name" },
+    ],
+    seeAlso: [
+      { name: "disable-scan", description: "Disable repository paths from scanning" },
+      { name: "scan disable-repos", description: "Subcommand variant under gitmap scan" },
+    ],
+  },
+  {
+    category: "scanning",
+    name: "scan disable-repos",
+    alias: "scan disable",
+    description: "Disable scanned repositories from automated directory scanning and fleet pull runs",
+    usage: "gitmap scan disable-repos [repos/ranges] [--all]",
+    flags: [
+      { flag: "--all", description: "Disable all scanned repositories" },
+      { flag: "--json", description: "Emit structured JSON output" },
+    ],
+    examples: [
+      { command: "gitmap scan disable-repos", description: "Numbered menu of tracked repos with toggle states" },
+      { command: "gitmap scan disable-repos 1-5, 8", description: "Disable repositories matching index range" },
+    ],
+    seeAlso: [
+      { name: "disable-scan", description: "Root command alias for disabling scan on repositories" },
+      { name: "enable-scan", description: "Re-enable previously excluded repositories" },
+    ],
+  },
+  {
+    category: "scanning",
     name: "desktop-sync", alias: "ds", description: "Register all tracked repos with GitHub Desktop",
     usage: "gitmap desktop-sync",
     examples: [

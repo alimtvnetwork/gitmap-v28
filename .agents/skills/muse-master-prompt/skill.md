@@ -144,7 +144,7 @@ WAVES = ceil(subtasks / (A x H))
 3. **RUNNING Declaration & 5-Minute Status Pings:**
    - Print `RUNNING — Task-01, Task-02 — ETA ~45 min`. Ping status every 5 minutes during execution. Total ban on `LISTING-WITHOUT-STARTING`.
 4. **Pull First in Target Repo:** Run `gitmap pull` (fallback `git pull`) before touching any files.
-5. **RC Heatmap Preflight, Automatic Creation & Roadmap Linkage:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the split-db structure; check active write leases via `gitmap agent heatmap` (or `gitmap rc heatmap status`) to enforce One Owner Per File; link roadmap to `gitmap rc heatmap tree` for dynamic join without redundant reads; log all exploration and edit decisions with rationale via `gitmap heatmap log` into `.ai-memory/heatmap.db`.
+5. **RC Heatmap Preflight, Automatic Creation & Roadmap Linkage:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the split-db structure; check active write leases via `gitmap agent heatmap` (or `gitmap rc heatmap status`) to enforce One Owner Per File; link roadmap to `gitmap rc heatmap tree` for dynamic join without redundant reads; log all exploration and edit decisions with rationale via one-shot JSON ingestion (`gitmap heatmap log --json '{"task":"<slug>","action":"READ|EDIT","file":"<path>","state":"<STATE>","expected":"<goal>","model":"muse","tool":"muse-runner"}'`) into companion RC split-DB.
 6. **SQLite Task DB, Existence Check & Prompt MD5 Hash Verification:** Run `gitmap agent task init --name "<task name>" --budget 400`. If task already exists, report parent task ID, active subagents, subtasks status, and touched files. Verify prompt MD5 hash to resume seamlessly or ingest updated directives. Maintain human-readable `.ai-memory/temp-agents/<slug>/ledger.md`.
 7. **Mandatory Multi-Agent Execution:**
    - Dispatch `A = 3` subagents in disjoint file boxes (`TypeName: "research"` for discovery, `TypeName: "self"` for execution) with immediate dynamic respawn.
@@ -380,3 +380,54 @@ All Git troubleshooting must adhere to non-negotiable safety rules:
      ```bash
      git status --porcelain
      ```
+
+### 5. Multi-AI Heatmap Telemetry & Repo-Cache Synchronization (Muse Protocol)
+
+Muse agents operate across distributed cloud runners and local developer nodes. To prevent workspace git conflicts and maintain zero lock contention with other AI engines (e.g., Google Antigravity, Claude Code), Muse enforces dedicated RC heatmap telemetry in `repo-cache`.
+
+#### 5.1 Why RC Split-DB Isolation is Mandatory for Muse
+1. **Zero Git Conflict Guarantee:** Direct writes to `.ai-memory/heatmap.db` in repository worktrees generate uncommitted file modifications and SQLite lock collisions (`database is locked`) when multiple agents execute concurrently.
+2. **Dedicated Split-DB Namespace:** GitMap auto-provisions companion databases under `repo-cache/.heatmap/muse/<repo>/heatmap.db`.
+3. **Non-Blocking Synchronization:** Telemetry commits and upstream synchronization occur exclusively within `repo-cache` via `gitmap rc heatmap sync`, leaving the active repository's git index 100% pristine.
+
+#### 5.2 Pre-Flight Discovery & Roadmap Traversal
+Prior to authoring or modifying any files, every Muse agent MUST interrogate the cognitive roadmap:
+
+```bash
+# 1. Inspect active task telemetry and agent leases across AI engines:
+gitmap rc heatmap status
+
+# 2. Render hierarchical roadmap of prior reads, edits, and decisions:
+gitmap rc heatmap tree --task <task-slug>
+
+# 3. Search logged decisions and previous code snippets by slug or topic:
+gitmap heatmap search "<task-slug>"
+gitmap heatmap search "ssh_vault" -f "cli/cmdssh/ssh_vault.go"
+```
+
+Newly spawned or dynamically joining Muse agents inspect `gitmap rc heatmap tree` to discover which files were already read by prior agents, what architectural decisions were committed, and which subtasks remain pending in `.ai-memory/plans/<slug>.md`.
+
+#### 5.3 One-Shot JSON Action Logging (Muse Provenance)
+Muse agents MUST record every cognitive action, exploration read, and file modification using one-shot JSON payload ingestion with `model: "muse"` and `tool: "muse-runner"`:
+
+```bash
+# Gate 1: File Exploration & Reading Intent (READ)
+gitmap heatmap log --json '{"task":"<task-slug>","repo":"<repo>","action":"READ","file":"cli/cmdssh/ssh_vault.go","state":"EXPLORATION","expected":"Locate private key vault entrypoint","model":"muse","tool":"muse-runner"}'
+
+# Gate 1: File Modification & Editing Intent (EDIT)
+gitmap heatmap log --json '{"task":"<task-slug>","repo":"<repo>","action":"EDIT","file":"cli/cmdssh/ssh_vault.go","state":"EXECUTION","expected":"Add transparent key vault decryption fallback","model":"muse","tool":"muse-runner"}'
+
+# Gate 2: Outcome Verification & Telemetry Close (UPDATE)
+gitmap heatmap update --id <id> --outcome "Vault decryption wired successfully" --met true
+```
+
+#### 5.4 Repo-Cache Telemetry Synchronization & Activity Streaming
+After completing a logical batch of subtask modifications or upon reaching a milestone, Muse synchronizes its telemetry records with `repo-cache`:
+
+```bash
+# Bidirectionally synchronize telemetry with repo-cache without workspace git conflicts:
+gitmap rc heatmap sync
+
+# Stream real-time multi-agent activity:
+gitmap rc heatmap live
+```

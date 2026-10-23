@@ -27,6 +27,7 @@ Each domain cluster represents the authoritative, consolidated specification for
 
 The following application specification records the active feature development and consolidation milestone:
 
+- [313-gitmap-execution-and-optimization-instructions](313-gitmap-execution-and-optimization-instructions/01-architecture-spec.md) — Plan 313: Windows SSH Fleet Quoting Fix, Pull Split-DB Concurrency Locking, Encrypted SSH Key Vault & Auto-Relogin, Heatmap JSON & AI Provenance, CPU Scaling, Update Optimization, and Repository Scan Disable/Enable Controls (Specs: [Architecture](313-gitmap-execution-and-optimization-instructions/01-architecture-spec.md), [Component](313-gitmap-execution-and-optimization-instructions/02-component-and-examples-spec.md), [Migration & Verification](313-gitmap-execution-and-optimization-instructions/03-migration-and-verification-spec.md)) (Status: `completed`)
 - [312-fix-all-terminal-output-quality](312-fix-all-terminal-output-quality/01-architecture-spec.md) — Plan 312: High-Quality Terminal Output for `gitmap fix --all` (Status: `completed`)
 - [311-pull-all-workspaces-and-ssh-fleet-speed](311-pull-all-workspaces-and-ssh-fleet-speed/01-architecture-spec.md) — Plan 311: Workspace-Wide Default Pull & Accelerated SSH Fleet Remote Execution (Status: `completed`)
 - [310-relative-paths](310-relative-paths/01-architecture-spec.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Status: `completed`)

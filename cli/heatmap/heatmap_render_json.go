@@ -26,11 +26,12 @@ func buildAgentLikeLogMap(rec store.HeatmapActionLogRecord, dbPath string) map[s
 		"actionLogId": rec.HeatmapActionLogId,
 		"status":      "LOGGED",
 	}
+
 	populateLogRecordFields(resp, rec)
-	hasDbPath := dbPath != ""
-	if hasDbPath {
+	if dbPath != "" {
 		resp["databasePath"] = computeRelativeDbPath(dbPath)
 	}
+
 	resp["files"] = buildHeatmapFilesSection(rec)
 
 	return resp
@@ -42,41 +43,67 @@ func buildHeatmapFilesSection(rec store.HeatmapActionLogRecord) fsutil.Classifie
 	return fsutil.ClassifyFileTargets(rec.FilePath, rec.ActionType, cwd)
 }
 
-func populateLogRecordFields(resp map[string]any, rec store.HeatmapActionLogRecord) {
+func populateLogRecordIdentity(resp map[string]any, rec store.HeatmapActionLogRecord) {
 	if rec.TaskSlug != "" {
 		resp["taskSlug"] = rec.TaskSlug
 	}
+
 	if rec.ActionType != "" {
 		resp["actionType"] = rec.ActionType
 	}
+
 	if rec.FilePath != "" {
 		resp["filePath"] = rec.FilePath
 	}
+}
+
+func populateLogRecordReasoning(resp map[string]any, rec store.HeatmapActionLogRecord) {
 	if rec.ReasoningState != "" {
 		resp["reasoningState"] = rec.ReasoningState
 	}
+
 	if rec.ReasoningNotes != "" {
 		resp["reasoningNotes"] = rec.ReasoningNotes
 	}
+
 	if rec.ExpectedOutcome != "" {
 		resp["expectedOutcome"] = rec.ExpectedOutcome
 	}
 }
 
-func renderHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord, dbPath string, flags map[string]string) error {
+func populateLogRecordAttribution(resp map[string]any, rec store.HeatmapActionLogRecord) {
+	if rec.ModelName != "" {
+		resp["modelName"] = rec.ModelName
+	}
+
+	if rec.ToolName != "" {
+		resp["toolName"] = rec.ToolName
+	}
+}
+
+func populateLogRecordFields(resp map[string]any, rec store.HeatmapActionLogRecord) {
+	populateLogRecordIdentity(resp, rec)
+	populateLogRecordReasoning(resp, rec)
+	populateLogRecordAttribution(resp, rec)
+}
+
+func renderLogTextIfRequested(out io.Writer, rec store.HeatmapActionLogRecord, flags map[string]string) bool {
 	hasText := flags["text"] == "true" || flags["plain"] == "true"
 	if hasText {
 		fmt.Fprintf(out, "Logged heatmap action #%d [task=%s, action=%s, file=%s]\n",
 			rec.HeatmapActionLogId, rec.TaskSlug, rec.ActionType, rec.FilePath)
+	}
 
+	return hasText
+}
+
+func renderHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord, dbPath string, flags map[string]string) error {
+	if renderLogTextIfRequested(out, rec, flags) {
 		return nil
 	}
 
-	hasEnvelope := flags["envelope"] == "true"
-	if hasEnvelope {
-		env := BuildHeatmapLogEnvelope(rec, dbPath)
-
-		return writeIndentedJSON(out, env)
+	if flags["envelope"] == "true" {
+		return writeIndentedJSON(out, BuildHeatmapLogEnvelope(rec, dbPath))
 	}
 
 	resp := buildAgentLikeLogMap(rec, dbPath)
@@ -84,20 +111,23 @@ func renderHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord, d
 	return writeIndentedJSON(out, resp)
 }
 
-func renderRcHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord, dbPath, aiName, repoSlug string, flags map[string]string) error {
+func renderRcLogTextIfRequested(out io.Writer, rec store.HeatmapActionLogRecord, aiName, repoSlug string, flags map[string]string) bool {
 	hasText := flags["text"] == "true" || flags["plain"] == "true"
 	if hasText {
 		fmt.Fprintf(out, "Logged RC heatmap action #%d [ai=%s, repo=%s, task=%s, action=%s, file=%s]\n",
 			rec.HeatmapActionLogId, aiName, repoSlug, rec.TaskSlug, rec.ActionType, rec.FilePath)
+	}
 
+	return hasText
+}
+
+func renderRcHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord, dbPath, aiName, repoSlug string, flags map[string]string) error {
+	if renderRcLogTextIfRequested(out, rec, aiName, repoSlug, flags) {
 		return nil
 	}
 
-	hasEnvelope := flags["envelope"] == "true"
-	if hasEnvelope {
-		env := BuildRcLogEnvelope(rec, dbPath, aiName, repoSlug)
-
-		return writeIndentedJSON(out, env)
+	if flags["envelope"] == "true" {
+		return writeIndentedJSON(out, BuildRcLogEnvelope(rec, dbPath, aiName, repoSlug))
 	}
 
 	resp := buildAgentLikeLogMap(rec, dbPath)
@@ -107,8 +137,8 @@ func renderRcHeatmapLogResponse(out io.Writer, rec store.HeatmapActionLogRecord,
 	return writeIndentedJSON(out, resp)
 }
 
-func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, dbPath, statusStr string) map[string]any {
-	resp := map[string]any{
+func initUpdateResponseMap(updated store.HeatmapActionLogRecord, statusStr string) map[string]any {
+	return map[string]any{
 		"actionLogId":       updated.HeatmapActionLogId,
 		"status":            "UPDATED",
 		"actualOutcome":     updated.ActualOutcome,
@@ -116,29 +146,37 @@ func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, dbPath, statu
 		"isExpectationMet":  updated.IsExpectationMet,
 		"expectationStatus": statusStr,
 	}
-	hasDbPath := dbPath != ""
-	if hasDbPath {
+}
+
+func buildAgentLikeUpdateMap(updated store.HeatmapActionLogRecord, dbPath, statusStr string) map[string]any {
+	resp := initUpdateResponseMap(updated, statusStr)
+	populateLogRecordAttribution(resp, updated)
+	if dbPath != "" {
 		resp["databasePath"] = computeRelativeDbPath(dbPath)
 	}
+
 	resp["files"] = buildHeatmapFilesSection(updated)
 
 	return resp
 }
 
-func renderHeatmapUpdateResponse(out io.Writer, updated store.HeatmapActionLogRecord, dbPath, statusStr string, flags map[string]string) error {
+func renderUpdateTextIfRequested(out io.Writer, updated store.HeatmapActionLogRecord, statusStr string, flags map[string]string) bool {
 	hasText := flags["text"] == "true" || flags["plain"] == "true"
 	if hasText {
 		fmt.Fprintf(out, "Updated heatmap action #%d [outcome=%q, met=%v, status=%s]\n",
 			updated.HeatmapActionLogId, updated.ActualOutcome, updated.IsExpectationMet, statusStr)
+	}
 
+	return hasText
+}
+
+func renderHeatmapUpdateResponse(out io.Writer, updated store.HeatmapActionLogRecord, dbPath, statusStr string, flags map[string]string) error {
+	if renderUpdateTextIfRequested(out, updated, statusStr, flags) {
 		return nil
 	}
 
-	hasEnvelope := flags["envelope"] == "true"
-	if hasEnvelope {
-		env := BuildHeatmapLogEnvelope(updated, dbPath)
-
-		return writeIndentedJSON(out, env)
+	if flags["envelope"] == "true" {
+		return writeIndentedJSON(out, BuildHeatmapLogEnvelope(updated, dbPath))
 	}
 
 	resp := buildAgentLikeUpdateMap(updated, dbPath, statusStr)
@@ -147,19 +185,12 @@ func renderHeatmapUpdateResponse(out io.Writer, updated store.HeatmapActionLogRe
 }
 
 func renderRcUpdateResponse(out io.Writer, updated store.HeatmapActionLogRecord, dbPath, aiName, repoSlug, statusStr string, flags map[string]string) error {
-	hasText := flags["text"] == "true" || flags["plain"] == "true"
-	if hasText {
-		fmt.Fprintf(out, "Updated RC heatmap action #%d [outcome=%q, met=%v, status=%s]\n",
-			updated.HeatmapActionLogId, updated.ActualOutcome, updated.IsExpectationMet, statusStr)
-
+	if renderUpdateTextIfRequested(out, updated, statusStr, flags) {
 		return nil
 	}
 
-	hasEnvelope := flags["envelope"] == "true"
-	if hasEnvelope {
-		env := BuildRcLogEnvelope(updated, dbPath, aiName, repoSlug)
-
-		return writeIndentedJSON(out, env)
+	if flags["envelope"] == "true" {
+		return writeIndentedJSON(out, BuildRcLogEnvelope(updated, dbPath, aiName, repoSlug))
 	}
 
 	resp := buildAgentLikeUpdateMap(updated, dbPath, statusStr)

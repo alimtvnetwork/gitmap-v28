@@ -200,33 +200,41 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 	if probed := probeRemoteOSType(client); probed != "" {
 		return probed
 	}
+
 	return osType
 }
 
-func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string, shellType string) (string, error) {
+func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd, shellType string) (string, error) {
 	out, err := secrets.RunCommand(client, remoteCmd, shellType)
 	if strings.Contains(out, "flag provided but not defined: -json") {
-		return handleLegacyRemotePull(client, c, remoteCmd)
+		return handleLegacyRemotePull(client, c, remoteCmd, shellType)
 	}
+
 	if strings.Contains(out, "pending task already exists for pa") {
-		return recoverRemotePendingTask(client, out, remoteCmd)
+		return recoverRemotePendingTask(client, out, remoteCmd, shellType)
 	}
 
 	return out, err
 }
 
-func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
+func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd, shellType string) (string, error) {
 	osType := resolveTargetNodeOS(client, c)
 	updateTargetNodeGitmap(client, osType)
-	return secrets.RunCommand(client, remoteCmd, "")
+	resolvedShell := resolveRemoteShell(osType)
+	if shellType != "" {
+		resolvedShell = shellType
+	}
+
+	return secrets.RunCommand(client, remoteCmd, resolvedShell)
 }
 
-func recoverRemotePendingTask(client *ssh.Client, rawOutput string, remoteCmd string) (string, error) {
+func recoverRemotePendingTask(client *ssh.Client, rawOutput, remoteCmd, shellType string) (string, error) {
 	taskID := extractPendingTaskID(rawOutput)
 	if taskID != "" {
-		_, _ = secrets.RunCommand(client, "gitmap task cancel "+taskID, "")
+		_, _ = secrets.RunCommand(client, "gitmap task cancel "+taskID, shellType)
 	}
-	return secrets.RunCommand(client, remoteCmd, "")
+
+	return secrets.RunCommand(client, remoteCmd, shellType)
 }
 
 func extractPendingTaskID(s string) string {
@@ -235,11 +243,13 @@ func extractPendingTaskID(s string) string {
 	if idx == -1 {
 		return ""
 	}
+
 	sub := s[idx+4:]
 	end := strings.Index(sub, ")")
 	if end == -1 {
 		return ""
 	}
+
 	return strings.TrimSpace(sub[:end])
 }
 
@@ -247,6 +257,7 @@ func resolvePASWorkerCount() int {
 	if isHighCPUPressure() {
 		return 1
 	}
+
 	return MaxPASWorkers
 }
 
@@ -254,5 +265,6 @@ func isHighCPUPressure() bool {
 	if os.Getenv("GITMAP_HIGH_CPU") == "1" {
 		return true
 	}
+
 	return runtime.NumCPU() <= 2
 }

@@ -1,12 +1,14 @@
 package secrets
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"strings"
 	"time"
+	"unicode/utf16"
 
 	"golang.org/x/crypto/ssh"
 
@@ -180,6 +182,7 @@ func wrapCmdCommand(cmd, trimmed string) string {
 	if strings.HasPrefix(trimmed, "cmd.exe") || strings.HasPrefix(trimmed, "cmd ") {
 		return cmd
 	}
+
 	return fmt.Sprintf("cmd.exe /c \"%s\"", cmd)
 }
 
@@ -187,13 +190,52 @@ func wrapPowerShellCommand(cmd, trimmed string) string {
 	if strings.HasPrefix(trimmed, "powershell") || strings.HasPrefix(trimmed, "pwsh") {
 		return cmd
 	}
+
+	if hasComplexPowerShell(cmd) {
+		return WrapPowerShellEncodedCommand(cmd)
+	}
+
 	return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
+}
+
+// WrapPowerShellEncodedCommand transforms a PowerShell script into a Base64 UTF-16LE encoded command string.
+// Eliminates quotes, semicolons, and metacharacters for safe execution under Windows OpenSSH cmd.exe /c.
+func WrapPowerShellEncodedCommand(cmd string) string {
+	payload := encodeUTF16LEBase64(cmd)
+
+	return "powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand " + payload
+}
+
+// ResolveRemoteShell returns the canonical shell identifier ("ps", "bash", "sh") for a target OS string.
+func ResolveRemoteShell(osType string) string {
+	lower := strings.ToLower(strings.TrimSpace(osType))
+	if strings.Contains(lower, "win") {
+		return "ps"
+	}
+
+	return "bash"
+}
+
+func encodeUTF16LEBase64(s string) string {
+	u16 := utf16.Encode([]rune(s))
+	b := make([]byte, len(u16)*2)
+	for i, v := range u16 {
+		b[i*2] = byte(v)
+		b[i*2+1] = byte(v >> 8)
+	}
+
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func hasComplexPowerShell(cmd string) bool {
+	return strings.ContainsAny(cmd, "$;'\"\n\r`|&<>")
 }
 
 func wrapBashCommand(cmd, trimmed string) string {
 	if strings.HasPrefix(trimmed, "bash ") || strings.HasPrefix(trimmed, "sh ") {
 		return cmd
 	}
+
 	return fmt.Sprintf("bash -c %q", cmd)
 }
 
@@ -201,5 +243,6 @@ func wrapShCommand(cmd, trimmed string) string {
 	if strings.HasPrefix(trimmed, "sh ") {
 		return cmd
 	}
+
 	return fmt.Sprintf("sh -c %q", cmd)
 }

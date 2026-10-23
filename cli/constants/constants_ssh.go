@@ -48,13 +48,17 @@ const LegacyTableSSHKeys = "SSHKeys"
 
 // SQL: create SshKey table (v15).
 const SQLCreateSshKey = `CREATE TABLE IF NOT EXISTS SshKey (
-	SshKeyId    INTEGER PRIMARY KEY AUTOINCREMENT,
-	Name        TEXT NOT NULL UNIQUE,
-	PrivatePath TEXT NOT NULL,
-	PublicKey   TEXT NOT NULL,
-	Fingerprint TEXT NOT NULL,
-	Email       TEXT DEFAULT '',
-	CreatedAt   TEXT DEFAULT CURRENT_TIMESTAMP
+	SshKeyId            INTEGER PRIMARY KEY AUTOINCREMENT,
+	Name                TEXT NOT NULL UNIQUE,
+	PrivatePath         TEXT NOT NULL,
+	PublicKey           TEXT NOT NULL,
+	Fingerprint         TEXT NOT NULL,
+	Email               TEXT DEFAULT '',
+	EncryptedPrivateKey TEXT DEFAULT '',
+	KeyType             TEXT DEFAULT 'ed25519',
+	Provider            TEXT DEFAULT 'github',
+	IsDefault           INTEGER DEFAULT 0,
+	CreatedAt           TEXT DEFAULT CURRENT_TIMESTAMP
 )`
 
 // SQL: SshKey operations (v15). Constant names retain SSH for callsite stability.
@@ -62,14 +66,23 @@ const (
 	SQLInsertSSHKey = `INSERT INTO SshKey (Name, PrivatePath, PublicKey, Fingerprint, Email)
 		VALUES (?, ?, ?, ?, ?)`
 
+	SQLInsertSSHKeyWithVault = `INSERT INTO SshKey (Name, PrivatePath, PublicKey, Fingerprint, Email, EncryptedPrivateKey, KeyType, Provider, IsDefault)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
 	SQLUpdateSSHKey = `UPDATE SshKey SET PrivatePath = ?, PublicKey = ?, Fingerprint = ?, Email = ?
 		WHERE Name = ?`
 
-	SQLSelectAllSSHKeys = `SELECT SshKeyId, Name, PrivatePath, PublicKey, Fingerprint, Email, CreatedAt
+	SQLUpdateSSHKeyWithVault = `UPDATE SshKey SET PrivatePath = ?, PublicKey = ?, Fingerprint = ?, Email = ?, EncryptedPrivateKey = ?, KeyType = ?, Provider = ?, IsDefault = ?
+		WHERE Name = ?`
+
+	SQLSelectAllSSHKeys = `SELECT SshKeyId, Name, PrivatePath, PublicKey, Fingerprint, Email, EncryptedPrivateKey, KeyType, Provider, IsDefault, CreatedAt
 		FROM SshKey ORDER BY Name`
 
-	SQLSelectSSHKeyByName = `SELECT SshKeyId, Name, PrivatePath, PublicKey, Fingerprint, Email, CreatedAt
+	SQLSelectSSHKeyByName = `SELECT SshKeyId, Name, PrivatePath, PublicKey, Fingerprint, Email, EncryptedPrivateKey, KeyType, Provider, IsDefault, CreatedAt
 		FROM SshKey WHERE Name = ?`
+
+	SQLSelectDefaultSSHKey = `SELECT SshKeyId, Name, PrivatePath, PublicKey, Fingerprint, Email, EncryptedPrivateKey, KeyType, Provider, IsDefault, CreatedAt
+		FROM SshKey WHERE IsDefault = 1 ORDER BY SshKeyId ASC LIMIT 1`
 
 	SQLDeleteSSHKeyByName = `DELETE FROM SshKey WHERE Name = ?`
 )
