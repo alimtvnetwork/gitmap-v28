@@ -148,6 +148,53 @@ func runParallelFixWorkers(action string, items []cmdremediation.RemediationItem
 	return failedRepos
 }
 
+// resolveRecipeIdx returns the index of the recipe in recipes that matches
+// the requested fix action, following the same title-keyword vocabulary as
+// summarizeRecipeAction. Numeric actions ("1", "2", "3") match the recipe's
+// "Option N" title prefix. It defaults to 0 when nothing matches.
+func resolveRecipeIdx(action string, recipes []gitutil.RemediationRecipe) int {
+	normalized := strings.ToLower(strings.TrimSpace(action))
+	if normalized == "" || len(recipes) == 0 {
+		return 0
+	}
+
+	if len(normalized) == 1 && normalized[0] >= '1' && normalized[0] <= '9' {
+		option := "option " + normalized
+		for i, recipe := range recipes {
+			if strings.Contains(strings.ToLower(recipe.Title), option) {
+				return i
+			}
+		}
+
+		return 0
+	}
+
+	keywords := []string{normalized}
+	switch normalized {
+	case "s":
+		keywords = []string{"stash"}
+	case "w":
+		keywords = []string{"wip", "commit"}
+	case "wip", "init", "i":
+		keywords = []string{"wip", "commit"}
+	case "d", "rm", "remove":
+		keywords = []string{"discard", "clean"}
+	case "casing":
+		keywords = []string{"case"}
+	}
+
+	for i, recipe := range recipes {
+		title := strings.ToLower(recipe.Title)
+		for _, keyword := range keywords {
+			if strings.Contains(title, keyword) {
+				return i
+			}
+		}
+	}
+
+	return 0
+}
+
 func executeFixWorkerStep(mu *sync.Mutex, completed *int, total int, action string, item cmdremediation.RemediationItem, failedRepos *[]string) error {
 	idx := resolveRecipeIdx(action, item.Recipes)
 	var recipe gitutil.RemediationRecipe
