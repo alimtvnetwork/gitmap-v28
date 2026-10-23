@@ -30,3 +30,23 @@ func testRecipeMap(t *testing.T, recipes []gitutil.RemediationRecipe, cases map[
 		}
 	}
 }
+
+func TestResolveRecipeIdx(t *testing.T) {
+	recipes := []gitutil.RemediationRecipe{
+		{Title: "Option 1: Stash"},
+		{Title: "Option 2: Commit WIP"},
+	}
+
+	if idx := resolveRecipeIdx("1", recipes); idx != 0 {
+		t.Fatalf("expected 0, got %d", idx)
+	}
+	if idx := resolveRecipeIdx("2", recipes); idx != 1 {
+		t.Fatalf("expected 1, got %d", idx)
+	}
+	if idx := resolveRecipeIdx("unknown", recipes); idx != 0 {
+		t.Fatalf("expected 0 for fallback, got %d", idx)
+	}
+	if idx := resolveRecipeIdx("1", nil); idx != 0 {
+		t.Fatalf("expected 0 for empty recipes, got %d", idx)
+	}
+}
