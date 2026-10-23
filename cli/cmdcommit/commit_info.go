@@ -74,18 +74,22 @@ func executeCommitInfo(opts CommitInfoOptions) error {
 }
 
 func resolveCommitInfoRepoRoot(repoFlag string) (string, error) {
-	startDir := repoFlag
-	if len(startDir) == 0 {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return "", apperror.WrapSimple(err, "os.Getwd")
-		}
-		startDir = cwd
+	if len(repoFlag) > 0 {
+		return checkRepoRoot(repoFlag)
 	}
 
-	res := gitutil.RepoRoot(startDir)
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", apperror.WrapSimple(err, "os.Getwd")
+	}
+
+	return checkRepoRoot(cwd)
+}
+
+func checkRepoRoot(dir string) (string, error) {
+	res := gitutil.RepoRoot(dir)
 	if res.IsFailure() {
-		return "", apperror.WrapSimple(res.AppError(), "find repo root for: "+startDir)
+		return "", apperror.WrapSimple(res.AppError(), "find repo root for: "+dir)
 	}
 
 	return res.Data, nil

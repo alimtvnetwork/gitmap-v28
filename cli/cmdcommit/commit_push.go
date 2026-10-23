@@ -462,27 +462,47 @@ func stageAndCheckChanges(taskSlug string) (bool, *apperror.AppError) {
 
 func executeStageAllStep(taskSlug string) *apperror.AppError {
 	startTime := time.Now()
-	var err error
-	label := "git add -A"
 	files := scopedStageFiles(taskSlug)
-	if len(files) > 0 {
-		printPaddedInfo("Staging %d task-claimed file(s) for task %s...", len(files), taskSlug)
-		normal, forced := partitionStageFiles(files)
-		if len(normal) > 0 {
-			gitArgs := append([]string{"add", "--"}, normal...)
-			err = execGitPaddedFiltered(gitArgs...)
-		}
-		if err == nil && len(forced) > 0 {
-			forceArgs := append([]string{"add", "-f", "--"}, forced...)
-			err = execGitPaddedFiltered(forceArgs...)
-		}
-		label = fmt.Sprintf("git add -- (%d claimed files)", len(files))
-	} else {
-		if strings.TrimSpace(taskSlug) != "" {
-			printPaddedInfo("No file claims for task %s; staging all changes...", taskSlug)
-		}
-		err = execGitPaddedFiltered("add", "-A")
+	if len(files) == 0 {
+		return stageAllFallback(taskSlug, startTime)
 	}
+
+	return stageClaimedFiles(taskSlug, files, startTime)
+}
+
+func stageAllFallback(taskSlug string, startTime time.Time) *apperror.AppError {
+	if strings.TrimSpace(taskSlug) != "" {
+		printPaddedInfo("No file claims for task %s; staging all changes...", taskSlug)
+	}
+	err := execGitPaddedFiltered("add", "-A")
+
+	return recordAndWrapStage(err, "git add -A", startTime)
+}
+
+func stageClaimedFiles(taskSlug string, files []string, startTime time.Time) *apperror.AppError {
+	printPaddedInfo("Staging %d task-claimed file(s) for task %s...", len(files), taskSlug)
+	normal, forced := partitionStageFiles(files)
+	err := stagePartitionFiles(normal, forced)
+	label := fmt.Sprintf("git add -- (%d claimed files)", len(files))
+
+	return recordAndWrapStage(err, label, startTime)
+}
+
+func stagePartitionFiles(normal, forced []string) error {
+	var err error
+	if len(normal) > 0 {
+		gitArgs := append([]string{"add", "--"}, normal...)
+		err = execGitPaddedFiltered(gitArgs...)
+	}
+	if err != nil || len(forced) == 0 {
+		return err
+	}
+	forceArgs := append([]string{"add", "-f", "--"}, forced...)
+
+	return execGitPaddedFiltered(forceArgs...)
+}
+
+func recordAndWrapStage(err error, label string, startTime time.Time) *apperror.AppError {
 	durMs := time.Since(startTime).Milliseconds()
 	recordGitCommandDirect("git add", label, ExtractGitExitCode(err), durMs)
 	if err != nil {
@@ -538,11 +558,6 @@ func ignoredPaths(files []string) []string {
 	}()
 	out, err := c.Output()
 	if err != nil {
-		// check-ignore exits 1 when nothing is ignored — not an error here.
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return nil
-		}
-
 		return nil
 	}
 	var ignored []string

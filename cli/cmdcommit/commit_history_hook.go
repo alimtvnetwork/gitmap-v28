@@ -48,15 +48,13 @@ func RecordChildRepoCommitSafely(repoPath, msg string, meta CommitMetadata) {
 }
 
 func extractTaskFromMsg(msg string) string {
-	if strings.Contains(msg, "[") && strings.Contains(msg, "]") {
-		start := strings.Index(msg, "[")
-		end := strings.Index(msg, "]")
-		if end > start+1 {
-			return strings.TrimSpace(msg[start+1 : end])
-		}
+	start := strings.Index(msg, "[")
+	end := strings.Index(msg, "]")
+	if start < 0 || end <= start+1 {
+		return ""
 	}
 
-	return ""
+	return strings.TrimSpace(msg[start+1 : end])
 }
 
 // IngestCommitHistory extracts git telemetry and records commit history to the external Split-DB.

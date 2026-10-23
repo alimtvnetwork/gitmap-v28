@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.593.0] - 2026-10-23
+
+### Added
+- commit tracking, split-db commit history, universal sha resolution, and ai provenance integration
+
+---
+
 ## [v6.592.0] - 2026-10-23
 
 ### Added
