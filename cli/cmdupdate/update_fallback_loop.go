@@ -45,7 +45,12 @@ type ReleaseCandidate struct {
 
 // MatchPlatformAsset checks if the release asset corresponds to the target OS and architecture.
 func MatchPlatformAsset(assetName, tag, platform, arch string) bool {
-	lowName, lowPlatform, lowArch := strings.ToLower(assetName), strings.ToLower(platform), strings.ToLower(arch)
+	lowName := strings.ToLower(assetName)
+	if !isGitmapTargetAsset(lowName) {
+		return false
+	}
+
+	lowPlatform, lowArch := strings.ToLower(platform), strings.ToLower(arch)
 	switch lowPlatform {
 	case "windows":
 		return matchWindowsAsset(lowName, lowArch)
@@ -56,6 +61,20 @@ func MatchPlatformAsset(assetName, tag, platform, arch string) bool {
 	default:
 		return false
 	}
+}
+
+func isGitmapTargetAsset(name string) bool {
+	if !strings.HasPrefix(name, "gitmap") {
+		return false
+	}
+	if strings.Contains(name, "updater") || strings.Contains(name, "cli-updater") {
+		return false
+	}
+	if strings.Contains(name, "installer") || strings.Contains(name, "setup") {
+		return false
+	}
+
+	return true
 }
 
 func matchWindowsAsset(name, arch string) bool {
@@ -74,7 +93,7 @@ func isWindowsTarget(name, arch string) bool {
 }
 
 func isWindowsAssetFile(name string) bool {
-	if strings.Contains(name, "installer") || strings.Contains(name, "setup") {
+	if strings.Contains(name, "installer") || strings.Contains(name, "setup") || strings.Contains(name, "updater") {
 		return false
 	}
 
@@ -136,6 +155,10 @@ func findFallbackAsset(assets []GitHubReleaseAsset, tag, platform, arch string) 
 
 func isDirectBinaryAsset(name, platform string) bool {
 	lowName := strings.ToLower(name)
+	if !isGitmapTargetAsset(lowName) {
+		return false
+	}
+
 	lowPlatform := strings.ToLower(platform)
 	if lowPlatform == "windows" {
 		return isWindowsDirectBinary(lowName)
@@ -145,14 +168,13 @@ func isDirectBinaryAsset(name, platform string) bool {
 }
 
 func isWindowsDirectBinary(name string) bool {
-	if strings.Contains(name, "installer") || strings.Contains(name, "setup") {
-		return false
-	}
-
 	return strings.HasSuffix(name, ".exe")
 }
 
 func isUnixDirectBinary(name string) bool {
+	if !isGitmapTargetAsset(name) {
+		return false
+	}
 	isTar := strings.HasSuffix(name, ".tar.gz") || strings.HasSuffix(name, ".tgz")
 	isZip := strings.HasSuffix(name, ".zip")
 	if isTar || isZip {

@@ -118,15 +118,17 @@ func executeBinarySwap(ui UpdateUIRenderer, archive, stageDir string) error {
 
 func isStandaloneBinary(path string) bool {
 	lower := strings.ToLower(path)
-	if strings.HasSuffix(lower, ".exe") || strings.HasSuffix(lower, ".bin") {
-		return true
+	if strings.Contains(lower, "updater") || strings.Contains(lower, "cli-updater") {
+		return false
 	}
-
 	if isArchiveExtension(lower) {
 		return false
 	}
+	if !strings.Contains(lower, "gitmap") {
+		return false
+	}
 
-	return strings.Contains(lower, "gitmap")
+	return strings.HasSuffix(lower, ".exe") || strings.HasSuffix(lower, ".bin")
 }
 
 func isArchiveExtension(lower string) bool {

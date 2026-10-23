@@ -18,11 +18,38 @@ func TestMatchPlatformAsset_DirectBinary(t *testing.T) {
 	if !MatchPlatformAsset("gitmap-darwin-arm64.tar.gz", "v6.590.0", "darwin", "arm64") {
 		t.Error("expected gitmap-darwin-arm64.tar.gz to match darwin/arm64")
 	}
+
+	if MatchPlatformAsset("cli-updater-v6.593.1-windows-amd64.exe", "v6.593.1", "windows", "amd64") {
+		t.Error("cli-updater must NEVER match windows/amd64 platform asset")
+	}
+
+	if MatchPlatformAsset("cli-updater-v6.593.1-linux-amd64", "v6.593.1", "linux", "amd64") {
+		t.Error("cli-updater must NEVER match linux/amd64 platform asset")
+	}
+}
+
+func TestFindExecutableAsset_PrefersGitmapZipOverCliUpdaterExe(t *testing.T) {
+	assets := []GitHubReleaseAsset{
+		{Name: "cli-updater-v6.593.1-windows-amd64.exe", Size: 6200000},
+		{Name: "gitmap-v6.593.1-windows-amd64.zip", Size: 18000000},
+	}
+	asset, found := FindExecutableAsset(assets, "v6.593.1", "windows", "amd64")
+	if !found {
+		t.Fatal("expected to find executable asset")
+	}
+
+	if asset.Name != "gitmap-v6.593.1-windows-amd64.zip" {
+		t.Fatalf("expected gitmap-v6.593.1-windows-amd64.zip, got %s", asset.Name)
+	}
 }
 
 func TestIsDirectBinaryAsset(t *testing.T) {
 	if !isDirectBinaryAsset("gitmap.exe", "windows") {
 		t.Error("expected gitmap.exe to be detected as direct binary")
+	}
+
+	if isDirectBinaryAsset("cli-updater-v6.593.1-windows-amd64.exe", "windows") {
+		t.Error("cli-updater must NEVER be detected as direct binary")
 	}
 
 	if isDirectBinaryAsset("gitmap.zip", "windows") {
