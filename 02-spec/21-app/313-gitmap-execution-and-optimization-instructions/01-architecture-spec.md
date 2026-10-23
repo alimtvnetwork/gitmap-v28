@@ -485,6 +485,6 @@ The command returns the roadmap graph, active subtasks, completed milestones, an
 4. **Whitespace Discipline:**  
    Blank line after closing brace `}` and blank line before `return`.
 5. **Path Hygiene:**  
-   Strict relative Git repository paths only. Zero absolute paths (`C:\`, `D:\`, `/home/`) and zero `file:///` URIs.
+   Strict relative Git repository paths only. Zero absolute Windows or POSIX paths and zero file URI schemes.
 6. **Execution Safety:**  
    Zero builds, zero tests, and zero git commits during specification authoring turns.
