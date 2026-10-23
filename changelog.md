@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.591.0] - 2026-10-23
+
+### Added
+- Default pull to all workspaces and accelerate SSH fleet remote execution
+
+---
+
 ## [v6.590.0] - 2026-10-22
 
 ### Added
