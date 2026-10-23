@@ -151,7 +151,7 @@ A unified response contract was needed to eliminate these problems without break
 ## References
 
 - [02-spec/03-error-manage/02-error-architecture/05-response-envelope/04-response-envelope-reference.md](./05-response-envelope-reference.md) — Canonical specification
-- [02-spec/response-envelope/changelog.md](./03-changelog.md) — Migration timeline
+- `02-spec/response-envelope/changelog.md` — Migration timeline
 - [02-spec/response-envelope/envelope.schema.json](./envelope.schema.json) — JSON Schema (Draft 2020-12) source of truth
 - [02-spec/response-envelope/configurability.md](./02-adr.md) — Debug toggle rules
 - RFC 8288 — Web Linking (absolute URL convention)

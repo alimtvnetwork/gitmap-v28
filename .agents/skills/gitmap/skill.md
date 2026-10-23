@@ -136,23 +136,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore/maintenance, and push directly to GitHub tracking branch. |
 | `gitmap cpr "<module> - <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to GitHub tracking branch. |
 | `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
-| `gitmap commit info <sha>` | `gitmap ci <sha>`, `gitmap commit-info <sha>` | Local & Split-DB | None | No | Inspect commit by full SHA, short SHA (7-char), prefix, suffix, or substring with ASCII tree view, AI attribution, heatmap ID, task metadata, and origin declaration. |
-
-#### AI Provenance & Task Tracking Flags (Commit Suite)
-All commit commands (`commit`, `cm`, `cpf`, `cpb`, `cpr`, `cpc`, `pcp`) accept AI provenance tracking flags. Mandatory for autonomous AI agents, optional for human developers. Flags are automatically stripped prior to git commit execution to guarantee clean commit messages:
-| Flag | Alternative | Type | Purpose | Ambient Fallback |
-| :--- | :--- | :--- | :--- | :--- |
-| `--agent-id <id>` | `--agent <id>` | `string` | Machine/agent transmission identifier | `GITMAP_AGENT_ID`, `ANTIGRAVITY_AGENT_ID` |
-| `--heatmap-id <id>` | `--heatmap <id>` | `string` | Heatmap session or run identifier | `GITMAP_HEATMAP_ID`, `GITMAP_HEATMAP_SESSION_ID` |
-| `--ai <name>` | `--model <name>` | `string` | AI model or agent name | `GITMAP_AI_NAME`, `AI_MODEL`, `GEMINI_MODEL`, `MUSE_MODEL` |
-| `--task <slug>` | `-t <slug>` | `string` | Associated parent task slug | `GITMAP_TASK_SLUG`, `GITMAP_TASK` |
-| `--spec <path>` | `--spec-path` | `string` | Associated application specification path | `GITMAP_SPEC_PATH` |
-| `--push` | `-p` | `bool` | Force push to remote after commit | - |
-| `--dry-run` | `-n` | `bool` | Dry-run commit without staging or committing | - |
 
 #### Command Details & Behavioral Guidelines
 - `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap commit info <sha>` (aliases: `gitmap ci <sha>`, `gitmap commit-info <sha>`) — Universal 4-stage SHA resolver querying Git directly, external Split-DB (`repodb/commit_history.db`), cognitive heatmaps, and agent tasks. Displays rich ASCII tree view detailing commit author, date, message, AI model, agent ID, heatmap ID, task slug, completed subtasks count, spec link, origin attribution (differentiating local machine AI from foreign contributors), and file modifications. Supports `--json` for machine-readable output and `--repo <path>` to target a specific repository.
 - `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore/maintenance branch (GitMap auto-prefixes `Chore: `).
 - `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
 - `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
@@ -700,30 +686,6 @@ gitmap cpr "release - bump minor version and update changelog"
 # Pull latest with rebase, stage all, commit, and push in one verified flow
 gitmap pcp "skills - sync cross-platform runner templates"
 
-# Feature commit with explicit AI provenance flags (mandatory for autonomous AI agents)
-gitmap cpf "store - add commit history split db" \
-  --agent-id "worker-04" \
-  --heatmap-id "HM-9821" \
-  --task "315-gitmap-commit-tracking-and-database-integration" \
-  --spec "02-spec/21-app/315-gitmap-commit-tracking-and-database-integration/00-overview.md" \
-  --ai "gemini-2.5-pro"
-
-# Feature commit using ambient environment variables (auto-injected flags)
-export ANTIGRAVITY_AGENT_ID="worker-04"
-export GITMAP_TASK="315-gitmap-commit-tracking-and-database-integration"
-export GITMAP_HEATMAP_ID="HM-9821"
-export AI_MODEL="gemini-2.5-pro"
-gitmap cpf "skills - enrich gitmap skill with 12 real world categories"
-
-# Universal commit inspection: inspect commit by full SHA, short SHA, prefix, suffix, or substring
-gitmap commit info dc8e0d8
-gitmap ci dc8e0d8
-gitmap commit-info dc8e0d8f342a1b9e5c704f2d6e8a10bc39f12345
-
-# Inspect commit with machine-readable JSON output or specific target repository
-gitmap ci dc8e0d8 --json
-gitmap ci dc8e0d8 --repo d:/work/antigravity-manager
-
 # Apply automated repository remediation (stash, discard, or auto-fix)
 gitmap fix all -y
 
@@ -992,4 +954,3 @@ gitmap llm train --heatmap https://telemetry.gitmap.internal/api/heatmap/export
 10. **Total Ban on Ad-Hoc Python Web Scrapers:** NEVER run `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[.agents/skills/gitmap]` for full command reference.
 11. **Total Ban on Raw Web Fetchers & Single-Stream Downloads:** NEVER invoke `curl`, `wget`, `Invoke-WebRequest`, or custom HTTP scripts to read remote files. All remote URLs MUST be fetched via `gitmap url read <url>` (aliases: `gitmap url`, `gitmap get`), which provides dedicated Split-DB caching (`repodb/url_cache.db`), sub-millisecond retrieval (<0.5ms), unbuffered byte-faithful streaming via `output.Raw()`, and automatic 10-split segmented downloading (`aria2c` or native Go Range workers) for files $\ge 1\text{--}2\text{ MB}$.
 12. **Total Ban on Filesystem Grepping for Past Agent Decisions:** NEVER grep source files or guess past subagent actions. You MUST run `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` to discover multi-tier SQLite heatmap databases, cross-referenced repository aliases, and recent tasks across 2–5 repositories with interactive suggestion pills.
-13. **Mandatory AI Commit Provenance & Tracking Invariant:** Every commit generated by an autonomous AI agent or swarm MUST pass AI provenance parameters (`--agent-id <id>`, `--heatmap-id <id>`, `--task <slug>`, `--spec <path>`, `--ai <name>`) or populate ambient environment variables (`ANTIGRAVITY_AGENT_ID`, `GITMAP_TASK`, `GITMAP_HEATMAP_ID`, `AI_MODEL`). Commits automatically record into `<EffectiveDataDir>/repodb/commit_history.db` outside the repository tree. Flags are stripped before creating the commit message. Commits can be inspected anytime via `gitmap commit info <sha>` (or aliases `ci`, `commit-info`). Zero unattributed AI commits are permitted in automated swarms.

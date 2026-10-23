@@ -104,7 +104,6 @@
 - [Cross-Language Overview](./readme.md)
 - [Repository Changelog](../../../changelog.md)
 - [Parent Coding Guidelines Acceptance Criteria](../97-acceptance-criteria.md)
-- [Canonical Architecture Specification](../../21-app/07-coding-guideline-actionable-checklist-and-acceptance/01-architecture-spec.md)
 
 ---
 

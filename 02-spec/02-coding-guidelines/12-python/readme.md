@@ -42,7 +42,7 @@ This module defines the standard practices for writing Python code within the re
 |---|------|----------|-------------|
 | 01 | [01-standards.md](./02-standards.md) | Logic / Rules | Python-specific coding standards |
 | 97 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | Acceptance Criteria Registry | Complete testable Gherkin criteria inventory |
-| 99 | [99-consistency-report.md](./99-consistency-report.md) | Meta | Consistency and compliance report |
+| 99 | `99-consistency-report.md` | Meta | Consistency and compliance report |
 
 ## Cross-References
 

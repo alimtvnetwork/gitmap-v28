@@ -281,16 +281,16 @@ See [`13-cpp/97-acceptance-criteria.md`](./13-cpp/97-acceptance-criteria.md) for
 
 ## 16. Application Specifications (Coding Guidelines Architecture) (AC-15)
 
-See [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md) for the complete coding guidelines actionable checklist, 4-part anatomy architecture, and automated verification engine.
+See `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md` for the complete coding guidelines actionable checklist, 4-part anatomy architecture, and automated verification engine.
 
 | ID | Title | Source / Authoritative Specification | Verification Command |
 |:---|:---|:---|:---|
-| AC-CG-SPEC-000 | Architecture Specification Module Conformance | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/21-app/07-coding-guideline-actionable-checklist-and-acceptance --check-only` |
-| AC-CG-SPEC-001 | Coding Guidelines Architecture Specification Conformance | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/01-architecture-spec.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/01-architecture-spec.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
-| AC-CG-REG-MASTER-001 | Master Registry Completeness & Polyglot Parity | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
-| AC-CG-REG-PY-001 | Python Acceptance Criteria Registry Standardization | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/12-python --check-only` |
-| AC-CG-REG-CPP-001 | Modern C++ Acceptance Criteria Registry Standardization | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/13-cpp --check-only` |
-| AC-CG-REG-TOOL-001 | Automated Guideline Autofixer & CI/CD Runner Verification | [`../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md`](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md) | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
+| AC-CG-SPEC-000 | Architecture Specification Module Conformance | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/21-app/07-coding-guideline-actionable-checklist-and-acceptance --check-only` |
+| AC-CG-SPEC-001 | Coding Guidelines Architecture Specification Conformance | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/01-architecture-spec.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
+| AC-CG-REG-MASTER-001 | Master Registry Completeness & Polyglot Parity | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
+| AC-CG-REG-PY-001 | Python Acceptance Criteria Registry Standardization | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/12-python --check-only` |
+| AC-CG-REG-CPP-001 | Modern C++ Acceptance Criteria Registry Standardization | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines/13-cpp --check-only` |
+| AC-CG-REG-TOOL-001 | Automated Guideline Autofixer & CI/CD Runner Verification | `../21-app/07-coding-guideline-actionable-checklist-and-acceptance/02-component-spec.md` | `python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --check-only` |
 
 ### AC-CG-SPEC-000: Architecture Specification Module Conformance
 
@@ -396,7 +396,6 @@ python 03-ai-scripts/05-guideline-autofixer.py 02-spec/02-coding-guidelines --ch
 - [Python Acceptance Criteria Registry](./12-python/97-acceptance-criteria.md)
 - [Modern C++ Standards](./13-cpp/readme.md)
 - [Modern C++ Acceptance Criteria Registry](./13-cpp/97-acceptance-criteria.md)
-- [Coding Guidelines Actionable Checklist & Acceptance Criteria Architecture](../21-app/07-coding-guideline-actionable-checklist-and-acceptance/readme.md)
 
 ---
 

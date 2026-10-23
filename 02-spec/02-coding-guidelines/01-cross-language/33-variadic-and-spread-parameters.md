@@ -377,7 +377,6 @@ ingest_records(std::iter::once("single-entry"))?;
 - [`02-spec/02-coding-guidelines/01-cross-language/18-code-mutation-avoidance.md`](18-code-mutation-avoidance.md) — Immutability patterns and avoiding side effects
 - [`02-spec/02-coding-guidelines/01-cross-language/32-branch-immutability-and-clean-construction.md`](32-branch-immutability-and-clean-construction.md) — Branch immutability and condition decomposition
 - [`02-spec/03-error-manage/02-error-architecture/06-apperror-package/02-apperror-reference.md`](../../03-error-manage/02-error-architecture/06-apperror-package/02-apperror-reference.md) — `*appfault.AppError` structured error return architecture
-- [`02-spec/21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md`](../../21-app/01-variadic-spread-params-and-multi-repo/01-architecture-spec.md) — Parent architecture specification
 
 ---
 

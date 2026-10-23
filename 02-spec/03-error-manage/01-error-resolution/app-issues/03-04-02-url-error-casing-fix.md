@@ -32,4 +32,4 @@ Verified with case-sensitive search: zero `URLError` references remain in the sp
 ## Related
 
 - [02-apperror-struct.md](../../02-error-architecture/06-apperror-package/01-apperror-reference/03-apperror-struct.md) — sections 2.2.2–2.2.5
-- [98-changelog.md](../../98-changelog.md) — v2.2.0 entry
+- `98-changelog.md` — v2.2.0 entry

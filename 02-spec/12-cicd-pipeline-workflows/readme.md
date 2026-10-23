@@ -65,7 +65,7 @@ This module covers two distinct pipeline archetypes, shared conventions, reusabl
 | 20 | [20-flaky-test-quarantine.md](./20-flaky-test-quarantine.md) | Flaky test detection and automated quarantine pattern | ✅ Active |
 | 21 | [21-contract-testing.md](./21-contract-testing.md) | Microservice and API consumer contract testing | ✅ Active |
 | 22 | [22-e2e-testing-pattern.md](./22-e2e-testing-pattern.md) | End-to-end integration and smoke test runner patterns | ✅ Active |
-| 99 | [99-consistency-report.md](./99-consistency-report.md) | Consistency validation report for CI/CD workflows | ✅ Active |
+| 99 | `99-consistency-report.md` | Consistency validation report for CI/CD workflows | ✅ Active |
 
 ---
 

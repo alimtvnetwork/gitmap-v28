@@ -553,6 +553,10 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 10. **DRY is Priority One:** Duplicate logic across two sites must be extracted immediately.
 11. **Component Modularity:** Small, reusable components. For features with 3+ components, produce a Mermaid diagram first.
 12. **Immutable-First:** Assign every variable once at declaration. Never reassign except loop indices. Prefer `const`, `let`, `final`, `val` over mutable variables. Build result objects with spread or copy.
+13. **GitMap Search Primacy & Fast Tooling:** TOTAL BAN on `rg`, `ripgrep`, `grep`, `git grep`, PowerShell `Select-String`, `findstr`, or recursive `Get-ChildItem`. All symbol searches, directory inventories, and file reads MUST use GitMap high-speed commands:
+    - **Code & Symbol Search:** `gitmap aum search "<pattern>" [dir]` or named-flag syntax `gitmap aum search --query "<pattern>" --root "<dir>"` (supports `--pattern`, `--dir`, `--path`, `-q`, `-p`, `-d`).
+    - **Instant Directory Listing:** `gitmap lf <dir>` or `gitmap find "*.*" <dir>`.
+    - **Zero-Disk File Streaming:** `gitmap cat <filepath>`.
 13. **Asset Naming:** Assets go to `assets/<NN-folder>/<NN-file>.<ext>` with two-digit sequence prefixes (e.g., `assets/01-icons/03-logo.svg`).
 14. **No Inverted Complex Conditions:** Never use `!` on complex conditions containing AND/OR. Simplify or extract into named booleans.
 15. **Boolean Return Wrapper:** Functions returning multiple values including a boolean must return a named struct/object (e.g. `{ data, isSuccess }`), never bare tuples `(int, bool)`.
