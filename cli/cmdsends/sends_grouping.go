@@ -154,6 +154,11 @@ func resolveCategoryMetadata(cat FileCategoryType) CategoryMetadata {
 			Title:       "Specification & Documentation",
 			Description: "Updated architectural specifications, documentation, and task records.",
 		}
+	case CategoryOther:
+		return CategoryMetadata{
+			Title:       "General Project Updates",
+			Description: "Updated repository configuration and auxiliary files.",
+		}
 	default:
 		return CategoryMetadata{
 			Title:       "General Project Updates",

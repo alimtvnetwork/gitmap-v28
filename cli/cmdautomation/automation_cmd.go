@@ -116,13 +116,14 @@ func resolveHybridSearchArgs(flagPattern, flagDir string, args []string) (string
 	pattern := cleanSearchPattern(flagPattern)
 	dir := cleanSearchPattern(flagDir)
 	if pattern == "" && len(args) > 0 {
-		pattern = cleanSearchPattern(args[0])
+		if dir != "" {
+			pattern = cleanSearchPattern(strings.Join(args, " "))
+		} else {
+			pattern, dir = parseSearchPositionalArgs(args)
+		}
 	}
 	if dir == "" && len(args) > 0 && flagPattern != "" {
-		dir = cleanSearchPattern(args[0])
-	}
-	if dir == "" && len(args) > 1 && flagPattern == "" {
-		dir = cleanSearchPattern(args[1])
+		dir = cleanSearchPattern(strings.Join(args, " "))
 	}
 
 	return pattern, dir

@@ -44,7 +44,7 @@ const (
 	PullTaskStatusRunning   = "running"
 	PullTaskStatusCompleted = "completed"
 	PullTaskStatusFailed    = "failed"
-	PullTaskStatusCancelled = "cancelled"
+	PullTaskStatusCanceled  = "canceled"
 )
 
 // Pull task repo progress status enums.

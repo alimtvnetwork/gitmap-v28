@@ -33,7 +33,7 @@ func runWatcherPollingLoop(ctx context.Context, db *PullTaskSplitDB, taskID int6
 	for {
 		select {
 		case <-ctx.Done():
-			return apperror.WrapSimple(ctx.Err(), "pull_watcher.context_cancelled")
+			return apperror.WrapSimple(ctx.Err(), "pull_watcher.context_canceled")
 		case <-ticks:
 			isDone, err := checkWatcherTick(db, taskID)
 			if err != nil || isDone {
@@ -81,7 +81,7 @@ func handleTerminalTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
 		return handleFailedTaskStatus(task)
 	}
 
-	return handleCancelledTaskStatus(task)
+	return handleCanceledTaskStatus(task)
 }
 
 func handleFailedTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
@@ -91,9 +91,9 @@ func handleFailedTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
 	return true, apperror.NewExecutionError(msg)
 }
 
-func handleCancelledTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCancelled {
-		return true, apperror.NewSimple("pull task was cancelled", "E_PULL_CANCELLED")
+func handleCanceledTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
+	if task.Status == constants.PullTaskStatusCanceled || task.Status == "cancelled" {
+		return true, apperror.NewSimple("pull task was canceled", "E_PULL_CANCELED")
 	}
 
 	return false, nil

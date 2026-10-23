@@ -134,6 +134,8 @@ func macShellFor(e flatCtxEntry, exe string) string {
 		announce := ctxExplainAnnounce(target, e.Args)
 
 		return fmt.Sprintf(`cd "$1" && OUT=$(printf %%s '%s'; '%s' %s 2>&1); osascript -e "display notification \"$(echo \"$OUT\" | head -c 200)\" with title \"%s\""`, announce, target, args, e.Label)
+	case ctxmodetype.Terminal, ctxmodetype.Invalid:
+		fallthrough
 	default:
 		// Embed the explain echo as the first command in the Terminal
 		// session so the user sees the resolved invocation above the
