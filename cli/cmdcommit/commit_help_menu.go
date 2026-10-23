@@ -11,31 +11,46 @@ func RenderCommitHelp() {
 
 func buildCommitHelpMenu() termout.HelpMenu {
 	return termout.HelpMenu{
-		Title: "Semantic Commit & Transfer Suite (gitmap commit)",
-		UsageLines: []string{
-			"gitmap commit \"<message>\" (flat commit with auto-add)",
-			"gitmap cm \"<message>\" (short alias for commit)",
-			"gitmap commit-both <left> <right> [flags]",
-			"gitmap commit-left <left> <right> [flags]",
-			"gitmap commit-right <left> <right> [flags]",
-			"gitmap cpf \"<message>\" (commit-push-feature)",
-			"gitmap cpb \"<message>\" (commit-push-bug)",
-			"gitmap cpc \"<message>\" (commit-push-chore)",
-			"gitmap cpr \"<message>\" (commit-push-release)",
-			"gitmap pcp \"<message>\" (pull-commit-push)",
-		},
-		Sections: []termout.HelpSection{
-			buildCommitTransferSection(),
-			buildCommitAIWorkflowSection(),
-			buildCommitPRSection(),
-		},
+		Title:       "Semantic Commit & Transfer Suite (gitmap commit)",
+		UsageLines:  buildCommitUsageLines(),
+		Sections:    buildCommitHelpSections(),
 		FooterFlags: buildCommitFooterFlags(),
-		Tips: []string{
-			"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
-			"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
-			"Use 'gitmap cpf \"feat: description\"' for 1-step stage, commit, and push.",
-			"Use 'gitmap cpc \"chore: description\"' for 1-step chore stage, commit, and push.",
-		},
+		Tips:        buildCommitTips(),
+	}
+}
+
+func buildCommitHelpSections() []termout.HelpSection {
+	return []termout.HelpSection{
+		buildCommitTransferSection(),
+		buildCommitAIWorkflowSection(),
+		buildCommitPRSection(),
+	}
+}
+
+func buildCommitUsageLines() []string {
+	return []string{
+		"gitmap commit \"<message>\" (flat commit with auto-add)",
+		"gitmap cm \"<message>\" (short alias for commit)",
+		"gitmap commit info <sha> (inspect AI provenance tree)",
+		"gitmap ci <sha> (short alias for commit info)",
+		"gitmap commit-both <left> <right> [flags]",
+		"gitmap commit-left <left> <right> [flags]",
+		"gitmap commit-right <left> <right> [flags]",
+		"gitmap cpf \"<message>\" (commit-push-feature)",
+		"gitmap cpb \"<message>\" (commit-push-bug)",
+		"gitmap cpc \"<message>\" (commit-push-chore)",
+		"gitmap cpr \"<message>\" (commit-push-release)",
+		"gitmap pcp \"<message>\" (pull-commit-push)",
+	}
+}
+
+func buildCommitTips() []string {
+	return []string{
+		"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
+		"Use 'gitmap ci <sha>' to view universal SHA resolution and AI provenance tree.",
+		"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
+		"Use 'gitmap cpf \"feat: description\"' for 1-step stage, commit, and push.",
+		"Use 'gitmap cpc \"chore: description\"' for 1-step chore stage, commit, and push.",
 	}
 }
 
@@ -65,16 +80,21 @@ func buildCommitTransferSection() termout.HelpSection {
 
 func buildCommitAIWorkflowSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Commit & AI Workflow Shortcuts",
-		Entries: []termout.CommandEntry{
-			{Command: "commit, cm <msg>", Description: "commit: flat git commit with auto-stage (git add -A)"},
-			{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit feat, and push"},
-			{Command: "cpb <msg>", Description: "commit-push-bug: stage all, commit bugfix, and push"},
-			{Command: "cpc <msg>", Description: "commit-push-chore: stage all, commit chore/maintenance, and push"},
-			{Command: "cpr <msg>", Description: "commit-push-release: stage all, commit release chore, and push"},
-			{Command: "pcp <msg>", Description: "pull-commit-push: pull latest rebase, stage, commit, and push"},
-			{Command: "pas", Description: "pull-all-ssh: pull all repositories using SSH transport"},
-		},
+		Title:   "Commit & AI Workflow Shortcuts",
+		Entries: buildCommitAIEntries(),
+	}
+}
+
+func buildCommitAIEntries() []termout.CommandEntry {
+	return []termout.CommandEntry{
+		{Command: "commit, cm <msg>", Description: "commit: flat git commit with auto-stage (git add -A)"},
+		{Command: "commit info, ci <sha>", Description: "Inspect commit provenance, AI telemetry, and tree view"},
+		{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit feat, and push"},
+		{Command: "cpb <msg>", Description: "commit-push-bug: stage all, commit bugfix, and push"},
+		{Command: "cpc <msg>", Description: "commit-push-chore: stage all, commit chore/maintenance, and push"},
+		{Command: "cpr <msg>", Description: "commit-push-release: stage all, commit release chore, and push"},
+		{Command: "pcp <msg>", Description: "pull-commit-push: pull latest rebase, stage, commit, and push"},
+		{Command: "pas", Description: "pull-all-ssh: pull all repositories using SSH transport"},
 	}
 }
 

@@ -32,8 +32,16 @@ func (db *DB) SyncKnownSplitDatabases() error {
 	db.syncAiInstructionDB()
 	db.syncSearchDB()
 	db.syncSectionTasksDBs()
+	db.syncCommitHistoryDB()
 
 	return nil
+}
+
+func (db *DB) syncCommitHistoryDB() {
+	path := ResolveCommitHistoryDbPath("")
+	desc := "Repository commit history, file touches, and AI agent provenance split database"
+	entry := inspectSplitDBFile("repodb", "commit_history", path, desc)
+	_ = db.RegisterSplitDB(entry)
 }
 
 func (db *DB) syncSectionTasksDBs() {

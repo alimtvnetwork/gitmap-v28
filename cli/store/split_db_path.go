@@ -180,6 +180,15 @@ func ResolveUrlCacheDbPath(repoRoot string) string {
 	return filepath.ToSlash(filepath.Join(dir, "url_cache.db"))
 }
 
+// ResolveCommitHistoryDbPath resolves the external commit history SQLite database path.
+func ResolveCommitHistoryDbPath(repoRoot string) string {
+	dataDir := EffectiveDataDir()
+	dir := filepath.Join(dataDir, "repodb")
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, "commit_history.db"))
+}
+
 func migrateLegacySplitDb(section, slug, repoRoot, targetPath string) {
 	candidates := collectLegacyCandidates(section, slug, repoRoot)
 	for _, cand := range candidates {

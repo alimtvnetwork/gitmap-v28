@@ -23,29 +23,9 @@ import (
 // Agents must never stage directly; the commit flow scopes staging to the
 // task's claimed files when a task context is present.
 func extractCommitTaskFlag(args []string) ([]string, string) {
-	taskSlug := strings.TrimSpace(os.Getenv("GITMAP_TASK"))
-	clean := make([]string, 0, len(args))
-	skipNext := false
-	for i, a := range args {
-		if skipNext {
-			skipNext = false
-			continue
-		}
-		if a == "--task" {
-			if i+1 < len(args) {
-				taskSlug = strings.TrimSpace(args[i+1])
-				skipNext = true
-			}
-			continue
-		}
-		if strings.HasPrefix(a, "--task=") {
-			taskSlug = strings.TrimSpace(strings.TrimPrefix(a, "--task="))
-			continue
-		}
-		clean = append(clean, a)
-	}
+	clean, meta := ExtractCommitFlags(args)
 
-	return clean, taskSlug
+	return clean, meta.TaskSlug
 }
 
 // isCommitPushHelpArg returns true if the first argument is a help trigger word.
@@ -90,14 +70,14 @@ func RunCommitPush(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push \"<commit message>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
 	commitMessage := strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // runPullCommitPush pulls first, then stages, commits, and pushes.
@@ -108,16 +88,15 @@ func RunPullCommitPush(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap pull-commit-push \"<commit message>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
-
-	return executePullCommitPush(strings.Join(cleanArgs, " "), taskSlug)
+	return executePullCommitPush(strings.Join(cleanArgs, " "), meta)
 }
 
-func executePullCommitPush(commitMessage, taskSlug string) error {
+func executePullCommitPush(commitMessage string, meta CommitMetadata) error {
 	printPaddedInfo("Pulling latest changes first...")
 
 	if err := ExecGitInheritCP("pull", "--rebase"); err != nil {
@@ -129,7 +108,7 @@ func executePullCommitPush(commitMessage, taskSlug string) error {
 
 	printPaddedSuccess("Pull complete.")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // runCommitPushBug commits with a "Bug: " prefix.
@@ -140,14 +119,14 @@ func RunCommitPushBug(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-bug \"<what was fixed>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
 	commitMessage := "Bug: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // runCommitPushFeature commits with a "Feature: " prefix.
@@ -158,14 +137,14 @@ func RunCommitPushFeature(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-feature \"<what feature was added>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
 	commitMessage := "Feature: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // runCommitPushChore commits with a "Chore: " prefix.
@@ -176,14 +155,14 @@ func RunCommitPushChore(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-chore \"<what chore was done>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
 	commitMessage := "Chore: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // runCommitPushRelease commits with a "Release: " prefix.
@@ -194,14 +173,14 @@ func RunCommitPushRelease(args []string) error {
 		return nil
 	}
 
-	if len(args) == 0 {
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-release \"<what release changes>\"", "E9000")
 	}
 
-	cleanArgs, taskSlug := extractCommitTaskFlag(args)
 	commitMessage := "Release: " + strings.Join(cleanArgs, " ")
 
-	return executeCommitPush(commitMessage, taskSlug)
+	return executeCommitPush(commitMessage, meta)
 }
 
 // parseRewriteFlags extracts target SHA and push flag from args.
@@ -447,14 +426,14 @@ func parseUnpushedCount() int {
 }
 
 // executeCommitPush is the shared logic for all commit-push variants.
-// When taskSlug is set (--task flag or GITMAP_TASK env), staging is scoped to
+// When meta.TaskSlug is set (--task flag or GITMAP_TASK env), staging is scoped to
 // that task's claimed files instead of staging everything.
-func executeCommitPush(commitMessage, taskSlug string) *apperror.AppError {
+func executeCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommitPush()
 	}
 
-	hasChanges, errPrep := stageAndCheckChanges(taskSlug)
+	hasChanges, errPrep := stageAndCheckChanges(meta.TaskSlug)
 	if errPrep != nil {
 		return errPrep
 	}
@@ -463,7 +442,7 @@ func executeCommitPush(commitMessage, taskSlug string) *apperror.AppError {
 		return handleCleanWorkingTreeCP()
 	}
 
-	return performCommitPush(commitMessage)
+	return performCommitPush(commitMessage, meta)
 }
 
 func stageAndCheckChanges(taskSlug string) (bool, *apperror.AppError) {
@@ -611,16 +590,20 @@ func scopedStageFiles(taskSlug string) []string {
 	return files
 }
 
-func performCommitPush(commitMessage string) *apperror.AppError {
+func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	printPaddedInfo("Committing: %s", commitMessage)
 	if errCommit := performCommitStep(commitMessage); errCommit != nil {
 		return errCommit
 	}
+
+	RecordCurrentCommitSafely(meta)
+
 	printPaddedInfo("Pushing to remote...")
 	if errPush := performPushStep(); errPush != nil {
 		return errPush
 	}
 	renderSuccessSummary(commitMessage)
+
 	return nil
 }
 

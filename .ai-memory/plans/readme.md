@@ -154,6 +154,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](completed/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Status: `completed` 2026-10-23)
 - [313-gitmap-execution-and-optimization-instructions.md](completed/313-gitmap-execution-and-optimization-instructions.md) — GitMap Execution and Optimization Instructions: Windows SSH Fleet Quoting Fix, Pull Split-DB Concurrency Locking, Encrypted SSH Key Vault & Auto-Relogin, Heatmap JSON & AI Provenance, CPU Scaling, Update Optimization, and Repository Scan Disable/Enable Controls (Status: `completed` 2026-10-23)
 - [314-gitmap-heatmap-and-url-handling-instructions.md](completed/314-gitmap-heatmap-and-url-handling-instructions.md) — GitMap Heatmap Discovery, URL Split-DB Caching, 10-Split Segmented Downloader & LLM Training Integration (Spec: [314-gitmap-heatmap-and-url-handling-instructions](../../02-spec/21-app/314-gitmap-heatmap-and-url-handling-instructions/00-overview.md)) (Status: `completed` 2026-10-23)
+- [315-gitmap-commit-tracking-and-database-integration.md](completed/315-gitmap-commit-tracking-and-database-integration.md) — GitMap Commit Tracking, Universal SHA Resolution, External Commit Split-DB & AI Provenance Integration (Spec: [315-gitmap-commit-tracking-and-database-integration](../../02-spec/21-app/315-gitmap-commit-tracking-and-database-integration/00-overview.md)) (Status: `completed` 2026-10-23)
 
 ---
 
@@ -170,6 +171,8 @@ Only genuinely open plans remain here after the 2026-10-23 pending-folder drain 
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
 
+- `subtasks/315-gitmap-commit-tracking-and-database-integration/` (6 subtasks - Commit Tracking, Split-DB & Universal SHA Resolution)
+- `subtasks/314-gitmap-heatmap-and-url-handling-instructions/` (7 subtasks - Heatmap Discovery, URL Split-DB & Segmented Downloader)
 - `subtasks/gitmap-testing-and-schedule-management/` (6 subtasks - Testing & Schedule Management)
 - `subtasks/gitmap-mailing-and-scheduling-enhancements/` (6 subtasks - Mailing & Event Scheduling)
 - `subtasks/236-deep-spec-consolidation-and-canonical-reduction/` (Active current parent plan)

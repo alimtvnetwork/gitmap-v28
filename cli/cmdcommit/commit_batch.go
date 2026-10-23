@@ -61,21 +61,21 @@ func stripAllFlags(args []string) []string {
 }
 
 // handleNonGitRepoCommit handles commit attempts when current directory is not a git repo.
-func handleNonGitRepoCommit(cleanArgs []string, hasPush, isDryRun bool) error {
+func handleNonGitRepoCommit(cleanArgs []string, meta CommitMetadata) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	return handleNonGitRepoCommitInDir(cleanArgs, hasPush, isDryRun, cwd)
+	return handleNonGitRepoCommitInDir(cleanArgs, meta, cwd)
 }
 
-func handleNonGitRepoCommitInDir(cleanArgs []string, hasPush, isDryRun bool, dir string) error {
+func handleNonGitRepoCommitInDir(cleanArgs []string, meta CommitMetadata, dir string) error {
 	childRepos, _ := fsutil.DiscoverChildGitRepos(dir)
 	isAll := isAllCommitRequested(cleanArgs)
 
 	if isAll && len(childRepos) > 0 {
-		return executeChildReposBatch(childRepos, cleanArgs, hasPush, isDryRun)
+		return executeChildReposBatch(childRepos, cleanArgs, meta)
 	}
 
 	return handleNonGitRepoFallback()
@@ -88,15 +88,15 @@ func handleNonGitRepoFallback() error {
 	return newNonGitRepoAbortError("not a git repository")
 }
 
-func executeChildReposBatch(childRepos []string, cleanArgs []string, hasPush, isDryRun bool) error {
+func executeChildReposBatch(childRepos []string, cleanArgs []string, meta CommitMetadata) error {
 	msgArgs := stripAllFlags(cleanArgs)
 	commitMessage := strings.Join(msgArgs, " ")
 
-	if isDryRun {
+	if meta.IsDryRun {
 		return previewChildReposBatch(childRepos)
 	}
 
-	return commitChildReposBatch(childRepos, commitMessage, hasPush)
+	return commitChildReposBatch(childRepos, commitMessage, meta)
 }
 
 func hasChildRepoChanges(repoPath string) bool {
@@ -137,8 +137,8 @@ func previewSingleChildRepo(repo string) {
 	_ = execGitPaddedFiltered("-C", repo, "status", "--short")
 }
 
-func commitChildReposBatch(childRepos []string, msg string, hasPush bool) error {
-	committedCount := commitAllDirtyRepos(childRepos, msg, hasPush)
+func commitChildReposBatch(childRepos []string, msg string, meta CommitMetadata) error {
+	committedCount := commitAllDirtyRepos(childRepos, msg, meta)
 	if committedCount == 0 {
 		printPaddedSuccess("All %d child repositories are clean, nothing to commit.", len(childRepos))
 
@@ -150,24 +150,27 @@ func commitChildReposBatch(childRepos []string, msg string, hasPush bool) error 
 	return nil
 }
 
-func commitAllDirtyRepos(childRepos []string, msg string, hasPush bool) int {
+func commitAllDirtyRepos(childRepos []string, msg string, meta CommitMetadata) int {
 	committedCount := 0
 	for _, repo := range childRepos {
 		if hasChildRepoChanges(repo) {
 			committedCount++
-			commitSingleChildRepo(repo, msg, hasPush)
+			commitSingleChildRepo(repo, msg, meta)
 		}
 	}
 
 	return committedCount
 }
 
-func commitSingleChildRepo(repo, msg string, hasPush bool) {
+func commitSingleChildRepo(repo, msg string, meta CommitMetadata) {
 	repoName := filepath.Base(repo)
 	printPaddedInfo("Committing in child repo: %s", repoName)
 	_ = execGitPaddedFiltered("-C", repo, "add", "-A")
 	_ = execGitPaddedFiltered("-C", repo, "commit", "-m", msg)
-	if hasPush {
+
+	RecordChildRepoCommitSafely(repo, msg, meta)
+
+	if meta.HasPush {
 		printPaddedInfo("Pushing child repo: %s", repoName)
 		_ = execGitPaddedFiltered("-C", repo, "push")
 	}

@@ -160,6 +160,7 @@ func coreWorkflowEntries() []dispatchEntry {
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return cmdopen.RunOpen(argsTail()) }},
 		{[]string{constants.CmdCloneFrom, constants.CmdCloneFromAlias}, func() error { return cmdclone.RunCloneFrom(argsTail()) }},
 		{[]string{"cursor", "cur"}, func() error { return cmdcursor.RunCursor(argsTail()) }},
+		{[]string{"commit-info", "ci"}, func() error { return cmdcommit.RunCommitInfo(argsTail()) }},
 	}
 }
 

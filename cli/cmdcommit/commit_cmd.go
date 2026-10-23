@@ -14,6 +14,10 @@ func RunCommit(args []string) error {
 }
 
 func runCommit(args []string) error {
+	if isCommitInfoSubcommand(args) {
+		return RunCommitInfo(args[1:])
+	}
+
 	if IsCommitPushHelpArg(args) {
 		RenderCommitHelp()
 
@@ -23,39 +27,27 @@ func runCommit(args []string) error {
 	return dispatchCommit(args)
 }
 
+func isCommitInfoSubcommand(args []string) bool {
+	return len(args) > 0 && strings.EqualFold(args[0], "info")
+}
+
 func dispatchCommit(args []string) error {
-	cleanArgs, hasPush, isDryRun := parseCommitFlags(args)
+	cleanArgs, meta := ExtractCommitFlags(args)
 	if !cmdpull.IsGitRepoCWD() {
-		return handleNonGitRepoCommit(cleanArgs, hasPush, isDryRun)
+		return handleNonGitRepoCommit(cleanArgs, meta)
 	}
 
-	if isDryRun {
+	if meta.IsDryRun {
 		return previewCommitChanges()
 	}
 
-	return executeCommit(cleanArgs, hasPush)
+	return executeCommit(cleanArgs, meta)
 }
 
 func parseCommitFlags(args []string) ([]string, bool, bool) {
-	var clean []string
-	hasPush, isDryRun := false, false
+	clean, meta := ExtractCommitFlags(args)
 
-	for _, a := range args {
-		clean, hasPush, isDryRun = evaluateCommitFlag(a, clean, hasPush, isDryRun)
-	}
-
-	return clean, hasPush, isDryRun
-}
-
-func evaluateCommitFlag(arg string, clean []string, hasPush, isDryRun bool) ([]string, bool, bool) {
-	switch arg {
-	case "--push", "-p":
-		return clean, true, isDryRun
-	case "--dry-run", "-n":
-		return clean, hasPush, true
-	default:
-		return append(clean, arg), hasPush, isDryRun
-	}
+	return clean, meta.HasPush, meta.IsDryRun
 }
 
 func previewCommitChanges() error {
@@ -64,7 +56,7 @@ func previewCommitChanges() error {
 	return ExecGitInheritCP("status", "--short")
 }
 
-func executeCommit(args []string, hasPush bool) error {
+func executeCommit(args []string, meta CommitMetadata) error {
 	hasChanges, err := stageAndCheckStaged()
 	if err != nil {
 		return err
@@ -73,10 +65,10 @@ func executeCommit(args []string, hasPush bool) error {
 	if !hasChanges {
 		printPaddedInfo("Working tree clean, nothing to commit.")
 
-		return handleCleanWorkingTree(hasPush)
+		return handleCleanWorkingTree(meta.HasPush)
 	}
 
-	return commitAndOptionalPush(args, hasPush)
+	return commitAndOptionalPush(args, meta)
 }
 
 func stageAndCheckStaged() (bool, error) {
@@ -94,12 +86,14 @@ func stageAndCheckStaged() (bool, error) {
 	return hasChanges, nil
 }
 
-func commitAndOptionalPush(args []string, hasPush bool) error {
+func commitAndOptionalPush(args []string, meta CommitMetadata) error {
 	if err := dispatchGitCommit(args); err != nil {
 		return apperror.WrapSimple(err, "git commit failed:")
 	}
 
-	return handleOptionalPush(hasPush)
+	RecordCurrentCommitSafely(meta)
+
+	return handleOptionalPush(meta.HasPush)
 }
 
 func handleCleanWorkingTree(hasPush bool) error {

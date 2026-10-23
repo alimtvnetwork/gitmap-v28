@@ -39,6 +39,7 @@ AI-specific guidelines designed to prevent hallucination and ensure AI-generated
 | 08 | [09-agent-memory-lifecycle.md](./09-agent-memory-lifecycle.md) | Agent memory transitions, TTL cleanups, deduplication, and spec supremacy |
 | 09 | [10-anti-pattern-replacements.md](./10-anti-pattern-replacements.md) | Mandatory substitutions banning curl, wget, single-stream downloads, and filesystem grepping |
 | 10 | [11-heatmap-telemetry-and-url-caching.md](./11-heatmap-telemetry-and-url-caching.md) | 3-tier heatmap telemetry topology, URL Split-DB caching, 10-split segmented downloading, and LLM training |
+| 11 | [12-commit-provenance-and-tracking.md](./12-commit-provenance-and-tracking.md) | Universal AI commit provenance, task linkage, ambient fallback hierarchy, and audit logging |
 
 ---
 
@@ -50,6 +51,7 @@ AI-specific guidelines designed to prevent hallucination and ensure AI-generated
 4. **For enum code:** Consult the enum naming quick reference (07)
 5. **For web assets and downloads:** Enforce URL Split-DB caching and segmented downloading (11)
 6. **For task context and decisions:** Inspect the 3-tier cognitive heatmap (11)
+7. **For commit operations:** Ensure full AI provenance tracking flags and inspect commits via `gitmap commit info` (12)
 
 ---
 

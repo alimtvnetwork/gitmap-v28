@@ -20,6 +20,7 @@ const (
 	PublicAiMemoryURL          = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/.ai-memory/what-to-read.md"
 	PublicAntiPatternURL       = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md"
 	PublicHeatmapUrlCacheURL   = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/11-heatmap-telemetry-and-url-caching.md"
+	PublicCommitProvenanceURL  = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/12-commit-provenance-and-tracking.md"
 	PublicAntiHallucinationURL = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/02-anti-hallucination-rules.md"
 	PublicCommonMistakesURL    = "https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/02-spec/02-coding-guidelines/06-ai-optimization/04-common-ai-mistakes.md"
 )
@@ -80,6 +81,13 @@ func GetPublicDocLinks() []DocLink {
 			Title:       "Heatmap Telemetry & URL Caching Specification",
 			URL:         PublicHeatmapUrlCacheURL,
 			Description: "3-tier heatmap database discovery, split-db URL caching, 10-split segmented downloader, and LLM training integration.",
+			Category:    "Guideline",
+			IsMandatory: true,
+		},
+		{
+			Title:       "Commit Provenance & Tracking Specification",
+			URL:         PublicCommitProvenanceURL,
+			Description: "Universal AI commit provenance, task linkage, ambient fallback hierarchy, and audit logging.",
 			Category:    "Guideline",
 			IsMandatory: true,
 		},
