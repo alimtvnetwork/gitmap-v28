@@ -29,20 +29,27 @@ AI-specific guidelines designed to prevent hallucination and ensure AI-generated
 
 | # | File | Description |
 |---|------|-------------|
-| 01 | [01-anti-hallucination-rules.md](./02-anti-hallucination-rules.md) | 30+ explicit "never generate X" rules with forbidden/required patterns |
-| 02 | [02-ai-quick-reference-checklist.md](./03-ai-quick-reference-checklist.md) | 50-check pre-output validation checklist |
-| 03 | [03-common-ai-mistakes.md](./04-common-ai-mistakes.md) | Top 15 real mistakes AI makes, with before/after corrections |
-| 04 | [04-condensed-master-guidelines.md](./05-condensed-master-guidelines.md) | Sub-200-line distillation of master guidelines for AI context windows |
-| 05 | [05-enum-naming-quick-reference.md](./07-enum-naming-quick-reference.md) | Cross-language enum naming rules: Go, TypeScript, PHP — declaration, naming, usage, validation checklist |
+| 01 | [02-anti-hallucination-rules.md](./02-anti-hallucination-rules.md) | 30+ explicit "never generate X" rules with forbidden/required patterns |
+| 02 | [03-ai-quick-reference-checklist.md](./03-ai-quick-reference-checklist.md) | 50-check pre-output validation checklist |
+| 03 | [04-common-ai-mistakes.md](./04-common-ai-mistakes.md) | Top 15 real mistakes AI makes, with before/after corrections |
+| 04 | [05-condensed-master-guidelines.md](./05-condensed-master-guidelines.md) | Sub-200-line distillation of master guidelines for AI context windows |
+| 05 | [06-citation-requirement.md](./06-citation-requirement.md) | Mandatory inline citations, spec traceability, and relative path governance |
+| 06 | [07-enum-naming-quick-reference.md](./07-enum-naming-quick-reference.md) | Cross-language enum naming rules: Go, TypeScript, PHP — declaration, naming, usage, validation checklist |
+| 07 | [08-hallucination-checks.md](./08-hallucination-checks.md) | Static verification checks and pre-commit anti-hallucination guardrails |
+| 08 | [09-agent-memory-lifecycle.md](./09-agent-memory-lifecycle.md) | Agent memory transitions, TTL cleanups, deduplication, and spec supremacy |
+| 09 | [10-anti-pattern-replacements.md](./10-anti-pattern-replacements.md) | Mandatory substitutions banning curl, wget, single-stream downloads, and filesystem grepping |
+| 10 | [11-heatmap-telemetry-and-url-caching.md](./11-heatmap-telemetry-and-url-caching.md) | 3-tier heatmap telemetry topology, URL Split-DB caching, 10-split segmented downloading, and LLM training |
 
 ---
 
 ## How AI Should Use This Section
 
-1. **Before generating code:** Scan the quick-reference checklist (02)
-2. **During generation:** Apply anti-hallucination rules (01) to each code block
-3. **After generation:** Verify against common mistakes (03)
-4. **For enum code:** Consult the enum naming quick reference (05)
+1. **Before generating code:** Scan the quick-reference checklist (03) and anti-pattern replacements (10)
+2. **During generation:** Apply anti-hallucination rules (02) to each code block
+3. **After generation:** Verify against common mistakes (04)
+4. **For enum code:** Consult the enum naming quick reference (07)
+5. **For web assets and downloads:** Enforce URL Split-DB caching and segmented downloading (11)
+6. **For task context and decisions:** Inspect the 3-tier cognitive heatmap (11)
 
 ---
 

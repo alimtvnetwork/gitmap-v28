@@ -45,51 +45,116 @@ func executeAndExitRCHeatmap(args []string) {
 	cliexit.Exit(0)
 }
 
+type rcCommandTokens struct {
+	subcommand string
+	flags      []string
+	hasSubcmd  bool
+}
+
+func isRCHeatmapHelpOrEmpty(args []string) bool {
+	if len(args) == 0 {
+		return true
+	}
+
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+
+	return first == "help" || first == "--help" || first == "-h"
+}
+
+func parseRcCommandTokens(args []string) rcCommandTokens {
+	var tokens rcCommandTokens
+	for _, a := range args {
+		tokens = consumeRcArg(tokens, a)
+	}
+
+	return tokens
+}
+
+func consumeRcArg(tokens rcCommandTokens, arg string) rcCommandTokens {
+	if strings.HasPrefix(arg, "-") || tokens.hasSubcmd {
+		tokens.flags = append(tokens.flags, arg)
+
+		return tokens
+	}
+
+	tokens.subcommand = strings.ToLower(strings.TrimSpace(arg))
+	tokens.hasSubcmd = true
+
+	return tokens
+}
+
 // RunRCHeatmapCommand dispatches gitmap rc heatmap or fallback operations.
 func RunRCHeatmapCommand(args []string) error {
-	enrichedArgs := enrichRCHeatmapFlags(args)
-	err := heatmap.DispatchHeatmapSubsystem(context.Background(), append([]string{"rc"}, enrichedArgs...), os.Stdout)
+	if isRCHeatmapHelpOrEmpty(args) {
+		return heatmap.DispatchHeatmapOverview(context.Background(), os.Stdout, true)
+	}
+
+	tokens := parseRcCommandTokens(args)
+	if !tokens.hasSubcmd || tokens.subcommand == "help" {
+		return heatmap.DispatchHeatmapOverview(context.Background(), os.Stdout, true)
+	}
+
+	return dispatchWithSubcommandFirst(tokens)
+}
+
+func dispatchWithSubcommandFirst(tokens rcCommandTokens) error {
+	enrichedFlags := enrichRCHeatmapFlags(tokens.flags)
+	dispatched := append([]string{"rc", tokens.subcommand}, enrichedFlags...)
+	err := heatmap.DispatchHeatmapSubsystem(context.Background(), dispatched, os.Stdout)
 	if err == nil {
 		return nil
 	}
-	return executeFallbackRCHeatmap(enrichedArgs)
+
+	return executeFallbackRCHeatmap(append([]string{tokens.subcommand}, enrichedFlags...))
 }
 
-func enrichRCHeatmapFlags(args []string) []string {
-	flags := make(map[string]bool)
+func hasFlagKey(args []string, longKey, shortKey string) bool {
 	for _, a := range args {
-		if strings.HasPrefix(a, "--") {
-			parts := strings.SplitN(strings.TrimPrefix(a, "--"), "=", 2)
-			flags[strings.ToLower(parts[0])] = true
+		trimmed := strings.TrimLeft(a, "-")
+		key, _, _ := strings.Cut(trimmed, "=")
+		norm := strings.ToLower(key)
+		if norm == longKey || norm == shortKey {
+			return true
 		}
 	}
-	enriched := append([]string{}, args...)
-	if !flags["repo"] && !flags["r"] {
+
+	return false
+}
+
+func enrichRCHeatmapFlags(flags []string) []string {
+	hasRepo := hasFlagKey(flags, "repo", "r")
+	hasAi := hasFlagKey(flags, "ai", "a")
+	enriched := append([]string{}, flags...)
+	if !hasRepo {
 		enriched = append(enriched, "--repo", AutoDetectRepoSlug())
 	}
-	if !flags["ai"] && !flags["a"] {
+
+	if !hasAi {
 		enriched = append(enriched, "--ai", AutoDetectAiName())
 	}
+
 	return enriched
 }
 
 func executeFallbackRCHeatmap(args []string) error {
-	if len(args) == 0 || args[0] == "help" || args[0] == "--help" {
+	if len(args) == 0 || args[0] == "help" || args[0] == "--help" || args[0] == "-h" {
 		printRCHeatmapHelp()
+
 		return nil
 	}
-	subcmd := strings.ToLower(args[0])
-	switch subcmd {
+
+	switch strings.ToLower(args[0]) {
 	case "sync":
 		return runFallbackRCSync(args[1:])
 	case "status":
 		return runFallbackRCStatus(args[1:])
 	case "commit":
 		return runFallbackRCCommit(args[1:])
-	default:
-		printRCHeatmapHelp()
-		return nil
 	}
+
+	printRCHeatmapHelp()
+
+	return nil
 }
 
 func runFallbackRCSync(args []string) error {

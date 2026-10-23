@@ -171,6 +171,15 @@ func ResolveAiAnalysisDbPath(repoRoot string) string {
 	return filepath.ToSlash(filepath.Join(dir, "ai-analysis.db"))
 }
 
+// ResolveUrlCacheDbPath resolves the URL cache split SQLite database file path.
+func ResolveUrlCacheDbPath(repoRoot string) string {
+	baseDir := resolveBaseDataDir(repoRoot)
+	dir := filepath.Join(baseDir, "repodb")
+	_ = os.MkdirAll(dir, 0755)
+
+	return filepath.ToSlash(filepath.Join(dir, "url_cache.db"))
+}
+
 func migrateLegacySplitDb(section, slug, repoRoot, targetPath string) {
 	candidates := collectLegacyCandidates(section, slug, repoRoot)
 	for _, cand := range candidates {

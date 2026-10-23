@@ -20,19 +20,22 @@ import (
 
 // LlmTrainingExample represents an instruction-tuning record with architectural reasoning.
 type LlmTrainingExample struct {
-	Id           string            `json:"id"`
-	TaskId       string            `json:"task_id"`
-	System       string            `json:"system"`
-	Prompt       string            `json:"prompt"`
-	Completion   string            `json:"completion"`
-	Goal         string            `json:"goal"`
-	Category     string            `json:"category"`
-	Reasoning    string            `json:"reasoning"`
-	FilesSummary []LlmFileDecision `json:"files_summary"`
-	LineDiffs    []LlmLineDiff     `json:"line_diffs"`
-	StepIndex    int               `json:"step_index"`
-	TotalSteps   int               `json:"total_steps"`
-	NextStep     string            `json:"next_step"`
+	Id               string            `json:"id"`
+	TaskId           string            `json:"task_id"`
+	System           string            `json:"system"`
+	Prompt           string            `json:"prompt"`
+	Completion       string            `json:"completion"`
+	Goal             string            `json:"goal"`
+	Category         string            `json:"category"`
+	Reasoning        string            `json:"reasoning"`
+	ExpectedOutcome  string            `json:"expectedOutcome,omitempty"`
+	ActualOutcome    string            `json:"actualOutcome,omitempty"`
+	IsExpectationMet bool              `json:"isExpectationMet"`
+	FilesSummary     []LlmFileDecision `json:"files_summary"`
+	LineDiffs        []LlmLineDiff     `json:"line_diffs"`
+	StepIndex        int               `json:"step_index"`
+	TotalSteps       int               `json:"total_steps"`
+	NextStep         string            `json:"next_step"`
 }
 
 // LlmFileDecision documents a file inspected, modified, or removed during an AI task.
@@ -97,7 +100,12 @@ func runLlmTrainCommand(cmd *cobra.Command, args []string) error {
 	}
 	defer db.Close()
 
-	return ExecuteLlmTrainExport(db, llmTrainOptions)
+	return runAiAnalysisLlmTrainExport(db, llmTrainOptions)
+}
+
+// runAiAnalysisLlmTrainExport incorporates cognitive decision traces from HeatmapActionLog into the instruction-tuning export.
+func runAiAnalysisLlmTrainExport(db *store.AiAnalysisSplitDB, opts LlmTrainCliOptions) error {
+	return ExecuteLlmTrainExport(db, opts)
 }
 
 func runAiClearCommand(cmd *cobra.Command, args []string) error {
@@ -224,48 +232,113 @@ func buildTrainingExamples(db *store.AiAnalysisSplitDB, tasks []store.AiTask) ([
 }
 
 func buildSingleTrainingExample(db *store.AiAnalysisSplitDB, task store.AiTask, idx, total int, allTasks []store.AiTask) (LlmTrainingExample, error) {
-	files, err := db.GetTaskFiles(task.AiTaskId)
+	files, diffs, err := collectTaskFilesAndDiffs(db, task.AiTaskId)
 	if err != nil {
-		return LlmTrainingExample{}, apperror.WrapSimple(err, "cmdai.train.get_files")
+		return LlmTrainingExample{}, err
 	}
 
-	fileDecisions := make([]LlmFileDecision, 0, len(files))
-	var lineDiffs []LlmLineDiff
-
-	for _, f := range files {
-		fileDecisions = append(fileDecisions, LlmFileDecision{
-			RelPath:   f.RelPath,
-			Action:    f.Action,
-			LineCount: f.LineCount,
-			Reasoning: f.Reasoning,
-		})
-
-		diffs, diffErr := collectFileLineDiffs(db, f)
-		if diffErr != nil {
-			return LlmTrainingExample{}, diffErr
-		}
-		lineDiffs = append(lineDiffs, diffs...)
-	}
-
+	expected, actual, isMet := queryTaskHeatmapTrace(task.TaskUuid)
 	nextStep := resolveNextStepMessage(idx, total, allTasks)
 	prompt := fmt.Sprintf("Hey, learn this: What was the decision-making for task %s? Why was it made, which files and lines were modified, and what was the architectural reasoning?", task.TaskUuid)
-	completion := composeCompletionText(task, fileDecisions, lineDiffs, nextStep)
+	completion := composeCompletionText(task, files, diffs, nextStep, expected, actual, isMet)
 
+	return assembleTrainingExample(task, prompt, completion, expected, actual, nextStep, files, diffs, idx, total, isMet), nil
+}
+
+func collectTaskFilesAndDiffs(db *store.AiAnalysisSplitDB, taskId int64) ([]LlmFileDecision, []LlmLineDiff, error) {
+	files, err := db.GetTaskFiles(taskId)
+	if err != nil {
+		return nil, nil, apperror.WrapSimple(err, "cmdai.train.get_files")
+	}
+
+	return extractFilesAndDiffs(db, files)
+}
+
+func extractFilesAndDiffs(db *store.AiAnalysisSplitDB, files []store.AiTaskFile) ([]LlmFileDecision, []LlmLineDiff, error) {
+	var decisions []LlmFileDecision
+	var diffs []LlmLineDiff
+	for _, f := range files {
+		decisions = append(decisions, newFileDecision(f))
+		fileDiffs, diffErr := collectFileLineDiffs(db, f)
+		if diffErr != nil {
+			return nil, nil, diffErr
+		}
+		diffs = append(diffs, fileDiffs...)
+	}
+
+	return decisions, diffs, nil
+}
+
+func newFileDecision(f store.AiTaskFile) LlmFileDecision {
+	return LlmFileDecision{
+		RelPath:   f.RelPath,
+		Action:    f.Action,
+		LineCount: f.LineCount,
+		Reasoning: f.Reasoning,
+	}
+}
+
+func assembleTrainingExample(task store.AiTask, prompt, completion, expected, actual, nextStep string, files []LlmFileDecision, diffs []LlmLineDiff, idx, total int, isMet bool) LlmTrainingExample {
+	ex := initBaseTrainingExample(task, prompt, completion, expected, actual, isMet)
+	ex.FilesSummary = files
+	ex.LineDiffs = diffs
+	ex.StepIndex = idx
+	ex.TotalSteps = total
+	ex.NextStep = nextStep
+
+	return ex
+}
+
+func initBaseTrainingExample(task store.AiTask, prompt, completion, expected, actual string, isMet bool) LlmTrainingExample {
 	return LlmTrainingExample{
-		Id:           fmt.Sprintf("gitmap-task-%s", task.TaskUuid),
-		TaskId:       task.TaskUuid,
-		System:       "You are an autonomous senior software engineer explaining architectural decisions, code modifications, and guideline enforcement.",
-		Prompt:       prompt,
-		Completion:   completion,
-		Goal:         task.Goal,
-		Category:     task.Category,
-		Reasoning:    task.Reasoning,
-		FilesSummary: fileDecisions,
-		LineDiffs:    lineDiffs,
-		StepIndex:    idx,
-		TotalSteps:   total,
-		NextStep:     nextStep,
-	}, nil
+		Id:               fmt.Sprintf("gitmap-task-%s", task.TaskUuid),
+		TaskId:           task.TaskUuid,
+		System:           "You are an autonomous senior software engineer explaining architectural decisions, code modifications, and guideline enforcement.",
+		Prompt:           prompt,
+		Completion:       completion,
+		Goal:             task.Goal,
+		Category:         task.Category,
+		Reasoning:        task.Reasoning,
+		ExpectedOutcome:  expected,
+		ActualOutcome:    actual,
+		IsExpectationMet: isMet,
+	}
+}
+
+func queryTaskHeatmapTrace(taskUuid string) (string, string, bool) {
+	rootPath := filepath.Join(store.EffectiveDataDir(), "heatmap.db")
+	if _, err := os.Stat(rootPath); err != nil {
+		return "", "", true
+	}
+
+	dsn := fmt.Sprintf("file:%s?mode=ro&cache=shared", filepath.ToSlash(rootPath))
+	conn, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		return "", "", true
+	}
+	defer conn.Close()
+
+	return scanTaskHeatmapTrace(conn, taskUuid)
+}
+
+const sqlSelectTaskHeatmapTrace = `SELECT 
+	COALESCE(ExpectedOutcome, ''), 
+	COALESCE(ActualOutcome, ''), 
+	IsExpectationMet 
+FROM HeatmapActionLog 
+WHERE TaskSlug = ? 
+ORDER BY HeatmapActionLogId DESC 
+LIMIT 1`
+
+func scanTaskHeatmapTrace(conn *sql.DB, taskUuid string) (string, string, bool) {
+	var expected, actual string
+	var isMetInt int
+	err := conn.QueryRow(sqlSelectTaskHeatmapTrace, taskUuid).Scan(&expected, &actual, &isMetInt)
+	if err != nil {
+		return "", "", true
+	}
+
+	return expected, actual, isMetInt == 1
 }
 
 func collectFileLineDiffs(db *store.AiAnalysisSplitDB, f store.AiTaskFile) ([]LlmLineDiff, error) {
@@ -300,33 +373,51 @@ func resolveNextStepMessage(idx, total int, tasks []store.AiTask) string {
 	return fmt.Sprintf("Next step: All %d tasks in sequence processed. Training sequence complete.", total)
 }
 
-func composeCompletionText(task store.AiTask, files []LlmFileDecision, diffs []LlmLineDiff, nextStep string) string {
+func composeCompletionText(task store.AiTask, files []LlmFileDecision, diffs []LlmLineDiff, nextStep, expected, actual string, isMet bool) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("Decision-Making Summary for Task: %s\n", task.TaskUuid))
 	sb.WriteString(fmt.Sprintf("Goal: %s\n", task.Goal))
 	sb.WriteString(fmt.Sprintf("Category: %s | Status: %s\n", task.Category, task.Status))
+	appendReasoningToCompletion(&sb, task.Reasoning)
+	appendFilesToCompletion(&sb, files)
+	appendDiffsToCompletion(&sb, diffs)
+	appendHeatmapTraceToCompletion(&sb, expected, actual, isMet)
+	sb.WriteString(fmt.Sprintf("\n%s\n", nextStep))
 
-	hasReasoning := strings.TrimSpace(task.Reasoning) != ""
-	if hasReasoning {
-		sb.WriteString(fmt.Sprintf("Architectural Reasoning: %s\n", task.Reasoning))
+	return sb.String()
+}
+
+func appendReasoningToCompletion(sb *strings.Builder, reasoning string) {
+	if strings.TrimSpace(reasoning) != "" {
+		sb.WriteString(fmt.Sprintf("Architectural Reasoning: %s\n", reasoning))
 	}
+}
 
+func appendFilesToCompletion(sb *strings.Builder, files []LlmFileDecision) {
 	sb.WriteString("\nFiles Inspected & Modified:\n")
 	for _, f := range files {
 		sb.WriteString(fmt.Sprintf("- [%s] %s (lines: %d): %s\n", f.Action, f.RelPath, f.LineCount, f.Reasoning))
 	}
+}
 
-	hasDiffs := len(diffs) > 0
-	if hasDiffs {
-		sb.WriteString("\nGranular Line Decisions:\n")
-		for _, d := range diffs {
-			sb.WriteString(fmt.Sprintf("- %s:%d [%s] Rule: %s — %s\n", d.RelPath, d.LineNumber, d.DiffKind, d.RuleViolation, d.Reasoning))
-		}
+func appendDiffsToCompletion(sb *strings.Builder, diffs []LlmLineDiff) {
+	if len(diffs) == 0 {
+		return
 	}
 
-	sb.WriteString(fmt.Sprintf("\n%s\n", nextStep))
+	sb.WriteString("\nGranular Line Decisions:\n")
+	for _, d := range diffs {
+		sb.WriteString(fmt.Sprintf("- %s:%d [%s] Rule: %s — %s\n", d.RelPath, d.LineNumber, d.DiffKind, d.RuleViolation, d.Reasoning))
+	}
+}
 
-	return sb.String()
+func appendHeatmapTraceToCompletion(sb *strings.Builder, expected, actual string, isMet bool) {
+	hasTrace := expected != "" || actual != ""
+	if !hasTrace {
+		return
+	}
+
+	sb.WriteString(fmt.Sprintf("\nCognitive Verification: Expected: %q | Actual: %q | Met: %t\n", expected, actual, isMet))
 }
 
 func formatTrainingExamples(examples []LlmTrainingExample, format string) ([]byte, error) {

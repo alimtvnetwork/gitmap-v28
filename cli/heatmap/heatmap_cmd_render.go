@@ -132,6 +132,7 @@ func printHeatmapHelp(out io.Writer) {
 	fmt.Fprint(out, `Usage: gitmap heatmap <command> [flags]
 
 Commands:
+  overview Discover heatmap databases across all 3 tiers and summarize recent tasks
   log     Log an AI cognitive decision or file action
   update  Update outcome and expectation status of an existing action
   search  Search logged actions by query, task, or file

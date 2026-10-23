@@ -153,6 +153,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 - [67-nodes-cfr-remote-fleet-clone-enhancement.md](completed/67-nodes-cfr-remote-fleet-clone-enhancement.md) — Nodes CFR Remote Fleet Clone Enhancement & Async Delegation (Status: `completed` 2026-10-23)
 - [75-gitmap-u1-ubuntu-agm-fleet-integration.md](completed/75-gitmap-u1-ubuntu-agm-fleet-integration.md) — GitMap U1 Ubuntu Fleet Integration, AGM Migration & Cross-OS Automation (Status: `completed` 2026-10-23)
 - [313-gitmap-execution-and-optimization-instructions.md](completed/313-gitmap-execution-and-optimization-instructions.md) — GitMap Execution and Optimization Instructions: Windows SSH Fleet Quoting Fix, Pull Split-DB Concurrency Locking, Encrypted SSH Key Vault & Auto-Relogin, Heatmap JSON & AI Provenance, CPU Scaling, Update Optimization, and Repository Scan Disable/Enable Controls (Status: `completed` 2026-10-23)
+- [314-gitmap-heatmap-and-url-handling-instructions.md](completed/314-gitmap-heatmap-and-url-handling-instructions.md) — GitMap Heatmap Discovery, URL Split-DB Caching, 10-Split Segmented Downloader & LLM Training Integration (Spec: [314-gitmap-heatmap-and-url-handling-instructions](../../02-spec/21-app/314-gitmap-heatmap-and-url-handling-instructions/00-overview.md)) (Status: `completed` 2026-10-23)
 
 ---
 
@@ -160,7 +161,6 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 
 Only genuinely open plans remain here after the 2026-10-23 pending-folder drain (task 190, subtask 06); the 24 completed plans moved to `completed/` (see section 2b):
 
-- [314-gitmap-heatmap-and-url-handling-instructions.md](pending/314-gitmap-heatmap-and-url-handling-instructions.md) — Plan 314: Heatmap Database Discovery & AI Help, URL Split-DB Caching, 10-Split Segmented Downloader & LLM Training Integration (Spec: [314-gitmap-heatmap-and-url-handling-instructions](../../02-spec/21-app/314-gitmap-heatmap-and-url-handling-instructions/00-overview.md)) (Status: `pending`)
 - [01-ports-and-ssh-enablement.md](pending/01-ports-and-ssh-enablement.md) — Ports Inspection, Firewall Audit & Cross-Platform OpenSSH Daemon Management (re-triaged 2026-10-23: predates the pure-Go nodes rewrite — verify-or-close in a later task)
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations & Macro Orchestration (parked 2026-10-23 pending an explicit go/no-go decision; hardware-dependent)
 

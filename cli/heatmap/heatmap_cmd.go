@@ -20,20 +20,34 @@ var shortFlagMap = map[string]string{
 }
 
 func isHeatmapHelpRequested(args []string) bool {
+	return isHeatmapOverviewRequested(args)
+}
+
+func isHeatmapOverviewRequested(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
 
-	return args[0] == "help" || args[0] == "--help" || args[0] == "-h"
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+	if first == "help" || first == "--help" || first == "-h" || first == "overview" {
+		return true
+	}
+
+	return strings.HasPrefix(first, "-")
 }
 
 func dispatchHeatmapAction(subcmd string, flags map[string]string, pos []string, out io.Writer) (bool, error) {
 	switch subcmd {
-	case "log": return true, runHeatmapLog(flags, out)
-	case "update", "outcome": return true, runHeatmapUpdate(flags, pos, out)
-	case "search": return true, runHeatmapSearch(flags, pos, out)
-	case "tree": return true, runHeatmapTree(flags, out)
-	case "status": return true, runHeatmapStatus(flags, out)
+	case "log":
+		return true, runHeatmapLog(flags, out)
+	case "update", "outcome":
+		return true, runHeatmapUpdate(flags, pos, out)
+	case "search":
+		return true, runHeatmapSearch(flags, pos, out)
+	case "tree":
+		return true, runHeatmapTree(flags, out)
+	case "status":
+		return true, runHeatmapStatus(flags, out)
 	}
 
 	return false, nil
@@ -41,6 +55,8 @@ func dispatchHeatmapAction(subcmd string, flags map[string]string, pos []string,
 
 func dispatchHeatmapAdmin(ctx context.Context, subcmd string, args []string, flags map[string]string, pos []string, out io.Writer) error {
 	switch subcmd {
+	case "overview":
+		return DispatchHeatmapOverview(ctx, out, false)
 	case "tables", "table":
 		return RunHeatmapTables(false, flags, out)
 	case "view", "list":
@@ -63,10 +79,8 @@ func parseSubcmdAndArgs(args []string) (string, map[string]string, []string) {
 
 // DispatchHeatmapSubsystem routes heatmap subcommands (log, search, tree, status, help).
 func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer) error {
-	if isHeatmapHelpRequested(args) {
-		printHeatmapHelp(out)
-
-		return nil
+	if isHeatmapOverviewRequested(args) {
+		return DispatchHeatmapOverview(ctx, out, false)
 	}
 
 	subcmd, flags, pos := parseSubcmdAndArgs(args)
@@ -282,8 +296,8 @@ func initActionLogRecord(flags map[string]string) store.HeatmapActionLogRecord {
 	return store.HeatmapActionLogRecord{
 		ParentLogId: parseOptionalID(flags["parent"]),
 		TaskSlug:    flags["task"], RepoName: flags["repo"],
-		ActionType:  resolveActionFlag(flags), FilePath: flags["file"],
-		StartLine:   start, EndLine: end, ReasoningState: resolveStateFlag(flags),
+		ActionType: resolveActionFlag(flags), FilePath: flags["file"],
+		StartLine: start, EndLine: end, ReasoningState: resolveStateFlag(flags),
 	}
 }
 

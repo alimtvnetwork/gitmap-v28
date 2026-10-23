@@ -14,39 +14,127 @@ const museTrainTarget = "muse"
 
 // RunTrain executes the chained curriculum training workflow for LLMs.
 func RunTrain(args []string) *apperror.AppError {
-	target, rest := stripTrainTarget(args)
-	opts, err := parseTrainFlags(rest)
-	if err != nil {
+	opts, heatmapOpts, err := resolveTrainConfigurations(args)
+	if err != nil || opts.IsHelp {
 		return err
-	}
-	opts.TrainTarget = target
-	if opts.IsHelp && opts.TrainTarget == museTrainTarget {
-		printTrainMuseUsage()
-		return nil
-	}
-	if opts.IsHelp {
-		return nil
 	}
 	if opts.TrainTarget == museTrainTarget {
 		return runTrainMuse(opts)
 	}
-	if opts.IsURLs {
-		fmt.Print(RenderPublicDocLinksText())
-		return nil
-	}
-	if opts.IsURL {
-		fmt.Println(PublicLlmSpecURL)
-		return nil
-	}
-	if opts.IsJSON {
-		return outputTrainJSON()
-	}
-	if opts.IsLoop {
-		executeSelfLoopSimulation(opts.LoopCount)
+	if isSpecial := isSpecialTrainMode(opts); isSpecial {
 		return nil
 	}
 
-	return runTrainPhases(opts)
+	return executeTrainOrJSON(opts, heatmapOpts)
+}
+
+func executeTrainOrJSON(opts TrainOptions, heatmapOpts LlmHeatmapOptions) *apperror.AppError {
+	if opts.IsJSON {
+		return outputTrainJSON()
+	}
+
+	return dispatchTrainCurriculum(opts, heatmapOpts)
+}
+
+// RunLlmTrain is an alias for RunTrain executing the autonomous LLM training curriculum.
+func RunLlmTrain(args []string) *apperror.AppError {
+	return RunTrain(args)
+}
+
+func resolveTrainConfigurations(args []string) (TrainOptions, LlmHeatmapOptions, *apperror.AppError) {
+	target, rest := stripTrainTarget(args)
+	opts, heatmapOpts, err := parseTrainHeatmapFlags(rest)
+	if err != nil {
+		return TrainOptions{}, LlmHeatmapOptions{}, err
+	}
+	opts.TrainTarget = target
+	if opts.IsHelp && opts.TrainTarget == museTrainTarget {
+		printTrainMuseUsage()
+	}
+
+	return opts, heatmapOpts, nil
+}
+
+func isSpecialTrainMode(opts TrainOptions) bool {
+	if opts.IsURLs {
+		fmt.Print(RenderPublicDocLinksText())
+		return true
+	}
+	if opts.IsURL {
+		fmt.Println(PublicLlmSpecURL)
+		return true
+	}
+
+	return isLoopMode(opts)
+}
+
+func isLoopMode(opts TrainOptions) bool {
+	if opts.IsLoop {
+		executeSelfLoopSimulation(opts.LoopCount)
+		return true
+	}
+
+	return false
+}
+
+func dispatchTrainCurriculum(opts TrainOptions, heatmapOpts LlmHeatmapOptions) *apperror.AppError {
+	if err := runTrainPhases(opts); err != nil {
+		return err
+	}
+
+	return executeHeatmapTrainingCurriculum(heatmapOpts)
+}
+
+func executeHeatmapTrainingCurriculum(opts LlmHeatmapOptions) *apperror.AppError {
+	sources, err := ResolveHeatmapTrainingSources(opts)
+	if err != nil {
+		return apperror.WrapSimple(err, "llm.resolve_heatmap")
+	}
+	if len(sources) == 0 {
+		return nil
+	}
+
+	return ingestAndPrintHeatmapDigest(sources[0], opts)
+}
+
+func ingestAndPrintHeatmapDigest(source string, opts LlmHeatmapOptions) *apperror.AppError {
+	examples, err := IngestHeatmapTrainingData(source, opts.Limit)
+	if err != nil {
+		return apperror.WrapSimple(err, "llm.ingest_heatmap")
+	}
+	filtered := filterExamplesByTask(examples, opts.TaskSlug)
+	if len(filtered) == 0 {
+		return nil
+	}
+	pos, neg := PartitionHeatmapExamples(filtered)
+	printHeatmapTelemetry(source, len(filtered), len(pos), len(neg))
+	fmt.Print(FormatHeatmapTrainingDigest(filtered))
+
+	return nil
+}
+
+func filterExamplesByTask(examples []HeatmapTrainingExample, taskSlug string) []HeatmapTrainingExample {
+	hasNoFilter := strings.TrimSpace(taskSlug) == ""
+	if hasNoFilter {
+		return examples
+	}
+
+	var filtered []HeatmapTrainingExample
+	for _, ex := range examples {
+		if strings.EqualFold(ex.TaskSlug, strings.TrimSpace(taskSlug)) {
+			filtered = append(filtered, ex)
+		}
+	}
+
+	return filtered
+}
+
+func printHeatmapTelemetry(source string, total, pos, neg int) {
+	fmt.Println("======================================================================")
+	fmt.Println("HEATMAP TELEMETRY INGESTION")
+	fmt.Println("======================================================================")
+	fmt.Printf("[HEATMAP-INGEST] Source: %s\n", source)
+	fmt.Printf("[HEATMAP-INGEST] Ingested: %d actions (%d positive, %d negative RCA)\n\n", total, pos, neg)
 }
 
 func outputTrainJSON() *apperror.AppError {
@@ -110,54 +198,123 @@ func handleSkillGeneration(opts TrainOptions) *apperror.AppError {
 	return executeSkillGeneration(opts.SkillPath)
 }
 
-func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
+type rawTrainFlagPointers struct {
+	isTextOnly  *bool
+	skillPath   *string
+	isLoop      *bool
+	selfLoop    *int
+	isURL       *bool
+	isURLs      *bool
+	isJSON      *bool
+	healApply   *string
+	days        *int
+	heatmap     *string
+	heatmapRepo *string
+	heatmapTask *string
+}
+
+func declareTrainFlags(fs *flag.FlagSet) rawTrainFlagPointers {
+	p := rawTrainFlagPointers{
+		isTextOnly: fs.Bool("text-only", false, "Print curriculum text without writing skill file"),
+		skillPath:  fs.String("skill-path", DefaultSkillPath, "Path for generated Antigravity skill"),
+		isLoop:     fs.Bool("loop", false, "Execute autonomous 6-phase AI self-looping execution cycle"),
+		selfLoop:   fs.Int("self-loop", 0, "Number of consecutive iterations of the AI self-loop"),
+		isURL:      fs.Bool("url", false, "Output raw public URL to llm.md instruction specification"),
+		isURLs:     fs.Bool("urls", false, "Output authoritative public documentation links for LLM ingestion"),
+		isJSON:     fs.Bool("json", false, "Output structured machine-readable command specifications"),
+	}
+	declareTrainExtraFlags(fs, &p)
+
+	return p
+}
+
+func declareTrainExtraFlags(fs *flag.FlagSet, p *rawTrainFlagPointers) {
+	p.healApply = fs.String("heal-apply", "", "Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
+	p.days = fs.Int("days", DefaultTrainMuseDays, "Digest window in days for 'train muse' (default 7)")
+	declareTrainHeatmapFlags(fs, p)
+}
+
+func declareTrainHeatmapFlags(fs *flag.FlagSet, p *rawTrainFlagPointers) {
+	p.heatmap = fs.String("heatmap", "", "Path to local SQLite heatmap database or remote HTTP(S) URL")
+	p.heatmapRepo = fs.String("heatmap-repo", "", "Filter heatmap training actions by repository slug")
+	p.heatmapTask = fs.String("heatmap-task", "", "Filter heatmap training actions by task slug")
+}
+
+func parseTrainHeatmapFlags(args []string) (TrainOptions, LlmHeatmapOptions, *apperror.AppError) {
 	fs := flag.NewFlagSet("llm train", flag.ContinueOnError)
 	fs.Usage = printTrainUsage
-	isTextOnly := fs.Bool("text-only", false, "Print curriculum text without writing skill file")
-	skillPath := fs.String("skill-path", DefaultSkillPath, "Path for generated Antigravity skill")
-	isLoop := fs.Bool("loop", false, "Execute autonomous 6-phase AI self-looping execution cycle")
-	selfLoop := fs.Int("self-loop", 0, "Number of consecutive iterations of the AI self-loop")
-	isURL := fs.Bool("url", false, "Output raw public URL to llm.md instruction specification")
-	isURLs := fs.Bool("urls", false, "Output authoritative public documentation links for LLM ingestion")
-	isJSON := fs.Bool("json", false, "Output structured machine-readable command specifications")
-	healApply := fs.String("heal-apply", "", "Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
-	days := fs.Int("days", DefaultTrainMuseDays, "Digest window in days for 'train muse' (default 7)")
+	ptrs := declareTrainFlags(fs)
+	if err := fs.Parse(args); err != nil {
+		return handleTrainFlagParseError(err)
+	}
 
-	err := fs.Parse(args)
+	return assembleParsedTrainFlags(ptrs)
+}
+
+func assembleParsedTrainFlags(ptrs rawTrainFlagPointers) (TrainOptions, LlmHeatmapOptions, *apperror.AppError) {
+	opts := buildTrainOptions(ptrs)
+	heatmapOpts := LlmHeatmapOptions{
+		Source:   *ptrs.heatmap,
+		RepoSlug: *ptrs.heatmapRepo,
+		TaskSlug: *ptrs.heatmapTask,
+	}
+
+	return opts, heatmapOpts, nil
+}
+
+func handleTrainFlagParseError(err error) (TrainOptions, LlmHeatmapOptions, *apperror.AppError) {
 	if err == flag.ErrHelp {
-		return TrainOptions{IsHelp: true}, nil
-	}
-	if err != nil {
-		return TrainOptions{}, apperror.WrapSimple(err, "parse train flags")
+		return TrainOptions{IsHelp: true}, LlmHeatmapOptions{}, nil
 	}
 
-	loopCount := 1
-	if *selfLoop > 0 {
-		loopCount = *selfLoop
-	}
-	hasLoop := *isLoop || *selfLoop > 0
+	return TrainOptions{}, LlmHeatmapOptions{}, apperror.WrapSimple(err, "parse train flags")
+}
 
-	daysN := *days
-	if daysN <= 0 {
-		daysN = DefaultTrainMuseDays
-	}
-
+func buildTrainOptions(p rawTrainFlagPointers) TrainOptions {
 	return TrainOptions{
-		IsTextOnly: *isTextOnly,
-		SkillPath:  *skillPath,
-		IsLoop:     hasLoop,
-		LoopCount:  loopCount,
-		IsURL:      *isURL,
-		IsURLs:     *isURLs,
-		IsJSON:     *isJSON,
-		HealApply:  *healApply,
-		DaysN:      daysN,
-	}, nil
+		IsTextOnly: *p.isTextOnly,
+		SkillPath:  *p.skillPath,
+		IsLoop:     *p.isLoop || *p.selfLoop > 0,
+		LoopCount:  resolveLoopCount(*p.selfLoop),
+		IsURL:      *p.isURL,
+		IsURLs:     *p.isURLs,
+		IsJSON:     *p.isJSON,
+		HealApply:  *p.healApply,
+		DaysN:      resolveTrainMuseDays(*p.days),
+	}
+}
+
+func resolveLoopCount(selfLoop int) int {
+	if selfLoop > 0 {
+		return selfLoop
+	}
+
+	return 1
+}
+
+func resolveTrainMuseDays(days int) int {
+	if days <= 0 {
+		return DefaultTrainMuseDays
+	}
+
+	return days
+}
+
+func parseTrainFlags(args []string) (TrainOptions, *apperror.AppError) {
+	opts, _, err := parseTrainHeatmapFlags(args)
+
+	return opts, err
 }
 
 // trainValueFlags are train flags that consume the following arg as their value;
 // a bare "muse" in that position is a value, never the positional target.
-var trainValueFlags = map[string]bool{"--skill-path": true, "--heal-apply": true}
+var trainValueFlags = map[string]bool{
+	"--skill-path":   true,
+	"--heal-apply":   true,
+	"--heatmap":      true,
+	"--heatmap-repo": true,
+	"--heatmap-task": true,
+}
 
 // isMuseTarget reports whether arg represents the muse sub-target or its hyphenated aliases.
 func isMuseTarget(arg string) bool {
@@ -205,6 +362,9 @@ func printTrainUsage() {
 	fmt.Println("Flags:")
 	fmt.Println("  --days int           Digest window in days for 'train muse' (default 7)")
 	fmt.Println("  --heal-apply string  Apply fix recipes non-interactively: stash|wip|discard (default \"\" = report-only)")
+	fmt.Println("  --heatmap string     Path to local SQLite heatmap database or remote HTTP(S) URL")
+	fmt.Println("  --heatmap-repo string Filter heatmap actions by repository slug")
+	fmt.Println("  --heatmap-task string Filter heatmap actions by task slug")
 	fmt.Println("  --loop               Execute autonomous 6-phase AI self-looping execution cycle")
 	fmt.Println("  --self-loop int      Number of consecutive iterations of the AI self-loop")
 	fmt.Println("  --url                Output raw public URL to llm.md instruction specification")

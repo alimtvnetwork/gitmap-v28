@@ -25,6 +25,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdurl"
 	"os"
 	"strings"
 
@@ -67,6 +68,22 @@ func utilityDispatchEntries() []dispatchEntry {
 }
 
 func utilityCoreEntries() []dispatchEntry {
+	entries := make([]dispatchEntry, 0, 15)
+	entries = append(entries, utilityCoreBaseEntries()...)
+	entries = append(entries, utilityUrlEntries()...)
+
+	return entries
+}
+
+func utilityUrlEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"url"}, func() error { return cmdurl.RunUrlCommand(argsTail()) }},
+		{[]string{"read-url", "readurl"}, func() error { return cmdurl.RunUrlCommand(append([]string{"read"}, argsTail()...)) }},
+		{[]string{"get", "get-url"}, func() error { return cmdurl.RunUrlCommand(append([]string{"read"}, argsTail()...)) }},
+	}
+}
+
+func utilityCoreBaseEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return cmderrors.RunErrorCmd(argsTail()) }},

@@ -11,27 +11,38 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// DispatchRcHeatmap routes gitmap heatmap rc subcommands.
-func DispatchRcHeatmap(ctx context.Context, args []string, out io.Writer) error {
-	if len(args) == 0 || args[0] == "help" || args[0] == "--help" || args[0] == "-h" {
-		printRcHeatmapHelp(out)
-		return nil
+func isRcOverviewRequested(args []string) bool {
+	if len(args) == 0 {
+		return true
 	}
 
-	subcmd := strings.ToLower(args[0])
-	flags, pos := parseHeatmapArgs(args[1:])
+	first := strings.ToLower(strings.TrimSpace(args[0]))
+	if first == "help" || first == "--help" || first == "-h" || first == "overview" {
+		return true
+	}
 
+	return strings.HasPrefix(first, "-")
+}
+
+func dispatchRcAction(subcmd string, flags map[string]string, pos []string, out io.Writer) (bool, error) {
 	switch subcmd {
 	case "log":
-		return runRcLog(flags, out)
+		return true, runRcLog(flags, out)
 	case "update", "outcome":
-		return runRcUpdate(flags, pos, out)
+		return true, runRcUpdate(flags, pos, out)
 	case "search":
-		return runRcSearch(flags, pos, out)
+		return true, runRcSearch(flags, pos, out)
 	case "tree":
-		return runRcTree(flags, out)
+		return true, runRcTree(flags, out)
 	case "status":
-		return runRcStatus(flags, out)
+		return true, runRcStatus(flags, out)
+	}
+
+	return false, nil
+}
+
+func dispatchRcAdmin(ctx context.Context, subcmd string, flags map[string]string, pos []string, out io.Writer) error {
+	switch subcmd {
 	case "list-ai", "list_ai", "list":
 		return runRcListAi(flags, out)
 	case "commit":
@@ -44,9 +55,27 @@ func DispatchRcHeatmap(ctx context.Context, args []string, out io.Writer) error 
 		return RunHeatmapView(true, flags, pos, out)
 	case "query", "sql":
 		return ExecuteHeatmapQuery(true, flags, pos, out)
+	case "overview":
+		return DispatchHeatmapOverview(ctx, out, true)
 	default:
 		return apperror.NewValidation("heatmap_rc", "E1000", fmt.Sprintf("unknown rc subcommand: %s", subcmd))
 	}
+}
+
+// DispatchRcHeatmap routes gitmap heatmap rc subcommands.
+func DispatchRcHeatmap(ctx context.Context, args []string, out io.Writer) error {
+	if isRcOverviewRequested(args) {
+		return DispatchHeatmapOverview(ctx, out, true)
+	}
+
+	subcmd := strings.ToLower(args[0])
+	flags, pos := parseHeatmapArgs(args[1:])
+	isHandled, err := dispatchRcAction(subcmd, flags, pos, out)
+	if isHandled {
+		return err
+	}
+
+	return dispatchRcAdmin(ctx, subcmd, flags, pos, out)
 }
 
 func runRcLog(flags map[string]string, out io.Writer) error {
@@ -238,6 +267,7 @@ func resolveTargetRepo(flag string) string {
 
 func printRcHeatmapHelp(out io.Writer) {
 	fmt.Fprintln(out, "Usage: gitmap heatmap rc <command> [flags]\n\nSubcommands:")
+	fmt.Fprintln(out, "  overview Discover heatmap databases across all 3 tiers and summarize recent tasks")
 	fmt.Fprintln(out, "  log      Log an AI cognitive decision to repo-cache split-db")
 	fmt.Fprintln(out, "  update   Update outcome and expectation status of an existing action")
 	fmt.Fprintln(out, "  search   Search logged actions by query, task, or file")

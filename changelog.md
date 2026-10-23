@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.592.0] - 2026-10-23
+
+### Added
+- heatmap discovery, url cache split-db, 10-split downloader, and llm train integration
+
+---
+
 ## [v6.591.0] - 2026-10-23
 
 ### Added

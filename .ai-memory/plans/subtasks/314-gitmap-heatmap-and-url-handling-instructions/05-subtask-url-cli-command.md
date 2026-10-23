@@ -2,7 +2,7 @@
 
 > **Subtask ID:** `SUBTASK-314-05`  
 > **Parent Task:** `314-gitmap-heatmap-and-url-handling-instructions`  
-> **Status:** Pending  
+> **Status:** Completed  
 > **Target Files:**  
 > - `cli/cmdurl/cmd_url.go` (new file)  
 > - `cli/cmd/rootutility.go` (modify)  
