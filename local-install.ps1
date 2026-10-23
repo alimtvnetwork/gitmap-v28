@@ -326,7 +326,16 @@ function Main {
     $RepoRoot = $scriptDir
 
     $resolvedArch = Resolve-Arch
-    $targetDir = if ($InstallDir) { $InstallDir } else { Join-Path $env:LOCALAPPDATA "gitmap-cli" }
+    $discoveredBin = Get-Command gitmap.exe -ErrorAction SilentlyContinue
+    $targetDir = if ($InstallDir) {
+        $InstallDir
+    } elseif ($discoveredBin -and (Test-Path $discoveredBin.Source)) {
+        Split-Path -Parent $discoveredBin.Source
+    } elseif (Test-Path "C:\Users\Administrator\AppData\Local\gitmap-cli") {
+        "C:\Users\Administrator\AppData\Local\gitmap-cli"
+    } else {
+        Join-Path $env:LOCALAPPDATA "gitmap-cli"
+    }
     $localBinPath = Join-Path $RepoRoot "bin\gitmap.exe"
     $cliSrcPath = Join-Path $RepoRoot "cli"
 
@@ -383,27 +392,32 @@ function Main {
 
     # Stage 2: VERIFY LOCAL BINARY
     Write-StageHeader 2 5 "VERIFY LOCAL BINARY"
-    if (-not $isLocalBinaryFound) {
+    if (-not $isLocalBinaryFound -or $Force) {
         if ($hasGoCompiler -and (Test-Path $cliSrcPath)) {
             Write-Step "Compiling gitmap from ./cli using Go toolchain..."
             $binDir = Join-Path $RepoRoot "bin"
             if (-not (Test-Path $binDir)) {
                 New-Item -ItemType Directory -Path $binDir -Force | Out-Null
             }
-            & go build -o $localBinPath ./cli
+            Push-Location $cliSrcPath
+            try {
+                & go build -o $localBinPath .
+            } finally {
+                Pop-Location
+            }
             if ($LASTEXITCODE -ne 0 -or -not (Test-Path $localBinPath)) {
                 Write-Err "Compilation from ./cli failed."
                 exit 1
             }
             $isLocalBinaryFound = $true
             $toolchainSource = "compiled from ./cli via Go toolchain"
-        } else {
+        } elseif (-not $isLocalBinaryFound) {
             Write-Host ""
             Write-CardHeader "COMPILATION REQUIRED" "ERROR" 80
             Write-CardText "$colRed  Local binary missing at ./bin/gitmap.exe and Go compiler not detected.$colReset" 80
             Write-CardText "" 80
             Write-CardText "  Please compile the binary using:" 80
-            Write-CardText "    $colCyan go build -o ./bin/gitmap.exe ./cli$colReset" 80
+            Write-CardText "    $colCyan Push-Location ./cli; go build -o ../bin/gitmap.exe .; Pop-Location$colReset" 80
             Write-CardText "  Or run install.ps1 to download latest release from GitHub." 80
             Write-CardFooter 80
             exit 1

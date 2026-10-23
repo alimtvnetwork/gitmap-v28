@@ -31,15 +31,15 @@ func TestMatchPlatformAsset_DirectBinary(t *testing.T) {
 func TestFindExecutableAsset_PrefersGitmapZipOverCliUpdaterExe(t *testing.T) {
 	assets := []GitHubReleaseAsset{
 		{Name: "cli-updater-v6.593.1-windows-amd64.exe", Size: 6200000},
-		{Name: "gitmap-v6.593.1-windows-amd64.zip", Size: 18000000}, // gitmap-legacy-ref-allow
+		{Name: "gitmap-v28.593.1-windows-amd64.zip", Size: 18000000},
 	}
-	asset, found := FindExecutableAsset(assets, "v6.593.1", "windows", "amd64")
+	asset, found := FindExecutableAsset(assets, "v28.593.1", "windows", "amd64")
 	if !found {
 		t.Fatal("expected to find executable asset")
 	}
 
-	if asset.Name != "gitmap-v6.593.1-windows-amd64.zip" { // gitmap-legacy-ref-allow
-		t.Fatalf("expected gitmap-v6.593.1-windows-amd64.zip, got %s", asset.Name) // gitmap-legacy-ref-allow
+	if asset.Name != "gitmap-v28.593.1-windows-amd64.zip" {
+		t.Fatalf("expected gitmap-v28.593.1-windows-amd64.zip, got %s", asset.Name)
 	}
 }
 

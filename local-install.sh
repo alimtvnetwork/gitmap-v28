@@ -348,7 +348,7 @@ main() {
         if [ "$has_go_compiler" = true ] && [ -d "$cli_src_dir" ]; then
             step "Compiling gitmap from ./cli using Go toolchain..."
             mkdir -p "${repo_root}/bin"
-            go build -o "$local_bin" "$cli_src_dir"
+            (cd "$cli_src_dir" && go build -o "$local_bin" .)
             chmod 755 "$local_bin"
             is_local_binary_found=true
             toolchain_source="compiled from ./cli via Go toolchain"
@@ -358,7 +358,7 @@ main() {
             render_card_text "${col_red}  Local binary missing at ./bin/gitmap and Go compiler not detected.${col_reset}" 80
             render_card_text "" 80
             render_card_text "  Please compile the binary using:" 80
-            render_card_text "    ${col_cyan}go build -o ./bin/gitmap ./cli${col_reset}" 80
+            render_card_text "    ${col_cyan}(cd ./cli && go build -o ../bin/gitmap .)${col_reset}" 80
             render_card_text "  Or run install.sh to download latest release from GitHub." 80
             render_card_footer 80
             exit 1
