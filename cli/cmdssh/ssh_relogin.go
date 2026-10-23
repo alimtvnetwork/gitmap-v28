@@ -76,8 +76,9 @@ func RestoreSSHKeyToDisk(key model.SSHKey) error {
 		return err
 	}
 
-	if err := writeKeyFiles(key, privBytes); err != nil {
-		return err
+	writeErr := writeRestoredKeyFiles(key, privBytes)
+	if writeErr != nil {
+		return writeErr
 	}
 
 	injectKeyToAgent(key.PrivatePath)
@@ -99,14 +100,14 @@ func resolveKeyPrivateBytes(key model.SSHKey) ([]byte, error) {
 	return nil, apperror.NewNotFoundError("no private key material available for " + key.Name)
 }
 
-func writeKeyFiles(key model.SSHKey, privBytes []byte) error {
+func writeRestoredKeyFiles(key model.SSHKey, privBytes []byte) error {
 	dir := filepath.Dir(key.PrivatePath)
 	if err := os.MkdirAll(dir, 0700); err != nil {
-		return apperror.WrapSimple(err, "writeKeyFiles.MkdirAll")
+		return apperror.WrapSimple(err, "writeRestoredKeyFiles.MkdirAll")
 	}
 
 	if err := os.WriteFile(key.PrivatePath, privBytes, 0600); err != nil {
-		return apperror.WrapSimple(err, "writeKeyFiles.WritePrivate")
+		return apperror.WrapSimple(err, "writeRestoredKeyFiles.WritePrivate")
 	}
 
 	enforceFilePermissions(key.PrivatePath)

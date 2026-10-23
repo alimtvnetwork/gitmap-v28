@@ -49,6 +49,14 @@ func init() {
 	cmdmacro.MacroSyncRunner = cmdssh.RunSSHMacroSyncCLI
 	cmdmacro.FinishCommandAuditFn = cmdaudit.FinishCommandAudit
 
+	cmdpull.CPULoadMetricFn = func() (int, error) {
+		metrics, err := cmdos.GetHardwareMetrics()
+		if err != nil {
+			return 0, err
+		}
+		return metrics.CPU.LoadPercent, nil
+	}
+
 	cmdinstaller.ResolveProfileTreeFn = func(s string) (any, bool) {
 		p, ok := cmdinstall.ResolveProfileTree(s)
 		return p, ok

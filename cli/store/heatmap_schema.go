@@ -381,18 +381,52 @@ func (t *actionLogScanTargets) bindTarget(col string) any {
 }
 
 func (t *actionLogScanTargets) finalizeStrings() {
-	if t.code.Valid { t.record.CodeSnippet = t.code.String }
-	if t.cmd.Valid { t.record.CommandText = t.cmd.String }
-	if t.reason.Valid { t.record.ReasoningNotes = t.reason.String }
-	if t.exp.Valid { t.record.ExpectedOutcome = t.exp.String }
-	if t.act.Valid { t.record.ActualOutcome = t.act.String }
+	t.finalizeCommandStrings()
+	t.finalizeOutcomeStrings()
+}
+
+func (t *actionLogScanTargets) finalizeCommandStrings() {
+	if t.code.Valid {
+		t.record.CodeSnippet = t.code.String
+	}
+	if t.cmd.Valid {
+		t.record.CommandText = t.cmd.String
+	}
+	if t.reason.Valid {
+		t.record.ReasoningNotes = t.reason.String
+	}
+}
+
+func (t *actionLogScanTargets) finalizeOutcomeStrings() {
+	if t.exp.Valid {
+		t.record.ExpectedOutcome = t.exp.String
+	}
+	if t.act.Valid {
+		t.record.ActualOutcome = t.act.String
+	}
 }
 
 func (t *actionLogScanTargets) finalizeMeta() {
-	if t.model.Valid { t.record.ModelName = t.model.String }
-	if t.tool.Valid { t.record.ToolName = t.tool.String }
-	if t.notes.Valid { t.record.Notes = t.notes.String }
-	if t.comments.Valid { t.record.Comments = t.comments.String }
+	t.finalizeToolMeta()
+	t.finalizeNotesMeta()
+}
+
+func (t *actionLogScanTargets) finalizeToolMeta() {
+	if t.model.Valid {
+		t.record.ModelName = t.model.String
+	}
+	if t.tool.Valid {
+		t.record.ToolName = t.tool.String
+	}
+}
+
+func (t *actionLogScanTargets) finalizeNotesMeta() {
+	if t.notes.Valid {
+		t.record.Notes = t.notes.String
+	}
+	if t.comments.Valid {
+		t.record.Comments = t.comments.String
+	}
 }
 
 func (t *actionLogScanTargets) finalize() HeatmapActionLogRecord {
@@ -408,7 +442,7 @@ func (t *actionLogScanTargets) finalize() HeatmapActionLogRecord {
 	return t.record
 }
 
-func scanSingleActionLog(rows *sql.Rows, cols []string) (HeatmapActionLogRecord, error) {
+func scanActionLogRow(rows *sql.Rows, cols []string) (HeatmapActionLogRecord, error) {
 	var targets actionLogScanTargets
 	dest := make([]any, len(cols))
 	for i, col := range cols {
@@ -425,7 +459,7 @@ func scanSingleActionLog(rows *sql.Rows, cols []string) (HeatmapActionLogRecord,
 func scanActionLogsRows(rows *sql.Rows, cols []string) ([]HeatmapActionLogRecord, error) {
 	var records []HeatmapActionLogRecord
 	for rows.Next() {
-		rec, err := scanSingleActionLog(rows, cols)
+		rec, err := scanActionLogRow(rows, cols)
 		if err != nil {
 			return nil, err
 		}

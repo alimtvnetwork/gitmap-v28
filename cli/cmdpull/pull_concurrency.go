@@ -4,7 +4,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -141,24 +140,35 @@ func inspectAndCacheRepoIgnore(rec model.ScanRecord) IgnoreRepoIssue {
 	return issue
 }
 
+// CPULoadMetricFn is an injectable hook to sample host CPU utilization percent without cyclic imports.
+var CPULoadMetricFn func() (int, error)
+
 // IsSystemCPUIdle evaluates if the host CPU is under 50% load to safely scale concurrency.
 func IsSystemCPUIdle() bool {
-	metrics, err := cmdos.GetHardwareMetrics()
+	if CPULoadMetricFn == nil {
+		return true
+	}
+
+	load, err := CPULoadMetricFn()
 	if err != nil {
 		return true
 	}
 
-	return metrics.CPU.LoadPercent < 50
+	return load < 50
 }
 
 // HasHighCPUPressure evaluates if host CPU utilization exceeds 80% to throttle workers.
 func HasHighCPUPressure() bool {
-	metrics, err := cmdos.GetHardwareMetrics()
+	if CPULoadMetricFn == nil {
+		return false
+	}
+
+	load, err := CPULoadMetricFn()
 	if err != nil {
 		return false
 	}
 
-	return metrics.CPU.LoadPercent > 80
+	return load > 80
 }
 
 // ResolveDynamicPullWorkers calculates dynamic concurrency based on CPU cores and session type.

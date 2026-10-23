@@ -124,11 +124,9 @@ func ToggleRepoExclusions(selection string, isDisable bool) (*ToggleResult, erro
 
 func executeExclusionSave(existing, targets []string, isDisable bool) (*ToggleResult, error) {
 	updated, affected := computeExclusionDelta(existing, targets, isDisable)
-	hasChanges := len(affected) > 0
-	if hasChanges {
-		if err := SaveCustomExclusions(updated); err != nil {
-			return nil, apperror.WrapSimple(err, "save_custom_exclusions")
-		}
+	saveErr := persistUpdatedExclusions(updated, len(affected) > 0)
+	if saveErr != nil {
+		return nil, saveErr
 	}
 
 	total := len(updated)
@@ -140,6 +138,19 @@ func executeExclusionSave(existing, targets []string, isDisable bool) (*ToggleRe
 		CurrentTotal:  total,
 		IsSuccess:     true,
 	}, nil
+}
+
+func persistUpdatedExclusions(updated []string, hasChanges bool) error {
+	if !hasChanges {
+		return nil
+	}
+
+	err := SaveCustomExclusions(updated)
+	if err != nil {
+		return apperror.WrapSimple(err, "save_custom_exclusions")
+	}
+
+	return nil
 }
 
 func computeExclusionDelta(existing, targets []string, isDisable bool) ([]string, []string) {
