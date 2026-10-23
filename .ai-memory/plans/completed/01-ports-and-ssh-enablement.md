@@ -1,4 +1,5 @@
 # Plan: 01-ports-and-ssh-enablement
+Status: COMPLETED
 
 ## User Request (Verbatim)
 ```
