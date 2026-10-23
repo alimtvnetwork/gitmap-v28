@@ -8,6 +8,7 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [312-fix-all-terminal-output-quality.md](completed/312-fix-all-terminal-output-quality.md) — Plan 312: High-Quality Terminal Output for `gitmap fix --all` (Spec: [312-fix-all-terminal-output-quality](../../02-spec/21-app/312-fix-all-terminal-output-quality/01-architecture-spec.md)) (Status: `completed`)
 - [311-pull-all-workspaces-and-ssh-fleet-speed.md](completed/311-pull-all-workspaces-and-ssh-fleet-speed.md) — Plan 311: Workspace-Wide Default Pull & Accelerated SSH Fleet Remote Execution (Spec: [311-pull-all-workspaces-and-ssh-fleet-speed](../../02-spec/21-app/311-pull-all-workspaces-and-ssh-fleet-speed/01-architecture-spec.md)) (Status: `completed`)
 - [310-relative-paths.md](pending/310-relative-paths.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Spec: [310-relative-paths](../../02-spec/21-app/310-relative-paths/01-architecture-spec.md)) (Status: `completed`)
 

@@ -98,8 +98,16 @@ func executeParallelFixAll(action string, items []cmdremediation.RemediationItem
 
 func printParallelFixHeader(itemCount int, action string) {
 	concurrency := parallel.ResolveConcurrency(0)
-	fmt.Printf("%s Remediating %d repository(ies) in parallel (%d workers) with action: %s\n\n",
-		constants.ColorCyan+"ℹ"+constants.ColorReset, itemCount, concurrency, action)
+	effectiveWorkers := concurrency
+	if effectiveWorkers > itemCount {
+		effectiveWorkers = itemCount
+	}
+	fmt.Printf("\n  %s→%s %sgitmap fix --all%s %s(action: %s)%s\n",
+		constants.ColorCyan, constants.ColorReset,
+		constants.ColorBold, constants.ColorReset,
+		constants.ColorDim, action, constants.ColorReset)
+	fmt.Printf("  Remediating %d repository(ies) in parallel (%d workers)\n\n",
+		itemCount, effectiveWorkers)
 }
 
 func handlePostFixPull(hasPullFailures bool) {
@@ -111,11 +119,18 @@ func handlePostFixPull(hasPullFailures bool) {
 
 func evaluateParallelFixResult(total int, failedRepos []string) error {
 	if len(failedRepos) > 0 {
-		return apperror.NewExecutionError(fmt.Sprintf("remediation failed on %d repository(ies): %s", len(failedRepos), strings.Join(failedRepos, ", ")))
-	}
+		fmt.Printf("\n  %s Remediation completed with %d failure(s):\n",
+			constants.ColorYellow+"⚠"+constants.ColorReset, len(failedRepos))
+		for _, f := range failedRepos {
+			fmt.Printf("    • %s: remediation failed (run 'gitmap fix %s' to inspect)\n", f, f)
+		}
+		fmt.Println()
 
-	fmt.Printf("\n%s All %d repository(ies) remediated successfully.\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, total)
+		return apperror.NewExecutionError(fmt.Sprintf("remediation failed on %d repository(ies): %s",
+			len(failedRepos), strings.Join(failedRepos, ", ")))
+	}
+	fmt.Printf("\n  %s All %d repository(ies) remediated successfully.\n\n",
+		constants.ColorGreen+"✔"+constants.ColorReset, total)
 
 	return nil
 }
@@ -127,49 +142,70 @@ func runParallelFixWorkers(action string, items []cmdremediation.RemediationItem
 	total := len(items)
 
 	_ = parallel.ExecuteParallel(items, concurrency, func(workerID int, item cmdremediation.RemediationItem) error {
-		return executeFixWorkerStep(&mu, &completed, total, workerID, action, item, &failedRepos)
+		return executeFixWorkerStep(&mu, &completed, total, action, item, &failedRepos)
 	})
 
 	return failedRepos
 }
 
-func executeFixWorkerStep(mu *sync.Mutex, completed *int, total, workerID int, action string, item cmdremediation.RemediationItem, failedRepos *[]string) error {
-	printWorkerStart(mu, workerID, item.RepoName)
+func executeFixWorkerStep(mu *sync.Mutex, completed *int, total int, action string, item cmdremediation.RemediationItem, failedRepos *[]string) error {
 	idx := resolveRecipeIdx(action, item.Recipes)
-	err := executeFixRecipe(&item, item.Recipes[idx])
-	reportWorkerCompletion(mu, completed, total, workerID, item.RepoName, err, failedRepos)
-
-	return err
-}
-
-func resolveRecipeIdx(action string, recipes []gitutil.RemediationRecipe) int {
-	idx := parseRecipeIndex(action, recipes)
-	if idx < 0 || idx >= len(recipes) {
-		return 0
+	var recipe gitutil.RemediationRecipe
+	if len(item.Recipes) > 0 {
+		recipe = item.Recipes[idx]
 	}
+	res := executeFixRecipeBatch(&item, recipe)
+	reportFixBatchResult(mu, completed, total, res, failedRepos)
 
-	return idx
+	return res.Err
 }
 
-func printWorkerStart(mu *sync.Mutex, workerID int, repoName string) {
-	mu.Lock()
-	defer mu.Unlock()
-	fmt.Printf("%s [Worker %d] Starting remediation on: %s\n",
-		constants.ColorCyan+"ℹ"+constants.ColorReset, workerID+1, repoName)
-}
-
-func reportWorkerCompletion(mu *sync.Mutex, completed *int, total int, workerID int, repoName string, err error, failedRepos *[]string) {
+func reportFixBatchResult(mu *sync.Mutex, completed *int, total int, res FixStepResult, failedRepos *[]string) {
 	mu.Lock()
 	defer mu.Unlock()
 	*completed++
-	if err != nil {
-		*failedRepos = append(*failedRepos, repoName)
-		fmt.Printf("%s [Worker %d] Failed (%d/%d): %s - %v\n",
-			constants.ColorRed+"✗"+constants.ColorReset, workerID+1, *completed, total, repoName, err)
+	branch := "├──"
+	if *completed == total {
+		branch = "└──"
+	}
+	repoCol := formatRepoColumn(res.RepoName)
+	durStr := fmt.Sprintf("%.1fs", res.Duration.Seconds())
+	if res.Err != nil {
+		*failedRepos = append(*failedRepos, res.RepoName)
+		fmt.Printf("  %s [%d/%d] %s  %s %s (%s)\n",
+			branch, *completed, total, repoCol,
+			constants.ColorRed+"✗"+constants.ColorReset,
+			shortenErrMsg(res.Err.Error()), durStr)
 		return
 	}
-	fmt.Printf("%s [Worker %d] Completed (%d/%d): %s\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, workerID+1, *completed, total, repoName)
+	if res.IsClean {
+		fmt.Printf("  %s [%d/%d] %s  %s already clean (%s)\n",
+			branch, *completed, total, repoCol,
+			constants.ColorYellow+"•"+constants.ColorReset, durStr)
+		return
+	}
+	fmt.Printf("  %s [%d/%d] %s  %s %s (%s)\n",
+		branch, *completed, total, repoCol,
+		constants.ColorGreen+"✔"+constants.ColorReset,
+		res.ActionSummary, durStr)
+}
+
+func formatRepoColumn(name string) string {
+	if len(name) >= 26 {
+		return name
+	}
+
+	return fmt.Sprintf("%-26s", name)
+}
+
+func shortenErrMsg(msg string) string {
+	lines := strings.Split(strings.TrimSpace(msg), "\n")
+	first := lines[0]
+	if len(first) > 50 {
+		return first[:47] + "..."
+	}
+
+	return first
 }
 
 func isFixReleaseTagsRequest(args []string) bool {

@@ -81,6 +81,9 @@ func inspectCasingDiscrepancies(repoPath string, tracked []string) []CasingDiscr
 func inspectReadmeDuality(tracked []string) (bool, bool, string) {
 	hasLower, hasUpper, upperPath := false, false, ""
 	for _, f := range tracked {
+		if isVendorOrDependencyPath(f) {
+			continue
+		}
 		base := filepath.Base(f)
 		isReadme := strings.EqualFold(base, "readme.md")
 		if isReadme && base == "readme.md" {
@@ -92,6 +95,21 @@ func inspectReadmeDuality(tracked []string) (bool, bool, string) {
 	}
 
 	return hasLower, hasUpper, upperPath
+}
+
+func isVendorOrDependencyPath(f string) bool {
+	clean := filepath.ToSlash(f)
+	if strings.HasPrefix(clean, "vendor/") || strings.Contains(clean, "/vendor/") {
+		return true
+	}
+	if strings.HasPrefix(clean, "node_modules/") || strings.Contains(clean, "/node_modules/") {
+		return true
+	}
+	if strings.HasPrefix(clean, ".git/") || strings.Contains(clean, "/.git/") {
+		return true
+	}
+
+	return false
 }
 
 func buildCanonicalPath(rawPath string) string {
@@ -292,8 +310,8 @@ func ReconcileDiscrepancyList(discrepancies []CasingDiscrepancy) error {
 
 		_ = RecordCasingRemediationRecipe(d)
 		repoName := filepath.Base(d.RepoPath)
-		fmt.Printf("%s Case Normalization: Renamed %s -> %s in %s\n",
-			constants.ColorGreen+"✔"+constants.ColorReset, d.CurrentPath, d.CanonicalPath, repoName)
+		fmt.Printf("  • Normalized casing: %s -> %s (%s)\n",
+			d.CurrentPath, d.CanonicalPath, repoName)
 	}
 
 	return nil

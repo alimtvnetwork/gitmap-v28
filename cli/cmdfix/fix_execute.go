@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -339,4 +340,144 @@ func executeShellFallback(item *cmdremediation.RemediationItem, recipe gitutil.R
 	cmdremediation.RemoveRemediationItem(item.RepoName)
 
 	return nil
+}
+
+// FixStepResult captures the outcome of a batch recipe execution.
+type FixStepResult struct {
+	RepoName      string
+	ActionSummary string
+	Duration      time.Duration
+	IsClean       bool
+	Err           error
+}
+
+func executeFixRecipeBatch(item *cmdremediation.RemediationItem, recipe gitutil.RemediationRecipe) FixStepResult {
+	start := time.Now()
+	if isRepoAlreadyClean(item) && !hasCaseCollisionRecipe(recipe) {
+		cmdremediation.RemoveRemediationItem(item.RepoName)
+
+		return FixStepResult{
+			RepoName:      item.RepoName,
+			ActionSummary: "already clean",
+			Duration:      time.Since(start),
+			IsClean:       true,
+		}
+	}
+	recipe = sanitizeRecipeForRepo(item.RepoPath, recipe)
+	if len(recipe.Steps) == 0 && item.RepoPath != "" {
+		recipe.Steps = synthesizeRecipeSteps(recipe, item.RepoPath)
+	}
+	if len(recipe.Steps) > 0 {
+		return runStructuredRecipeBatch(item, recipe, start)
+	}
+
+	return runShellFallbackBatch(item, recipe, start)
+}
+
+func runStructuredRecipeBatch(item *cmdremediation.RemediationItem, recipe gitutil.RemediationRecipe, start time.Time) FixStepResult {
+	total := len(recipe.Steps)
+	for i, step := range recipe.Steps {
+		err := executeSingleStepSilent(item.RepoName, i+1, total, step)
+		if err != nil {
+			return FixStepResult{
+				RepoName:      item.RepoName,
+				ActionSummary: formatStepCommand(step),
+				Duration:      time.Since(start),
+				Err:           err,
+			}
+		}
+	}
+	persistCaseRemediationTelemetry(item, recipe)
+	cmdremediation.RemoveRemediationItem(item.RepoName)
+
+	return FixStepResult{
+		RepoName:      item.RepoName,
+		ActionSummary: summarizeRecipeAction(recipe),
+		Duration:      time.Since(start),
+	}
+}
+
+func runShellFallbackBatch(item *cmdremediation.RemediationItem, recipe gitutil.RemediationRecipe, start time.Time) FixStepResult {
+	err := executeShellFallbackSilent(item, recipe)
+	if err != nil {
+		return FixStepResult{
+			RepoName:      item.RepoName,
+			ActionSummary: recipe.Command,
+			Duration:      time.Since(start),
+			Err:           err,
+		}
+	}
+	cmdremediation.RemoveRemediationItem(item.RepoName)
+
+	return FixStepResult{
+		RepoName:      item.RepoName,
+		ActionSummary: summarizeRecipeAction(recipe),
+		Duration:      time.Since(start),
+	}
+}
+
+func executeSingleStepSilent(repoName string, idx, total int, step gitutil.RemediationStep) error {
+	cmd := exec.Command(step.Name, step.Args...)
+	var outBuf bytes.Buffer
+	cmd.Stdout = &outBuf
+	cmd.Stderr = &outBuf
+
+	err := cmd.Run()
+	if err == nil {
+		return nil
+	}
+
+	return handleStepFailureSilent(repoName, step, outBuf.String(), err)
+}
+
+func handleStepFailureSilent(repoName string, step gitutil.RemediationStep, outStr string, err error) error {
+	if isBenignCommitClean(step, outStr) || isBenignStashClean(step, outStr) {
+		return nil
+	}
+	if recoverStashCollision(step, outStr) {
+		return nil
+	}
+	if isNoInit, _ := recoverNoInitialCommit(step, outStr); isNoInit {
+		return nil
+	}
+	if isBenignPullNoTracking(step, outStr) {
+		return nil
+	}
+
+	return err
+}
+
+func executeShellFallbackSilent(item *cmdremediation.RemediationItem, recipe gitutil.RemediationRecipe) error {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", recipe.Command)
+	} else {
+		cmd = exec.Command("sh", "-c", recipe.Command)
+	}
+	var outBuf bytes.Buffer
+	cmd.Stdout = &outBuf
+	cmd.Stderr = &outBuf
+
+	return cmd.Run()
+}
+
+func summarizeRecipeAction(recipe gitutil.RemediationRecipe) string {
+	titleLower := strings.ToLower(recipe.Title)
+	if strings.Contains(titleLower, "stash") {
+		return "stashed -> pulled -> re-applied"
+	}
+	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") {
+		return "committed WIP changes -> pulled"
+	}
+	if strings.Contains(titleLower, "discard") || strings.Contains(titleLower, "clean") {
+		return "discarded changes"
+	}
+	if strings.Contains(titleLower, "case") {
+		return "normalized casing"
+	}
+	if recipe.Title != "" {
+		return recipe.Title
+	}
+
+	return "remediated"
 }
