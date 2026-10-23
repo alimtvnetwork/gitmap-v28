@@ -156,7 +156,10 @@ func TestUrlCacheDB_AccessLog(t *testing.T) {
 	db := createTestUrlCacheDB(t)
 	defer db.Close()
 
-	log := makeTestAccessLog("https://example.com")
+	testUrl := "https://example.com"
+	saveTestEntry(t, db, testUrl, []byte("test payload"), 3600)
+
+	log := makeTestAccessLog(testUrl)
 	if err := db.LogUrlAccess(log); err != nil {
 		t.Fatalf("failed to log url access: %v", err)
 	}
