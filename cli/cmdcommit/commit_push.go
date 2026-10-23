@@ -176,13 +176,31 @@ func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppE
 	return nil
 }
 
+// ensureGitIdentity fails fast with an actionable validation error when no
+// git user.name/user.email is configured, instead of letting git commit die
+// with "Author identity unknown" streamed above a stack trace. A validation
+// error renders cleanly (no stack) in the global error handler.
+func ensureGitIdentity() *apperror.AppError {
+	name, _ := execGitOutputCP("config", "user.name")
+	email, _ := execGitOutputCP("config", "user.email")
+	if strings.TrimSpace(name) != "" && strings.TrimSpace(email) != "" {
+		return nil
+	}
+
+	return apperror.NewValidationError("git identity is not configured: user.name and/or user.email is missing. Set it with: git config --global user.name \"Your Name\" and git config --global user.email \"you@example.com\" (or inspect it with: gitmap whoami)")
+}
+
 func performCommitStep(commitMessage string) *apperror.AppError {
+	if idErr := ensureGitIdentity(); idErr != nil {
+		return idErr
+	}
+
 	startTime := time.Now()
-	err := execGitPaddedFiltered("commit", "-m", commitMessage)
+	out, err := execGitPaddedFilteredCapture("commit", "-m", commitMessage)
 	durMs := time.Since(startTime).Milliseconds()
 	recordGitCommandDirect("git commit", "git commit -m "+commitMessage, ExtractGitExitCode(err), durMs)
 	if err != nil {
-		return apperror.WrapSimple(err, "git commit failed:")
+		return apperror.WrapSimple(gitErrorWithOutput(err, out), "git commit failed:")
 	}
 
 	return nil
@@ -190,11 +208,11 @@ func performCommitStep(commitMessage string) *apperror.AppError {
 
 func performPushStep() *apperror.AppError {
 	startTime := time.Now()
-	err := execGitPaddedFiltered("push")
+	out, err := execGitPaddedFilteredCapture("push")
 	durMs := time.Since(startTime).Milliseconds()
 	recordGitCommandDirect("git push", "git push", ExtractGitExitCode(err), durMs)
 	if err != nil {
-		return apperror.WrapSimple(err, "git push failed:")
+		return apperror.WrapSimple(gitErrorWithOutput(err, out), "git push failed:")
 	}
 
 	return nil
