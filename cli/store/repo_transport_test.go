@@ -175,7 +175,7 @@ func TestGetRepoPrimaryURLByPath_BothPrioritizeSSH(t *testing.T) {
 
 	id, url, err := db.GetRepoPrimaryURLByPath(absPath)
 	if err != nil || id == 0 || url != "git@github.com:org/both-ssh.git" {
-		t.Errorf("expected ssh url prioritised, got (%d, %q, %v)", id, url, err)
+		t.Errorf("expected ssh url prioritized, got (%d, %q, %v)", id, url, err)
 	}
 }
 
@@ -190,6 +190,6 @@ func TestGetRepoPrimaryURLByPath_BothPrioritizeHTTPS(t *testing.T) {
 
 	id, url, err := db.GetRepoPrimaryURLByPath(absPath)
 	if err != nil || id == 0 || url != "https://github.com/org/both-https" {
-		t.Errorf("expected https url prioritised, got (%d, %q, %v)", id, url, err)
+		t.Errorf("expected https url prioritized, got (%d, %q, %v)", id, url, err)
 	}
 }

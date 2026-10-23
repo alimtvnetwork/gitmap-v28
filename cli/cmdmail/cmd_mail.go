@@ -160,15 +160,16 @@ func parseCheckArgs(args []string) (MailboxCheckFilter, bool) {
 	isJSON := false
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--account" || a == "-a") && i+1 < len(args) {
+		switch {
+		case (a == "--account" || a == "-a") && i+1 < len(args):
 			filter.AccountName, filter.CheckAll, i = args[i+1], false, i+1
-		} else if a == "--all" {
+		case a == "--all":
 			filter.CheckAll = true
-		} else if a == "--unread-only" || a == "-u" {
+		case a == "--unread-only" || a == "-u":
 			filter.FilterUnreadOnly = true
-		} else if a == "--show-full-email" {
+		case a == "--show-full-email":
 			filter.ShowFullEmail = true
-		} else if a == "--json" || a == "-j" {
+		case a == "--json" || a == "-j":
 			isJSON = true
 		}
 	}
@@ -180,11 +181,12 @@ func runMailTest(args []string) *appfault.AppError {
 	port := 587
 	isTLS := false
 	for i := 0; i < len(args); i++ {
-		if (args[i] == "--host" || args[i] == "-h") && i+1 < len(args) {
+		switch {
+		case (args[i] == "--host" || args[i] == "-h") && i+1 < len(args):
 			host, i = args[i+1], i+1
-		} else if (args[i] == "--port" || args[i] == "-p") && i+1 < len(args) {
+		case (args[i] == "--port" || args[i] == "-p") && i+1 < len(args):
 			port, i = parsePortFlag(args[i+1], port), i+1
-		} else if args[i] == "--tls" {
+		case args[i] == "--tls":
 			isTLS = true
 		}
 	}

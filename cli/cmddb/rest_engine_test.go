@@ -138,7 +138,7 @@ func TestViewsAndQueryEndpoints(t *testing.T) {
 
 	// Direct query GET
 	recQ := httptest.NewRecorder()
-	reqQ := httptest.NewRequest("GET", "/api/v1/db/testdb/query?sql=SELECT+Name+FROM+User+ORDER+BY+Id+ASC", nil)
+	reqQ := httptest.NewRequest(http.MethodGet, "/api/v1/db/testdb/query?sql=SELECT+Name+FROM+User+ORDER+BY+Id+ASC", nil)
 	mux.ServeHTTP(recQ, reqQ)
 	if recQ.Code != http.StatusOK {
 		t.Fatalf("query GET expected 200, got %d", recQ.Code)
@@ -147,7 +147,7 @@ func TestViewsAndQueryEndpoints(t *testing.T) {
 	// Create view
 	vBody := bytes.NewBufferString(`{"Name": "ActiveUsers", "Query": "SELECT * FROM User WHERE IsActive = 1"}`)
 	recV := httptest.NewRecorder()
-	reqV := httptest.NewRequest("POST", "/api/v1/db/testdb/views", vBody)
+	reqV := httptest.NewRequest(http.MethodPost, "/api/v1/db/testdb/views", vBody)
 	mux.ServeHTTP(recV, reqV)
 	if recV.Code != http.StatusCreated {
 		t.Fatalf("create view expected 201, got %d", recV.Code)
@@ -155,7 +155,7 @@ func TestViewsAndQueryEndpoints(t *testing.T) {
 
 	// List views
 	recVList := httptest.NewRecorder()
-	reqVList := httptest.NewRequest("GET", "/api/v1/db/testdb/views", nil)
+	reqVList := httptest.NewRequest(http.MethodGet, "/api/v1/db/testdb/views", nil)
 	mux.ServeHTTP(recVList, reqVList)
 	if recVList.Code != http.StatusOK {
 		t.Fatalf("list views expected 200, got %d", recVList.Code)
@@ -163,7 +163,7 @@ func TestViewsAndQueryEndpoints(t *testing.T) {
 
 	// Drop view
 	recVDel := httptest.NewRecorder()
-	reqVDel := httptest.NewRequest("DELETE", "/api/v1/db/testdb/views/ActiveUsers", nil)
+	reqVDel := httptest.NewRequest(http.MethodDelete, "/api/v1/db/testdb/views/ActiveUsers", nil)
 	mux.ServeHTTP(recVDel, reqVDel)
 	if recVDel.Code != http.StatusOK {
 		t.Fatalf("drop view expected 200, got %d", recVDel.Code)
@@ -179,7 +179,7 @@ func TestDdlAndCloneEndpoints(t *testing.T) {
 	// Alter
 	altBody := bytes.NewBufferString(`{"Table": "User", "Action": "ADD COLUMN", "Column": "Email", "Type": "TEXT"}`)
 	recAlt := httptest.NewRecorder()
-	reqAlt := httptest.NewRequest("POST", "/api/v1/db/testdb/alter", altBody)
+	reqAlt := httptest.NewRequest(http.MethodPost, "/api/v1/db/testdb/alter", altBody)
 	mux.ServeHTTP(recAlt, reqAlt)
 	if recAlt.Code != http.StatusOK {
 		t.Fatalf("alter table expected 200, got %d: %s", recAlt.Code, recAlt.Body.String())
@@ -189,7 +189,7 @@ func TestDdlAndCloneEndpoints(t *testing.T) {
 	cloneTarget := filepath.Join(t.TempDir(), "cloned.db")
 	cloneBody := bytes.NewBufferString(fmt.Sprintf(`{"TargetAlias": "clonedb", "TargetPath": %q}`, cloneTarget))
 	recClone := httptest.NewRecorder()
-	reqClone := httptest.NewRequest("POST", "/api/v1/db/testdb/clone", cloneBody)
+	reqClone := httptest.NewRequest(http.MethodPost, "/api/v1/db/testdb/clone", cloneBody)
 	mux.ServeHTTP(recClone, reqClone)
 	if recClone.Code != http.StatusOK {
 		t.Fatalf("clone db expected 200, got %d: %s", recClone.Code, recClone.Body.String())

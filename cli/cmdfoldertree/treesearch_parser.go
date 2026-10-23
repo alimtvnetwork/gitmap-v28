@@ -432,15 +432,17 @@ func parseIndentedAsciiTree(lines []string, nowUnix int64) ([]TreeItem, error) {
 		indent := 0
 		i := 0
 		runes := []rune(line)
+		indentLoop:
 		for i < len(runes) {
 			r := runes[i]
-			if r == ' ' {
+			switch r {
+			case ' ':
 				indent++
 				i++
-			} else if r == '\t' {
+			case '\t':
 				indent += 4
 				i++
-			} else if r == '│' {
+			case '│':
 				// Tree vertical bar: usually counts as 4 chars (e.g. "│   ")
 				indent += 4
 				i++
@@ -448,16 +450,16 @@ func parseIndentedAsciiTree(lines []string, nowUnix int64) ([]TreeItem, error) {
 				for i < len(runes) && runes[i] == ' ' {
 					i++
 				}
-			} else if r == '├' || r == '└' {
+			case '├', '└':
 				// Branch connector: consume "├── " or "└── "
 				indent += 4
 				i++
 				for i < len(runes) && (runes[i] == '─' || runes[i] == ' ') {
 					i++
 				}
-				break
-			} else {
-				break
+				break indentLoop
+			default:
+				break indentLoop
 			}
 		}
 

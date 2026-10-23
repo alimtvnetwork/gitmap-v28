@@ -101,7 +101,12 @@ func (db *DB) DeleteByPath(absPath string) (int64, error) {
 		return 0, res.AppError()
 	}
 
-	return res.Unwrap()
+	val, err := res.Unwrap()
+	if err != nil {
+		return 0, err
+	}
+
+	return val, nil
 }
 
 // DeleteBySlugWrap removes repo rows matching slug encapsulated in RowsAffectedWrap.

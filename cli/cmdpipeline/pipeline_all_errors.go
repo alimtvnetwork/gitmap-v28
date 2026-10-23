@@ -242,13 +242,14 @@ func renderAllPipelineSummaryTerminal(s AllPipelineSummary) {
 	fmt.Printf("    Failing:                    %d\n", s.FailedCount)
 	fmt.Printf("    No pipeline data:           %d\n\n", s.NoDataCount)
 
-	if s.FailedCount == 0 && s.NoDataCount == 0 {
+	switch {
+	case s.FailedCount == 0 && s.NoDataCount == 0:
 		fmt.Printf("  %s✔ All tracked CI/CD pipelines across all repositories are PASSING (100%% green).%s\n\n",
 			constants.ColorGreen, constants.ColorReset)
-	} else if s.FailedCount == 0 {
+	case s.FailedCount == 0:
 		fmt.Printf("  %s⚠ No failing pipelines detected, but %d repositories had no pipeline data (status unknown, NOT verified green).%s\n\n",
 			constants.ColorYellow, s.NoDataCount, constants.ColorReset)
-	} else {
+	default:
 		renderFailingPipelinesList(s)
 	}
 

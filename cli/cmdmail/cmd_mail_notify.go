@@ -62,11 +62,12 @@ func handleTemplateAdd(s *MailStore, args []string) *appfault.AppError {
 	}
 	tmpl := MailTemplateRecord{TemplateID: fmt.Sprintf("tmpl-%d", time.Now().UnixNano()), TemplateName: args[0]}
 	for i := 1; i < len(args); i++ {
-		if args[i] == "--subject" && i+1 < len(args) {
+		switch {
+		case args[i] == "--subject" && i+1 < len(args):
 			tmpl.SubjectTemplate, i = args[i+1], i+1
-		} else if args[i] == "--body" && i+1 < len(args) {
+		case args[i] == "--body" && i+1 < len(args):
 			tmpl.BodyTemplate, i = args[i+1], i+1
-		} else if args[i] == "--html" {
+		case args[i] == "--html":
 			tmpl.IsHTML = true
 		}
 	}
@@ -132,11 +133,12 @@ func handleNotifyWatch(store *MailStore, args []string) *appfault.AppError {
 func parseWatchArgs(args []string) FolderWatcherConfig {
 	cfg := FolderWatcherConfig{TargetDirectory: ".", PollingInterval: DefaultPollingInterval, DebounceWindow: DefaultDebounceWindow, IsRecursive: true, IsActive: true}
 	for i := 0; i < len(args); i++ {
-		if (args[i] == "--path" || args[i] == "-p") && i+1 < len(args) {
+		switch {
+		case (args[i] == "--path" || args[i] == "-p") && i+1 < len(args):
 			cfg.TargetDirectory, i = args[i+1], i+1
-		} else if (args[i] == "--to" || args[i] == "-t") && i+1 < len(args) {
+		case (args[i] == "--to" || args[i] == "-t") && i+1 < len(args):
 			cfg.Recipients, i = strings.Split(args[i+1], ","), i+1
-		} else if args[i] == "--once" {
+		case args[i] == "--once":
 			cfg.RunOnce = true
 		}
 	}

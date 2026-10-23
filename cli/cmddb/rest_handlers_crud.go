@@ -41,7 +41,9 @@ func queryTableRecords(mgr *MultiDbManager, conn *sql.DB, alias, table string, r
 	order := buildOrderClause(r, cols)
 	offset := (page - 1) * limit
 	query := fmt.Sprintf(`SELECT * FROM "%s"%s%s LIMIT ? OFFSET ?`, table, where, order)
-	queryArgs := append(args, limit, offset)
+	queryArgs := make([]any, 0, len(args)+2)
+	queryArgs = append(queryArgs, args...)
+	queryArgs = append(queryArgs, limit, offset)
 
 	rows, err := conn.Query(query, queryArgs...)
 	if err != nil {
