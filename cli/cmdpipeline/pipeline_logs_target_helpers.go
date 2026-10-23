@@ -46,8 +46,9 @@ func buildLocalOrEmptyErrorPayload(payload PipelineErrorLogsPayload) PipelineErr
 	}
 
 	payload.WorkflowName = "CI/CD Pipeline"
-	payload.Conclusion = "success"
-	payload.ErrorLogs = "No failed pipeline steps or local error logs found."
+	payload.Conclusion = "unknown"
+	payload.IsNoData = true
+	payload.ErrorLogs = "No workflow runs could be retrieved for this repository, so the pipeline status is unknown rather than clean. This usually means the GitHub CLI is not authenticated (run 'gh auth login' or set GH_TOKEN), or the repository has no workflow runs yet."
 
 	return payload
 }

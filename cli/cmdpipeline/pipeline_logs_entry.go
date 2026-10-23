@@ -122,6 +122,11 @@ func pollTimelineLoopStep(repo string, flags PipelineErrorFlags) (bool, error) {
 	payload := buildErrorLogsPayloadWithFlags(repo, runs, flags)
 	applyPayloadOptions(&payload, runs, flags)
 
+	if payload.IsNoData {
+		_ = writePayloadWithFlags(payload, flags)
+
+		return true, apperror.NewExecutionError(fmt.Sprintf("pipeline status unknown for %s: no workflow runs retrieved (gh CLI may be unauthenticated)", repo))
+	}
 	if hasEarlyDetectedErrors(payload) {
 		return handleEarlyDetectedErrors(payload, flags)
 	}
@@ -238,7 +243,14 @@ func renderCachedErrorLogs(repo string, decision PipelineCacheDecision, flags Pi
 	payload.CacheSource = decision.CacheSource
 	applyPayloadOptions(&payload, decision.CachedRuns, flags)
 	_ = RecordPipelineCheckInTask(repo, payload)
-	return writePayloadWithFlags(payload, flags)
+	if err := writePayloadWithFlags(payload, flags); err != nil {
+		return err
+	}
+	if payload.IsNoData {
+		return apperror.NewExecutionError(fmt.Sprintf("pipeline status unknown for %s: no workflow runs retrieved (gh CLI may be unauthenticated)", repo))
+	}
+
+	return nil
 }
 
 func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
@@ -250,7 +262,14 @@ func fetchAndRenderFreshErrorLogs(repo string, flags PipelineErrorFlags) error {
 	applyPayloadOptions(&payload, runs, flags)
 	SavePayloadToShaCache(repo, payload)
 	_ = RecordPipelineCheckInTask(repo, payload)
-	return writePayloadWithFlags(payload, flags)
+	if err := writePayloadWithFlags(payload, flags); err != nil {
+		return err
+	}
+	if payload.IsNoData {
+		return apperror.NewExecutionError(fmt.Sprintf("pipeline status unknown for %s: no workflow runs retrieved (gh CLI may be unauthenticated)", repo))
+	}
+
+	return nil
 }
 
 func printReadingProgress(flags PipelineErrorFlags) {

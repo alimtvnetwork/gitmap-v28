@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -222,15 +221,13 @@ func renderErrorLogsTerminal(p PipelineErrorLogsPayload) {
 	renderAndCopyTerminalReport(p)
 }
 
-func renderRunsSummaryTable(p PipelineErrorLogsPayload) {
-	runs := p.Runs
-	if len(runs) == 0 {
-		runs = resolveCachedRunsOrFetch(p.Repo)
-	}
-	RenderHistorySummaryTable(runs)
-}
-
 func renderAndCopyTerminalReport(p PipelineErrorLogsPayload) {
+	if p.IsNoData {
+		renderUnknownTerminal(p)
+		copyReportToClipboard(buildClipboardUnknownReport(p), false)
+
+		return
+	}
 	hasFailure := isFailingConclusion(p.Conclusion) || len(p.FailedRuns) > 0
 	if hasFailure {
 		renderFailureTerminal(p)
@@ -239,21 +236,6 @@ func renderAndCopyTerminalReport(p PipelineErrorLogsPayload) {
 	}
 	renderCleanSuccessTerminal(p)
 	copyReportToClipboard(buildClipboardCleanReport(p), false)
-}
-
-func renderCleanSuccessTerminal(p PipelineErrorLogsPayload) {
-	fmt.Printf("  %s● Pipeline Status: CLEAN (No errors found)%s\n",
-		constants.ColorGreen, constants.ColorReset)
-	renderPipelineMetaBlock(p)
-	fmt.Printf("\n  %s✓ All recent pipeline runs for %s on branch %s are PASSING (100%% green).%s\n\n",
-		constants.ColorGreen, p.Repo, p.LatestBranch, constants.ColorReset)
-	if len(p.DbPath) > 0 {
-		fmt.Printf("  • Pipeline DB:     %s\n", filepath.ToSlash(FormatRelativeDbPath(p.DbPath)))
-		fmt.Printf("  • DB Size:         %s\n", ResolveDbFileSize(p.DbPath))
-		fmt.Printf("  • Cleanup:         gitmap pipeline clear -y\n")
-	}
-	renderRunsSummaryTable(p)
-	printRerunETA(p.RerunEtaSeconds)
 }
 
 func printMetaLine(label, val string) {

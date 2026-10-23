@@ -81,6 +81,8 @@ func queryWorkflowRuns(repo string) []ghRunItem {
 	out, err := runGHCommandWithTimeout("run", "list", "--repo", repo, "--limit", "30", "--json",
 		"databaseId,name,status,conclusion,createdAt,updatedAt,headBranch,headSha,url,displayTitle,event")
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "  ⚠ Warning: could not list GitHub workflow runs for %s via gh CLI: %v\n", repo, err)
+
 		return queryRunsFromDB(repo)
 	}
 

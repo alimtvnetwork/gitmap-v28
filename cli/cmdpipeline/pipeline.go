@@ -74,6 +74,7 @@ type PipelineErrorLogsPayload struct {
 	Runs               []ghRunItem       `json:"runs,omitempty"`
 	IsFromCache        bool              `json:"isFromCache,omitempty"`
 	CacheSource        string            `json:"cacheSource,omitempty"`
+	IsNoData           bool              `json:"isNoData,omitempty"`
 	ElapsedDuration    string            `json:"elapsedDuration,omitempty"`
 	ElapsedSeconds     float64           `json:"elapsedSeconds,omitempty"`
 }

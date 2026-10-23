@@ -35,6 +35,9 @@ func TryRenderFromShaCache(repo string, flags PipelineErrorFlags) (bool, error) 
 	if err := json.Unmarshal([]byte(payloadJson), &payload); err != nil {
 		return false, nil
 	}
+	if payload.IsNoData || (payload.RunId == 0 && len(payload.Runs) == 0) {
+		return false, nil
+	}
 
 	activeLogLineLimit = flags.Limit
 	payload.IsFromCache = true

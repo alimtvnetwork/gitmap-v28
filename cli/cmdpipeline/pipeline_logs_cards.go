@@ -193,6 +193,15 @@ func buildClipboardCleanReport(p PipelineErrorLogsPayload) string {
 	return strings.TrimSpace(sb.String())
 }
 
+func buildClipboardUnknownReport(p PipelineErrorLogsPayload) string {
+	var sb strings.Builder
+	appendClipboardMetaHeader(&sb, "GITMAP PIPELINE STATUS: UNKNOWN (No pipeline data retrieved)", p)
+	sb.WriteString("The pipeline status could not be determined; this is NOT a clean result.\n")
+	appendClipboardBodyContent(&sb, p)
+
+	return strings.TrimSpace(sb.String())
+}
+
 func appendClipboardMetaHeader(sb *strings.Builder, title string, p PipelineErrorLogsPayload) {
 	sb.WriteString("================================================================================\n")
 	sb.WriteString(title + "\n")
