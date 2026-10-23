@@ -85,7 +85,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 ### 5. High-Performance Automation (AUM) & File Discovery
 - `gitmap aum search "<pattern>" [dir] [--ext <ext>] [-r] [-i]` (alias: `gitmap aum grep`) — Multi-core streaming live search with lazy regex and binary filtering. ALWAYS scope with target `[dir]` and `--ext`. Replaces slow PowerShell `Select-String`, `Get-ChildItem -Recurse`, and `git grep`. TOTAL BAN on PowerShell `Select-String`, `rg`, `ripgrep`, and `git grep`.
-- `gitmap search "<query>" [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories using DH2D split-db hot cache.
+  * **Named-Flag Support:** Fully supports `--query <pattern>` (or `-q <pattern>`, `--pattern <pattern>`) and `--root <dir>` (or `--dir <dir>`, `-d <dir>`, `--path <dir>`, `-p <dir>`) in any argument position (e.g. `gitmap aum search --root "cli" --query "cmdpipeline"`, `gitmap aum search --query "func Run" --dir cli -e .go`). Positional and named flags can be freely interchanged.
+- `gitmap search "<query>" [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories using DH2D split-db hot cache (also accepts `--query <q>`, `-q <q>`, `--pattern <p>`, `--root <r>`).
 - `gitmap aum guard` — Enforces 500 KB limit, large JSON exclusion, and binary null-byte probe.
 - `gitmap aum sequence` — Markdown sequence gap detector and `# XX Title` autofixer.
 - `gitmap aum exclude list` — Query persistent search exclusions from SQLite.
@@ -212,6 +213,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap agent diagnose` — Performs deep autopsy and diagnostic reporting on agent task runs.
 - `gitmap agent crashed` — Detects crashed or abandoned agent tasks.
 - `gitmap agent temp-clear` — Safely deletes ephemeral `.ai-memory/temp-agents/` directory.
+- **Cognitive Heatmap & Multi-AI Attribution:** All task actions and cognitive states integrate seamlessly with `gitmap heatmap log --json '<payload>'`, recording model (`model`) and tool (`tool`) attribution for unified swarm forensics. Newly joining subagents inspect active progress via `gitmap agent subtask ls --json`, `gitmap rc heatmap tree`, and `gitmap heatmap search [slug]`.
 
 ### 10.1 AI Agent Communication & Structured Subtask Envelopes
 
@@ -329,43 +331,55 @@ Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers)
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
 ### 12. File Contention Heatmap, Cognitive Telemetry & Agent Activity Observation
-- `gitmap heatmap log --task <task> --action <action> --file <file> --state <state> --expected "<goal>"` — Logs granular file touches, reads, modifications, cognitive states, and reasoning directly into `.ai-memory/heatmap.db`.
+- `gitmap heatmap log --json '{"task":"<task-slug>","action":"READ|EDIT","file":"<path>","state":"<STATE>","expected":"<goal>","model":"<model>","tool":"<tool>"}'` — **One-shot JSON payload ingestion** logging granular file touches, cognitive reasoning states, expected outcomes, and AI provenance directly into `.ai-memory/heatmap.db`. Eliminates shell quoting failures and escapes.
+- `gitmap heatmap log --task <task> --action <action> --file <file> --state <state> --expected "<goal>" [--model <name>] [--tool <name>]` — Classical CLI flag ingestion with explicit AI provenance attribution.
 - `gitmap heatmap update --id <id> --outcome "<outcome>" --met <true|false>` — Updates logged action with final outcome and verified expectation status.
-- `gitmap heatmap search [query] [-f <file>] [-t <task>]` — Searches logged actions, code snippets, and reasoning notes across tasks and repositories.
-- `gitmap heatmap tree [-t <task-slug>]` — Renders hierarchical tree view of touched files, line ranges, and action counts.
-- `gitmap heatmap status [-t <task-slug>]` — Summary of actions logged, unique files touched, expectation metrics, and verification states.
+- `gitmap heatmap search [query] [-f <file>] [-t <task>]` — Searches logged actions, code snippets, reasoning notes, and execution history across tasks and repositories.
+- `gitmap heatmap tree [-t <task-slug>] [--json]` — Renders hierarchical tree view of touched files, line ranges, action counts, and AI models.
+- `gitmap heatmap status [-t <task-slug>] [--json]` — Summary of actions logged, unique files touched, expectation metrics, verification states, and active agent models.
 - `gitmap heatmap discuss [--window <duration>] [--threshold <n>] [--json]` — Multi-agent file contention analysis and collision blast radius report before touching shared files.
 - `gitmap heatmap live` — Real-time continuous stream of agent actions, file touches, and reasoning across concurrent agents.
 - `gitmap agent log --subtask <id> --agent "<name>" --action "<read|modify|plan>" --file "<path>" --details "<reasoning>"` — In-flight subtask action logging with explicit rationale.
 - `gitmap agent heatmap [--parent <slug>] [--json]` — Ranks files by write-claim count across agent tasks and active subtasks.
 - `gitmap full-summary` (alias `gitmap fs`) — 48-hour active repository activity heatmap TreeView showing commit velocity and dirty working states.
-- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via `gitmap heatmap log` or `gitmap agent log`, and inspect active file leases and contention hotspots via `gitmap agent heatmap` (or `gitmap heatmap status`) before editing shared files.
-- **Roadmap-Connected Heatmap for Dynamic Join:** Newly spawned or dynamically joining subagents (`gitmap agent subtask join`) inspect `gitmap rc heatmap status` and `gitmap rc heatmap tree` to discover where prior agents read/edited and what subtasks remain in `.ai-memory/plans/<slug>.md`, eliminating redundant reads.
+- **Dual-Mode `--json` Operation:** GitMap cleanly separates one-shot JSON payload ingestion (`gitmap heatmap log --json '<payload>'`) from structured JSON output formatting (`gitmap agent heatmap --json`, `gitmap heatmap status --json`, `gitmap heatmap tree --json`). Both can be combined: `gitmap heatmap log --json '<payload>'` ingests the action and immediately returns a structured JSON confirmation envelope.
+- **Mandatory AI Provenance Attribution:** Every cognitive telemetry entry records the active model (`ModelName`) and host environment (`ToolName`) via JSON payload (`"model"`, `"tool"`) or flags (`--model`, `--tool`).
+  * **Google Antigravity IDE:** `model: "gemini-2.5-pro"` (or `"gemini-2.0-flash"`), `tool: "antigravity-ide"`
+  * **Muse Autonomous Fleet:** `model: "muse"`, `tool: "muse-runner"`
+  * **Claude Code / Standalone CLI:** `model: "claude-3-7-sonnet"`, `tool: "claude-code"`
+- **MANDATORY HEATMAP & CONCURRENCY RULE:** In multi-agent autonomous sessions, agents MUST record all file read/edit decisions with reasoning via one-shot `gitmap heatmap log --json`, and inspect active file leases and contention hotspots via `gitmap agent heatmap` (or `gitmap heatmap status`) before editing shared files.
+- **Roadmap-Connected Heatmap for Dynamic Join:** Newly spawned or dynamically joining subagents (`gitmap agent subtask join`) execute `gitmap rc heatmap tree` and `gitmap heatmap search [slug]` to inspect prior file reads, architectural decisions, and remaining roadmap tasks in `.ai-memory/plans/<slug>.md`, eliminating redundant reads and instantly synchronizing with existing work.
 
 #### Mandatory 4-Gate Cognitive Heatmap Workflow
 In multi-agent and autonomous workflows, every file modification or major task phase MUST strictly follow the 4-Gate Cognitive Heatmap Workflow:
 - **Gate 0: Pre-Flight Discovery & Schema Verification:**
-  `gitmap heatmap status` and `gitmap heatmap tables`
+  `gitmap heatmap status` and `gitmap heatmap tables` (or `gitmap rc heatmap status` and `gitmap rc heatmap tree`)
   Inspect active task telemetry, verify SQLite schema tables, and detect any active file leases or contention hotspots before touching files.
-- **Gate 1: Intent, State & Lease Declaration:**
-  `gitmap heatmap log --task <task> --action <action> --file <path> --state <state> --expected "<goal>"`
-  Declare intent, file path, cognitive reasoning state (`EXPLORATION`, `PLANNING`, `EXECUTION`, `VERIFICATION`), and expected goal before making modifications. Records action ID for lifecycle tracking.
+- **Gate 1: Intent, State & Lease Declaration (One-Shot JSON Ingestion):**
+  `gitmap heatmap log --json '{"task":"<task-slug>","action":"READ|EDIT|CREATE|DELETE","file":"<path>","state":"<STATE>","expected":"<goal>","model":"<model>","tool":"<tool>"}'`
+  Declare intent, file path, cognitive reasoning state (`EXPLORATION`, `PLANNING`, `EXECUTION`, `VERIFICATION`), expected goal, model name, and tool environment before reading or modifying files. Returns action ID for lifecycle tracking.
 - **Gate 2: Outcome Recording & Telemetry Close:**
   `gitmap heatmap update --id <id> --outcome "<outcome>" --met true`
   Record actual outcome, verify if expectation was met (`--met true` or `--met false`), and close the telemetry record immediately upon completing execution.
 - **Gate 3: Verification & Hierarchy Audit:**
-  `gitmap heatmap tree --task <task>` and `gitmap heatmap status --task <task>`
-  Inspect hierarchical touch tree, file churn counts, and expectation compliance rate across the task.
+  `gitmap heatmap tree --task <task>` and `gitmap heatmap search <task-slug>`
+  Inspect hierarchical touch tree, file churn counts, model attributions, and search logged decisions across the task.
 
 ### 13. Multi-AI Companion & repo-cache Synchronization (RC Heatmap Suite)
+- **Why RC Split-DB Isolation is Mandatory:** When multiple autonomous AI engines (Antigravity/Gemini, Muse, Claude Code) collaborate simultaneously or sequentially, writing cognitive traces directly into `.ai-memory/heatmap.db` in the repository worktree causes SQLite database file lock contention (`database is locked`), dirty worktree conflicts, and merge collisions during git branch operations. The companion RC heatmap suite solves this by isolating telemetry into dedicated SQLite databases inside `repo-cache` (`repo-cache/.heatmap/<ai-name>/<repo>/heatmap.db`), keeping the main code repository 100% clean.
 - **Automatic RC Vault Creation:** If `repo-cache` (`rc`) or `.ai-memory/heatmap.db` does not exist, GitMap auto-provisions the required split-db structure linked to the active mission and folder.
-- `gitmap rc heatmap <status|tables|query|view|tree|live|sync>` — Complete companion RC telemetry suite routed directly through the unified `rc heatmap` CLI.
+- `gitmap rc heatmap status` — Inspects companion RC telemetry status, active leases, and logged actions across AI engines.
+- `gitmap rc heatmap tree` — Renders hierarchical roadmap and touched file tree in RC vault, showing all previous reads, edits, and decisions.
+- `gitmap rc heatmap live` — Real-time activity stream in RC vault across all active AI engines.
+- `gitmap rc heatmap sync` — Bidirectionally reconciles in-flight decisions with `repo-cache` upstream without creating workspace git conflicts.
+- `gitmap rc heatmap tables` / `gitmap rc heatmap query "<sql>"` — Direct read-only inspection of RC companion databases with busy-timeout guards.
 - `gitmap heatmap rc list-ai` — Lists all supported AI namespaces (`antigravity`, `muse`, `cloud-code`, `codex`, `grok`, `cursor`) and displays ambient detected engine.
-- `gitmap heatmap rc log [flags]` — Logs cognitive actions and decisions into dedicated `repo-cache` isolated split-databases (`.heatmap/<ai-name>/<repo>/heatmap.db`).
+- `gitmap heatmap rc log [flags]` — Logs cognitive actions and decisions into dedicated `repo-cache` isolated split-databases.
 - `gitmap heatmap rc commit [-m "<msg>"]` — Creates a telemetry checkpoint commit in `repo-cache` and marks local changes clean.
-- `gitmap heatmap rc sync` — Bidirectionally reconciles in-flight decisions with `repo-cache` without workspace git conflicts.
-- `gitmap heatmap rc tree` / `gitmap rc heatmap tree` — Renders hierarchical roadmap and touched file tree in RC vault.
-- `gitmap heatmap rc live` / `gitmap rc heatmap live` — Real-time activity stream in RC vault.
+- **Roadmap Traversal for Newly Joined Agents:** Newly joined or dynamically respawned subagents MUST run `gitmap rc heatmap tree` and `gitmap heatmap search [slug]` prior to authoring code. This enables the agent to discover:
+  1. Exactly which files prior agents examined and why (`READ` actions and reasoning notes).
+  2. Which architectural decisions and code edits were committed (`EDIT` actions and outcomes).
+  3. Which roadmap subtasks remain pending, avoiding redundant discovery cycles.
 
 ### 14. AI Decision Heatmap & RC Admin Telemetry
 - `gitmap heatmap tables [--db <root|repo|local>] [--format <table|json|yaml>]` — Inspects the SQLite master catalog and inventories all tables, views, column counts, and row counts in the active heatmap database.
@@ -559,6 +573,10 @@ Replacing slow PowerShell `Get-ChildItem`, `Select-String`, and grep with multi-
 # Multi-core streaming live code search with extension and directory scoping
 gitmap aum search "RunFleetPASCommand" cli -e .go
 
+# Named-flag search with explicit root directory and query (ideal for subagent tool calls)
+gitmap aum search --root "cli" --query "cmdpipeline"
+gitmap aum search --query "RunFleetPASCommand" --dir cli -e .go
+
 # Case-insensitive regex search with boundary patterns
 gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go -i
 
@@ -729,30 +747,44 @@ gitmap agent temp-clear
 ```
 
 ### 10. File Contention Heatmap, Cognitive Telemetry & RC Sync
-Sub-millisecond SQLite WAL tracking of agent decisions, active leases, and contention hotspots.
+Sub-millisecond SQLite WAL tracking of agent decisions, active leases, contention hotspots, and one-shot JSON payload ingestion with multi-AI provenance attribution.
 
 ```bash
 # Step 0 Pre-Flight schema and status verification
 gitmap heatmap status
 gitmap heatmap tables
 
-# Pre-Action Intent Logging (mandatory prior to reading or modifying files)
-gitmap heatmap log --task "skills-enrichment" --action "READ" --file ".agents/skills/gitmap/skill.md" --state "EXPLORATION" --expected "Analyze existing command matrix"
+# One-Shot JSON Ingestion — Antigravity IDE (Gemini Pro)
+gitmap heatmap log --json '{"task":"313-gitmap-execution","repo":"gitmap","action":"READ","file":"cli/heatmap/heatmap_cmd.go","state":"EXPLORATION","expected":"Audit flag parsing logic","model":"gemini-2.5-pro","tool":"antigravity-ide"}'
+
+# One-Shot JSON Ingestion — Muse Autonomous Fleet (Muse Engine)
+gitmap heatmap log --json '{"task":"313-gitmap-execution","repo":"gitmap","action":"EDIT","file":"cli/cmdssh/ssh_vault.go","state":"EXECUTION","expected":"Add transparent key vault decryption","model":"muse","tool":"muse-runner"}'
+
+# One-Shot JSON Ingestion — Claude Code / Standalone CLI
+gitmap heatmap log --json '{"task":"313-gitmap-execution","repo":"gitmap","action":"READ","file":"cli/cmdupdate/update_fallback_loop.go","state":"EXPLORATION","expected":"Verify asset matching order","model":"claude-3-7-sonnet","tool":"claude-code"}'
 
 # Post-Action Outcome Closure (mandatory immediately after operation)
-gitmap heatmap update --id 1 --outcome "Identified missing real-world examples" --met true
+gitmap heatmap update --id 1042 --outcome "Verified one-shot JSON ingestion and model attribution" --met true
 
 # Render hierarchical causal tree of all actions taken during the task
-gitmap heatmap tree --task "skills-enrichment"
+gitmap heatmap tree --task "313-gitmap-execution"
+gitmap heatmap tree --task "313-gitmap-execution" --json
+
+# Search prior decisions, reasoning notes, and touched files by slug or query
+gitmap heatmap search "313-gitmap-execution"
+gitmap heatmap search "ssh_vault" -f "cli/cmdssh/ssh_vault.go"
 
 # Multi-agent file contention analysis and collision blast radius check
 gitmap agent heatmap
+gitmap agent heatmap --json
 
 # Safe read-only SQL query against cognitive heatmap database
-gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, IsExpectationMet FROM HeatmapActionLog ORDER BY HeatmapActionLogId DESC LIMIT 5" --json
+gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, ModelName, ToolName, IsExpectationMet FROM HeatmapActionLog ORDER BY HeatmapActionLogId DESC LIMIT 5" --json
 
-# Companion repo-cache (rc) heatmap status and synchronization
+# Companion repo-cache (rc) heatmap status, tree traversal, and synchronization
 gitmap rc heatmap status
+gitmap rc heatmap tree
+gitmap rc heatmap live
 gitmap rc heatmap sync
 ```
 

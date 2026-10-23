@@ -382,7 +382,6 @@ if equal_fold_any_trim(user_input, "y", "yes"):
 - [`02-spec/02-coding-guidelines/01-cross-language/02-boolean-principles/readme.md`](02-boolean-principles/readme.md) — Boolean naming and implicit condition standards
 - [`02-spec/02-coding-guidelines/01-cross-language/08-dry-principles.md`](08-dry-principles.md) — Deduplication and DRY principles
 - [`02-spec/02-coding-guidelines/01-cross-language/33-variadic-and-spread-parameters.md`](33-variadic-and-spread-parameters.md) — Variadic and spread parameter standard
-- [`02-spec/21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md`](../../21-app/02-string-normalization-and-equalfoldany/01-architecture-spec.md) — Parent architecture specification
 
 ---
 

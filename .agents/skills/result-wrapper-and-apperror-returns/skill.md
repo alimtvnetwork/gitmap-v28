@@ -23,9 +23,9 @@ All fallible operations MUST return a single strongly-typed monadic container fr
 
 | Container Type | Primary Constructor Helpers | Data Payload Representation | Core Inspection Predicates |
 | :--- | :--- | :--- | :--- |
-| **`result.Wrap[T]`** | `result.Ok(val)` / `result.Fail[T](err)` | Single scalar, model, or struct | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.AppError()` |
-| **`result.WrapSlice[T]`** | `result.OkSlice(slice)` / `result.FailSlice[T](err)` | Slice / collection of items | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Count()`, `res.AppError()` |
-| **`result.WrapMap[K, V]`** | `result.OkMap(mapData)` / `result.FailMap[K, V](err)` | Keyed lookup dictionary or index | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Has(key)`, `res.Get(key)` |
+| **`result.Wrap[T]`** | `result.Ok(val)` / `result.Fail[T]`(err) | Single scalar, model, or struct | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.AppError()` |
+| **`result.WrapSlice[T]`** | `result.OkSlice(slice)` / `result.FailSlice[T]`(err) | Slice / collection of items | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Count()`, `res.AppError()` |
+| **`result.WrapMap[K, V]`** | `result.OkMap(mapData)` / `result.FailMap[K, V]`(err) | Keyed lookup dictionary or index | `res.IsSuccess()`, `res.IsFailure()`, `res.Data()`, `res.Has(key)`, `res.Get(key)` |
 | **`*appfault.AppError`** (`*apperror.AppError`) | `appfault.New(...)`, `appfault.Wrap(...)`, `apperror.WrapSimple(err, op)` | Structured enterprise error | `err.Message()`, `err.Code()`, `err.StackTrace()` |
 
 ---

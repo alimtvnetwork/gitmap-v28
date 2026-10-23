@@ -56,8 +56,8 @@ Go-specific coding standards and patterns.
 | [`07-code-severity-taxonomy.md`](./07-code-severity-taxonomy.md) | Code severity taxonomy, error classification, and fault logging |
 | [`08-pathutil-fileutil-spec.md`](./08-pathutil-fileutil-spec.md) | Unified PathUtil & FileUtil cross-platform filesystem specification |
 | [`97-acceptance-criteria.md`](./97-acceptance-criteria.md) | Golang acceptance criteria registry |
-| [`98-changelog.md`](./98-changelog.md) | Version history and specification changelog |
-| [`99-consistency-report.md`](./99-consistency-report.md) | Guideline consistency and audit report |
+| `98-changelog.md` | Version history and specification changelog |
+| `99-consistency-report.md` | Guideline consistency and audit report |
 
 ---
 

@@ -214,7 +214,7 @@ All animations and transitions prioritize **GPU-composited CSS3 transforms and o
 | 03b | [03-sweet-digs-design-system/readme.md](./03-sweet-digs-design-system/readme.md) | Sub-System | Sweet Digs HSL multi-theme architecture and zoom-free interaction suite |
 | 04b | [04-white-blue-theme/readme.md](./04-white-blue-theme/readme.md) | Sub-System | White Blue Theme 3-format color architecture (`HEX`, `RGB`/`RGBA`, `HSL` + `OKLCH`), 3D flip Mega-Menu, `WhiteBlueButton`, and enterprise section library |
 | 97 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | Testing | Testable criteria for design system compliance |
-| 99 | [99-consistency-report.md](./99-consistency-report.md) | Meta | Consistency validation report |
+| 99 | `99-consistency-report.md` | Meta | Consistency validation report |
 
 ---
 
@@ -297,5 +297,5 @@ Every heading gradient, link color, button, code block glow, and hover effect up
 
 ## Verification
 
-Full compliance criteria and automated verification suites are defined in [`97-acceptance-criteria.md`](./97-acceptance-criteria.md) and tracked in [`99-consistency-report.md`](./99-consistency-report.md).
+Full compliance criteria and automated verification suites are defined in [`97-acceptance-criteria.md`](./97-acceptance-criteria.md) and tracked in `99-consistency-report.md`.
 
