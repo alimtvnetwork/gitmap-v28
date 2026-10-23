@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.594.0] - 2026-10-23
+
+### Added
+- cmdupdate: exclude cli-updater from release asset resolution and fix self-update
+
+---
+
 ## [v6.593.0] - 2026-10-23
 
 ### Added
