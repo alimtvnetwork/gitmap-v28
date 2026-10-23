@@ -1,5 +1,5 @@
 # GitMap Linux Container Testing Harness
-FROM golang:1.24-alpine
+FROM golang:1.26-alpine
 
 # Install minimal toolchain dependencies
 RUN apk add --no-cache git bash ca-certificates tzdata

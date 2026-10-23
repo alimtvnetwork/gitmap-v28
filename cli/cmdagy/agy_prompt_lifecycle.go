@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -78,16 +77,19 @@ type PromptResendRequest struct {
 
 // PromptTreeResponse provides the nested hierarchy of prompts by node and project.
 type PromptTreeResponse struct {
-	TotalActive int              `json:"totalActive"`
-	TotalQueued int              `json:"totalQueued"`
-	Nodes       []NodePromptTree `json:"nodes"`
+	TotalActive  int              `json:"totalActive"`
+	TotalQueued  int              `json:"totalQueued"`
+	Nodes        []NodePromptTree `json:"nodes"`
+	SavedPrompts []PromptRecord   `json:"savedPrompts"`
 }
 
 // NodePromptTree represents a node and its nested projects.
 type NodePromptTree struct {
-	NodeAlias string                 `json:"nodeAlias"`
-	IsOnline  bool                   `json:"isOnline"`
-	Projects  []ProjectPromptSummary `json:"projects"`
+	NodeAlias       string                 `json:"nodeAlias"`
+	IsOnline        bool                   `json:"isOnline"`
+	IsSelf          bool                   `json:"isSelf"`
+	RunningProjects []RunningProjectRecord `json:"runningProjects"`
+	Projects        []ProjectPromptSummary `json:"projects"`
 }
 
 // ProjectPromptSummary contains prompt details for a specific project.
@@ -100,13 +102,19 @@ type ProjectPromptSummary struct {
 
 // ActivePromptSummary provides lightweight telemetry for active prompts.
 type ActivePromptSummary struct {
-	WorkspacePath  string `json:"workspacePath"`
-	ProjectName    string `json:"projectName"`
-	ConversationID string `json:"conversationId,omitempty"`
-	PromptTitle    string `json:"promptTitle"`
-	PromptSnippet  string `json:"promptSnippet"`
-	Duration       string `json:"duration,omitempty"`
-	Status         string `json:"status"`
+	ID             string  `json:"id"`
+	WorkspacePath  string  `json:"workspacePath"`
+	ProjectName    string  `json:"projectName"`
+	TargetNode     string  `json:"targetNode"`
+	ConversationID string  `json:"conversationId,omitempty"`
+	PromptTitle    string  `json:"promptTitle"`
+	PromptPreview  string  `json:"promptPreview"`
+	PromptSnippet  string  `json:"promptSnippet"`
+	Duration       string  `json:"duration,omitempty"`
+	RunningSince   string  `json:"runningSince,omitempty"`
+	MemoryMB       float64 `json:"memoryMb,omitempty"`
+	ProcessID      int     `json:"processId,omitempty"`
+	Status         string  `json:"status"`
 }
 
 // AGYUIStatusPayload represents the full state returned to the web UI.
@@ -241,283 +249,4 @@ func SendPromptImmediate(payload PromptPayload) (AgyInjectionResult, error) {
 	}
 	_ = AppendPromptHistory(rec)
 	return res, nil
-}
-
-func findPromptRecordByID(records []PromptRecord, id string) *PromptRecord {
-	for _, rec := range records {
-		if rec.ID == id {
-			r := rec
-			return &r
-		}
-	}
-
-	return nil
-}
-
-func dispatchUrgentResend(payload PromptPayload, targetNode string) (*PromptResult, error) {
-	if _, err := SendPromptImmediate(payload); err != nil {
-		return nil, err
-	}
-
-	return &PromptResult{
-		PromptID:      fmt.Sprintf("resend-%d", time.Now().UnixNano()),
-		Status:        "delivered",
-		TargetNode:    targetNode,
-		ProjectName:   payload.EffectiveTarget(),
-		DispatchedAt:  time.Now().Format(time.RFC3339),
-		OutputPreview: "Prompt re-dispatched immediately to " + targetNode,
-	}, nil
-}
-
-// ResendPrompt dispatches an existing prompt from history or template.
-func ResendPrompt(req PromptResendRequest) (*PromptResult, error) {
-	history, _ := GetPromptHistory()
-	targetRecord := findPromptRecordByID(history, req.PromptID)
-	if targetRecord == nil {
-		saved, _ := LoadSavedPrompts()
-		targetRecord = findPromptRecordByID(saved, req.PromptID)
-	}
-	if targetRecord == nil {
-		return nil, apperror.NewWithDetails("agy.resend", "E404", "prompt not found", "cmdagy", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
-	}
-
-	targetNode := targetRecord.TargetNode
-	if req.OverrideNode != "" {
-		targetNode = req.OverrideNode
-	}
-	if targetNode == "" {
-		targetNode, _ = os.Hostname()
-	}
-
-	payload := PromptPayload{
-		ProjectName:   targetRecord.ProjectName,
-		ProjectTarget: targetRecord.ProjectTarget,
-		TargetNode:    targetNode,
-		Title:         "Resend: " + targetRecord.Title,
-		PromptText:    targetRecord.PromptText,
-		IsUrgent:      req.IsUrgent,
-	}
-
-	if req.IsUrgent {
-		return dispatchUrgentResend(payload, targetNode)
-	}
-
-	queuedRec, err := EnqueuePromptPayload(payload)
-	if err != nil {
-		return nil, err
-	}
-	return &PromptResult{
-		PromptID:      queuedRec.ID,
-		Status:        "queued",
-		TargetNode:    targetNode,
-		ProjectName:   payload.EffectiveTarget(),
-		DispatchedAt:  time.Now().Format(time.RFC3339),
-		OutputPreview: fmt.Sprintf("Prompt enqueued at position %d", queuedRec.QueuePosition),
-	}, nil
-}
-
-func normalizeWorkspacePath(path string) string {
-	if path == "" {
-		return "$WORKSPACE_ROOT"
-	}
-	clean := filepath.ToSlash(path)
-	return clean
-}
-
-// BuildPromptTree aggregates running and queued prompts grouped by node and project.
-func BuildPromptTree() (*PromptTreeResponse, error) {
-	nodeAlias, _ := os.Hostname()
-	running, _ := DiscoverRunningProjects()
-	queuePath := getTempAgyFilePath("agy-prompt-queue.json")
-	queuedRecords, _ := readRecordsFromFile(queuePath)
-
-	projectMap := make(map[string]*ProjectPromptSummary)
-	totalActive := 0
-
-	for _, p := range running {
-		projName := p.ProjectName
-		if projName == "" {
-			projName = filepath.Base(p.ProjectPath)
-		}
-		summary, exists := projectMap[projName]
-		if !exists {
-			summary = &ProjectPromptSummary{
-				ProjectName:   projName,
-				WorkspacePath: normalizeWorkspacePath(p.ProjectPath),
-				ActivePrompts: []PromptRecord{},
-				QueuedPrompts: []PromptRecord{},
-			}
-			projectMap[projName] = summary
-		}
-		if p.HasActivePrompt {
-			totalActive++
-			summary.ActivePrompts = append(summary.ActivePrompts, PromptRecord{
-				ID:          fmt.Sprintf("p-%s", p.ConversationId),
-				ProjectName: projName,
-				Title:       p.PromptPreview,
-				PromptText:  p.FullPrompt,
-				Status:      p.Status,
-				CreatedAt:   time.Now().Format(time.RFC3339),
-			})
-		}
-	}
-
-	totalQueued := len(queuedRecords)
-	for _, q := range queuedRecords {
-		projName := q.ProjectName
-		if projName == "" {
-			projName = "default"
-		}
-		summary, exists := projectMap[projName]
-		if !exists {
-			summary = &ProjectPromptSummary{
-				ProjectName:   projName,
-				WorkspacePath: "$WORKSPACE_ROOT",
-				ActivePrompts: []PromptRecord{},
-				QueuedPrompts: []PromptRecord{},
-			}
-			projectMap[projName] = summary
-		}
-		summary.QueuedPrompts = append(summary.QueuedPrompts, q)
-	}
-
-	var projects []ProjectPromptSummary
-	for _, p := range projectMap {
-		projects = append(projects, *p)
-	}
-
-	return &PromptTreeResponse{
-		TotalActive: totalActive,
-		TotalQueued: totalQueued,
-		Nodes: []NodePromptTree{
-			{
-				NodeAlias: nodeAlias,
-				IsOnline:  true,
-				Projects:  projects,
-			},
-		},
-	}, nil
-}
-
-func buildActiveSummaryFromProject(p RunningProjectRecord) ActivePromptSummary {
-	snip := p.PromptPreview
-	if snip == "" {
-		snip = p.FullPrompt
-	}
-	if len(snip) > 80 {
-		snip = snip[:77] + "..."
-	}
-	return ActivePromptSummary{
-		WorkspacePath:  p.ProjectPath,
-		ProjectName:    p.ProjectName,
-		ConversationID: p.ConversationId,
-		PromptTitle:    p.PromptPreview,
-		PromptSnippet:  snip,
-		Status:         p.Status,
-	}
-}
-
-// CollectActivePrompts extracts summaries from running projects.
-func CollectActivePrompts(running []RunningProjectRecord) []ActivePromptSummary {
-	var summaries []ActivePromptSummary
-	for _, p := range running {
-		if p.HasActivePrompt {
-			summaries = append(summaries, buildActiveSummaryFromProject(p))
-		}
-	}
-	return summaries
-}
-
-// GetAGYUIStatus collects complete telemetry for the AGY web studio.
-func GetAGYUIStatus() (*AGYUIStatusPayload, error) {
-	node, _ := os.Hostname()
-	running, _ := DiscoverRunningProjects()
-	activePrompts := CollectActivePrompts(running)
-	qStatus, _ := GetQueueStatus()
-	saved, _ := LoadSavedPrompts()
-
-	return &AGYUIStatusPayload{
-		IsServerRunning: true,
-		NodeAlias:       node,
-		RunningProjects: running,
-		ActivePrompts:   activePrompts,
-		QueuedPrompts:   qStatus.Queued,
-		SavedPrompts:    saved,
-	}, nil
-}
-
-var (
-	queueWorkerOnce sync.Once
-	queueWorkerStop chan struct{}
-)
-
-// StartPromptQueueWorker begins continuous background processing of queued prompts.
-func StartPromptQueueWorker() {
-	queueWorkerOnce.Do(func() {
-		queueWorkerStop = make(chan struct{})
-		go runPromptQueueWorkerLoop(queueWorkerStop)
-	})
-}
-
-// StopPromptQueueWorker signals the background queue worker to terminate.
-func StopPromptQueueWorker() {
-	if queueWorkerStop != nil {
-		close(queueWorkerStop)
-		queueWorkerStop = nil
-	}
-}
-
-func runPromptQueueWorkerLoop(stopChan <-chan struct{}) {
-	ticker := time.NewTicker(2 * time.Second)
-	defer ticker.Stop()
-	concurrencyLimit := make(chan struct{}, 2)
-
-	for {
-		select {
-		case <-stopChan:
-			return
-		case <-ticker.C:
-			processNextQueuedPrompts(concurrencyLimit)
-		}
-	}
-}
-
-func processNextQueuedPrompts(sem chan struct{}) {
-	queuePath := getTempAgyFilePath("agy-prompt-queue.json")
-	records, err := readRecordsFromFile(queuePath)
-	if err != nil || len(records) == 0 {
-		return
-	}
-
-	var remaining []PromptRecord
-	for i, rec := range records {
-		switch {
-		case rec.Status == "queued" && len(sem) < cap(sem):
-			sem <- struct{}{}
-			go func(r PromptRecord) {
-				defer func() { <-sem }()
-				executeQueuedPrompt(r)
-			}(rec)
-		case rec.Status == "queued":
-			rec.QueuePosition = len(remaining) + 1
-			remaining = append(remaining, rec)
-		case i > 0:
-			remaining = append(remaining, rec)
-		}
-	}
-	_ = writeRecordsToFile(queuePath, remaining)
-}
-
-func executeQueuedPrompt(rec PromptRecord) {
-	payload := PromptPayload{
-		ProjectName:   rec.ProjectName,
-		ProjectTarget: rec.ProjectTarget,
-		TargetNode:    rec.TargetNode,
-		Title:         rec.Title,
-		PromptText:    rec.PromptText,
-	}
-	_, _ = SendPromptImmediate(payload)
-	rec.Status = "completed"
-	rec.CompletedAt = time.Now().Format(time.RFC3339)
-	_ = AppendPromptHistory(rec)
 }
