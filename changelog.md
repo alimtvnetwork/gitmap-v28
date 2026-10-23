@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.599.0] - 2026-10-23
+
+### Added
+- plans and memory consolidation: 98 completed micro-plans synthesized into 32 authoritative milestones (01-32)
+- subtasks reduction: folded 67 completed subtask directories, preserving 10 active tracks in .ai-memory/plans/subtasks/
+- redundant file elimination: pruned all dummy .gitkeep placeholders and 49 historical root plan files
+- registries alignment: synchronized .ai-memory/plans/readme.md, 01-index.md, and index.md
+
+---
+
 ## [v6.598.0] - 2026-10-23
 
 ### Added
