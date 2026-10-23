@@ -225,7 +225,7 @@ jobs:
               and installs it to the local application directory.
 
           .PARAMETER InstallDir
-              Target directory. Default: $env:LOCALAPPDATA\gitmap
+              Target directory. Default: $env:LOCALAPPDATA\gitmap-cli
 
           .PARAMETER Arch
               Force architecture (amd64, arm64). Default: auto-detect.
@@ -254,7 +254,7 @@ jobs:
 
           function Resolve-InstallDir([string]$dir) {
               if ($dir -ne "") { return $dir }
-              return Join-Path $env:LOCALAPPDATA "gitmap"
+              return Join-Path $env:LOCALAPPDATA "gitmap-cli"
           }
 
           function Resolve-Arch([string]$arch) {
@@ -352,6 +352,7 @@ jobs:
               $oldPath = "$targetPath.old"
               if (Test-Path $oldPath) { Remove-Item $oldPath -Force -ErrorAction SilentlyContinue }
 
+              Copy-Item $targetPath (Join-Path $installDir "gm.exe") -Force -ErrorAction SilentlyContinue
               Write-OK "Installed $BinaryName to $installDir"
           }
 
@@ -657,6 +658,7 @@ jobs:
             mv "$binary" "$target"
             chmod +x "$target"
             rm -f "$target.old" 2>/dev/null || true
+            ln -sf "$BINARY_NAME" "$install_dir/gm" 2>/dev/null || cp -f "$target" "$install_dir/gm" 2>/dev/null || true
 
             echo "  ✅ Installed $BINARY_NAME to $install_dir"
 

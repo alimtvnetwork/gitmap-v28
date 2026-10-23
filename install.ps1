@@ -327,7 +327,6 @@ function Test-RepoExists([string]$url) {
             -UseBasicParsing -ErrorAction Stop
         return ($resp.StatusCode -eq 200)
     } catch {
-        Write-Warning "[Test-RepoExists] $_"
         return $false
     }
 }

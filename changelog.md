@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.596.0] - 2026-10-23
+
+### Added
+- installer: sync install scripts, suppress 404 discovery warnings, and align release deploy target
+
+---
+
 ## [v6.595.0] - 2026-10-23
 
 ### Added
