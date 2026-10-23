@@ -241,6 +241,7 @@ func buildSectionFailureFromRunJob(run FailedRunItem, job FailedJobItem) Section
 		SavedLogFile:   toRelativeGitPath(run.SavedLogFile),
 		CreatedAt:      run.CreatedAt,
 		StackTrace:     stack,
+		Url:            run.Url,
 	}
 }
 

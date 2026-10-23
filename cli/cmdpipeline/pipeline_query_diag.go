@@ -49,6 +49,29 @@ func checkJobsActive(repo string, runId uint64) bool {
 	return false
 }
 
+func queryRunConclusion(repo string, runId uint64) string {
+	if runId == 0 {
+		return ""
+	}
+	idStr := strconv.FormatUint(runId, 10)
+	args := []string{"run", "view", idStr, "--json", "conclusion"}
+	if len(repo) > 0 {
+		args = append(args, "--repo", repo)
+	}
+	out, err := runGHCommandWithTimeout(args...)
+	if err != nil || len(out) == 0 {
+		return ""
+	}
+	var resp struct {
+		Conclusion string `json:"conclusion"`
+	}
+	if json.Unmarshal(out, &resp) == nil {
+		return strings.ToLower(strings.TrimSpace(resp.Conclusion))
+	}
+
+	return ""
+}
+
 func isGHStatusActive(status string) bool {
 	return status == "in_progress" || status == "queued" || status == "waiting" || status == "pending"
 }

@@ -91,6 +91,7 @@ type SectionFailure struct {
 	SavedLogFile   string   `json:"savedLogFile,omitempty"`
 	CreatedAt      string   `json:"createdAt,omitempty"`
 	StackTrace     string   `json:"stackTrace,omitempty"`
+	Url            string   `json:"url,omitempty"`
 }
 
 // FailedRunItem represents an individual failed workflow run.

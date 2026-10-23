@@ -47,7 +47,15 @@ func renderSectionSourceDetails(sec SectionFailure) {
 	if len(sec.WorkflowName) > 0 {
 		logger = sec.WorkflowName
 	}
-	url := fmt.Sprintf("https://github.com/run/%d", sec.RunId)
+	url := sec.Url
+	if len(url) == 0 {
+		repo := resolveCurrentRepoSlug()
+		if len(repo) > 0 && sec.RunId > 0 {
+			url = fmt.Sprintf("https://github.com/%s/actions/runs/%d", repo, sec.RunId)
+		} else if sec.RunId > 0 {
+			url = fmt.Sprintf("https://github.com/actions/runs/%d", sec.RunId)
+		}
+	}
 	logFile := filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile))
 	if len(logFile) == 0 {
 		logFile = "in-memory / active stream"

@@ -96,6 +96,11 @@ func handleFailedRunLogsFallback(repo string, runId uint64, err error, out []byt
 		return formatGHFailedError(err, out, repo, runId)
 	}
 
+	conclusion := queryRunConclusion(repo, runId)
+	if strings.HasPrefix(conclusion, "cancel") {
+		return "Workflow run was cancelled before completion (conclusion: cancelled). No step failure logs were generated."
+	}
+
 	return "Unable to fetch failed logs via gh CLI."
 }
 
