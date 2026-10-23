@@ -160,6 +160,7 @@ All completed work has been merged into 20 dense, authoritative milestone summar
 
 Only genuinely open plans remain here after the 2026-10-23 pending-folder drain (task 190, subtask 06); the 24 completed plans moved to `completed/` (see section 2b):
 
+- [314-gitmap-heatmap-and-url-handling-instructions.md](pending/314-gitmap-heatmap-and-url-handling-instructions.md) — Plan 314: Heatmap Database Discovery & AI Help, URL Split-DB Caching, 10-Split Segmented Downloader & LLM Training Integration (Spec: [314-gitmap-heatmap-and-url-handling-instructions](../../02-spec/21-app/314-gitmap-heatmap-and-url-handling-instructions/00-overview.md)) (Status: `pending`)
 - [01-ports-and-ssh-enablement.md](pending/01-ports-and-ssh-enablement.md) — Ports Inspection, Firewall Audit & Cross-Platform OpenSSH Daemon Management (re-triaged 2026-10-23: predates the pure-Go nodes rewrite — verify-or-close in a later task)
 - [56-vmware-hardware-batch-and-macro-orchestration.md](pending/56-vmware-hardware-batch-and-macro-orchestration.md) — VMware Hardware Customization, Multi-VM Batch Operations & Macro Orchestration (parked 2026-10-23 pending an explicit go/no-go decision; hardware-dependent)
 
@@ -168,6 +169,8 @@ Only genuinely open plans remain here after the 2026-10-23 pending-folder drain 
 ## 4. Active Subtasks Directories
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
+
+- `subtasks/314-gitmap-heatmap-and-url-handling-instructions/` (7 subtasks - Heatmap Discovery, URL Split-DB & Segmented Downloader)
 
 - `subtasks/gitmap-testing-and-schedule-management/` (6 subtasks - Testing & Schedule Management)
 - `subtasks/gitmap-mailing-and-scheduling-enhancements/` (6 subtasks - Mailing & Event Scheduling)

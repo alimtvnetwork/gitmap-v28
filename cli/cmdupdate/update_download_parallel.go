@@ -39,15 +39,24 @@ type segmentRange struct {
 	end   int64
 }
 
+func isEligibleForSegmentedDownload(totalSize int64, url string) bool {
+	envVal := os.Getenv(constants.EnvDownloadSegments)
+	if envVal == "" || envVal == "0" {
+		return false
+	}
+	if totalSize < downloadSegmentMinBytes {
+		return false
+	}
+
+	return true
+}
+
 // downloadArchiveFast downloads url to dstPath. The segmented path is
 // used only when it is explicitly enabled via GITMAP_DOWNLOAD_SEGMENTS,
 // the archive is large enough, and the server supports ranges. It
 // returns the engine name actually used, for update telemetry.
 func downloadArchiveFast(url, dstPath string, totalSize int64, onProg func(w, t int64)) (string, error) {
-	if os.Getenv(constants.EnvDownloadSegments) == "" {
-		return downloadEngineSingle, downloadHTTP(url, dstPath, onProg)
-	}
-	if totalSize < downloadSegmentMinBytes {
+	if !isEligibleForSegmentedDownload(totalSize, url) {
 		return downloadEngineSingle, downloadHTTP(url, dstPath, onProg)
 	}
 	if !probeRangeSupport(url) {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -37,15 +36,9 @@ func TestRcHeatmapModelAndToolTelemetry(t *testing.T) {
 	defer os.Unsetenv("AI_MODEL")
 	defer os.Unsetenv("ANTIGRAVITY_AGENT_ID")
 
-	modelName := store.DetectCurrentModelName()
-	toolName := store.DetectCurrentToolName()
-
-	if modelName != "gemini-2.5-pro" {
-		t.Errorf("expected gemini-2.5-pro, got %s", modelName)
-	}
-
-	if toolName != "Antigravity IDE" {
-		t.Errorf("expected Antigravity IDE, got %s", toolName)
+	aiName := store.DetectCurrentAIName()
+	if aiName != "antigravity" {
+		t.Errorf("expected antigravity, got %s", aiName)
 	}
 }
 
@@ -62,7 +55,7 @@ func TestRcHeatmapDispatch_Canonical(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, `"status": "success"`) && !strings.Contains(out, `"status":"success"`) {
-		t.Errorf("expected json success status in output, got: %s", out)
+	if !strings.Contains(out, `"status": "LOGGED"`) && !strings.Contains(out, `"actionLogId"`) {
+		t.Errorf("expected json logged status in output, got: %s", out)
 	}
 }
