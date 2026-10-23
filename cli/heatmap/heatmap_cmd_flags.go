@@ -15,10 +15,6 @@ var shortFlagMap = map[string]string{
 	"m": "model",
 }
 
-func isHeatmapHelpRequested(args []string) bool {
-	return isHeatmapOverviewRequested(args)
-}
-
 func isHeatmapOverviewRequested(args []string) bool {
 	if len(args) == 0 {
 		return true
