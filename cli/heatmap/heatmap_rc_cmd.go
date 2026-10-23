@@ -265,24 +265,4 @@ func resolveTargetRepo(flag string) string {
 	return store.ResolveAmbientRepoSlug("")
 }
 
-func printRcHeatmapHelp(out io.Writer) {
-	fmt.Fprintln(out, "Usage: gitmap heatmap rc <command> [flags]\n\nSubcommands:")
-	fmt.Fprintln(out, "  overview Discover heatmap databases across all 3 tiers and summarize recent tasks")
-	fmt.Fprintln(out, "  log      Log an AI cognitive decision to repo-cache split-db")
-	fmt.Fprintln(out, "  update   Update outcome and expectation status of an existing action")
-	fmt.Fprintln(out, "  search   Search logged actions by query, task, or file")
-	fmt.Fprintln(out, "  tree     Display hierarchical causal execution tree")
-	fmt.Fprintln(out, "  status   Summarize action volume, states, and uncommitted delta")
-	fmt.Fprintln(out, "  list-ai  List supported AI namespaces and ambient detected AI")
-	fmt.Fprintln(out, "  commit   Record commit checkpoint and mark local changes clean")
-	fmt.Fprintln(out, "  sync     Synchronize local telemetry with repo-cache")
-	fmt.Fprintln(out, "  tables   List tables and row counts in RC heatmap SQLite DB")
-	fmt.Fprintln(out, "  view     Inspect table rows with --limit, --format, and filters")
-	fmt.Fprintln(out, "  query    Run safe read-only SQL SELECT queries against RC DB")
-	fmt.Fprintln(out, "  help     Show this help message\n\nFlags:")
-	fmt.Fprintln(out, "  --ai      Target AI namespace (antigravity, muse, cloud-code, codex, grok, cursor)")
-	fmt.Fprintln(out, "  --repo    Target repository slug (defaults to ambient working repo)")
-	fmt.Fprintln(out, "  --task    Task slug")
-	fmt.Fprintln(out, "  --file    Target file path")
-	fmt.Fprintln(out, "  --json    Output results in JSON format")
-}
+

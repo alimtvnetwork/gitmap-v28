@@ -16,7 +16,6 @@ import (
 type UrlCacheSplitDB struct {
 	conn  *sql.DB
 	group urlSingleflight
-	mu    sync.RWMutex
 	Path  string
 }
 

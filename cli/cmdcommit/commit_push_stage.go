@@ -13,16 +13,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// extractCommitTaskFlag removes --task <slug> / --task=<slug> from args and
-// returns the clean args plus the task slug. Falls back to GITMAP_TASK env.
-// Agents must never stage directly; the commit flow scopes staging to the
-// task's claimed files when a task context is present.
-func extractCommitTaskFlag(args []string) ([]string, string) {
-	clean, meta := ExtractCommitFlags(args)
-
-	return clean, meta.TaskSlug
-}
-
 // hasStagedChangesCP checks whether there are any staged or unstaged changes in the working tree.
 func hasStagedChangesCP() (bool, error) {
 	out, err := execGitOutputCP("status", "--porcelain")

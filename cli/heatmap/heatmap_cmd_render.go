@@ -128,27 +128,4 @@ func printTopTouchedFiles(out io.Writer, files []store.FileTouchCount) {
 	}
 }
 
-func printHeatmapHelp(out io.Writer) {
-	fmt.Fprint(out, `Usage: gitmap heatmap <command> [flags]
 
-Commands:
-  overview Discover heatmap databases across all 3 tiers and summarize recent tasks
-  log     Log an AI cognitive decision or file action
-  update  Update outcome and expectation status of an existing action
-  search  Search logged actions by query, task, or file
-  tree    Display hierarchical causal execution tree
-  status  Summarize action volume, states, and file touches
-  tables  List tables and row counts in heatmap SQLite DB
-  view    Inspect table rows with --limit, --format, and filters
-  query   Run safe read-only SQL SELECT queries against heatmap DB
-  rc      Manage repo-cache isolated multi-AI heatmap telemetry
-  help    Show this help message
-
-Examples:
-  gitmap heatmap log --task t1 --action READ --file cli/store/path.go --state EXPLORATION --expected "Inspect paths"
-  gitmap heatmap update --id 1 --outcome "Inspected successfully" --met true
-  gitmap heatmap tree --task t1
-  gitmap heatmap status --task t1
-  gitmap heatmap search "base paths" --json
-`)
-}

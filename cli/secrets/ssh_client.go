@@ -218,7 +218,11 @@ func wrapPowerShellCommand(cmd, trimmed string) string {
 		return cmd
 	}
 
-	return WrapPowerShellEncodedCommand(cmd)
+	if hasComplexPowerShell(cmd) {
+		return WrapPowerShellEncodedCommand(cmd)
+	}
+
+	return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
 }
 
 // WrapPowerShellEncodedCommand transforms a PowerShell script into a Base64 UTF-16LE encoded command string.
@@ -240,7 +244,13 @@ func ResolveRemoteShell(osType string) string {
 }
 
 func encodePowerShellCommand(cmd string) string {
-	u16 := utf16.Encode([]rune(cmd))
+	return encodeUTF16LEBase64(cmd)
+}
+
+// encodeUTF16LEBase64 encodes s as Base64 of its UTF-16LE bytes, the payload
+// form PowerShell's -EncodedCommand expects.
+func encodeUTF16LEBase64(s string) string {
+	u16 := utf16.Encode([]rune(s))
 	b := make([]byte, len(u16)*2)
 	for i, v := range u16 {
 		b[i*2] = byte(v)
@@ -248,10 +258,6 @@ func encodePowerShellCommand(cmd string) string {
 	}
 
 	return base64.StdEncoding.EncodeToString(b)
-}
-
-func encodeUTF16LEBase64(s string) string {
-	return encodePowerShellCommand(s)
 }
 
 func hasComplexPowerShell(cmd string) bool {
