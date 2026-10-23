@@ -32,6 +32,9 @@ func RunCommitPush(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push <message>", "E9000")
+	}
 	commitMessage := strings.Join(cleanArgs, " ")
 
 	return executeCommitPush(commitMessage, meta)
@@ -46,6 +49,9 @@ func RunPullCommitPush(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap pull-commit-push <message>", "E9000")
+	}
 	commitMessage := strings.Join(cleanArgs, " ")
 
 	return executePullCommitPush(commitMessage, meta)
@@ -74,6 +80,9 @@ func RunCommitPushBug(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", "E9000")
+	}
 	commitMessage := "Bug: " + strings.Join(cleanArgs, " ")
 
 	return executeCommitPush(commitMessage, meta)
@@ -88,6 +97,9 @@ func RunCommitPushFeature(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", "E9000")
+	}
 	commitMessage := "Feature: " + strings.Join(cleanArgs, " ")
 
 	return executeCommitPush(commitMessage, meta)
@@ -102,6 +114,9 @@ func RunCommitPushChore(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", "E9000")
+	}
 	commitMessage := "Chore: " + strings.Join(cleanArgs, " ")
 
 	return executeCommitPush(commitMessage, meta)
@@ -116,6 +131,9 @@ func RunCommitPushRelease(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", "E9000")
+	}
 	commitMessage := "Release: " + strings.Join(cleanArgs, " ")
 
 	return executeCommitPush(commitMessage, meta)
