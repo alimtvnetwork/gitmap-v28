@@ -92,7 +92,7 @@ func handleFailedTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
 }
 
 func handleCanceledTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCanceled || task.Status == "cancelled" {
+	if task.Status == constants.PullTaskStatusCanceled {
 		return true, apperror.NewSimple("pull task was canceled", "E_PULL_CANCELED")
 	}
 

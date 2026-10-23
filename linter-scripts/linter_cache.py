@@ -206,6 +206,19 @@ def resolve_linter_targets(
     """Resolves target files for a linter, running on changed files by default."""
     if force_all:
         return collect_all_repo_targets(root_dir, target_exts, exclude_dirs, target_subdir), "forced full scan", False
+
+    # In CI runners, always scope policy checks to the pushed commit changes (HEAD~1..HEAD)
+    if os.environ.get("CI") == "true" or os.environ.get("GITHUB_ACTIONS") == "true":
+        parent_hashes = run_git_lines(["rev-parse", "HEAD~1"], root_dir)
+        head_hash = get_git_head_hash(root_dir)
+        if not parent_hashes and head_hash:
+            run_git_lines(["fetch", "--depth=2", "origin", head_hash], root_dir)
+            parent_hashes = run_git_lines(["rev-parse", "HEAD~1"], root_dir)
+        if parent_hashes and head_hash:
+            return resolve_changed_targets_with_cache(
+                parent_hashes[0], head_hash, root_dir, target_exts, exclude_dirs, None, target_subdir
+            )
+
     cache = load_linter_cache(linter_name, root_dir)
     last_hash, head_hash = cache.get("last_git_hash", ""), get_git_head_hash(root_dir)
     if not is_valid_cache_head(last_hash, head_hash, root_dir):
