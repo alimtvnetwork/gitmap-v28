@@ -23,6 +23,8 @@ How this repository is engineered. Internalize before writing any code:
 
 - 2026-10-23T20:45:00Z, Memory write: Plan 314 / Spec 21-app/314-gitmap-heatmap-and-url-handling-instructions, Heatmap Database Discovery & AI Help, URL Split-DB Caching, 10-Split Segmented Downloader & LLM Training Integration. Comprehensive 3-tier heatmap discovery (`<EffectiveDataDir>/heatmap.db`, per-repo split DBs, `repo-cache/.heatmap/<seq>-<ai>/`), alias enrichment (`db.ListAliasesWithRepo()`), `--repo` routing fix, multi-repo recent tasks aggregation across 2–5 repositories, dedicated URL caching Split-DB (`repodb/url_cache.db`), CLI `gitmap url read` with byte-faithful `output.Raw()` streaming, multi-tier 10-split segmented downloading (`aria2c -s 10 -x 10 -k 5K` + native Go parallel Range requests for payloads >= 1–2 MB), and LLM training integration linking heatmap companion files into training datasets.
 
+- 2026-10-24T00:30:00Z, Memory write: Completed plans consolidation and memory reduction (Workflow 07 / ai-memory-consolidate-reduce). Compacted historical completed plans into 32 dense, authoritative milestones (Milestones 01–32) in `.ai-memory/plans/completed/`, folded and removed 67 completed subtask directories, cleared pending consolidation tasks, and synchronized `.ai-memory/plans/readme.md` and `01-index.md` with zero pending plans.
+
 - 2026-10-21T15:25:00Z, Memory write: Plan gitmap-enhancement-and-issue-resolution / Spec 21-app/gitmap-enhancement-and-issue-resolution, Database Read Introspection & 5-10s Metadata Cache, Visualizer UI Binary Cell Formatting & Drawer, Storytelling-v1 README Casing Remediation & Repo-Cache Recipe, Remote Node Clone GitHub Desktop & VS Code Registration, Remote SSH WinCredMan Resolution, and Machine Set Interactive Prompt.
 
 - 2026-10-21T11:15:00Z, Memory write: Plan gitmap-command-and-skill-update / Spec 21-app/gitmap-command-and-skill-update, OS Dev-Clean Dry-Run & Cargo Caches: Always show ANSI dry-run preview and total reclaimable metrics before interactive [y/N] confirmation. Comprehensive Rust and Cargo cache sweeping (~/.cargo/registry/cache, registry/src, git/db, git/checkouts, .package-cache, target, CARGO_TARGET_DIR, sccache, ~/.rustup/downloads, ~/.rustup/tmp), tool clean invocations (cargo cache --autoclean, sccache --clear-cache, cargo clean --target-dir), and Split-DB devtools cache synchronization with missing ecosystem auto-discovery and post-clean zeroing.
@@ -60,7 +62,7 @@ How this repository is engineered. Internalize before writing any code:
 - `.ai-memory/memory/07-pipeline-diagnostics-and-telemetry.md`, why: pipeline diagnostics (`pe`/`pea`), traceback extractors, failure heatmaps, and automated 4-part RCA engine.
 - `.ai-memory/memory/08-distribution-installers-and-release.md`, why: NSIS Windows installers, Linux archives, cross-platform runners (`run.ps1`/`run.sh`), and release ceremony.
 - `.ai-memory/coding-guidelines.md`, why: baseline rules and coding standards.
-- `.ai-memory/plans/readme.md`, why: active roadmap, pending tasks, and the 18 consolidated milestone registries.
+- `.ai-memory/plans/readme.md`, why: active roadmap, pending tasks, and the 32 consolidated milestone registries.
 
 ## Before writing code
 
