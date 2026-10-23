@@ -56,24 +56,59 @@ func printCommandVersionFooter() {
 
 // execGitPaddedFiltered runs a git command, filters noise lines, and indents lines by 4 spaces.
 func execGitPaddedFiltered(gitArgs ...string) error {
+	_, err := execGitPaddedFilteredCapture(gitArgs...)
+	return err
+}
+
+// execGitPaddedFilteredCapture behaves like execGitPaddedFiltered but also
+// returns the filtered output, so a caller can attach git's own explanation
+// to the error it reports instead of a bare exit code.
+func execGitPaddedFilteredCapture(gitArgs ...string) (string, error) {
 	cmd := exec.Command("git", gitArgs...)
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return cmd.Run()
+		return "", cmd.Run()
 	}
 
 	cmd.Stderr = cmd.Stdout
 	if err := cmd.Start(); err != nil {
-		return err
+		return "", err
 	}
 
-	scanPaddedFiltered(pipe)
+	captured := scanPaddedFilteredCollect(pipe)
 
-	return cmd.Wait()
+	return captured, cmd.Wait()
+}
+
+// gitErrorWithOutput wraps err with the last lines of captured git output so
+// the failure names git's actual reason (e.g. a rejected push or a hook
+// failure) rather than only "exit status 1".
+func gitErrorWithOutput(err error, captured string) error {
+	if err == nil {
+		return nil
+	}
+	var tail []string
+	for _, line := range strings.Split(captured, "\n") {
+		if trimmed := strings.TrimSpace(line); trimmed != "" {
+			tail = append(tail, trimmed)
+		}
+	}
+	if len(tail) == 0 {
+		return err
+	}
+	if len(tail) > 3 {
+		tail = tail[len(tail)-3:]
+	}
+	return fmt.Errorf("%w — git said: %s", err, strings.Join(tail, " | "))
 }
 
 func scanPaddedFiltered(r io.Reader) {
+	scanPaddedFilteredCollect(r)
+}
+
+func scanPaddedFilteredCollect(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
+	var kept []string
 	for scanner.Scan() {
 		line := scanner.Text()
 		if isGitNoiseLine(line) {
@@ -81,7 +116,10 @@ func scanPaddedFiltered(r io.Reader) {
 		}
 
 		fmt.Printf("    %s\n", line)
+		kept = append(kept, line)
 	}
+
+	return strings.Join(kept, "\n")
 }
 
 // renderCommitPushSummaryCard renders a boxed completion summary card in the terminal.
