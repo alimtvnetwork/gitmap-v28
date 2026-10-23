@@ -97,7 +97,11 @@ func probeWithRetry(ctx context.Context, addr string, timeout time.Duration) (ne
 	if err == nil {
 		return conn, nil
 	}
+	if timeout < 1000*time.Millisecond {
+		return nil, err
+	}
 	retryDialer := net.Dialer{Timeout: 1500 * time.Millisecond}
+
 	return retryDialer.DialContext(ctx, "tcp", addr)
 }
 

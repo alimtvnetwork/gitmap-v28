@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -123,7 +124,7 @@ func resolveLocalGitmapExecutable() string {
 }
 
 func executeRemoteNodePull(c db.SSHConnection, concurrencyFlags []string) FleetNodePullOutcome {
-	isOnline, _ := CheckConnLiveness(context.Background(), c.IPAddress, 22, 0)
+	isOnline, _ := CheckConnLiveness(context.Background(), c.IPAddress, 22, 500*time.Millisecond)
 	if !isOnline {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "offline: node unreachable")
 	}
@@ -133,9 +134,11 @@ func executeRemoteNodePull(c db.SSHConnection, concurrencyFlags []string) FleetN
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, "connection or auth failed")
 	}
 	defer client.Close()
-	ensureRemoteNodeGitmap(client, c)
-	remoteCmd := buildRemoteFleetPullCmd(concurrencyFlags)
-	out, err := runRemotePullJSON(client, c, remoteCmd)
+	osType := resolveTargetNodeOSFast(client, c)
+	ensureRemoteNodeGitmapFast(client, c, osType)
+	remoteCmd := buildRemoteFleetPullCmd(osType, concurrencyFlags)
+	shellType := resolveRemoteShell(osType)
+	out, err := runRemotePullJSON(client, c, remoteCmd, shellType)
 	if err != nil && len(out) == 0 {
 		return buildFailedFleetOutcome(c.Alias, c.IPAddress, false, err.Error())
 	}
@@ -143,14 +146,33 @@ func executeRemoteNodePull(c db.SSHConnection, concurrencyFlags []string) FleetN
 	return parseFleetPullOutcome(c.Alias, c.IPAddress, false, out)
 }
 
-func buildRemoteFleetPullCmd(concurrencyFlags []string) string {
-	prefix := "$env:GCM_CREDENTIAL_STORE='none'; $env:GCM_NO_PERSIST='1'; $env:GITMAP_HEADLESS_SSH='1'; "
+func resolveTargetNodeOSFast(client *ssh.Client, c db.SSHConnection) string {
+	if c.OS != "" {
+		return c.OS
+	}
+
+	return resolveTargetNodeOS(client, c)
+}
+
+func ensureRemoteNodeGitmapFast(client *ssh.Client, c db.SSHConnection, osType string) {
+	if c.BuildVersion != "" && CompareSemverStrings(c.BuildVersion, "6.349.0") >= 0 {
+		return
+	}
+	ensureRemoteNodeGitmap(client, c)
+}
+
+func buildRemoteFleetPullCmd(osType string, concurrencyFlags []string) string {
 	cmd := "gitmap pa --json"
 	if len(concurrencyFlags) > 0 {
 		cmd += " " + strings.Join(concurrencyFlags, " ")
 	} else {
-		cmd += " --parallel 2"
+		cmd += " --parallel 4"
 	}
+	if strings.EqualFold(osType, "windows") {
+		prefix := "$env:GCM_CREDENTIAL_STORE='none'; $env:GCM_NO_PERSIST='1'; $env:GITMAP_HEADLESS_SSH='1'; "
+		return prefix + cmd
+	}
+	prefix := "export GCM_CREDENTIAL_STORE=none GCM_NO_PERSIST=1 GITMAP_HEADLESS_SSH=1 && "
 
 	return prefix + cmd
 }
@@ -181,14 +203,15 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 	return osType
 }
 
-func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string) (string, error) {
-	out, err := secrets.RunCommand(client, remoteCmd, "")
+func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd string, shellType string) (string, error) {
+	out, err := secrets.RunCommand(client, remoteCmd, shellType)
 	if strings.Contains(out, "flag provided but not defined: -json") {
 		return handleLegacyRemotePull(client, c, remoteCmd)
 	}
 	if strings.Contains(out, "pending task already exists for pa") {
 		return recoverRemotePendingTask(client, out, remoteCmd)
 	}
+
 	return out, err
 }
 

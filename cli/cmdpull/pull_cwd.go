@@ -20,11 +20,11 @@ import (
 )
 
 func isPullCWDEnabled(opts pullOptions) bool {
-	if hasExplicitPullTarget(opts) {
-		return false
+	if opts.slug == "." || opts.slug == "cwd" {
+		return isGitRepoCWD()
 	}
 
-	return isGitRepoCWD()
+	return false
 }
 
 func isGitRepoCWD() bool {
@@ -201,7 +201,7 @@ func resolvePullBatchRecords(opts pullOptions) ([]model.ScanRecord, bool) {
 	if hasExplicitPullTarget(opts) {
 		return resolveExplicitPullTargets(opts)
 	}
-	records := discoverCWDPullRecords()
+	records := loadAllRecordsDB()
 	if len(records) == 0 {
 		handleNoTrackedReposInCWD()
 

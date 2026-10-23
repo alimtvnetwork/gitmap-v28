@@ -72,7 +72,7 @@ func probeFleetLiveness(conns []db.SSHConnection) []fleetNodeLiveness {
 				}
 				return
 			}
-			isOnline, _ := CheckConnLiveness(context.Background(), targetConn.IPAddress, 22, 0)
+			isOnline, _ := CheckConnLiveness(context.Background(), targetConn.IPAddress, 22, 500*time.Millisecond)
 			ver := "unknown"
 			if isOnline {
 				ver = queryFleetNodeVersion(targetConn)
@@ -132,15 +132,16 @@ func resolveLocalHostname() string {
 }
 
 func queryFleetNodeVersion(c db.SSHConnection) string {
+	if c.BuildVersion != "" {
+		return cleanFleetVersionString(c.BuildVersion)
+	}
 	if ver := tryRESTNodeVersion(c.IPAddress); ver != "" {
 		return ver
 	}
 	if ver := tryQuickSSHProbe(c); ver != "" {
 		return ver
 	}
-	if c.BuildVersion != "" {
-		return cleanFleetVersionString(c.BuildVersion)
-	}
+
 	return "unknown"
 }
 
@@ -149,7 +150,7 @@ func tryRESTNodeVersion(ip string) string {
 		fmt.Sprintf("http://%s:49152/api/v1/version", ip),
 		fmt.Sprintf("http://%s:49152/api/v1/status", ip),
 	}
-	client := http.Client{Timeout: 1500 * time.Millisecond}
+	client := http.Client{Timeout: 300 * time.Millisecond}
 	for _, u := range endpoints {
 		resp, err := client.Get(u)
 		if err != nil {
@@ -202,7 +203,7 @@ func tryQuickSSHProbe(c db.SSHConnection) string {
 	select {
 	case res := <-ch:
 		return res.ver
-	case <-time.After(1500 * time.Millisecond):
+	case <-time.After(800 * time.Millisecond):
 		return ""
 	}
 }

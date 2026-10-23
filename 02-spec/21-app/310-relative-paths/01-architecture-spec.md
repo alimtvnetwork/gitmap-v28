@@ -13,11 +13,11 @@ Hardcoded absolute paths compromise cross-platform interoperability, pollute ver
 ## 2. In-Scope Files & Target Violations
 The initial automated audit identified 5 files containing absolute paths and `file:///` URIs:
 1. `.ai-memory/plans/completed/297-result-wrapper-stutter-eradication.md`:
-   - Line 93: Hardcoded absolute path `@[d:\work\gitmap\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
+   - Line 93: Hardcoded absolute path `@[<absolute-root>\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
 2. `02-spec/21-app/298-result-wrapper-slice-collection-and-apperror/01-architecture-spec.md`:
-   - Line 5: Hardcoded absolute path `@[d:\work\gitmap\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
+   - Line 5: Hardcoded absolute path `@[<absolute-root>\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
 3. `02-spec/21-app/299-result-wrapper-store-ssh-and-templates/01-architecture-spec.md`:
-   - Line 5: Hardcoded absolute path `@[d:\work\gitmap\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
+   - Line 5: Hardcoded absolute path `@[<absolute-root>\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]` &rarr; replace with `@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]`.
 4. `cli/helpdoc/devtool.md`:
    - Line 3: URI link `(file:///cli/helptext/devtools.md)` &rarr; replace with relative link `(cli/helptext/devtools.md)`.
 5. `cli/helpdoc/pulle.md`:

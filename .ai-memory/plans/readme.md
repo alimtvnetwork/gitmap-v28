@@ -8,7 +8,8 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
-- [310-relative-paths.md](pending/310-relative-paths.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Spec: [310-relative-paths](../../02-spec/21-app/310-relative-paths/01-architecture-spec.md)) (Status: `in_progress`)
+- [311-pull-all-workspaces-and-ssh-fleet-speed.md](completed/311-pull-all-workspaces-and-ssh-fleet-speed.md) — Plan 311: Workspace-Wide Default Pull & Accelerated SSH Fleet Remote Execution (Spec: [311-pull-all-workspaces-and-ssh-fleet-speed](../../02-spec/21-app/311-pull-all-workspaces-and-ssh-fleet-speed/01-architecture-spec.md)) (Status: `completed`)
+- [310-relative-paths.md](pending/310-relative-paths.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Spec: [310-relative-paths](../../02-spec/21-app/310-relative-paths/01-architecture-spec.md)) (Status: `completed`)
 
 - [gitmap-enhancement-and-issue-resolution.md](gitmap-enhancement-and-issue-resolution.md) — GitMap Enhancement and Issue Resolution: Database Read Introspection & 5-10s Metadata Cache, Visualizer UI Binary Cell Formatting & Drawer, Storytelling-v1 README Casing Remediation & Repo-Cache Recipe, Remote Node Clone GitHub Desktop & VS Code Registration, Remote SSH WinCredMan Resolution, and Machine Set Interactive Prompt (Spec: [gitmap-enhancement-and-issue-resolution](../../02-spec/21-app/gitmap-enhancement-and-issue-resolution/01-architecture-spec.md)) (Status: `active`)
 

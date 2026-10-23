@@ -27,7 +27,8 @@ Each domain cluster represents the authoritative, consolidated specification for
 
 The following application specification records the active feature development and consolidation milestone:
 
-- [310-relative-paths](310-relative-paths/01-architecture-spec.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Status: `in_progress`)
+- [311-pull-all-workspaces-and-ssh-fleet-speed](311-pull-all-workspaces-and-ssh-fleet-speed/01-architecture-spec.md) — Plan 311: Workspace-Wide Default Pull & Accelerated SSH Fleet Remote Execution (Status: `completed`)
+- [310-relative-paths](310-relative-paths/01-architecture-spec.md) — Plan 310: Strict Relative Git Paths & Absolute Path Elimination (Status: `completed`)
 
 - [gitmap-enhancement-and-issue-resolution](gitmap-enhancement-and-issue-resolution/00-overview.md) — GitMap Enhancement and Issue Resolution: Database Read Introspection & 5-10s Metadata Cache, Visualizer UI Binary Cell Formatting & Drawer, Storytelling-v1 README Casing Remediation & Repo-Cache Recipe, Remote Node Clone GitHub Desktop & VS Code Registration, Remote SSH WinCredMan Resolution, and Machine Set Interactive Prompt (Specs: [Overview](gitmap-enhancement-and-issue-resolution/00-overview.md), [Architecture](gitmap-enhancement-and-issue-resolution/01-architecture-spec.md), [Component](gitmap-enhancement-and-issue-resolution/02-component-spec.md), [Consistency](gitmap-enhancement-and-issue-resolution/99-consistency-report.md)) (Status: `active`)
 

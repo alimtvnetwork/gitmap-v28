@@ -51,15 +51,7 @@ func printHeaderUnlessJSON(isPullAll bool, args []string) {
 }
 
 func isCWDTransportEligible(isPullAll, useSSH, useHTTPS bool) bool {
-	if isPullAll {
-		return false
-	}
-	hasTransport := useSSH || useHTTPS
-	if !hasTransport {
-		return false
-	}
-
-	return isGitRepoCWD()
+	return false
 }
 
 func checkPullHelp(isPullAll bool, args []string) {
@@ -162,6 +154,9 @@ func hasJSONArg(args []string) bool {
 func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions {
 	opts := parsePullFlags(args)
 	opts = applyTransportOptions(opts, useSSH, useHTTPS)
+	if opts.slug == "" && opts.group == "" {
+		opts.all = true
+	}
 	if isPullAllTableRootCmd() {
 		opts.all = true
 		opts.showStatus = true

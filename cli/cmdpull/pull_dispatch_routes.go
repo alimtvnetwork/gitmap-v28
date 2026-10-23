@@ -74,15 +74,15 @@ func isPullAllToken(token string) bool {
 }
 
 func printPullInvocationHeader(isPullAll bool) {
-	cwd, _ := os.Getwd()
 	cmdName := "pull"
+	scope := "(all workspaces)"
 	if isPullAll {
 		cmdName = "pull-all"
 	}
-	fmt.Printf("\n  %s→%s %sgitmap %s%s %s(cwd: %s)%s\n",
+	fmt.Printf("\n  %s→%s %sgitmap %s%s %s%s%s\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorBold, cmdName, constants.ColorReset,
-		constants.ColorDim, cwd, constants.ColorReset)
+		constants.ColorDim, scope, constants.ColorReset)
 }
 
 func resolveSubArrow() string {
