@@ -6,9 +6,9 @@ import (
 )
 
 type (
-	PEFormatProfileSlice       = []PEFormatProfile
-	PEFormatProfileSliceWrap   = result.WrapSlice[PEFormatProfile]
-	PipelineSyncResultWrap     = result.Wrap[*PipelineSyncResult]
+	PEFormatProfileSlice     = []PEFormatProfile
+	PEFormatProfileSliceWrap = result.WrapSlice[PEFormatProfile]
+	PipelineSyncResultWrap   = result.Wrap[*PipelineSyncResult]
 
 	SaveParsedFailedJobsParams struct {
 		DB      *pipelinedb.PipelineSplitDb

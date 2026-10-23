@@ -364,7 +364,6 @@ func truncateClip(text string, width int) string {
 	return slicePrefixRunes([]rune(text), width)
 }
 
-
 func alignPaddedCell(truncated string, padLen int, align AlignmentType) string {
 	if align == AlignRight {
 		return SpacePool(padLen) + truncated

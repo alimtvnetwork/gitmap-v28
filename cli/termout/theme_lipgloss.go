@@ -248,5 +248,3 @@ func renderStyledHeader(upperTitle string) string {
 
 	return style.Render(upperTitle)
 }
-
-

@@ -161,5 +161,3 @@ func assembleLeftEllipsis(text string, maxWidth int) string {
 
 	return "..." + suffix
 }
-
-

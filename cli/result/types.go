@@ -62,4 +62,3 @@ type (
 	// WrapMap is a canonical single reusable alias for ResultMap[K, V].
 	WrapMap[K comparable, V any] = ResultMap[K, V]
 )
-

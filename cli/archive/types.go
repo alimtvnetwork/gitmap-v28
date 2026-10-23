@@ -154,6 +154,6 @@ type BoolResult = result.BoolResult
 
 type (
 	ArchiveFileInfoSliceWrap = result.WrapSlice[archives.FileInfo]
-	EntrySliceWrap         = result.WrapSlice[Entry]
-	CreateResultWrap       = result.Wrap[CreateResult]
+	EntrySliceWrap           = result.WrapSlice[Entry]
+	CreateResultWrap         = result.Wrap[CreateResult]
 )

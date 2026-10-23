@@ -96,4 +96,3 @@ func executeTouchInserts(tx *sql.Tx, touches []store.FileTouchCount) *apperror.A
 
 	return nil
 }
-

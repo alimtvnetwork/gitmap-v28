@@ -349,5 +349,3 @@ func (h *HeatmapDB) GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary,
 		OtherCount:   other,
 	}, nil
 }
-
-

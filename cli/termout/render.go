@@ -186,7 +186,6 @@ func PrintKeyValuePair(key, val string, keyWidth int, theme Theme) {
 	fmt.Fprintln(output.UI(), FormatKeyValuePair(key, val, keyWidth, theme))
 }
 
-
 // FormatSectionDivider builds a horizontal subtle line divider with an optional title.
 func FormatSectionDivider(title string, theme Theme) string {
 	trimmed := strings.TrimSpace(title)
@@ -234,4 +233,3 @@ func resolveDividerTitleColor(theme Theme) string {
 func PrintSectionDivider(title string, theme Theme) {
 	fmt.Fprintln(output.UI(), FormatSectionDivider(title, theme))
 }
-

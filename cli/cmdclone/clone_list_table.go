@@ -85,7 +85,6 @@ func buildCloneTableRows(records []model.ScanRecord, targetDir string, isSSH boo
 	return rows
 }
 
-
 func resolveRecordMethodAndURL(r model.ScanRecord, isSSH bool) (string, string) {
 	rawURL := resolveRecordRemoteURL(r)
 	if isSSH {

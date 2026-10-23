@@ -73,4 +73,3 @@ type TableConfig struct {
 	WrapMode     WrapModeType
 	EllipsisText string
 }
-

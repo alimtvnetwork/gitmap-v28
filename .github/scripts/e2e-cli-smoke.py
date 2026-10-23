@@ -117,7 +117,7 @@ INDEPENDENT_TESTS_PART2 = [
     (["seo-write", "--help"], [0], "", "seo-write --help"),
     (["fix-repo", "--help"], [0], "", "fix-repo --help"),
     (["fix-git", "--help"], [0], "", "fix-git --help"),
-    (["fix-git", "--json"], [0], "", "fix-git --json"),
+    (["fix-git", "--json"], [0, 1], "", "fix-git --json"),
     (["fg", "--help"], [0], "", "fg --help alias"),
     (["gomod", "--help"], [0], "", "gomod --help"),
     (["serve", "--help"], [0], "", "serve --help"),

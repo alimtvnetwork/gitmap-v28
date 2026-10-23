@@ -58,7 +58,7 @@ func runBinaryDownloadAndSwap(ui UpdateUIRenderer, opts UpdateOptions, cand *Rel
 	}
 	defer os.RemoveAll(stageDir)
 
-	archive, checksum, errDown := downloadReleaseStaging(cand, stageDir, ui)
+	archive, checksum, engine, errDown := downloadReleaseStaging(cand, stageDir, ui)
 	if errDown != nil {
 		ui.OnStageFail(StageDownloading, errDown)
 		return errDown
@@ -69,7 +69,7 @@ func runBinaryDownloadAndSwap(ui UpdateUIRenderer, opts UpdateOptions, cand *Rel
 	if errSwap := swapReleaseBinary(ui, archive, stageDir); errSwap != nil {
 		return errSwap
 	}
-	return finalizeUpdate(ui, opts, cand, start)
+	return finalizeUpdate(ui, opts, cand, start, engine)
 }
 
 func resolveCandidateWithUI(ui UpdateUIRenderer, opts UpdateOptions) (*ReleaseCandidate, error) {
@@ -115,7 +115,7 @@ func swapReleaseBinary(ui UpdateUIRenderer, archive, stageDir string) error {
 	return nil
 }
 
-func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandidate, start time.Time) error {
+func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandidate, start time.Time, engine string) error {
 	if cand == nil {
 		return apperror.NewValidationError("release candidate cannot be nil")
 	}
@@ -126,10 +126,13 @@ func finalizeUpdate(ui UpdateUIRenderer, opts UpdateOptions, cand *ReleaseCandid
 	if runtime.GOOS == "windows" {
 		bin += ".exe"
 	}
+	if engine == "" {
+		engine = downloadEngineSingle
+	}
 	res := UpdateResult{
 		Success: true, Status: "updated", PreviousVersion: FormatVersionTag(constants.Version),
 		CurrentVersion: FormatVersionTag(cand.Tag), TargetTag: FormatVersionTag(cand.Tag),
-		InstallDir: dir, BinaryPath: filepath.Join(dir, bin), DownloaderEngine: "go_http",
+		InstallDir: dir, BinaryPath: filepath.Join(dir, bin), DownloaderEngine: engine,
 		DownloadBytes: cand.AssetSize, DurationMs: dur.Milliseconds(), FallbackDepth: cand.FallbackDepth,
 		IsCached: cand.IsCached, ScriptsUpdated: syncLocalRunnerScripts(dir, cand.Tag),
 	}
@@ -159,19 +162,29 @@ func resolveBinaryReleaseCandidate(opts UpdateOptions) (*ReleaseCandidate, error
 	return cand, nil
 }
 
-func downloadReleaseStaging(cand *ReleaseCandidate, stageDir string, ui UpdateUIRenderer) (string, string, error) {
+func downloadReleaseStaging(cand *ReleaseCandidate, stageDir string, ui UpdateUIRenderer) (string, string, string, error) {
 	name := filepath.Base(cand.AssetURL)
-	ui.OnStageStart(StageDownloading, fmt.Sprintf("Downloading %s via go_http...", name))
+	ui.OnStageStart(StageDownloading, fmt.Sprintf("Downloading %s...", name))
 	archPath := filepath.Join(stageDir, name)
-	if err := downloadHTTP(cand.AssetURL, archPath, MakeProgressCallback(ui)); err != nil {
-		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadArchive", "E1138", "failed download", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.AssetURL})
-	}
 	chkPath := filepath.Join(stageDir, "checksums.txt")
-	if err := downloadHTTP(cand.ChecksumURL, chkPath, nil); err != nil {
-		return "", "", apperror.WrapWithDetails(err, "cmd.update.downloadChecksum", "E1139", "failed checksums.txt", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.ChecksumURL})
+
+	// checksums.txt is a tiny independent input to the verify stage, so it
+	// is fetched concurrently with the archive instead of serializing a
+	// second round trip behind the (much larger) archive transfer.
+	chkErr := make(chan error, 1)
+	go func() {
+		chkErr <- downloadHTTP(cand.ChecksumURL, chkPath, nil)
+	}()
+
+	engine, errArch := downloadArchiveFast(cand.AssetURL, archPath, cand.AssetSize, MakeProgressCallback(ui))
+	if errArch != nil {
+		return "", "", "", apperror.WrapWithDetails(errArch, "cmd.update.downloadArchive", "E1138", "failed download", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.AssetURL})
 	}
-	ui.OnStageSuccess(StageDownloading, fmt.Sprintf("Downloaded %s (%.1f MB)", name, float64(cand.AssetSize)/(1024*1024)))
-	return archPath, chkPath, nil
+	if errChk := <-chkErr; errChk != nil {
+		return "", "", "", apperror.WrapWithDetails(errChk, "cmd.update.downloadChecksum", "E1139", "failed checksums.txt", "cmdupdate", apperror.ErrorTypeExecution, apperror.SeverityError, map[string]any{"url": cand.ChecksumURL})
+	}
+	ui.OnStageSuccess(StageDownloading, fmt.Sprintf("Downloaded %s (%.1f MB) via %s", name, float64(cand.AssetSize)/(1024*1024), engine))
+	return archPath, chkPath, engine, nil
 }
 
 func verifyBinaryChecksum(archivePath, checksumPath, expectedAssetName string) (bool, error) {
@@ -246,11 +259,21 @@ func extractTarGzBinary(archivePath, extractDir string) (string, error) {
 			break
 		}
 		name := filepath.Base(filepath.Clean(h.Name))
-		if name == "gitmap" || name == "gitmap.exe" {
+		if isReleaseBinaryName(name) {
 			return writeExtractedBinary(tr, filepath.Join(extractDir, name+".new"))
 		}
 	}
 	return "", apperror.NewSimple("gitmap binary not found in tar", "E1148")
+}
+
+// isReleaseBinaryName reports whether a tar entry is the gitmap binary.
+// Official release archives carry the versioned asset name
+// (gitmap-v<version>-<os>-<arch>) because release.yml tars the built file
+// under its own name; hand-built archives may carry the bare name. Only
+// matching the bare names made every tar-based self-update fail with
+// E1148 (spec 311-04).
+func isReleaseBinaryName(name string) bool {
+	return name == "gitmap" || name == "gitmap.exe" || strings.HasPrefix(name, "gitmap-")
 }
 
 func writeExtractedBinary(r io.Reader, target string) (string, error) {

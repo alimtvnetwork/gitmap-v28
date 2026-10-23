@@ -71,22 +71,22 @@ type CIWorkflowRunInfo struct {
 
 // ReleaseTagAuditRecord contains the complete audit diagnosis for a single tag.
 type ReleaseTagAuditRecord struct {
-	Tag                   string              `json:"tag"`
-	CommitSha             string              `json:"commitSha"`
-	HasLocalTag           bool                `json:"hasLocalTag"`
-	HasRemoteTag          bool                `json:"hasRemoteTag"`
-	HasGitHubRelease      bool                `json:"hasGitHubRelease"`
-	IsDraft               bool                `json:"isDraft"`
-	HasAssets             bool                `json:"hasAssets"`
-	AssetCount            int                 `json:"assetCount"`
-	Assets                []ReleaseAssetInfo  `json:"assets,omitempty"`
-	HasChecksumFile       bool                `json:"hasChecksumFile"`
-	HasBinaryArchives     bool                `json:"hasBinaryArchives"`
-	WorkflowRuns          []CIWorkflowRunInfo `json:"workflowRuns,omitempty"`
-	AuditReason           AuditReasonType     `json:"auditReason"`
+	Tag                   string               `json:"tag"`
+	CommitSha             string               `json:"commitSha"`
+	HasLocalTag           bool                 `json:"hasLocalTag"`
+	HasRemoteTag          bool                 `json:"hasRemoteTag"`
+	HasGitHubRelease      bool                 `json:"hasGitHubRelease"`
+	IsDraft               bool                 `json:"isDraft"`
+	HasAssets             bool                 `json:"hasAssets"`
+	AssetCount            int                  `json:"assetCount"`
+	Assets                []ReleaseAssetInfo   `json:"assets,omitempty"`
+	HasChecksumFile       bool                 `json:"hasChecksumFile"`
+	HasBinaryArchives     bool                 `json:"hasBinaryArchives"`
+	WorkflowRuns          []CIWorkflowRunInfo  `json:"workflowRuns,omitempty"`
+	AuditReason           AuditReasonType      `json:"auditReason"`
 	ProtectionStatus      ProtectionStatusType `json:"protectionStatus"`
-	IsProtected           bool                `json:"isProtected"`
-	IsEligibleForDeletion bool                `json:"isEligibleForDeletion"`
+	IsProtected           bool                 `json:"isProtected"`
+	IsEligibleForDeletion bool                 `json:"isEligibleForDeletion"`
 }
 
 // StepExecutionResult tracks the outcome of an individual deletion step.
