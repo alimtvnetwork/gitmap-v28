@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -46,14 +47,15 @@ func attachExecutionDuration(payload *PipelineErrorLogsPayload) {
 }
 
 func formatExecutionDuration(d time.Duration) string {
-	if d < time.Second {
-		ms := d.Milliseconds()
-		if ms <= 0 {
-			ms = 1
-		}
-		return fmt.Sprintf("%dms", ms)
+	if d >= time.Second {
+		return fmt.Sprintf("%.2fs", d.Seconds())
 	}
-	return fmt.Sprintf("%.2fs", d.Seconds())
+	ms := d.Milliseconds()
+	if ms <= 0 {
+		ms = 1
+	}
+
+	return fmt.Sprintf("%dms", ms)
 }
 
 func matchArgCommandTag(arg string) string {
@@ -146,13 +148,18 @@ func maybeDispatchAgyFix(params ErrorLogOutputParams) error {
 	return nil
 }
 
+func copyContentToClipboardWithWarning(content string) {
+	if !isClipboardWriteAllowed(false) {
+		return
+	}
+	if err := writeClipboard(content); err != nil {
+		fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
+	}
+}
+
 func outputJSONErrorLogs(content string) error {
 	fmt.Println(content)
-	if isClipboardWriteAllowed(false) {
-		if err := writeClipboard(content); err != nil {
-			fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
-		}
-	}
+	copyContentToClipboardWithWarning(content)
 
 	return nil
 }
@@ -168,11 +175,7 @@ func printSuppressedStagingNotice(reportFile string) {
 }
 
 func writeErrorLogsToDisk(params ErrorLogOutputParams, content string) error {
-	if isClipboardWriteAllowed(false) {
-		if err := writeClipboard(content); err != nil {
-			fmt.Fprintf(os.Stderr, "  Warning: could not copy to clipboard: %v\n", err)
-		}
-	}
+	copyContentToClipboardWithWarning(content)
 
 	defer printTimingBanner(params.Payload)
 	if len(params.TempFile) > 0 {

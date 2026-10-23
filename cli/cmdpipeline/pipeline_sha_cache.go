@@ -53,11 +53,12 @@ func resolveTargetShaFast(repo string, flags PipelineErrorFlags) string {
 		return flags.CommitTarget
 	}
 
+	resolved := ""
 	if len(flags.CommitTarget) > 0 {
-		resolved := resolveTargetCommitCandidate(flags.CommitTarget)
-		if len(resolved) > 0 {
-			return resolved
-		}
+		resolved = resolveTargetCommitCandidate(flags.CommitTarget)
+	}
+	if len(resolved) > 0 {
+		return resolved
 	}
 
 	if sha := fastResolveHeadCommitSha(repo); len(sha) > 0 {
@@ -68,15 +69,15 @@ func resolveTargetShaFast(repo string, flags PipelineErrorFlags) string {
 }
 
 func fastResolveHeadCommitSha(repo string) string {
-	if !isCurrentRepoMatch(repo) {
-		repoDir := findLocalRepoDirForSlug(repo)
-		if len(repoDir) == 0 {
-			return ""
-		}
-		return readGitHeadSha(repoDir)
+	if isCurrentRepoMatch(repo) {
+		return readGitHeadSha(".")
+	}
+	repoDir := findLocalRepoDirForSlug(repo)
+	if len(repoDir) == 0 {
+		return ""
 	}
 
-	return readGitHeadSha(".")
+	return readGitHeadSha(repoDir)
 }
 
 func readGitHeadSha(dir string) string {
