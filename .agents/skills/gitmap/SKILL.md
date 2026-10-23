@@ -38,6 +38,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
 | ❌ Python or ad-hoc SQLite scripts (`python -c "import sqlite3..."`), `sqlite3` CLI, DB browser tools | ✅ `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` | Compiled native Go SQLite exploration, mutation, view join, REST API server with Swagger UI & visualizer dashboard, and database lifecycle management. |
 | ❌ Ad-hoc Python network scrapers or image link extractors (e.g. `python -c "import urllib.request, re..."`, `fetch_urls.py`, curl pipes to scrape `prnt.sc`/lightshot/screenshot URLs) | ✅ `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (aliases: `gitmap download-prnt`, `gitmap asset download-prnt`) | Native compiled parallel fetching, multi-tier CDN regex resolution, User-Agent emulation, zero external dependencies, and automatic bidirectional Antigravity Brain synchronization. |
+| ❌ Raw `curl`, `wget`, `Invoke-WebRequest`, or custom Python/Go HTTP fetchers for web resources | ✅ `gitmap url read <url>` (aliases: `gitmap url <url>`, `gitmap get <url>`) | Dedicated SQLite Split-DB (`repodb/url_cache.db`), WAL mode, sub-millisecond retrieval (<0.5ms), unbuffered `output.Raw()` streaming, SHA-256 caching. TOTAL BAN on raw curl/wget. |
+| ❌ Single-stream downloads for files $\ge 1\text{--}2\text{ MB}$ | ✅ GitMap 10-split segmented parallel download engine with `aria2c` fallback | Dynamic $\ge 1\text{--}2\text{ MB}$ threshold; host `aria2c -s 10 -x 10 -k 5K` or native Go 10-goroutine Range worker pool writing via `io.NewOffsetWriter` with 5KB chunking. |
+| ❌ Grepping repository filesystem or guessing past agent decisions | ✅ `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` | 3-tier database inventory, alias mappings via `db.ListAliasesWithRepo()`, recent tasks across 2–5 repos, dynamic suggestion pills. TOTAL BAN on filesystem grepping for agent traces. |
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 
 ---
@@ -152,11 +155,12 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 ### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
 - `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.
 - `gitmap llm train muse [--days <N>]` (aliases: `gitmap train muse`, `gitmap train-muse`, `gitmap llm-train-muse`) — Synchronize Muse N-day memory digest from `repo-cache` (fallback `repo-secrets`), diff against watermark commit, output AI traversal checklist for sequential memory reading, and reconstitute `chat-seeds`.
+- `gitmap llm train --heatmap <path|url>` (aliases: `gitmap train --heatmap`, `gitmap llm-train --heatmap`) — Ingests cognitive decision traces from local SQLite heatmap databases or remote REST endpoints into LLM training curriculum. Supports `--heatmap-repo <slug>` and `--heatmap-task <slug>`.
 - `gitmap llm train --loop` / `gitmap llm train --self-loop <N>` — Autonomous self-looping flags executing continuous 6-phase AI self-looping execution cycles.
 - `gitmap llm train --heal-apply <stash|wip|discard>` — Non-interactively applies git-state remediation recipes during Phase 6a.
 - `gitmap llm train --skill-path <path>` — Target filesystem path for writing the generated skill markdown file (default: `.agents/skills/gitmap/skill.md`).
 - `gitmap llm train --text-only` — Outputs curriculum text to stdout without writing skill file to disk.
-- `gitmap llm train --urls` — Outputs the 7 authoritative public documentation registry links for LLM ingestion.
+- `gitmap llm train --urls` — Outputs the 8 authoritative public documentation registry links for LLM ingestion.
 - `gitmap llm train --url` — Outputs raw public URL to `llm.md` specification.
 - `gitmap llm train -j` / `gitmap llm train --json` — Emits structured machine-readable JSON curriculum and document metadata.
 - `gitmap llm-docs` (alias: `gitmap ld`) — Consolidated markdown command matrix reference for LLMs.
@@ -166,12 +170,15 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | Flag | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `--days <N>` | `int` | `7` | Sets memory digest inspection window in days for agent targets (e.g. `gitmap llm train muse --days 7`). |
+| `--heatmap <path\|url>` | `string` | `""` | Path to local SQLite heatmap database or remote HTTP(S) URL for cognitive decision trace ingestion. |
+| `--heatmap-repo <slug>` | `string` | `""` | Filters heatmap training actions by repository slug. |
+| `--heatmap-task <slug>` | `string` | `""` | Filters heatmap training actions by task slug. |
 | `--loop` | `bool` | `false` | Triggers continuous autonomous 6-phase AI self-looping execution cycles. |
 | `--self-loop <N>` | `int` | `0` | Specifies exact number of consecutive iterations for AI self-loop. |
 | `--heal-apply <recipe>` | `string` | `""` | Non-interactively applies git-state remediation recipes during Phase 6a (`stash`, `wip`, `discard`). |
 | `--skill-path <path>` | `string` | `.agents/skills/gitmap/skill.md` | Target filesystem path for writing generated skill markdown file. |
 | `--text-only` | `bool` | `false` | Emits complete curriculum text to stdout without writing files to disk. |
-| `--urls` | `bool` | `false` | Outputs complete 7-document Authoritative Public Documentation Registry for LLM memory ingestion. |
+| `--urls` | `bool` | `false` | Outputs complete 8-document Authoritative Public Documentation Registry for LLM memory ingestion. |
 | `-j`, `--json` | `bool` | `false` | Emits structured machine-readable JSON curriculum and document metadata. |
 
 ### 9. Multi-Repo, Cluster & Toolchain Operations
@@ -331,6 +338,8 @@ Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers)
 - `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
 ### 12. File Contention Heatmap, Cognitive Telemetry & Agent Activity Observation
+- `gitmap heatmap` — **Heatmap Database Discovery Catalog**: Surveys all 3 tiers of heatmap databases (local root `<EffectiveDataDir>/heatmap.db`, per-repo split DBs `<EffectiveDataDir>/heatmap/<repo>/sql.db`, and repo-cache multi-AI DBs `repo-cache/.heatmap/<seq>-<ai>/`), maps registered repository aliases via `db.ListAliasesWithRepo()`, aggregates recent tasks across 2–5 repositories (minimum 5 tasks), and provides dynamic interactive AI suggestion pills.
+- `gitmap heatmap --repo <alias>` / `gitmap rc heatmap [--repo <alias>]` — Repository-scoped heatmap discovery and companion database inspection with alias enrichment and action rollups.
 - `gitmap heatmap log --json '{"task":"<task-slug>","action":"READ|EDIT","file":"<path>","state":"<STATE>","expected":"<goal>","model":"<model>","tool":"<tool>"}'` — **One-shot JSON payload ingestion** logging granular file touches, cognitive reasoning states, expected outcomes, and AI provenance directly into `.ai-memory/heatmap.db`. Eliminates shell quoting failures and escapes.
 - `gitmap heatmap log --task <task> --action <action> --file <file> --state <state> --expected "<goal>" [--model <name>] [--tool <name>]` — Classical CLI flag ingestion with explicit AI provenance attribution.
 - `gitmap heatmap update --id <id> --outcome "<outcome>" --met <true|false>` — Updates logged action with final outcome and verified expectation status.
@@ -437,6 +446,23 @@ gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoR
 - `gitmap prnt <url1> <url2>... -e` (or `--extract-only`, `-p`) — Resolves and displays direct image links without downloading.
 - `gitmap prnt <url1> <url2>... --json` — Emits structured Universal JSON response envelope.
 - `gitmap prnt <url1> <url2>... -o <dir>` — Saves batch downloads to designated custom directory.
+
+### 17. URL Split-DB Caching & 10-Split Segmented Downloader Suite
+- `gitmap url read <url>` (aliases: `gitmap url <url>`, `gitmap read-url <url>`, `gitmap get <url>`) — Universal URL streaming and cache inspection command line interface.
+  * **Dedicated Split-DB Caching:** Automatically persists remote HTTP/HTTPS responses in dedicated `repodb/url_cache.db` with WAL mode and 256MB memory mapping (`PRAGMA mmap_size = 268435456`).
+  * **Sub-Millisecond Retrieval:** Cache hits stream in $<0.5\text{ms}$ without network roundtrips.
+  * **Unbuffered Byte-Faithful Output:** Payloads stream directly to standard output via `output.Raw()`, preserving raw binaries, emojis, and ANSI codes without corruption. Diagnostics and transfer telemetry emit to `output.UIErr()`.
+  * **Automatic 10-Split Downloader:** Payloads $\ge 1\text{--}2\text{ MB}$ automatically activate 10-connection parallel Range downloading using host `aria2c -s 10 -x 10 -k 5K` or native Go 10-goroutine Range workers with 5KB chunking.
+  * **Singleflight Deduplication:** Parallel worker requests coalesce into a single fetch, eliminating duplicate network bandwidth and write lock contention.
+  * **Flags:**
+    - `--fresh` (alias `-f`): Bypasses existing cache and forces a fresh network download.
+    - `--ttl <duration>`: Overrides expiration TTL (e.g. `1h`, `24h`, `7d`; default: `24h`).
+    - `--headers`: Emits HTTP response headers to stderr before the payload.
+    - `--json` (alias `-j`): Emits structured JSON envelope with payload metadata, SHA-256 hash, and cache timing.
+- `gitmap url ls [--limit <n>] [--json]` — Lists cached URLs in tabular format with short hash, size, content type, access count, age, and status.
+- `gitmap url info <url> [--json]` — Displays detailed metadata, ETag, headers, and access audit history for a specific URL.
+- `gitmap url purge [--all]` — Evicts expired records (or all records with `--all`) and reclaims disk space.
+- `gitmap url rm <url>` — Removes a specific URL entry and its cached blob.
 
 ---
 
@@ -750,6 +776,13 @@ gitmap agent temp-clear
 Sub-millisecond SQLite WAL tracking of agent decisions, active leases, contention hotspots, and one-shot JSON payload ingestion with multi-AI provenance attribution.
 
 ```bash
+# Heatmap database discovery catalog across 3 tiers, alias mappings, recent tasks, and suggestion pills
+gitmap heatmap
+
+# Repository-filtered heatmap discovery
+gitmap heatmap --repo gitmap
+gitmap rc heatmap --repo gitmap
+
 # Step 0 Pre-Flight schema and status verification
 gitmap heatmap status
 gitmap heatmap tables
@@ -877,6 +910,34 @@ gitmap plans --yaml
 gitmap plans --yml
 ```
 
+### 14. URL Split-DB Caching & 10-Split Segmented Downloader (`gitmap url`)
+Dedicated SQLite Split-DB (`repodb/url_cache.db`) caching with sub-millisecond retrieval, byte-faithful `output.Raw()` streaming, and automatic 10-split segmented downloading (`aria2c` or native Go Range workers).
+
+```bash
+# Read and stream remote URL with automatic sub-millisecond caching
+gitmap url read https://example.com/schema.json
+
+# Shorthand aliases for agent ergonomics
+gitmap url https://example.com/schema.json
+gitmap get https://example.com/schema.json
+
+# Force fresh network download bypassing existing cache
+gitmap url read https://example.com/schema.json --fresh
+
+# Inspect cached payload metadata, ETag, and TTL
+gitmap url info https://example.com/schema.json
+
+# List cached URLs in tabular format
+gitmap url ls --limit 25
+
+# Purge expired records and reclaim disk space
+gitmap url purge
+
+# Ingest heatmap telemetry database into LLM training curriculum
+gitmap llm train --heatmap repodb/heatmap.db
+gitmap llm train --heatmap https://telemetry.gitmap.internal/api/heatmap/export
+```
+
 ---
 
 ## Operational Guardrails & Non-Negotiable Invariants
@@ -891,3 +952,5 @@ gitmap plans --yml
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
 9. **Total Ban on Python SQLite Scripts:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or `python -c "import sqlite3..."`. For agent tasks, use native compiled `gitmap agent` subcommands exclusively. For inspecting, exploring, querying, mutating, or viewing SQLite databases (e.g. Antigravity DBs, split databases, application storage), use `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` (or aliases `dbr`, `dba`, `dbe`, `dbf`, `dbl`, `dbv`, `dbrs`, `dbrd`, `dbrm`).
 10. **Total Ban on Ad-Hoc Python Web Scrapers:** NEVER run `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[.agents/skills/gitmap]` for full command reference.
+11. **Total Ban on Raw Web Fetchers & Single-Stream Downloads:** NEVER invoke `curl`, `wget`, `Invoke-WebRequest`, or custom HTTP scripts to read remote files. All remote URLs MUST be fetched via `gitmap url read <url>` (aliases: `gitmap url`, `gitmap get`), which provides dedicated Split-DB caching (`repodb/url_cache.db`), sub-millisecond retrieval (<0.5ms), unbuffered byte-faithful streaming via `output.Raw()`, and automatic 10-split segmented downloading (`aria2c` or native Go Range workers) for files $\ge 1\text{--}2\text{ MB}$.
+12. **Total Ban on Filesystem Grepping for Past Agent Decisions:** NEVER grep source files or guess past subagent actions. You MUST run `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` to discover multi-tier SQLite heatmap databases, cross-referenced repository aliases, and recent tasks across 2–5 repositories with interactive suggestion pills.
