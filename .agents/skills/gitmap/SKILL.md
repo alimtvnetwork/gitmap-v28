@@ -85,7 +85,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 ### 5. High-Performance Automation (AUM) & File Discovery
 - `gitmap aum search "<pattern>" [dir] [--ext <ext>] [-r] [-i]` (alias: `gitmap aum grep`) — Multi-core streaming live search with lazy regex and binary filtering. ALWAYS scope with target `[dir]` and `--ext`. Replaces slow PowerShell `Select-String`, `Get-ChildItem -Recurse`, and `git grep`. TOTAL BAN on PowerShell `Select-String`, `rg`, `ripgrep`, and `git grep`.
-- `gitmap search "<query>" [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories using DH2D split-db hot cache.
+  * **Named-Flag Support:** Fully supports `--query <pattern>` (or `-q <pattern>`, `--pattern <pattern>`) and `--root <dir>` (or `--dir <dir>`, `-d <dir>`, `--path <dir>`, `-p <dir>`) in any argument position (e.g. `gitmap aum search --root "cli" --query "cmdpipeline"`, `gitmap aum search --query "func Run" --dir cli -e .go`). Positional and named flags can be freely interchanged.
+- `gitmap search "<query>" [--limit <n>]` — Instant SQLite cached symbol & keyword search across scanned repositories using DH2D split-db hot cache (also accepts `--query <q>`, `-q <q>`, `--pattern <p>`, `--root <r>`).
 - `gitmap aum guard` — Enforces 500 KB limit, large JSON exclusion, and binary null-byte probe.
 - `gitmap aum sequence` — Markdown sequence gap detector and `# XX Title` autofixer.
 - `gitmap aum exclude list` — Query persistent search exclusions from SQLite.
@@ -571,6 +572,10 @@ Replacing slow PowerShell `Get-ChildItem`, `Select-String`, and grep with multi-
 ```bash
 # Multi-core streaming live code search with extension and directory scoping
 gitmap aum search "RunFleetPASCommand" cli -e .go
+
+# Named-flag search with explicit root directory and query (ideal for subagent tool calls)
+gitmap aum search --root "cli" --query "cmdpipeline"
+gitmap aum search --query "RunFleetPASCommand" --dir cli -e .go
 
 # Case-insensitive regex search with boundary patterns
 gitmap aum search -r "(\"pas\"|\"pa\")" cli/cmd -e .go -i

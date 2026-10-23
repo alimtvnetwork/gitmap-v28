@@ -25,7 +25,7 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 ## Essential Command Cheat Sheet
 
 ### 1. High-Performance Automation (AUM) & Live Code Search
-- ` + "`gitmap aum search <pattern> [dir] [--ext <ext>] [-r] [-i]`" + ` (alias: ` + "`gitmap aum grep`" + `) — Multi-core streaming live search with lazy regex and binary filtering. ALWAYS scope with target ` + "`[dir]`" + ` and ` + "`--ext`" + `. Replaces slow PowerShell ` + "`Select-String`" + `, ` + "`Get-ChildItem -Recurse`" + `, and ` + "`git grep`" + `. TOTAL BAN on PowerShell ` + "`Select-String`" + ` and ` + "`git grep`" + `.
+- ` + "`gitmap aum search <pattern> [dir] [--ext <ext>] [-r] [-i]`" + ` (alias: ` + "`gitmap aum grep`" + `) — Multi-core streaming live search with lazy regex and binary filtering. Fully supports named flags (` + "`--query <pattern>`" + `, ` + "`--root <dir>`" + `, ` + "`--pattern`" + `, ` + "`--dir`" + `). ALWAYS scope with target ` + "`[dir]`" + ` and ` + "`--ext`" + `. Replaces slow PowerShell ` + "`Select-String`" + `, ` + "`Get-ChildItem -Recurse`" + `, and ` + "`git grep`" + `. TOTAL BAN on PowerShell ` + "`Select-String`" + ` and ` + "`git grep`" + `.
 - ` + "`gitmap search <query> [--limit <n>]`" + ` — Instant SQLite cached symbol & keyword search across scanned repositories.
 - ` + "`gitmap aum guard`" + ` — Enforces 500 KB limit, large JSON exclusion, and binary null-byte probe
 - ` + "`gitmap aum sequence`" + ` — Markdown sequence gap detector and # XX Title autofixer

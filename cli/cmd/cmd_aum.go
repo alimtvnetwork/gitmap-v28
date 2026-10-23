@@ -16,6 +16,7 @@ func buildAumHelpMenu() termout.HelpMenu {
 			"gitmap aum <subcommand> [flags]",
 			"gitmap automation <subcommand> [flags]",
 			"gitmap aum search <query> [--path <dir>] [flags]",
+			"gitmap aum search --query <query> [--root <dir>] [flags]",
 			"gitmap grep <query> [--path <dir>] [flags]",
 			"gitmap aum benchmark [target]",
 		},
@@ -33,6 +34,9 @@ func buildAumHelpMenu() termout.HelpMenu {
 
 func buildAumFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
+		{Command: "-q, --query <pattern>", Description: "Search query or pattern to find"},
+		{Command: "--pattern <pattern>", Description: "Search pattern or keyword to find"},
+		{Command: "--root <dir>", Description: "Target root directory or file path to search"},
 		{Command: "-p, --path <dir>", Description: "Target directory or file path to search"},
 		{Command: "-d, --dir <dir>", Description: "Target directory or file path to search"},
 		{Command: "-w, --workers <n>", Description: "Number of concurrent worker threads (default: CPU cores)"},

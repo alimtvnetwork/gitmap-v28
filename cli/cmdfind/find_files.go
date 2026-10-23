@@ -95,37 +95,91 @@ func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOption
 		Kind:      defaultKind,
 		TargetDir: ".",
 	}
-
 	var nonFlags []string
-
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		switch {
-		case (arg == "-ext" || arg == "--ext") && i+1 < len(args):
-			opts.Exts = parseExtensionList(args[i+1])
-			i++
-		case strings.HasPrefix(arg, "-ext="):
-			opts.Exts = parseExtensionList(strings.TrimPrefix(arg, "-ext="))
-		case strings.HasPrefix(arg, "--ext="):
-			opts.Exts = parseExtensionList(strings.TrimPrefix(arg, "--ext="))
-		case (arg == "--limit" || arg == "-l") && i+1 < len(args):
-			opts.Limit, _ = strconv.Atoi(args[i+1])
-			i++
-		case arg == "--json" || arg == "-json":
-			opts.IsJson = true
-		case (arg == "--dir" || arg == "-d") && i+1 < len(args):
-			opts.TargetDir = args[i+1]
-			i++
-		case !strings.HasPrefix(arg, "-"):
-			nonFlags = append(nonFlags, arg)
-		}
-	}
-
-	if len(nonFlags) > 0 {
+	opts, nonFlags = processFindArgs(args, opts)
+	if opts.Query == "" && len(nonFlags) > 0 {
 		opts.Query = nonFlags[0]
 	}
 
 	return opts
+}
+
+func processFindArgs(args []string, opts FindFilesOptions) (FindFilesOptions, []string) {
+	var nonFlags []string
+	for i := 0; i < len(args); i++ {
+		opts, nonFlags, i = evaluateFindArg(args, i, opts, nonFlags)
+	}
+
+	return opts, nonFlags
+}
+
+func evaluateFindArg(args []string, i int, opts FindFilesOptions, nonFlags []string) (FindFilesOptions, []string, int) {
+	arg := args[i]
+	if isDirFlag(arg) && i+1 < len(args) {
+		opts.TargetDir = args[i+1]
+		return opts, nonFlags, i + 1
+	}
+	if isQueryFlag(arg) && i+1 < len(args) {
+		opts.Query = args[i+1]
+		return opts, nonFlags, i + 1
+	}
+	if isExtFlag(arg) && i+1 < len(args) {
+		opts.Exts = parseExtensionList(args[i+1])
+		return opts, nonFlags, i + 1
+	}
+	if (arg == "--limit" || arg == "-l") && i+1 < len(args) {
+		opts.Limit, _ = strconv.Atoi(args[i+1])
+		return opts, nonFlags, i + 1
+	}
+
+	return evaluateFindInlineArg(args, i, opts, nonFlags)
+}
+
+func evaluateFindInlineArg(args []string, i int, opts FindFilesOptions, nonFlags []string) (FindFilesOptions, []string, int) {
+	arg := args[i]
+	if arg == "--json" || arg == "-json" {
+		opts.IsJson = true
+		return opts, nonFlags, i
+	}
+	if val, hasVal := extractPrefixedFlag(arg, "--dir=", "--root=", "--path="); hasVal {
+		opts.TargetDir = val
+		return opts, nonFlags, i
+	}
+	if val, hasVal := extractPrefixedFlag(arg, "--query=", "--pattern="); hasVal {
+		opts.Query = val
+		return opts, nonFlags, i
+	}
+	if val, hasVal := extractPrefixedFlag(arg, "-ext=", "--ext="); hasVal {
+		opts.Exts = parseExtensionList(val)
+		return opts, nonFlags, i
+	}
+	if !strings.HasPrefix(arg, "-") {
+		nonFlags = append(nonFlags, arg)
+	}
+
+	return opts, nonFlags, i
+}
+
+func isDirFlag(arg string) bool {
+	return arg == "--dir" || arg == "-d" || arg == "--root" || arg == "--path" || arg == "-p"
+}
+
+func isQueryFlag(arg string) bool {
+	return arg == "--query" || arg == "-q" || arg == "--pattern"
+}
+
+func isExtFlag(arg string) bool {
+	return arg == "-ext" || arg == "--ext"
+}
+
+func extractPrefixedFlag(arg string, prefixes ...string) (string, bool) {
+	for _, p := range prefixes {
+		if strings.HasPrefix(arg, p) {
+			return strings.TrimPrefix(arg, p), true
+		}
+	}
+
+	return "", false
 }
 
 func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {

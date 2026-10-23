@@ -31,11 +31,61 @@ func RunSearch(args []string) error {
 func parseSearchInvocation(args []string) (string, int, bool, bool) {
 	isAiCaller, remaining := parseSearchAiFlag(args)
 	limit, cleanArgs := parseLimit(remaining)
-	if len(cleanArgs) == 0 {
+	flagQuery, positional := parseSearchQueryAndDirFlags(cleanArgs)
+	if flagQuery != "" {
+		return flagQuery, limit, isAiCaller, true
+	}
+	if len(positional) == 0 {
 		return "", limit, isAiCaller, false
 	}
 
-	return cleanArgs[0], limit, isAiCaller, true
+	return positional[0], limit, isAiCaller, true
+}
+
+func parseSearchQueryAndDirFlags(args []string) (string, []string) {
+	var query string
+	var positional []string
+	for i := 0; i < len(args); i++ {
+		q, p, nextI := matchSearchFlagOrPositional(args, i)
+		if q != "" {
+			query = q
+		}
+		if p != "" {
+			positional = append(positional, p)
+		}
+		i = nextI
+	}
+
+	return query, positional
+}
+
+func matchSearchFlagOrPositional(args []string, i int) (string, string, int) {
+	arg := args[i]
+	if isSearchQueryArg(arg) && i+1 < len(args) {
+		return args[i+1], "", i + 1
+	}
+	if strings.HasPrefix(arg, "--query=") {
+		return strings.TrimPrefix(arg, "--query="), "", i
+	}
+	if strings.HasPrefix(arg, "--pattern=") {
+		return strings.TrimPrefix(arg, "--pattern="), "", i
+	}
+	if isSearchDirArg(arg) && i+1 < len(args) {
+		return "", "", i + 1
+	}
+	if !strings.HasPrefix(arg, "-") {
+		return "", arg, i
+	}
+
+	return "", "", i
+}
+
+func isSearchQueryArg(arg string) bool {
+	return arg == "--query" || arg == "-q" || arg == "--pattern"
+}
+
+func isSearchDirArg(arg string) bool {
+	return arg == "--root" || arg == "--dir" || arg == "--path" || arg == "-d" || arg == "-p"
 }
 
 func parseSearchAiFlag(args []string) (bool, []string) {

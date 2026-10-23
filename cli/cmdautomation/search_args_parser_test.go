@@ -83,12 +83,52 @@ func TestResolveSearchArgs(t *testing.T) {
 		}
 	})
 
+	t.Run("resolves explicit root and query flags without positional args", func(t *testing.T) {
+		resetSearchFlags()
+		searchRootFlag = `"cli/cmd"`
+		searchQueryFlag = `"cmdpipeline"`
+		pat, dir := resolveSearchArgs(nil)
+		if pat != "cmdpipeline" {
+			t.Errorf("expected pattern 'cmdpipeline', got %q", pat)
+		}
+		if dir != "cli/cmd" {
+			t.Errorf("expected dir 'cli/cmd', got %q", dir)
+		}
+	})
+
+	t.Run("resolves explicit query flag with positional dir", func(t *testing.T) {
+		resetSearchFlags()
+		searchQueryFlag = "cmdpipeline"
+		pat, dir := resolveSearchArgs([]string{"cli/cmd"})
+		if pat != "cmdpipeline" {
+			t.Errorf("expected pattern 'cmdpipeline', got %q", pat)
+		}
+		if dir != "cli/cmd" {
+			t.Errorf("expected dir 'cli/cmd', got %q", dir)
+		}
+	})
+
+	t.Run("resolves explicit root flag with positional pattern", func(t *testing.T) {
+		resetSearchFlags()
+		searchRootFlag = "cli/cmd"
+		pat, dir := resolveSearchArgs([]string{"cmdpipeline"})
+		if pat != "cmdpipeline" {
+			t.Errorf("expected pattern 'cmdpipeline', got %q", pat)
+		}
+		if dir != "cli/cmd" {
+			t.Errorf("expected dir 'cli/cmd', got %q", dir)
+		}
+	})
+
 	t.Run("resets flags properly", func(t *testing.T) {
 		searchPathFlag = "some-path"
 		searchDirFlag = "some-dir"
+		searchRootFlag = "some-root"
+		searchQueryFlag = "some-query"
+		searchPatternFlag = "some-pattern"
 		resetSearchFlags()
-		if searchPathFlag != "" || searchDirFlag != "" {
-			t.Errorf("expected empty flags after reset, got path=%q dir=%q", searchPathFlag, searchDirFlag)
+		if searchPathFlag != "" || searchDirFlag != "" || searchRootFlag != "" || searchQueryFlag != "" || searchPatternFlag != "" {
+			t.Errorf("expected empty flags after reset, got root=%q query=%q", searchRootFlag, searchQueryFlag)
 		}
 	})
 }
