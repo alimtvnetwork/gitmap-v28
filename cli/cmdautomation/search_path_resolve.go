@@ -17,6 +17,9 @@ func resolveSearchCandidateFiles(target string) ([]string, bool) {
 	if clean == "" || clean == "." {
 		return nil, false
 	}
+	if isDirectoryPath(clean) {
+		return nil, false
+	}
 	if files, isFound := tryResolveExactFile(clean); isFound {
 		return files, true
 	}
@@ -27,6 +30,15 @@ func resolveSearchCandidateFiles(target string) ([]string, bool) {
 		return files, true
 	}
 	return nil, false
+}
+
+func isDirectoryPath(path string) bool {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return fi.IsDir()
 }
 
 func tryResolveExactFile(clean string) ([]string, bool) {
