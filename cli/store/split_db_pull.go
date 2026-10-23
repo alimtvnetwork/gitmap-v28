@@ -4,10 +4,8 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	_ "modernc.org/sqlite"
 )
 
