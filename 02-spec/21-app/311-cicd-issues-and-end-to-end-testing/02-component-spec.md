@@ -1,55 +1,75 @@
 # Component Spec: 311-cicd-issues-and-end-to-end-testing
 
-## 1. CI/CD Failure Map (baseline at f723012c5 / 1f96b906)
+## 1. CI/CD Failure Map (baseline at abb35f01d — CONFIRMED root causes)
 
-| Failing check | Suspected root cause | Fix route |
+Full diagnosis with evidence: .ai-memory/plans/subtasks/311-cicd-issues-and-end-to-end-testing/01-ci-diagnosis.md
+
+| Failing check | Confirmed root cause | Fix (all applied) |
 |---|---|---|
-| Lint Baseline Guard / Diff | Unused funcs (cli/cmddb/db_vacuum.go x4, cli/cmd/helpcheck.go, cli/cloner/safe_pull.go, formatFolderFileURI, hasSkipIDEsFlag, parseGitHubSlugFromURL); misspell DOUB | Delete dead code after caller verification via gitmap aum search; fix spelling at source; refresh baseline only for entries whose defect was the baseline itself |
-| Legacy Refs Check | /gitmap-v[567]\b/ hits in 02-spec/01-spec-authoring-guide/13-root-readme-conventions.md lines 20, 257 | Reword the guide to the current naming without legacy version refs |
-| Relative Path Check | Absolute paths / file URIs in tracked files | Coordinate with the in-flight spec-310 stream (its HEAD commit abb35f01d targets exactly this); fix only files outside its dirty set |
-| Test (unit), go build + test x3, go test -race | Real failing tests introduced by the Oct 21-23 change stream; annotations are generic, so failing packages must be identified from the CI job structure and reproduced through CI iterations | Fix the underlying code/test defects; no test deletion to reach green |
-| Full Suite Guard | Derivative of the unit/build failures | Clears when the suite itself is green |
-| Lint Script Unit Tests | A python linter-script test failing | Identify via the script test suite layout (linter-scripts tests) and fix script or test at the source |
-
-Fresh check-runs must be pulled for the current HEAD before fixing, because
-the spec-310 stream is actively changing the failure set.
+| Lint Baseline Guard / Diff | 9 callerless functions flagged NEW vs baseline; misspell DOUB at cli/cmddb/rest_swagger.go:231 (a SQL type-prefix probe) | Deleted all 9 after aum caller verification (plus the apperror import only the dead helpcheck function used); DOUB -> DOUBLE, matching the sibling code in cli/cmdautomation/db_generate.go |
+| Legacy Refs Check | gitmap-v6 refs at 02-spec/01-spec-authoring-guide/13-root-readme-conventions.md lines 20, 257 | Both now reference gitmap-v28 |
+| Relative Path Check | 3 violations, all inside 02-spec/21-app/310-relative-paths/01-architecture-spec.md quoting the absolute path it exists to eliminate | Quoted prefix replaced with <repo-root>\ form; checker re-run on the full tree: PASS (9,836 files) |
+| Test (unit), go build + test x3, go test -race | 4 test functions: 3 cli/cmd pipeline tests asserted the pre-fix fabricated pe success (db665c939 made no-data correctly fail with E9000 "pipeline status unknown"; CI runners have no gh auth, so the old assertions cannot hold); TestHandleOrphanedMetaDecline asserted a bare error string vs the typed apperror envelope | Test-contract updates authored in-tree by the parallel repair stream (assertPipelineLogsOutcome; typed-envelope assertions), committed with this task and disclosed in the release notes. Full unit scope passes with them |
+| Lint Script Unit Tests | 3 of 19 tests: legacy-refs (above), gofmt (13 committed .go files unformatted), smoke-installer E2E (fix-git --json expected exit 0 outside a git repo, where the product correctly returns E1000 validation) | Doc fix; gofmt applied to the 13 files; the E2E case now expects [0, 1], the convention the same table uses for other repo-dependent commands |
+| Full Suite Guard | Aggregator over the above | Clears when constituents pass |
 
 ## 2. End-to-End Testing of All Methods
 
-- Source of truth for "all methods": the gitmap command registry
-  (cli/constants command registry + helpdoc index). Every registered command
-  must be reachable and exercised.
-- Harnesses already in CI and in scope: Installer Smoke (source-build) on
-  linux + windows, history-rewrite smoke, command invocation tests
-  (cli/cmd/cmd_invocation_test.go — note: currently dirty in the spec-310
-  stream's box; coordinate before touching).
-- Any method found untested gets the smallest e2e case that proves it runs
-  end-to-end (help surface + one real invocation against a scratch repo),
-  executed in CI, not locally.
-- Deliverable evidence: CI run for the release commit with every smoke/e2e
-  job green, plus a method-coverage list in this spec's evidence section.
+Coverage map (harness -> what it exercises -> CI job):
+
+- .github/scripts/e2e-cli-smoke.py — 118 end-to-end cases over 74 distinct
+  first-token commands (functional invocations + help surfaces + aliases),
+  run against a real built binary: E2E jobs on linux/windows/macos
+  (ci.yml), Installer Smoke source mode (which embeds the same suite), and
+  the Lint Script Unit Tests job. Baseline state: 117/118 — the fix-git
+  --json expectation fixed by this task (now [0, 1]).
+- cli/cmd/cmd_invocation_test.go — in-process end-to-end invocations of
+  the install / pipeline / pe command families through the real dispatcher
+  (Test (unit) + race + cross-platform jobs).
+- cli/cmd/commitin/e2e — the commit-in pipeline end-to-end against scratch
+  repositories (Test (unit), Test (integration) jobs).
+- Installer Smoke (linux + windows) — builds from source, installs, and
+  verifies the installed binary reports the expected version, then runs
+  the full E2E CLI suite against it.
+- history-rewrite-smoke + goreleaser-smoke workflows — the history
+  rewrite and release-packaging paths end-to-end.
+- The remaining registered surface (403 helpdoc entries, mostly
+  subcommands and aliases of the covered families) is exercised through
+  the per-package unit/integration suites and the help-surface smoke
+  cases; the help system itself is guarded by the helpcheck invariants
+  in the unit suite (every registered command must render help).
+
+Deliverable evidence: CI run for the release commit with every smoke/e2e
+job green (section 5).
 
 ## 3. Installation Download Speed
 
-Current path (to be profiled before changing):
+Profiled path and what shipped (detail: subtask 04):
 
-- Installer scripts at repo root (install.sh family) and the self-update path
-  in cli/cmdupdate/ download the release tarball + checksums from GitHub
-  releases in a single sequential connection, then swap the binary
-  (cmdupdate/update_binary_swap.go — also the site of the known E1148 defect:
-  the swap looks for a binary literally named `gitmap` while the tarball ships
-  `gitmap-v<version>-<os>-<arch>`; the speed work must not regress the fix
-  direction already reported for that defect).
-- Levers, in priority order (consistent with spec 242 aria2c design and
-  spec 286 speedup):
-  1. Multi-connection segmented download (aria2c when available, with a
-     built-in parallel range-download fallback) for the release asset.
-  2. Fetch checksums.txt concurrently with the asset instead of after it.
-  3. Resume support so a stalled download does not restart from zero.
-  4. Skip-download fast path when the target version is already cached.
-- Measurement: time a full install download before and after (same network,
-  same asset), record both numbers here as evidence. The Installer Smoke CI
-  jobs are the regression gate.
+- Blocking correctness fix: release.yml tars the Unix binary under its
+  versioned asset name, but extractTarGzBinary only accepted entries
+  named gitmap/gitmap.exe — every tar-based self-update failed with
+  E1148. isReleaseBinaryName now also accepts gitmap-* entries.
+- Concurrency (the guaranteed win): checksums.txt is fetched concurrently
+  with the archive in the Go self-update (downloadReleaseStaging) and in
+  install.sh download_asset (both mirrored copies), removing one full
+  serial round trip from every install/update. The download engine used
+  is recorded in update telemetry (UpdateResult.DownloaderEngine).
+- Segmented download: implemented in cli/cmdupdate/update_download_parallel.go
+  (range probe + 4 concurrent Range segments via WriteAt + aggregated
+  progress + single-stream fallback), but OPT-IN via
+  GITMAP_DOWNLOAD_SEGMENTS=1. Measured on this repo's network path
+  (v6.590.0 linux-amd64 archive, 18,457,710 bytes, 3 runs each):
+  single stream median 3,270 ms (1,862 / 3,270 / 8,340);
+  4 segments median 9,603 ms (9,066 / 9,603 / 10,461) — parallel
+  connections are ~3x SLOWER through this proxied path, so default-on
+  would have made updates slower here. Segmented output verified
+  byte-identical (sha256 match). On per-connection-capped links it
+  remains available as an opt-in; the installer's aria2c path (16
+  connections) already covers that case when aria2c is installed.
+- install.ps1 concurrency deferred: Start-Job process startup rivals the
+  single RTT it would save for a ~1 KB checksums file (subtask 04).
+- Regression gates: Installer Smoke (linux + windows), Heavy Tests.
 
 ## 4. Release
 
@@ -64,10 +84,17 @@ Current path (to be profiled before changing):
   release carries). Relative paths only — no absolute paths, no filesystem
   URLs.
 
-## 5. Evidence (to fill during execution)
+## 5. Evidence
 
-- Baseline check-runs (release parent):
-- Post-fix check-runs (release commit):
-- Download timing before:
-- Download timing after:
-- Method coverage list:
+- Baseline check-runs (abb35f01d): 51 runs, 11 failures — Test (unit),
+  Full Suite Guard, Legacy Refs Check, Relative Path Check, Lint
+  Baseline Diff, Lint Baseline Guard, Lint Script Unit Tests,
+  go build+test (ubuntu/macos/windows), go test -race (hot packages).
+- Download timing before: single-stream full-archive fetch, median
+  3,270 ms (3 runs, section 3); checksums fetched serially afterwards
+  (one extra RTT + transfer on every install/update).
+- Download timing after: checksums fetch fully overlapped with the
+  archive fetch in both the Go updater and install.sh; segmented mode
+  measured but left opt-in per the section 3 data.
+- Method coverage list: section 2.
+- Post-fix check-runs (release commit): filled at release verification.

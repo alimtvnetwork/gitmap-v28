@@ -9,17 +9,22 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // Parallel segmented download for release archives (spec 311-04).
 //
-// downloadHTTP fetches an archive in a single stream, which leaves most
-// links under-utilized: one TCP connection to the GitHub release CDN is
-// throughput-capped per connection. When the server honors Range requests
-// (the release CDN does), splitting the archive into segments fetched
-// concurrently multiplies the effective throughput. Any doubt about range
-// support falls back to the original single-stream downloadHTTP, so the
-// worst case is exactly the pre-change behavior.
+// downloadHTTP fetches an archive in a single stream. On links where the
+// release CDN or the last mile caps throughput per connection, splitting
+// the archive into Range segments fetched concurrently is faster; the
+// installer's aria2c path exists for the same reason. On proxied or
+// per-connection-throttled paths, however, parallel connections measure
+// SLOWER than one stream (see the benchmark table in spec 311): on this
+// repo's own network path, 4 segments took a median 9.6s vs 3.3s single
+// for the 17.6 MiB v6.590.0 archive. The segmented path is therefore
+// OPT-IN via GITMAP_DOWNLOAD_SEGMENTS=1, with a range-support probe
+// before use and the original single-stream downloadHTTP as the default
+// and as the fallback for every doubtful case.
 
 const (
 	downloadSegmentCount    = 4
@@ -34,10 +39,14 @@ type segmentRange struct {
 	end   int64
 }
 
-// downloadArchiveFast downloads url to dstPath, using the segmented path
-// when the archive is large enough and the server supports ranges. It
+// downloadArchiveFast downloads url to dstPath. The segmented path is
+// used only when it is explicitly enabled via GITMAP_DOWNLOAD_SEGMENTS,
+// the archive is large enough, and the server supports ranges. It
 // returns the engine name actually used, for update telemetry.
 func downloadArchiveFast(url, dstPath string, totalSize int64, onProg func(w, t int64)) (string, error) {
+	if os.Getenv(constants.EnvDownloadSegments) == "" {
+		return downloadEngineSingle, downloadHTTP(url, dstPath, onProg)
+	}
 	if totalSize < downloadSegmentMinBytes {
 		return downloadEngineSingle, downloadHTTP(url, dstPath, onProg)
 	}

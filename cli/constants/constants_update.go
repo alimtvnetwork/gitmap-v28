@@ -37,6 +37,7 @@ const (
 	EnvReportErrorsFormat   = "GITMAP_REPORT_ERRORS"
 	EnvReportErrorsFile     = "GITMAP_REPORT_ERRORS_FILE"
 	EnvUpdateCleanupDelayMS = "GITMAP_UPDATE_CLEANUP_DELAY_MS"
+	EnvDownloadSegments     = "GITMAP_DOWNLOAD_SEGMENTS"
 	UpdateHandoffLogNameFmt = "gitmap-update-handoff-%s.log"
 	ReportErrorsFilePrefix  = "gitmap-update-report-"
 	ReportErrorsFileSuffix  = ".jsonl"
