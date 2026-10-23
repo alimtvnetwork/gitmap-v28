@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.597.0] - 2026-10-23
+
+### Added
+- fix installer scripts and CI legacy refs check
+
+---
+
 ## [v6.596.0] - 2026-10-23
 
 ### Added
