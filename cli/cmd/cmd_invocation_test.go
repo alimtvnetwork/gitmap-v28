@@ -6,9 +6,28 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
+
+// assertPipelineLogsOutcome checks an error-logs invocation against the
+// pipeline contract established by the no-data fix (db665c939): when
+// workflow runs are retrievable the invocation succeeds; when no data can
+// be retrieved it must fail with the typed E9000 "pipeline status unknown"
+// error. Reporting a fabricated clean success on missing data was the
+// defect that fix removed, so any other outcome fails this assertion.
+func assertPipelineLogsOutcome(t *testing.T, label string, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+
+	appErr, isAppErr := err.(*apperror.AppError)
+	if !isAppErr || appErr.Code != "E9000" || !strings.Contains(appErr.Message, "pipeline status unknown") {
+		t.Errorf("expected %s to succeed or fail with E9000 pipeline status unknown, got %v", label, err)
+	}
+}
 
 func TestInstallCommandInvocations(t *testing.T) {
 	// 1. gitmap install (no args) -> should succeed cleanly with instructions
@@ -59,22 +78,16 @@ func TestPipelineCommandInvocations(t *testing.T) {
 
 	// 4. gitmap pipeline error-logs
 	err = cmdpipeline.RunPipeline([]string{"error-logs"})
-	if err != nil {
-		t.Errorf("expected runPipeline error-logs to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "runPipeline error-logs", err)
 
 	// 5. gitmap pipeline error-logs --json
 	err = cmdpipeline.RunPipeline([]string{"error-logs", "--json"})
-	if err != nil {
-		t.Errorf("expected runPipeline error-logs --json to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "runPipeline error-logs --json", err)
 
 	// 6. gitmap pipeline error-logs --tempfile
 	tempFile := "test-ci-err.json"
 	err = cmdpipeline.RunPipeline([]string{"error-logs", "--json", "--tempfile", tempFile})
-	if err != nil {
-		t.Errorf("expected runPipeline error-logs --tempfile to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "runPipeline error-logs --tempfile", err)
 
 	defer os.Remove(filepath.Join(cmdpipeline.ResolveTempDir(), tempFile))
 
@@ -98,9 +111,7 @@ func TestTopLevelErrorLogsAndLogs(t *testing.T) {
 
 	// Top-level error-logs invocation
 	err := cmdpipeline.RunPipeline([]string{"error-logs"})
-	if err != nil {
-		t.Errorf("expected top-level error-logs to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "top-level error-logs", err)
 
 	// Top-level logs invocation
 	err = cmdpipeline.RunPipeline([]string{"logs"})
@@ -120,12 +131,8 @@ func TestTopLevelPipelineErrorsShortcut(t *testing.T) {
 	cmdpipeline.PipelineAgyFixRunner = nil
 	defer func() { cmdpipeline.PipelineAgyFixRunner = origRunner }()
 
-	if err := cmdpipeline.RunPipelineErrors([]string{"--json"}); err != nil {
-		t.Errorf("expected runPipelineErrors --json to succeed, got %v", err)
-	}
-	if err := cmdpipeline.RunPipeline([]string{"pe", "--json"}); err != nil {
-		t.Errorf("expected runPipeline pe --json to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "runPipelineErrors --json", cmdpipeline.RunPipelineErrors([]string{"--json"}))
+	assertPipelineLogsOutcome(t, "runPipeline pe --json", cmdpipeline.RunPipeline([]string{"pe", "--json"}))
 	if err := cmdpipeline.RunPipelineErrors([]string{"clear", "-y"}); err != nil {
 		t.Errorf("expected runPipelineErrors clear -y to succeed, got %v", err)
 	}

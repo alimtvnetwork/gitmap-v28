@@ -25,7 +25,7 @@ func ResolvePullDirectoryTargets(dirPath string) []model.ScanRecord {
 	}
 
 	for _, d := range discovered {
-		if fsutil.IsExcludedScanPath(d) {
+		if fsutil.IsExcludedBelowScanRoot(dirPath, d) {
 			continue
 		}
 		name := filepath.Base(d)

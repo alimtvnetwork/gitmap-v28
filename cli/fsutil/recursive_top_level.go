@@ -28,7 +28,7 @@ func DiscoverTopLevelGitRepos(rootDir string) ([]string, error) {
 
 		// Skip hidden tool directories, caches, IDE extensions, package manager caches
 		name := d.Name()
-		if path != rootDir && (name == ".ai-memory" || isDefaultScanExcluded(name) || IsExcludedScanPath(path)) {
+		if path != rootDir && (name == ".ai-memory" || isDefaultScanExcluded(name) || IsExcludedBelowScanRoot(rootDir, path)) {
 			return filepath.SkipDir
 		}
 

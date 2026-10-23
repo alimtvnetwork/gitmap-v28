@@ -53,14 +53,29 @@ func buildScanClientConfig(capturedKey *ssh.PublicKey) *ssh.ClientConfig {
 
 // ScanRemoteHostKey connects to remote host:port to capture its public host key.
 func ScanRemoteHostKey(host string, port int) (ssh.PublicKey, error) {
+	return scanRemoteHostKey(context.Background(), host, port)
+}
+
+// scanRemoteHostKey is the context-aware host key probe behind
+// ScanRemoteHostKey. The dial honors ctx, and the connection carries a
+// hard deadline across the SSH handshake: a peer that accepts TCP but
+// never sends an SSH banner (for example a transparent proxy) must not
+// block the caller forever — ClientConfig.Timeout alone does not bound
+// the version exchange inside ssh.NewClientConn.
+func scanRemoteHostKey(ctx context.Context, host string, port int) (ssh.PublicKey, error) {
 	var captured ssh.PublicKey
 	config := buildScanClientConfig(&captured)
 	addr := net.JoinHostPort(host, strconv.Itoa(port))
-	conn, err := net.DialTimeout("tcp", addr, config.Timeout)
+	dialer := net.Dialer{Timeout: config.Timeout}
+	conn, err := dialer.DialContext(ctx, "tcp", addr)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "ScanRemoteHostKey.Dial")
 	}
 	defer conn.Close()
+
+	if deadlineErr := conn.SetDeadline(time.Now().Add(config.Timeout)); deadlineErr != nil {
+		return nil, apperror.WrapSimple(deadlineErr, "ScanRemoteHostKey.SetDeadline")
+	}
 
 	sshConn, _, _, _ := ssh.NewClientConn(conn, addr, config)
 	if sshConn != nil {
@@ -96,9 +111,9 @@ func parseExplicitHostKey(target, explicitKey string) (store.SSHKnownHost, bool)
 	return parseKnownHostLine(target + " " + explicitKey)
 }
 
-func resolveOrScanRemoteHostKey(target string) (store.SSHKnownHost, error) {
+func resolveOrScanRemoteHostKey(ctx context.Context, target string) (store.SSHKnownHost, error) {
 	host, port := resolveHostAndPort(target)
-	pubKey, scanErr := ScanRemoteHostKey(host, port)
+	pubKey, scanErr := scanRemoteHostKey(ctx, host, port)
 	if scanErr != nil {
 		return store.SSHKnownHost{}, scanErr
 	}
@@ -111,7 +126,7 @@ func TrustRemoteTarget(ctx context.Context, target string, explicitKey string, d
 	if isParsed {
 		return persistTrustedHost(ctx, kh, db)
 	}
-	rec, err := resolveOrScanRemoteHostKey(target)
+	rec, err := resolveOrScanRemoteHostKey(ctx, target)
 	if err != nil {
 		return nil, err
 	}

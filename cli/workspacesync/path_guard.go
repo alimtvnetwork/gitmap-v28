@@ -42,6 +42,13 @@ func matchesTempPrefix(clean string) bool {
 		return true
 	}
 
+	// The Go toolchain roots testing.T.TempDir at GOTMPDIR when it is set,
+	// which can differ from os.TempDir(); it is a temp directory by definition.
+	goTmpEnv := fsutil.CanonicalPathKey(os.Getenv("GOTMPDIR"))
+	if goTmpEnv != "" && strings.HasPrefix(clean, goTmpEnv) {
+		return true
+	}
+
 	return strings.HasPrefix(clean, "/tmp") || strings.HasPrefix(clean, "/var/tmp")
 }
 

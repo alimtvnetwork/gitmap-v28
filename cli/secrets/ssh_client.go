@@ -3,6 +3,7 @@ package secrets
 import (
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -19,6 +20,47 @@ func resolveTCPAddress(ip string) string {
 	return fmt.Sprintf("%s:22", ip)
 }
 
+// defaultSSHHandshakeTimeout bounds an SSH dial when the client config
+// carries no timeout of its own.
+const defaultSSHHandshakeTimeout = 10 * time.Second
+
+// dialSSHClient dials an SSH client under a hard deadline spanning the TCP
+// connect and the SSH handshake. ssh.Dial applies ClientConfig.Timeout only
+// to the TCP connect; the version exchange inside the handshake reads with
+// no deadline, so a peer that accepts TCP but never sends an SSH banner
+// (silent firewall, hung sshd, transparent proxy) blocks the caller forever.
+func dialSSHClient(addr string, config *ssh.ClientConfig) (*ssh.Client, error) {
+	timeout := config.Timeout
+	if timeout <= 0 {
+		timeout = defaultSSHHandshakeTimeout
+	}
+
+	dialer := net.Dialer{Timeout: timeout}
+	conn, err := dialer.Dial("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {
+		_ = conn.Close()
+
+		return nil, err
+	}
+
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, addr, config)
+	if err != nil {
+		_ = conn.Close()
+
+		return nil, err
+	}
+
+	// The handshake is complete; session traffic must not inherit the
+	// handshake deadline.
+	_ = conn.SetDeadline(time.Time{})
+
+	return ssh.NewClient(sshConn, chans, reqs), nil
+}
+
 // ConnectWithPassword establishes an SSH connection using a password.
 func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 	config := &ssh.ClientConfig{
@@ -28,7 +70,7 @@ func ConnectWithPassword(ip, user, password string) (*ssh.Client, error) {
 		Timeout:         4 * time.Second,
 	}
 
-	return ssh.Dial("tcp", resolveTCPAddress(ip), config)
+	return dialSSHClient(resolveTCPAddress(ip), config)
 }
 
 // ConnectWithKey establishes an SSH connection using a private key file.
@@ -45,7 +87,7 @@ func ConnectWithKey(ip, user, keyPath string) (*ssh.Client, error) {
 		Timeout:         4 * time.Second,
 	}
 
-	return ssh.Dial("tcp", resolveTCPAddress(ip), config)
+	return dialSSHClient(resolveTCPAddress(ip), config)
 }
 
 // ConnectWithFallback attempts connection with key first, falling back to password.

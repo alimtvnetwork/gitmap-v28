@@ -132,10 +132,6 @@ func hasWincredmanFailure(output string) bool {
 	return strings.Contains(lower, "wincredman") || strings.Contains(lower, "unable to persist credentials")
 }
 
-func hasCredentialPersistenceFailure(output string) bool {
-	return hasWincredmanFailure(output)
-}
-
 func retryPullWithSSHConversion(rec model.ScanRecord, repoDir string, attempt int, onProgress func(string)) (model.CloneResult, bool) {
 	log := verbose.Get()
 	if log != nil {

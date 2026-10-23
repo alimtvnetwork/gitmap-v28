@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -76,8 +77,20 @@ func TestHandleOrphanedMetaDecline(t *testing.T) {
 		t.Fatal("expected error on decline, got nil")
 	}
 
-	if err.Error() != constants.ErrReleaseAborted {
-		t.Errorf("expected %q, got %q", constants.ErrReleaseAborted, err.Error())
+	// handleOrphanedMeta reports through the typed apperror envelope (the
+	// repo-wide convention since the fmt.Errorf migration), so assert the
+	// exact message, code, and type on the typed error.
+	appErr, isAppErr := err.(*apperror.AppError)
+	if !isAppErr {
+		t.Fatalf("expected *apperror.AppError, got %T (%v)", err, err)
+	}
+
+	if appErr.Message != constants.ErrReleaseAborted {
+		t.Errorf("expected message %q, got %q", constants.ErrReleaseAborted, appErr.Message)
+	}
+
+	if appErr.Code != "E9000" || appErr.Type != apperror.ErrorTypeExecution {
+		t.Errorf("unexpected typed error: code=%s type=%s", appErr.Code, appErr.Type)
 	}
 
 	if !ReleaseExists(v) {

@@ -6,16 +6,58 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
+// defaultSSHHandshakeTimeout bounds an SSH dial when the client config
+// carries no timeout of its own.
+const defaultSSHHandshakeTimeout = 10 * time.Second
+
+// dialSSHClient dials an SSH client under a hard deadline spanning the TCP
+// connect and the SSH handshake. ssh.Dial applies ClientConfig.Timeout only
+// to the TCP connect; the version exchange inside the handshake reads with
+// no deadline, so a peer that accepts TCP but never sends an SSH banner
+// (silent firewall, hung sshd, transparent proxy) blocks the caller forever.
+func dialSSHClient(addr string, config *ssh.ClientConfig) (*ssh.Client, error) {
+	timeout := config.Timeout
+	if timeout <= 0 {
+		timeout = defaultSSHHandshakeTimeout
+	}
+
+	dialer := net.Dialer{Timeout: timeout}
+	conn, err := dialer.Dial("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {
+		_ = conn.Close()
+
+		return nil, err
+	}
+
+	sshConn, chans, reqs, err := ssh.NewClientConn(conn, addr, config)
+	if err != nil {
+		_ = conn.Close()
+
+		return nil, err
+	}
+
+	// The handshake is complete; session traffic must not inherit the
+	// handshake deadline.
+	_ = conn.SetDeadline(time.Time{})
+
+	return ssh.NewClient(sshConn, chans, reqs), nil
+}
+
 func dialNodeWithSigner(target *SSHTarget, signer ssh.Signer) *ssh.Client {
 	config := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{ssh.PublicKeys(signer)})
 	addr := net.JoinHostPort(target.IP, strconv.Itoa(resolveHealthPort(target.Port)))
-	client, err := ssh.Dial("tcp", addr, config)
+	client, err := dialSSHClient(addr, config)
 	if err != nil {
 		return nil
 	}
@@ -39,7 +81,7 @@ func dialNodeWithPassword(target *SSHTarget, pass string) (*ssh.Client, error) {
 	trace := GetActiveSSHTrace()
 
 	configPass := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{ssh.Password(pass)})
-	client, errPass := ssh.Dial("tcp", addr, configPass)
+	client, errPass := dialSSHClient(addr, configPass)
 	if errPass == nil {
 		trace.AddStep("Password Auth", fmt.Sprintf("authenticated '%s@%s'", target.Username, addr), "SUCCESS", nil)
 
@@ -58,7 +100,7 @@ func dialNodeWithPassword(target *SSHTarget, pass string) (*ssh.Client, error) {
 
 func dialKeyboardInteractiveFallback(target *SSHTarget, addr, pass string, errPass error, trace *SSHExecutionTrace) (*ssh.Client, error) {
 	configKbd := newAutoAcceptHostKeyConfig(target.Username, []ssh.AuthMethod{buildKeyboardInteractiveAuth(pass)})
-	clientKbd, errKbd := ssh.Dial("tcp", addr, configKbd)
+	clientKbd, errKbd := dialSSHClient(addr, configKbd)
 	if errKbd == nil {
 		trace.AddStep("Keyboard-Interactive Auth", fmt.Sprintf("authenticated '%s@%s' via PAM", target.Username, addr), "SUCCESS", nil)
 

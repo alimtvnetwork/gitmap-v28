@@ -228,7 +228,7 @@ func MapSqliteTypeToOpenAPI(sqliteType string) (string, string) {
 	if strings.Contains(upper, "INT") {
 		return "integer", "int64"
 	}
-	if strings.Contains(upper, "REAL") || strings.Contains(upper, "FLOA") || strings.Contains(upper, "DOUB") || strings.Contains(upper, "NUM") {
+	if strings.Contains(upper, "REAL") || strings.Contains(upper, "FLOA") || strings.Contains(upper, "DOUBLE") || strings.Contains(upper, "NUM") {
 		return "number", "double"
 	}
 	if strings.Contains(upper, "BOOL") {

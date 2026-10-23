@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
@@ -176,15 +175,4 @@ func requireOnline() {
 	}
 
 	gitutil.PrintOfflineWarning()
-}
-
-// requireOnlineCheck checks network connectivity and returns an error if offline.
-func requireOnlineCheck() error {
-	if gitutil.IsOnline() {
-		return nil
-	}
-
-	gitutil.PrintOfflineWarning()
-
-	return apperror.NewSimple("network offline", "E9000")
 }

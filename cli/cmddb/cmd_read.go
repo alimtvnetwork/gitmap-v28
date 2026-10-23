@@ -178,7 +178,7 @@ func dispatchMultiArgOperation(flags readFlags, posArgs []string) *appfault.AppE
 	dbArg := posArgs[0]
 	maybeAutoRegisterAlias(flags, dbArg)
 	queryCandidate := strings.Join(posArgs[1:], " ")
-	if isQuerySafe(queryCandidate) {
+	if isQuerySafe(queryCandidate) || isSqlStatement(queryCandidate) {
 		return handleReadSql(flags, dbArg, queryCandidate)
 	}
 

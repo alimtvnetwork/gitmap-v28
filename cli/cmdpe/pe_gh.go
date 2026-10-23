@@ -92,16 +92,6 @@ func githubSlugForDir(dir string) (string, bool) {
 	return parseGitHubSlug(origin)
 }
 
-// parseGitHubSlugFromURL extracts owner/repo from a remote URL.
-func parseGitHubSlugFromURL(url string) string {
-	slug, isGitHub := parseGitHubSlug(url)
-	if !isGitHub {
-		return ""
-	}
-
-	return slug
-}
-
 // parseGitHubSlug extracts owner/repo from common remote URL shapes.
 func parseGitHubSlug(raw string) (string, bool) {
 	trimmed := strings.TrimSpace(raw)

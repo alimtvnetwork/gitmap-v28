@@ -67,6 +67,8 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdMv":                         CmdMv,
 		"CmdNodeRepos":                  CmdNodeRepos,
 		"CmdNodeReposAlias":             CmdNodeReposAlias,
+		"CmdPlans":                      CmdPlans,
+		"CmdPlansAlias":                 CmdPlansAlias,
 		"CmdProfile":                    CmdProfile,
 		"CmdProfileAlias":               CmdProfileAlias,
 		"CmdProfiles":                   CmdProfiles,

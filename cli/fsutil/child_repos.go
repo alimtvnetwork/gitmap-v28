@@ -26,7 +26,7 @@ func DiscoverChildGitRepos(parentDir string) ([]string, error) {
 		}
 
 		subPath := filepath.Join(parentDir, entry.Name())
-		if isDefaultScanExcluded(entry.Name()) || IsExcludedScanPath(subPath) {
+		if isDefaultScanExcluded(entry.Name()) || IsExcludedBelowScanRoot(parentDir, subPath) {
 			continue
 		}
 

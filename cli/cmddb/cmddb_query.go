@@ -50,6 +50,28 @@ func isQuerySafe(sql string) bool {
 		strings.HasPrefix(upper, "WITH")
 }
 
+// sqlStatementVerbs are the leading keywords that mark an argument as a SQL
+// statement (read or write) rather than a table name.
+var sqlStatementVerbs = map[string]bool{
+	"SELECT": true, "WITH": true, "PRAGMA": true, "EXPLAIN": true,
+	"INSERT": true, "UPDATE": true, "DELETE": true, "REPLACE": true,
+	"CREATE": true, "DROP": true, "ALTER": true, "VACUUM": true,
+	"REINDEX": true, "ANALYZE": true, "ATTACH": true, "DETACH": true,
+	"BEGIN": true, "COMMIT": true, "ROLLBACK": true, "SAVEPOINT": true,
+	"RELEASE": true, "TRUNCATE": true,
+}
+
+// isSqlStatement reports whether the text begins with a SQL statement verb,
+// regardless of whether the statement is read-only.
+func isSqlStatement(sql string) bool {
+	fields := strings.Fields(strings.ToUpper(strings.TrimSpace(sql)))
+	if len(fields) == 0 {
+		return false
+	}
+
+	return sqlStatementVerbs[fields[0]]
+}
+
 func executeDynamicQuery(conn *sql.DB, query string, args ...any) (QueryResult, error) {
 	rows, err := conn.Query(query, args...)
 	if err != nil {

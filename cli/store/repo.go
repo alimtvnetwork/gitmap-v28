@@ -17,7 +17,12 @@ import (
 // Storage paths use forward slashes for cross-platform portability.
 // On Windows, drive letters are capitalized to ensure consistent visual presentation.
 func NormalizeStoragePath(pathStr string) string {
-	clean := filepath.ToSlash(filepath.Clean(strings.TrimSpace(pathStr)))
+	// Convert Windows separators explicitly before cleaning:
+	// filepath.ToSlash is a no-op on Unix, where '\' is a legal filename
+	// character, so a Windows-style path would otherwise never match the
+	// forward-slash form the record was stored under.
+	slashPath := strings.ReplaceAll(strings.TrimSpace(pathStr), "\\", "/")
+	clean := filepath.ToSlash(filepath.Clean(slashPath))
 	vol := filepath.VolumeName(clean)
 	if len(vol) >= 2 && vol[1] == ':' {
 		clean = strings.ToUpper(string(vol[0])) + clean[1:]

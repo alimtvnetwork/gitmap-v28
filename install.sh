@@ -676,15 +676,25 @@ download_asset() {
         exit 0
     fi
 
+    # checksums.txt is a tiny independent input to the verify step below,
+    # so fetch it concurrently with the asset instead of serializing a
+    # second download behind the (much larger) asset transfer. Its output
+    # is silenced so it cannot interleave with the download spinner; the
+    # exit status is collected via wait and handled exactly like the
+    # previous serial download.
+    download "${checksum_url}" "${checksum_path}" >/dev/null 2>&1 &
+    local checksum_pid=$!
+
     step "Downloading ${asset_name} (${version})..."
     if ! run_with_spinner "Downloading ${asset_name}" download "${asset_url}" "${archive_path}"; then
+        kill "${checksum_pid}" 2>/dev/null || true
         if [ "${strict}" = "1" ]; then
             strict_fail "asset ${asset_name} not downloadable from ${base_url}"
         fi
         err "Download failed: ${asset_url}"
         exit 1
     fi
-    if ! download "${checksum_url}" "${checksum_path}"; then
+    if ! wait "${checksum_pid}"; then
         if [ "${strict}" = "1" ]; then
             strict_fail "checksums.txt missing at ${checksum_url}"
         fi

@@ -73,14 +73,3 @@ func SetFleetCloneActive(isActive bool) {
 func IsFleetCloneActive() bool {
 	return cmdclone.IsFleetCloneActive()
 }
-
-// hasSkipIDEsFlag checks if any argument in raw tokens matches --no-ides or --no-ide.
-func hasSkipIDEsFlag(raw []string) bool {
-	for _, a := range raw {
-		if a == "--no-ides" || a == "--no-ide" {
-			return true
-		}
-	}
-
-	return false
-}

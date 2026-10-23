@@ -6,7 +6,27 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+
+// assertPipelineLogsOutcome checks an error-logs invocation against the
+// pipeline contract established by the no-data fix (db665c939): when
+// workflow runs are retrievable the invocation succeeds; when no data can
+// be retrieved it must fail with the typed E9000 "pipeline status unknown"
+// error. Reporting a fabricated clean success on missing data was the
+// defect that fix removed, so any other outcome fails this assertion.
+func assertPipelineLogsOutcome(t *testing.T, label string, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+
+	appErr, isAppErr := err.(*apperror.AppError)
+	if !isAppErr || appErr.Code != "E9000" || !strings.Contains(appErr.Message, "pipeline status unknown") {
+		t.Errorf("expected %s to succeed or fail with E9000 pipeline status unknown, got %v", label, err)
+	}
+}
 
 func TestHandlePipelineErrorLogsWithTimeline(t *testing.T) {
 	if testing.Short() || os.Getenv("CI") != "" {
@@ -89,9 +109,7 @@ func TestRunInternalCICDChecks(t *testing.T) {
 
 func TestPipelineDispatcherErrorlogsAlias(t *testing.T) {
 	err := runPipeline([]string{"errorlogs", "--json"})
-	if err != nil {
-		t.Errorf("expected runPipeline errorlogs --json to succeed, got %v", err)
-	}
+	assertPipelineLogsOutcome(t, "runPipeline errorlogs --json", err)
 
 	if testing.Short() || os.Getenv("CI") != "" || os.Getenv("SKIP_LIVE_PIPELINE") != "" {
 		return

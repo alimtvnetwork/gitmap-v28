@@ -214,15 +214,6 @@ func encodePowerShell(script string) string {
 	return base64.StdEncoding.EncodeToString(buf)
 }
 
-func formatFolderFileURI(remotePath string, isWin bool) string {
-	cleanPath := filepath.ToSlash(strings.TrimSpace(remotePath))
-	if isWin {
-		return formatWindowsFileURI(cleanPath)
-	}
-
-	return formatUnixFileURI(cleanPath)
-}
-
 func formatWindowsFileURI(cleanPath string) string {
 	if len(cleanPath) > 1 && cleanPath[1] == ':' {
 		return "file:///" + string(cleanPath[0]) + "%3A" + url.PathEscape(cleanPath[2:])

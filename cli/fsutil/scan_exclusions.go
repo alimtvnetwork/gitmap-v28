@@ -28,6 +28,36 @@ func IsDefaultScanExcluded(name string) bool {
 	return false
 }
 
+// canonicalScanExclusions lists path segments that mark cache, tool, or
+// package-manager subtrees which repository scans must never descend into.
+var canonicalScanExclusions = []string{
+	"/.cursor/",
+	"/.vscode/",
+	"/.vscode-server/",
+	"/.vscode-insiders/",
+	"/.antigravity/",
+	"/.antigravity_tools/",
+	"/.gemini/",
+	"/plugins/cache/",
+	"/uv/cache/",
+	"/.cache/",
+	"/.pnpm-store/",
+	"/pnpm-store/",
+	"/node_modules/",
+}
+
+// matchesCanonicalScanExclusion reports whether a normalized slash path
+// contains one of the canonical exclusion segments.
+func matchesCanonicalScanExclusion(norm string) bool {
+	for _, seg := range canonicalScanExclusions {
+		if strings.Contains(norm, seg) || strings.HasSuffix(norm, strings.TrimSuffix(seg, "/")) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // IsExcludedScanPath checks whether an absolute or relative directory path matches exclusions.
 func IsExcludedScanPath(path string) bool {
 	norm := filepath.ToSlash(strings.ToLower(filepath.Clean(path)))
@@ -39,30 +69,28 @@ func IsExcludedScanPath(path string) bool {
 		}
 	}
 
-	// Canonical cache and tool path substrings
-	canonicalExclusions := []string{
-		"/.cursor/",
-		"/.vscode/",
-		"/.vscode-server/",
-		"/.vscode-insiders/",
-		"/.antigravity/",
-		"/.antigravity_tools/",
-		"/.gemini/",
-		"/plugins/cache/",
-		"/uv/cache/",
-		"/.cache/",
-		"/.pnpm-store/",
-		"/pnpm-store/",
-		"/node_modules/",
+	return matchesCanonicalScanExclusion(norm)
+}
+
+// IsExcludedBelowScanRoot reports whether path should be excluded from a scan
+// rooted at rootDir. Unlike IsExcludedScanPath, only the portion of path
+// below rootDir is judged: the operator explicitly chose rootDir, so an
+// excluded segment in rootDir's own ancestors (for example a temp root under
+// a ".cache" directory) must not silently disqualify every repository the
+// scan was pointed at. Excluded subtrees below the root are still pruned.
+func IsExcludedBelowScanRoot(rootDir, path string) bool {
+	rel, err := filepath.Rel(rootDir, path)
+	if err != nil || rel == "." {
+		return IsExcludedScanPath(path)
 	}
 
-	for _, seg := range canonicalExclusions {
-		if strings.Contains(norm, seg) || strings.HasSuffix(norm, strings.TrimSuffix(seg, "/")) {
-			return true
-		}
+	if strings.HasPrefix(rel, "..") {
+		return IsExcludedScanPath(path)
 	}
 
-	return false
+	norm := "/" + filepath.ToSlash(strings.ToLower(rel)) + "/"
+
+	return matchesCanonicalScanExclusion(norm)
 }
 
 // IsValidGitRepo verifies that a given directory contains a structurally sound Git repository.
