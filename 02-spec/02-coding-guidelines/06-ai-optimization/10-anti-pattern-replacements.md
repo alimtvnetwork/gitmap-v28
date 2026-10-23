@@ -202,7 +202,7 @@ Hardcoding drive letters (`C:\`, `D:\`), machine-specific home folders, or `file
 
 ```markdown
 <!-- ❌ FORBIDDEN: Absolute filesystem paths and drive letters -->
-[Spec File](file:///D:/work/gitmap/02-spec/21-app/314-overview.md)
+[Spec File](file:///repo-root/02-spec/21-app/314-overview.md)
 Path: C:\Users\Administrator\.gitmap\heatmap.db
 Include: /var/lib/gitmap/repodb/url_cache.db
 ```

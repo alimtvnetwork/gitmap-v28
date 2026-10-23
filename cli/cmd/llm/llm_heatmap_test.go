@@ -166,8 +166,8 @@ func insertMockActionRows(t *testing.T, conn *sql.DB) {
 	query := `INSERT INTO HeatmapActionLog 
 	(TaskSlug, RepoName, ActionType, FilePath, ExpectedOutcome, ActualOutcome, IsExpectationMet, ReasoningState, ModelName, ToolName)
 	VALUES 
-	('task-1', 'gitmap', 'MODIFY', 'cli/main.go', 'clean pass', 'clean pass', 1, 'VERIFICATION', 'claude-3-5', 'write_file'),
-	('task-1', 'gitmap', 'REPLACE', 'cli/err.go', 'zero errors', 'compile fail', 0, 'REFACTOR', 'claude-3-5', 'replace');`
+	('task-1', 'gitmap', 'REPLACE', 'cli/err.go', 'zero errors', 'compile fail', 0, 'REFACTOR', 'claude-3-5', 'replace'),
+	('task-1', 'gitmap', 'MODIFY', 'cli/main.go', 'clean pass', 'clean pass', 1, 'VERIFICATION', 'claude-3-5', 'write_file');`
 	if _, err := conn.Exec(query); err != nil {
 		t.Fatalf("failed to insert action logs: %v", err)
 	}

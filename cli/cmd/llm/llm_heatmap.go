@@ -48,21 +48,6 @@ type HeatmapIngestionResult struct {
 	HasRemoteSource       bool `json:"hasRemoteSource"`
 }
 
-const sqlSelectActionLogExamples = `SELECT 
-	COALESCE(TaskSlug, ''), 
-	COALESCE(RepoName, ''), 
-	COALESCE(ActionType, ''), 
-	COALESCE(FilePath, ''), 
-	COALESCE(ExpectedOutcome, ''), 
-	COALESCE(ActualOutcome, ''), 
-	IsExpectationMet, 
-	COALESCE(ReasoningState, ''), 
-	COALESCE(ModelName, ''), 
-	COALESCE(ToolName, '') 
-FROM HeatmapActionLog 
-ORDER BY HeatmapActionLogId DESC 
-LIMIT ?`
-
 // ResolveHeatmapTrainingSources discovers local tracking DBs, split DBs, and companion DBs, or validates explicit path/URL.
 func ResolveHeatmapTrainingSources(opts LlmHeatmapOptions) ([]string, error) {
 	hasExplicitSource := strings.TrimSpace(opts.Source) != ""
@@ -200,13 +185,80 @@ func ingestLocalHeatmapDb(dbPath string, limit int) ([]HeatmapTrainingExample, e
 }
 
 func queryActionLogExamples(conn *sql.DB, limit int) ([]HeatmapTrainingExample, error) {
-	rows, err := conn.Query(sqlSelectActionLogExamples, limit)
+	query, err := buildActionLogSelectQuery(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := conn.Query(query, limit)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "llm.heatmap.query_action_log")
 	}
 	defer rows.Close()
 
 	return scanActionLogRows(rows)
+}
+
+func getTableColumns(conn *sql.DB, tableName string) (map[string]bool, error) {
+	rows, err := conn.Query(fmt.Sprintf("PRAGMA table_info(%s)", tableName))
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "llm.heatmap.pragma_table_info")
+	}
+	defer rows.Close()
+
+	cols := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, colType string
+		var notNull, pk int
+		var dfltValue any
+		if err := rows.Scan(&cid, &name, &colType, &notNull, &dfltValue, &pk); err == nil {
+			cols[strings.ToLower(name)] = true
+		}
+	}
+
+	return cols, nil
+}
+
+func buildActionLogSelectQuery(conn *sql.DB) (string, error) {
+	cols, err := getTableColumns(conn, "HeatmapActionLog")
+	if err != nil {
+		return "", err
+	}
+
+	repoCol := "''"
+	if cols["reponame"] {
+		repoCol = "COALESCE(RepoName, '')"
+	} else if cols["reposlug"] {
+		repoCol = "COALESCE(RepoSlug, '')"
+	}
+
+	modelCol := "''"
+	if cols["modelname"] {
+		modelCol = "COALESCE(ModelName, '')"
+	}
+
+	toolCol := "''"
+	if cols["toolname"] {
+		toolCol = "COALESCE(ToolName, '')"
+	}
+
+	query := fmt.Sprintf(`SELECT 
+	COALESCE(TaskSlug, ''), 
+	%s, 
+	COALESCE(ActionType, ''), 
+	COALESCE(FilePath, ''), 
+	COALESCE(ExpectedOutcome, ''), 
+	COALESCE(ActualOutcome, ''), 
+	IsExpectationMet, 
+	COALESCE(ReasoningState, ''), 
+	%s, 
+	%s 
+FROM HeatmapActionLog 
+ORDER BY HeatmapActionLogId DESC 
+LIMIT ?`, repoCol, modelCol, toolCol)
+
+	return query, nil
 }
 
 func scanActionLogRows(rows *sql.Rows) ([]HeatmapTrainingExample, error) {
@@ -232,111 +284,4 @@ func scanSingleActionLogRow(rows *sql.Rows) (HeatmapTrainingExample, error) {
 	ex.IsExpectationMet = isMetInt == 1
 
 	return ex, nil
-}
-
-// PartitionHeatmapExamples partitions records into positive reinforcement and negative anti-pattern examples.
-func PartitionHeatmapExamples(examples []HeatmapTrainingExample) ([]HeatmapTrainingExample, []HeatmapTrainingExample) {
-	var positive []HeatmapTrainingExample
-	var negative []HeatmapTrainingExample
-
-	for _, ex := range examples {
-		if ex.IsExpectationMet {
-			positive = append(positive, ex)
-		} else {
-			negative = append(negative, ex)
-		}
-	}
-
-	return positive, negative
-}
-
-// FormatHeatmapTrainingDigest formats a structured Markdown digest partitioned into positive and negative traces.
-func FormatHeatmapTrainingDigest(examples []HeatmapTrainingExample) string {
-	hasExamples := len(examples) > 0
-	if !hasExamples {
-		return "No heatmap training actions recorded.\n"
-	}
-
-	positive, negative := PartitionHeatmapExamples(examples)
-
-	var sb strings.Builder
-	writeDigestHeader(&sb, len(examples), len(positive), len(negative))
-	writePositiveDigest(&sb, positive)
-	writeNegativeDigest(&sb, negative)
-
-	return sb.String()
-}
-
-func writeDigestHeader(sb *strings.Builder, total, pos, neg int) {
-	sb.WriteString("======================================================================\n")
-	sb.WriteString("HEATMAP COGNITIVE DECISION TRACES & TRAINING DIGEST\n")
-	sb.WriteString("======================================================================\n")
-	sb.WriteString(fmt.Sprintf("Total Telemetry Actions: %d | Positive Reinforcements: %d | Negative RCA: %d\n\n", total, pos, neg))
-}
-
-func writePositiveDigest(sb *strings.Builder, positive []HeatmapTrainingExample) {
-	hasPositive := len(positive) > 0
-	if !hasPositive {
-		return
-	}
-
-	sb.WriteString("### [Positive Reinforcement Traces (Verified Successes)]\n")
-	renderPositiveItems(sb, positive)
-	sb.WriteString("\n")
-}
-
-func renderPositiveItems(sb *strings.Builder, positive []HeatmapTrainingExample) {
-	limit := resolveDigestLimit(len(positive))
-	for i := 0; i < limit; i++ {
-		p := positive[i]
-		sb.WriteString(fmt.Sprintf("- [%s] Task: %s | Action: %s | Tool: %s | File: %s\n", p.ReasoningState, p.TaskSlug, p.ActionType, p.ToolName, p.FilePath))
-		if p.ExpectedOutcome != "" {
-			sb.WriteString(fmt.Sprintf("  Expected: %s -> Actual: %s\n", p.ExpectedOutcome, p.ActualOutcome))
-		}
-	}
-}
-
-func writeNegativeDigest(sb *strings.Builder, negative []HeatmapTrainingExample) {
-	hasNegative := len(negative) > 0
-	if !hasNegative {
-		return
-	}
-
-	sb.WriteString("### [Negative Anti-Pattern Traces (RCA Prevention)]\n")
-	renderNegativeItems(sb, negative)
-	sb.WriteString("\n")
-}
-
-func renderNegativeItems(sb *strings.Builder, negative []HeatmapTrainingExample) {
-	limit := resolveDigestLimit(len(negative))
-	for i := 0; i < limit; i++ {
-		n := negative[i]
-		sb.WriteString(fmt.Sprintf("- [%s] Task: %s | Action: %s | Tool: %s | File: %s\n", n.ReasoningState, n.TaskSlug, n.ActionType, n.ToolName, n.FilePath))
-		if n.ExpectedOutcome != "" {
-			sb.WriteString(fmt.Sprintf("  Divergence: Expected %q, got %q\n", n.ExpectedOutcome, n.ActualOutcome))
-		}
-	}
-}
-
-func resolveDigestLimit(count int) int {
-	if count < 10 {
-		return count
-	}
-
-	return 10
-}
-
-// FormatHeatmapTrainingJsonl formats examples as newline-delimited JSON.
-func FormatHeatmapTrainingJsonl(examples []HeatmapTrainingExample) (string, error) {
-	var sb strings.Builder
-	for _, ex := range examples {
-		bytes, err := json.Marshal(ex)
-		if err != nil {
-			return "", apperror.WrapSimple(err, "llm.heatmap.marshal_jsonl")
-		}
-		sb.Write(bytes)
-		sb.WriteByte('\n')
-	}
-
-	return sb.String(), nil
 }
