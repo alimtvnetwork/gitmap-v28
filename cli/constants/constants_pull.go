@@ -58,8 +58,6 @@ const (
 
 // Pull task settings and operational tuning constants.
 const (
-	SettingPullRetentionDays       = "pull_retention_days"
-	DefaultPullRetentionDays       = 7
 	PullTaskHeartbeatIntervalSec   = 5
 	PullTaskHeartbeatExpirySec     = 30
 	PullTaskStaleLockThresholdSec  = 60

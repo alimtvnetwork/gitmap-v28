@@ -60,7 +60,16 @@ func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer)
 	return dispatchHeatmapAdmin(ctx, subcmd, args, flags, pos, out)
 }
 
+func normalizeJSONInputFlag(flags map[string]string) {
+	val := strings.TrimSpace(flags["json"])
+	if strings.HasPrefix(val, "{") || strings.HasPrefix(val, "[") {
+		flags["json_payload"] = val
+		flags["json"] = "true"
+	}
+}
+
 func openRootAndApplyPayload(flags map[string]string) (*store.HeatmapDB, error) {
+	normalizeJSONInputFlag(flags)
 	db, err := store.OpenHeatmapRootDB("")
 	if err != nil {
 		return nil, err
@@ -86,6 +95,28 @@ func insertActionAndSetID(db *store.HeatmapDB, rec *store.HeatmapActionLogRecord
 	return nil
 }
 
+func isArrayPayload(raw string) bool {
+	return strings.HasPrefix(strings.TrimSpace(raw), "[")
+}
+
+func insertMultipleActionLogs(db *store.HeatmapDB, raw string, out io.Writer, flags map[string]string) error {
+	payloads, err := ParseActionPayloads(raw)
+	if err != nil {
+		return err
+	}
+
+	var lastRec store.HeatmapActionLogRecord
+	for _, p := range payloads {
+		rec := p.ToRecord()
+		if err := insertActionAndSetID(db, &rec); err != nil {
+			return err
+		}
+		lastRec = rec
+	}
+
+	return renderHeatmapLogResponse(out, lastRec, db.Path, flags)
+}
+
 func runHeatmapLog(flags map[string]string, out io.Writer) error {
 	db, err := openRootAndApplyPayload(flags)
 	if err != nil {
@@ -93,6 +124,10 @@ func runHeatmapLog(flags map[string]string, out io.Writer) error {
 	}
 
 	defer db.Close()
+
+	if isArrayPayload(flags["json_payload"]) {
+		return insertMultipleActionLogs(db, flags["json_payload"], out, flags)
+	}
 
 	rec := buildActionLogRecord(flags)
 	if err := insertActionAndSetID(db, &rec); err != nil {

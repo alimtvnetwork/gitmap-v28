@@ -1,6 +1,7 @@
 package secrets
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -159,7 +160,33 @@ func RunCommandWithInput(client *ssh.Client, cmd, shellType string, in io.Reader
 	if err != nil {
 		return string(out), apperror.WrapSimple(err, "command execution failed").WithContext("output", string(out))
 	}
+
 	return string(out), nil
+}
+
+// RunCommandSeparated executes a command over SSH separating STDOUT from STDERR.
+func RunCommandSeparated(client *ssh.Client, cmd, shellType string) (string, string, error) {
+	session, err := client.NewSession()
+	if err != nil {
+		return "", "", apperror.WrapSimple(err, "create ssh session")
+	}
+
+	defer session.Close()
+
+	return runSessionWithBuffers(session, wrapCommandForShell(cmd, shellType))
+}
+
+func runSessionWithBuffers(session *ssh.Session, wrappedCmd string) (string, string, error) {
+	var stdoutBuf, stderrBuf bytes.Buffer
+	session.Stdout = &stdoutBuf
+	session.Stderr = &stderrBuf
+	err := session.Run(wrappedCmd)
+	stdoutStr, stderrStr := stdoutBuf.String(), stderrBuf.String()
+	if err != nil {
+		return stdoutStr, stderrStr, apperror.WrapSimple(err, "remote command failed").WithContext("stderr", stderrStr)
+	}
+
+	return stdoutStr, stderrStr, nil
 }
 
 func wrapCommandForShell(cmd, shellType string) string {
@@ -191,19 +218,15 @@ func wrapPowerShellCommand(cmd, trimmed string) string {
 		return cmd
 	}
 
-	if hasComplexPowerShell(cmd) {
-		return WrapPowerShellEncodedCommand(cmd)
-	}
-
-	return fmt.Sprintf("powershell -NoProfile -Command \"%s\"", cmd)
+	return WrapPowerShellEncodedCommand(cmd)
 }
 
 // WrapPowerShellEncodedCommand transforms a PowerShell script into a Base64 UTF-16LE encoded command string.
 // Eliminates quotes, semicolons, and metacharacters for safe execution under Windows OpenSSH cmd.exe /c.
 func WrapPowerShellEncodedCommand(cmd string) string {
-	payload := encodeUTF16LEBase64(cmd)
+	payload := encodePowerShellCommand(cmd)
 
-	return "powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand " + payload
+	return "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand " + payload
 }
 
 // ResolveRemoteShell returns the canonical shell identifier ("ps", "bash", "sh") for a target OS string.
@@ -216,8 +239,8 @@ func ResolveRemoteShell(osType string) string {
 	return "bash"
 }
 
-func encodeUTF16LEBase64(s string) string {
-	u16 := utf16.Encode([]rune(s))
+func encodePowerShellCommand(cmd string) string {
+	u16 := utf16.Encode([]rune(cmd))
 	b := make([]byte, len(u16)*2)
 	for i, v := range u16 {
 		b[i*2] = byte(v)
@@ -225,6 +248,10 @@ func encodeUTF16LEBase64(s string) string {
 	}
 
 	return base64.StdEncoding.EncodeToString(b)
+}
+
+func encodeUTF16LEBase64(s string) string {
+	return encodePowerShellCommand(s)
 }
 
 func hasComplexPowerShell(cmd string) bool {

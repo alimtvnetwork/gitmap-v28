@@ -48,9 +48,31 @@ func deserializePayload(payloadRaw string) (HeatmapLogPayload, error) {
 	return payload, nil
 }
 
+func mergeActionPayloadIntoFlags(flags map[string]string, p HeatmapActionPayload) {
+	setFlagIfMissing(flags, "task", p.TaskSlug)
+	setFlagIfMissing(flags, "repo", p.RepoName)
+	setFlagIfMissing(flags, "action", p.Action)
+	setFlagIfMissing(flags, "file", p.File)
+	setFlagIfMissing(flags, "state", p.State)
+	setFlagIfMissing(flags, "expected", p.Expected)
+	setFlagIfMissing(flags, "actual", p.Actual)
+	setFlagIfMissing(flags, "ai", p.AiName)
+	setFlagIfMissing(flags, "model", p.ModelName)
+	setFlagIfMissing(flags, "tool", p.ToolName)
+	setFlagIfMissing(flags, "cmd", p.ToolParameters)
+	setFlagIfMissing(flags, "met", resolveExpectationFlag(p.IsExpectationMet))
+}
+
 func applyJSONPayloadFlags(flags map[string]string) error {
 	payloadRaw := flags["json_payload"]
 	if payloadRaw == "" {
+		return nil
+	}
+
+	payloads, err := ParseActionPayloads(payloadRaw)
+	if err == nil && len(payloads) > 0 {
+		mergeActionPayloadIntoFlags(flags, payloads[0])
+
 		return nil
 	}
 

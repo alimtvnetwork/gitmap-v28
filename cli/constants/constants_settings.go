@@ -40,7 +40,11 @@ const (
 	SettingNodeResourceThreshold   = "node_resource_threshold"
 	SettingGoEmailReaderBin        = "go_email_reader_bin"
 	SettingPullCacheWindowSeconds  = "pull_cache_window_seconds"
+	SettingPullRetentionDays       = "pull_retention_days"
 )
+
+// Default retention period in days for git pull execution history.
+const DefaultPullRetentionDays = 7
 
 // Default activity window for efficient pull operations.
 const DefaultPullActivityWindowHours = 48

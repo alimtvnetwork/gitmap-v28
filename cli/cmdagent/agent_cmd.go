@@ -61,9 +61,54 @@ func DispatchAgent(args []string) error {
 	}
 
 	clean = routeAgentConvenienceShortcuts(clean, first)
+	clean = normalizeSubtaskAddArgs(clean)
 	AgentCmd.SetArgs(clean)
 
 	return AgentCmd.Execute()
+}
+
+func normalizeSubtaskAddArgs(args []string) []string {
+	if len(args) < 2 {
+		return args
+	}
+	isSubtaskAdd := (args[0] == "subtask" && args[1] == "add") || args[0] == "add"
+	if !isSubtaskAdd {
+		return args
+	}
+
+	return rewriteSubtaskJSONArgs(args)
+}
+
+func rewriteSubtaskJSONArgs(args []string) []string {
+	var out []string
+	for i := 0; i < len(args); i++ {
+		rewritten, consumedNext, hasMatch := tryRewriteJSONFlag(args, i)
+		if hasMatch {
+			out = append(out, rewritten...)
+			if consumedNext {
+				i++
+			}
+			continue
+		}
+		out = append(out, args[i])
+	}
+
+	return out
+}
+
+func tryRewriteJSONFlag(args []string, i int) ([]string, bool, bool) {
+	arg := args[i]
+	if (arg == "--json" || arg == "-j") && i+1 < len(args) && IsJSONPayloadToken(args[i+1]) {
+		return []string{"--data", args[i+1], "--json"}, true, true
+	}
+	if strings.HasPrefix(arg, "--json=") {
+		val := strings.TrimPrefix(arg, "--json=")
+		if IsJSONPayloadToken(val) {
+			return []string{"--data", val, "--json"}, false, true
+		}
+	}
+
+	return nil, false, false
 }
 
 func routeAgentConvenienceShortcuts(clean []string, first string) []string {

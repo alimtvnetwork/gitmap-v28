@@ -205,16 +205,17 @@ func resolveTargetNodeOS(client *ssh.Client, c db.SSHConnection) string {
 }
 
 func runRemotePullJSON(client *ssh.Client, c db.SSHConnection, remoteCmd, shellType string) (string, error) {
-	out, err := secrets.RunCommand(client, remoteCmd, shellType)
-	if strings.Contains(out, "flag provided but not defined: -json") {
+	stdout, stderr, err := secrets.RunCommandSeparated(client, remoteCmd, shellType)
+	combined := stdout + "\n" + stderr
+	if strings.Contains(combined, "flag provided but not defined: -json") {
 		return handleLegacyRemotePull(client, c, remoteCmd, shellType)
 	}
 
-	if strings.Contains(out, "pending task already exists for pa") {
-		return recoverRemotePendingTask(client, out, remoteCmd, shellType)
+	if strings.Contains(combined, "pending task already exists for pa") {
+		return recoverRemotePendingTask(client, combined, remoteCmd, shellType)
 	}
 
-	return out, err
+	return stdout, err
 }
 
 func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd, shellType string) (string, error) {
@@ -224,8 +225,9 @@ func handleLegacyRemotePull(client *ssh.Client, c db.SSHConnection, remoteCmd, s
 	if shellType != "" {
 		resolvedShell = shellType
 	}
+	stdout, _, err := secrets.RunCommandSeparated(client, remoteCmd, resolvedShell)
 
-	return secrets.RunCommand(client, remoteCmd, resolvedShell)
+	return stdout, err
 }
 
 func recoverRemotePendingTask(client *ssh.Client, rawOutput, remoteCmd, shellType string) (string, error) {
@@ -233,8 +235,9 @@ func recoverRemotePendingTask(client *ssh.Client, rawOutput, remoteCmd, shellTyp
 	if taskID != "" {
 		_, _ = secrets.RunCommand(client, "gitmap task cancel "+taskID, shellType)
 	}
+	stdout, _, err := secrets.RunCommandSeparated(client, remoteCmd, shellType)
 
-	return secrets.RunCommand(client, remoteCmd, shellType)
+	return stdout, err
 }
 
 func extractPendingTaskID(s string) string {

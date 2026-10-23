@@ -27,6 +27,7 @@ var (
 		Use:   "add",
 		Short: "Enqueue subtasks to parent task database",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			InterceptSubtaskAddJSON(args, &subtaskAddOpts)
 			if len(args) > 0 && len(subtaskAddOpts.JsonInput) == 0 {
 				subtaskAddOpts.JsonInput = args[0]
 			}

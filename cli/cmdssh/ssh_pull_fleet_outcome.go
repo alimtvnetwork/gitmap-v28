@@ -29,11 +29,11 @@ func parseFleetPullOutcome(name, ip string, isLocal bool, rawOutput string) Flee
 func extractJSONPayload(s string) string {
 	start := strings.Index(s, "{")
 	end := strings.LastIndex(s, "}")
-	if start >= 0 && end > start {
-		return s[start : end+1]
+	if start == -1 || end == -1 || end <= start {
+		return ""
 	}
 
-	return s
+	return strings.TrimSpace(s[start : end+1])
 }
 
 func filterActiveFleetStates(states []fleetPullRepoItem) []fleetPullRepoItem {

@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	_ "modernc.org/sqlite"
 )
 
@@ -56,6 +58,77 @@ CREATE INDEX IF NOT EXISTS IdxPullRepoRun_RepoPath ON PullRepoRun(RepoPath);
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_CreatedAt ON PullRepoRun(CreatedAt);
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_HasChanges ON PullRepoRun(HasChanges);
 CREATE INDEX IF NOT EXISTS IdxPullRepoRun_LastCommitSha ON PullRepoRun(LastCommitSha);`
+
+	sqlCreatePullTask = `CREATE TABLE IF NOT EXISTS PullTask (
+    PullTaskId      INTEGER PRIMARY KEY AUTOINCREMENT,
+    TaskUuid        TEXT NOT NULL UNIQUE,
+    CommandType     TEXT NOT NULL,
+    TargetNode      TEXT NOT NULL DEFAULT 'local',
+    MachineId       TEXT NOT NULL DEFAULT '',
+    Status          TEXT NOT NULL DEFAULT 'pending',
+    Pid             INTEGER NOT NULL DEFAULT 0,
+    TotalRepos      INTEGER NOT NULL DEFAULT 0,
+    PulledRepos     INTEGER NOT NULL DEFAULT 0,
+    EtaSeconds      INTEGER NOT NULL DEFAULT 0,
+    IsActive        INTEGER NOT NULL DEFAULT 1,
+    IsCompleted     INTEGER NOT NULL DEFAULT 0,
+    IsFailed        INTEGER NOT NULL DEFAULT 0,
+    HasActiveLock   INTEGER NOT NULL DEFAULT 1,
+    StartedAt       TEXT NULL,
+    CompletedAt     TEXT NULL,
+    ErrorMessage    TEXT NULL,
+    HeartbeatAt     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS IdxPullTask_Status ON PullTask(Status);
+CREATE INDEX IF NOT EXISTS IdxPullTask_Heartbeat ON PullTask(HeartbeatAt);
+CREATE INDEX IF NOT EXISTS IdxPullTask_CreatedAt ON PullTask(CreatedAt);`
+
+	sqlCreatePullItemHistory = `CREATE TABLE IF NOT EXISTS PullItemHistory (
+    PullItemHistoryId INTEGER PRIMARY KEY AUTOINCREMENT,
+    PullTaskId        INTEGER NOT NULL,
+    RepoName          TEXT NOT NULL DEFAULT '',
+    RepoPath          TEXT NOT NULL DEFAULT '',
+    CommitHash        TEXT NOT NULL DEFAULT '',
+    Title             TEXT NOT NULL DEFAULT '',
+    PullStatus        TEXT NOT NULL DEFAULT 'pending',
+    FilesChanged      INTEGER NOT NULL DEFAULT 0,
+    DurationMs        INTEGER NOT NULL DEFAULT 0,
+    IsSuccess         INTEGER NOT NULL DEFAULT 0,
+    HasChanges        INTEGER NOT NULL DEFAULT 0,
+    IsSkipped         INTEGER NOT NULL DEFAULT 0,
+    ErrorMessage      TEXT NULL,
+    PulledAt          TEXT NULL,
+    CreatedAt         TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(PullTaskId) REFERENCES PullTask(PullTaskId) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS IdxPullItemHistory_PullTaskId ON PullItemHistory(PullTaskId);
+CREATE INDEX IF NOT EXISTS IdxPullItemHistory_RepoPath ON PullItemHistory(RepoPath);
+CREATE INDEX IF NOT EXISTS IdxPullItemHistory_CreatedAt ON PullItemHistory(CreatedAt);`
+
+	sqlCreatePullEtaHistory = `CREATE TABLE IF NOT EXISTS PullEtaHistory (
+    PullEtaHistoryId INTEGER PRIMARY KEY AUTOINCREMENT,
+    CommandType      TEXT NOT NULL,
+    TargetNode       TEXT NOT NULL DEFAULT 'local',
+    TotalRepos       INTEGER NOT NULL,
+    DurationSeconds  REAL NOT NULL,
+    CreatedAt        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS IdxPullEtaHistory_Lookup ON PullEtaHistory(CommandType, TargetNode, CreatedAt);`
+
+	sqlPurgePullItemHistory = `DELETE FROM PullItemHistory WHERE PullTaskId IN (
+    SELECT PullTaskId FROM PullTask WHERE datetime(CreatedAt) < datetime('now', '-' || ? || ' days')
+);`
+
+	sqlPurgePullTask = `DELETE FROM PullTask WHERE datetime(CreatedAt) < datetime('now', '-' || ? || ' days');`
+
+	sqlPurgePullEtaHistory = `DELETE FROM PullEtaHistory WHERE datetime(CreatedAt) < datetime('now', '-' || ? || ' days');`
+
+	sqlPurgePullRepoRun = `DELETE FROM PullRepoRun WHERE PullRunId IN (
+    SELECT PullRunId FROM PullRun WHERE datetime(CreatedAt) < datetime('now', '-' || ? || ' days')
+);`
+
+	sqlPurgePullRun = `DELETE FROM PullRun WHERE datetime(CreatedAt) < datetime('now', '-' || ? || ' days');`
 )
 
 // PullDBPath returns the canonical file path to gitmap-pull.db in the data folder.

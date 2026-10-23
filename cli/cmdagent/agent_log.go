@@ -82,24 +82,26 @@ func parseLogFlags(args []string) (*LogOptions, *appfault.AppError) {
 		Action:    ActionTypeExec,
 		Status:    "IN_PROGRESS",
 	}
+	InterceptAgentLogJSON(args, opts)
+	parseLogFlagArgs(args, opts)
 
+	return opts, nil
+}
+
+func parseLogFlagArgs(args []string, opts *LogOptions) {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		hasEq := strings.HasPrefix(arg, "--") && strings.Contains(arg, "=")
-		if hasEq {
+		if strings.HasPrefix(arg, "--") && strings.Contains(arg, "=") {
 			parts := strings.SplitN(arg, "=", 2)
 			parseFlagKeyValue(parts[0], parts[1], opts)
 			continue
 		}
-
 		hasVal := i+1 < len(args) && !strings.HasPrefix(args[i+1], "-")
 		if strings.HasPrefix(arg, "-") && hasVal {
 			parseFlagKeyValue(arg, args[i+1], opts)
 			i++
 		}
 	}
-
-	return opts, nil
 }
 
 func parseFlagKeyValue(key, val string, opts *LogOptions) {
