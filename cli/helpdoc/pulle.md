@@ -1,6 +1,6 @@
 # gitmap pulle (Alias for gitmap pull-error)
 
-See full documentation in [gitmap pull-error](file:///cli/helptext/pull-error.md).
+See full documentation in [gitmap pull-error](cli/helptext/pull-error.md).
 
 ## Usage
 

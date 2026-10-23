@@ -2,7 +2,7 @@
 
 ## User Request (Verbatim)
 ```text
-@[d:\work\gitmap\01-prompts\15-cg-execute\19-result-wrapper-and-apperror-returns.md]
+@[01-prompts/15-cg-execute/19-result-wrapper-and-apperror-returns.md]
 ```
 
 ## 1. Executive Summary & Architectural Intent

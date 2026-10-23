@@ -1,6 +1,6 @@
 # gitmap devtool (Alias for gitmap devtools)
 
-See full documentation in [gitmap devtools](file:///cli/helptext/devtools.md).
+See full documentation in [gitmap devtools](cli/helptext/devtools.md).
 
 ## Usage
 
