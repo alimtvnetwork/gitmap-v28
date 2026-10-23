@@ -170,8 +170,6 @@ Only genuinely open plans remain here after the 2026-10-23 pending-folder drain 
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
 
-- `subtasks/314-gitmap-heatmap-and-url-handling-instructions/` (7 subtasks - Heatmap Discovery, URL Split-DB & Segmented Downloader)
-
 - `subtasks/gitmap-testing-and-schedule-management/` (6 subtasks - Testing & Schedule Management)
 - `subtasks/gitmap-mailing-and-scheduling-enhancements/` (6 subtasks - Mailing & Event Scheduling)
 - `subtasks/236-deep-spec-consolidation-and-canonical-reduction/` (Active current parent plan)
