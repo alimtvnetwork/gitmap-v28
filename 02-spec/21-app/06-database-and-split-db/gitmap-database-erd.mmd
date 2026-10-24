@@ -602,3 +602,57 @@ erDiagram
         INTEGER CreatedAt
         INTEGER UpdatedAt
     }
+
+    %% ============================================================
+    %% WORKGROUP & SSH AUTOMATION (Task 317)
+    %% ============================================================
+
+    WorkDirectory {
+        INTEGER WorkDirectoryId PK
+        TEXT AbsolutePath UK
+        TEXT Label
+        INTEGER IsDefault
+        INTEGER HasActiveBinding
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    FolderWorkDir {
+        INTEGER FolderWorkDirId PK
+        TEXT FolderPath UK
+        INTEGER WorkDirectoryId FK
+        INTEGER IsRecursive
+        INTEGER Priority
+        INTEGER IsActive
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    FolderGroup {
+        INTEGER FolderGroupId PK
+        TEXT GroupName
+        TEXT FolderPath
+        TEXT Description
+        INTEGER IsDefault
+        INTEGER IsActive
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }
+
+    SshKeyAssociation {
+        INTEGER SshKeyAssociationId PK
+        INTEGER SshKeyId FK
+        TEXT AssociationType
+        TEXT TargetIdentifier
+        TEXT FolderPath
+        TEXT GroupName
+        INTEGER WorkDirectoryId FK
+        INTEGER RepoId FK
+        TEXT GitAuthorName
+        TEXT GitAuthorEmail
+        INTEGER IsActive
+        INTEGER IsAutoInjected
+        INTEGER Priority
+        TEXT CreatedAt
+        TEXT UpdatedAt
+    }

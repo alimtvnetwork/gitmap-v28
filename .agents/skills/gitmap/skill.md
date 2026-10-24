@@ -30,7 +30,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
-| ❌ Colons in commit messages (`git commit -m "feat: ..."` or `gitmap cpf "feat: ..."`) | ✅ `gitmap cpf "<module> - <summary>"` (hyphen-separated only) | GitMap automatically provides `Feature: ` or `Bug: ` prefix. Colons inside the message argument cause duplicate prefixes. |
+| ❌ Naked leading colons in commit messages (`gitmap cpf ": add feature"` or `gitmap cpf "Feature: add feature"`) | ✅ `gitmap cpf "[module]: <summary>"` or `gitmap cbf "[module]: <summary>"` | GitMap modern commit formatter supports `[module]: <item>` and Conventional syntax `type([module]): <item>`, auto-sanitizing prefixes cleanly. |
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
@@ -131,26 +131,29 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
-| `gitmap cpf "<module> - <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature, and push directly to GitHub tracking branch. |
-| `gitmap cpb "<module> - <summary>"` | - | Remote | `Bug: ` | Yes | Stage all, commit bugfix, and push directly to GitHub tracking branch. |
-| `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore/maintenance, and push directly to GitHub tracking branch. |
-| `gitmap cpr "<module> - <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to GitHub tracking branch. |
+| `gitmap cpf "[module]: <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature with bracketed module, and push directly to remote. |
+| `gitmap cbf "[module]: <summary>"` | `gitmap cpb` | Remote | `Bug: ` | Yes | Stage all, commit bugfix with bracketed module, and push directly to remote. |
+| `gitmap cpc "[module]: <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore with bracketed module, and push directly to remote. |
+| `gitmap cpr "[module]: <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to remote. |
 | `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
 
 #### Command Details & Behavioral Guidelines
 - `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap cpc "<module> - <summary>"` — Stage, commit, and push chore/maintenance branch (GitMap auto-prefixes `Chore: `).
-- `gitmap cpf "<module> - <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: `).
-- `gitmap cpb "<module> - <summary>"` — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: `).
-- `gitmap cpr "<module> - <summary>"` — Stage, commit, and push release chore.
-- `gitmap pcp "<module> - <summary>"` — Pull latest, commit, and push with preflight verification.
+- `gitmap cpf "[module]: <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: [module]: <summary>`).
+- `gitmap cbf "[module]: <summary>"` (alias: `gitmap cpb`) — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: [module]: <summary>`).
+- `gitmap cpc "[module]: <summary>"` — Stage, commit, and push chore branch (GitMap auto-prefixes `Chore: [module]: <summary>`).
+- `gitmap cpr "[module]: <summary>"` — Stage, commit, and push release chore.
+- `gitmap pcp "[module]: <summary>"` — Pull latest, commit, and push with preflight verification.
+- `gitmap workgroup ls` (alias: `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
+- `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
+- `gitmap workgroup test-ssh [name|dir]` — Test remote SSH handshake authentication against GitHub/GitLab.
 - `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository.
 - `gitmap pull-all` (alias `gitmap pa`) — Pull all repositories in workspace.
 - `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
-- **TOTAL BAN ON COLONS IN COMMIT MESSAGES:** Never use colons inside commit arguments (e.g. `gitmap cpf "Feature: title"` is FORBIDDEN; use `gitmap cpf "module - title"`).
-- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "<module> - <summary>"` or an explicit remote push.
+- **AUTHORIZED COMMIT SYNTAX:** Use bracketed module syntax `gitmap cpf "[module]: <summary>"` or conventional commit syntax `type([module]): <summary>`. Colons inside brackets `[module]:` are fully supported. Naked leading colons outside brackets (e.g. `Feature: title` or `: title`) are sanitized.
+- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "[module]: <summary>"` or an explicit remote push.
 
 ### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
 - `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.
@@ -671,14 +674,14 @@ Disciplined atomic commit workflow enforcing hyphen-separated messages and remot
 gitmap commit "wip - draft initial types and interfaces"
 gitmap cm "wip - draft initial types and interfaces"
 
-# Feature commit (auto-prefixes 'Feature: ', stages all, and pushes to GitHub tracking branch)
-gitmap cpf "skills - enrich gitmap skill with 12 real world categories"
+# Feature commit (auto-prefixes 'Feature: [skills]: ', stages all, and pushes to remote)
+gitmap cpf "[skills]: enrich gitmap skill with 12 real world categories"
 
-# Bugfix commit (auto-prefixes 'Bug: ', stages all, and pushes to GitHub tracking branch)
-gitmap cpb "cloner - correct concurrency flag parsing and worker limits"
+# Bugfix commit (auto-prefixes 'Bug: [cloner]: ', stages all, and pushes to remote)
+gitmap cbf "[cloner]: correct concurrency flag parsing and worker limits"
 
-# Chore/Maintenance commit (auto-prefixes 'Chore: ', stages all, and pushes)
-gitmap cpc "docs - realign companion skills and remove help flags"
+# Chore/Maintenance commit (auto-prefixes 'Chore: [docs]: ', stages all, and pushes)
+gitmap cpc "[docs]: realign companion skills and remove help flags"
 
 # Release chore commit (auto-prefixes release chore, stages, and pushes)
 gitmap cpr "release - bump minor version and update changelog"

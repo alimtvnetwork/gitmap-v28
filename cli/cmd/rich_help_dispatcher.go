@@ -30,6 +30,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkgroup"
 )
 
 // tryRenderRichTopic renders a rich two-column help menu if the topic has one.
@@ -58,7 +59,7 @@ func tryRenderCoreRichTopic(topic string) bool {
 		cmdfind.RenderFindHelp()
 
 		return true
-	case "commit", "cm", "commit-all", "ca", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cpr", "pcp", "commit-pull", "cpull":
+	case "commit", "cm", "commit-all", "ca", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cbf", "cpr", "pcp", "commit-pull", "cpull":
 		cmdcommit.RenderCommitHelp()
 
 		return true
@@ -221,6 +222,10 @@ func tryRenderWorkflowRichTopic(topic string) bool {
 		return true
 	case "fix-git", "fg":
 		cmdfixgit.RenderFixGitHelp()
+
+		return true
+	case "workgroup", "wg":
+		cmdworkgroup.RenderWorkgroupHelp()
 
 		return true
 	case "ai", "scripts":

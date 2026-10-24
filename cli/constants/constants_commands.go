@@ -94,8 +94,9 @@ const (
 	CmdPullCommitPush      = "pull-commit-push"
 	CmdPullCommitPushAlias = "pcp"
 	// CmdCommitPushBug commits with a "Bug: " prefix and pushes.
-	CmdCommitPushBug      = "commit-push-bug"
-	CmdCommitPushBugAlias = "cpb"
+	CmdCommitPushBug       = "commit-push-bug"
+	CmdCommitPushBugAlias  = "cpb"
+	CmdCommitPushBugAlias2 = "cbf"
 	// CmdCommitPushFeature commits with a "Feature: " prefix and pushes.
 	CmdCommitPushFeature      = "commit-push-feature"
 	CmdCommitPushFeatureAlias = "cpf"
@@ -244,6 +245,8 @@ const (
 	CmdListAlias             = "ls"
 	CmdGroup                 = "group"
 	CmdGroupAlias            = "g"
+	CmdWorkgroup             = "workgroup"
+	CmdWorkgroupAlias        = "wg"
 	SubCmdGroups             = "groups"
 	CmdCluster               = "cluster"
 	CmdClusterAlias          = "clst"

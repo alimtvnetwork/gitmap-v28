@@ -34,6 +34,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsequence"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdservercmd"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkgroup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdzip"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -77,11 +78,12 @@ func toolingUtilSearchEntries() []dispatchEntry {
 		{[]string{constants.CmdGitRm}, func() error { return cmdgitrm.RunGitRm(argsTail()) }},
 		{[]string{constants.CmdCommitPush, constants.CmdCommitPushAlias}, func() error { return cmdcommit.RunCommitPush(argsTail()) }},
 		{[]string{constants.CmdPullCommitPush, constants.CmdPullCommitPushAlias}, func() error { return cmdcommit.RunPullCommitPush(argsTail()) }},
-		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias}, func() error { return cmdcommit.RunCommitPushBug(argsTail()) }},
+		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias, constants.CmdCommitPushBugAlias2}, func() error { return cmdcommit.RunCommitPushBug(argsTail()) }},
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return cmdcommit.RunCommitPushFeature(argsTail()) }},
 		{[]string{constants.CmdCommitPushChore}, func() error { return cmdcommit.RunCommitPushChore(argsTail()) }},
 		{[]string{"cpc"}, func() error { return runCpcDisambiguated(argsTail()) }},
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return cmdcommit.RunCommitPushRelease(argsTail()) }},
+		{[]string{constants.CmdWorkgroup, constants.CmdWorkgroupAlias}, func() error { return cmdworkgroup.RunWorkgroup(argsTail()) }},
 		{[]string{constants.CmdRmGit, constants.CmdRmGitAlias}, func() error { return cmdcommit.RunRmGit(argsTail()) }},
 		{[]string{constants.CmdGitReset, constants.CmdGitResetAlias}, func() error { return cmdcommit.RunGitReset(argsTail()) }},
 	}

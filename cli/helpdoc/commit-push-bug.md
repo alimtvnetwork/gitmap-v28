@@ -23,11 +23,17 @@ The commit message will be: `Bug: fix null pointer in scanner`
 ## Aliases
 
 - `gitmap cpb "description"`
+- `gitmap cbf "description"` (first-class bug fix alias)
 
 ## Examples
 
 ```bash
-gitmap commit-push-bug "fix race condition in version flush"
-gitmap cpb "resolve sqlite driver mismatch"
-gitmap commit-push-bug "handle nil pointer when DB is empty"
+gitmap cbf "[db]: fix race condition in version flush"
+gitmap cpb "[sqlite]: resolve driver mismatch"
+gitmap commit-push-bug "[scanner]: handle nil pointer when DB is empty"
 ```
+
+## See Also
+
+- `gitmap hd cbf` — High-speed bug fix commit and push alias.
+- `gitmap hd commit-format` — Modular bracket syntax and conventional commit formatting guide.

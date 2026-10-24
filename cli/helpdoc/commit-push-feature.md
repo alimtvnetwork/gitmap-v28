@@ -27,7 +27,13 @@ The commit message will be: `Feature: add new search command with regex support`
 ## Examples
 
 ```bash
-gitmap commit-push-feature "add commit-push commands for quick git workflows"
-gitmap cpf "implement SplitDB file indexer with parallel workers"
+gitmap commit-push-feature "[search]: add new search command with regex support"
+gitmap cpf "[index]: implement SplitDB file indexer with parallel workers"
+gitmap cpf "feat([workgroup]): add folder ssh key binding"
 gitmap commit-push-feature "wire repo-regex search to CLI endpoints"
 ```
+
+## See Also
+
+- `gitmap hd commit-format` — Modular bracket syntax and conventional commit formatting guide.
+- `gitmap hd workgroup` — Folder-specific workgroup and SSH key automation.

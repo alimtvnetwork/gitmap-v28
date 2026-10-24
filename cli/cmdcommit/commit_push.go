@@ -35,7 +35,7 @@ func RunCommitPush(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push <message>", "E9000")
 	}
-	commitMessage := strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cp", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -52,7 +52,7 @@ func RunPullCommitPush(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap pull-commit-push <message>", "E9000")
 	}
-	commitMessage := strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("pcp", cleanArgs)
 
 	return executePullCommitPush(commitMessage, meta)
 }
@@ -83,7 +83,7 @@ func RunCommitPushBug(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", "E9000")
 	}
-	commitMessage := "Bug: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cpb", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -100,7 +100,7 @@ func RunCommitPushFeature(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", "E9000")
 	}
-	commitMessage := "Feature: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cpf", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -117,7 +117,7 @@ func RunCommitPushChore(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", "E9000")
 	}
-	commitMessage := "Chore: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cpc", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -134,7 +134,7 @@ func RunCommitPushRelease(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", "E9000")
 	}
-	commitMessage := "Release: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cpr", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }

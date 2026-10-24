@@ -97,7 +97,7 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 
 	if !isValidSendsVerb(opts.Verb) {
 		return opts, apperror.NewSimple(
-			fmt.Sprintf("unknown semantic verb '%s'. Supported verbs: cpf, cpb, cpr, commit-fix, cp, cm", opts.Verb),
+			fmt.Sprintf("unknown semantic verb '%s'. Supported verbs: cpf, cpb, cbf, cpr, commit-fix, cp, cm", opts.Verb),
 			"E9000",
 		)
 	}
@@ -112,7 +112,7 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 
 func isValidSendsVerb(verb string) bool {
 	switch verb {
-	case "cpf", "cpb", "cpr", "commit-fix", "cp", "cm":
+	case "cpf", "cpb", "cbf", "cpr", "commit-fix", "cp", "cm":
 		return true
 	default:
 		return false
@@ -123,7 +123,7 @@ func resolveSemanticCommitPrefix(verb string) string {
 	switch verb {
 	case "cpf":
 		return "Feature: "
-	case "cpb":
+	case "cpb", "cbf":
 		return "Bug: "
 	case "cpr":
 		return "Release: "
@@ -591,7 +591,7 @@ func printSendsHelp() {
 
 %sSEMANTIC VERBS:%s
   cpf         Injects "Feature: " prefix, commits, and pushes
-  cpb         Injects "Bug: " prefix, commits, and pushes
+  cpb, cbf    Injects "Bug: " prefix, commits, and pushes
   cpr         Injects "Release: " prefix, commits, and pushes
   commit-fix  Injects "Fix: " prefix, commits, and pushes
   cp          Flat commit without prefix, commits, and pushes

@@ -80,12 +80,15 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap replace-regex <pat> <subst>`" + ` — Regex replacement across repository.
 - ` + "`gitmap rm <pattern> [--task <id>] [--reason <msg>] [--undo]`" + ` — Safe task-based file removal with backup in OS temp and undo support.
 
-### 5. Semantic Commit & Push
-- ` + "`gitmap cpf \"<msg>\"`" + ` — Stage, commit, and push feature branch (commit-push-feature).
-- ` + "`gitmap cpb \"<msg>\"`" + ` — Stage, commit, and push bugfix branch (commit-push-bug).
-- ` + "`gitmap cpc \"<msg>\"`" + ` — Stage, commit, and push chore branch (commit-push-chore).
-- ` + "`gitmap cpr \"<msg>\"`" + ` — Stage, commit, and push release chore (commit-push-release).
+### 5. Semantic Commit & Push & Workgroup
+- ` + "`gitmap cpf \"[module]: <item>\"`" + ` — Stage, commit, and push feature branch with bracketed module syntax (commit-push-feature).
+- ` + "`gitmap cbf \"[module]: <item>\"`" + ` / ` + "`gitmap cpb`" + ` — Stage, commit, and push bugfix branch (commit-push-bug).
+- ` + "`gitmap cpc \"[module]: <item>\"`" + ` — Stage, commit, and push chore branch (commit-push-chore).
+- ` + "`gitmap cpr \"[module]: <item>\"`" + ` — Stage, commit, and push release chore (commit-push-release).
 - ` + "`gitmap pcp \"<msg>\"`" + ` — Pull latest, commit, and push with preflight verification (pull-commit-push).
+- ` + "`gitmap workgroup ls`" + ` (alias: ` + "`gitmap wg ls`" + `) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
+- ` + "`gitmap workgroup add <name> <dir> --ssh-key <key>`" + ` — Register folder workgroup and bind dedicated SSH private key.
+- ` + "`gitmap workgroup test-ssh [name|dir]`" + ` — Test remote SSH handshake authentication against GitHub/GitLab.
 
 ### 6. Script Runners & Multi-Repo Operations
 - ` + "`gitmap py <script.py> [args...]`" + ` / ` + "`gitmap py -c \"<code>\"`" + ` (alias: ` + "`gitmap python`" + `) — Native Python runner with process exit code propagation and Split-DB telemetry recording.

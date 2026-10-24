@@ -225,3 +225,35 @@ const MsgSSHAvailableCommands = "\n  \033[1;96mAvailable SSH subcommands:\033[0m
 	"    gitmap ssh rm all -y\n" +
 	"    gitmap ssh reset -y\n" +
 	"    gitmap ssh undo\n\n"
+
+// SSH isolation, interceptor timeouts, and flags.
+const (
+	SSHFlagConfigFile     = "-F"
+	DevNullPath           = "/dev/null"
+	SSHFlagIdentity       = "-i"
+	SSHIdentitiesOnlyYes  = "IdentitiesOnly=yes"
+	SSHBatchModeYes       = "BatchMode=yes"
+	SSHConnectTimeout15   = "ConnectTimeout=15"
+	SSHDefaultTimeoutSec  = 15
+	TableFolderSSHBinding = "folder_ssh_bindings"
+)
+
+// Git author and committer environment variable keys for context injection.
+const (
+	EnvGitAuthorName     = "GIT_AUTHOR_NAME"
+	EnvGitAuthorEmail    = "GIT_AUTHOR_EMAIL"
+	EnvGitCommitterName  = "GIT_COMMITTER_NAME"
+	EnvGitCommitterEmail = "GIT_COMMITTER_EMAIL"
+)
+
+// SSHFallbackTierType represents the 5-tier fallback cascade for SSH credential resolution.
+type SSHFallbackTierType int
+
+const (
+	SSHFallbackTierRepoOverride  SSHFallbackTierType = 1
+	SSHFallbackTierLongestPrefix SSHFallbackTierType = 2
+	SSHFallbackTierWorkgroup     SSHFallbackTierType = 3
+	SSHFallbackTierGlobalDefault SSHFallbackTierType = 4
+	SSHFallbackTierSystemDefault SSHFallbackTierType = 5
+)
+
