@@ -100,12 +100,13 @@ func cleanWorkingTreeConflictMarkers(repoPath string) {
 	}
 }
 
-func concludeMergeCommit(repoPath string) {
-	commitArgs := []string{"-C", repoPath, "commit", "-m", "fix: auto-resolve merge conflicts"}
-	if !hasConfiguredGitIdentity(repoPath) {
-		commitArgs = []string{"-C", repoPath, "-c", "user.name=gitmap", "-c", "user.email=gitmap@localhost", "commit", "-m", "fix: auto-resolve merge conflicts"}
+func concludeMergeCommit(repoPath string) bool {
+	commitArgs, hasIdentity := buildCommitArgsWithIdentity(repoPath, "fix: auto-resolve merge conflicts")
+	if !hasIdentity {
+		return false
 	}
-	_ = exec.Command("git", commitArgs...).Run()
+
+	return exec.Command("git", commitArgs...).Run() == nil
 }
 
 func resolveSingleConflictFile(repoPath, relFile string) {

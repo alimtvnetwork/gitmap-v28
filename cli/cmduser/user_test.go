@@ -91,13 +91,40 @@ func TestExtractFirstPositional(t *testing.T) {
 	}
 }
 
+func TestDispatchUserSubcommand_Set(t *testing.T) {
+	err := dispatchUserSubcommand("set", []string{"local"})
+	if err != nil {
+		t.Errorf("unexpected error on set local: %v", err)
+	}
+}
+
+func TestParseConfigArgs_Flags(t *testing.T) {
+	name, email, isGlobal, isInteractive := parseConfigArgs([]string{"--global", "--name", "Alice", "--email", "alice@test.com"})
+	if !isGlobal || isInteractive {
+		t.Errorf("expected isGlobal=true, isInteractive=false")
+	}
+	if name != "Alice" || email != "alice@test.com" {
+		t.Errorf("unexpected name/email: %s / %s", name, email)
+	}
+}
+
+func TestParseConfigArgs_Positional(t *testing.T) {
+	name, email, isGlobal, _ := parseConfigArgs([]string{"global", "Bob", "bob@test.com"})
+	if !isGlobal {
+		t.Errorf("expected isGlobal=true")
+	}
+	if name != "Bob" || email != "bob@test.com" {
+		t.Errorf("unexpected positional name/email: %s / %s", name, email)
+	}
+}
+
 // dispatchUser reports whether sub is a user subcommand. Test-local
 // helper — the production dispatcher (dispatchUserSubcommand) has a
 // different signature.
 func dispatchUser(sub string) (bool, error) {
 	switch sub {
 	case "info", "status", "list", "ls", "switch", "use", "project",
-		"config", "sync", "add", "rm", "delete", "remove", "del",
+		"config", "set", "sync", "add", "rm", "delete", "remove", "del",
 		"create-root", "root":
 		return true, nil
 	default:
