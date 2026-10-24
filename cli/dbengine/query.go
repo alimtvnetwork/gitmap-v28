@@ -4,14 +4,16 @@ import (
 	"context"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine/enums"
 )
 
-type whereType int
+// whereType is the canonical where clause enum, defined in the dbengine enums package.
+type whereType = enums.WhereClauseType
 
 const (
-	whereOp whereType = iota
-	whereLocate
-	whereColumnOp
+	whereOp       = enums.WhereOp
+	whereLocate   = enums.WhereLocate
+	whereColumnOp = enums.WhereColumnOp
 )
 
 type whereClause struct {
