@@ -4,6 +4,7 @@ package cmdchrome
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
@@ -39,8 +40,10 @@ func runChrome(args []string) error {
 	return nil
 }
 
+var chromeHelpFlagTokens = []string{"help", "--help", "-h"}
+
 func isHelpFlag(arg string) bool {
-	return arg == "help" || arg == "--help" || arg == "-h"
+	return slices.Contains(chromeHelpFlagTokens, arg)
 }
 
 func dispatchChromeSubcommand(sub string, tail []string) bool {
