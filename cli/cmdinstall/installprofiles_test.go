@@ -9,13 +9,13 @@ import (
 var allExpectedProfiles = []string{
 	"minimal", "base", "git-compact", "advance", "cpp-dx", "small-dev",
 	"dev", "dev-advance", "terminal", "web-dev", "devops",
-	"ubuntu", "ai", "ai-tools", "antigravity-suite", "backend", "fullstack",
+	"ubuntu", "ai", "ai-tools", "antigravity-suite", "agm-build-tools", "backend", "fullstack",
 }
 
 func TestInstallProfilesRegistry(t *testing.T) {
 	profiles := AllInstallProfiles()
-	if len(profiles) < 17 {
-		t.Fatalf("expected at least 17 profiles, got %d", len(profiles))
+	if len(profiles) < 18 {
+		t.Fatalf("expected at least 18 profiles, got %d", len(profiles))
 	}
 
 	for _, expected := range allExpectedProfiles {
@@ -79,6 +79,11 @@ var profileAliasesMap = map[string]string{
 	"aitools":             "ai-tools",
 	"ag-suite":            "antigravity-suite",
 	"antigravitysuite":    "antigravity-suite",
+	"agm-tools":           "agm-build-tools",
+	"agm-build":           "agm-build-tools",
+	"dev-rust":            "agm-build-tools",
+	"rust-build-tools":    "agm-build-tools",
+	"agm-toolchain":       "agm-build-tools",
 }
 
 func TestInstallProfileAliases(t *testing.T) {

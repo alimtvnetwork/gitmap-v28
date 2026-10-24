@@ -15,6 +15,7 @@ func getSpecializedWorkstationProfiles() []InstallProfile {
 		buildAIProfile(),
 		buildAiToolsProfile(),
 		buildAntigravitySuiteProfile(),
+		buildAgmBuildToolsProfile(),
 		buildBackendProfile(),
 		buildFullstackProfile(),
 	}
@@ -130,6 +131,21 @@ func buildAntigravitySuiteProfile() InstallProfile {
 			constants.ToolAntigravity, constants.ToolAgManager, constants.ToolAgy,
 		},
 		Aliases: []string{"ag-suite", "antigravitysuite"},
+	}
+}
+
+func buildAgmBuildToolsProfile() InstallProfile {
+	return InstallProfile{
+		Name:        "agm-build-tools",
+		Title:       "Antigravity Manager build tools",
+		Description: "Rust, Cargo, LLVM/Clang (libclang), and C++ toolchain to build Antigravity Manager",
+		Tools: []string{
+			constants.ToolRust, constants.ToolCargo, constants.ToolNodeJS,
+			constants.ToolPnpm, constants.ToolVcRedist,
+		},
+		Aliases: []string{
+			"agm-tools", "agm-build", "rust-build-tools", "dev-rust", "agm-toolchain",
+		},
 	}
 }
 
