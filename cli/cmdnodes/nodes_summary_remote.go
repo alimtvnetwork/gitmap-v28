@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/pterm/pterm"
 )
@@ -192,7 +193,7 @@ func renderFleetEnvelopeJSON(conns []db.SSHConnection, reachableCount, localRepo
 		Data: FleetNodesData{
 			LocalNode: NodeSummaryResult{
 				NodeAlias:       "local-master",
-				Host:            "localhost",
+				Host:            constants.Localhost,
 				IsOnline:        true,
 				IsLocalMaster:   true,
 				UniqueRepoCount: localReposCount,

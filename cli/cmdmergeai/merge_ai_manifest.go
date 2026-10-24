@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // WriteMergeAIManifest serializes and saves merge-ai-manifest.json into destination repository root.
@@ -133,8 +134,8 @@ func classifyCollision(path string) (string, string) {
 	}
 
 	if base == "package.json" || base == "package-lock.json" || base == "pnpm-lock.yaml" || base == "yarn.lock" ||
-		base == "tsconfig.json" || base == "go.mod" || base == "go.sum" || base == "cargo.toml" ||
-		base == ".gitignore" || base == "vite.config.ts" || base == "vite.config.js" ||
+		base == "tsconfig.json" || base == constants.GoModFile || base == "go.sum" || base == "cargo.toml" ||
+		base == constants.GitIgnoreFile || base == "vite.config.ts" || base == "vite.config.js" ||
 		base == "tailwind.config.ts" || base == "tailwind.config.js" || strings.HasPrefix(base, "readme") {
 		return "Configuration / Manifest", "Synthesize configuration additively into canonical file. Merge all unique dependencies, build scripts, and declarations."
 	}

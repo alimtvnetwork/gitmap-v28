@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -225,7 +226,7 @@ func findGoModDirs(root string) []string {
 		if info.Name() == ".git" || info.Name() == "node_modules" {
 			return filepath.SkipDir
 		}
-		if _, statErr := os.Stat(filepath.Join(p, "go.mod")); statErr == nil {
+		if _, statErr := os.Stat(filepath.Join(p, constants.GoModFile)); statErr == nil {
 			dirs = append(dirs, p)
 		}
 		return nil

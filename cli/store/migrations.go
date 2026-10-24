@@ -96,7 +96,7 @@ func isBenignAlterError(err error) bool {
 		"no such column",
 		"no such table",
 		"duplicate column",
-		"already exists",
+		constants.AlreadyExistsSubstring,
 	} {
 		if strings.Contains(msg, needle) {
 			return true

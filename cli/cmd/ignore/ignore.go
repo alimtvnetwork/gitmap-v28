@@ -9,6 +9,7 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // RunIgnore appends a pattern to .gitignore idempotently.
@@ -53,7 +54,7 @@ func RunIgnoreRm(args []string) error {
 }
 
 func addToGitignore(pattern string) error {
-	b, err := os.ReadFile(".gitignore")
+	b, err := os.ReadFile(constants.GitIgnoreFile)
 	if err == nil && containsGitignorePattern(string(b), pattern) {
 		pterm.Info.Printf("Pattern '%s' already in .gitignore\n", pattern)
 
@@ -61,7 +62,7 @@ func addToGitignore(pattern string) error {
 	}
 
 	content := formatGitignoreContent(string(b), pattern)
-	if err := os.WriteFile(".gitignore", []byte(content), 0644); err != nil {
+	if err := os.WriteFile(constants.GitIgnoreFile, []byte(content), 0644); err != nil {
 		return apperror.WrapSimple(err, "addToGitignore: failed to write file")
 	}
 

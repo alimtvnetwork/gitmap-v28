@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // uiListenHost and uiNoBrowser carry the parsed `gitmap ui` flags for the
@@ -78,5 +79,5 @@ func splitUIFlags(args []string) (flagArgs, positional []string) {
 
 func isLoopbackHost(host string) bool {
 	h := strings.ToLower(strings.TrimSpace(host))
-	return h == "127.0.0.1" || h == "::1" || h == "localhost"
+	return h == "127.0.0.1" || h == "::1" || h == constants.Localhost
 }

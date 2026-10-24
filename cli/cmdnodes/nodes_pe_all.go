@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsummary"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/pterm/pterm"
 )
@@ -87,7 +88,7 @@ func executeLocalPEAllFallback(opts nodesPEAllOptions, localRecords []model.Scan
 		Data: FleetNodesData{
 			LocalNode: NodeSummaryResult{
 				NodeAlias:       "local-master",
-				Host:            "localhost",
+				Host:            constants.Localhost,
 				IsOnline:        true,
 				IsLocalMaster:   true,
 				UniqueRepoCount: len(localRecords),

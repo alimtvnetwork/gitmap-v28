@@ -187,7 +187,7 @@ func untrackRepoPaths(repoDir string, trackedPaths []string) bool {
 }
 
 func sanitizeRepoGitignore(repoDir string) bool {
-	ignorePath := filepath.Join(repoDir, ".gitignore")
+	ignorePath := filepath.Join(repoDir, constants.GitIgnoreFile)
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data))
 	if !isModified {
@@ -200,7 +200,7 @@ func sanitizeRepoGitignore(repoDir string) bool {
 }
 
 func commitSanitizedGitignore(repoDir string) bool {
-	addArgs := []string{"-C", repoDir, "add", ".gitignore"}
+	addArgs := []string{"-C", repoDir, "add", constants.GitIgnoreFile}
 	_, errAdd := gitutil.ExecGitWithTimeout(10*time.Second, repoDir, addArgs...)
 	if errAdd != nil {
 		return false

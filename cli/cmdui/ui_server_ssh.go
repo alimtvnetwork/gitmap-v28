@@ -122,7 +122,7 @@ func handleAPISSHPing(w http.ResponseWriter, r *http.Request) {
 func executeNodePingCheck(alias string) SSHPingResult {
 	start := time.Now()
 
-	if strings.EqualFold(alias, "local") || strings.EqualFold(alias, "localhost") || alias == "." {
+	if strings.EqualFold(alias, "local") || strings.EqualFold(alias, constants.Localhost) || alias == "." {
 		return SSHPingResult{
 			Success:   true,
 			IsOnline:  true,

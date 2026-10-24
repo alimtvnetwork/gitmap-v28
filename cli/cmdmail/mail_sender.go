@@ -115,7 +115,7 @@ func deliverSMTPPayload(client *smtp.Client, from string, rcpts []string, raw []
 }
 
 func isLocalHost(host string) bool {
-	return host == "localhost" || host == "127.0.0.1" || strings.HasSuffix(host, ".local")
+	return host == constants.Localhost || host == "127.0.0.1" || strings.HasSuffix(host, ".local")
 }
 
 // BuildMIMEMessage formats an RFC 822/2822 payload, stripping BCC from headers.

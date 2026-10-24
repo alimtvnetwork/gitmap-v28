@@ -141,7 +141,7 @@ func resolveLocalHostname() string {
 }
 
 func isNodeTargetIncluded(node UnifiedFleetNode, filter string) bool {
-	isLocal := strings.EqualFold(node.Host, "127.0.0.1") || strings.EqualFold(node.Host, "localhost") || strings.EqualFold(node.Alias, "local")
+	isLocal := strings.EqualFold(node.Host, "127.0.0.1") || strings.EqualFold(node.Host, constants.Localhost) || strings.EqualFold(node.Alias, "local")
 	if isLocal {
 		return false
 	}

@@ -133,7 +133,7 @@ func resolveExportMachine(flagMachine string) string {
 	}
 	name, err := os.Hostname()
 	if err != nil || strings.TrimSpace(name) == "" {
-		return "localhost"
+		return constants.Localhost
 	}
 	return name
 }

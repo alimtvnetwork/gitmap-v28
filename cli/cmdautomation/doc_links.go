@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -37,7 +38,7 @@ func collectDocMarkdownFiles(root, customDir string) []string {
 		return walkMarkdownFiles(customDir)
 	}
 	var files []string
-	targets := []string{"02-spec", ".ai-memory", "README.md"}
+	targets := []string{"02-spec", ".ai-memory", constants.ReadmeFile}
 	for _, t := range targets {
 		p := filepath.Join(root, t)
 		files = append(files, resolveTargetFiles(p)...)

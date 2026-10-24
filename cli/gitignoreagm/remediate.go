@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 const PrimaryIgnoreEntry = "antigravity-resume_task.json"
@@ -161,7 +162,7 @@ func removeIfPresent(fullPath string) bool {
 }
 
 func ensureGitignoreEntries(repoDir string) (bool, error) {
-	ignorePath := filepath.Join(repoDir, ".gitignore")
+	ignorePath := filepath.Join(repoDir, constants.GitIgnoreFile)
 	data, err := readGitignoreFile(ignorePath)
 	if err != nil {
 		return false, err
@@ -186,7 +187,7 @@ func readGitignoreFile(ignorePath string) ([]byte, error) {
 }
 
 func stageAndCommitGitignore(repoDir string) bool {
-	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+	_ = exec.Command("git", "-C", repoDir, "add", constants.GitIgnoreFile).Run()
 	if !hasStagedGitChanges(repoDir) {
 		return false
 	}

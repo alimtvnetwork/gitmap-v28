@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -21,7 +22,7 @@ var (
 	}
 
 	manifestPatterns = map[string]string{
-		"go.mod": "go", "go.sum": "go",
+		constants.GoModFile: "go", "go.sum": "go",
 		"package.json": "typescript", "tsconfig.json": "typescript",
 		"requirements.txt": "python", "pyproject.toml": "python", "setup.py": "python",
 		"cargo.toml": "rust", "cargo.lock": "rust",

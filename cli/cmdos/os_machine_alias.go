@@ -97,7 +97,7 @@ func resolveLocalMachineIdentity() MachineIdentity {
 	ip := resolveLocalIPv4()
 	osHost, _ := os.Hostname()
 	if len(osHost) == 0 {
-		osHost = "localhost"
+		osHost = constants.Localhost
 	}
 	machName := readGlobalOrFallback("machine.name", osHost)
 	alias := readGlobalOrFallback("machine.alias", ip)

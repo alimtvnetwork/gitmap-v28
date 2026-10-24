@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -46,7 +47,7 @@ func LoadWPRMachineCache() []WPRMachineCacheEntry {
 func defaultLocalMachineCache() []WPRMachineCacheEntry {
 	host, _ := os.Hostname()
 	if len(host) == 0 {
-		host = "localhost"
+		host = constants.Localhost
 	}
 
 	return []WPRMachineCacheEntry{

@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 import "github.com/alimtvnetwork/gitmap-v28/cli/cmdmail/enums"
 
@@ -175,7 +177,7 @@ func dispatchBatchNotification(cfg FolderWatcherConfig, batch *WatcherBatch, sto
 		To:          cfg.Recipients,
 		Subject:     subject,
 		Body:        body,
-		Host:        "localhost",
+		Host:        constants.Localhost,
 		Port:        1025,
 	}
 	rawMsg := BuildMIMEMessage(sendOpts)

@@ -15,6 +15,7 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -24,7 +25,7 @@ func deriveVaultMasterKey() []byte {
 	hostname, err := os.Hostname()
 	hasErr := err != nil || hostname == ""
 	if hasErr {
-		hostname = "localhost"
+		hostname = constants.Localhost
 	}
 
 	mac := hmac.New(sha256.New, []byte(defaultVaultSalt))

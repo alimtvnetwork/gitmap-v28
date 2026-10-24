@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func printDigestSummary(path, digestDir, digestName string, days int, files []string, commitCount int, since sinceRead) {
@@ -59,7 +61,7 @@ func printTraversalChecklist(path, digestDir string, sequenced []string) {
 	fmt.Println("======================================================================")
 	fmt.Println("AI TRAVERSAL CHECKLIST (execute in order)")
 	fmt.Println("======================================================================")
-	fmt.Printf("1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):\n   gitmap cat %s\n", relForDisplay(filepath.Join(digestDir, "README.md")))
+	fmt.Printf("1. Read the digest root contract first (why: it defines the say-READ protocol and the file order):\n   gitmap cat %s\n", relForDisplay(filepath.Join(digestDir, constants.ReadmeFile)))
 	fmt.Println("2. Walk the sequenced digests in order (why: lexical order is the authored narrative):")
 	for _, f := range sequenced {
 		fmt.Printf("   gitmap cat %s\n", relForDisplay(filepath.Join(path, filepath.FromSlash(f))))

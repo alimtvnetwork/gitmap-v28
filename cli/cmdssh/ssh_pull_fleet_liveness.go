@@ -19,7 +19,7 @@ import (
 // IsLocalHostAddress tests if an IP address belongs to the current local machine.
 func IsLocalHostAddress(ip string) bool {
 	clean := strings.TrimSpace(ip)
-	if clean == "" || clean == "127.0.0.1" || clean == "::1" || strings.EqualFold(clean, "localhost") {
+	if clean == "" || clean == "127.0.0.1" || clean == "::1" || strings.EqualFold(clean, constants.Localhost) {
 		return true
 	}
 	if host, err := os.Hostname(); err == nil && strings.EqualFold(host, clean) {
@@ -126,7 +126,7 @@ func printFleetEnqueueBanner(probes []fleetNodeLiveness) {
 func resolveLocalHostname() string {
 	host, err := os.Hostname()
 	if err != nil || host == "" {
-		return "localhost"
+		return constants.Localhost
 	}
 	return host
 }

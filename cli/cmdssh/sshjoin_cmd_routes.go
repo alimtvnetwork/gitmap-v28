@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/spf13/cobra"
@@ -166,7 +167,7 @@ func isUserAtHostAddress(s string) bool {
 		return false
 	}
 	cleanHost := stripPortOrBrackets(parts[1])
-	return net.ParseIP(cleanHost) != nil || strings.Contains(cleanHost, ".") || cleanHost == "localhost"
+	return net.ParseIP(cleanHost) != nil || strings.Contains(cleanHost, ".") || cleanHost == constants.Localhost
 }
 
 func isTargetAddress(s string) bool {

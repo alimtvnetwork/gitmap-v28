@@ -131,7 +131,7 @@ func probeRemoteRepoExists(slug string) (bool, error) {
 func isRepoCollisionOutput(output string) bool {
 	lower := strings.ToLower(output)
 
-	return strings.Contains(lower, "already exists")
+	return strings.Contains(lower, constants.AlreadyExistsSubstring)
 }
 
 func isTerminalStdinInteractive() bool {

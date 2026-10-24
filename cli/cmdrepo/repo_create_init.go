@@ -80,13 +80,13 @@ func maybeWriteInitialFiles(isExisting bool, absDir string, p CreateRepoParams) 
 }
 
 func stageAndCommitExistingFiles(absDir string, p CreateRepoParams) error {
-	readmePath := filepath.Join(absDir, "README.md")
+	readmePath := filepath.Join(absDir, constants.ReadmeFile)
 	if _, err := os.Stat(readmePath); os.IsNotExist(err) {
 		readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
 		_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
 	}
 
-	gitignorePath := filepath.Join(absDir, ".gitignore")
+	gitignorePath := filepath.Join(absDir, constants.GitIgnoreFile)
 	if _, err := os.Stat(gitignorePath); os.IsNotExist(err) {
 		gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
 		_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)
@@ -138,14 +138,14 @@ func maybeApplyCGFiles(isCG bool, absDir string) error {
 }
 
 func writeInitialFiles(absDir string, p CreateRepoParams) {
-	readmePath := filepath.Join(absDir, "README.md")
+	readmePath := filepath.Join(absDir, constants.ReadmeFile)
 	readmeLower := filepath.Join(absDir, "readme.md")
 	if !fsutil.FileExists(readmePath) && !fsutil.FileExists(readmeLower) {
 		readmeContent := fmt.Sprintf("# %s\n\n%s\n", p.Name, p.Description)
 		_ = os.WriteFile(readmePath, []byte(readmeContent), 0644)
 	}
 
-	gitignorePath := filepath.Join(absDir, ".gitignore")
+	gitignorePath := filepath.Join(absDir, constants.GitIgnoreFile)
 	if !fsutil.FileExists(gitignorePath) {
 		gitignoreContent := ".DS_Store\nThumbs.db\nnode_modules/\nbin/\n*.log\n"
 		_ = os.WriteFile(gitignorePath, []byte(gitignoreContent), 0644)

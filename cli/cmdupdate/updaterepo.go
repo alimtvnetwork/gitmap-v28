@@ -180,7 +180,7 @@ func isGitmapSourceRepo(path string) bool {
 
 	markers := []string{
 		filepath.Join(path, "cli", "constants", "constants.go"),
-		filepath.Join(path, "cli", "go.mod"),
+		filepath.Join(path, "cli", constants.GoModFile),
 		filepath.Join(path, "gitmap", "constants", "constants.go"),
 		filepath.Join(path, "constants", "constants.go"),
 	}

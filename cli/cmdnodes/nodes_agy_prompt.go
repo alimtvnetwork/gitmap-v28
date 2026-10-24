@@ -88,7 +88,7 @@ func RunNodesAgyPrompt(args []string) error {
 }
 
 func isLocalTargetNode(alias string) bool {
-	if strings.EqualFold(alias, "local") || strings.EqualFold(alias, "localhost") || alias == "." {
+	if strings.EqualFold(alias, "local") || strings.EqualFold(alias, constants.Localhost) || alias == "." {
 		return true
 	}
 	host, _ := os.Hostname()

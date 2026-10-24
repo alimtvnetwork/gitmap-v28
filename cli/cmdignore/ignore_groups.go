@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -229,7 +230,7 @@ func ApplyGroupToRepo(groupName, repoDir string) *apperror.AppError {
 
 func applyGroupPatterns(grp IgnoreGroup, repoDir string) *apperror.AppError {
 	patterns := resolveGroupPatterns(grp)
-	ignorePath := filepath.Join(repoDir, ".gitignore")
+	ignorePath := filepath.Join(repoDir, constants.GitIgnoreFile)
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data), patterns...)
 	if !isModified {

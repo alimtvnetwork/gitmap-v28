@@ -151,7 +151,7 @@ func targetFileFor(kind string) string {
 		return ".gitattributes"
 	}
 
-	return ".gitignore"
+	return constants.GitIgnoreFile
 }
 
 // printDiffHunks writes hunks to stdout, colorized via the existing

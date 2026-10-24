@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -110,7 +111,7 @@ func executeFleetTasksInterrogation(ctx context.Context, opts nodesTasksOptions)
 	sem := make(chan struct{}, 8)
 
 	for _, n := range unifiedNodes {
-		isLocalNode := strings.EqualFold(n.Host, "127.0.0.1") || strings.EqualFold(n.Host, "localhost") || strings.EqualFold(n.Alias, "local")
+		isLocalNode := strings.EqualFold(n.Host, "127.0.0.1") || strings.EqualFold(n.Host, constants.Localhost) || strings.EqualFold(n.Alias, "local")
 		if isLocalNode {
 			continue
 		}

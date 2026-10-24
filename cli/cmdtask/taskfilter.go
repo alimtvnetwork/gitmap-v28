@@ -34,7 +34,7 @@ func copyFileContent(src, dest string) error {
 
 // loadGitignorePatterns reads .gitignore patterns from a directory.
 func loadGitignorePatterns(dir string) []string {
-	path := filepath.Join(dir, ".gitignore")
+	path := filepath.Join(dir, constants.GitIgnoreFile)
 	data, err := os.ReadFile(path)
 
 	if err != nil {

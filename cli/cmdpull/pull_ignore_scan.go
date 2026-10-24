@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitignoreagm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -112,7 +113,7 @@ func inspectRepoForIgnoreIssues(repoDir, repoName string) IgnoreRepoIssue {
 }
 
 func findGitignoreDuplicatePatterns(repoDir string) []string {
-	data, err := os.ReadFile(filepath.Join(repoDir, ".gitignore"))
+	data, err := os.ReadFile(filepath.Join(repoDir, constants.GitIgnoreFile))
 	if err != nil {
 		return nil
 	}

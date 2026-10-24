@@ -5,6 +5,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 )
 
@@ -93,7 +94,7 @@ func filterConfigDeployTargets(targets []db.SSHConnection, opts DeployConfigSSHO
 }
 
 func isLocalMachineIP(ip string) bool {
-	if ip == "" || ip == "127.0.0.1" || strings.EqualFold(ip, "localhost") {
+	if ip == "" || ip == "127.0.0.1" || strings.EqualFold(ip, constants.Localhost) {
 		return true
 	}
 	addrs, err := net.InterfaceAddrs()

@@ -30,7 +30,7 @@ func resolveSourceHostname() string {
 	if err == nil && name != "" {
 		return name
 	}
-	return "localhost"
+	return constants.Localhost
 }
 
 func collectLocalConfig() map[string]any {

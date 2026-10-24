@@ -337,7 +337,7 @@ func inspectSingleRepo(repoDir, repoName string) IgnoreScanIssue {
 	trackedFiles := findTrackedIgnoredFiles(repoDir)
 	issue.TrackedResume = trackedFiles
 	issue.HasResumeTask = len(trackedFiles) > 0
-	ignorePath := filepath.Join(repoDir, ".gitignore")
+	ignorePath := filepath.Join(repoDir, constants.GitIgnoreFile)
 	data, err := os.ReadFile(ignorePath)
 	if err != nil {
 		issue.MissingGitmapDir = true
@@ -450,7 +450,7 @@ func remediateSingleRepo(issue IgnoreScanIssue) bool {
 	if hasTracked {
 		untrackCachedFiles(issue.RepoPath, issue.TrackedResume)
 	}
-	ignorePath := filepath.Join(issue.RepoPath, ".gitignore")
+	ignorePath := filepath.Join(issue.RepoPath, constants.GitIgnoreFile)
 	data, err := os.ReadFile(ignorePath)
 	if err != nil {
 		return handleRemediateDefault(issue.RepoPath, issue.RepoName, ignorePath)
@@ -500,7 +500,7 @@ func filterTrackedFilesInIndex(repoDir string, files []string) []string {
 func writeDefaultGitignore(repoDir, ignorePath string) bool {
 	content := "# GitMap & Task Persistence\n.gitmap/backup/\n"
 	_ = os.WriteFile(ignorePath, []byte(content), 0644)
-	_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+	_ = exec.Command("git", "-C", repoDir, "add", constants.GitIgnoreFile).Run()
 	_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): add default .gitignore").Run()
 	return true
 }
@@ -513,7 +513,7 @@ func sanitizeAndCommitRepo(repoDir, ignorePath, data string) bool {
 	hasChanges := hasDuplicates || isMissingBackup || (cleaned != data)
 	if hasChanges {
 		_ = os.WriteFile(ignorePath, []byte(cleaned), 0644)
-		_ = exec.Command("git", "-C", repoDir, "add", ".gitignore").Run()
+		_ = exec.Command("git", "-C", repoDir, "add", constants.GitIgnoreFile).Run()
 		_ = exec.Command("git", "-C", repoDir, "commit", "-m", "chore(git): sanitize .gitignore").Run()
 	}
 	return true

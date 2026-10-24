@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -79,7 +80,7 @@ func collectEmbed(out map[string]Entry) error {
 			return err
 		}
 
-		if filepath.Base(p) == "README.md" {
+		if filepath.Base(p) == constants.ReadmeFile {
 			return nil
 		}
 

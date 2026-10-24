@@ -63,7 +63,7 @@ func defaultWordPressOptions() WordPressOptions {
 		DBName:      "wordpress",
 		DBUser:      "wp_user",
 		DBPassword:  "",
-		DBHost:      "localhost",
+		DBHost:      constants.Localhost,
 		TablePrefix: "wp_",
 		Domain:      "wordpress.local",
 		Port:        80,

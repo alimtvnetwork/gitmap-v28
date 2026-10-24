@@ -14,6 +14,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -45,10 +46,10 @@ func isConnectionExcluded(c db.SSHConnection, opts NodesCloneOptions) bool {
 }
 
 func isLocalMachineConnection(c db.SSHConnection) bool {
-	if c.IPAddress == "127.0.0.1" || strings.EqualFold(c.IPAddress, "localhost") {
+	if c.IPAddress == "127.0.0.1" || strings.EqualFold(c.IPAddress, constants.Localhost) {
 		return true
 	}
-	if strings.EqualFold(c.Alias, "local") || strings.EqualFold(c.Alias, "localhost") {
+	if strings.EqualFold(c.Alias, "local") || strings.EqualFold(c.Alias, constants.Localhost) {
 		return true
 	}
 	return isLocalHostIP(c.IPAddress)

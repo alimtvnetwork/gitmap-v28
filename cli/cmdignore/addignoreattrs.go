@@ -54,7 +54,7 @@ func RunAddIgnore(args []string) *apperror.AppError {
 	return executeAddTemplate(addTemplateSpec{
 		kind:        "ignore",
 		subcommand:  "ignore",
-		targetName:  ".gitignore",
+		targetName:  constants.GitIgnoreFile,
 		bannerLabel: "merge curated .gitignore template block",
 	}, args)
 }

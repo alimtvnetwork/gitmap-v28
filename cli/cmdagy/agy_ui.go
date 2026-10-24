@@ -104,7 +104,7 @@ func handleAgyUIIndex(w http.ResponseWriter, _ *http.Request) {
 func CollectFleetNodeStatuses(runningCount int) []NodeStatusRecord {
 	host, _ := os.Hostname()
 	if host == "" {
-		host = "localhost"
+		host = constants.Localhost
 	}
 
 	nodes := []NodeStatusRecord{
@@ -128,7 +128,7 @@ func CollectFleetNodeStatuses(runningCount int) []NodeStatusRecord {
 	}
 
 	for _, c := range conns {
-		if strings.EqualFold(c.Alias, "local") || strings.EqualFold(c.Alias, "localhost") {
+		if strings.EqualFold(c.Alias, "local") || strings.EqualFold(c.Alias, constants.Localhost) {
 			continue
 		}
 		hostLabel := c.Alias

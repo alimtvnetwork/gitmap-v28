@@ -215,7 +215,7 @@ func applyToCurrentRepoIfGit(patterns []string) {
 }
 
 func writeGitignorePatterns(cwd string, patterns []string) {
-	ignorePath := filepath.Join(cwd, ".gitignore")
+	ignorePath := filepath.Join(cwd, constants.GitIgnoreFile)
 	data, _ := os.ReadFile(ignorePath)
 	cleaned, isModified := gitignoreagm.DeduplicateAndSanitizeGitignore(string(data), patterns...)
 	if isModified {
@@ -229,7 +229,7 @@ func runIgnoreRemove(args []string) error {
 		return apperror.NewSimple("Usage: gitmap ignore remove <pattern>", "E1006")
 	}
 	cwd, _ := os.Getwd()
-	ignorePath := filepath.Join(cwd, ".gitignore")
+	ignorePath := filepath.Join(cwd, constants.GitIgnoreFile)
 	data, err := os.ReadFile(ignorePath)
 	if err != nil {
 		return apperror.WrapSimple(err, "read .gitignore")
@@ -302,7 +302,7 @@ func runIgnoreScanSSH(args []string) error {
 
 func runIgnoreEdit() error {
 	cwd, _ := os.Getwd()
-	ignorePath := filepath.Join(cwd, ".gitignore")
+	ignorePath := filepath.Join(cwd, constants.GitIgnoreFile)
 	editor := os.Getenv("EDITOR")
 	if editor == "" {
 		editor = "notepad"

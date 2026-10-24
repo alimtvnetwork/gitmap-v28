@@ -14,6 +14,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpending"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsummary"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/pterm/pterm"
 )
@@ -145,7 +146,7 @@ func executeLocalSummaryFallback(opts nodesSummaryOptions, localRecords []model.
 		Data: FleetNodesData{
 			LocalNode: NodeSummaryResult{
 				NodeAlias:       "local-master",
-				Host:            "localhost",
+				Host:            constants.Localhost,
 				IsOnline:        true,
 				IsLocalMaster:   true,
 				UniqueRepoCount: len(localRecords),

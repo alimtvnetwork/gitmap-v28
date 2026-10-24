@@ -211,7 +211,7 @@ func DispatchSpace(command string) (bool, error) {
 
 	dry, force := cmdsync.ParseCommonFlags(subRest)
 
-	cmdsync.RunCommonLines(".gitignore", cmdsync.DefaultGitignoreBaseline, dry)
+	cmdsync.RunCommonLines(constants.GitIgnoreFile, cmdsync.DefaultGitignoreBaseline, dry)
 	cmdsync.RunCommonLines(".gitattributes", cmdsync.DefaultGitattributesBaseline, dry)
 	cmdsync.RunCommonLFSInstall(dry)
 	cmdsync.RunCommonLines(".prettierignore", cmdsync.DefaultPrettierignoreBaseline, dry)

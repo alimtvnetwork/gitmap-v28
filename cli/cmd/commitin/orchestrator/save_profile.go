@@ -79,5 +79,5 @@ func persistProfile(ctx *runContext, p *profile.Profile, stderr io.Writer) int {
 // error) to avoid coupling the profile package to orchestrator
 // classification — this path is the ONLY caller that needs the split.
 func isAlreadyExistsError(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "already exists")
+	return err != nil && strings.Contains(err.Error(), constants.AlreadyExistsSubstring)
 }

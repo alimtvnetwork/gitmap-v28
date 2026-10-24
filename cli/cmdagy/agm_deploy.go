@@ -517,7 +517,7 @@ func isExcludedByExcept(c db.SSHConnection, exceptList []string) bool {
 
 func isLocalConnection(c db.SSHConnection) bool {
 	clean := strings.TrimSpace(c.IPAddress)
-	return clean == "127.0.0.1" || clean == "localhost" || clean == "::1"
+	return clean == "127.0.0.1" || clean == constants.Localhost || clean == "::1"
 }
 
 func deployToTargetNodes(targets []db.SSHConnection, opts AgmDeployOptions, tarData []byte, accounts int) []AgmDeployNodeResult {
