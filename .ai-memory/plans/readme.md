@@ -8,6 +8,7 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [316-repository-management-and-testing-instructions.md](316-repository-management-and-testing-instructions.md) — Repository Management and Testing Instructions across AGM, GitMap, img-pdf, and yt-manage (Spec: [316-repository-management-and-testing-instructions](../../02-spec/21-app/316-repository-management-and-testing-instructions/01-architecture-spec.md)) (Status: `active`)
 - [gitmap-enhancement-and-issue-resolution.md](gitmap-enhancement-and-issue-resolution.md) — GitMap Enhancement and Issue Resolution: Database Read Introspection & 5-10s Metadata Cache, Visualizer UI Binary Cell Formatting & Drawer, Storytelling-v1 README Casing Remediation & Repo-Cache Recipe, Remote Node Clone GitHub Desktop & VS Code Registration, Remote SSH WinCredMan Resolution, and Machine Set Interactive Prompt (Spec: [gitmap-enhancement-and-issue-resolution](../../02-spec/21-app/gitmap-enhancement-and-issue-resolution/01-architecture-spec.md)) (Status: `active`)
 - [goemailsender-connection-and-testing.md](goemailsender-connection-and-testing.md) — GoEmailSender Connection, Multi-Profile Fallback & Fleet Nodes Delegation (Spec: [goemailsender-connection-and-testing](../../02-spec/21-app/goemailsender-connection-and-testing/01-architecture-spec.md)) (Status: `in_progress`)
 - [update-antigravity-ide.md](update-antigravity-ide.md) — Antigravity Desktop IDE Update Integration: GitMap CLI `update antigravity` / `update ide` commands, scripts fixture (`scripts-fixer`) `update` verb, Antigravity tools updater script, and live Ubuntu system updates (Spec: [update-antigravity-ide](../../02-spec/21-app/update-antigravity-ide/readme.md)) (Status: `active`)
@@ -74,6 +75,7 @@ None. All active execution tracks are maintained directly under `.ai-memory/plan
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
 
+- [316-repository-management-and-testing-instructions](subtasks/316-repository-management-and-testing-instructions/) — AGM autoswitch, fast-forward rerun, gitmap commands, img-pdf, yt-manage
 - [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/) — Ubuntu Pull-All Remediation Engine & Ignore Rules
 - [226-ubuntu-cursor-memories-conversations-and-projects-migration](subtasks/226-ubuntu-cursor-memories-conversations-and-projects-migration/) — Cursor IDE Internal State, Memories & Conversations
 - [56-vmware-hardware-batch-and-macro-orchestration](subtasks/56-vmware-hardware-batch-and-macro-orchestration/) — VMware Hardware Customization & Multi-VM Batch Operations

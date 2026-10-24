@@ -46,6 +46,7 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 ## Subtasks
 
 Active subtask directories maintained under `subtasks/`:
+- [316-repository-management-and-testing-instructions](subtasks/316-repository-management-and-testing-instructions/)
 - [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/)
 - [226-ubuntu-cursor-memories-conversations-and-projects-migration](subtasks/226-ubuntu-cursor-memories-conversations-and-projects-migration/)
 - [56-vmware-hardware-batch-and-macro-orchestration](subtasks/56-vmware-hardware-batch-and-macro-orchestration/)
