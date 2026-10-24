@@ -102,10 +102,6 @@ func gitErrorWithOutput(err error, captured string) error {
 	return fmt.Errorf("%w — git said: %s", err, strings.Join(tail, " | "))
 }
 
-func scanPaddedFiltered(r io.Reader) {
-	scanPaddedFilteredCollect(r)
-}
-
 func scanPaddedFilteredCollect(r io.Reader) string {
 	scanner := bufio.NewScanner(r)
 	var kept []string

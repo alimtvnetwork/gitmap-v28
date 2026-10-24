@@ -127,5 +127,3 @@ func printTopTouchedFiles(out io.Writer, files []store.FileTouchCount) {
 		fmt.Fprintf(out, "  %-40s (%d touches)\n", f.FilePath, f.Count)
 	}
 }
-
-
