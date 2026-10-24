@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -117,8 +118,10 @@ func parseCodeArgs(args []string) (alias, rootPath string, extras []string) {
 	}
 }
 
+var codePathTokens = []string{".", ".."}
+
 func isCodePathArg(arg string) bool {
-	return arg == "." || arg == ".." || strings.HasPrefix(arg, "./") ||
+	return slices.Contains(codePathTokens, arg) || strings.HasPrefix(arg, "./") ||
 		strings.HasPrefix(arg, ".\\") || strings.Contains(arg, string(filepath.Separator))
 }
 
