@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.602.0] - 2026-10-24
+
+### Added
+- use git saved credentials instead of hardcoded fallback in conflict recovery
+
+---
+
 ## [v6.601.0] - 2026-10-24
 
 ### Added
