@@ -46,7 +46,7 @@ type (
 	// SQLRowsWrap is the canonical single reusable result container for a SQL rows cursor.
 	SQLRowsWrap = result.Wrap[*sql.Rows]
 
-	// SnapshotJSONWrap is the canonical single reusable result container for a marshalled snapshot payload.
+	// SnapshotJSONWrap is the canonical single reusable result container for a marshaled snapshot payload.
 	SnapshotJSONWrap = result.Wrap[[]byte]
 
 	// PendingTaskRecordWrap is the canonical single reusable result container for a pending task record.
