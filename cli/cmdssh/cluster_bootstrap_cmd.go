@@ -144,10 +144,10 @@ type BootstrapResult struct {
 }
 
 func isSudoToggleFlag(arg string) (bool, bool) {
-	if arg == "--sudo" || arg == "-s" {
+	if argMatches(arg, "--sudo", "-s") {
 		return true, true
 	}
-	if arg == "--sudo=false" || arg == "--no-sudo" {
+	if argMatches(arg, "--sudo=false", "--no-sudo") {
 		return true, false
 	}
 	return false, true
@@ -159,7 +159,7 @@ func parseBootstrapStringFlag(args []string, idx int, long, short string) (strin
 	if strings.HasPrefix(arg, prefix) {
 		return strings.TrimPrefix(arg, prefix), 1, true
 	}
-	if (arg == long || arg == short) && idx+1 < len(args) {
+	if argMatches(arg, long, short) && idx+1 < len(args) {
 		return args[idx+1], 2, true
 	}
 	return "", 0, false

@@ -51,7 +51,7 @@ func parsePortFlagValue(val string) (int, error) {
 }
 
 func isPortFlag(arg string) bool {
-	return arg == "--port" || arg == "-p"
+	return argMatches(arg, "--port", "-p")
 }
 
 func parsePortFlagValueWithNext(next string, hasNext bool, opts *sshEnableOptions) (int, error) {
@@ -81,7 +81,7 @@ func parsePortFlagToken(arg string, next string, hasNext bool, opts *sshEnableOp
 }
 
 func isForceFlag(arg string) bool {
-	return arg == "--force" || arg == "-f"
+	return argMatches(arg, "--force", "-f")
 }
 
 func peekNextArg(args []string, idx int) (string, bool) {

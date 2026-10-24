@@ -84,11 +84,11 @@ func parseTwoArgsInstall(conns []db.SSHConnection, first, second string) (string
 }
 
 func isAllFlag(arg string) bool {
-	return arg == "--all" || arg == "-a" || arg == "all"
+	return argMatches(arg, "--all", "-a", "all")
 }
 
 func parseSingleArgInstall(conns []db.SSHConnection, arg string) (string, string) {
-	if isAllFlag(arg) || arg == "gitmap" {
+	if isAllFlag(arg) || argMatches(arg, "gitmap") {
 		return "gitmap", "all"
 	}
 	if isKnownTarget(conns, arg) {

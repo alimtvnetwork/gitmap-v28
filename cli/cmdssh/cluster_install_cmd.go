@@ -107,10 +107,10 @@ func parseInstallParallelFlag(args []string, idx int) (int, int, bool) {
 }
 
 func parseInstallSudoFlag(arg string) (bool, int, bool) {
-	if arg == "--sudo" || arg == "-s" || arg == "--sudo=true" {
+	if argMatches(arg, "--sudo", "-s", "--sudo=true") {
 		return true, 1, true
 	}
-	if arg == "--sudo=false" || arg == "--no-sudo" {
+	if argMatches(arg, "--sudo=false", "--no-sudo") {
 		return false, 1, true
 	}
 	return true, 0, false

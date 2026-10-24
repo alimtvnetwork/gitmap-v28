@@ -5,7 +5,7 @@ import (
 )
 
 func hasHelpToken(arg string) bool {
-	isMatch := arg == "--help" || arg == "-h" || arg == "help"
+	isMatch := argMatches(arg, "--help", "-h", "help")
 
 	return isMatch
 }

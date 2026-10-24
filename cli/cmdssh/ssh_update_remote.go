@@ -65,11 +65,11 @@ func parseUpdateOptions(args []string) SSHFleetUpdateOptions {
 			opts.Except = strings.TrimPrefix(arg, "--exclude=")
 			continue
 		}
-		if arg == "--dry-run" {
+		if argMatches(arg, "--dry-run") {
 			opts.IsDryRun = true
 			continue
 		}
-		if arg == "-f" || arg == "--force" {
+		if argMatches(arg, "-f", "--force") {
 			opts.IsForce = true
 			continue
 		}
@@ -80,11 +80,11 @@ func parseUpdateOptions(args []string) SSHFleetUpdateOptions {
 }
 
 func isTargetFlag(arg string) bool {
-	return arg == "--node" || arg == "--remote" || arg == "-n" || arg == "-r" || arg == "-t" || arg == "--target"
+	return argMatches(arg, "--node", "--remote", "-n", "-r", "-t", "--target")
 }
 
 func isExceptFlag(arg string) bool {
-	return arg == "--except" || arg == "--excep" || arg == "--exclude" || arg == "-e"
+	return argMatches(arg, "--except", "--excep", "--exclude", "-e")
 }
 
 func populateTargetAndPackage(opts SSHFleetUpdateOptions, clean []string) SSHFleetUpdateOptions {

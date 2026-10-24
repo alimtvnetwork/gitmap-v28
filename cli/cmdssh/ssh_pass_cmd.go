@@ -112,18 +112,18 @@ func parsePassEncryptFlags(args []string) (string, string, int, bool, bool, erro
 
 	for i := 1; i < len(args); i++ {
 		arg := args[i]
-		if arg == "--salt" && i+1 < len(args) {
+		if argMatches(arg, "--salt") && i+1 < len(args) {
 			salt = args[i+1]
 			i++
 			continue
 		}
-		if (arg == "--caesar" || arg == "--shift") && i+1 < len(args) {
+		if argMatches(arg, "--caesar", "--shift") && i+1 < len(args) {
 			useCaesar = true
 			caesarShift = parseCaesarShiftArg(args[i+1])
 			i++
 			continue
 		}
-		if arg == "--aes" {
+		if argMatches(arg, "--aes") {
 			useAES = true
 			continue
 		}

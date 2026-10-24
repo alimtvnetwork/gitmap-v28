@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -96,12 +97,7 @@ func SanitizeSSHConfigFile(path string) (bool, *apperror.AppError) {
 }
 
 func matchesAnyFlag(arg string, flags []string) bool {
-	for _, f := range flags {
-		if arg == f {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(flags, arg)
 }
 
 func hasFlag(args []string, flags ...string) bool {

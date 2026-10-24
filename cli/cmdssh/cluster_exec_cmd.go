@@ -33,15 +33,15 @@ var ClusterExecCmd = &cobra.Command{
 }
 
 func isSudoFlag(arg string) bool {
-	return arg == "--sudo" || arg == "-s"
+	return argMatches(arg, "--sudo", "-s")
 }
 
 func isClusterHelpFlag(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
+	return argMatches(arg, "--help", "-h", "help")
 }
 
 func isForceAllFlag(arg string) bool {
-	return arg == "--force-all" || arg == "-f" || arg == "force-all"
+	return argMatches(arg, "--force-all", "-f", "force-all")
 }
 
 func parseParallelArgValue(nextArg string, arg string) (int, int, error) {
@@ -61,7 +61,7 @@ func parseParallelFlag(arg string, nextArg string) (int, int, error) {
 		val, err := strconv.Atoi(strings.TrimPrefix(arg, "-p="))
 		return val, 1, err
 	}
-	if arg == "--parallel" || arg == "-p" {
+	if argMatches(arg, "--parallel", "-p") {
 		return parseParallelArgValue(nextArg, arg)
 	}
 	return 0, 0, nil

@@ -57,12 +57,12 @@ func parseDeployBinFlags(args []string) deployBinOptions {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case (arg == "--file" || arg == "-f") && i+1 < len(args):
+		case argMatches(arg, "--file", "-f") && i+1 < len(args):
 			opts.filePath = args[i+1]
 			i++
-		case arg == "--dry-run" || arg == "-n":
+		case argMatches(arg, "--dry-run", "-n"):
 			opts.isDryRun = true
-		case (arg == "--timeout" || arg == "-t") && i+1 < len(args):
+		case argMatches(arg, "--timeout", "-t") && i+1 < len(args):
 			opts.timeout = parseTimeoutFlag(args, i, opts.timeout)
 			i++
 		case !strings.HasPrefix(arg, "-"):

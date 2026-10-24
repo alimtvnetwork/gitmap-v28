@@ -56,15 +56,15 @@ func processExportArg(arg string, args []string, index *int, opts *SSHMacroIOOpt
 
 func processExportFlag(arg string, args []string, index *int, opts *SSHMacroIOOptions) bool {
 	switch {
-	case (arg == "-f" || arg == "--file") && *index+1 < len(args):
+	case argMatches(arg, "-f", "--file") && *index+1 < len(args):
 		*index++
 		opts.FilePath = args[*index]
 		return true
-	case (arg == "-t" || arg == "--target") && *index+1 < len(args):
+	case argMatches(arg, "-t", "--target") && *index+1 < len(args):
 		*index++
 		opts.Target = args[*index]
 		return true
-	case arg == "-h" || arg == "--help" || arg == "help":
+	case argMatches(arg, "-h", "--help", "help"):
 		opts.IsHelp = true
 		return true
 	default:
@@ -198,15 +198,15 @@ func processImportArg(arg string, args []string, index *int, opts *SSHMacroIOOpt
 
 func processImportFlag(arg string, args []string, index *int, opts *SSHMacroIOOptions) bool {
 	switch {
-	case (arg == "-t" || arg == "--target") && *index+1 < len(args):
+	case argMatches(arg, "-t", "--target") && *index+1 < len(args):
 		*index++
 		opts.Target = args[*index]
 		return true
-	case arg == "--as" && *index+1 < len(args):
+	case argMatches(arg, "--as") && *index+1 < len(args):
 		*index++
 		opts.RenameAs = args[*index]
 		return true
-	case arg == "-f" || arg == "--force":
+	case argMatches(arg, "-f", "--force"):
 		opts.IsForce = true
 		return true
 	default:
@@ -216,10 +216,10 @@ func processImportFlag(arg string, args []string, index *int, opts *SSHMacroIOOp
 
 func processImportAltFlag(arg string, args []string, index *int, opts *SSHMacroIOOptions) bool {
 	switch {
-	case arg == "--dry-run":
+	case argMatches(arg, "--dry-run"):
 		opts.IsDryRun = true
 		return true
-	case arg == "-h" || arg == "--help" || arg == "help":
+	case argMatches(arg, "-h", "--help", "help"):
 		opts.IsHelp = true
 		return true
 	default:

@@ -22,14 +22,14 @@ func parseSSHErrorFlags(args []string) sshErrorLogsFlags {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "--json":
+		case argMatches(arg, "--json"):
 			f.asJSON = true
-		case arg == "--clear" || arg == "clear":
+		case argMatches(arg, "--clear", "clear"):
 			f.clear = true
-		case arg == "--file" && i+1 < len(args):
+		case argMatches(arg, "--file") && i+1 < len(args):
 			f.filePath = args[i+1]
 			i++
-		case arg == "--tempfile" && i+1 < len(args):
+		case argMatches(arg, "--tempfile") && i+1 < len(args):
 			f.tempFile = args[i+1]
 			i++
 		}

@@ -265,7 +265,7 @@ type parsedFlags struct {
 }
 
 func isHelpFlag(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
+	return argMatches(arg, "--help", "-h", "help")
 }
 
 func extractNextArg(args []string, idx int, flagName string) (string, int, bool, error) {
@@ -378,7 +378,7 @@ func parseJoinArg(args []string, idx int, p *parsedFlags) (int, error) {
 		p.isShowHelp = true
 		return idx + 1, nil
 	}
-	if arg == "--auth" {
+	if argMatches(arg, "--auth") {
 		p.isPushAuth = true
 		return idx + 1, nil
 	}

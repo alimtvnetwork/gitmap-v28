@@ -51,7 +51,7 @@ func processImportAllArg(arg string, args []string, idx *int, opts *SSHImportAll
 	if processImportAllFlag(arg, args, idx, opts) {
 		return
 	}
-	if arg == "node" && *idx+1 < len(args) {
+	if argMatches(arg, "node") && *idx+1 < len(args) {
 		*idx++
 		opts.Target = args[*idx]
 		return
@@ -63,16 +63,16 @@ func processImportAllArg(arg string, args []string, idx *int, opts *SSHImportAll
 
 func processImportAllFlag(arg string, args []string, idx *int, opts *SSHImportAllOptions) bool {
 	switch {
-	case arg == "--local-bundle":
+	case argMatches(arg, "--local-bundle"):
 		opts.IsLocalBundle = true
 		return true
-	case arg == "--dry-run":
+	case argMatches(arg, "--dry-run"):
 		opts.IsDryRun = true
 		return true
-	case arg == "-f" || arg == "--force":
+	case argMatches(arg, "-f", "--force"):
 		opts.IsForce = true
 		return true
-	case arg == "-h" || arg == "--help" || arg == "help":
+	case argMatches(arg, "-h", "--help", "help"):
 		opts.IsHelp = true
 		return true
 	default:
@@ -81,7 +81,7 @@ func processImportAllFlag(arg string, args []string, idx *int, opts *SSHImportAl
 }
 
 func processImportAllTargetFlag(arg string, args []string, idx *int, opts *SSHImportAllOptions) bool {
-	if (arg == "-t" || arg == "--target") && *idx+1 < len(args) {
+	if argMatches(arg, "-t", "--target") && *idx+1 < len(args) {
 		*idx++
 		opts.Target = args[*idx]
 		return true

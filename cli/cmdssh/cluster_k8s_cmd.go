@@ -71,7 +71,7 @@ func parseStringFlag(arg, nextArg, longFlag, shortFlag string) (string, int) {
 	if strings.HasPrefix(arg, prefix) {
 		return strings.TrimPrefix(arg, prefix), 1
 	}
-	isMatch := arg == "--"+longFlag || (shortFlag != "" && arg == "-"+shortFlag)
+	isMatch := argMatchesFlag(arg, longFlag, shortFlag)
 	if isMatch && nextArg != "" {
 		return nextArg, 2
 	}

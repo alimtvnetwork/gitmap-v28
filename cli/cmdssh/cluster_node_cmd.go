@@ -76,7 +76,7 @@ func parseRouteIPFlag(arg, nextArg string) (string, int) {
 	if strings.HasPrefix(arg, "--route-ip=") {
 		return strings.TrimPrefix(arg, "--route-ip="), 1
 	}
-	hasFlag := arg == "--route-ip"
+	hasFlag := argMatches(arg, "--route-ip")
 	hasVal := nextArg != ""
 	if hasFlag && hasVal {
 		return nextArg, 2
@@ -124,7 +124,7 @@ func parseThemeFlag(arg, nextArg string) (string, int) {
 	if strings.HasPrefix(arg, "--theme=") {
 		return strings.TrimPrefix(arg, "--theme="), 1
 	}
-	hasFlag := arg == "--theme" || arg == "-t"
+	hasFlag := argMatches(arg, "--theme", "-t")
 	hasVal := nextArg != ""
 	if hasFlag && hasVal {
 		return nextArg, 2

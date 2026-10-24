@@ -166,7 +166,7 @@ func applyValueDeployFlag(args []string, i int, state *deployFlagState) int {
 
 func applyNextValueFlag(args []string, i int, state *deployFlagState) int {
 	arg := args[i]
-	hasValueAhead := (arg == "--parallel" || arg == "-p") && i+1 < len(args)
+	hasValueAhead := argMatches(arg, "--parallel", "-p") && i+1 < len(args)
 	if hasValueAhead {
 		state.parallel = parseParallelValue(args[i+1])
 		return i + 1

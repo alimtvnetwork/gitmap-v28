@@ -71,7 +71,7 @@ func parseAuthKeyArgs(args []string) (string, string, bool, *apperror.AppError) 
 }
 
 func isUnixFlag(arg string) bool {
-	return arg == "--unix" || arg == "-u" || arg == "--linux"
+	return argMatches(arg, "--unix", "-u", "--linux")
 }
 
 func stepAuthKeyArg(args []string, i int, curTarget, curID string, curUnix bool) (string, string, bool, int, *apperror.AppError) {
@@ -104,7 +104,7 @@ func stripSubcommandKeyword(args []string, keyword string) []string {
 }
 
 func isIdentityFlag(arg string) bool {
-	return arg == "-i" || arg == "--identity" || arg == "--identity-file" ||
+	return argMatches(arg, "-i", "--identity", "--identity-file") ||
 		strings.HasPrefix(arg, "-i=") || strings.HasPrefix(arg, "--identity=")
 }
 

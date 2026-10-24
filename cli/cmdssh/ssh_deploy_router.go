@@ -68,39 +68,39 @@ func routeDeployIdeOrAgy(args []string) error {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "--all":
+		case argMatches(arg, "--all"):
 			opts.IsAll = true
-		case arg == "--plugins":
+		case argMatches(arg, "--plugins"):
 			opts.HasPlugins = true
-		case arg == "--skills":
+		case argMatches(arg, "--skills"):
 			opts.HasSkills = true
-		case arg == "--binaries":
+		case argMatches(arg, "--binaries"):
 			opts.HasBinaries = true
-		case arg == "--projects":
+		case argMatches(arg, "--projects"):
 			opts.HasProjects = true
-		case arg == "--dry-run":
+		case argMatches(arg, "--dry-run"):
 			opts.IsDryRun = true
-		case arg == "--json":
+		case argMatches(arg, "--json"):
 			opts.IsJSON = true
-		case arg == "--force":
+		case argMatches(arg, "--force"):
 			opts.IsForce = true
-		case arg == "--restart":
+		case argMatches(arg, "--restart"):
 			opts.IsRestart = true
-		case arg == "--preset" && i+1 < len(args):
+		case argMatches(arg, "--preset") && i+1 < len(args):
 			i++
 			opts.Preset = args[i]
 		case strings.HasPrefix(arg, "--preset="):
 			opts.Preset = strings.TrimPrefix(arg, "--preset=")
-		case arg == "--preset":
+		case argMatches(arg, "--preset"):
 			opts.Preset = "eager"
-		case arg == "--theme" && i+1 < len(args):
+		case argMatches(arg, "--theme") && i+1 < len(args):
 			i++
 			opts.Theme = args[i]
 		case strings.HasPrefix(arg, "--theme="):
 			opts.Theme = strings.TrimPrefix(arg, "--theme=")
-		case arg == "--theme":
+		case argMatches(arg, "--theme"):
 			opts.Theme = "dark"
-		case arg == "--target" && i+1 < len(args):
+		case argMatches(arg, "--target") && i+1 < len(args):
 			i++
 			opts.TargetNode = args[i]
 		case strings.HasPrefix(arg, "--target="):

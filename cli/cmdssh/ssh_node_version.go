@@ -16,7 +16,7 @@ import (
 )
 
 func isNodeVersionFlag(arg string) bool {
-	return arg == "-v" || arg == "--version" || arg == "-version" || arg == "version"
+	return argMatches(arg, "-v", "--version", "-version", "version")
 }
 
 func isNodesVersionRequest(args []string) bool {
@@ -292,7 +292,7 @@ func runSSHNodesVersion(args []string) error {
 func extractTargetFilter(args []string) string {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if (arg == "-t" || arg == "--target") && i+1 < len(args) {
+		if argMatches(arg, "-t", "--target") && i+1 < len(args) {
 			return args[i+1]
 		}
 		if strings.HasPrefix(arg, "--target=") {

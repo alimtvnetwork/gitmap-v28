@@ -52,13 +52,13 @@ func processSyncArg(arg string, args []string, index *int, opts *SSHMacroSyncOpt
 
 func processSyncFlag(arg string, args []string, index *int, opts *SSHMacroSyncOptions) bool {
 	switch {
-	case arg == "--force" || arg == "-f":
+	case argMatches(arg, "--force", "-f"):
 		opts.IsForce = true
 		return true
-	case arg == "--dry-run":
+	case argMatches(arg, "--dry-run"):
 		opts.IsDryRun = true
 		return true
-	case arg == "-h" || arg == "--help" || arg == "help":
+	case argMatches(arg, "-h", "--help", "help"):
 		opts.IsHelp = true
 		return true
 	default:
@@ -67,7 +67,7 @@ func processSyncFlag(arg string, args []string, index *int, opts *SSHMacroSyncOp
 }
 
 func processSyncTargetFlag(arg string, args []string, index *int, opts *SSHMacroSyncOptions) bool {
-	if (arg == "-t" || arg == "--target") && *index+1 < len(args) {
+	if argMatches(arg, "-t", "--target") && *index+1 < len(args) {
 		*index++
 		opts.Target = args[*index]
 		return true
@@ -77,11 +77,11 @@ func processSyncTargetFlag(arg string, args []string, index *int, opts *SSHMacro
 
 func processSyncFilterFlag(arg string, args []string, index *int, opts *SSHMacroSyncOptions) bool {
 	switch {
-	case arg == "--except" && *index+1 < len(args):
+	case argMatches(arg, "--except") && *index+1 < len(args):
 		*index++
 		opts.Except = args[*index]
 		return true
-	case arg == "--exclude" && *index+1 < len(args):
+	case argMatches(arg, "--exclude") && *index+1 < len(args):
 		*index++
 		opts.Exclude = args[*index]
 		return true

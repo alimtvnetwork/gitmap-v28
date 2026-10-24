@@ -62,16 +62,16 @@ func processExportAllArg(arg string, args []string, idx *int, opts *SSHExportAll
 
 func processExportAllFlag(arg string, args []string, idx *int, opts *SSHExportAllOptions) bool {
 	switch {
-	case arg == "--stdout":
+	case argMatches(arg, "--stdout"):
 		opts.IsStdout = true
 		return true
-	case arg == "--dry-run":
+	case argMatches(arg, "--dry-run"):
 		opts.IsDryRun = true
 		return true
-	case arg == "-f" || arg == "--force":
+	case argMatches(arg, "-f", "--force"):
 		opts.IsForce = true
 		return true
-	case arg == "-h" || arg == "--help" || arg == "help":
+	case argMatches(arg, "-h", "--help", "help"):
 		opts.IsHelp = true
 		return true
 	default:
@@ -80,7 +80,7 @@ func processExportAllFlag(arg string, args []string, idx *int, opts *SSHExportAl
 }
 
 func processExportAllTargetFlags(arg string, args []string, idx *int, opts *SSHExportAllOptions) bool {
-	if (arg == "-t" || arg == "--target") && *idx+1 < len(args) {
+	if argMatches(arg, "-t", "--target") && *idx+1 < len(args) {
 		*idx++
 		opts.Target = args[*idx]
 		return true
@@ -89,12 +89,12 @@ func processExportAllTargetFlags(arg string, args []string, idx *int, opts *SSHE
 }
 
 func processExportAllFilterFlags(arg string, args []string, idx *int, opts *SSHExportAllOptions) bool {
-	if arg == "--except" && *idx+1 < len(args) {
+	if argMatches(arg, "--except") && *idx+1 < len(args) {
 		*idx++
 		opts.Except = args[*idx]
 		return true
 	}
-	if arg == "--exclude" && *idx+1 < len(args) {
+	if argMatches(arg, "--exclude") && *idx+1 < len(args) {
 		*idx++
 		opts.Exclude = args[*idx]
 		return true
