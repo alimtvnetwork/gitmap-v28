@@ -1,13 +1,17 @@
 package cmdos
 
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos/enums"
+)
+
 // DMType enumerates supported display managers.
-type DMType string
+type DMType = enums.DMType
 
 const (
-	DMTypeGDM3    DMType = "gdm3"
-	DMTypeLightDM DMType = "lightdm"
-	DMTypeSDDM    DMType = "sddm"
-	DMTypeUnknown DMType = "unknown"
+	DMTypeGDM3    = enums.DMTypeGDM3
+	DMTypeLightDM = enums.DMTypeLightDM
+	DMTypeSDDM    = enums.DMTypeSDDM
+	DMTypeUnknown = enums.DMTypeUnknown
 )
 
 // DMStatus holds display manager diagnostics and session states.

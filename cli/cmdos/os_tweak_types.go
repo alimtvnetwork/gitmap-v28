@@ -1,16 +1,20 @@
 package cmdos
 
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos/enums"
+)
+
 // TweakTargetType defines system tweak categories.
-type TweakTargetType string
+type TweakTargetType = enums.TweakTargetType
 
 const (
-	TweakContextMenuType TweakTargetType = "context-menu"
-	TweakStartMenuType   TweakTargetType = "start-menu"
-	TweakPowerSchemeType TweakTargetType = "power"
-	TweakHibernateType   TweakTargetType = "hibernate"
-	TweakTelemetryType   TweakTargetType = "telemetry"
-	TweakActivityType    TweakTargetType = "activity"
-	TweakSearchType      TweakTargetType = "search"
+	TweakContextMenuType = enums.TweakContextMenuType
+	TweakStartMenuType   = enums.TweakStartMenuType
+	TweakPowerSchemeType = enums.TweakPowerSchemeType
+	TweakHibernateType   = enums.TweakHibernateType
+	TweakTelemetryType   = enums.TweakTelemetryType
+	TweakActivityType    = enums.TweakActivityType
+	TweakSearchType      = enums.TweakSearchType
 )
 
 // TweakStatus models the observed state of system tweaks.

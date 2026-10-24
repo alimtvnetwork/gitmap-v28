@@ -3,24 +3,24 @@ package cmdos
 import (
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos/enums"
 )
 
 // RunSSHExecFn is the pluggable runner for remote SSH command execution.
 var RunSSHExecFn func(args []string) error
 
 // DockPositionType represents cardinal screen edge orientation for desktop dock.
-type DockPositionType string
+type DockPositionType = enums.DockPositionType
 
 // DockPosition is an alias for DockPositionType.
 type DockPosition = DockPositionType
 
 const (
-	DockPositionBottom DockPositionType = "bottom"
-	DockPositionLeft   DockPositionType = "left"
-	DockPositionRight  DockPositionType = "right"
-	DockPositionTop    DockPositionType = "top"
-	DockPositionCenter DockPositionType = "center"
+	DockPositionBottom = enums.DockPositionBottom
+	DockPositionLeft   = enums.DockPositionLeft
+	DockPositionRight  = enums.DockPositionRight
+	DockPositionTop    = enums.DockPositionTop
+	DockPositionCenter = enums.DockPositionCenter
 )
 
 // DockConfig holds status metadata about the desktop dock.
@@ -48,27 +48,15 @@ type DockCLIOptions struct {
 }
 
 // NormalizeDockPosition validates and normalizes raw dock position strings.
+// It delegates to the canonical enums parser, which accepts canonical
+// positions and their shorthand aliases, and returns its enriched app error.
 func NormalizeDockPosition(raw string) (DockPositionType, error) {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case "bottom", "b", "down":
-
-		return DockPositionBottom, nil
-	case "left", "l":
-
-		return DockPositionLeft, nil
-	case "right", "r":
-
-		return DockPositionRight, nil
-	case "top", "t", "up":
-
-		return DockPositionTop, nil
-	case "center", "c":
-
-		return DockPositionCenter, nil
-	default:
-
-		return "", apperror.NewSimple("invalid dock position: "+raw, "E_INVALID_POS")
+	pos, err := enums.ParseDockPositionType(raw)
+	if err != nil {
+		return "", err
 	}
+
+	return pos, nil
 }
 
 // CheckDockFlag parses help, json, and node flags from CLI args.

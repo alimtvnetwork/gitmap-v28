@@ -1,11 +1,15 @@
 package cmdos
 
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos/enums"
+)
+
 // ThemeModeType specifies desktop visual appearance.
-type ThemeModeType string
+type ThemeModeType = enums.ThemeModeType
 
 const (
-	ThemeModeDark  ThemeModeType = "dark"
-	ThemeModeLight ThemeModeType = "light"
+	ThemeModeDark  = enums.ThemeModeDark
+	ThemeModeLight = enums.ThemeModeLight
 )
 
 // ThemeOperator sets desktop termout.

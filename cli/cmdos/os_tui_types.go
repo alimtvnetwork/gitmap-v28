@@ -1,12 +1,16 @@
 package cmdos
 
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdos/enums"
+)
+
 // OSTUIViewModeType specifies the current mode of the OS TUI dashboard.
-type OSTUIViewModeType string
+type OSTUIViewModeType = enums.OSTUIViewModeType
 
 const (
-	OSTUIViewModeNavType  OSTUIViewModeType = "nav"
-	OSTUIViewModeExecType OSTUIViewModeType = "exec"
-	OSTUIViewModeDoneType OSTUIViewModeType = "done"
+	OSTUIViewModeNavType  = enums.OSTUIViewModeNavType
+	OSTUIViewModeExecType = enums.OSTUIViewModeExecType
+	OSTUIViewModeDoneType = enums.OSTUIViewModeDoneType
 )
 
 // OSTUIItem represents a toggleable configuration or maintenance action.
