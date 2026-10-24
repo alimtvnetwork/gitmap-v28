@@ -11,6 +11,9 @@ var RunRemoteSSHPullFn func(target string, isTable bool) error
 // RunRemoteSSHPullAllFleetFn delegates SSH fleet pull-all to cmdssh package.
 var RunRemoteSSHPullAllFleetFn func(cleanArgs []string) error
 
+// RunRemoteSSHPullFleetRemediateFn delegates multi-machine remediation to cmdssh package.
+var RunRemoteSSHPullFleetRemediateFn func(cleanArgs []string) error
+
 // RunPull handles the "pull" subcommand.
 func RunPull(args []string) error {
 	err := runPull(args)
