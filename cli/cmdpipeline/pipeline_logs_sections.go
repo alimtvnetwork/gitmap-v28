@@ -42,11 +42,11 @@ func renderSingleSectionFailureRow(sec SectionFailure, idx, total int) {
 	}
 }
 
-func resolveSectionUrl(url string, runId int64) string {
+func resolveSectionUrl(url string, runId uint64) string {
 	if len(url) > 0 {
 		return url
 	}
-	if runId <= 0 {
+	if runId == 0 {
 		return ""
 	}
 	repo := resolveCurrentRepoSlug()
@@ -62,7 +62,7 @@ func renderSectionSourceDetails(sec SectionFailure) {
 	if len(sec.WorkflowName) > 0 {
 		logger = sec.WorkflowName
 	}
-	url := resolveSectionUrl(sec.Url, int64(sec.RunId))
+	url := resolveSectionUrl(sec.Url, sec.RunId)
 	logFile := filepath.ToSlash(FormatRelativeDbPath(sec.SavedLogFile))
 	if len(logFile) == 0 {
 		logFile = "in-memory / active stream"

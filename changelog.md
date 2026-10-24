@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.601.0] - 2026-10-24
+
+### Added
+- fix(pipeline): resolve gosec G115 integer overflow and enhance unmerged conflict auto-recovery
+
+---
+
 ## [v6.600.0] - 2026-10-24
 
 ### Added

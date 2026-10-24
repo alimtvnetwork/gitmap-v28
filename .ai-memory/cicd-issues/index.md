@@ -115,4 +115,5 @@
 - [124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md](./124-lemon-vet-tags-gofmt-filesize-and-nested-ifs-rca.md): Fix go vet duplicate json tags, gofmt formatting, file size gate 300-line cap, and nested if linter violations across lemon subsystem.
 - [125-unused-injectcolumnfor-gencommands-and-helpdoc-lemon-rca.md](./125-unused-injectcolumnfor-gencommands-and-helpdoc-lemon-rca.md): Fix unused injectColumnFor dead code, gencommands top-level opt-in marker, and helpdoc coverage for lemon command.
 - [126-legacy-refs-test-gofmt-and-nested-ifs-rca.md](./126-legacy-refs-test-gofmt-and-nested-ifs-rca.md): Fix CI failures on Legacy Refs Check, gofmt formatting, and nested ifs in pipeline logs.
+- [127-gosec-g115-integer-overflow-runid-in-pipeline-logs-sections-rca.md](./127-gosec-g115-integer-overflow-runid-in-pipeline-logs-sections-rca.md): Fix gosec G115 integer overflow conversion uint64 -> int64 for RunId in pipeline logs sections.
 
