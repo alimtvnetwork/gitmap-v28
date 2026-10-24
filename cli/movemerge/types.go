@@ -14,15 +14,15 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/movemerge/enums"
 
 // EndpointKindType classifies a positional argument once at command start.
-type EndpointKindType int
+// EndpointKindType aliases the strongly-typed enum from the enums package.
+type EndpointKindType = enums.EndpointKindType
 
 const (
-	// EndpointFolder is a plain on-disk path (relative or absolute).
-	EndpointFolder EndpointKindType = iota
-	// EndpointURL is an https/http/ssh/git@ remote, optionally :branch.
-	EndpointURL
+	EndpointFolder = enums.EndpointFolder
+	EndpointURL    = enums.EndpointURL
 )
 
 // Endpoint is a fully resolved LEFT or RIGHT argument.
@@ -38,31 +38,25 @@ type Endpoint struct {
 }
 
 // PreferPolicyType is how -y / --prefer-* resolve conflicts non-interactively.
-type PreferPolicyType int
+// PreferPolicyType aliases the strongly-typed enum from the enums package.
+type PreferPolicyType = enums.PreferPolicyType
 
 const (
-	// PreferNone means use the interactive prompt.
-	PreferNone PreferPolicyType = iota
-	// PreferLeft makes LEFT always win.
-	PreferLeft
-	// PreferRight makes RIGHT always win.
-	PreferRight
-	// PreferNewer compares mtime; newer side wins.
-	PreferNewer
-	// PreferSkip skips every conflict (only missing files copied).
-	PreferSkip
+	PreferNone  = enums.PreferNone
+	PreferLeft  = enums.PreferLeft
+	PreferRight = enums.PreferRight
+	PreferNewer = enums.PreferNewer
+	PreferSkip  = enums.PreferSkip
 )
 
 // DirectionType selects which side(s) the operation writes to.
-type DirectionType int
+// DirectionType aliases the strongly-typed enum from the enums package.
+type DirectionType = enums.DirectionType
 
 const (
-	// DirBoth writes into both sides (merge-both).
-	DirBoth DirectionType = iota
-	// DirLeftOnly writes only into LEFT (merge-left).
-	DirLeftOnly
-	// DirRightOnly writes only into RIGHT (merge-right).
-	DirRightOnly
+	DirBoth      = enums.DirBoth
+	DirLeftOnly  = enums.DirLeftOnly
+	DirRightOnly = enums.DirRightOnly
 )
 
 // Options bundles every CLI flag for the move/merge family.
@@ -83,17 +77,14 @@ type Options struct {
 }
 
 // DiffKindType classifies a path across LEFT and RIGHT.
-type DiffKindType int
+// DiffKindType aliases the strongly-typed enum from the enums package.
+type DiffKindType = enums.DiffKindType
 
 const (
-	// DiffMissingLeft = present on RIGHT only.
-	DiffMissingLeft DiffKindType = iota
-	// DiffMissingRight = present on LEFT only.
-	DiffMissingRight
-	// DiffConflict = present on both with different content.
-	DiffConflict
-	// DiffIdentical = present on both with byte-equal content.
-	DiffIdentical
+	DiffMissingLeft  = enums.DiffMissingLeft
+	DiffMissingRight = enums.DiffMissingRight
+	DiffConflict     = enums.DiffConflict
+	DiffIdentical    = enums.DiffIdentical
 )
 
 // DiffEntry is one classified path with both sides' metadata.
@@ -112,17 +103,14 @@ type FileMeta struct {
 }
 
 // ChoiceType is the outcome of resolving one conflict.
-type ChoiceType int
+// ChoiceType aliases the strongly-typed enum from the enums package.
+type ChoiceType = enums.ChoiceType
 
 const (
-	// ChoiceLeft writes LEFT's version onto the destination side.
-	ChoiceLeft ChoiceType = iota
-	// ChoiceRight writes RIGHT's version onto the destination side.
-	ChoiceRight
-	// ChoiceSkip leaves both sides untouched.
-	ChoiceSkip
-	// ChoiceQuit aborts the run; partial changes are kept.
-	ChoiceQuit
+	ChoiceLeft  = enums.ChoiceLeft
+	ChoiceRight = enums.ChoiceRight
+	ChoiceSkip  = enums.ChoiceSkip
+	ChoiceQuit  = enums.ChoiceQuit
 )
 
 // Resolver picks a ChoiceType for each conflict. Stateful: All-Left/Right

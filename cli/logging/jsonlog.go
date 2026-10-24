@@ -15,15 +15,17 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/logging/enums"
 
 // LevelType enumerates the supported severities.
-type LevelType string
+// LevelType aliases the strongly-typed enum from the enums package.
+type LevelType = enums.LevelType
 
 const (
-	LevelDebug LevelType = "debug"
-	LevelInfo  LevelType = "info"
-	LevelWarn  LevelType = "warn"
-	LevelError LevelType = "error"
+	LevelDebug = enums.LevelDebug
+	LevelInfo  = enums.LevelInfo
+	LevelWarn  = enums.LevelWarn
+	LevelError = enums.LevelError
 )
 
 // Entry is one NDJSON line.

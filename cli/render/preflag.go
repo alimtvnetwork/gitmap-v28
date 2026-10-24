@@ -17,21 +17,16 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/render/enums"
 
 // PrettyModeType is the tri-state requested by the caller.
-type PrettyModeType int
+// PrettyModeType aliases the strongly-typed enum from the enums package.
+type PrettyModeType = enums.PrettyModeType
 
 const (
-	// PrettyAuto is the default: render when stdout is a real TTY and the
-	// shared GITMAP_NO_PRETTY env opt-out is unset.
-	PrettyAuto PrettyModeType = iota
-	// PrettyOn forces ANSI rendering regardless of TTY / env. Useful when
-	// piping into a renderer that understands ANSI (e.g. `less -R`).
-	PrettyOn
-	// PrettyOff suppresses ANSI rendering regardless of TTY / env. Use
-	// when redirecting to a file or feeding the output into tools that
-	// choke on escape codes (diff, sha256sum, grep -F).
-	PrettyOff
+	PrettyAuto = enums.PrettyAuto
+	PrettyOn   = enums.PrettyOn
+	PrettyOff  = enums.PrettyOff
 )
 
 // EnvNoPretty is the shared opt-out env var name. Mirrors the convention

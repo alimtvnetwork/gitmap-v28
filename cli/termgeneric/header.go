@@ -5,6 +5,7 @@ import (
 
 	"github.com/mattn/go-runewidth"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/termgeneric/enums"
 
 // BorderStyle defines the boundary characters used when rendering box headers.
 type BorderStyle struct {
@@ -56,16 +57,17 @@ var (
 )
 
 // AlignmentType defines the horizontal text alignment within the box.
-type AlignmentType int
-
-// Alignment is a deprecated legacy alias for AlignmentType.
-type Alignment = AlignmentType
+// AlignmentType aliases the strongly-typed enum from the enums package.
+type AlignmentType = enums.AlignmentType
 
 const (
-	AlignLeft Alignment = iota
-	AlignCenter
-	AlignRight
+	AlignLeft   = enums.AlignLeft
+	AlignCenter = enums.AlignCenter
+	AlignRight  = enums.AlignRight
 )
+
+// Alignment is a deprecated legacy alias for AlignmentType.
+type Alignment = enums.AlignmentType
 
 // HeaderConfig specifies the parameters for box header rendering.
 type HeaderConfig struct {

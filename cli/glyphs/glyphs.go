@@ -15,15 +15,15 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/glyphs/enums"
 
 // ModeType is the resolved glyph selection.
-type ModeType int
+// ModeType aliases the strongly-typed enum from the enums package.
+type ModeType = enums.ModeType
 
 const (
-	// ModeRich passes UTF-8 emoji through unchanged.
-	ModeRich ModeType = iota
-	// ModeSafe rewrites emoji to ASCII fallbacks.
-	ModeSafe
+	ModeRich = enums.ModeRich
+	ModeSafe = enums.ModeSafe
 )
 
 var glyphModeByLabel = map[string]ModeType{

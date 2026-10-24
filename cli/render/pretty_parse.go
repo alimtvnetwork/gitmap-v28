@@ -1,20 +1,22 @@
 package render
 
 import "strings"
+import "github.com/alimtvnetwork/gitmap-v28/cli/render/enums"
 
 // BlockKindType identifies the type of a parsed block.
-type BlockKindType int
-
-type blockKind = BlockKindType
+// BlockKindType aliases the strongly-typed enum from the enums package.
+type BlockKindType = enums.BlockKindType
 
 const (
-	BlockKindTypeParagraph BlockKindType = iota
-	BlockKindTypeHeading
-	BlockKindTypeSubtitle
-	BlockKindTypeFence
-	BlockKindTypeList
-	BlockKindTypeBlank
+	BlockKindTypeParagraph = enums.BlockKindTypeParagraph
+	BlockKindTypeHeading   = enums.BlockKindTypeHeading
+	BlockKindTypeSubtitle  = enums.BlockKindTypeSubtitle
+	BlockKindTypeFence     = enums.BlockKindTypeFence
+	BlockKindTypeList      = enums.BlockKindTypeList
+	BlockKindTypeBlank     = enums.BlockKindTypeBlank
 )
+
+type blockKind = enums.BlockKindType
 
 const (
 	bkParagraph = BlockKindTypeParagraph

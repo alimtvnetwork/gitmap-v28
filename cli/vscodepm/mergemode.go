@@ -28,62 +28,28 @@
 package vscodepm
 
 import (
-	"fmt"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/vscodepm/enums"
 
 // MergeModeType picks the tag-merge strategy used by SyncMode / SyncAtMode.
 // uint8 per the project-wide rule "smallest viable int type for ≤255 members".
-type MergeModeType uint8
-
-// MergeMode is a backward-compatible alias for MergeModeType.
-type MergeMode = MergeModeType
+// MergeModeType aliases the strongly-typed enum from the enums package.
+type MergeModeType = enums.MergeModeType
 
 const (
-	// MergeModeUnion is the v4.36.0 default — existing ∪ incoming, dedup'd.
-	MergeModeUnion MergeModeType = iota
-	// MergeModeReplace overwrites with incoming verbatim. Detector keeps brand.
-	MergeModeReplace
-	// MergeModeIntersection keeps only tags present in BOTH sets, plus brand pin.
-	MergeModeIntersection
+	MergeModeUnion        = enums.MergeModeUnion
+	MergeModeReplace      = enums.MergeModeReplace
+	MergeModeIntersection = enums.MergeModeIntersection
 )
 
-// String returns the canonical CLI literal for m. Matches the values
-// accepted by --mode and the values listed in the helpdoc.
-func (m MergeMode) String() string {
-	switch m {
-	case MergeModeReplace:
-		return constants.VSCodePMSyncModeReplace
-	case MergeModeIntersection:
-		return constants.VSCodePMSyncModeIntersection
-	case MergeModeUnion:
-		return constants.VSCodePMSyncModeUnion
-	default:
-		return constants.VSCodePMSyncModeUnion
-	}
-}
+// MergeMode is a backward-compatible alias for MergeModeType.
+type MergeMode = enums.MergeModeType
 
-// ParseMergeMode converts the CLI string into a MergeMode. Empty
-// string is treated as the default (UNION) so callers don't have to
-// special-case "flag absent". Unknown values return an error so we
-// fail loud per the zero-swallow rule.
-func ParseMergeMode(raw string) (MergeMode, error) {
-	switch raw {
-	case "", constants.VSCodePMSyncModeUnion:
-		return MergeModeUnion, nil
-	case constants.VSCodePMSyncModeReplace:
-		return MergeModeReplace, nil
-	case constants.VSCodePMSyncModeIntersection:
-		return MergeModeIntersection, nil
-	default:
-		return MergeModeUnion, apperror.NewValidationError(fmt.Sprintf(
-			constants.ErrVSCodePMSyncBadMode, raw,
-			constants.VSCodePMSyncModeUnion,
-			constants.VSCodePMSyncModeReplace,
-			constants.VSCodePMSyncModeIntersection))
-	}
+// ParseMergeMode aliases the enums package parser so existing callers keep working.
+func ParseMergeMode(raw string) (MergeMode, *apperror.AppError) {
+	return enums.ParseMergeMode(raw)
 }
 
 // mergeTags dispatches to the right strategy. Lives next to the enum

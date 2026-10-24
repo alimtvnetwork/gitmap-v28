@@ -11,19 +11,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/diff/enums"
 
 // EntryKindType classifies how a single relative path differs.
-type EntryKindType int
+// EntryKindType aliases the strongly-typed enum from the enums package.
+type EntryKindType = enums.EntryKindType
 
 const (
-	// MissingRight = present on LEFT, absent on RIGHT.
-	MissingRight EntryKindType = iota
-	// MissingLeft = present on RIGHT, absent on LEFT.
-	MissingLeft
-	// Identical = present on both, byte-equal.
-	Identical
-	// Conflict = present on both, byte-different.
-	Conflict
+	MissingRight = enums.MissingRight
+	MissingLeft  = enums.MissingLeft
+	Identical    = enums.Identical
+	Conflict     = enums.Conflict
 )
 
 // Entry is one path classified for the diff report.

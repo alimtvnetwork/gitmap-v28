@@ -20,70 +20,26 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/startup/enums"
 
 // BackendType enumerates the Windows-specific add targets. Linux/macOS
 // have one canonical backend each (XDG .desktop / LaunchAgents
 // .plist) so they ignore this value entirely. The zero value
 // (BackendUnspecified) means "let the dispatcher pick the OS default"
 // which is `BackendRegistry` on Windows.
-type BackendType int
+// BackendType aliases the strongly-typed enum from the enums package.
+type BackendType = enums.BackendType
 
 const (
-	// BackendUnspecified is the zero value. The dispatcher
-	// translates it to the per-OS default rather than failing —
-	// keeps the public Add(opts) API ergonomic for non-Windows
-	// callers that have no opinion on backend.
-	BackendUnspecified BackendType = iota
-	// BackendRegistry writes the HKCU Run-key value + tracking
-	// subkey (per-user; the long-standing default).
-	BackendRegistry
-	// BackendStartupFolder writes the .lnk + tracking subkey.
-	BackendStartupFolder
-	// BackendRegistryHKLM writes the HKLM Run-key value +
-	// tracking subkey (machine-wide; requires admin). Same on-
-	// disk shape as BackendRegistry, just rooted under
-	// HKEY_LOCAL_MACHINE so every interactive user on the
-	// machine triggers the autostart at login.
-	BackendRegistryHKLM
+	BackendUnspecified   = enums.BackendUnspecified
+	BackendRegistry      = enums.BackendRegistry
+	BackendStartupFolder = enums.BackendStartupFolder
+	BackendRegistryHKLM  = enums.BackendRegistryHKLM
 )
 
-// ParseBackend translates the user-facing flag string into the
-// BackendType enum. Unknown / empty values from non-Windows callers
-// flow through as BackendUnspecified (the per-OS default); empty
-// values from Windows callers also default to Registry. ONLY a
-// non-empty unrecognized value is an error — that means the user
-// typed something we don't understand and silently defaulting
-// would hide the typo.
-func ParseBackend(s string) (BackendType, error) {
-	switch s {
-	case "":
-		return BackendUnspecified, nil
-	case constants.StartupBackendRegistry:
-		return BackendRegistry, nil
-	case constants.StartupBackendStartupFolder:
-		return BackendStartupFolder, nil
-	case constants.StartupBackendRegistryHKLM:
-		return BackendRegistryHKLM, nil
-	default:
-		return BackendUnspecified, apperror.NewValidationError(fmt.Sprintf(constants.ErrStartupAddBadBackend, s))
-	}
-}
-
-// String renders the backend as the canonical CLI flag value. Used
-// by list/remove rendering to label which backend an entry lives in.
-func (b BackendType) String() string {
-	switch b {
-	case BackendRegistry:
-		return constants.StartupBackendRegistry
-	case BackendStartupFolder:
-		return constants.StartupBackendStartupFolder
-	case BackendRegistryHKLM:
-		return constants.StartupBackendRegistryHKLM
-	case BackendUnspecified:
-		return ""
-	default:
-		return ""
-	}
+// ParseBackend aliases the enums package parser so existing callers keep working.
+func ParseBackend(s string) (BackendType, *apperror.AppError) {
+	return enums.ParseBackend(s)
 }
 
 // resolveBackendForAdd picks the concrete backend to use when the

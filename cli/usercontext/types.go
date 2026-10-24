@@ -1,16 +1,19 @@
 package usercontext
 
-// AuthStatusType defines the authorization state for GitHub CLI and provider tools.
-type AuthStatusType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/usercontext/enums"
 
-// AuthStatus is an alias for AuthStatusType for backwards compatibility.
-type AuthStatus = AuthStatusType
+// AuthStatusType defines the authorization state for GitHub CLI and provider tools.
+// AuthStatusType aliases the strongly-typed enum from the enums package.
+type AuthStatusType = enums.AuthStatusType
 
 const (
-	StatusAuthorized      AuthStatus = "authorized"
-	StatusUnauthenticated AuthStatus = "unauthenticated"
-	StatusToolMissing     AuthStatus = "tool_missing"
+	StatusAuthorized      = enums.StatusAuthorized
+	StatusUnauthenticated = enums.StatusUnauthenticated
+	StatusToolMissing     = enums.StatusToolMissing
 )
+
+// AuthStatus is an alias for AuthStatusType for backwards compatibility.
+type AuthStatus = enums.AuthStatusType
 
 // GhAuthInfo represents GitHub CLI authorization readout details.
 type GhAuthInfo struct {

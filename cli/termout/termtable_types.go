@@ -1,44 +1,39 @@
 package termout
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/termout/enums"
+
 // AlignmentType defines column text alignment for terminal tables.
-type AlignmentType string
+// AlignmentType aliases the strongly-typed enum from the enums package.
+type AlignmentType = enums.AlignmentType
 
 const (
-	// AlignLeft positions text flush with the left margin.
-	AlignLeft AlignmentType = "left"
-	// AlignRight positions text flush with the right margin (ideal for numeric metrics).
-	AlignRight AlignmentType = "right"
-	// AlignCenter centers text symmetrically within the column width.
-	AlignCenter AlignmentType = "center"
+	AlignLeft   = enums.AlignLeft
+	AlignRight  = enums.AlignRight
+	AlignCenter = enums.AlignCenter
 )
 
 // AlignType is maintained as a type alias for AlignmentType for backward compatibility.
-type AlignType = AlignmentType
+type AlignType = enums.AlignmentType
 
 // BorderStyleType defines the visual framing style for rendered terminal tables.
-type BorderStyleType string
+// BorderStyleType aliases the strongly-typed enum from the enums package.
+type BorderStyleType = enums.BorderStyleType
 
 const (
-	// BorderNone indicates no border framing (standard spaced table).
-	BorderNone BorderStyleType = "none"
-	// BorderRounded uses curved UTF-8 box-drawing characters (╭, ╮, ╯, ╰).
-	BorderRounded BorderStyleType = "rounded"
-	// BorderSharp uses classic rectangular box-drawing characters (┌, ┐, ┘, └).
-	BorderSharp BorderStyleType = "sharp"
-	// BorderMinimal uses understated separator lines without outer vertical bars.
-	BorderMinimal BorderStyleType = "minimal"
+	BorderNone    = enums.BorderNone
+	BorderRounded = enums.BorderRounded
+	BorderSharp   = enums.BorderSharp
+	BorderMinimal = enums.BorderMinimal
 )
 
 // WrapModeType defines cell text wrapping behavior for terminal tables.
-type WrapModeType string
+// WrapModeType aliases the strongly-typed enum from the enums package.
+type WrapModeType = enums.WrapModeType
 
 const (
-	// WrapClip truncates cell text at column width without appending ellipsis.
-	WrapClip WrapModeType = "clip"
-	// WrapEllipsis truncates cell text exceeding column width with an ellipsis indicator.
-	WrapEllipsis WrapModeType = "ellipsis"
-	// WrapWord wraps text softly at whitespace boundaries across multiple lines.
-	WrapWord WrapModeType = "word"
+	WrapClip     = enums.WrapClip
+	WrapEllipsis = enums.WrapEllipsis
+	WrapWord     = enums.WrapWord
 )
 
 // ColumnConfig defines configuration options for an individual table column.

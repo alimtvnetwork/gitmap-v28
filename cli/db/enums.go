@@ -1,146 +1,48 @@
 package db
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/db/enums"
 
-type CommandKindType int
-
-const (
-	CommandKindPsCommand      CommandKindType = 1
-	CommandKindCmdCommand     CommandKindType = 2
-	CommandKindInstall        CommandKindType = 3
-	CommandKindGitPull        CommandKindType = 4
-	CommandKindGitPush        CommandKindType = 5
-	CommandKindGitCommit      CommandKindType = 6
-	CommandKindGitStatus      CommandKindType = 7
-	CommandKindProjRun        CommandKindType = 8
-	CommandKindProjCreateCICD CommandKindType = 9
-	CommandKindRestart        CommandKindType = 10
-	CommandKindShutdown       CommandKindType = 11
-	CommandKindLogoff         CommandKindType = 12
-	CommandKindBashCommand    CommandKindType = 13
-	CommandKindShellCommand   CommandKindType = 14
-)
-
-func (k CommandKindType) String() string {
-	switch k {
-	case CommandKindPsCommand:
-		return "PsCommand"
-	case CommandKindCmdCommand:
-		return "CmdCommand"
-	case CommandKindInstall:
-		return "Install"
-	case CommandKindGitPull:
-		return "GitPull"
-	case CommandKindGitPush:
-		return "GitPush"
-	case CommandKindGitCommit:
-		return "GitCommit"
-	case CommandKindGitStatus:
-		return "GitStatus"
-	case CommandKindProjRun:
-		return "ProjRun"
-	case CommandKindProjCreateCICD:
-		return "ProjCreateCICD"
-	case CommandKindRestart:
-		return "Restart"
-	case CommandKindShutdown:
-		return "Shutdown"
-	case CommandKindLogoff:
-		return "Logoff"
-	case CommandKindBashCommand:
-		return "BashCommand"
-	case CommandKindShellCommand:
-		return "ShellCommand"
-	default:
-		return fmt.Sprintf("CommandKindType(%d)", int(k))
-	}
-}
-
-func ParseCommandKind(s string) (CommandKindType, error) {
-	switch strings.ToLower(s) {
-	case "pscommand":
-		return CommandKindPsCommand, nil
-	case "cmdcommand":
-		return CommandKindCmdCommand, nil
-	case "bashcommand", "bash":
-		return CommandKindBashCommand, nil
-	case "shellcommand", "shell", "sh":
-		return CommandKindShellCommand, nil
-	case "install":
-		return CommandKindInstall, nil
-	case "gitpull":
-		return CommandKindGitPull, nil
-	case "gitpush":
-		return CommandKindGitPush, nil
-	case "gitcommit":
-		return CommandKindGitCommit, nil
-	case "gitstatus":
-		return CommandKindGitStatus, nil
-	case "projrun":
-		return CommandKindProjRun, nil
-	case "projcreatecicd":
-		return CommandKindProjCreateCICD, nil
-	case "restart":
-		return CommandKindRestart, nil
-	case "shutdown":
-		return CommandKindShutdown, nil
-	case "logoff":
-		return CommandKindLogoff, nil
-	default:
-		return 0, apperror.NewValidationError(fmt.Sprintf("invalid CommandKind: %s", s))
-	}
-}
-
-type ResultStatusType int
+// CommandKindType aliases the strongly-typed enum from the enums package.
+type CommandKindType = enums.CommandKindType
 
 const (
-	ResultStatusPending      ResultStatusType = 1
-	ResultStatusSucceeded    ResultStatusType = 2
-	ResultStatusFailed       ResultStatusType = 3
-	ResultStatusSkipped      ResultStatusType = 4
-	ResultStatusDeferred     ResultStatusType = 5
-	ResultStatusRequiresAuth ResultStatusType = 6
+	CommandKindPsCommand      = enums.CommandKindPsCommand
+	CommandKindCmdCommand     = enums.CommandKindCmdCommand
+	CommandKindInstall        = enums.CommandKindInstall
+	CommandKindGitPull        = enums.CommandKindGitPull
+	CommandKindGitPush        = enums.CommandKindGitPush
+	CommandKindGitCommit      = enums.CommandKindGitCommit
+	CommandKindGitStatus      = enums.CommandKindGitStatus
+	CommandKindProjRun        = enums.CommandKindProjRun
+	CommandKindProjCreateCICD = enums.CommandKindProjCreateCICD
+	CommandKindRestart        = enums.CommandKindRestart
+	CommandKindShutdown       = enums.CommandKindShutdown
+	CommandKindLogoff         = enums.CommandKindLogoff
+	CommandKindBashCommand    = enums.CommandKindBashCommand
+	CommandKindShellCommand   = enums.CommandKindShellCommand
 )
 
-func (s ResultStatusType) String() string {
-	switch s {
-	case ResultStatusPending:
-		return "Pending"
-	case ResultStatusSucceeded:
-		return "Succeeded"
-	case ResultStatusFailed:
-		return "Failed"
-	case ResultStatusSkipped:
-		return "Skipped"
-	case ResultStatusDeferred:
-		return "Deferred"
-	case ResultStatusRequiresAuth:
-		return "RequiresAuth"
-	default:
-		return fmt.Sprintf("ResultStatusType(%d)", int(s))
-	}
+// ParseCommandKind aliases the enums package parser so existing callers keep working.
+func ParseCommandKind(s string) (CommandKindType, *apperror.AppError) {
+	return enums.ParseCommandKind(s)
 }
 
-func ParseResultStatus(s string) (ResultStatusType, error) {
-	switch strings.ToLower(s) {
-	case "pending":
-		return ResultStatusPending, nil
-	case "succeeded":
-		return ResultStatusSucceeded, nil
-	case "failed":
-		return ResultStatusFailed, nil
-	case "skipped":
-		return ResultStatusSkipped, nil
-	case "deferred":
-		return ResultStatusDeferred, nil
-	case "requiresauth":
-		return ResultStatusRequiresAuth, nil
-	default:
-		return 0, apperror.NewValidationError(fmt.Sprintf("invalid ResultStatus: %s", s))
-	}
+// ResultStatusType aliases the strongly-typed enum from the enums package.
+type ResultStatusType = enums.ResultStatusType
+
+const (
+	ResultStatusPending      = enums.ResultStatusPending
+	ResultStatusSucceeded    = enums.ResultStatusSucceeded
+	ResultStatusFailed       = enums.ResultStatusFailed
+	ResultStatusSkipped      = enums.ResultStatusSkipped
+	ResultStatusDeferred     = enums.ResultStatusDeferred
+	ResultStatusRequiresAuth = enums.ResultStatusRequiresAuth
+)
+
+// ParseResultStatus aliases the enums package parser so existing callers keep working.
+func ParseResultStatus(s string) (ResultStatusType, *apperror.AppError) {
+	return enums.ParseResultStatus(s)
 }

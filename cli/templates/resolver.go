@@ -9,14 +9,16 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/templates/enums"
 
 // SourceType describes where a resolved template came from.
-type SourceType int
+// SourceType aliases the strongly-typed enum from the enums package.
+type SourceType = enums.SourceType
 
 const (
-	SourceNone SourceType = iota
-	SourceUser
-	SourceEmbed
+	SourceNone  = enums.SourceNone
+	SourceUser  = enums.SourceUser
+	SourceEmbed = enums.SourceEmbed
 )
 
 // Resolved is a single template resolution result.

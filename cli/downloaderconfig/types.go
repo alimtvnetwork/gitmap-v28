@@ -4,19 +4,21 @@ package downloaderconfig
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/downloaderconfig/enums"
 
-type ConfigKeyType string
-
-// ConfigKey is a backward-compatible alias for ConfigKeyType.
-type ConfigKey = ConfigKeyType
+// ConfigKeyType aliases the strongly-typed enum from the enums package.
+type ConfigKeyType = enums.ConfigKeyType
 
 const (
-	KeyDefaultSplitSize   ConfigKeyType = "DownloaderConfig.DefaultSplitSize"
-	KeyLargeFileSplitSize ConfigKeyType = "DownloaderConfig.LargeFileSplitSize"
-	KeyLargeFileThreshold ConfigKeyType = "DownloaderConfig.LargeFileThreshold"
-	KeyTinyFileThreshold  ConfigKeyType = "DownloaderConfig.TinyFileThreshold"
-	KeyTinyFileSplitSize  ConfigKeyType = "DownloaderConfig.TinyFileSplitSize"
+	KeyDefaultSplitSize   = enums.KeyDefaultSplitSize
+	KeyLargeFileSplitSize = enums.KeyLargeFileSplitSize
+	KeyLargeFileThreshold = enums.KeyLargeFileThreshold
+	KeyTinyFileThreshold  = enums.KeyTinyFileThreshold
+	KeyTinyFileSplitSize  = enums.KeyTinyFileSplitSize
 )
+
+// ConfigKey is a backward-compatible alias for ConfigKeyType.
+type ConfigKey = enums.ConfigKeyType
 
 // Document is the top-level Seedable-Config envelope. Field names are
 // PascalCase to match the spec and the JSON file shipped under

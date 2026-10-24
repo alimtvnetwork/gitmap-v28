@@ -23,25 +23,28 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/termout/enums"
 
 // RoleType is a semantic terminal color role. Help and UI code references
 // these — never raw hex or literal SGR codes.
-type RoleType string
+// RoleType aliases the strongly-typed enum from the enums package.
+type RoleType = enums.RoleType
+
+const (
+	RoleFG       = enums.RoleFG
+	RoleFGMuted  = enums.RoleFGMuted
+	RoleFGSubtle = enums.RoleFGSubtle
+	RolePrimary  = enums.RolePrimary
+	RoleAccent   = enums.RoleAccent
+	RoleWarn     = enums.RoleWarn
+	RoleError    = enums.RoleError
+	RoleOK       = enums.RoleOK
+)
 
 // Role is a deprecated legacy alias for RoleType.
-type Role = RoleType
+type Role = enums.RoleType
 
 // Semantic terminal roles (spec 02-theme-design.md §2).
-const (
-	RoleFG       Role = "fg"
-	RoleFGMuted  Role = "fg-muted"
-	RoleFGSubtle Role = "fg-subtle"
-	RolePrimary  Role = "primary"
-	RoleAccent   Role = "accent"
-	RoleWarn     Role = "warn"
-	RoleError    Role = "error"
-	RoleOK       Role = "ok"
-)
 
 // Theme slugs exposed via --theme / GITMAP_THEME.
 const (

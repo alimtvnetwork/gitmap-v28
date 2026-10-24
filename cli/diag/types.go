@@ -2,37 +2,32 @@
 // and Catppuccin terminal renderers for CLI suggestions and error remediation.
 package diag
 
-// SuggestionCategoryType classifies the underlying intent of a suggested action.
-type SuggestionCategoryType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/diag/enums"
 
-// SuggestionCategory is a deprecated legacy alias for SuggestionCategoryType.
-type SuggestionCategory = SuggestionCategoryType
+// SuggestionCategoryType classifies the underlying intent of a suggested action.
+// SuggestionCategoryType aliases the strongly-typed enum from the enums package.
+type SuggestionCategoryType = enums.SuggestionCategoryType
 
 const (
-	// CategoryTypo indicates a mistyped command, flag, or token.
-	CategoryTypo SuggestionCategory = "typo"
-	// CategorySubcommand indicates a valid child subcommand recommendation.
-	CategorySubcommand SuggestionCategory = "subcommand"
-	// CategoryFlag indicates a supported flag recommendation matching input token.
-	CategoryFlag SuggestionCategory = "flag"
-	// CategoryRemediation indicates a prescriptive diagnostic step to fix a failure.
-	CategoryRemediation SuggestionCategory = "remediation"
-	// CategoryIntent indicates a semantic alias or alternative intent (e.g. docker -> cluster).
-	CategoryIntent SuggestionCategory = "intent"
-	// CategoryResource indicates a repository, branch, or node target suggestion.
-	CategoryResource SuggestionCategory = "resource"
+	CategoryTypo        = enums.CategoryTypo
+	CategorySubcommand  = enums.CategorySubcommand
+	CategoryFlag        = enums.CategoryFlag
+	CategoryRemediation = enums.CategoryRemediation
+	CategoryIntent      = enums.CategoryIntent
+	CategoryResource    = enums.CategoryResource
 )
 
+// SuggestionCategory is a deprecated legacy alias for SuggestionCategoryType.
+type SuggestionCategory = enums.SuggestionCategoryType
+
 // ActionType defines the execution mode of the suggested command.
-type ActionType string
+// ActionType aliases the strongly-typed enum from the enums package.
+type ActionType = enums.ActionType
 
 const (
-	// ActionAutoRun indicates the recommendation is safe to auto-execute.
-	ActionAutoRun ActionType = "auto-run"
-	// ActionManual indicates the recommendation requires user parameter adjustment.
-	ActionManual ActionType = "manual"
-	// ActionCopy indicates a copy-paste command candidate.
-	ActionCopy ActionType = "copy"
+	ActionAutoRun = enums.ActionAutoRun
+	ActionManual  = enums.ActionManual
+	ActionCopy    = enums.ActionCopy
 )
 
 // Suggestion represents an actionable CLI recommendation.
@@ -54,19 +49,17 @@ type SuggestionGroup struct {
 }
 
 // RenderFormatType defines the rendering style for suggestions.
-type RenderFormatType string
-
-// RenderFormat is a deprecated legacy alias for RenderFormatType.
-type RenderFormat = RenderFormatType
+// RenderFormatType aliases the strongly-typed enum from the enums package.
+type RenderFormatType = enums.RenderFormatType
 
 const (
-	// RenderFormatBox renders an elegant Catppuccin terminal box.
-	RenderFormatBox RenderFormat = "box"
-	// RenderFormatCompact renders a minimal single-line inline hint.
-	RenderFormatCompact RenderFormat = "compact"
-	// RenderFormatJSON renders machine-readable JSON for agents and tooling.
-	RenderFormatJSON RenderFormat = "json"
+	RenderFormatBox     = enums.RenderFormatBox
+	RenderFormatCompact = enums.RenderFormatCompact
+	RenderFormatJSON    = enums.RenderFormatJSON
 )
+
+// RenderFormat is a deprecated legacy alias for RenderFormatType.
+type RenderFormat = enums.RenderFormatType
 
 // Engine defines the contract for resolving suggestions.
 type Engine interface {

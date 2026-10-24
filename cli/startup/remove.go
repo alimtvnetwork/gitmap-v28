@@ -15,6 +15,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/startup/enums"
 
 // RemoveResult tags every Remove outcome so callers can render the
 // right user-facing message without inspecting error text. The path
@@ -30,18 +31,14 @@ type RemoveResult struct {
 }
 
 // RemoveStatusType enumerates the four mutually-exclusive outcomes.
-type RemoveStatusType int
+// RemoveStatusType aliases the strongly-typed enum from the enums package.
+type RemoveStatusType = enums.RemoveStatusType
 
 const (
-	// RemoveDeleted = file existed, was gitmap-managed, was unlinked
-	// (or, under DryRun, would have been unlinked).
-	RemoveDeleted RemoveStatusType = iota
-	// RemoveNoOp = no file by that name in the autostart dir.
-	RemoveNoOp
-	// RemoveRefused = file exists but is not gitmap-managed.
-	RemoveRefused
-	// RemoveBadName = input failed validation (empty / separator).
-	RemoveBadName
+	RemoveDeleted = enums.RemoveDeleted
+	RemoveNoOp    = enums.RemoveNoOp
+	RemoveRefused = enums.RemoveRefused
+	RemoveBadName = enums.RemoveBadName
 )
 
 // RemoveOptions carries optional knobs for Remove. Kept as a struct

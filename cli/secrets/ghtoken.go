@@ -7,20 +7,22 @@ import (
 	"path/filepath"
 	"strings"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/secrets/enums"
 
 // SourceType identifies which mechanism produced a token.
-type SourceType string
+// SourceType aliases the strongly-typed enum from the enums package.
+type SourceType = enums.SourceType
 
 const (
-	SourceEnvGitHubToken  SourceType = "GITHUB_TOKEN env var"
-	SourceEnvGHToken      SourceType = "GH_TOKEN env var"
-	SourceWinRegistryUser SourceType = "Windows User Registry"
-	SourceWinRegistrySys  SourceType = "Windows System Registry"
-	SourceGitCredential   SourceType = "Git Credential Manager"
-	SourceGhCLI           SourceType = "GitHub CLI (gh auth token)"
-	SourceGhHostsFile     SourceType = "GitHub CLI config (hosts.yml)"
-	SourceGitConfig       SourceType = "git config (github.token)"
-	SourceNone            SourceType = ""
+	SourceEnvGitHubToken  = enums.SourceEnvGitHubToken
+	SourceEnvGHToken      = enums.SourceEnvGHToken
+	SourceWinRegistryUser = enums.SourceWinRegistryUser
+	SourceWinRegistrySys  = enums.SourceWinRegistrySys
+	SourceGitCredential   = enums.SourceGitCredential
+	SourceGhCLI           = enums.SourceGhCLI
+	SourceGhHostsFile     = enums.SourceGhHostsFile
+	SourceGitConfig       = enums.SourceGitConfig
+	SourceNone            = enums.SourceNone
 )
 
 // ErrNoToken is returned when no source yields a usable token.

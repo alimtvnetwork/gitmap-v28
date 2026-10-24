@@ -1,37 +1,24 @@
 package types
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/types/enums"
+
 // AgentActionType represents the category of action performed by an autonomous agent.
-type AgentActionType string
+// AgentActionType aliases the strongly-typed enum from the enums package.
+type AgentActionType = enums.AgentActionType
 
 const (
-	ActionSearch   AgentActionType = "SEARCH"
-	ActionRead     AgentActionType = "READ"
-	ActionWrite    AgentActionType = "WRITE"
-	ActionEdit     AgentActionType = "EDIT"
-	ActionExec     AgentActionType = "EXEC"
-	ActionLint     AgentActionType = "LINT"
-	ActionCheck    AgentActionType = "CHECK"
-	ActionClaim    AgentActionType = "CLAIM"
-	ActionComplete AgentActionType = "COMPLETE"
-	ActionFail     AgentActionType = "FAIL"
-	ActionCrash    AgentActionType = "CRASH"
+	ActionSearch   = enums.ActionSearch
+	ActionRead     = enums.ActionRead
+	ActionWrite    = enums.ActionWrite
+	ActionEdit     = enums.ActionEdit
+	ActionExec     = enums.ActionExec
+	ActionLint     = enums.ActionLint
+	ActionCheck    = enums.ActionCheck
+	ActionClaim    = enums.ActionClaim
+	ActionComplete = enums.ActionComplete
+	ActionFail     = enums.ActionFail
+	ActionCrash    = enums.ActionCrash
 )
-
-// String returns the string representation of AgentActionType.
-func (a AgentActionType) String() string {
-	return string(a)
-}
-
-// IsValid checks if the action type is one of the supported enum values.
-func (a AgentActionType) IsValid() bool {
-	switch a {
-	case ActionSearch, ActionRead, ActionWrite, ActionEdit, ActionExec,
-		ActionLint, ActionCheck, ActionClaim, ActionComplete, ActionFail, ActionCrash:
-		return true
-	default:
-		return false
-	}
-}
 
 // ParentTask represents a root or parent autonomous agent execution task.
 type ParentTask struct {

@@ -44,32 +44,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/termout/enums"
 
 // ModeType is the resolved palette selection.
-type ModeType int
+// ModeType aliases the strongly-typed enum from the enums package.
+type ModeType = enums.ModeType
 
 const (
-	// ModeBright is the loud bright+bold palette (default).
-	ModeBright ModeType = iota
-	// ModeStandard is the muted pre-v5.13 plain palette.
-	ModeStandard
-	// ModeMono strips all ANSI SGR codes.
-	ModeMono
+	ModeBright   = enums.ModeBright
+	ModeStandard = enums.ModeStandard
+	ModeMono     = enums.ModeMono
 )
-
-// String returns the canonical lowercase label for the mode.
-func (m ModeType) String() string {
-	switch m {
-	case ModeStandard:
-		return constants.ThemeStandard
-	case ModeMono:
-		return constants.ThemeMonochrome
-	case ModeBright:
-		return constants.ThemeBright
-	default:
-		return constants.ThemeBright
-	}
-}
 
 // themeModeByLabel maps a lowercased theme label to its render mode;
 // labels absent from the map fall back to ModeBright in Parse.

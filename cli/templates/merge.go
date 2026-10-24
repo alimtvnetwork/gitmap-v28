@@ -25,19 +25,16 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/templates/enums"
 
 // MergeOutcomeType describes what Merge did to the target file.
-type MergeOutcomeType int
+// MergeOutcomeType aliases the strongly-typed enum from the enums package.
+type MergeOutcomeType = enums.MergeOutcomeType
 
 const (
-	// MergeCreated means the target file did not exist and was created.
-	MergeCreated MergeOutcomeType = iota
-	// MergeInserted means the file existed but had no prior gitmap block;
-	// the new block was appended at the end.
-	MergeInserted
-	// MergeUpdated means a prior gitmap block was found and its body was
-	// replaced (or kept identical — see Changed).
-	MergeUpdated
+	MergeCreated  = enums.MergeCreated
+	MergeInserted = enums.MergeInserted
+	MergeUpdated  = enums.MergeUpdated
 )
 
 // MergeResult is the structured return value of Merge.

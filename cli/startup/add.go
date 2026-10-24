@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/startup/enums"
 
 // AddOptions captures every knob the runner exposes. Kept as a
 // struct (not positional args) so future fields like Comment,
@@ -62,22 +63,15 @@ type AddOptions struct {
 // AddStatusType tags the four mutually-exclusive Add outcomes. Kept
 // parallel to RemoveStatus so the CLI rendering layer can switch on
 // either with the same shape.
-type AddStatusType int
+// AddStatusType aliases the strongly-typed enum from the enums package.
+type AddStatusType = enums.AddStatusType
 
 const (
-	// AddCreated = file did not exist; was written fresh.
-	AddCreated AddStatusType = iota
-	// AddOverwritten = previously gitmap-managed file was replaced
-	// because Force was set.
-	AddOverwritten
-	// AddRefused = a non-gitmap-managed file with the same name
-	// already exists; we did NOT touch it.
-	AddRefused
-	// AddBadName = name failed validation (empty / separator / NUL).
-	AddBadName
-	// AddExists = a gitmap-managed file with the same name already
-	// exists and Force was NOT set; nothing was written.
-	AddExists
+	AddCreated     = enums.AddCreated
+	AddOverwritten = enums.AddOverwritten
+	AddRefused     = enums.AddRefused
+	AddBadName     = enums.AddBadName
+	AddExists      = enums.AddExists
 )
 
 // AddResult mirrors RemoveResult. Path is the absolute target file

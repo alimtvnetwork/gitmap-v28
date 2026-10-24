@@ -20,23 +20,17 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/templates/enums"
 
 // DiffStatusType enumerates the high-level outcomes of a single Diff call.
-type DiffStatusType int
+// DiffStatusType aliases the strongly-typed enum from the enums package.
+type DiffStatusType = enums.DiffStatusType
 
 const (
-	// DiffNoChange means the template body matches the on-disk block
-	// (or both are absent). Exit code 0 territory.
-	DiffNoChange DiffStatusType = iota
-	// DiffMissingBlock means the file exists but has no gitmap block
-	// for tag — `add` would insert one.
-	DiffMissingBlock
-	// DiffMissingFile means the file itself is absent — `add` would
-	// create it.
-	DiffMissingFile
-	// DiffBlockChanged means the file has a gitmap block but its body
-	// differs from the template — `add` would update it.
-	DiffBlockChanged
+	DiffNoChange     = enums.DiffNoChange
+	DiffMissingBlock = enums.DiffMissingBlock
+	DiffMissingFile  = enums.DiffMissingFile
+	DiffBlockChanged = enums.DiffBlockChanged
 )
 
 // DiffResult is the structured outcome of Diff. Hunks is empty when

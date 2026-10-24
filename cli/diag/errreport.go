@@ -28,21 +28,17 @@ import (
 	"sync"
 	"time"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/diag/enums"
 
 // PhaseType tags which subsystem produced the failure. Stored as the
 // JSON top-level array key (`scan` / `clone`) so consumers can
 // branch on it without parsing the inner Entry first.
-type PhaseType string
+// PhaseType aliases the strongly-typed enum from the enums package.
+type PhaseType = enums.PhaseType
 
 const (
-	// PhaseScan covers everything that runs under `gitmap scan`:
-	// scanner ReadDir failures, background ls-remote / shallow-clone
-	// probe errors, project-detection failures we choose to surface.
-	PhaseScan PhaseType = "scan"
-	// PhaseClone covers everything under `gitmap clone-next` batch
-	// mode (--all / --csv): per-repo clone failures, post-clone
-	// hooks that errored, and any other non-skip cn outcome.
-	PhaseClone PhaseType = "clone"
+	PhaseScan  = enums.PhaseScan
+	PhaseClone = enums.PhaseClone
 )
 
 // Entry is one failure record. RepoPath is required (the whole point
