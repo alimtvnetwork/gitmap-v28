@@ -4,6 +4,7 @@ package cmdfixgit
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -28,22 +29,30 @@ func runFixGit(args []string) error {
 	return renderFixGitOutput(result, opts.IsJSON)
 }
 
+var (
+	fixGitDryRunFlagTokens      = []string{"--dry-run", "-n"}
+	fixGitVerboseFlagTokens     = []string{"--verbose", "-v"}
+	fixGitPermissionsFlagTokens = []string{"--permissions", "--perms", "--permissions-only"}
+	fixGitLocksFlagTokens       = []string{"--locks", "--locks-only"}
+	fixGitIndexFlagTokens       = []string{"--index", "--index-only"}
+)
+
 func parseFixGitOptions(args []string) FixGitOptions {
 	opts := FixGitOptions{TargetDir: "."}
 
 	for _, arg := range args {
 		switch {
-		case arg == "--dry-run" || arg == "-n":
+		case slices.Contains(fixGitDryRunFlagTokens, arg):
 			opts.IsDryRun = true
 		case arg == "--json":
 			opts.IsJSON = true
-		case arg == "--verbose" || arg == "-v":
+		case slices.Contains(fixGitVerboseFlagTokens, arg):
 			opts.IsVerbose = true
-		case arg == "--permissions" || arg == "--perms" || arg == "--permissions-only":
+		case slices.Contains(fixGitPermissionsFlagTokens, arg):
 			opts.IsPermissionsOnly = true
-		case arg == "--locks" || arg == "--locks-only":
+		case slices.Contains(fixGitLocksFlagTokens, arg):
 			opts.IsLocksOnly = true
-		case arg == "--index" || arg == "--index-only":
+		case slices.Contains(fixGitIndexFlagTokens, arg):
 			opts.IsIndexOnly = true
 		case arg == "--safe-dir":
 			opts.IsSafeDirOnly = true
