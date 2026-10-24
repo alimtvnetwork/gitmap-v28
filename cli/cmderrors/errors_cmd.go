@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -162,8 +163,10 @@ func parseLimitArg(args []string, defaultLimit int) int {
 	return defaultLimit
 }
 
+var errorsLimitFlagTokens = []string{"--limit", "-l"}
+
 func isLimitFlag(arg string) bool {
-	return arg == "--limit" || arg == "-l"
+	return slices.Contains(errorsLimitFlagTokens, arg)
 }
 
 func emitJSONErrors(records []store.InternalErrorRecord) error {
