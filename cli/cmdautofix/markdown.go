@@ -2,24 +2,25 @@ package cmdautofix
 
 import (
 	"bytes"
-	"regexp"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // gapRunRe mirrors 31-md-gap-fixer.py fix_gaps: 3+ newlines → exactly 2.
-var gapRunRe = regexp.MustCompile(`\n{3,}`)
+var gapRunRe = lazyregex.New(`\n{3,}`)
 
 // collapseGaps mirrors fix_gaps: normalize CRLF→LF, then collapse runs of
 // 3+ newlines into exactly 2.
 func collapseGaps(src []byte) []byte {
 	normalized := bytes.ReplaceAll(src, crlfByte, lfByte)
-	return gapRunRe.ReplaceAll(normalized, []byte{'\n', '\n'})
+	return gapRunRe.Compiled().ReplaceAll(normalized, []byte{'\n', '\n'})
 }
 
 // markdownCheck flags any run of 3+ consecutive newlines in .md files.
 func markdownCheck(relPath string, src []byte, opts Options) []Violation {
 	normalized := bytes.ReplaceAll(src, crlfByte, lfByte)
 	violations := []Violation{}
-	for _, loc := range gapRunRe.FindAllIndex(normalized, -1) {
+	for _, loc := range gapRunRe.Compiled().FindAllIndex(normalized, -1) {
 		violations = append(violations, Violation{
 			Path:     relPath,
 			Category: "markdown",

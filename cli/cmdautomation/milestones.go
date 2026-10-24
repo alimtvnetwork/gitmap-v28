@@ -6,15 +6,15 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-var milestoneH1Re = regexp.MustCompile(`(?m)^#\s+(.+)`)
+var milestoneH1Re = lazyregex.New(`(?m)^#\s+(.+)`)
 
 // RunMilestones queries GitHub milestone issues/PRs and formats release notes.
 func RunMilestones(opts MilestonesOptions) MilestonesResultMonad {

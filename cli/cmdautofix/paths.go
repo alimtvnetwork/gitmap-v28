@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // defaultRepoURI is the --uri-pattern default (D10).
@@ -14,11 +16,11 @@ const devicePathPrefix = `\\?\`
 
 var (
 	// Port of FILE_URI_WIN: file:///[A-Za-z]:/[^\s\)\]"'>]+
-	fileURIWinRe = regexp.MustCompile(`file:///[A-Za-z]:/[^\s\)\]"'>]+`)
+	fileURIWinRe = lazyregex.New(`file:///[A-Za-z]:/[^\s\)\]"'>]+`)
 	// Port of DRIVE_ABS_WIN without the lookbehind (RE2 has none):
 	// (?<![A-Za-z0-9_])[A-Za-z]:\\[A-Za-z0-9_\\.-]+
 	// The lookbehind is enforced manually in isDriveAbsMatch.
-	driveAbsWinRe = regexp.MustCompile(`[A-Za-z]:\\[A-Za-z0-9_\\.-]+`)
+	driveAbsWinRe = lazyregex.New(`[A-Za-z]:\\[A-Za-z0-9_\\.-]+`)
 )
 
 // repoFileURIRe builds the REPO_FILE_URI pattern for a repo-URI pattern P:
@@ -69,14 +71,14 @@ func pathsCheck(relPath string, src []byte, opts Options) []Violation {
 		return nil
 	}
 	violations := []Violation{}
-	for _, loc := range fileURIWinRe.FindAllStringIndex(content, -1) {
+	for _, loc := range fileURIWinRe.Compiled().FindAllStringIndex(content, -1) {
 		val := content[loc[0]:loc[1]]
 		if isIgnoredPathVal(val) {
 			continue
 		}
 		violations = append(violations, Violation{Path: relPath, Category: "paths", Line: lineAt(content, loc[0]), Detail: "absolute path found: " + val})
 	}
-	for _, loc := range driveAbsWinRe.FindAllStringIndex(content, -1) {
+	for _, loc := range driveAbsWinRe.Compiled().FindAllStringIndex(content, -1) {
 		if !isDriveAbsMatch(content, loc) {
 			continue
 		}

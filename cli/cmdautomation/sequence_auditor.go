@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	numPrefixRegex = regexp.MustCompile(`^(\d+)[-_]`)
-	h1HeaderRegex  = regexp.MustCompile(`(?m)^(#\s*)(\d+)([\s—\-]+.*)$`)
+	numPrefixRegex = lazyregex.New(`^(\d+)[-_]`)
+	h1HeaderRegex  = lazyregex.New(`(?m)^(#\s*)(\d+)([\s—\-]+.*)$`)
 )
 
 // RunSequenceAuditor scans directories for numbered markdown files and verifies sequence and H1 title consistency.
@@ -132,7 +132,7 @@ func checkAndFixTitles(dir string, list []numberedFileInfo, opts SequenceAuditor
 }
 
 func inspectAndFixSingleTitle(item numberedFileInfo, data []byte, opts SequenceAuditorOptions, dirRes *SequenceDirResult) {
-	loc := h1HeaderRegex.FindSubmatchIndex(data)
+	loc := h1HeaderRegex.Compiled().FindSubmatchIndex(data)
 	if len(loc) < 8 {
 		return
 	}
@@ -155,7 +155,7 @@ func inspectAndFixSingleTitle(item numberedFileInfo, data []byte, opts SequenceA
 func fixTitleHeaderOnDisk(path string, data []byte, correctNum int, dirRes *SequenceDirResult) {
 	formattedNum := fmt.Sprintf("%02d", correctNum)
 	replacement := "${1}" + formattedNum + "${3}"
-	fixed := h1HeaderRegex.ReplaceAll(data, []byte(replacement))
+	fixed := h1HeaderRegex.Compiled().ReplaceAll(data, []byte(replacement))
 	if err := os.WriteFile(path, fixed, 0644); err == nil {
 		dirRes.FixedTitles = append(dirRes.FixedTitles, filepath.ToSlash(path))
 	}

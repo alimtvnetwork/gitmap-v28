@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 	"unicode"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reCreateTable = regexp.MustCompile(`(?is)CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+["` + "`" + `]?([A-Za-z0-9_]+)["` + "`" + `]?\s*\((.*?)\)(?:;|\s*` + "`" + `)`)
+	reCreateTable = lazyregex.New(`(?is)CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+["` + "`" + `]?([A-Za-z0-9_]+)["` + "`" + `]?\s*\((.*?)\)(?:;|\s*` + "`" + `)`)
 )
 
 // RunSchemaAudit inspects database schemas and verifies naming conventions.
@@ -83,7 +83,7 @@ func scanFileSchema(filePath string, isStrict bool, res *SchemaAuditResult) {
 	if err != nil {
 		return
 	}
-	matches := reCreateTable.FindAllStringSubmatch(string(content), -1)
+	matches := reCreateTable.Compiled().FindAllStringSubmatch(string(content), -1)
 	for _, m := range matches {
 		if len(m) < 3 {
 			continue

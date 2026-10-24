@@ -2,18 +2,18 @@ package cmdautomation
 
 import (
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reMapTuple     = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*(?:error|\*apperror\.AppError)\s*\)`)
-	reSliceTuple   = regexp.MustCompile(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*\[\][a-zA-Z0-9_*.]+\s*,\s*(?:error|\*apperror\.AppError)\s*\)`)
-	reRawRuneCast  = regexp.MustCompile(`\brune\s*\(\s*\d+\s*\)`)
-	reGoEnumNoType = regexp.MustCompile(`type\s+([A-Za-z]\w*?)\s+(?:string|int|int32|int64|byte)\b`)
+	reMapTuple     = lazyregex.New(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*map\[[^\]]+\][^,]+,\s*(?:error|\*apperror\.AppError)\s*\)`)
+	reSliceTuple   = lazyregex.New(`func\s+(?:\([^)]+\)\s+)?\w+\s*\([^)]*\)\s*\(\s*\[\][a-zA-Z0-9_*.]+\s*,\s*(?:error|\*apperror\.AppError)\s*\)`)
+	reRawRuneCast  = lazyregex.New(`\brune\s*\(\s*\d+\s*\)`)
+	reGoEnumNoType = lazyregex.New(`type\s+([A-Za-z]\w*?)\s+(?:string|int|int32|int64|byte)\b`)
 )
 
 // RunRuleAudit executes a targeted guideline check across repository files.

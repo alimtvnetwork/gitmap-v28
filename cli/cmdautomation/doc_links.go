@@ -3,15 +3,15 @@ package cmdautomation
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reMdLink = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+	reMdLink = lazyregex.New(lazyregex.MdLink)
 )
 
 type docFileAudit struct {
@@ -120,7 +120,7 @@ func scanContentLinks(root, path, content string) docFileAudit {
 
 func checkLineDocLinks(root, file, fileDir string, lineNum int, line string) []DocLinkViolation {
 	var vios []DocLinkViolation
-	matches := reMdLink.FindAllStringSubmatch(line, -1)
+	matches := reMdLink.Compiled().FindAllStringSubmatch(line, -1)
 	for _, m := range matches {
 		target := m[2]
 		if isIgnoredLink(target) {

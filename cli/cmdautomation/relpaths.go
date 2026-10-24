@@ -2,16 +2,16 @@ package cmdautomation
 
 import (
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reWinDrive = regexp.MustCompile(`(?i)[a-z]:[\\/][^ \r\n\t"'` + "`" + `<>]+`)
-	reFileUri  = regexp.MustCompile(`(?i)file:///[^ \r\n\t"'` + "`" + `<>]+`)
+	reWinDrive = lazyregex.New(`(?i)[a-z]:[\\/][^ \r\n\t"'` + "`" + `<>]+`)
+	reFileUri  = lazyregex.New(`(?i)file:///[^ \r\n\t"'` + "`" + `<>]+`)
 )
 
 // RunRelPathAudit scans target files for forbidden absolute filesystem paths.

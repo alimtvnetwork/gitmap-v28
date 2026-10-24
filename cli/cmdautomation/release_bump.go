@@ -5,19 +5,19 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	bumpVersionRe      = regexp.MustCompile(`("Version"\s*:\s*)"[^"]+"`)
-	bumpPkgVersionRe   = regexp.MustCompile(`("version"\s*:\s*)"[^"]+"`)
-	bumpConstVersionRe = regexp.MustCompile(`(var\s+Version\s*=\s*)"[^"]+"`)
-	bumpPrefRe         = regexp.MustCompile(`Release Mode Active \(v[0-9.]+\)`)
+	bumpVersionRe      = lazyregex.New(`("Version"\s*:\s*)"[^"]+"`)
+	bumpPkgVersionRe   = lazyregex.New(`("version"\s*:\s*)"[^"]+"`)
+	bumpConstVersionRe = lazyregex.New(`(var\s+Version\s*=\s*)"[^"]+"`)
+	bumpPrefRe         = lazyregex.New(`Release Mode Active \(v[0-9.]+\)`)
 )
 
 // RunReleaseBump computes the next SemVer version and updates repository manifests.

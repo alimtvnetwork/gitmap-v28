@@ -2,17 +2,17 @@ package cmdautomation
 
 import (
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reExplicitTrue   = regexp.MustCompile(`===?\s*(?:true|True)\b|!==?\s*(?:true|True)\b`)
-	reNonAffirmParam = regexp.MustCompile(`\b(?:trigger|showRole|forceLifecycle|autoConfirm)\s+bool\b`)
-	reNonAffirmField = regexp.MustCompile(`^\s+(?:Exists|Empty)\s+bool\b`)
+	reExplicitTrue   = lazyregex.New(`===?\s*(?:true|True)\b|!==?\s*(?:true|True)\b`)
+	reNonAffirmParam = lazyregex.New(`\b(?:trigger|showRole|forceLifecycle|autoConfirm)\s+bool\b`)
+	reNonAffirmField = lazyregex.New(`^\s+(?:Exists|Empty)\s+bool\b`)
 )
 
 // RunNamingAudit scans repository source files for boolean naming and comparison anti-patterns.

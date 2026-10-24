@@ -3,8 +3,9 @@ package cmdautofix
 import (
 	"bytes"
 	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // codeExts mirrors 02-shared-engine.py DEFAULT_CODE_EXTENSIONS.
@@ -17,11 +18,11 @@ func isCodeFile(relPath string) bool {
 
 var (
 	// Port of 02-shared-engine.py explicit-true patterns.
-	explicitDoubleTrueRe = regexp.MustCompile(`(?i)==\s*true\b`)
-	explicitTripleTrueRe = regexp.MustCompile(`(?i)===\s*true\b`)
-	explicitPythonTrueRe = regexp.MustCompile(`==\s*True\b`)
+	explicitDoubleTrueRe = lazyregex.New(`(?i)==\s*true\b`)
+	explicitTripleTrueRe = lazyregex.New(`(?i)===\s*true\b`)
+	explicitPythonTrueRe = lazyregex.New(`==\s*True\b`)
 	// Port of COMMENT_PREFIX: ^\s*(//|#|\*|/\*).
-	commentPrefixRe = regexp.MustCompile(`^\s*(?://|#|\*|/\*)`)
+	commentPrefixRe = lazyregex.New(`^\s*(?://|#|\*|/\*)`)
 )
 
 // namingCheck flags explicit boolean-true comparisons (`== true`,

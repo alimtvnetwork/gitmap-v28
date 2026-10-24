@@ -3,17 +3,17 @@ package cmdautomation
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reCobraCmd  = regexp.MustCompile(`(?s)([a-zA-Z0-9_]+)\s*[:=]+\s*&cobra\.Command\s*\{([^}]+)\}`)
-	reUseProp   = regexp.MustCompile(`Use:\s*"([^"\s]+)`)
-	reShortProp = regexp.MustCompile(`Short:\s*"([^"]+)"`)
+	reCobraCmd  = lazyregex.New(`(?s)([a-zA-Z0-9_]+)\s*[:=]+\s*&cobra\.Command\s*\{([^}]+)\}`)
+	reUseProp   = lazyregex.New(`Use:\s*"([^"\s]+)`)
+	reShortProp = lazyregex.New(`Short:\s*"([^"]+)"`)
 )
 
 // RunHelpAudit audits CLI commands for Short descriptions and helptext docs.
@@ -89,7 +89,7 @@ func auditFileCommands(path, helpDir string) []HelpViolation {
 
 func scanCobraViolations(path, content, helpDir string) []HelpViolation {
 	var vios []HelpViolation
-	matches := reCobraCmd.FindAllStringSubmatch(content, -1)
+	matches := reCobraCmd.Compiled().FindAllStringSubmatch(content, -1)
 	for _, m := range matches {
 		cmdVar := m[1]
 		body := m[2]

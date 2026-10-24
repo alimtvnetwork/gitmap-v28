@@ -5,28 +5,28 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 var (
-	reConstantsVersion = regexp.MustCompile(`var\s+Version\s*=\s*"([^"]+)"`)
-	rePackageVersion   = regexp.MustCompile(`"version"\s*:\s*"([^"]+)"`)
-	reCargoVersion     = regexp.MustCompile(`(?m)^version\s*=\s*"([^"]+)"`)
-	reSpecVersion      = regexp.MustCompile(`(?m)^\*\*Version:\*\*\s*([^\s\r\n]+)`)
-	reChangelogVersion = regexp.MustCompile(`(?m)^##\s*\[?v?([0-9]+\.[0-9]+\.[0-9]+)\]?`)
-	reVersionJSONValue = regexp.MustCompile(`"Version"\s*:\s*"[^"]+"`)
+	reConstantsVersion = lazyregex.New(`var\s+Version\s*=\s*"([^"]+)"`)
+	rePackageVersion   = lazyregex.New(`"version"\s*:\s*"([^"]+)"`)
+	reCargoVersion     = lazyregex.New(`(?m)^version\s*=\s*"([^"]+)"`)
+	reSpecVersion      = lazyregex.New(`(?m)^\*\*Version:\*\*\s*([^\s\r\n]+)`)
+	reChangelogVersion = lazyregex.New(`(?m)^##\s*\[?v?([0-9]+\.[0-9]+\.[0-9]+)\]?`)
+	reVersionJSONValue = lazyregex.New(`"Version"\s*:\s*"[^"]+"`)
 )
 
 type versionTarget struct {
 	name    string
 	relPath string
-	re      *regexp.Regexp
+	re      *lazyregex.LazyRegexp
 	isOpt   bool
 }
 
@@ -149,7 +149,7 @@ func resolveConstantsPath(root string) string {
 	return "cli/constants/constants.go"
 }
 
-func auditTargetFile(name, relPath, fullPath, canonical string, re *regexp.Regexp, isOpt bool) VersionCheckItem {
+func auditTargetFile(name, relPath, fullPath, canonical string, re *lazyregex.LazyRegexp, isOpt bool) VersionCheckItem {
 	isMissing := !fsutil.FileExists(fullPath)
 	if isMissing && isOpt {
 		return VersionCheckItem{}
