@@ -36,8 +36,3 @@ func ParseEmailTaskType(s string) (EmailTaskType, *apperror.AppError) {
 func AllEmailTaskTypes() []EmailTaskType {
 	return enums.AllEmailTaskTypes()
 }
-
-// emailTaskTypeNames returns the raw task names for error messages.
-func emailTaskTypeNames() []string {
-	return enums.EmailTaskTypeNames()
-}

@@ -127,7 +127,12 @@ func validateScheduleTriggerFlags(flags scheduleSendEmailFlags) (EmailTaskType, 
 		return "", apperror.NewValidationError(fmt.Sprintf("missing --task <task>: usage: %s", scheduleSendEmailUsageLine))
 	}
 
-	return ParseEmailTaskType(flags.task)
+	task, parseErr := ParseEmailTaskType(flags.task)
+	if parseErr != nil {
+		return "", parseErr
+	}
+
+	return task, nil
 }
 
 func persistScheduleTrigger(trigger EmailTrigger) error {

@@ -64,15 +64,15 @@ func splitUIFlags(args []string) (flagArgs, positional []string) {
 		if idx := strings.Index(a, "="); idx >= 0 {
 			name = a[:idx]
 		}
-		if len(a) > 1 && strings.HasPrefix(a, "-") {
-			flagArgs = append(flagArgs, a)
-			if valueFlagsUI[name] && !strings.Contains(a, "=") && i+1 < len(args) {
-				i++
-				flagArgs = append(flagArgs, args[i])
-			}
+		if len(a) <= 1 || !strings.HasPrefix(a, "-") {
+			positional = append(positional, a)
 			continue
 		}
-		positional = append(positional, a)
+		flagArgs = append(flagArgs, a)
+		if valueFlagsUI[name] && !strings.Contains(a, "=") && i+1 < len(args) {
+			i++
+			flagArgs = append(flagArgs, args[i])
+		}
 	}
 	return flagArgs, positional
 }

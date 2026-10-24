@@ -17,8 +17,6 @@ import (
 //	action == "skip"     → drift detected, leave repo untouched.
 type DriftActionType string
 
-type driftAction = DriftActionType
-
 const (
 	DriftActionTypeProceed DriftActionType = "proceed"
 	DriftActionTypeForce   DriftActionType = "force"
