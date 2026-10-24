@@ -3,6 +3,7 @@ package cmdpy
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -25,12 +26,14 @@ func PrintPyHelp() {
 	fmt.Println()
 }
 
+var pyHelpFlagTokens = []string{"help", "--help", "-h"}
+
 func isPyHelpRequest(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
 	arg := strings.ToLower(args[0])
-	return arg == "help" || arg == "--help" || arg == "-h"
+	return slices.Contains(pyHelpFlagTokens, arg)
 }
 
 func handleExitCode(exitCode int, runErr error) error {
