@@ -10,6 +10,7 @@ import (
 	"time"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -126,7 +127,7 @@ func ExportPromptBackupToSQL(req PromptExportRequest) (*PromptExportResult, *app
 	isStdout := req.IsStdout
 	if isStdout {
 		fmt.Print(sqlContent)
-		return buildExportResult(req.TargetFile, PromptExportFormatTypeSQL, summary.BatchId, summary.TotalPrompts, sqlContent), nil
+		return buildExportResult(req.TargetFile, enums.PromptExportFormatTypeSQL, summary.BatchId, summary.TotalPrompts, sqlContent), nil
 	}
 
 	writeErr := writeExportFile(req.TargetFile, []byte(sqlContent))
@@ -135,7 +136,7 @@ func ExportPromptBackupToSQL(req PromptExportRequest) (*PromptExportResult, *app
 		return nil, writeErr
 	}
 
-	return buildExportResult(req.TargetFile, PromptExportFormatTypeSQL, summary.BatchId, summary.TotalPrompts, sqlContent), nil
+	return buildExportResult(req.TargetFile, enums.PromptExportFormatTypeSQL, summary.BatchId, summary.TotalPrompts, sqlContent), nil
 }
 
 func validateExportFileTarget(targetFile string, isStdout bool) *appfault.AppError {
@@ -181,7 +182,7 @@ func ExportPromptsByFormat(req PromptExportRequest) (*PromptExportResult, *appfa
 		return exportPromptsToDB(req)
 	}
 
-	return nil, appfault.NewValidation("ExportPromptsByFormat", "E1000", "unsupported export format: "+string(req.Format))
+	return nil, appfault.NewValidation("ExportPromptsByFormat", "E1000", fmt.Sprintf("unsupported export format: %s", req.Format))
 }
 
 func exportPromptsToJSON(req PromptExportRequest) (*PromptExportResult, *appfault.AppError) {
@@ -200,7 +201,7 @@ func exportPromptsToJSON(req PromptExportRequest) (*PromptExportResult, *appfaul
 	isStdout := req.IsStdout
 	if isStdout {
 		fmt.Println(string(data))
-		return buildExportResult(req.TargetFile, PromptExportFormatTypeJSON, summary.BatchId, summary.TotalPrompts, string(data)), nil
+		return buildExportResult(req.TargetFile, enums.PromptExportFormatTypeJSON, summary.BatchId, summary.TotalPrompts, string(data)), nil
 	}
 
 	writeErr := writeExportFile(req.TargetFile, data)
@@ -209,7 +210,7 @@ func exportPromptsToJSON(req PromptExportRequest) (*PromptExportResult, *appfaul
 		return nil, writeErr
 	}
 
-	return buildExportResult(req.TargetFile, PromptExportFormatTypeJSON, summary.BatchId, summary.TotalPrompts, string(data)), nil
+	return buildExportResult(req.TargetFile, enums.PromptExportFormatTypeJSON, summary.BatchId, summary.TotalPrompts, string(data)), nil
 }
 
 func exportPromptsToDB(req PromptExportRequest) (*PromptExportResult, *appfault.AppError) {
@@ -225,7 +226,7 @@ func exportPromptsToDB(req PromptExportRequest) (*PromptExportResult, *appfault.
 		return nil, appfault.WrapSimple(dbErr, "export to sqlite db")
 	}
 
-	return buildExportResult(req.TargetFile, PromptExportFormatTypeDB, summary.BatchId, summary.TotalPrompts, ""), nil
+	return buildExportResult(req.TargetFile, enums.PromptExportFormatTypeDB, summary.BatchId, summary.TotalPrompts, ""), nil
 }
 
 func loadExportSummary(batchID string, maxWords int, isFull bool) (*store.PromptBackupSummary, *appfault.AppError) {
@@ -286,7 +287,7 @@ func buildAdHocExportSummary(maxWords int, isFull bool) (*store.PromptBackupSumm
 	}, nil
 }
 
-func buildExportResult(targetFile string, format PromptExportFormatType, batchID string, total int, content string) *PromptExportResult {
+func buildExportResult(targetFile string, format enums.PromptExportFormatType, batchID string, total int, content string) *PromptExportResult {
 	return &PromptExportResult{
 		TargetFile: targetFile, Format: format, BatchID: batchID,
 		TotalPrompts: total, TotalBytes: int64(len(content)),

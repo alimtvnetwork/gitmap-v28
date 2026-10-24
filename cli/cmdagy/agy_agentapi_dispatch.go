@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 )
 
 const maxDirectPromptChars = 24000
@@ -151,7 +152,7 @@ func tryDispatchAgyCLI(repoRoot, promptPath, title, content string, pid int) (Ag
 
 	return AgyInjectionResult{
 		IsSuccess:  true,
-		Mode:       AgyInjectionModeCLI,
+		Mode:       enums.AgyInjectionModeCLI,
 		PID:        pid,
 		Message:    msg,
 		PromptPath: promptPath,
@@ -164,7 +165,7 @@ func makeAgentAPISuccessResult(pid int, repoDir, promptPath, convID string, isNe
 
 	return AgyInjectionResult{
 		IsSuccess:  true,
-		Mode:       AgyInjectionModeIDE,
+		Mode:       enums.AgyInjectionModeIDE,
 		PID:        pid,
 		Message:    msg,
 		PromptPath: promptPath,
@@ -186,7 +187,7 @@ func makeOfflineFallbackResult(pid int, repoDir, promptPath string, appErr *appe
 
 	return AgyInjectionResult{
 		IsSuccess:  false,
-		Mode:       AgyInjectionModeNone,
+		Mode:       enums.AgyInjectionModeNone,
 		PID:        pid,
 		Message:    msg,
 		PromptPath: promptPath,

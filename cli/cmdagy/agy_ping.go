@@ -162,7 +162,7 @@ func findMatchingConvInfo(wsPath string) AgyConvInfo {
 }
 
 func buildWorkspaceCheck(target string, state AgyConversationExecutionState, info AgyConvInfo) AgyPingWorkspaceCheck {
-	statusStr := string(state.Status)
+	statusStr := state.Status.String()
 	if len(statusStr) == 0 {
 		statusStr = "unknown"
 	}

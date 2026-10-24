@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -63,7 +64,7 @@ func renderInjectionFeedback(res AgyInjectionResult, isNoInject bool) {
 }
 
 func renderSuccessFeedback(res AgyInjectionResult) {
-	if res.Mode == AgyInjectionModeQueued {
+	if res.Mode == enums.AgyInjectionModeQueued {
 		fmt.Printf("  %s⏳ Antigravity Busy: %s%s\n\n", constants.ColorCyan, res.Message, constants.ColorReset)
 
 		return

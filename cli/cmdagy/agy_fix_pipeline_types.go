@@ -2,6 +2,7 @@ package cmdagy
 
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 )
 
@@ -68,41 +69,22 @@ type AgyFixDispatchParams struct {
 	TargetDir   string
 }
 
-// AgyInjectionModeType indicates whether injection was routed via CLI, IDE, or skipped.
-type AgyInjectionModeType string
-
-const (
-	AgyInjectionModeNone   AgyInjectionModeType = "none"
-	AgyInjectionModeCLI    AgyInjectionModeType = "cli"
-	AgyInjectionModeIDE    AgyInjectionModeType = "ide"
-	AgyInjectionModeQueued AgyInjectionModeType = "queued"
-)
-
-// AgyConvStatusType represents the execution status of an active conversation.
-type AgyConvStatusType string
-
-const (
-	AgyConvStatusIdle    AgyConvStatusType = "idle"
-	AgyConvStatusRunning AgyConvStatusType = "running"
-	AgyConvStatusUnknown AgyConvStatusType = "unknown"
-)
-
 // AgyConversationExecutionState represents the detected status of a conversation.
 type AgyConversationExecutionState struct {
-	ConvID         string            `json:"convId"`
-	Status         AgyConvStatusType `json:"status"`
-	TranscriptPath string            `json:"transcriptPath"`
+	ConvID         string                  `json:"convId"`
+	Status         enums.AgyConvStatusType `json:"status"`
+	TranscriptPath string                  `json:"transcriptPath"`
 }
 
 // AgyInjectionResult encapsulates the outcome of an Antigravity injection task.
 type AgyInjectionResult struct {
-	IsSuccess  bool                 `json:"IsSuccess"`
-	Mode       AgyInjectionModeType `json:"Mode"`
-	PID        int                  `json:"PID"`
-	Message    string               `json:"Message"`
-	PromptPath string               `json:"PromptPath"`
-	RepoDir    string               `json:"RepoDir"`
-	Err        *apperror.AppError   `json:"Err,omitempty"`
+	IsSuccess  bool                       `json:"IsSuccess"`
+	Mode       enums.AgyInjectionModeType `json:"Mode"`
+	PID        int                        `json:"PID"`
+	Message    string                     `json:"Message"`
+	PromptPath string                     `json:"PromptPath"`
+	RepoDir    string                     `json:"RepoDir"`
+	Err        *apperror.AppError         `json:"Err,omitempty"`
 }
 
 // AgyAssembledPromptPayload bundles assembled prompt components for pipeline fix dispatch.

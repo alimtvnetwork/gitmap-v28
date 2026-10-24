@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -41,7 +42,7 @@ func handleIDEInjection(repoRoot, promptPath string, pid int) AgyInjectionResult
 	}
 
 	convStatus := DetectConversationExecutionStatus(repoRoot)
-	isRunning := convStatus == AgyConvStatusRunning
+	isRunning := convStatus == enums.AgyConvStatusRunning
 	if isRunning {
 		_, _ = EnqueuePrompt("pipeline_fix", "Fix CI/CD Pipeline Errors with 4-Part RCA", promptContent)
 
@@ -73,7 +74,7 @@ func handleIDEInjectionWithPayload(repoRoot, promptPath, promptText, title, prom
 	}
 
 	convStatus := DetectConversationExecutionStatus(repoRoot)
-	isRunning := convStatus == AgyConvStatusRunning
+	isRunning := convStatus == enums.AgyConvStatusRunning
 	if isRunning {
 		_, _ = EnqueuePrompt(promptType, title, promptText)
 
@@ -88,7 +89,7 @@ func makeQueuedSuccessResult(pid int, repoDir, promptPath string) AgyInjectionRe
 
 	return AgyInjectionResult{
 		IsSuccess:  true,
-		Mode:       AgyInjectionModeQueued,
+		Mode:       enums.AgyInjectionModeQueued,
 		PID:        pid,
 		Message:    msg,
 		PromptPath: promptPath,
@@ -174,13 +175,13 @@ func writePromptFile(path, content string) {
 func makeSkipInjectionResult() AgyInjectionResult {
 	return AgyInjectionResult{
 		IsSuccess: false,
-		Mode:      AgyInjectionModeNone,
+		Mode:      enums.AgyInjectionModeNone,
 		Message:   "direct injection skipped by flag (--no-inject)",
 	}
 }
 
 // DetectConversationExecutionStatus detects if the conversation for repoRoot is IDLE or RUNNING.
-func DetectConversationExecutionStatus(repoRoot string) AgyConvStatusType {
+func DetectConversationExecutionStatus(repoRoot string) enums.AgyConvStatusType {
 	state := DetectConversationExecutionState(repoRoot)
 
 	return state.Status
@@ -191,7 +192,7 @@ func DetectConversationExecutionState(repoRoot string) AgyConversationExecutionS
 	convID, transcriptPath := findActiveConvTranscript(repoRoot)
 	hasTranscript := len(transcriptPath) > 0
 	if !hasTranscript {
-		return AgyConversationExecutionState{Status: AgyConvStatusUnknown}
+		return AgyConversationExecutionState{Status: enums.AgyConvStatusUnknown}
 	}
 
 	status := detectTranscriptStatus(transcriptPath)
@@ -315,37 +316,37 @@ type rawTranscriptStepForStatus struct {
 	Status    string            `json:"status"`
 }
 
-func detectTranscriptStatus(transcriptPath string) AgyConvStatusType {
+func detectTranscriptStatus(transcriptPath string) enums.AgyConvStatusType {
 	step, hasStep := readLastTranscriptStep(transcriptPath)
 	if hasStep {
 		return parseConvStatusFromStep(step)
 	}
 
-	return AgyConvStatusUnknown
+	return enums.AgyConvStatusUnknown
 }
 
-func parseConvStatusFromStep(step rawTranscriptStepForStatus) AgyConvStatusType {
+func parseConvStatusFromStep(step rawTranscriptStepForStatus) enums.AgyConvStatusType {
 	if strings.EqualFold(step.Status, "DONE") || strings.EqualFold(step.Status, "COMPLETED") || strings.EqualFold(step.Status, "IDLE") {
-		return AgyConvStatusIdle
+		return enums.AgyConvStatusIdle
 	}
 	stepType := strings.ToUpper(step.Type)
 	source := strings.ToUpper(step.Source)
 	if stepType == "USER_INPUT" {
-		return AgyConvStatusRunning
+		return enums.AgyConvStatusRunning
 	}
 	if isModelStatusStep(stepType, source) {
 		return resolveModelStepStatus(len(step.ToolCalls) > 0 && !strings.EqualFold(step.Status, "DONE"))
 	}
 
-	return AgyConvStatusIdle
+	return enums.AgyConvStatusIdle
 }
 
-func resolveModelStepStatus(hasToolCalls bool) AgyConvStatusType {
+func resolveModelStepStatus(hasToolCalls bool) enums.AgyConvStatusType {
 	if hasToolCalls {
-		return AgyConvStatusRunning
+		return enums.AgyConvStatusRunning
 	}
 
-	return AgyConvStatusIdle
+	return enums.AgyConvStatusIdle
 }
 
 func isModelStatusStep(stepType, source string) bool {

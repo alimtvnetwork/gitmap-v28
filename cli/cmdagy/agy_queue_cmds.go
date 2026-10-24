@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -192,15 +193,15 @@ func renderIDEProcessStatus(ideProc AgyProcessInfoWrap) {
 
 func renderConversationStatus(state AgyConversationExecutionState) {
 	color := constants.ColorGreen
-	if state.Status == AgyConvStatusRunning {
+	if state.Status == enums.AgyConvStatusRunning {
 		color = constants.ColorYellow
 	}
 	if len(state.ConvID) > 0 {
-		fmt.Printf("  Conversation:  %s%s%s (ID: %s)\n", color, strings.ToUpper(string(state.Status)), constants.ColorReset, state.ConvID)
+		fmt.Printf("  Conversation:  %s%s%s (ID: %s)\n", color, strings.ToUpper(state.Status.String()), constants.ColorReset, state.ConvID)
 
 		return
 	}
-	fmt.Printf("  Conversation:  %s%s%s\n", color, strings.ToUpper(string(state.Status)), constants.ColorReset)
+	fmt.Printf("  Conversation:  %s%s%s\n", color, strings.ToUpper(state.Status.String()), constants.ColorReset)
 }
 
 func getProjectsDirPath() (string, error) {
