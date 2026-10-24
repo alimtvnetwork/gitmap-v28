@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	cmdconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -41,7 +42,7 @@ func collectHealthFacts(workdir string) healthFacts {
 }
 
 func appendDirtyName(facts *healthFacts, name string) {
-	if len(facts.dirtyNames) >= 5 {
+	if len(facts.dirtyNames) >= cmdconstants.MaxDirtyReposDisplay {
 		return
 	}
 
@@ -69,13 +70,15 @@ func probeRepoDirty(repoPath, name string, facts *healthFacts) {
 	recordDirtyRepo(name, facts)
 }
 
-func inspectRepoEntry(workdir string, e os.DirEntry, facts *healthFacts) {
-	if !e.IsDir() {
-		return
-	}
+func isRepoDir(repoPath string) bool {
+	_, statErr := os.Stat(filepath.Join(repoPath, constants.DotGit))
 
+	return statErr == nil
+}
+
+func inspectRepoEntry(workdir string, e os.DirEntry, facts *healthFacts) {
 	repoPath := filepath.Join(workdir, e.Name())
-	if _, statErr := os.Stat(filepath.Join(repoPath, constants.DotGit)); statErr != nil {
+	if !e.IsDir() || !isRepoDir(repoPath) {
 		return
 	}
 
@@ -99,7 +102,7 @@ func collectRepoFacts(workdir string, facts *healthFacts) {
 }
 
 func appendRedName(facts *healthFacts, name string) {
-	if len(facts.redNames) >= 5 {
+	if len(facts.redNames) >= cmdconstants.MaxRedPipelinesDisplay {
 		return
 	}
 
@@ -112,7 +115,9 @@ func recordPipelineRed(name string, facts *healthFacts) {
 }
 
 func probePipelineSlug(slug, name string, facts *healthFacts) {
-	cmd := exec.Command(constants.GHBin, constants.GHRun, constants.GHList, "-R", slug, "--limit", "1", "--json", "conclusion")
+	cmd := exec.Command(cmdconstants.CmdGh, cmdconstants.ArgGhRun, cmdconstants.ArgGhList,
+		cmdconstants.FlagGhRepo, slug, cmdconstants.FlagGhLimit, cmdconstants.ValGhLimitOne,
+		cmdconstants.FlagGhJSON, cmdconstants.ValGhConclusion)
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	if runErr := cmd.Run(); runErr != nil {
@@ -121,18 +126,14 @@ func probePipelineSlug(slug, name string, facts *healthFacts) {
 		return
 	}
 
-	if strings.Contains(stdout.String(), `"failure"`) {
+	if strings.Contains(stdout.String(), cmdconstants.JsonConclusionFailure) {
 		recordPipelineRed(name, facts)
 	}
 }
 
 func inspectPipelineEntry(workdir string, e os.DirEntry, facts *healthFacts) bool {
-	if !e.IsDir() {
-		return false
-	}
-
 	repoPath := filepath.Join(workdir, e.Name())
-	if _, statErr := os.Stat(filepath.Join(repoPath, constants.DotGit)); statErr != nil {
+	if !e.IsDir() || !isRepoDir(repoPath) {
 		return false
 	}
 
@@ -146,24 +147,10 @@ func inspectPipelineEntry(workdir string, e os.DirEntry, facts *healthFacts) boo
 	return true
 }
 
-// collectPipelineFacts counts repos whose latest run is red (gh only).
-func collectPipelineFacts(workdir string, facts *healthFacts) {
-	if _, lookErr := exec.LookPath("gh"); lookErr != nil {
-		facts.pipelineNote = "gh not installed; pipeline check skipped"
-
-		return
-	}
-
-	entries, readErr := os.ReadDir(workdir)
-	if readErr != nil {
-		facts.pipelineNote = "workdir unreadable; pipeline check skipped"
-
-		return
-	}
-
+func scanPipelineEntries(workdir string, entries []os.DirEntry, facts *healthFacts) {
 	probed := 0
 	for _, e := range entries {
-		if probed >= 50 {
+		if probed >= cmdconstants.MaxPipelineProbedRepos {
 			break
 		}
 
@@ -171,6 +158,24 @@ func collectPipelineFacts(workdir string, facts *healthFacts) {
 			probed++
 		}
 	}
+}
+
+// collectPipelineFacts counts repos whose latest run is red (gh only).
+func collectPipelineFacts(workdir string, facts *healthFacts) {
+	if _, lookErr := exec.LookPath(cmdconstants.CmdGh); lookErr != nil {
+		facts.pipelineNote = cmdconstants.NoteGhNotInstalled
+
+		return
+	}
+
+	entries, readErr := os.ReadDir(workdir)
+	if readErr != nil {
+		facts.pipelineNote = cmdconstants.NoteWorkdirUnreadable
+
+		return
+	}
+
+	scanPipelineEntries(workdir, entries, facts)
 }
 
 // healthRepoSlug resolves owner/repo from the origin remote.
@@ -189,52 +194,61 @@ func parseHealthSlug(raw string) (string, bool) {
 		return "", false
 	}
 
-	parts := strings.Split(path, "/")
+	parts := strings.Split(path, cmdconstants.PathSeparator)
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		return "", false
 	}
 
-	return parts[0] + "/" + parts[1], true
+	return parts[0] + cmdconstants.PathSeparator + parts[1], true
+}
+
+func matchGitHubPrefix(lower, raw string) string {
+	switch {
+	case strings.HasPrefix(lower, string(constants.GitHubHTTPSPrefix)):
+		return raw[len(constants.GitHubHTTPSPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubHTTPPrefix)):
+		return raw[len(constants.GitHubHTTPPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubSSHPrefix)):
+		return raw[len(constants.GitHubSSHPrefix):]
+	case strings.HasPrefix(lower, string(constants.GitHubSSHSchemePrefix)):
+		return raw[len(constants.GitHubSSHSchemePrefix):]
+	default:
+		return ""
+	}
 }
 
 func extractHealthSlugPath(raw string) string {
-	lower := strings.ToLower(raw)
-	var path string
-	switch {
-	case strings.HasPrefix(lower, string(constants.GitHubHTTPSPrefix)):
-		path = raw[len(constants.GitHubHTTPSPrefix):]
-	case strings.HasPrefix(lower, string(constants.GitHubHTTPPrefix)):
-		path = raw[len(constants.GitHubHTTPPrefix):]
-	case strings.HasPrefix(lower, string(constants.GitHubSSHPrefix)):
-		path = raw[len(constants.GitHubSSHPrefix):]
-	case strings.HasPrefix(lower, string(constants.GitHubSSHSchemePrefix)):
-		path = raw[len(constants.GitHubSSHSchemePrefix):]
-	default:
+	path := matchGitHubPrefix(strings.ToLower(raw), raw)
+	if path == "" {
 		return ""
 	}
 
 	return strings.TrimSuffix(path, constants.GitDotGitSuffix)
 }
 
-// collectFleetFacts counts registered fleet nodes.
-func collectFleetFacts(facts *healthFacts) {
-	dbConn, openErr := store.OpenDefault()
-	if openErr != nil {
-		facts.fleetNote = "node registry unreachable"
-
-		return
-	}
-	defer dbConn.Close()
-
+func inspectFleetDb(dbConn *store.DB, facts *healthFacts) {
 	res := db.GetSSHConnections(dbConn.Context(), dbConn.SQL())
 	if res.IsFailure() {
-		facts.fleetNote = "node registry unreachable"
+		facts.fleetNote = cmdconstants.NoteNodeRegistryUnreachable
 
 		return
 	}
 
 	facts.fleetNodes = len(res.Data)
-	facts.fleetNote = "run `gitmap nodes version` for skew"
+	facts.fleetNote = cmdconstants.NoteFleetSkewHint
+}
+
+// collectFleetFacts counts registered fleet nodes.
+func collectFleetFacts(facts *healthFacts) {
+	dbConn, openErr := store.OpenDefault()
+	if openErr != nil {
+		facts.fleetNote = cmdconstants.NoteNodeRegistryUnreachable
+
+		return
+	}
+	defer dbConn.Close()
+
+	inspectFleetDb(dbConn, facts)
 }
 
 func checkStaleDb(binDir, name string, cutoff time.Duration, facts *healthFacts) {
@@ -255,8 +269,13 @@ func checkStaleDb(binDir, name string, cutoff time.Duration, facts *healthFacts)
 // collectDbFacts flags database files untouched for 30+ days.
 func collectDbFacts(facts *healthFacts) {
 	binDir := store.BinaryDataDir()
-	cutoff := 30 * 24 * time.Hour
-	for _, name := range []string{string(constants.DBFileMaster), string(constants.DBFileInstallation), string(constants.DBFilePipeline)} {
+	cutoff := time.Duration(cmdconstants.StaleDbDaysCutoff*cmdconstants.HoursPerDay) * time.Hour
+	dbNames := []string{
+		string(constants.DBFileMaster),
+		string(constants.DBFileInstallation),
+		string(constants.DBFilePipeline),
+	}
+	for _, name := range dbNames {
 		checkStaleDb(binDir, name, cutoff, facts)
 	}
 }

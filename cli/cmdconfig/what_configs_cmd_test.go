@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
 )
 
 func TestWhatConfigs_Inspection(t *testing.T) {
@@ -12,7 +14,7 @@ func TestWhatConfigs_Inspection(t *testing.T) {
 		filepath.Join("..", "jsonx", "fixtures", "macro.json"),
 		filepath.Join("..", "jsonx", "fixtures", "ssh-nodes.json"),
 		filepath.Join("..", "jsonx", "fixtures", "ui-settings.json"),
-		filepath.Join("..", "..", "version.json"),
+		filepath.Join("..", "..", cfgconst.FileVersionJSON),
 	}
 
 	results := inspectConfigFiles(fixtureFiles)
@@ -21,10 +23,11 @@ func TestWhatConfigs_Inspection(t *testing.T) {
 	}
 
 	for _, r := range results {
-		if r.Category == "" || r.Category == "Unreadable File" {
+		if r.Category == "" || r.Category == cfgconst.CategoryUnreadable {
 			t.Errorf("file %s has invalid category: %s", r.FilePath, r.Category)
 		}
-		if r.ManageCmd == "" || r.ManageCmd == "-" {
+
+		if r.ManageCmd == "" || r.ManageCmd == cfgconst.DashPlaceholder {
 			t.Errorf("file %s has invalid manage command: %s", r.FilePath, r.ManageCmd)
 		}
 	}

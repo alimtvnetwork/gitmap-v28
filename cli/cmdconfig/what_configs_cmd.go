@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
+	cfgenum "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
@@ -22,22 +24,37 @@ type ConfigInspectionResult struct {
 	SystemImpact string // Where it impacts
 }
 
-// runWhatConfigsCLI handles `gitmap what-configs [globs...] [flags]`.
-func RunWhatConfigsCLI(args []string) error {
-	opts := parseWhatConfigsArgs(args)
+// inspectFilesOrBanner prints a banner when empty or returns inspection results.
+func inspectFilesOrBanner(files []string, targetDir string) ([]ConfigInspectionResult, bool) {
+	if len(files) == 0 {
+		printWhatConfigsNoFilesBanner(targetDir)
+
+		return nil, false
+	}
+
+	return inspectConfigFiles(files), true
+}
+
+// resolveAndInspectFiles resolves targets and processes inspection results.
+func resolveAndInspectFiles(opts whatConfigsOptions) ([]ConfigInspectionResult, bool) {
 	files, err := resolveConfigInspectionFiles(opts.FileArgs, opts.TargetDir)
 	if err != nil {
 		fmt.Printf("Error resolving configuration files: %v\n", err)
-		return nil
+
+		return nil, false
 	}
 
-	if len(files) == 0 {
-		printWhatConfigsNoFilesBanner(opts.TargetDir)
-		return nil
+	return inspectFilesOrBanner(files, opts.TargetDir)
+}
+
+// RunWhatConfigsCLI handles `gitmap what-configs [globs...] [flags]`.
+func RunWhatConfigsCLI(args []string) error {
+	opts := parseWhatConfigsArgs(args)
+	results, hasResults := resolveAndInspectFiles(opts)
+	if hasResults {
+		renderWhatConfigsReport(results)
 	}
 
-	results := inspectConfigFiles(files)
-	renderWhatConfigsReport(results)
 	return nil
 }
 
@@ -46,80 +63,115 @@ type whatConfigsOptions struct {
 	FileArgs  []string
 }
 
-func parseWhatConfigsArgs(args []string) whatConfigsOptions {
-	opts := whatConfigsOptions{TargetDir: "."}
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if (a == "--dir" || a == "-d") && i+1 < len(args) {
-			opts.TargetDir = args[i+1]
-			i++
-			continue
-		}
-		if strings.HasPrefix(a, "--dir=") {
-			opts.TargetDir = strings.TrimPrefix(a, "--dir=")
-			continue
-		}
-		if strings.HasPrefix(a, "-") {
-			continue
-		}
-		if isWhatConfigsKeyword(a) {
-			continue
-		}
-		opts.FileArgs = append(opts.FileArgs, a)
+func isDirFlag(a string) bool {
+	return a == cfgconst.FlagArgDir || a == cfgconst.FlagArgDirShort
+}
+
+func tryConsumeDirArg(arg, nextArg string, hasNext bool, targetDir *string) (bool, int) {
+	if isDirFlag(arg) && hasNext {
+		*targetDir = nextArg
+
+		return true, 1
 	}
+
+	if strings.HasPrefix(arg, cfgconst.FlagArgDirPrefix) {
+		*targetDir = strings.TrimPrefix(arg, cfgconst.FlagArgDirPrefix)
+
+		return true, 0
+	}
+
+	return false, 0
+}
+
+func applyArgToWhatConfigsOptions(arg string, nextArg string, hasNext bool, opts *whatConfigsOptions) int {
+	if consumed, skip := tryConsumeDirArg(arg, nextArg, hasNext, &opts.TargetDir); consumed {
+		return skip
+	}
+
+	if !strings.HasPrefix(arg, cfgconst.FlagPrefixDash) && !isWhatConfigsKeyword(arg) {
+		opts.FileArgs = append(opts.FileArgs, arg)
+	}
+
+	return 0
+}
+
+func parseWhatConfigsArgs(args []string) whatConfigsOptions {
+	opts := whatConfigsOptions{TargetDir: cfgconst.DefaultTargetDir}
+	for i := 0; i < len(args); i++ {
+		next := ""
+		if i+1 < len(args) {
+			next = args[i+1]
+		}
+
+		i += applyArgToWhatConfigsOptions(args[i], next, i+1 < len(args), &opts)
+	}
+
 	return opts
 }
 
 func isWhatConfigsKeyword(arg string) bool {
 	low := strings.ToLower(arg)
-	return low == "what-configs" || low == "what-config" || low == "whatconfigs" || low == "wc"
+
+	return low == cfgconst.CmdWhatConfigs || low == cfgconst.CmdWhatConfig || low == cfgconst.CmdWhatConfigsAlt || low == cfgconst.CmdWC
 }
 
 func resolveConfigInspectionFiles(fileArgs []string, targetDir string) ([]string, error) {
 	if len(fileArgs) > 0 {
 		return expandConfigFileGlobs(fileArgs), nil
 	}
+
 	return scanDirectoryAllConfigFiles(targetDir)
+}
+
+func appendPatternMatches(collected []string, pattern string) []string {
+	matches, err := filepath.Glob(pattern)
+	if err == nil && len(matches) > 0 {
+		return append(collected, matches...)
+	}
+
+	return append(collected, pattern)
 }
 
 func expandConfigFileGlobs(patterns []string) []string {
 	var collected []string
 	for _, p := range patterns {
-		matches, err := filepath.Glob(p)
-		if err == nil && len(matches) > 0 {
-			collected = append(collected, matches...)
-			continue
-		}
-		collected = append(collected, p)
+		collected = appendPatternMatches(collected, p)
 	}
+
 	return dedupeAndFilterConfigFiles(collected)
 }
 
-func scanDirectoryAllConfigFiles(dir string) ([]string, error) {
+func filterSupportedConfigFiles(dir string, entries []os.DirEntry) []string {
 	var matches []string
+	for _, e := range entries {
+		if !e.IsDir() && isSupportedConfigFile(e.Name()) {
+			matches = append(matches, filepath.Join(dir, e.Name()))
+		}
+	}
+
+	return matches
+}
+
+func scanDirectoryAllConfigFiles(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
-	for _, e := range entries {
-		if e.IsDir() {
-			continue
-		}
-		if isSupportedConfigFile(e.Name()) {
-			matches = append(matches, filepath.Join(dir, e.Name()))
-		}
-	}
+
+	matches := filterSupportedConfigFiles(dir, entries)
 	sort.Strings(matches)
+
 	return matches, nil
 }
 
 func isSupportedConfigFile(name string) bool {
 	low := strings.ToLower(name)
 	ext := filepath.Ext(low)
-	if ext == ".json" || ext == ".yaml" || ext == ".yml" || ext == ".db" || ext == ".sqlite" || ext == ".sqlite3" || ext == ".toml" || ext == ".ini" || ext == ".cfg" || ext == ".conf" {
+	if _, err := cfgenum.ParseConfigFileFormatType(ext); err == nil {
 		return true
 	}
-	return strings.HasPrefix(low, ".env") || low == "dockerfile" || low == "makefile" || low == ".editorconfig"
+
+	return strings.HasPrefix(low, cfgconst.FileDotEnv) || low == cfgconst.FileDockerfile || low == cfgconst.FileMakefile || low == cfgconst.FileEditorConfig
 }
 
 func dedupeAndFilterConfigFiles(files []string) []string {
@@ -130,64 +182,110 @@ func dedupeAndFilterConfigFiles(files []string) []string {
 		if seen[clean] {
 			continue
 		}
+
 		seen[clean] = true
 		out = append(out, clean)
 	}
+
 	return out
 }
 
 func inspectConfigFiles(files []string) []ConfigInspectionResult {
 	results := make([]ConfigInspectionResult, 0, len(files))
 	for _, f := range files {
-		res := inspectSingleConfigFile(f)
-		results = append(results, res)
+		results = append(results, inspectSingleConfigFile(f))
 	}
+
 	return results
+}
+
+func buildUnreadableResult(path, ext string, err error) ConfigInspectionResult {
+	return ConfigInspectionResult{
+		FilePath:     path,
+		Format:       strings.ToUpper(strings.TrimPrefix(ext, ".")),
+		Category:     cfgconst.CategoryUnreadable,
+		ManageCmd:    cfgconst.DashPlaceholder,
+		SystemImpact: fmt.Sprintf("Error reading file: %v", err),
+	}
 }
 
 func inspectSingleConfigFile(path string) ConfigInspectionResult {
 	normPath := filepath.ToSlash(path)
-	ext := strings.ToLower(filepath.Ext(path))
-	base := strings.ToLower(filepath.Base(path))
-
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return ConfigInspectionResult{
-			FilePath:     normPath,
-			Format:       strings.ToUpper(strings.TrimPrefix(ext, ".")),
-			Category:     "Unreadable File",
-			ManageCmd:    "-",
-			SystemImpact: fmt.Sprintf("Error reading file: %v", err),
-		}
+		return buildUnreadableResult(normPath, filepath.Ext(path), err)
 	}
 
-	if ext == ".json" {
-		return inspectJSONConfigFile(normPath, base, content)
+	return classifyConfigFile(normPath, filepath.Base(path), filepath.Ext(path), content)
+}
+
+func classifyDataOrDocConfigFile(normPath, base string, formatType cfgenum.ConfigFileFormatType, content []byte) (ConfigInspectionResult, bool) {
+	if formatType.IsDB() || formatType.IsSQLite() {
+		return inspectDBConfigFile(normPath, strings.ToLower(base), content), true
 	}
-	if ext == ".yaml" || ext == ".yml" {
-		return inspectYAMLConfigFile(normPath, base, content)
+
+	if formatType.IsTOML() {
+		return inspectTOMLConfigFile(normPath, strings.ToLower(base)), true
 	}
-	if ext == ".db" || ext == ".sqlite" || ext == ".sqlite3" {
-		return inspectDBConfigFile(normPath, base, content)
+
+	return ConfigInspectionResult{}, false
+}
+
+func classifyStructuredConfigFile(normPath, base string, formatType cfgenum.ConfigFileFormatType, content []byte) (ConfigInspectionResult, bool) {
+	if formatType.IsJSON() {
+		return inspectJSONConfigFile(normPath, strings.ToLower(base), content), true
 	}
-	if ext == ".toml" {
-		return inspectTOMLConfigFile(normPath, base)
+
+	if formatType.IsYAML() {
+		return inspectYAMLConfigFile(normPath, strings.ToLower(base), content), true
 	}
-	if strings.HasPrefix(base, ".env") {
-		return ConfigInspectionResult{
-			FilePath:     normPath,
-			Format:       "ENV",
-			Category:     "Environment Variables & Secrets",
-			ManageCmd:    fmt.Sprintf("gitmap env --file %s", normPath),
-			SystemImpact: "Injects environment credentials and service runtime variables.",
-		}
+
+	return classifyDataOrDocConfigFile(normPath, base, formatType, content)
+}
+
+func classifyConfigFile(normPath, base, ext string, content []byte) ConfigInspectionResult {
+	formatType, _ := cfgenum.ParseConfigFileFormatType(ext)
+	if res, hasMatch := classifyStructuredConfigFile(normPath, base, formatType, content); hasMatch {
+		return res
 	}
+
+	return classifyFallbackConfigFile(normPath, strings.ToLower(base), ext)
+}
+
+func buildEnvResult(normPath string) ConfigInspectionResult {
+	return ConfigInspectionResult{
+		FilePath:     normPath,
+		Format:       cfgconst.FormatENV,
+		Category:     cfgconst.CategoryEnvVars,
+		ManageCmd:    fmt.Sprintf("gitmap env --file %s", normPath),
+		SystemImpact: cfgconst.ImpactEnvVars,
+	}
+}
+
+func classifyFallbackConfigFile(normPath, base, ext string) ConfigInspectionResult {
+	if strings.HasPrefix(base, cfgconst.FileDotEnv) {
+		return buildEnvResult(normPath)
+	}
+
 	return ConfigInspectionResult{
 		FilePath:     normPath,
 		Format:       strings.ToUpper(strings.TrimPrefix(ext, ".")),
-		Category:     "Generic Configuration",
+		Category:     cfgconst.CategoryGenericConfig,
 		ManageCmd:    fmt.Sprintf("gitmap cat %s", normPath),
-		SystemImpact: "Application configuration settings.",
+		SystemImpact: cfgconst.ImpactGenericConfig,
+	}
+}
+
+func matchKnownJSONConfigFile(path, base string) ConfigInspectionResult {
+	switch base {
+	case cfgconst.FilePackageJSON:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatJSON, Category: cfgconst.CategoryNodeManifest, ManageCmd: "npm install / pnpm install", SystemImpact: cfgconst.ImpactNodeManifest}
+	case cfgconst.FileVersionJSON:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatJSON, Category: cfgconst.CategoryVersionPin, ManageCmd: "gitmap version", SystemImpact: cfgconst.ImpactVersionPin}
+	case cfgconst.FileTSConfigJSON:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatJSON, Category: cfgconst.CategoryTSConfig, ManageCmd: "tsc --noEmit", SystemImpact: cfgconst.ImpactTSConfig}
+	default:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatJSON, Category: cfgconst.CategoryGenericJSON, ManageCmd: fmt.Sprintf("gitmap which-format %s", path), SystemImpact: cfgconst.ImpactGenericJSON}
 	}
 }
 
@@ -196,143 +294,58 @@ func inspectJSONConfigFile(path, base string, content []byte) ConfigInspectionRe
 	if isMatched {
 		return ConfigInspectionResult{
 			FilePath:     path,
-			Format:       "JSON (Typed Envelope)",
+			Format:       cfgconst.FormatJSONTypedEnvelope,
 			Category:     desc.Name,
 			ManageCmd:    fmt.Sprintf(desc.SuggestedImportCmd, path),
 			SystemImpact: desc.SystemImpact,
 		}
 	}
-	if base == "package.json" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "JSON",
-			Category:     "Node.js Package Manifest & Dependencies",
-			ManageCmd:    "npm install / pnpm install",
-			SystemImpact: "Defines JavaScript/TypeScript project dependencies and fspath.",
-		}
-	}
-	if base == "version.json" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "JSON",
-			Category:     "GitMap Canonical Version Pin Site",
-			ManageCmd:    "gitmap version",
-			SystemImpact: "Defines project release semantic version and build metadata.",
-		}
-	}
-	if base == "tsconfig.json" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "JSON",
-			Category:     "TypeScript Compiler Options",
-			ManageCmd:    "tsc --noEmit",
-			SystemImpact: "Governs TypeScript build rules, target ECMAScript version, and path aliases.",
-		}
-	}
-	return ConfigInspectionResult{
-		FilePath:     path,
-		Format:       "JSON",
-		Category:     "Generic JSON Document",
-		ManageCmd:    fmt.Sprintf("gitmap which-format %s", path),
-		SystemImpact: "Generic JSON payload (inspect with 'gitmap which-format').",
-	}
+
+	return matchKnownJSONConfigFile(path, base)
 }
 
 func inspectYAMLConfigFile(path, base string, content []byte) ConfigInspectionResult {
 	if strings.Contains(path, ".github/workflows") {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "YAML",
-			Category:     "GitHub Actions CI/CD Pipeline Workflow",
-			ManageCmd:    "gitmap pipeline details",
-			SystemImpact: "Orchestrates remote GitHub Actions runners, linters, tests, and releases.",
-		}
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatYAML, Category: cfgconst.CategoryGitHubWorkflow, ManageCmd: "gitmap pipeline details", SystemImpact: cfgconst.ImpactGitHubWorkflow}
 	}
+
 	if strings.HasPrefix(base, "docker-compose") {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "YAML",
-			Category:     "Docker Compose Container Infrastructure",
-			ManageCmd:    "docker compose up -d",
-			SystemImpact: "Defines multi-container application services, networks, and storage volumes.",
-		}
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatYAML, Category: cfgconst.CategoryDockerCompose, ManageCmd: "docker compose up -d", SystemImpact: cfgconst.ImpactDockerCompose}
 	}
-	return ConfigInspectionResult{
-		FilePath:     path,
-		Format:       "YAML",
-		Category:     "YAML Configuration Manifest",
-		ManageCmd:    fmt.Sprintf("gitmap cat %s", path),
-		SystemImpact: "Application declarative configuration.",
+
+	return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatYAML, Category: cfgconst.CategoryYAMLManifest, ManageCmd: fmt.Sprintf("gitmap cat %s", path), SystemImpact: cfgconst.ImpactYAMLManifest}
+}
+
+func resolveDBFormatLabel(content []byte) string {
+	if len(content) >= cfgconst.SQLiteHeaderMinLen && bytes.HasPrefix(content, []byte(cfgconst.SQLiteFormat3)) {
+		return cfgconst.FormatSQLiteDB
 	}
+
+	return cfgconst.FormatBinaryDB
 }
 
 func inspectDBConfigFile(path, base string, content []byte) ConfigInspectionResult {
-	isSQLite := len(content) >= 16 && bytes.HasPrefix(content, []byte("SQLite format 3"))
-	formatLabel := "SQLite DB"
-	if !isSQLite {
-		formatLabel = "Binary DB"
-	}
-	if base == "installation.db" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       formatLabel,
-			Category:     "GitMap System & Tools Installation Registry",
-			ManageCmd:    "gitmap installer ls",
-			SystemImpact: "Tracks installed packages, tool versions, and system telemetry.",
-		}
-	}
-	if base == "gitmap.db" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       formatLabel,
-			Category:     "GitMap Core System & SSH Nodes Split Database",
-			ManageCmd:    "gitmap ssh nodes",
-			SystemImpact: "Stores cluster fleet nodes, SSH host definitions, credentials, and settings.",
-		}
-	}
-	if strings.Contains(base, "pipeline") {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       formatLabel,
-			Category:     "GitMap Local CI/CD Pipeline Database",
-			ManageCmd:    "gitmap pipeline status",
-			SystemImpact: "Maintains local CI/CD pipeline task executions, outputs, and status logs.",
-		}
-	}
-	return ConfigInspectionResult{
-		FilePath:     path,
-		Format:       formatLabel,
-		Category:     "SQLite Relational Database",
-		ManageCmd:    fmt.Sprintf("gitmap storage info %s", path),
-		SystemImpact: "SQLite storage database (schema tables, rows, indexes).",
+	formatLabel := resolveDBFormatLabel(content)
+	switch {
+	case base == cfgconst.FileInstallationDB:
+		return ConfigInspectionResult{FilePath: path, Format: formatLabel, Category: cfgconst.CategoryInstallationDB, ManageCmd: "gitmap installer ls", SystemImpact: cfgconst.ImpactInstallationDB}
+	case base == cfgconst.FileGitmapDB:
+		return ConfigInspectionResult{FilePath: path, Format: formatLabel, Category: cfgconst.CategoryGitmapDB, ManageCmd: "gitmap ssh nodes", SystemImpact: cfgconst.ImpactGitmapDB}
+	case strings.Contains(base, "pipeline"):
+		return ConfigInspectionResult{FilePath: path, Format: formatLabel, Category: cfgconst.CategoryPipelineDB, ManageCmd: "gitmap pipeline status", SystemImpact: cfgconst.ImpactPipelineDB}
+	default:
+		return ConfigInspectionResult{FilePath: path, Format: formatLabel, Category: cfgconst.CategorySQLiteDB, ManageCmd: fmt.Sprintf("gitmap storage info %s", path), SystemImpact: cfgconst.ImpactSQLiteDB}
 	}
 }
 
 func inspectTOMLConfigFile(path, base string) ConfigInspectionResult {
-	if base == "cargo.toml" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "TOML",
-			Category:     "Rust Cargo Package & Workspace Manifest",
-			ManageCmd:    "cargo check",
-			SystemImpact: "Defines Rust crate dependencies, compilation targets, and features.",
-		}
-	}
-	if base == "pyproject.toml" {
-		return ConfigInspectionResult{
-			FilePath:     path,
-			Format:       "TOML",
-			Category:     "Python PEP 518/621 Build & Packaging Manifest",
-			ManageCmd:    "pip install .",
-			SystemImpact: "Defines Python build dependencies, package configuration, and linter settings.",
-		}
-	}
-	return ConfigInspectionResult{
-		FilePath:     path,
-		Format:       "TOML",
-		Category:     "TOML Configuration File",
-		ManageCmd:    fmt.Sprintf("gitmap cat %s", path),
-		SystemImpact: "Structured TOML settings file.",
+	switch base {
+	case cfgconst.FileCargoTOML:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatTOML, Category: cfgconst.CategoryCargoTOML, ManageCmd: "cargo check", SystemImpact: cfgconst.ImpactCargoTOML}
+	case cfgconst.FilePyprojectTOML:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatTOML, Category: cfgconst.CategoryPyprojectTOML, ManageCmd: "pip install .", SystemImpact: cfgconst.ImpactPyprojectTOML}
+	default:
+		return ConfigInspectionResult{FilePath: path, Format: cfgconst.FormatTOML, Category: cfgconst.CategoryTOMLFile, ManageCmd: fmt.Sprintf("gitmap cat %s", path), SystemImpact: cfgconst.ImpactTOMLFile}
 	}
 }
 
@@ -346,25 +359,33 @@ func printWhatConfigsNoFilesBanner(dir string) {
 	fmt.Printf("  gitmap wc *\n\n")
 }
 
-func renderWhatConfigsReport(results []ConfigInspectionResult) {
-	fmt.Printf("\n╔══════════════════════════════════════════════════════════════════════════════╗\n")
-	fmt.Printf("║ GITMAP CONFIGURATION FILE CLASSIFIER (WHAT-CONFIGS)                          ║\n")
-	fmt.Printf("╚══════════════════════════════════════════════════════════════════════════════╝\n")
-	fmt.Printf("  Inspected: %d configuration file(s)\n\n", len(results))
+func printWhatConfigsTip() {
+	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
+	fmt.Printf(" TIP: Run 'gitmap import-all-json *' to automatically import all detected JSONs.\n")
+	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
+}
 
+func printWhatConfigsHeader(count int) {
+	fmt.Println()
+	fmt.Println("╔══════════════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║ GITMAP CONFIGURATION FILE CLASSIFIER (WHAT-CONFIGS)                          ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════════════════════╝")
+	fmt.Printf("  Inspected: %d configuration file(s)\n\n", count)
+}
+
+func renderWhatConfigsReport(results []ConfigInspectionResult) {
+	printWhatConfigsHeader(len(results))
 	cfg := termout.TableConfig{
 		Columns: []termout.Column{
-			{Title: "FILE", Align: termout.AlignLeft, MinWidth: 24},
-			{Title: "FORMAT", Align: termout.AlignLeft, MinWidth: 10},
-			{Title: "PURPOSE / SUBSYSTEM", Align: termout.AlignLeft, MinWidth: 26},
-			{Title: "RECOMMENDED CLI COMMAND", Align: termout.AlignLeft, MinWidth: 28},
+			{Title: cfgconst.ColFile, Align: termout.AlignLeft, MinWidth: 24},
+			{Title: cfgconst.ColFormat, Align: termout.AlignLeft, MinWidth: 10},
+			{Title: cfgconst.ColPurpose, Align: termout.AlignLeft, MinWidth: 26},
+			{Title: cfgconst.ColRecommendedCmd, Align: termout.AlignLeft, MinWidth: 28},
 		},
 		Rows: buildWhatConfigsSummaryRows(results),
 	}
 	termout.PrintTable(cfg)
-	fmt.Printf("\n%s================================================================================%s\n", constants.ColorCyan, constants.ColorReset)
-	fmt.Printf(" TIP: Run 'gitmap import-all-json *' to automatically import all detected JSONs.\n")
-	fmt.Printf("%s================================================================================%s\n\n", constants.ColorCyan, constants.ColorReset)
+	printWhatConfigsTip()
 }
 
 func buildWhatConfigsSummaryRows(results []ConfigInspectionResult) []termout.Row {
@@ -379,5 +400,6 @@ func buildWhatConfigsSummaryRows(results []ConfigInspectionResult) []termout.Row
 			},
 		})
 	}
+
 	return rows
 }

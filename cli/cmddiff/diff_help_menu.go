@@ -1,6 +1,7 @@
 package cmddiff
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -11,10 +12,10 @@ func RenderDiffHelp() {
 
 func buildDiffHelpMenu() termout.HelpMenu {
 	return termout.HelpMenu{
-		Title: "Diff & Inspection Suite (gitmap diff)",
+		Title: constants.HelpTitleDiff,
 		UsageLines: []string{
-			"gitmap diff [target] [flags]",
-			"gitmap diff-profiles <profile1> <profile2>",
+			constants.HelpUsageDiffTarget,
+			constants.HelpUsageDiffProfiles,
 		},
 		Sections: []termout.HelpSection{
 			buildDiffOpsSection(),
@@ -22,38 +23,38 @@ func buildDiffHelpMenu() termout.HelpMenu {
 		},
 		FooterFlags: buildDiffFooterFlags(),
 		Tips: []string{
-			"Inspect uncommitted modifications across polyglot repositories.",
-			"Use 'gitmap diff-profiles' to detect drift between workstation setups.",
+			constants.HelpTipUncommitted,
+			constants.HelpTipDrift,
 		},
 	}
 }
 
 func buildDiffFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
-		{Command: "--stat", Description: "Show compact change statistics (insertions/deletions)"},
-		{Command: "--cached, --staged", Description: "Diff staged changes against repository HEAD"},
-		{Command: "--name-only", Description: "Show only names of modified files"},
-		{Command: "-j, --json", Description: "Emit diff metadata in structured JSON format"},
-		{Command: "-h, --help", Description: "Show this diff help menu"},
+		{Command: constants.FlagArgStat, Description: constants.FlagDescStat},
+		{Command: constants.FlagHelpEntryCachedStaged, Description: constants.FlagDescCachedStaged},
+		{Command: constants.FlagArgNameOnly, Description: constants.FlagDescNameOnly},
+		{Command: constants.FlagHelpEntryJSON, Description: constants.FlagDescJSONStructured},
+		{Command: constants.FlagHelpEntryHelp, Description: constants.FlagDescHelp},
 	}
 }
 
 func buildDiffOpsSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Repository Diff Actions",
+		Title: constants.HelpSectionRepoDiff,
 		Entries: []termout.CommandEntry{
-			{Command: "diff [path]", Description: "Inspect unstaged file modifications with colored diffs"},
-			{Command: "diff --cached", Description: "Inspect staged changes prepared for commit"},
-			{Command: "diff --stat", Description: "Compact overview of affected files and line deltas"},
+			{Command: constants.HelpEntryDiffPath, Description: constants.HelpDescDiffPath},
+			{Command: constants.HelpEntryDiffCached, Description: constants.HelpDescDiffCached},
+			{Command: constants.HelpEntryDiffStat, Description: constants.HelpDescDiffStat},
 		},
 	}
 }
 
 func buildDiffProfilesSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Profile Comparison",
+		Title: constants.HelpSectionProfiles,
 		Entries: []termout.CommandEntry{
-			{Command: "diff-profiles <p1> <p2>", Description: "Compare software packages, aliases, and settings between profiles"},
+			{Command: constants.HelpEntryDiffProfiles, Description: constants.HelpDescDiffProfiles},
 		},
 	}
 }

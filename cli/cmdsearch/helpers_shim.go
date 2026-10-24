@@ -4,13 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
-	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	searchconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/repodb"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
@@ -30,12 +32,12 @@ func getRepoDB(ctx context.Context) (*store.DB, *sql.DB, error) {
 	if err != nil {
 		mainDB.Close()
 
-		return nil, nil, apperror.WrapSimple(err, fmt.Sprintf("find repo by path %s failed", cwd))
+		return nil, nil, apperror.WrapSimple(err, fmt.Sprintf(searchconstants.FmtErrFindRepoByPath, cwd))
 	}
 	if len(repos) == 0 {
 		mainDB.Close()
 
-		return nil, nil, apperror.NewNotFoundError("current directory is not a tracked gitmap repository. run 'gitmap scan' first")
+		return nil, nil, apperror.NewNotFoundError(searchconstants.ErrRepoNotFound)
 	}
 
 	repoDB, err := repodb.OpenRepoDB(ctx, constants.DefaultOutputDir, repos[0].AbsolutePath, repos[0].ID)
@@ -52,23 +54,28 @@ func parseLimit(args []string) (int, []string) {
 	limit := 0
 	var cleanArgs []string
 	for i := 0; i < len(args); i++ {
-		if (args[i] == "--limit" || args[i] == "-l") && i+1 < len(args) {
+		arg := args[i]
+		if isLimitFlag(arg) && i+1 < len(args) {
 			limit, _ = strconv.Atoi(args[i+1])
 			i++
 			continue
 		}
 
-		if args[i] == "--limit" || args[i] == "-l" {
+		if isLimitFlag(arg) {
 			continue
 		}
 
-		if strings.HasPrefix(args[i], "--limit=") {
-			limit, _ = strconv.Atoi(strings.TrimPrefix(args[i], "--limit="))
+		if strings.HasPrefix(arg, searchconstants.FlagArgLimitPrefix) {
+			limit, _ = strconv.Atoi(strings.TrimPrefix(arg, searchconstants.FlagArgLimitPrefix))
 			continue
 		}
 
-		cleanArgs = append(cleanArgs, args[i])
+		cleanArgs = append(cleanArgs, arg)
 	}
 
 	return limit, cleanArgs
+}
+
+func isLimitFlag(arg string) bool {
+	return arg == searchconstants.FlagArgLimit || arg == searchconstants.FlagArgLimitShort
 }

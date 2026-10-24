@@ -3,15 +3,15 @@ package cmddiff
 import (
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff/constants"
 )
 
-// dispatchDiff routes `gitmap diff` / `gitmap df`.
+// DispatchDiff routes `gitmap diff` / `gitmap df`.
 //
 // Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func DispatchDiff(command string) (bool, error) {
 	if command == constants.CmdDiff || command == constants.CmdDiffAlias {
-		runDiff(os.Args[2:])
+		runDiff(os.Args[constants.ArgsSubcommandOffset:])
 
 		return true, nil
 	}

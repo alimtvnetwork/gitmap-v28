@@ -4,6 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
+	cfgenum "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/enums"
 )
 
 // ConfigFilePayload holds a single configuration file payload.
@@ -26,38 +29,26 @@ type ConfigBundle struct {
 
 // normalizeConfigTool maps input tool identifiers to canonical config names.
 func normalizeConfigTool(name string) string {
-	lower := strings.ToLower(strings.TrimSpace(name))
-	switch lower {
-	case "vscode", "code", "vcode":
-
-		return "vscode"
-	case "qtorrent", "qbittorrent", "qbit":
-
-		return "qtorrent"
-	case "utorrent", "uttorrent", "u-torrent":
-
-		return "utorrent"
-	case "all", "*":
-
-		return "all"
-	default:
-
-		return lower
+	toolType, err := cfgenum.ParseConfigToolType(name)
+	if err == nil {
+		return toolType.String()
 	}
+
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
 // resolveDefaultConfigFileName returns the default file name matching user input.
 func resolveDefaultConfigFileName(inputTool string, canonicalTool string) string {
 	lower := strings.ToLower(strings.TrimSpace(inputTool))
-	if lower == "uttorrent" {
-		return "uttorrent.json"
+	if lower == cfgconst.ToolUTTorrent {
+		return cfgconst.ToolUTTorrent + cfgconst.ExtJSON
 	}
 
-	if lower == "qtorrent" {
-		return "qtorrent.json"
+	if lower == cfgconst.ToolQTorrent {
+		return cfgconst.ToolQTorrent + cfgconst.ExtJSON
 	}
 
-	return canonicalTool + ".json"
+	return canonicalTool + cfgconst.ExtJSON
 }
 
 // isConfigDirectoryPath checks if path represents a directory.
@@ -84,3 +75,4 @@ func resolveConfigFilePath(specifiedPath, defaultFilename string) string {
 
 	return cleanPath
 }
+

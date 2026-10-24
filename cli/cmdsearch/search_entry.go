@@ -9,59 +9,75 @@ import (
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	searchconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/constants"
+	searchenums "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/searcher"
 )
 
+// RunReplaceRegex executes regex substitution across files.
 func RunReplaceRegex(args []string) error {
-	checkHelp("replace-regex", args)
+	checkHelp(searchconstants.CmdReplaceRegex, args)
 	if len(args) < 2 {
-		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-		fmt.Println("  gitmap replace-regex <regex> <replacement>")
-		fmt.Println()
-		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
-		fmt.Println("  gitmap replace-regex \"v6\\.\\d+\\.\\d+\" \"v6.155.6\"")
+		printReplaceRegexUsage()
 
 		return nil
 	}
 
-	fmt.Println("replace-regex executed. (Requires file-writing engine implementation)")
+	fmt.Println(searchconstants.MsgReplaceRegexExec)
 
 	return nil
 }
 
+func printReplaceRegexUsage() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println(searchconstants.UsageReplaceRegex)
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println(searchconstants.ExampleReplaceRegex)
+}
+
+// RunRepoSearch searches indexed repositories by keyword.
 func RunRepoSearch(args []string) error {
-	checkHelp("repo-search", args)
+	checkHelp(searchconstants.CmdRepoSearch, args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-		fmt.Println("  gitmap repo-search <query> [--limit <n>]")
-		fmt.Println()
-		fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
-		fmt.Println("  Search indexed repositories by keyword with structured metadata.")
-		fmt.Println()
-		fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
-		fmt.Println("  gitmap repo-search \"pipeline\"")
-		fmt.Println("  gitmap repo-search \"constants\" --limit 5")
+		printRepoSearchUsage()
 
 		return nil
 	}
 
 	query := cleanArgs[0]
-	if query == "history" || query == "top" || query == "dh2d" {
+	action, _ := searchenums.ParseSearchAction(query)
+	if action.IsHistoryAction() {
 		return searcher.RenderAUMSearchHistoryTable(limit)
 	}
-
-	if query == "clear" {
-		fmt.Println("repo-search clear: Cache cleared for current folder.")
+	if action.IsClear() {
+		fmt.Println(searchconstants.MsgRepoSearchClear)
 
 		return nil
 	}
 
+	return executeRepoSearch(query, limit)
+}
+
+func printRepoSearchUsage() {
+	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	fmt.Println(searchconstants.UsageRepoSearch)
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
+	fmt.Println("  " + searchconstants.DescRepoSearchMetadata)
+	fmt.Println()
+	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
+	fmt.Println(searchconstants.ExampleRepoSearch1)
+	fmt.Println(searchconstants.ExampleRepoSearch2)
+}
+
+func executeRepoSearch(query string, limit int) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.WrapSimple(err, "error")
+		return apperror.WrapSimple(err, searchconstants.ErrDefaultError)
 	}
 
 	defer mainDB.Close()
@@ -74,41 +90,50 @@ func RunRepoSearch(args []string) error {
 		return nil
 	}
 
-	for _, r := range res {
-		pterm.DefaultHeader.WithFullWidth().Printf("Found in %s at position %d", r.RelativePath, r.StartPosition)
-		fmt.Println(r.MatchedText)
-		fmt.Println()
-	}
+	renderRepoSearchResults(res)
 
 	return nil
 }
 
+func renderRepoSearchResults(res []searcher.SearchResult) {
+	for _, r := range res {
+		pterm.DefaultHeader.WithFullWidth().Printf(searchconstants.FmtFoundHeader, r.RelativePath, r.StartPosition)
+		fmt.Println(r.MatchedText)
+		fmt.Println()
+	}
+}
+
+// RunRepoRegex searches indexed repositories using regular expressions.
 func RunRepoRegex(args []string) error {
-	checkHelp("repo-regex", args)
+	checkHelp(searchconstants.CmdRepoRegex, args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("Usage: gitmap repo-regex <regex> [--limit <n>]")
+		fmt.Println(searchconstants.UsageRepoRegex)
 
 		return nil
 	}
 
 	query := cleanArgs[0]
-	if query == "history" {
-		fmt.Println("repo-regex history: No history recorded yet.")
+	action, _ := searchenums.ParseSearchAction(query)
+	if action.IsHistory() {
+		fmt.Println(searchconstants.MsgRepoRegexHistoryEmpty)
+
+		return nil
+	}
+	if action.IsClear() {
+		fmt.Println(searchconstants.MsgRepoRegexClear)
 
 		return nil
 	}
 
-	if query == "clear" {
-		fmt.Println("repo-regex clear: Cache cleared for current folder.")
+	return executeRepoRegex(query, limit)
+}
 
-		return nil
-	}
-
+func executeRepoRegex(query string, limit int) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		return apperror.WrapSimple(err, "error")
+		return apperror.WrapSimple(err, searchconstants.ErrDefaultError)
 	}
 
 	defer mainDB.Close()
@@ -121,32 +146,31 @@ func RunRepoRegex(args []string) error {
 		return nil
 	}
 
-	for _, r := range res {
-		pterm.DefaultHeader.WithFullWidth().Printf("Found in %s at position %d", r.RelativePath, r.StartPosition)
-		fmt.Println(r.MatchedText)
-		fmt.Println()
-	}
+	renderRepoSearchResults(res)
 
 	return nil
 }
 
+// RunRepoSearchJson searches repositories and emits results as JSON.
 func RunRepoSearchJson(args []string) error {
-	checkHelp("repo-search-json", args)
+	checkHelp(searchconstants.CmdRepoSearchJSON, args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
 		return nil
 	}
 
-	query := cleanArgs[0]
+	return executeRepoSearchJSON(cleanArgs[0], limit)
+}
 
+func executeRepoSearchJSON(query string, limit int) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
-		return apperror.WrapSimple(err, "repo search fatal error")
+		return apperror.WrapSimple(err, searchconstants.ErrRepoSearchFatal)
 	}
 
 	defer mainDB.Close()
@@ -154,7 +178,7 @@ func RunRepoSearchJson(args []string) error {
 
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, true)
 	if searchErr != nil {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
 		return nil
 	}
@@ -165,23 +189,26 @@ func RunRepoSearchJson(args []string) error {
 	return nil
 }
 
+// RunRepoSearchRegexJson performs regex repo search and outputs JSON.
 func RunRepoSearchRegexJson(args []string) error {
-	checkHelp("repo-search-regex-json", args)
+	checkHelp(searchconstants.CmdRepoSearchRegexJSON, args)
 	limit, cleanArgs := parseLimit(args)
 	if len(cleanArgs) == 0 {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
 		return nil
 	}
 
-	query := cleanArgs[0]
+	return executeRepoSearchRegexJSON(cleanArgs[0], limit)
+}
 
+func executeRepoSearchRegexJSON(query string, limit int) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
-		return apperror.WrapSimple(err, "repo regex search fatal error")
+		return apperror.WrapSimple(err, searchconstants.ErrRepoRegexSearchFatal)
 	}
 
 	defer mainDB.Close()
@@ -189,7 +216,7 @@ func RunRepoSearchRegexJson(args []string) error {
 
 	res, searchErr := searcher.SearchRepoDBRegex(ctx, db, query, limit, true)
 	if searchErr != nil {
-		fmt.Println("[]")
+		fmt.Println(searchconstants.EmptyJSONArray)
 
 		return nil
 	}
@@ -200,17 +227,24 @@ func RunRepoSearchRegexJson(args []string) error {
 	return nil
 }
 
+// RunSearchReplaceAll replaces search indexes and outputs.
 func RunSearchReplaceAll(args []string) error {
-	checkHelp("search-replace-all", args)
-	if len(args) > 0 && (args[0] == "reset" || args[0] == "clear") {
-		// Clean the repo_search folder
-		os.RemoveAll(".gitmap/output/repo_search")
-		fmt.Println("search-replace-all reset: Databases cleared.")
+	checkHelp(searchconstants.CmdSearchReplaceAll, args)
+	if len(args) == 0 {
+		fmt.Println(searchconstants.MsgSearchReplaceAllExec)
 
 		return nil
 	}
 
-	fmt.Println("search-replace-all executed.")
+	action, _ := searchenums.ParseSearchAction(args[0])
+	if action.IsResetAction() {
+		os.RemoveAll(searchconstants.PathRepoSearchOutput)
+		fmt.Println(searchconstants.MsgSearchReplaceAllReset)
+
+		return nil
+	}
+
+	fmt.Println(searchconstants.MsgSearchReplaceAllExec)
 
 	return nil
 }

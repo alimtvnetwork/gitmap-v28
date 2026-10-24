@@ -1,6 +1,7 @@
 package cmdsearch
 
 import (
+	searchconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -11,12 +12,12 @@ func RenderSearchHelp() {
 
 func buildSearchHelpMenu() termout.HelpMenu {
 	return termout.HelpMenu{
-		Title: "Global Indexed Search (gitmap search)",
+		Title: searchconstants.HelpTitleGlobalSearch,
 		UsageLines: []string{
-			"gitmap search <query> [flags]",
-			"gitmap search history",
-			"gitmap search clean",
-			"gitmap aum search <query> [dir] [flags]",
+			searchconstants.UsageSearchFlags,
+			searchconstants.UsageSearchHistory,
+			searchconstants.UsageSearchCleanSimple,
+			searchconstants.UsageAUMSearch,
 		},
 		Sections: []termout.HelpSection{
 			buildSearchOpsSection(),
@@ -24,41 +25,41 @@ func buildSearchHelpMenu() termout.HelpMenu {
 		},
 		FooterFlags: buildSearchFooterFlags(),
 		Tips: []string{
-			"Hot queries are cached in SQLite with instant DH2D lookup (< 0.05ms).",
-			"Use 'gitmap search history' to inspect query frequency and hit counts.",
+			searchconstants.TipHotQueryCache,
+			searchconstants.TipHistoryInspect,
 		},
 	}
 }
 
 func buildSearchFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
-		{Command: "-j, --json", Description: "Emit results in structured JSON format"},
-		{Command: "-p, --path <dir>", Description: "Restrict search to target subdirectory"},
-		{Command: "-e, --ext <exts>", Description: "Comma-separated extensions filter (.go, .ts)"},
-		{Command: "-r, --regex", Description: "Evaluate search query as regular expression"},
-		{Command: "-i, --ignore-case", Description: "Case-insensitive matching fast-path"},
-		{Command: "-l, --limit <n>", Description: "Maximum number of search results to return"},
-		{Command: "-h, --help", Description: "Show this search help menu"},
+		{Command: searchconstants.FlagHelpEntryJSON, Description: searchconstants.DescJSONFormat},
+		{Command: searchconstants.FlagHelpEntryPath, Description: searchconstants.DescPathFilter},
+		{Command: searchconstants.FlagHelpEntryExt, Description: searchconstants.DescExtFilter},
+		{Command: searchconstants.FlagHelpEntryRegex, Description: searchconstants.DescRegexMatch},
+		{Command: searchconstants.FlagHelpEntryIgnoreCase, Description: searchconstants.DescIgnoreCase},
+		{Command: searchconstants.FlagHelpEntryLimit, Description: searchconstants.DescResultLimit},
+		{Command: searchconstants.FlagHelpEntryHelp, Description: searchconstants.DescHelpMenu},
 	}
 }
 
 func buildSearchOpsSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Search Operations",
+		Title: searchconstants.SectionSearchOperations,
 		Entries: []termout.CommandEntry{
-			{Command: "<query>", Description: "Multi-core streaming keyword search across repository"},
-			{Command: "history", Description: "Display recent search history and hot query rankings"},
-			{Command: "clean", Description: "Purge search history cache and vacuum search database"},
+			{Command: searchconstants.HelpEntryQuery, Description: searchconstants.DescStreamingSearch},
+			{Command: searchconstants.HelpEntryHistory, Description: searchconstants.DescSearchHistory},
+			{Command: searchconstants.HelpEntryClean, Description: searchconstants.DescSearchClean},
 		},
 	}
 }
 
 func buildSearchCacheSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "High-Speed SQLite Caching",
+		Title: searchconstants.SectionSQLiteCaching,
 		Entries: []termout.CommandEntry{
-			{Command: "DH2D SQLite Cache", Description: "Deterministic SQL ID lookup caching verified matches"},
-			{Command: "RAM Hot-Cache", Description: "Auto-promotes frequent queries for microsecond retrieval"},
+			{Command: searchconstants.HelpEntryDH2DCache, Description: searchconstants.DescDH2DCache},
+			{Command: searchconstants.HelpEntryRAMHotCache, Description: searchconstants.DescRAMHotCache},
 		},
 	}
 }

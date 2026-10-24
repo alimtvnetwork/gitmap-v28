@@ -7,12 +7,13 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // isSupportedExportTool checks if tool is supported for configuration export.
 func isSupportedExportTool(canonicalTool string) bool {
-	if canonicalTool == "all" {
+	if canonicalTool == cfgconst.ToolAll {
 		return true
 	}
 
@@ -37,7 +38,7 @@ func dispatchExportArgs(args []string) error {
 		return appfault.NewValidationError(fmt.Sprintf("unsupported tool '%s'", inputTool))
 	}
 
-	if canonicalTool == "all" {
+	if canonicalTool == cfgconst.ToolAll {
 		return exportAllToolConfigs(targetArg)
 	}
 
@@ -60,7 +61,7 @@ func parseExportArgs(args []string) (string, string, string) {
 func isConfigHelpRequested(arg string) bool {
 	lower := strings.ToLower(strings.TrimSpace(arg))
 
-	return lower == "help" || lower == "--help" || lower == "-h"
+	return lower == cfgconst.FlagHelp || lower == cfgconst.FlagArgHelp || lower == cfgconst.FlagArgHelpShort
 }
 
 // printExportConfigUsage prints standard command usage.
@@ -115,9 +116,9 @@ func reportExportSuccess(tool, path string, fileCount int) {
 // exportAllToolConfigs exports vscode, qtorrent, and utorrent configurations to a directory.
 func exportAllToolConfigs(targetFolder string) error {
 	folder := resolveExportFolder(targetFolder)
-	tools := []string{"vscode", "qtorrent", "utorrent"}
+	tools := []string{cfgconst.ToolVSCode, cfgconst.ToolQTorrent, cfgconst.ToolUTorrent}
 	for _, tool := range tools {
-		targetFile := filepath.Join(folder, tool+".json")
+		targetFile := filepath.Join(folder, tool+cfgconst.ExtJSON)
 		if err := exportSingleToolConfig(tool, tool, targetFile); err != nil {
 			return apperror.Wrap(err, "exportAllToolConfigs", map[string]any{"tool": tool})
 		}
@@ -132,7 +133,7 @@ func exportAllToolConfigs(targetFolder string) error {
 func resolveExportFolder(targetFolder string) string {
 	folder := strings.TrimSpace(targetFolder)
 	if folder == "" {
-		return "."
+		return cfgconst.DefaultExportFolder
 	}
 
 	return folder
@@ -143,3 +144,4 @@ func reportAllExportSuccess(folder string) {
 	fmt.Printf("%s Successfully exported all configurations to %s\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, folder)
 }
+

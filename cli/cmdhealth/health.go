@@ -3,76 +3,111 @@ package cmdhealth
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	cmdconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhealth/enums"
 )
 
-const healthHelp = `health — daily workstation health aggregation.
+// hasHelpFlag reports whether help arguments are present.
+func hasHelpFlag(args []string) bool {
+	for _, a := range args {
+		if a == cmdconstants.FlagArgHelp || a == cmdconstants.FlagArgHelpShort {
+			return true
+		}
+	}
 
-Description:
-  Read-only rollup of the morning checks: dirty repos, failing
-  pipelines, fleet node count, and stale databases. Points at the
-  worst item first with the command that digs deeper.
+	return false
+}
 
-Usage:
-  gitmap health [--workdir <dir>]
-  gitmap hlth [--workdir <dir>]
+// parseHealthWorkdir extracts and resolves the workdir from flag arguments.
+func parseHealthWorkdir(args []string) (string, *appfault.AppError) {
+	fs := flag.NewFlagSet(cmdconstants.CmdHealth, flag.ContinueOnError)
+	workdirFlag := fs.String(cmdconstants.FlagWorkdir, "", cmdconstants.FlagDescWorkdir)
+	if parseErr := fs.Parse(args); parseErr != nil {
+		fmt.Print(cmdconstants.HelpTextHealth)
 
-Flags:
-  --workdir <dir>   repo workdir (default: $GITMAP_WORKDIR or ~/workspace/repos)
-  --help, -h        show this help
+		return "", apperror.WrapSimple(parseErr, cmdconstants.WrapHealthFlags)
+	}
 
-Example:
-  gitmap health
-`
+	return resolveHealthWorkdir(*workdirFlag), nil
+}
+
+// printRepoHealth formats and prints git repository status.
+func printRepoHealth(facts healthFacts) {
+	fmt.Printf(cmdconstants.FmtReposTotal, facts.repoTotal, facts.repoDirty)
+	if len(facts.dirtyNames) > 0 {
+		fmt.Printf(cmdconstants.FmtDirtyItem, strings.Join(facts.dirtyNames, cmdconstants.ItemSeparator))
+	}
+	fmt.Println(cmdconstants.ParenClose)
+}
+
+// printPipelineHealth formats and prints CI/CD pipeline status.
+func printPipelineHealth(facts healthFacts) {
+	if facts.pipelineNote != "" {
+		fmt.Printf(cmdconstants.FmtPipelinesNote, facts.pipelineNote)
+
+		return
+	}
+	fmt.Printf(cmdconstants.FmtPipelinesFailing, facts.pipelineRed)
+	if len(facts.redNames) > 0 {
+		fmt.Printf(cmdconstants.FmtDirtyItem, strings.Join(facts.redNames, cmdconstants.ItemSeparator))
+	}
+	fmt.Println()
+}
+
+// printFleetHealth formats and prints fleet node status.
+func printFleetHealth(facts healthFacts) {
+	if facts.fleetNote == cmdconstants.NoteNodeRegistryUnreachable {
+		fmt.Println(cmdconstants.MsgFleetRegistryUnreachable)
+
+		return
+	}
+
+	fmt.Printf(cmdconstants.FmtFleetRegistered, facts.fleetNodes, facts.fleetNote)
+}
+
+// printDbHealth formats and prints SQLite database stale count.
+func printDbHealth(facts healthFacts) {
+	fmt.Printf(cmdconstants.FmtDbsStale, facts.staleDBs)
+	if len(facts.staleNames) > 0 {
+		fmt.Printf(cmdconstants.FmtDirtyItem, strings.Join(facts.staleNames, cmdconstants.ItemSeparator))
+	}
+	fmt.Println()
+}
+
+// printWorstItem formats and prints the top priority action.
+func printWorstItem(facts healthFacts) {
+	fmt.Printf(cmdconstants.FmtWorstLine, worstItemPointer(facts))
+}
+
+// renderHealthReport outputs the complete health aggregation summary.
+func renderHealthReport(facts healthFacts) {
+	fmt.Println(cmdconstants.HeaderWorkstationHealth)
+	printRepoHealth(facts)
+	printPipelineHealth(facts)
+	printFleetHealth(facts)
+	printDbHealth(facts)
+	printWorstItem(facts)
+}
 
 // RunHealth implements `gitmap health` (alias: hlth).
 func RunHealth(args []string) *appfault.AppError {
-	for _, a := range args {
-		if a == "--help" || a == "-h" {
-			fmt.Print(healthHelp)
-			return nil
-		}
-	}
-	fs := flag.NewFlagSet("health", flag.ContinueOnError)
-	workdirFlag := fs.String("workdir", "", "repo workdir")
-	if parseErr := fs.Parse(args); parseErr != nil {
-		fmt.Print(healthHelp)
-		return apperror.WrapSimple(parseErr, "health.flags")
-	}
-	workdir := resolveHealthWorkdir(*workdirFlag)
-	facts := collectHealthFacts(workdir)
+	if hasHelpFlag(args) {
+		fmt.Print(cmdconstants.HelpTextHealth)
 
-	fmt.Println("workstation health:")
-	fmt.Printf("  repos:     %d (%d dirty", facts.repoTotal, facts.repoDirty)
-	if len(facts.dirtyNames) > 0 {
-		fmt.Printf(": %s", strings.Join(facts.dirtyNames, ", "))
+		return nil
 	}
-	fmt.Println(")")
-	if facts.pipelineNote != "" {
-		fmt.Printf("  pipelines: %s\n", facts.pipelineNote)
-	} else {
-		fmt.Printf("  pipelines: %d failing", facts.pipelineRed)
-		if len(facts.redNames) > 0 {
-			fmt.Printf(": %s", strings.Join(facts.redNames, ", "))
-		}
-		fmt.Println()
+	workdir, appErr := parseHealthWorkdir(args)
+	if appErr != nil {
+		return appErr
 	}
-	if facts.fleetNote == "node registry unreachable" {
-		fmt.Println("  fleet:     registry unreachable")
-	} else {
-		fmt.Printf("  fleet:     %d node(s) registered (%s)\n", facts.fleetNodes, facts.fleetNote)
-	}
-	fmt.Printf("  dbs:       %d stale", facts.staleDBs)
-	if len(facts.staleNames) > 0 {
-		fmt.Printf(": %s", strings.Join(facts.staleNames, ", "))
-	}
-	fmt.Println()
-	fmt.Printf("  worst:     %s\n", worstItemPointer(facts))
+	facts := collectHealthFacts(workdir)
+	renderHealthReport(facts)
 
 	return nil
 }
@@ -80,16 +115,43 @@ func RunHealth(args []string) *appfault.AppError {
 // worstItemPointer picks the most urgent follow-up command.
 func worstItemPointer(facts healthFacts) string {
 	if facts.pipelineRed > 0 {
-		return fmt.Sprintf("pe triage -> %s (%d failing)", facts.redNames[0], facts.pipelineRed)
+		return fmt.Sprintf(cmdconstants.WorstTriageFmt, facts.redNames[0], facts.pipelineRed)
 	}
 	if facts.staleDBs > 0 {
-		return "db doctor --repair (stale databases)"
+		return cmdconstants.WorstDbDoctorRepair
 	}
 	if facts.repoDirty > 0 {
-		return fmt.Sprintf("dirty working trees (%d) — review before pull/push", facts.repoDirty)
+		return fmt.Sprintf(cmdconstants.WorstDirtyWorkingTreesFmt, facts.repoDirty)
 	}
 
-	return "nothing urgent — all checks green"
+	return cmdconstants.WorstNothingUrgent
+}
+
+// DetermineWorstSeverity returns the HealthSeverityType for the aggregated health.
+func DetermineWorstSeverity(facts healthFacts) enums.HealthSeverityType {
+	if facts.pipelineRed > 0 {
+		return enums.HealthSeverityError
+	}
+	if facts.staleDBs > 0 || facts.repoDirty > 0 {
+		return enums.HealthSeverityWarn
+	}
+
+	return enums.HealthSeverityOk
+}
+
+// DetermineWorstCategory returns the HealthCategoryType for the most urgent issue.
+func DetermineWorstCategory(facts healthFacts) enums.HealthCategoryType {
+	if facts.pipelineRed > 0 {
+		return enums.HealthCategoryPipeline
+	}
+	if facts.staleDBs > 0 {
+		return enums.HealthCategoryDb
+	}
+	if facts.repoDirty > 0 {
+		return enums.HealthCategoryGit
+	}
+
+	return enums.HealthCategorySystem
 }
 
 // resolveHealthWorkdir mirrors the shared workdir resolution.
@@ -97,13 +159,13 @@ func resolveHealthWorkdir(flagVal string) string {
 	if strings.TrimSpace(flagVal) != "" {
 		return flagVal
 	}
-	if envVal := strings.TrimSpace(os.Getenv("GITMAP_WORKDIR")); envVal != "" {
+	if envVal := strings.TrimSpace(os.Getenv(cmdconstants.EnvGitmapWorkdir)); envVal != "" {
 		return envVal
 	}
 	home, homeErr := os.UserHomeDir()
 	if homeErr != nil {
-		return "."
+		return cmdconstants.FallbackWorkdir
 	}
 
-	return filepath.Join(home, "workspace", "repos")
+	return filepath.Join(home, cmdconstants.DefaultWorkspaceDir, cmdconstants.DefaultReposDir)
 }
