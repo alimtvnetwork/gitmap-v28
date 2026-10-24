@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -69,15 +70,15 @@ func parseMailCheckFlags(args []string) mailCheckOptions {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "--all" || arg == "-a":
+		case slices.Contains([]string{"--all", "-a"}, arg):
 			opts.IsAll = true
-		case arg == "--unread-only" || arg == "-u" || arg == "--unread":
+		case slices.Contains([]string{"--unread-only", "-u", "--unread"}, arg):
 			opts.IsUnreadOnly = true
-		case arg == "--json" || arg == "-j":
+		case slices.Contains([]string{"--json", "-j"}, arg):
 			opts.IsJSON = true
 		case arg == "--show-full-email":
 			opts.ShowFullEmail = true
-		case arg == "--account" || arg == "-m" || arg == "--mailbox":
+		case slices.Contains([]string{"--account", "-m", "--mailbox"}, arg):
 			opts.AccountAlias, i = parseNextFlagValue(args, i, arg)
 			opts.IsAll = false
 		case strings.HasPrefix(arg, "--account="):

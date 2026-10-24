@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule/enums"
 )
 
-// OSActionType identifies the power operation to schedule.
-type OSActionType string
+// OSActionType is the canonical power operation type, defined in enums.
+type OSActionType = enums.OSActionType
 
 const (
-	OSActionShutdown OSActionType = "shutdown"
-	OSActionRestart  OSActionType = "restart"
-	OSActionCancel   OSActionType = "cancel"
+	OSActionShutdown = enums.OSActionShutdown
+	OSActionRestart  = enums.OSActionRestart
+	OSActionCancel   = enums.OSActionCancel
 )
 
 // OSActionParams specifies the execution context for an OS power action.
@@ -64,7 +66,7 @@ func buildWindowsActionCommand(action OSActionType, seconds int64) (string, []st
 		flag = "/r"
 	}
 
-	return "shutdown", []string{flag, "/t", fmt.Sprintf("%d", seconds), "/c", "GitMap scheduled " + string(action)}
+	return "shutdown", []string{flag, "/t", fmt.Sprintf("%d", seconds), "/c", "GitMap scheduled " + action.String()}
 }
 
 func buildDarwinActionCommand(action OSActionType) (string, []string) {
@@ -93,7 +95,7 @@ func executeNativeOSAction(params OSActionParams) error {
 
 	cmd := exec.Command(params.Executable, params.Args...)
 	if err := cmd.Run(); err != nil {
-		return apperror.WrapSimple(err, "execute "+string(params.Action))
+		return apperror.WrapSimple(err, "execute "+params.Action.String())
 	}
 
 	return nil
@@ -137,11 +139,11 @@ func resolveCountdownStep(remaining time.Duration) time.Duration {
 }
 
 func isPowerStatusSubcmd(arg string) bool {
-	return arg == "status" || arg == "ls" || arg == "check"
+	return slices.Contains([]string{"status", "ls", "check"}, arg)
 }
 
 func isPowerCancelSubcmd(arg string) bool {
-	return arg == "cancel" || arg == "abort" || arg == "stop" || arg == "rm" || arg == "remove"
+	return slices.Contains([]string{"cancel", "abort", "stop", "rm", "remove"}, arg)
 }
 
 // RunSchedulePowerCLI handles the schedule power subcommands from the CLI.
@@ -176,7 +178,7 @@ func armAndDispatchPowerSchedule(action OSActionType, dur time.Duration) error {
 	if execErr := DefaultOSActionExecutor(params); execErr != nil {
 		_ = CancelActivePowerSchedule()
 
-		return apperror.WrapSimple(execErr, "schedule "+string(action))
+		return apperror.WrapSimple(execErr, "schedule "+action.String())
 	}
 
 	printPowerScheduleConfirmation(action, dur)

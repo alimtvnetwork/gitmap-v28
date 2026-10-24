@@ -4,6 +4,7 @@ package cmdschedule
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -53,29 +54,29 @@ func parseScheduleEmailFlags(args []string) (scheduleEmailOptions, *appfault.App
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "--to" || arg == "-t":
+		case slices.Contains([]string{"--to", "-t"}, arg):
 			opts.To, i = parseNextFlagValue(args, i, arg)
 		case strings.HasPrefix(arg, "--to="):
 			opts.To = strings.TrimPrefix(arg, "--to=")
-		case arg == "--subject" || arg == "-s":
+		case slices.Contains([]string{"--subject", "-s"}, arg):
 			opts.Subject, i = parseNextFlagValue(args, i, arg)
 		case strings.HasPrefix(arg, "--subject="):
 			opts.Subject = strings.TrimPrefix(arg, "--subject=")
-		case arg == "--body" || arg == "-b":
+		case slices.Contains([]string{"--body", "-b"}, arg):
 			opts.Body, i = parseNextFlagValue(args, i, arg)
 		case strings.HasPrefix(arg, "--body="):
 			opts.Body = strings.TrimPrefix(arg, "--body=")
-		case arg == "--file" || arg == "-f":
+		case slices.Contains([]string{"--file", "-f"}, arg):
 			opts.File, i = parseNextFlagValue(args, i, arg)
 		case strings.HasPrefix(arg, "--file="):
 			opts.File = strings.TrimPrefix(arg, "--file=")
-		case arg == "--every" || arg == "-i" || arg == "--interval":
+		case slices.Contains([]string{"--every", "-i", "--interval"}, arg):
 			opts.Every, i = parseNextFlagValue(args, i, arg)
 		case strings.HasPrefix(arg, "--every="):
 			opts.Every = strings.TrimPrefix(arg, "--every=")
 		case arg == "--show-full-email":
 			opts.ShowFullEmail = true
-		case arg == "--json" || arg == "-j":
+		case slices.Contains([]string{"--json", "-j"}, arg):
 			opts.IsJSON = true
 		case !strings.HasPrefix(arg, "-") && opts.Name == "":
 			opts.Name = arg
