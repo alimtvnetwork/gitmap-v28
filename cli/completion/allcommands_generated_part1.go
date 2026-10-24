@@ -44,6 +44,7 @@ var generatedCommandsPart1 = []string{
 	"branch",
 	"c",
 	"ca",
+	"cbf",
 	"cc",
 	"cd",
 	"cf",
@@ -109,6 +110,7 @@ var generatedCommandsPart1 = []string{
 	"commit-push",
 	"commit-push-bug",
 	"commit-push-feature",
+	"commit-push-refactor",
 	"commit-push-release",
 	"commit-right",
 	"commit-right-pr",
@@ -253,6 +255,4 @@ var generatedCommandsPart1 = []string{
 	"latest-branch",
 	"lb",
 	"lcf",
-	"ld",
-	"lemon",
 }

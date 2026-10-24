@@ -4,17 +4,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdselfinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 )
 
 // reinstallOpts collects parsed flags for `gitmap reinstall`.
@@ -155,14 +154,14 @@ func executeReinstallRepo() {
 	}
 
 	if err != nil {
-		cliexit.HandleError(apperror.WrapSimple(err, constants.ErrReinstallScriptFailed), 1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, constants.ErrReinstallScriptFailed))
 	}
 }
 
 // pickReinstallScriptPath returns the absolute path + display name of
 // run.ps1 (Windows) or run.sh (Unix) inside the linked repo.
 func pickReinstallScriptPath() (string, string) {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		name := "run.ps1"
 
 		return filepath.Join(constants.RepoPath, name), name
@@ -175,7 +174,7 @@ func pickReinstallScriptPath() (string, string) {
 
 // buildReinstallScriptCmd assembles the platform-specific script invocation.
 func buildReinstallScriptCmd(scriptPath string) *exec.Cmd {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		return exec.Command("pwsh", "-ExecutionPolicy", "Bypass", "-NoProfile",
 			"-NoLogo", "-File", scriptPath, "-reinstall")
 	}

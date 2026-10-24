@@ -38,23 +38,89 @@ const (
 	TablePullEtaHistory = "PullEtaHistory"
 )
 
-// Pull task execution status enums.
+// PullTaskStatusType represents overall execution status of a batch pull task.
+type PullTaskStatusType string
+
 const (
-	PullTaskStatusPending   = "pending"
-	PullTaskStatusRunning   = "running"
-	PullTaskStatusCompleted = "completed"
-	PullTaskStatusFailed    = "failed"
-	PullTaskStatusCanceled  = "canceled"
+	PullTaskStatusPending   PullTaskStatusType = "pending"
+	PullTaskStatusRunning   PullTaskStatusType = "running"
+	PullTaskStatusCompleted PullTaskStatusType = "completed"
+	PullTaskStatusFailed    PullTaskStatusType = "failed"
+	PullTaskStatusCanceled  PullTaskStatusType = "canceled"
 )
 
-// Pull task repo progress status enums.
+// IsCompleted reports whether the task reached completion.
+func (s PullTaskStatusType) IsCompleted() bool {
+	return s == PullTaskStatusCompleted
+}
+
+// IsFailed reports whether the task failed.
+func (s PullTaskStatusType) IsFailed() bool {
+	return s == PullTaskStatusFailed
+}
+
+// IsCanceled reports whether the task was canceled.
+func (s PullTaskStatusType) IsCanceled() bool {
+	return s == PullTaskStatusCanceled
+}
+
+// PullTaskRepoStatusType represents the progress status of an individual repo in a pull task.
+type PullTaskRepoStatusType string
+
 const (
-	PullTaskRepoStatusPending = "pending"
-	PullTaskRepoStatusPulling = "pulling"
-	PullTaskRepoStatusSuccess = "success"
-	PullTaskRepoStatusSkipped = "skipped"
-	PullTaskRepoStatusFailed  = "failed"
+	PullTaskRepoStatusPending PullTaskRepoStatusType = "pending"
+	PullTaskRepoStatusPulling PullTaskRepoStatusType = "pulling"
+	PullTaskRepoStatusSuccess PullTaskRepoStatusType = "success"
+	PullTaskRepoStatusSkipped PullTaskRepoStatusType = "skipped"
+	PullTaskRepoStatusFailed  PullTaskRepoStatusType = "failed"
 )
+
+// IsPulling reports whether the repo is actively pulling.
+func (s PullTaskRepoStatusType) IsPulling() bool {
+	return s == PullTaskRepoStatusPulling
+}
+
+// IsSuccess reports whether the repo pulled successfully.
+func (s PullTaskRepoStatusType) IsSuccess() bool {
+	return s == PullTaskRepoStatusSuccess
+}
+
+// IsFailed reports whether the repo pull failed.
+func (s PullTaskRepoStatusType) IsFailed() bool {
+	return s == PullTaskRepoStatusFailed
+}
+
+// PullChangesStatusType represents the outcome status of a repo pull operation.
+type PullChangesStatusType string
+
+const (
+	PullChangesStatusActive      PullChangesStatusType = "active"
+	PullChangesStatusUpToDate    PullChangesStatusType = "up-to-date"
+	PullChangesStatusSynced      PullChangesStatusType = "synced"
+	PullChangesStatusSuccess     PullChangesStatusType = "success"
+	PullChangesStatusUpdated     PullChangesStatusType = "updated"
+	PullChangesStatusFastForward PullChangesStatusType = "fast-forward"
+	PullChangesStatusFailed      PullChangesStatusType = "failed"
+	PullChangesStatusClean       PullChangesStatusType = "clean"
+)
+
+// IsActive reports whether the status denotes active / up-to-date.
+func (s PullChangesStatusType) IsActive() bool {
+	lower := string(s)
+	return s == PullChangesStatusActive || s == PullChangesStatusUpToDate || s == PullChangesStatusSynced || lower == "up_to_date" || lower == "active"
+}
+
+// IsUpdated reports whether the status denotes a successful update.
+func (s PullChangesStatusType) IsUpdated() bool {
+	lower := string(s)
+	return s == PullChangesStatusSuccess || s == PullChangesStatusUpdated || s == PullChangesStatusFastForward || lower == "ok" || lower == "fast_forward"
+}
+
+// IsFailed reports whether the status denotes a failed pull.
+func (s PullChangesStatusType) IsFailed() bool {
+	lower := string(s)
+	return s == PullChangesStatusFailed || lower == "fail" || lower == "error"
+}
 
 // Pull task settings and operational tuning constants.
 const (

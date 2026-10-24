@@ -181,7 +181,7 @@ For each target repository, execute the complete 8-step safety ceremony:
 ```text
 SYNCHRONIZATION PIPELINE PER TARGET REPOSITORY:
 1. Pre-flight pull on base branch:
-   git pull origin <base_branch> --no-rebase
+   gitmap pull  # (fallback if gitmap unavailable: git pull origin <base_branch> --no-rebase)
 2. Safety backup branch creation & push:
    git checkout -b backup/sync-<timestamp>
    git push origin backup/sync-<timestamp>
@@ -199,7 +199,7 @@ SYNCHRONIZATION PIPELINE PER TARGET REPOSITORY:
    - Verify bump scripts (bump*) were NOT overwritten
    - Verify .ai-memory/memory/ and .ai-memory/plans/ were NOT modified
 7. Atomic commit via GitMap:
-   gitmap cpf "sync - update prompts skills and shared specs across repository"
+   gitmap cpc "SYNC - update prompts skills and shared specs across repository"
 8. Automation command execution:
    python 03-ai-scripts/38-sync-prompts-skills-scripts.py
 ```
@@ -352,7 +352,7 @@ Proceeding directly to Preflight & Phase 1B Discovery (Active Tool Call Running 
 3. **Update Central Registers:**
    - Update `01-prompts/readme.md`, `.ai-memory/prompts.md`, and `.ai-memory/plans/readme.md`.
 4. **Final Atomic Commit in Source Repo:**
-   - Call `gitmap cpf "sync - update prompts skills and shared specs across repository"`.
+   - Call `gitmap cpc "SYNC - update prompts skills and shared specs across repository"`.
    - Use hyphen `-` format (no colons in GitMap message argument).
 
 ---

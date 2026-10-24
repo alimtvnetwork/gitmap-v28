@@ -14,10 +14,12 @@ import (
 )
 
 func verifyLinuxArchivePlatform() error {
-	if runtime.GOOS != "linux" {
+	if !constants.IsLinuxPlatform() {
 		msg := fmt.Sprintf("Archive installation (gitmap install tar) is supported on Linux / Ubuntu only (current OS: %s).", runtime.GOOS)
+
 		return apperror.NewWithDetails("cmd.install.tar.platform", "E_LINUX_ONLY", msg, "cmd.install.tar", apperror.ErrorTypeValidation, apperror.SeverityError, map[string]any{"os": runtime.GOOS})
 	}
+
 	return nil
 }
 

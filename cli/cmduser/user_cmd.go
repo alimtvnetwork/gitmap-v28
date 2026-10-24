@@ -38,7 +38,7 @@ func dispatchUserSubcommand(sub string, args []string) error {
 		return runUserSwitch(args)
 	case "project":
 		return runUserProject(args)
-	case "config":
+	case "config", "set":
 		return runUserConfig(args)
 	case "sync":
 		return runUserSync(args)
@@ -212,7 +212,7 @@ func printUserUsage() {
 	fmt.Println("  switch, use <alias> [--global] [--project]   Switch active profile or bind to project")
 	fmt.Println("  add <alias> --name <n> --email <e>           Register a new Git user profile")
 	fmt.Println("  project [bind <alias>|unbind|status]         Manage per-repository profile bindings")
-	fmt.Println("  config [global|local] [--name <n>] [--email] Inspect or set Git configuration")
+	fmt.Println("  config, set [global|local] [flags]           Inspect or set Git identity (--name, --email, -i)")
 	fmt.Println("  sync                                         Apply bound project profile to local repo")
 	fmt.Println()
 	fmt.Println("Operating System User Commands:")
@@ -229,4 +229,5 @@ func printUserUsage() {
 	fmt.Println("  gitmap user add work --name 'Alice' --email 'alice@work.com'")
 	fmt.Println("  gitmap user project bind work")
 	fmt.Println("  gitmap user config global --email 'alice@work.com'")
+	fmt.Println("  gitmap user set global 'Alice' 'alice@work.com'")
 }

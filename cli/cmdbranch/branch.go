@@ -1,4 +1,4 @@
-// Package cmd — `gitmap branch <subcommand>` dispatcher.
+// Package cmdbranch — `gitmap branch <subcommand>` dispatcher.
 package cmdbranch
 
 import (
@@ -6,71 +6,55 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	branchconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch/constants"
+	branchenums "github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch/enums"
 )
 
-// runBranch dispatches `gitmap branch <subcommand>` (alias `b`).
-//
-// Today the only subcommand is `default` (alias `def`). Future
-// subcommands (e.g. `current`, `list`) plug in by adding cases to the
-// switch — the dispatcher pattern is intentionally explicit instead of
-// table-driven because we expect <5 subcommands long-term and want
-// per-subcommand help text to stay obvious.
-//
-// We don't gate on `--help` here because each subcommand handler does
-// its own help check via checkHelp at the top.
+// RunBranch dispatches `gitmap branch <subcommand>` (alias `b`).
 func RunBranch(args []string) *apperror.AppError {
-	checkHelp("branch", args)
+	checkHelp(branchconst.CmdBranch, args)
 	if len(args) == 0 {
-		printHelpAndExit("branch", args)
+		printHelpAndExit(branchconst.CmdBranch, args)
 
 		return nil
 	}
 
-	sub, rest := args[0], args[1:]
-	switch sub {
-	case constants.CmdBranchSubDefault, constants.CmdBranchSubDefaultAlias:
-		runBranchDefault(rest)
+	return dispatchBranchSubcommand(args[0], args[1:])
+}
 
-		return nil
+func dispatchBranchSubcommand(sub string, rest []string) *apperror.AppError {
+	action, _ := branchenums.ParseBranchActionType(sub)
+	if action.HasDefaultAction() {
+		return runBranchDefault(rest)
 	}
 
-	return apperror.NewSimple(constants.ErrBranchUnknownSubcommand, "E9000")
-	// 	return nil
+	errMsg := fmt.Sprintf(branchconst.ErrBranchUnknownSubcommandFmt, sub)
+
+	return apperror.NewSimple(errMsg, branchconst.ErrCodeE9000)
 }
 
 // runBranchDefault implements `gitmap branch default` / `b def`.
-//
-// Resolution flow:
-//  1. Verify cwd is inside a git work tree (reuses gitutil.IsInsideWorkTree
-//     for parity with `lb`).
-//  2. Resolve the default branch name via gitutil.ResolveDefaultBranchName,
-//     which prefers `git symbolic-ref refs/remotes/origin/HEAD` and falls
-//     back to constants.DefaultBranch ("main") so even brand-new repos
-//     without an origin still get a sane target.
-//  3. Run `git checkout` and surface git's status line verbatim — same
-//     UX as `lb --switch` so users get one mental model for both flows.
-//
-// Errors are printed with the standardized "  ✗ ..." prefix and exit 1
-// to short-circuit shell pipelines.
-func runBranchDefault(args []string) error {
-	checkHelp("branch", args)
-	if !gitutil.IsInsideWorkTree() {
-		fmt.Fprint(os.Stderr, constants.ErrBranchNotRepo)
+func runBranchDefault(args []string) *apperror.AppError {
+	checkHelp(branchconst.CmdBranch, args)
+	if !isInsideWorkTree() {
+		fmt.Fprint(os.Stderr, branchconst.ErrBranchNotRepo)
 
-		return apperror.NewSimple("fatal error", "E9000")
+		return apperror.NewSimple(branchconst.ErrFatalMessage, branchconst.ErrCodeE9000)
 	}
 
-	target := gitutil.ResolveDefaultBranchName(".")
-	fmt.Printf(constants.MsgBranchDefaultSwitching, target)
-	out, err := gitutil.CheckoutBranch(".", target)
+	return executeBranchDefault()
+}
+
+func executeBranchDefault() *apperror.AppError {
+	target := resolveDefaultBranchName(branchconst.SentinelCurrentDir)
+	fmt.Printf(branchconst.MsgBranchDefaultSwitchingFmt, target)
+	out, err := checkoutBranch(branchconst.SentinelCurrentDir, target)
 	if len(out) > 0 {
 		fmt.Println(out)
 	}
 
 	if err != nil {
-		return apperror.WrapSimple(err, constants.ErrBranchDefaultFailed)
+		return apperror.WrapSimple(err, branchconst.ErrBranchDefaultFailed)
 	}
 
 	return nil

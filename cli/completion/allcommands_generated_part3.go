@@ -5,6 +5,8 @@ package completion
 // generatedCommandsPart3 holds chunk 3 of 3 of the generated command
 // list (see allcommands_generated.go).
 var generatedCommandsPart3 = []string{
+	"un",
+	"undo",
 	"uninstall",
 	"unzip-compact",
 	"update",
@@ -35,8 +37,10 @@ var generatedCommandsPart3 = []string{
 	"w",
 	"watch",
 	"watch-prompts-running",
+	"wg",
 	"who",
 	"whoami",
+	"workgroup",
 	"wpr",
 	"write",
 	"x",

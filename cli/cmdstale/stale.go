@@ -1,6 +1,5 @@
-// Package cmd — `gitmap stale` (sta): list local repos with no commits
+// Package cmdstale provides `gitmap stale` (sta): list local repos with no commits
 // in N days, with optional --archive to move them to .gitmap/archive/.
-// v6.68.0.
 package cmdstale
 
 import (
@@ -13,8 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale/enums"
 )
 
 type staleRepo struct {
@@ -22,107 +23,172 @@ type staleRepo struct {
 	last time.Time
 }
 
-// runStale executes `gitmap stale`.
+type staleOptions struct {
+	staleDays    int
+	scanRoot     string
+	isArchive    bool
+	isDryRun     bool
+	outputFormat enums.StaleOutputFormatType
+}
 
-func RunStale(args []string) error {
-	checkHelp("stale", args)
-	fs := flag.NewFlagSet("stale", flag.ContinueOnError)
-	days := fs.Int("days", 90, "report repos with no commits in the last N days")
-	root := fs.String("root", ".", "scan root directory")
-	archive := fs.Bool("archive", false, "move stale repos into .gitmap/archive/")
-	dryRun := fs.Bool("dry-run", false, "preview archive moves without touching disk")
-	format := fs.String("format", "table", "output format: table|json|csv")
+type staleRawFlags struct {
+	days    *int
+	root    *string
+	archive *bool
+	dryRun  *bool
+	format  *string
+}
+
+func bindStaleFlags(fs *flag.FlagSet) staleRawFlags {
+	return staleRawFlags{
+		days:    fs.Int(constants.FlagDays, constants.DefaultStaleDays, constants.FlagDescDays),
+		root:    fs.String(constants.FlagRoot, constants.DefaultScanRoot, constants.FlagDescRoot),
+		archive: fs.Bool(constants.FlagArchive, false, constants.FlagDescArchive),
+		dryRun:  fs.Bool(constants.FlagDryRun, false, constants.FlagDescDryRun),
+		format:  fs.String(constants.FlagFormat, constants.DefaultOutputFormat, constants.FlagDescFormat),
+	}
+}
+
+func buildStaleOptions(raw staleRawFlags, fmtKind enums.StaleOutputFormatType) staleOptions {
+	return staleOptions{
+		staleDays:    *raw.days,
+		scanRoot:     *raw.root,
+		isArchive:    *raw.archive,
+		isDryRun:     *raw.dryRun,
+		outputFormat: fmtKind,
+	}
+}
+
+func parseStaleFlags(args []string) (staleOptions, error) {
+	fs := flag.NewFlagSet(constants.CmdStale, flag.ContinueOnError)
+	raw := bindStaleFlags(fs)
 	if err := fs.Parse(args); err != nil {
-		cliexit.HandleError(err, 2)
+		return staleOptions{}, appfault.NewValidationError(err.Error())
 	}
 
-	fmtKind, err := parseHygieneFormat(*format)
+	fmtKind, err := parseHygieneFormat(*raw.format)
 	if err != nil {
-		cliexit.Fail("stale", "parse-format", *format, err, 2)
+		return staleOptions{}, err
 	}
 
-	repos := scanForReposParallel(*root)
-	cutoff := time.Now().AddDate(0, 0, -*days)
-	probed := cmdhygiene.MapReposParallel(repos, func(r string) (staleRepo, bool) {
-		t, ok := lastCommitTime(r)
-		if !ok || !t.Before(cutoff) {
-			return staleRepo{}, false
-		}
+	return buildStaleOptions(raw, fmtKind), nil
+}
 
-		return staleRepo{path: r, last: t}, true
-	})
-	sort.Slice(probed, func(i, j int) bool { return probed[i].last.Before(probed[j].last) })
-	emitStale(probed, *days, fmtKind)
-	if *archive {
-		archiveStaleRepos(probed, *dryRun)
+// RunStale executes `gitmap stale`.
+func RunStale(args []string) error {
+	checkHelp(constants.CmdStale, args)
+	opts, err := parseStaleFlags(args)
+	if err != nil {
+		return err
+	}
+
+	probed := probeStaleRepos(opts.scanRoot, opts.staleDays)
+	emitStale(probed, opts.staleDays, opts.outputFormat)
+	if opts.isArchive {
+		archiveStaleRepos(probed, opts.isDryRun)
 	}
 
 	return nil
 }
 
+func probeStaleRepos(root string, days int) []staleRepo {
+	repos := scanForReposParallel(root)
+	cutoff := time.Now().AddDate(0, 0, -days)
+	probed := cmdhygiene.MapReposParallel(repos, func(r string) (staleRepo, bool) {
+		return probeRepoStaleness(r, cutoff)
+	})
+	sort.Slice(probed, func(i, j int) bool { return probed[i].last.Before(probed[j].last) })
+
+	return probed
+}
+
+func probeRepoStaleness(r string, cutoff time.Time) (staleRepo, bool) {
+	t, hasCommit := lastCommitTime(r)
+	if !hasCommit || !t.Before(cutoff) {
+		return staleRepo{}, false
+	}
+
+	return staleRepo{path: r, last: t}, true
+}
+
 // emitStale dispatches to the requested output format.
+func emitStale(stale []staleRepo, days int, f enums.StaleOutputFormatType) {
+	if f.IsJSON() {
+		emitStaleJSON(stale)
 
-func emitStale(stale []staleRepo, days int, f cmdhygiene.HygieneFormatType) {
-	switch f {
-	case cmdhygiene.HygieneFormatTypeJSON:
-		type row struct {
-			Path    string `json:"path"`
-			LastUTC string `json:"last_commit_utc"`
-			AgeDays int    `json:"age_days"`
-		}
-
-		rows := make([]row, 0, len(stale))
-		now := time.Now()
-		for _, s := range stale {
-			rows = append(rows, row{
-				Path:    s.path,
-				LastUTC: s.last.UTC().Format(time.RFC3339),
-				AgeDays: int(now.Sub(s.last).Hours() / 24),
-			})
-		}
-
-		emitJSON(rows)
-	case cmdhygiene.HygieneFormatTypeCSV:
-		now := time.Now()
-		rows := make([][]string, 0, len(stale))
-		for _, s := range stale {
-			age := int(now.Sub(s.last).Hours() / 24)
-			rows = append(rows, []string{s.path, s.last.UTC().Format(time.RFC3339), fmt.Sprintf("%d", age)})
-		}
-
-		emitCSV([]string{"path", "last_commit_utc", "age_days"}, rows)
-	case cmdhygiene.HygieneFormatTypeTable:
-		printStaleTable(stale, days)
-	default:
-		printStaleTable(stale, days)
+		return
 	}
+	if f.IsCSV() {
+		emitStaleCSV(stale)
+
+		return
+	}
+
+	printStaleTable(stale, days)
 }
 
-// scanForRepos returns directories under root that contain a .git folder.
-//
-//nolint:unused
-func scanForRepos(root string) []string {
-	var out []string
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return nil
-	}
-
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-
-		full := filepath.Join(root, e.Name())
-		if isGitRepo(full) {
-			out = append(out, full)
-		}
-	}
-
-	return out
+type staleJSONRow struct {
+	Path    string `json:"path"`
+	LastUTC string `json:"last_commit_utc"`
+	AgeDays int    `json:"age_days"`
 }
 
-// (isGitRepo lives in githubdesktop.go and is reused here.)
+func buildStaleJSONRows(stale []staleRepo, now time.Time) []staleJSONRow {
+	rows := make([]staleJSONRow, 0, len(stale))
+	for _, s := range stale {
+		rows = append(rows, staleJSONRow{
+			Path:    s.path,
+			LastUTC: s.last.UTC().Format(time.RFC3339),
+			AgeDays: int(now.Sub(s.last).Hours() / constants.HoursPerDay),
+		})
+	}
+
+	return rows
+}
+
+func emitStaleJSON(stale []staleRepo) {
+	rows := buildStaleJSONRows(stale, time.Now())
+	emitJSON(rows)
+}
+
+func buildStaleCSVRows(stale []staleRepo, now time.Time) [][]string {
+	rows := make([][]string, 0, len(stale))
+	for _, s := range stale {
+		age := int(now.Sub(s.last).Hours() / constants.HoursPerDay)
+		ageStr := fmt.Sprintf(constants.AgeDaysIntFmt, age)
+		rows = append(rows, []string{s.path, s.last.UTC().Format(time.RFC3339), ageStr})
+	}
+
+	return rows
+}
+
+func emitStaleCSV(stale []staleRepo) {
+	header := []string{constants.HeaderPath, constants.HeaderLastCommitUTC, constants.HeaderAgeDays}
+	rows := buildStaleCSVRows(stale, time.Now())
+	emitCSV(header, rows)
+}
+
+// printStaleTable renders the stale-repo list.
+func printStaleTable(stale []staleRepo, days int) {
+	if len(stale) == 0 {
+		fmt.Fprintf(os.Stdout, constants.MsgNoStaleReposFmt, days)
+
+		return
+	}
+
+	printStaleRows(stale, days)
+}
+
+func printStaleRows(stale []staleRepo, days int) {
+	fmt.Fprintf(os.Stdout, constants.MsgStaleHeaderFmt, len(stale), days)
+	now := time.Now()
+	for _, s := range stale {
+		age := int(now.Sub(s.last).Hours() / constants.HoursPerDay)
+		fmt.Fprintf(os.Stdout, constants.MsgStaleRowFmt, age, s.path, s.last.Format(constants.DateFormatStale))
+	}
+
+	fmt.Fprintln(os.Stdout, constants.EmptyString)
+}
 
 // LastCommitTime returns the last commit time for repo at dir.
 func LastCommitTime(dir string) (time.Time, bool) {
@@ -130,73 +196,64 @@ func LastCommitTime(dir string) (time.Time, bool) {
 }
 
 func lastCommitTime(dir string) (time.Time, bool) {
-	cmd := exec.Command("git", "-C", dir, "log", "-1", "--format=%ct")
+	cmd := exec.Command(constants.GitBin, constants.GitFlagDir, dir, constants.GitSubCmdLog, constants.GitArgLimitOne, constants.GitFormatCommitEpoch)
 	out, err := cmd.Output()
 	if err != nil {
 		return time.Time{}, false
 	}
 
-	s := strings.TrimSpace(string(out))
-	if s == "" {
+	return parseEpochOutput(string(out))
+}
+
+func parseEpochOutput(raw string) (time.Time, bool) {
+	s := strings.TrimSpace(raw)
+	if s == constants.EmptyString {
 		return time.Time{}, false
 	}
 
 	var sec int64
-	if _, err := fmt.Sscanf(s, "%d", &sec); err != nil {
+	if _, err := fmt.Sscanf(s, constants.SecScanFmt, &sec); err != nil {
 		return time.Time{}, false
 	}
 
 	return time.Unix(sec, 0), true
 }
 
-// printStaleTable renders the stale-repo list.
-
-func printStaleTable(stale []staleRepo, days int) {
+// archiveStaleRepos moves repos into .gitmap/archive/<timestamp>/.
+func archiveStaleRepos(stale []staleRepo, isDryRun bool) {
 	if len(stale) == 0 {
-		fmt.Fprintf(os.Stdout, "\n  no repos stale beyond %d days\n\n", days)
-
 		return
 	}
 
-	fmt.Fprintf(os.Stdout, "\n  \033[36m%d stale repo(s)\033[0m (no commits in %d days)\n\n", len(stale), days)
-	now := time.Now()
+	stamp := time.Now().UTC().Format(constants.TimestampFormatArchive)
+	archiveDir := filepath.Join(constants.DirGitmap, constants.DirArchive, stamp)
 	for _, s := range stale {
-		age := int(now.Sub(s.last).Hours() / 24)
-		fmt.Fprintf(os.Stdout, "  \033[33m%4dd\033[0m  %s  (last: %s)\n", age, s.path, s.last.Format("2006-01-02"))
+		archiveSingleRepo(s.path, archiveDir, isDryRun)
 	}
-
-	fmt.Fprintln(os.Stdout, "")
 }
 
-// archiveStaleRepos moves repos into .gitmap/archive/<basename>-<ts>/.
+func archiveSingleRepo(srcPath, archiveDir string, isDryRun bool) {
+	dest := filepath.Join(archiveDir, filepath.Base(srcPath))
+	if isDryRun {
+		fmt.Fprintf(os.Stdout, constants.MsgWouldArchiveFmt, srcPath, dest)
 
-func archiveStaleRepos(stale []staleRepo, dryRun bool) {
-	if len(stale) == 0 {
 		return
 	}
 
-	stamp := time.Now().UTC().Format("20060102T150405Z")
-	archiveDir := filepath.Join(".gitmap", "archive", stamp)
-	for _, s := range stale {
-		dest := filepath.Join(archiveDir, filepath.Base(s.path))
-		if dryRun {
-			fmt.Fprintf(os.Stdout, "  \033[33mwould archive\033[0m %s -> %s\n", s.path, dest)
+	executeArchiveMove(srcPath, dest, archiveDir)
+}
 
-			continue
-		}
+func executeArchiveMove(srcPath, dest, archiveDir string) {
+	if err := os.MkdirAll(archiveDir, constants.DefaultArchiveDirPerm); err != nil {
+		fmt.Fprintf(os.Stderr, constants.ErrArchiveMkdirFmt, err)
 
-		if err := os.MkdirAll(archiveDir, 0o755); err != nil {
-			fmt.Fprintf(os.Stderr, "  archive mkdir: %v\n", err)
-
-			return
-		}
-
-		if err := os.Rename(s.path, dest); err != nil {
-			fmt.Fprintf(os.Stderr, "  \033[31mfailed\033[0m %s: %v\n", s.path, err)
-
-			continue
-		}
-
-		fmt.Fprintf(os.Stdout, "  \033[32marchived\033[0m %s -> %s\n", s.path, dest)
+		return
 	}
+	if err := os.Rename(srcPath, dest); err != nil {
+		fmt.Fprintf(os.Stderr, constants.MsgFailedFmt, srcPath, err)
+
+		return
+	}
+
+	fmt.Fprintf(os.Stdout, constants.MsgArchivedFmt, srcPath, dest)
 }

@@ -1,11 +1,7 @@
 package cmdcommit
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
-	"os/exec"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -34,7 +30,7 @@ func RunCommitPush(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap commit-push <message>", "E9000")
 	}
-	commitMessage := strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("cp", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -51,7 +47,7 @@ func RunPullCommitPush(args []string) error {
 	if len(cleanArgs) == 0 {
 		return apperror.NewSimple("Usage: gitmap pull-commit-push <message>", "E9000")
 	}
-	commitMessage := strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage("pcp", cleanArgs)
 
 	return executePullCommitPush(commitMessage, meta)
 }
@@ -80,9 +76,9 @@ func RunCommitPushBug(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := "Bug: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbBugAlt), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -97,9 +93,9 @@ func RunCommitPushFeature(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := "Feature: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbFeature), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -114,9 +110,9 @@ func RunCommitPushChore(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := "Chore: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbChore), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -131,9 +127,26 @@ func RunCommitPushRelease(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := "Release: " + strings.Join(cleanArgs, " ")
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbRelease), cleanArgs)
+
+	return executeCommitPush(commitMessage, meta)
+}
+
+// RunCommitPushRefactor commits with a "REFACTOR: " prefix.
+func RunCommitPushRefactor(args []string) error {
+	if IsCommitPushHelpArg(args) {
+		checkHelp(constants.CmdCommitPushRefactor, []string{"--help"})
+
+		return nil
+	}
+
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-refactor <message>", string(constants.ErrCodeGenericExecution))
+	}
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbRefactor), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -217,82 +230,4 @@ func resolveCurrentBranchOrHead() string {
 	}
 
 	return branch
-}
-
-func resolveShortHeadSha() string {
-	headSha, _ := execGitOutputCP("rev-parse", "--short", "HEAD")
-	sha := strings.TrimSpace(headSha)
-	if sha == "" {
-		return "-"
-	}
-
-	return sha
-}
-
-func handleCleanWorkingTreeCP() *apperror.AppError {
-	printPaddedInfo("Working tree clean, nothing to commit.")
-
-	unpushed := countUnpushedCommitsCP()
-	if unpushed == 0 {
-		printPaddedSuccess("Everything is up to date.")
-
-		return nil
-	}
-
-	return pushUnpushedCommitsCP(unpushed)
-}
-
-func pushUnpushedCommitsCP(unpushed int) *apperror.AppError {
-	printPaddedInfo("Pushing %d unpushed commit(s) to remote...", unpushed)
-
-	if errPush := performPushStep(); errPush != nil {
-		return errPush
-	}
-
-	printPaddedSuccess("Pushed %d commit(s) to remote.", unpushed)
-
-	return nil
-}
-
-// ExecGitInheritCP runs a git command with inherited stdio.
-func ExecGitInheritCP(gitArgs ...string) error {
-	cmd := exec.Command("git", gitArgs...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
-}
-
-// execGitOutputCP runs a git command and captures its stdout.
-func execGitOutputCP(gitArgs ...string) (string, error) {
-	cmd := exec.Command("git", gitArgs...)
-	out, err := cmd.Output()
-
-	return string(out), err
-}
-
-// execGitPadded runs a git command and indents all output lines by 2 spaces.
-func execGitPadded(gitArgs ...string) error {
-	cmd := exec.Command("git", gitArgs...)
-	stdoutPipe, err := cmd.StdoutPipe()
-	if err != nil {
-		return cmd.Run()
-	}
-
-	cmd.Stderr = cmd.Stdout
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	scanPaddedLines(stdoutPipe)
-
-	return cmd.Wait()
-}
-
-func scanPaddedLines(r io.Reader) {
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		fmt.Printf("  %s\n", scanner.Text())
-	}
 }

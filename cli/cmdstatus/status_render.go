@@ -3,6 +3,8 @@ package cmdstatus
 import (
 	"fmt"
 
+	statusconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus/constants"
+	statusenums "github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
@@ -29,12 +31,12 @@ func renderStatusTableEngine(c *statusTableContext) {
 
 func buildStatusColumns() []termout.ColumnConfig {
 	return []termout.ColumnConfig{
-		{Title: "Repository", Alignment: termout.AlignLeft},
-		{Title: "Branch", Alignment: termout.AlignLeft},
-		{Title: "Status", Alignment: termout.AlignCenter},
-		{Title: "Sync", Alignment: termout.AlignLeft},
-		{Title: "Stash", Alignment: termout.AlignRight},
-		{Title: "Files", Alignment: termout.AlignLeft},
+		{Title: statusenums.StatusTableColRepo.String(), Alignment: termout.AlignLeft},
+		{Title: statusenums.StatusTableColBranch.String(), Alignment: termout.AlignLeft},
+		{Title: statusenums.StatusTableColStatus.String(), Alignment: termout.AlignCenter},
+		{Title: statusenums.StatusTableColSync.String(), Alignment: termout.AlignLeft},
+		{Title: statusenums.StatusTableColStash.String(), Alignment: termout.AlignRight},
+		{Title: statusenums.StatusTableColFiles.String(), Alignment: termout.AlignLeft},
 	}
 }
 
@@ -58,10 +60,11 @@ func convertStatusRow(r statusRow, pastelColor string) termout.Row {
 
 func createMissingStatusRow(r statusRow, pastelColor string) termout.Row {
 	repoColored := fmt.Sprintf("%s%s%s", pastelColor, r.RepoName, constants.ColorReset)
-	missingIcon := fmt.Sprintf("%s✖ not found%s", constants.ColorRed, constants.ColorReset)
+	missingIcon := fmt.Sprintf("%s%s%s", constants.ColorRed, statusconstants.StatusNotFoundText, constants.ColorReset)
+	dash := statusconstants.StatusTableEmptyDash
 
 	return termout.Row{
-		Cells: []string{repoColored, "-", missingIcon, "-", "-", "-"},
+		Cells: []string{repoColored, dash, missingIcon, dash, dash, dash},
 	}
 }
 

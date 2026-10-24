@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -18,36 +19,53 @@ func PrintCargoInstallSuggestions() {
 // FormatCargoInstallSuggestions formats cross-platform suggestions.
 func FormatCargoInstallSuggestions(targetOS string) string {
 	var sb strings.Builder
-	sb.WriteString("\n  " + constants.ColorRed + "✗ Cargo (Rust toolchain) is not installed or not found in PATH." + constants.ColorReset + "\n\n")
-	sb.WriteString("  Recommended (Install via GitMap):\n")
-	sb.WriteString("    " + constants.ColorCyan + "gitmap install cargo" + constants.ColorReset + "\n")
-	sb.WriteString("    (or: gitmap in cargo)\n")
-	sb.WriteString("    (or: gitmap install rust)\n\n")
-	sb.WriteString("  Package Manager Fallback:\n")
-	sb.WriteString(formatFallbackCmd(targetOS))
-	sb.WriteString("  Official Rustup Installer:\n")
-	sb.WriteString("    https://rustup.rs/\n")
-	sb.WriteString("    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\n\n")
-	sb.WriteString("  Tip: Automatically install and run:\n")
-	sb.WriteString("    gitmap cargo --install <command...>\n\n")
+	writeMissingHeader(&sb)
+	writeRecommendedSuggestions(&sb)
+	writeFallbackSuggestions(&sb, targetOS)
+	writeOfficialInstaller(&sb)
+	writeAutoInstallTip(&sb)
 
 	return sb.String()
+}
+
+func writeMissingHeader(sb *strings.Builder) {
+	sb.WriteString("\n  " + constants.ColorRed + cargoconst.SuggestMissingHeader + constants.ColorReset + "\n\n")
+}
+
+func writeRecommendedSuggestions(sb *strings.Builder) {
+	sb.WriteString("  Recommended (Install via GitMap):\n")
+	sb.WriteString("    " + constants.ColorCyan + cargoconst.SuggestGitMapInstall + constants.ColorReset + "\n")
+	sb.WriteString("    (or: " + cargoconst.SuggestGitMapInCargo + ")\n")
+	sb.WriteString("    (or: " + cargoconst.SuggestGitMapInstallRust + ")\n\n")
+}
+
+func writeFallbackSuggestions(sb *strings.Builder, targetOS string) {
+	sb.WriteString("  Package Manager Fallback:\n")
+	sb.WriteString(formatFallbackCmd(targetOS))
+}
+
+func writeOfficialInstaller(sb *strings.Builder) {
+	sb.WriteString("  Official Rustup Installer:\n")
+	sb.WriteString(cargoconst.SuggestOfficialRustup)
+}
+
+func writeAutoInstallTip(sb *strings.Builder) {
+	sb.WriteString("  Tip: Automatically install and run:\n")
+	sb.WriteString("    gitmap cargo " + cargoconst.FlagLongInstall + " <command...>\n\n")
 }
 
 func formatFallbackCmd(targetOS string) string {
 	switch targetOS {
 	case constants.PlatformWindows:
-		return "    winget install Rustlang.Rustup\n    (or: choco install rust)\n\n"
+		return cargoconst.WingetInstallRust
 	case constants.PlatformDarwin:
-		return "    brew install rust\n\n"
+		return cargoconst.BrewInstallRust
 	default:
-		return "    sudo apt install -y cargo\n\n"
+		return cargoconst.AptInstallCargo
 	}
 }
 
 // NewMissingCargoError returns an AppError with code E7100.
 func NewMissingCargoError() *apperror.AppError {
-	msg := "cargo is not installed or not in PATH. Run 'gitmap install cargo' to install it."
-
-	return apperror.NewSimple(msg, "E7100")
+	return apperror.NewSimple(cargoconst.MissingCargoErrorMsg, cargoconst.ErrCodeMissingCargo)
 }

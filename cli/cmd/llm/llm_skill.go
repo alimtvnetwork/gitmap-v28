@@ -80,12 +80,23 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap replace-regex <pat> <subst>`" + ` — Regex replacement across repository.
 - ` + "`gitmap rm <pattern> [--task <id>] [--reason <msg>] [--undo]`" + ` — Safe task-based file removal with backup in OS temp and undo support.
 
-### 5. Semantic Commit & Push
-- ` + "`gitmap cpf \"<msg>\"`" + ` — Stage, commit, and push feature branch (commit-push-feature).
-- ` + "`gitmap cpb \"<msg>\"`" + ` — Stage, commit, and push bugfix branch (commit-push-bug).
-- ` + "`gitmap cpc \"<msg>\"`" + ` — Stage, commit, and push chore branch (commit-push-chore).
-- ` + "`gitmap cpr \"<msg>\"`" + ` — Stage, commit, and push release chore (commit-push-release).
+### 5. Semantic Commit & Push, CFR & Workgroup
+- ` + "`gitmap cpf \"(module): <item>\"`" + ` — Stage, commit, and push feature with uppercase FEAT(MODULE): summary (commit-push-feature).
+- ` + "`gitmap cbf \"(module): <item>\"`" + ` / ` + "`gitmap cpb`" + ` — Stage, commit, and push bugfix with uppercase FIX(MODULE): summary (commit-push-bug).
+- ` + "`gitmap cfr \"(module): <item>\"`" + ` — Stage, commit, and push refactor with uppercase REFACTOR(MODULE): summary (commit-push-refactor).
+- ` + "`gitmap cpc \"(module): <item>\"`" + ` — Stage, commit, and push chore with uppercase CHORE(MODULE): summary (commit-push-chore).
+- ` + "`gitmap cpr \"(module): <item>\"`" + ` — Stage, commit, and push release with uppercase RELEASE(MODULE): summary (commit-push-release).
 - ` + "`gitmap pcp \"<msg>\"`" + ` — Pull latest, commit, and push with preflight verification (pull-commit-push).
+- Zero third brackets: Square brackets [...] are strictly prohibited in commit titles and are automatically normalized to round parentheses.
+- ` + "`gitmap workgroup ls`" + ` (alias: ` + "`gitmap wg ls`" + `) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
+- ` + "`gitmap workgroup add <name> <dir> --ssh-key <key>`" + ` — Register folder workgroup and bind dedicated SSH private key.
+- ` + "`gitmap workgroup bind <dir> <key>`" + ` — Bind folder to specific SSH private key.
+- ` + "`gitmap workgroup test-ssh [name|dir]`" + ` — Test remote SSH handshake authentication against GitHub/GitLab.
+
+### 6. Native Toolchains & Process Termination (Rust, Cargo, Kill)
+- ` + "`gitmap cargo [args...]`" + ` (alias: ` + "`gitmap crg`" + `) — Native Cargo runner with automatic LLVM/libclang path injection and install suggestions.
+- ` + "`gitmap rust status`" + ` (alias: ` + "`gitmap rst`" + `, ` + "`gitmap rustc`" + `) — Unified Rust frontend inspecting rustc, cargo, rustup, and LLVM/libclang versions and directories.
+- ` + "`gitmap kill <pid|name|:port> [--force] [--tree]`" + ` (alias: ` + "`gitmap terminate`" + `) — Cross-platform process termination with safety guards protecting critical system processes and IDEs/shells.
 
 ### 6. Script Runners & Multi-Repo Operations
 - ` + "`gitmap py <script.py> [args...]`" + ` / ` + "`gitmap py -c \"<code>\"`" + ` (alias: ` + "`gitmap python`" + `) — Native Python runner with process exit code propagation and Split-DB telemetry recording.
@@ -185,6 +196,13 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 | Raw ` + "`Remove-Item`" + ` / ` + "`rm`" + ` | ` + "`gitmap rm <path> --task <id> --reason <text>`" + ` | Safe removal with backup & undo restoration |
 | Tight polling loop (` + "`while`" + ` / ` + "`sleep`" + `) | ` + "`gitmap pe -t --ai`" + ` / ` + "`gitmap pe -ud`" + ` | Non-blocking telemetry with dynamic ETA |
 | Manual ` + "`.git/config`" + ` identity editing | ` + "`gitmap user switch <alias> --project`" + ` | Safe profile management and project-binding persistence |
+| Raw ` + "`$env:LIBCLANG_PATH`" + ` / manual Cargo scripts | ` + "`gitmap cargo [args...]`" + ` / ` + "`gitmap rust status`" + ` | Automated LLVM/libclang discovery across Windows/Linux |
+| Raw ` + "`taskkill /F /PID`" + ` / ` + "`kill -9`" + ` | ` + "`gitmap kill <pid|name|:port>`" + ` | Cross-platform termination with IDE & shell safety guards |
+| Raw ` + "`git pull`" + ` / ` + "`git pull origin <branch>`" + ` | ` + "`gitmap pull`" + ` (fallback ` + "`git pull`" + `) | High-speed multi-phase pull with conflict detection and branch tracking |
+| Raw ` + "`git commit`" + ` / ` + "`git push`" + ` | Dedicated GitMap commit verbs (` + "`cpr`" + `, ` + "`cpc`" + `, ` + "`cbf`" + `, ` + "`cfr`" + `, ` + "`cpf`" + `) | Atomic staging, formatting, and pushing. TOTAL BAN on raw git commits |
+| Third bracket / lower commits (` + "`feat([module]): ...`" + `) | ` + "`gitmap cpf \"MODULE - summary\"`" + ` / ` + "`gitmap cpr`" + ` | Enforces uppercase TYPE(MODULE): without square brackets or colons |
+| Misusing ` + "`gitmap cpf`" + ` for releases/chores | ` + "`gitmap cpr`" + ` (releases) / ` + "`gitmap cpc`" + ` (chores) | Strict verb taxonomy: NEVER use 'cpf' for releases, chores, or bugs |
+| Manual ` + "`~/.ssh/config`" + ` per-folder host aliases | ` + "`gitmap wg add <name> <dir> --ssh-key <key>`" + ` | SQLite-backed folder and child-folder SSH inheritance |
 
 ## Authoritative Documentation Registry (For LLM Ingestion)
 
@@ -201,11 +219,12 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 ## Operational Guardrails & Recursive Learning Directives
 1. **Learning & Skill Acquisition:** Run ` + "`gitmap llm train`" + ` to initialize or update GitMap skills. Never run broad keyword searches like ` + "`gitmap aum search \"train\"`" + ` to discover how commands work.
 2. **Mandatory Self-Skill Creation:** Autonomous AI models must persist the emitted skill to ` + "`.agents/skills/gitmap/SKILL.md`" + ` before beginning development.
-3. **Mandatory Pre-Flight Pull:** Always run ` + "`git pull`" + ` before modifying code.
+3. **Mandatory Pre-Flight Pull via GitMap:** Always run ` + "`gitmap pull`" + ` (fallback ` + "`git pull`" + `) before modifying code.
 4. **Scoped Search:** Always provide target directories and extensions to ` + "`gitmap aum search`" + ` (e.g. ` + "`gitmap aum search \"target\" cli --ext .go`" + `).
 5. **Prior Mistake Prevention:** Query ` + "`gitmap pe history-ai [N]`" + ` before applying CI bug fixes to inspect previous failure patterns.
 6. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
 7. **Coding Guidelines:** Max 8–15 lines per function, single return types with ` + "`*appfault.AppError`" + `, affirmative booleans.
+8. **GitMap Commit Standards:** Use dedicated GitMap verbs ('gitmap cpr' for releases, 'gitmap cpc' for chores, 'gitmap cbf' for bug fixes, 'gitmap cfr' for refactors, 'gitmap cpf' for features). TOTAL BAN on using 'cpf' for releases or chores. TOTAL BAN on raw 'git commit', 'git add -A', square brackets '[...]', colons inside arguments, and nested conventional prefixes like 'chore(release):' in the commit argument.
 `
 
 // GenerateSkillFile writes or updates the Antigravity skill markdown file.

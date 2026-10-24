@@ -4,8 +4,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/enums"
 )
 
 func execCargo(cargoBin string, args []string) error {
@@ -24,28 +25,40 @@ func execCargo(cargoBin string, args []string) error {
 }
 
 func handleCargoExitError(err error) error {
-	exitErr, isExit := err.(*exec.ExitError)
-	if isExit {
-		cliexit.Exit(exitErr.ExitCode())
+	if exitErr, isExit := err.(*exec.ExitError); isExit {
+		return exitErr
 	}
 
 	return err
 }
 
 func enrichCargoEnv(cargoBin string) []string {
-	binDir := filepath.Dir(cargoBin)
-	currentPath := os.Getenv("PATH")
-	sep := string(os.PathListSeparator)
-	newPath := binDir + sep + currentPath
+	newPath := buildEnrichedPath(cargoBin)
 
-	env := os.Environ()
+	return injectPathEnv(os.Environ(), newPath)
+}
+
+func buildEnrichedPath(cargoBin string) string {
+	binDir := filepath.Dir(cargoBin)
+	currentPath := os.Getenv(string(enums.ToolchainEnvPath))
+	sep := string(os.PathListSeparator)
+
+	return binDir + sep + currentPath
+}
+
+func injectPathEnv(env []string, newPath string) []string {
+	targetPrefix := string(enums.ToolchainEnvPath) + "="
 	for i, e := range env {
-		if len(e) >= 5 && (e[:5] == "PATH=" || e[:5] == "Path=") {
-			env[i] = "PATH=" + newPath
+		if isPathEnvEntry(e) {
+			env[i] = targetPrefix + newPath
 
 			return env
 		}
 	}
 
-	return append(env, "PATH="+newPath)
+	return append(env, targetPrefix+newPath)
+}
+
+func isPathEnvEntry(e string) bool {
+	return len(e) >= 5 && strings.EqualFold(e[:5], "PATH=")
 }

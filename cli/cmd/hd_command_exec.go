@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
-	"runtime"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type commandExecReq struct {
@@ -77,7 +78,7 @@ func executeCLIForAPI(cmdStr string) commandExecResp {
 }
 
 func buildPlatformCmd(cmdStr string) *exec.Cmd {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return exec.Command("cmd.exe", "/C", cmdStr)
 	}
 

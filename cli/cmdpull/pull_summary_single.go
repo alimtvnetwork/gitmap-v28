@@ -13,8 +13,9 @@ import (
 func RenderSingleRepoPullSummary(state *PullRepoState, cwd string) {
 	diag := gitutil.InspectDirtyState(cwd)
 	fmt.Println(FormatSingleRepoSummaryLineWithDiag(state, cwd, diag))
+	renderIncomingPullChanges(state, cwd)
 	if diag.IsDirty {
-		renderInlineDirtyFiles(diag)
+		renderGitDirtyStatus(cwd)
 	}
 }
 
@@ -91,52 +92,6 @@ func resolveCleanDirtySummaryWithDiag(state *PullRepoState, diag gitutil.DirtyDi
 	}
 
 	return true, fmt.Sprintf("dirty: %s", reason)
-}
-
-func renderInlineDirtyFiles(diag gitutil.DirtyDiagnosis) {
-	for _, line := range formatInlineDirtyFiles(diag) {
-		fmt.Println(line)
-	}
-}
-
-func formatInlineDirtyFiles(diag gitutil.DirtyDiagnosis) []string {
-	var lines []string
-	seen := make(map[string]bool)
-
-	for _, f := range diag.StagedFiles {
-		clean := filepath.ToSlash(f)
-		key := "+:" + clean
-		if !seen[key] {
-			seen[key] = true
-			lines = append(lines, fmt.Sprintf("  %-2s %s", "+", clean))
-		}
-	}
-	for _, f := range diag.ModifiedFiles {
-		clean := filepath.ToSlash(f)
-		key := "M:" + clean
-		if !seen[key] {
-			seen[key] = true
-			lines = append(lines, fmt.Sprintf("  %-2s %s", "M", clean))
-		}
-	}
-	for _, f := range diag.DeletedFiles {
-		clean := filepath.ToSlash(f)
-		key := "D:" + clean
-		if !seen[key] {
-			seen[key] = true
-			lines = append(lines, fmt.Sprintf("  %-2s %s", "D", clean))
-		}
-	}
-	for _, f := range diag.UntrackedFiles {
-		clean := filepath.ToSlash(f)
-		key := "??:" + clean
-		if !seen[key] {
-			seen[key] = true
-			lines = append(lines, fmt.Sprintf("  %-2s %s", "??", clean))
-		}
-	}
-
-	return lines
 }
 
 func resolveSummaryRepoName(state *PullRepoState, cwd string) string {

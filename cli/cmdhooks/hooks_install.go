@@ -3,109 +3,168 @@ package cmdhooks
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	apperror "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhooks/enums"
 )
-
-const hooksInstallHelp = `hooks install — install the commit-msg guard hook across repos.
-
-Description:
-  Installs the house commit-msg guard (no colons in the subject line)
-  into every repo in the workdir. Safe by default: --dry-run prints the
-  plan; a real install only happens with --yes.
-
-Usage:
-  gitmap hooks install --all [--workdir <dir>] [--dry-run] [--yes]
-  gitmap hkin --all [--yes]
-
-Flags:
-  --all           required: target all repos in the workdir
-  --workdir <dir> repo workdir (default: $GITMAP_WORKDIR or ~/workspace/repos)
-  --dry-run       print the install plan without writing (default: true)
-  --yes           actually install the hooks
-  --help, -h      show this help
-
-Example:
-  gitmap hooks install --all --dry-run
-`
 
 // hookPlan is the per-repo install decision.
 type hookPlan struct {
 	repo   string
-	action string
+	action enums.HookPlanActionType
 	detail string
 }
 
-// RunHooksInstall implements `gitmap hooks install --all` (alias: hkin).
-func RunHooksInstall(args []string) *appfault.AppError {
+type installOptions struct {
+	isAll    bool
+	workdir  string
+	isDryRun bool
+	hasYes   bool
+}
+
+type flagPointers struct {
+	all     *bool
+	workdir *string
+	dryRun  *bool
+	yes     *bool
+}
+
+type planStats struct {
+	installed int
+	skipped   int
+	already   int
+}
+
+func hasHelpArg(args []string) bool {
 	for _, a := range args {
-		if a == "--help" || a == "-h" {
-			fmt.Print(hooksInstallHelp)
-			return nil
+		if a == constants.FlagArgHelp || a == constants.FlagArgHelpShort {
+			return true
 		}
 	}
-	fs := flag.NewFlagSet("hooks install", flag.ContinueOnError)
-	allFlag := fs.Bool("all", false, "target all repos in the workdir")
-	workdirFlag := fs.String("workdir", "", "repo workdir")
-	dryRun := fs.Bool("dry-run", true, "print the plan without installing")
-	yes := fs.Bool("yes", false, "actually install the hooks")
+
+	return false
+}
+
+func setupInstallFlagSet() (*flag.FlagSet, flagPointers) {
+	fs := flag.NewFlagSet(constants.FlagSetHooksInstall, flag.ContinueOnError)
+	fps := flagPointers{
+		all:     fs.Bool(constants.FlagAll, false, constants.FlagDescAll),
+		workdir: fs.String(constants.FlagWorkdir, "", constants.FlagDescWorkdir),
+		dryRun:  fs.Bool(constants.FlagDryRun, true, constants.FlagDescDryRun),
+		yes:     fs.Bool(constants.FlagYes, false, constants.FlagDescYes),
+	}
+
+	return fs, fps
+}
+
+func parseInstallFlags(args []string) (installOptions, *appfault.AppError) {
+	fs, fps := setupInstallFlagSet()
 	if parseErr := fs.Parse(args); parseErr != nil {
-		fmt.Print(hooksInstallHelp)
-		return apperror.WrapSimple(parseErr, "hooks.install.flags")
+		fmt.Print(constants.HelpTextHooksInstall)
+
+		return installOptions{}, apperror.WrapSimple(parseErr, constants.ErrWrapFlags)
 	}
-	if !*allFlag {
-		fmt.Print(hooksInstallHelp)
-		return appfault.NewValidationError("missing required flag: --all")
+	if !*fps.all {
+		fmt.Print(constants.HelpTextHooksInstall)
+
+		return installOptions{}, appfault.NewValidationError(constants.ErrMissingAllFlag)
 	}
 
-	workdir := resolveHooksWorkdir(*workdirFlag)
-	repos := listHookRepos(workdir)
-	if len(repos) == 0 {
-		fmt.Printf("hooks install: no git repos found in %s\n", workdir)
-		return nil
+	return installOptions{
+		isAll:    *fps.all,
+		workdir:  *fps.workdir,
+		isDryRun: *fps.dryRun && !*fps.yes,
+		hasYes:   *fps.yes,
+	}, nil
+}
+
+func countPlanStats(plans []hookPlan) planStats {
+	var stats planStats
+	for _, p := range plans {
+		switch p.action {
+		case enums.HookPlanActionInstall:
+			stats.installed++
+		case enums.HookPlanActionAlready:
+			stats.already++
+		default:
+			stats.skipped++
+		}
 	}
 
+	return stats
+}
+
+func printInstallPlan(plans []hookPlan, stats planStats) {
+	fmt.Printf(constants.MsgPlanHeaderFmt, len(plans), stats.installed, stats.already, stats.skipped)
+	for _, p := range plans {
+		fmt.Printf(constants.MsgPlanRowFmt, p.action, p.repo, p.detail)
+	}
+}
+
+func buildHookPlans(workdir string, repos []string) []hookPlan {
 	plans := make([]hookPlan, 0, len(repos))
 	for _, repo := range repos {
 		plans = append(plans, planHookInstall(workdir, repo))
 	}
 
-	isDryRun := *dryRun && !*yes
-	installed := 0
-	skipped := 0
-	already := 0
-	for _, p := range plans {
-		switch p.action {
-		case "install":
-			installed++
-		case "already":
-			already++
-		default:
-			skipped++
-		}
-	}
-	fmt.Printf("hooks install plan: %d repos (%d would install, %d already guarded, %d skipped)\n",
-		len(plans), installed, already, skipped)
-	for _, p := range plans {
-		fmt.Printf("  %-9s %-32s %s\n", p.action, p.repo, p.detail)
-	}
+	return plans
+}
 
-	if isDryRun {
-		fmt.Println("dry-run: no hooks were installed. re-run with --yes to install.")
+// RunHooksInstall implements `gitmap hooks install --all` (alias: hkin).
+func RunHooksInstall(args []string) *appfault.AppError {
+	if hasHelpArg(args) {
+		fmt.Print(constants.HelpTextHooksInstall)
+
 		return nil
 	}
 
+	opts, err := parseInstallFlags(args)
+	if err != nil {
+		return err
+	}
+
+	return executeHookInstallFlow(opts)
+}
+
+func executeHookInstallFlow(opts installOptions) *appfault.AppError {
+	workdir := resolveHooksWorkdir(opts.workdir)
+	repos := listHookRepos(workdir)
+	if len(repos) == 0 {
+		fmt.Printf(constants.MsgNoReposFoundFmt, workdir)
+
+		return nil
+	}
+
+	return runPlanExecution(workdir, repos, opts.isDryRun)
+}
+
+func runPlanExecution(workdir string, repos []string, isDryRun bool) *appfault.AppError {
+	plans := buildHookPlans(workdir, repos)
+	stats := countPlanStats(plans)
+	printInstallPlan(plans, stats)
+
+	if isDryRun {
+		fmt.Println(constants.MsgDryRunNotice)
+
+		return nil
+	}
+
+	return finalizeHookInstalls(plans, workdir, stats)
+}
+
+func finalizeHookInstalls(plans []hookPlan, workdir string, stats planStats) *appfault.AppError {
 	written, writeErr := applyHookInstalls(plans, workdir)
 	if writeErr != nil {
 		return writeErr
 	}
-	fmt.Printf("hooks install: installed commit-msg guard in %d/%d repos (%d already had it, %d skipped).\n",
-		written, len(plans), already, skipped)
+
+	fmt.Printf(constants.MsgInstallSummaryFmt, written, len(plans), stats.already, stats.skipped)
 
 	return nil
 }
@@ -115,15 +174,16 @@ func resolveHooksWorkdir(flagVal string) string {
 	if strings.TrimSpace(flagVal) != "" {
 		return flagVal
 	}
-	if envVal := strings.TrimSpace(os.Getenv("GITMAP_WORKDIR")); envVal != "" {
+	if envVal := strings.TrimSpace(os.Getenv(constants.EnvGitmapWorkdir)); envVal != "" {
 		return envVal
 	}
+
 	home, homeErr := os.UserHomeDir()
 	if homeErr != nil {
-		return "."
+		return constants.SentinelCurrentDir
 	}
 
-	return filepath.Join(home, "workspace", "repos")
+	return filepath.Join(home, constants.DefaultWorkspaceDir, constants.DefaultReposDir)
 }
 
 // listHookRepos enumerates workdir directories containing a .git dir.
@@ -132,50 +192,91 @@ func listHookRepos(workdir string) []string {
 	if readErr != nil {
 		return nil
 	}
+
+	return filterGitRepos(workdir, entries)
+}
+
+func filterGitRepos(workdir string, entries []os.DirEntry) []string {
 	var repos []string
 	for _, e := range entries {
-		if !e.IsDir() {
-			continue
+		if hasRepoGitDir(workdir, e) {
+			repos = append(repos, e.Name())
 		}
-		full := filepath.Join(workdir, e.Name())
-		if _, statErr := os.Stat(filepath.Join(full, ".git")); statErr != nil {
-			continue
-		}
-		repos = append(repos, e.Name())
 	}
+
 	sort.Strings(repos)
 
 	return repos
 }
 
-// planHookInstall decides the action for one repo.
-func planHookInstall(workdir, repo string) hookPlan {
-	hookPath := filepath.Join(workdir, repo, ".git", "hooks", "commit-msg")
-	if isGuardInstalled(hookPath) {
-		return hookPlan{repo: repo, action: "already", detail: "guard already installed"}
+func hasRepoGitDir(workdir string, e os.DirEntry) bool {
+	if !e.IsDir() {
+		return false
 	}
 
-	return hookPlan{repo: repo, action: "install", detail: ".git/hooks/commit-msg"}
+	full := filepath.Join(workdir, e.Name(), constants.DirGit)
+	_, statErr := os.Stat(full)
+
+	return statErr == nil
+}
+
+// planHookInstall decides the action for one repo.
+func planHookInstall(workdir, repo string) hookPlan {
+	hookPath := filepath.Join(workdir, repo, constants.DirGit, constants.DirHooks, constants.FileCommitMsg)
+	if isGuardInstalled(hookPath) {
+		return hookPlan{
+			repo:   repo,
+			action: enums.HookPlanActionAlready,
+			detail: constants.DetailAlreadyGuarded,
+		}
+	}
+
+	return hookPlan{
+		repo:   repo,
+		action: enums.HookPlanActionInstall,
+		detail: constants.PathHookCommitMsg,
+	}
+}
+
+func installSingleHook(workdir, repo string) (bool, *appfault.AppError) {
+	hookPath := filepath.Join(workdir, repo, constants.DirGit, constants.DirHooks, constants.FileCommitMsg)
+	if isGuardInstalled(hookPath) {
+		return false, nil
+	}
+
+	if writeErr := writeGuardHook(hookPath, repo); writeErr != nil {
+		return false, writeErr
+	}
+
+	return true, nil
 }
 
 // applyHookInstalls writes the guard hook for planned repos.
 func applyHookInstalls(plans []hookPlan, workdir string) (int, *appfault.AppError) {
 	written := 0
 	for _, p := range plans {
-		if p.action != "install" {
+		if !p.action.IsInstall() {
 			continue
 		}
-		hookPath := filepath.Join(workdir, p.repo, ".git", "hooks", "commit-msg")
-		if isGuardInstalled(hookPath) {
-			continue
+
+		hasWritten, err := installSingleHook(workdir, p.repo)
+		if err != nil {
+			return written, err
 		}
-		if writeErr := os.WriteFile(hookPath, []byte(commitMsgGuard), 0755); writeErr != nil {
-			return written, apperror.WrapSimple(writeErr, "hooks.install.write: "+p.repo)
+		if hasWritten {
+			written++
 		}
-		written++
 	}
 
 	return written, nil
+}
+
+func writeGuardHook(hookPath, repo string) *appfault.AppError {
+	if writeErr := os.WriteFile(hookPath, []byte(constants.CommitMsgGuardTemplate), constants.HookFilePerm); writeErr != nil {
+		return apperror.WrapSimple(writeErr, constants.ErrWrapWritePrefix+repo)
+	}
+
+	return nil
 }
 
 // isGuardInstalled reports whether our guard already occupies hookPath.
@@ -185,5 +286,5 @@ func isGuardInstalled(hookPath string) bool {
 		return false
 	}
 
-	return strings.Contains(string(data), guardMarker)
+	return strings.Contains(string(data), constants.GuardMarker)
 }

@@ -6,29 +6,52 @@ import (
 	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs/enums"
 )
 
-// runDocs opens the documentation website in the default browser.
-func RunDocs(args []string) error {
-	checkHelp("docs", args)
+var startCmdFn = func(cmd *exec.Cmd) error {
+	return cmd.Start()
+}
 
-	url := constants.DocsURL
+// ResolveViewerMode returns the default documentation viewing mode.
+func ResolveViewerMode() enums.DocsViewerModeType {
+	return enums.DocsViewerModeBrowser
+}
 
-	var cmd *exec.Cmd
-
-	switch runtime.GOOS {
+// resolveBrowserCmd constructs an exec.Cmd for the specified OS and URL.
+func resolveBrowserCmd(goos string, url string) *exec.Cmd {
+	switch goos {
 	case constants.OSWindows:
-		cmd = exec.Command(constants.CmdWindowsShell, constants.CmdArgSlashC, constants.CmdArgStart, url)
+		return exec.Command(constants.CmdWindowsShell, constants.CmdArgSlashC, constants.CmdArgStart, url)
 	case constants.OSDarwin:
-		cmd = exec.Command(constants.CmdOpen, url)
+		return exec.Command(constants.CmdOpen, url)
 	default:
-		cmd = exec.Command(constants.CmdXdgOpen, url)
+		return exec.Command(constants.CmdXdgOpen, url)
 	}
+}
 
-	err := cmd.Start()
+// launchBrowser executes the platform-specific browser launcher command.
+func launchBrowser(url string) error {
+	cmd := resolveBrowserCmd(runtime.GOOS, url)
+	err := startCmdFn(cmd)
+
 	if err != nil {
 		return apperror.WrapSimple(err, constants.ErrDocsOpen)
+	}
+
+	return nil
+}
+
+// RunDocs opens the documentation website in the default browser.
+func RunDocs(args []string) error {
+	checkHelp(constants.CmdDocs, args)
+
+	url := constants.DocsURL
+	err := launchBrowser(url)
+
+	if err != nil {
+		return err
 	}
 
 	fmt.Printf(constants.MsgDocsOpened, url)

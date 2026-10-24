@@ -3,8 +3,9 @@ package cmdcargo
 import (
 	"strings"
 
+	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // CheckHelpFn delegates help checking.
@@ -12,7 +13,7 @@ var CheckHelpFn func(command string, args []string)
 
 // RunCargo is the main entry point for the gitmap cargo / crg command.
 func RunCargo(args []string) error {
-	checkHelp("cargo", args)
+	checkHelp(cargoconst.CmdCargo, args)
 	if len(args) == 0 {
 		return runCargoDefault()
 	}
@@ -29,33 +30,45 @@ func RunCargo(args []string) error {
 }
 
 func isStatusSubcommand(sub string) bool {
-	return sub == "status" || sub == "st" || sub == "info"
+	sc, err := enums.ParseCargoSubcommandType(sub)
+	if err != nil {
+		return false
+	}
+
+	return sc.IsStatus()
 }
 
 func isInstallSubcommand(sub string) bool {
-	return sub == "install" || sub == "in"
+	sc, err := enums.ParseCargoSubcommandType(sub)
+	if err != nil {
+		return false
+	}
+
+	return sc.IsInstall()
 }
 
 func runCargoDefault() error {
 	cargoBin := ResolveCargoBinary()
 	if cargoBin == "" {
 		PrintCargoInstallSuggestions()
+
 		return NewMissingCargoError()
 	}
 
-	return execCargo(cargoBin, []string{"--help"})
+	return execCargo(cargoBin, []string{cargoconst.FlagLongHelp})
 }
 
 func dispatchCargoExecution(args []string) error {
 	cleanArgs, hasInstall := extractInstallFlag(args)
 	cargoBin := ResolveCargoBinary()
 	if cargoBin == "" && hasInstall {
-		_ = runCargoInstall([]string{"--yes"})
+		_ = runCargoInstall([]string{cargoconst.FlagLongYes})
 		cargoBin = ResolveCargoBinary()
 	}
 
 	if cargoBin == "" {
 		PrintCargoInstallSuggestions()
+
 		return NewMissingCargoError()
 	}
 
@@ -63,7 +76,7 @@ func dispatchCargoExecution(args []string) error {
 }
 
 func runCargoInstall(rest []string) error {
-	return cmdinstall.RunInstall(append([]string{constants.ToolCargo}, rest...))
+	return cmdinstall.RunInstall(append([]string{cargoconst.BinCargo}, rest...))
 }
 
 func checkHelp(cmd string, args []string) {

@@ -1,5 +1,72 @@
 # Changelog
 
+## [v6.608.0] - 2026-10-24
+
+### Added
+- fix heatmap ModelName and ToolName column migration
+
+---
+
+## [v6.607.1] - 2026-10-24
+
+### Added
+- Synchronize prompts, skills, AI scripts, and coding guidelines
+
+---
+
+## [v6.607.0] - 2026-10-24
+
+### Added
+- **Incoming Pulled Changes Diffstat**: Automatically renders the detailed `git diff --stat` of all incoming commits integrated by `gitmap pull`, listing modified files and line deltas.
+- **Git Status on Dirty Working Tree**: Renders standard Git short status (`git status --short`) with ANSI color-coding for dirty working trees, displaying staged, modified, deleted, and untracked files with full fidelity.
+- **Repository Path First Tree Header**: Formats the initial command execution header with the exact filesystem repository path (`-> <repoPath>`), eliminating redundant command echoing.
+
+---
+
+## [v6.606.0] - 2026-10-24
+
+### Fixed
+- **Single-Repo Pull Isolation (`gitmap pull`)**: Fixed `gitmap pull` without arguments inside a repository directory (`cwd`) to pull exclusively the active repository instead of defaulting to `pull-all` across all cataloged workspaces.
+- **Dynamic Invocation Target Scope**: Enhanced `printPullInvocationHeader` to dynamically resolve target scope `(repo-name)` from working directory or arguments, reserving `(all workspaces)` strictly for explicit `gitmap pull-all`, `pa`, or non-git fallback directory contexts.
+- **Direct Filesystem Path Resolution**: Enhanced target slug resolver to automatically detect and pull direct filesystem directory paths matching existing Git repositories without requiring prior SQLite catalog enrollment.
+
+---
+
+## [v6.605.0] - 2026-10-24
+
+### Added
+- Native toolchains (cargo, rust, kill), uppercase conventional commits, and error management alignment
+
+---
+
+## [v6.604.0] - 2026-10-24
+
+### Added
+- Folder-specific work directory and SSH automation with bracketed commit formatter
+
+---
+
+## [v6.603.0] - 2026-10-24
+
+### Added
+- feat([workgroup]): folder-specific workdirs and ssh automation
+
+---
+
+## [v6.602.0] - 2026-10-24
+
+### Added
+- use git saved credentials instead of hardcoded fallback in conflict recovery
+
+---
+
+## [v6.601.0] - 2026-10-24
+
+### Added
+- fix(pipeline): resolve gosec G115 integer overflow and enhance unmerged conflict auto-recovery
+
+---
+
 ## [v6.600.0] - 2026-10-24
 
 ### Added

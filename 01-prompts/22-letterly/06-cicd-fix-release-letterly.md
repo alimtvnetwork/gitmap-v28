@@ -17,7 +17,7 @@ Format input text according to exact CI/CD fix and minor release template below 
    - Item 6: `6. Apply surgical code fixes directly resolving the root cause without disabling any CI checks`
    - Item 7: `7. Verify fixes locally with targeted file linters (05-guideline-autofixer.py, check-prompts-loaded.py)`
    - Item 8: `8. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"`
-   - Item 9: `9. Commit atomically via gitmap cpf, tag release, and loop until CI/CD is completely green`
+   - Item 9: `9. Commit atomically via gitmap cpr, tag release, and loop until CI/CD is completely green`
 6. Append mandatory skill invocation suffix `[ci-cd-fix-gitmap-release](file;.agents/skills/ci-cd-fix-gitmap-release)`.
 7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
 8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
@@ -43,7 +43,7 @@ ${Input Text Verbatim}
 6. Apply surgical code fixes directly resolving the root cause without disabling any CI checks
 7. Verify fixes locally with targeted file linters (05-guideline-autofixer.py, check-prompts-loaded.py)
 8. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"
-9. Commit atomically via gitmap cpf, tag release, and loop until CI/CD is completely green
+9. Commit atomically via gitmap cpr, tag release, and loop until CI/CD is completely green
 
 ## Must follow and spawn agent using
 

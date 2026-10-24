@@ -23,6 +23,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -44,7 +45,7 @@ func canonicalStatsOverall(t *testing.T) (model.OverallStats, []model.CommandSta
 			LastUsed:     "2026-05-26T08:30:00Z",
 		},
 		{
-			Command:      "stats",
+			Command:      constants.CmdStats,
 			TotalRuns:    2,
 			SuccessCount: 2,
 			FailCount:    0,
@@ -96,7 +97,7 @@ func TestStatsJSONContract_KeyOrder(t *testing.T) {
 		t.Fatalf("encode: %v", err)
 	}
 
-	stAssertSchemaKeysFirstObject(t, buf.Bytes(), "stats")
+	stAssertSchemaKeysFirstObject(t, buf.Bytes(), constants.CmdStats)
 }
 
 // --- local test helpers (minimal equivalents of cmd's infra) ---
@@ -109,22 +110,37 @@ func stPackageDir() string {
 	return filepath.Dir(file)
 }
 
+func stUpdateGolden(t *testing.T, path string, got []byte) {
+	t.Helper()
+
+	err := os.MkdirAll(filepath.Dir(path), 0o755)
+	if err != nil {
+		t.Fatalf("mkdir testdata: %v", err)
+	}
+
+	err = os.WriteFile(path, got, 0o644)
+	if err != nil {
+		t.Fatalf("write golden %s: %v", path, err)
+	}
+}
+
 func stAssertGoldenBytes(t *testing.T, name string, got []byte) {
 	t.Helper()
+
 	path := filepath.Join(stPackageDir(), "testdata", name)
-	if os.Getenv("GITMAP_UPDATE_GOLDEN") == "1" && os.Getenv("GITMAP_ALLOW_GOLDEN_UPDATE") == "1" {
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-			t.Fatalf("mkdir testdata: %v", err)
-		}
-		if err := os.WriteFile(path, got, 0o644); err != nil {
-			t.Fatalf("write golden %s: %v", path, err)
-		}
+
+	hasGoldenUpdate := os.Getenv("GITMAP_UPDATE_GOLDEN") == "1" && os.Getenv("GITMAP_ALLOW_GOLDEN_UPDATE") == "1"
+	if hasGoldenUpdate {
+		stUpdateGolden(t, path, got)
+
 		return
 	}
+
 	want, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read golden %s: %v", path, err)
 	}
+
 	if !bytes.Equal(got, want) {
 		t.Fatalf("golden mismatch for %s", name)
 	}

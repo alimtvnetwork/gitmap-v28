@@ -2,22 +2,14 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	storeconstants "github.com/alimtvnetwork/gitmap-v28/cli/store/constants"
 )
-
-var sqlitePragmas = []string{
-	constants.SQLPragmaBusyTimeout5s,
-	constants.SQLPragmaJournalWAL,
-	constants.SQLPragmaSynchronousNor,
-	constants.SQLEnableFK,
-}
 
 // OpenSQLiteDB opens a SQLite database and applies connection limits and pragmas.
 func OpenSQLiteDB(path string) (*sql.DB, *apperror.AppError) {
-	conn, err := sql.Open("sqlite", path)
+	conn, err := sql.Open(storeconstants.DriverSQLite, path)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "OpenSQLiteDB.open")
 	}
@@ -32,18 +24,8 @@ func OpenSQLiteDB(path string) (*sql.DB, *apperror.AppError) {
 }
 
 // ConfigureSQLiteConn sets connection limits and configures standard SQLite PRAGMAs.
-func ConfigureSQLiteConn(conn *sql.DB) error {
+func ConfigureSQLiteConn(conn *sql.DB) *apperror.AppError {
 	conn.SetMaxOpenConns(1)
 
-	return applySQLitePragmas(conn)
-}
-
-func applySQLitePragmas(conn *sql.DB) error {
-	for _, pragma := range sqlitePragmas {
-		if _, err := conn.Exec(pragma); err != nil {
-			return apperror.WrapSimple(err, fmt.Sprintf("apply sqlite pragma %q", pragma))
-		}
-	}
-
-	return nil
+	return storeconstants.ApplyDefaultPragmas(conn)
 }

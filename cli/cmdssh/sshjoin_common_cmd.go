@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/spf13/cobra"
 )
 
@@ -50,29 +51,38 @@ func parseSJCFlags(args []string) (SSHCommonJoinOptions, error) {
 	idx := 0
 	for idx < len(args) {
 		a := args[idx]
-		if (a == "--pass" || a == "-p") && idx+1 < len(args) {
+		if (a == constants.FlagPassword || a == constants.FlagPasswordShort) && idx+1 < len(args) {
 			opts.Password = args[idx+1]
 			idx += 2
+
 			continue
 		}
-		if a == "--port" && idx+1 < len(args) {
+
+		if a == constants.FlagPort && idx+1 < len(args) {
 			opts.Port = parsePortArg(args[idx+1], opts.Port)
 			idx += 2
+
 			continue
 		}
-		if a == "--json" {
+
+		if constants.IsJSONFlag(a) {
 			opts.IsJSON = true
 			idx++
+
 			continue
 		}
-		if a == "--dry-run" || a == "-d" {
+
+		if constants.IsDryRunFlag(a) {
 			opts.DryRun = true
 			idx++
+
 			continue
 		}
-		if a == "-h" || a == "--help" || a == "help" {
+
+		if constants.IsHelpFlag(a) {
 			opts.IsHelpRequested = true
 			idx++
+
 			continue
 		}
 		if strings.HasPrefix(a, "--pass=") {

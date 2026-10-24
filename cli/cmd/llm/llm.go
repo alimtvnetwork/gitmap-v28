@@ -40,7 +40,7 @@ When an autonomous AI Agent is assigned a coding, refactoring, or debugging task
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
   │  Phase 4: Semantic Commit & Push                            │
-  │  ➔ gitmap commit-push-feature (cpf), commit-push-bug (cpb)  │
+  │  ➔ gitmap commit-push-feature (cpf), commit-push-bug (cpb/cbf) │
   └──────────────────────────────┬──────────────────────────────┘
                                  ▼
   ┌─────────────────────────────────────────────────────────────┐
@@ -193,8 +193,9 @@ Instead of scanning entire directory trees or reading large files into context:
 | **Find File (Prefix)**| ` + "`gitmap find-files-startswith`" + ` | ` + "`gitmap ffs <prefix>`" + ` | Match prefix in filename |
 | **Find File (Suffix)**| ` + "`gitmap find-files-endswith`" + ` | ` + "`gitmap ffe <suffix>`" + ` | Match suffix in filename (e.g. _test.go) |
 | **Commit Feature** | ` + "`gitmap commit-push-feature`" + ` | ` + "`gitmap cpf \"<msg>\"`" + ` | Stage, commit, and push feature branch |
-| **Commit Bug Fix** | ` + "`gitmap commit-push-bug`" + ` | ` + "`gitmap cpb \"<msg>\"`" + ` | Stage, commit, and push bugfix branch |
+| **Commit Bug Fix** | ` + "`gitmap commit-push-bug`" + ` | ` + "`gitmap cpb \"<msg>\"`, `gitmap cbf`" + ` | Stage, commit, and push bugfix branch |
 | **Commit Release** | ` + "`gitmap commit-push-release`" + ` | ` + "`gitmap cpr \"<msg>\"`" + ` | Stage, commit, and push release chore |
+| **Workgroup & SSH** | ` + "`gitmap workgroup`" + ` | ` + "`gitmap wg`, `gitmap group`" + ` | Folder work directories & SSH key automation |
 | **Pull & Push** | ` + "`gitmap pull-commit-push`" + ` | ` + "`gitmap pcp \"<msg>\"`" + ` | Pull latest, commit, and push |
 | **Antigravity** | ` + "`gitmap antigravity`" + ` | ` + "`gitmap agy`, `gitmap ag`" + ` | AI agent workspaces and config sync |
 | **VS Code PM** | ` + "`gitmap vscode`" + ` | ` + "`gitmap vsc`" + ` | VS Code Project Manager integrations |

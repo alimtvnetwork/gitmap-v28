@@ -9,7 +9,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/enums"
+	rootconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
@@ -20,20 +22,16 @@ func isSSHForwardCandidate(args []string) bool {
 		return false
 	}
 
-	return strutil.EqualFoldAny(
-		args[0],
-		"fix-auth", "login", "host", "hosts", "nodes",
-		"enable", "port", "troubleshoot", "key", "copy-id", "auth-key",
-	)
+	return strutil.EqualFoldAny(args[0], constants.AllSSHForwardCandidates()...)
 }
 
-// runStats handles the "stats" subcommand.
+// RunStats handles the "stats" subcommand.
 func RunStats(args []string) error {
 	if isSSHForwardCandidate(args) {
 		return cmdssh.RunSSH(args)
 	}
 
-	checkHelp("stats", args)
+	checkHelp(constants.CmdStats, args)
 	cmdFilter, isJSON := parseStatsFlags(args)
 	overall, commands := loadStats(cmdFilter)
 	printStatsOutput(overall, commands, isJSON)
@@ -41,9 +39,19 @@ func RunStats(args []string) error {
 	return nil
 }
 
+// resolveStatsFormat maps flag state to a typed output format enum.
+func resolveStatsFormat(isJSON bool) enums.StatsOutputFormatType {
+	if isJSON {
+		return enums.StatsOutputFormatJSON
+	}
+
+	return enums.StatsOutputFormatTable
+}
+
 // printStatsOutput routes stats to JSON or terminal format.
 func printStatsOutput(overall model.OverallStats, commands []model.CommandStats, isJSON bool) {
-	if isJSON {
+	outputFormat := resolveStatsFormat(isJSON)
+	if outputFormat.IsJSON() {
 		printStatsJSON(overall, commands)
 
 		return
@@ -55,8 +63,8 @@ func printStatsOutput(overall model.OverallStats, commands []model.CommandStats,
 // parseStatsFlags parses --command and --json flags.
 func parseStatsFlags(args []string) (string, bool) {
 	fs := flag.NewFlagSet(constants.CmdStats, flag.ExitOnError)
-	command := fs.String("command", "", constants.FlagDescStatsCommand)
-	jsonFlag := fs.Bool("json", false, constants.FlagDescLBJSON)
+	command := fs.String(constants.FlagCommand, "", constants.FlagDescStatsCommand)
+	jsonFlag := fs.Bool(constants.FlagJSON, false, rootconstants.FlagDescLBJSON)
 	fs.Parse(args)
 
 	return *command, *jsonFlag
@@ -65,15 +73,15 @@ func parseStatsFlags(args []string) (string, bool) {
 func handleOpenDBError(err error) {
 	appErr := apperror.WrapWithDetails(
 		err,
-		"cmd.stats.openDB",
-		"E1154",
-		fmt.Sprintf(constants.ErrStatsQuery, err),
-		"cmd.stats",
+		constants.OpStatsOpenDB,
+		constants.ErrCodeE1154,
+		fmt.Sprintf(rootconstants.ErrStatsQuery, err),
+		constants.DomainStats,
 		apperror.ErrorTypeExecution,
 		apperror.SeverityFatal,
 		nil,
 	)
-	cliexit.HandleError(appErr, 1)
+	cliexit.HandleError(appErr, constants.ExitGeneralError)
 }
 
 // loadStats fetches aggregated stats from the database.
@@ -119,25 +127,25 @@ func loadStatsCommands(db statsQuerier, cmdFilter string) []model.CommandStats {
 // printStatsRows prints all per-command stats rows.
 func printStatsRows(commands []model.CommandStats) {
 	for _, s := range commands {
-		fmt.Printf(constants.MsgStatsRowFmt, s.Command, s.TotalRuns, s.SuccessCount,
+		fmt.Printf(rootconstants.MsgStatsRowFmt, s.Command, s.TotalRuns, s.SuccessCount,
 			s.FailCount, s.FailRate, s.AvgDuration, s.MinDuration, s.MaxDuration, s.LastUsed)
 	}
 }
 
 // printStatsHeader prints the overall summary and table header.
 func printStatsHeader(overall model.OverallStats) {
-	fmt.Println(constants.MsgStatsHeader)
-	fmt.Println(constants.MsgStatsSeparator)
-	fmt.Printf(constants.MsgStatsOverallFmt, overall.TotalCommands, overall.UniqueCommands,
+	fmt.Println(rootconstants.MsgStatsHeader)
+	fmt.Println(rootconstants.MsgStatsSeparator)
+	fmt.Printf(rootconstants.MsgStatsOverallFmt, overall.TotalCommands, overall.UniqueCommands,
 		overall.TotalSuccess, overall.TotalFail, overall.OverallFailRate, overall.AvgDuration)
-	fmt.Println(constants.MsgStatsSeparator)
-	fmt.Println(constants.MsgStatsColumns)
+	fmt.Println(rootconstants.MsgStatsSeparator)
+	fmt.Println(rootconstants.MsgStatsColumns)
 }
 
 // printStatsTerminal prints stats in table format.
 func printStatsTerminal(overall model.OverallStats, commands []model.CommandStats) {
 	if overall.TotalCommands == 0 {
-		fmt.Print(constants.MsgStatsEmpty)
+		fmt.Print(rootconstants.MsgStatsEmpty)
 
 		return
 	}
@@ -152,7 +160,7 @@ func printStatsJSON(overall model.OverallStats, commands []model.CommandStats) {
 	data, err := json.MarshalIndent(overall, "", "  ")
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "  ✗ Failed to marshal stats to JSON: %v\n", err)
+		fmt.Fprintf(os.Stderr, constants.ErrStatsJSONMarshalFmt, err)
 
 		return
 	}
@@ -163,29 +171,29 @@ func printStatsJSON(overall model.OverallStats, commands []model.CommandStats) {
 func handleStatsLegacyError(err error) {
 	appErr := apperror.WrapWithDetails(
 		err,
-		"cmd.stats.legacyData",
-		"E1155",
-		constants.MsgLegacyProjectData,
-		"cmd.stats",
+		constants.OpStatsLegacyData,
+		constants.ErrCodeE1155,
+		rootconstants.MsgLegacyProjectData,
+		constants.DomainStats,
 		apperror.ErrorTypeExecution,
 		apperror.SeverityError,
 		nil,
 	)
-	cliexit.HandleError(appErr, 1)
+	cliexit.HandleError(appErr, constants.ExitGeneralError)
 }
 
 func handleStatsQueryError(err error) {
 	appErr := apperror.WrapWithDetails(
 		err,
-		"cmd.stats.query",
-		"E1156",
-		fmt.Sprintf(constants.ErrStatsQuery, err),
-		"cmd.stats",
+		constants.OpStatsQuery,
+		constants.ErrCodeE1156,
+		fmt.Sprintf(rootconstants.ErrStatsQuery, err),
+		constants.DomainStats,
 		apperror.ErrorTypeExecution,
 		apperror.SeverityError,
 		nil,
 	)
-	cliexit.HandleError(appErr, 1)
+	cliexit.HandleError(appErr, constants.ExitGeneralError)
 }
 
 func handleStatsError(err error) {

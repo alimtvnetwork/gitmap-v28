@@ -3,6 +3,7 @@ package gitutil
 import (
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -45,4 +46,28 @@ func BuildSafeGitEnvWithBase(base []string, extra ...string) []string {
 	res = append(res, extra...)
 
 	return res
+}
+
+// HasGitSSHCommand checks whether an environment slice contains a GIT_SSH_COMMAND setting.
+func HasGitSSHCommand(env []string) bool {
+	prefix := constants.EnvGitSSHCommand + constants.EnvAssignmentSeparator
+	for _, v := range env {
+		if strings.HasPrefix(v, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ExtractGitSSHCommand extracts the GIT_SSH_COMMAND value from an environment slice if present.
+func ExtractGitSSHCommand(env []string) (string, bool) {
+	prefix := constants.EnvGitSSHCommand + constants.EnvAssignmentSeparator
+	for _, v := range env {
+		if strings.HasPrefix(v, prefix) {
+			return strings.TrimPrefix(v, prefix), true
+		}
+	}
+
+	return "", false
 }

@@ -69,8 +69,7 @@ CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_TaskSlug ON HeatmapActionLog(Task
 CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_FilePath ON HeatmapActionLog(FilePath);
 CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ParentId ON HeatmapActionLog(ParentLogId);
 CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ActionType ON HeatmapActionLog(ActionType);
-CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_CreatedAt ON HeatmapActionLog(CreatedAt);
-CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ModelTool ON HeatmapActionLog(ModelName, ToolName);`
+CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_CreatedAt ON HeatmapActionLog(CreatedAt);`
 
 	sqlInsertActionLogWithAttribution = `INSERT INTO HeatmapActionLog (
 		ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine,
@@ -202,6 +201,7 @@ func ensureHeatmapActionLogColumns(conn *sql.DB) error {
 	alterStatements := []string{
 		"ALTER TABLE HeatmapActionLog ADD COLUMN ModelName TEXT NULL;",
 		"ALTER TABLE HeatmapActionLog ADD COLUMN ToolName TEXT NULL;",
+		"CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ModelTool ON HeatmapActionLog(ModelName, ToolName);",
 	}
 
 	for _, stmt := range alterStatements {

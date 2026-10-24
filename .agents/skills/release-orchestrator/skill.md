@@ -10,15 +10,22 @@ Execute full automated release orchestration, semantic version bumping, branch m
 
 ## Core Directives & 5-Step Release Branching Mandate
 
-1. Determine bump tier (MINOR default per Rule 0, reset PATCH to 0).
-2. Verify git clean status before release execution.
+1. **Pre-Flight Pull & Clean State:** Run `gitmap status` (or `gitmap st`) and ensure git repository starts clean. Run `gitmap pull` (fallback `git pull`) to fetch and merge upstream changes.
+2. Determine bump tier (MINOR default per Rule 0, reset PATCH to 0).
 3. **Mandatory Smart Targeted Pre-Release Verification:** Build and test ONLY packages failed in the stack trace and packages changed between the last git hash and current working tree (`git diff --name-only HEAD~1`), persisting modified files to `.ai-memory/temp/recent-file-changes.json`. Execute targeted verification via `python 03-ai-scripts/06-cicd-local-runner.py run-smart` (or alias `--smart`, `-s`), `python 03-ai-scripts/06-cicd-local-runner.py --changed-only`, or `python 03-ai-scripts/06-cicd-local-runner.py --pkg <affected_pkg>` (with optional `--fast` heatmap filtering) to verify 100% green passing (`exit 0`) without running extraneous test suites, spellcheckers, or unrelated checks. In-flight heartbeats emit every 25s (`--heartbeat-interval 25.0`); wait dynamically via `.ai-memory/temp/runner-eta.json` rather than busy-polling.
 4. **Test Inventory Validation:** Cross-reference `.ai-memory/temp/recent-file-changes.json` with `.ai-memory/test-inventory.json` to verify that all test suites covering recently modified files pass completely.
 5. **Mandatory 5-Step Release Branching Lifecycle:**
    - **Step 1:** Create and switch to a dedicated release branch: `git checkout -b release/vX.Y.Z`.
    - **Step 2:** Bump the version using the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch.
      - **CRITICAL REPOSITORY ADAPTATION & SCRIPT REPAIR:** Inspect the target repository architecture to identify where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), where and how they will change (`readme.md`, `changelog.md`, install scripts), and post-bump synchronization commands (`npm run sync`, `go generate ./...`). If the bump script is missing, outdated, or lacks support for this repository's version pin sites, **the agent MUST fix or recreate the Python bump script immediately** before executing the release.
-   - **Step 3:** Commit version bump changes in the release branch: `release: vX.Y.Z <scope>`.
+   - **Step 3:** Commit version bump changes in the release branch via GitMap release commit:
+     ```bash
+     gitmap cpr "RELEASE - vX.Y.Z <scope>"
+     ```
+     > [!IMPORTANT]
+     > **TOTAL BAN ON CPF FOR RELEASES:** Never use `gitmap cpf` for releases (which marks them as `Feature:`). Always use `gitmap cpr`.
+     > **TOTAL BAN ON NESTED PREFIXES:** Never pass `chore(release):`, `release:`, or `feat:` inside the message argument. GitMap adds the prefix automatically!
+     > **TOTAL BAN ON THIRD BRACKETS:** Never use square brackets `[...]` or colons `:` in arguments. Format as `"RELEASE - vX.Y.Z <scope>"`.
    - **Step 4:** Create the annotated git tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5:** Put the release commit back to the `main` branch (`git checkout main && git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch.
 6. **Automated Release Execution (2-Tier Toolchain):**

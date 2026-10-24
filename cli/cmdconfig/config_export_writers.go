@@ -11,17 +11,12 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
+	cfgenum "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/enums"
 )
 
-// collectVSCodeExtensions probes installed extensions if the code CLI is available.
-func collectVSCodeExtensions() []string {
-	cmd := exec.Command("code", "--list-extensions")
-	out, err := cmd.Output()
-	if err != nil {
-		return []string{}
-	}
-
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+// filterNonEmptyLines trims each string and retains non-empty lines.
+func filterNonEmptyLines(lines []string) []string {
 	results := make([]string, 0, len(lines))
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
@@ -33,6 +28,26 @@ func collectVSCodeExtensions() []string {
 	return results
 }
 
+// collectVSCodeExtensions probes installed extensions if the code CLI is available.
+func collectVSCodeExtensions() []string {
+	cmd := exec.Command(cfgconst.ToolCode, cfgconst.FlagListExtensions)
+	out, err := cmd.Output()
+	if err != nil {
+		return []string{}
+	}
+
+	return filterNonEmptyLines(strings.Split(strings.TrimSpace(string(out)), "\n"))
+}
+
+// resolveEncodingAndContent produces appropriate encoding token and serialized content.
+func resolveEncodingAndContent(data []byte, isBinary bool) (string, string) {
+	if isBinary {
+		return cfgconst.EncodingBase64, base64.StdEncoding.EncodeToString(data)
+	}
+
+	return cfgconst.EncodingUTF8, string(data)
+}
+
 // readSingleConfigFile reads a file and packages it into ConfigFilePayload.
 func readSingleConfigFile(filePath, fileName string, isBinary bool) (*ConfigFilePayload, error) {
 	data, err := os.ReadFile(filePath)
@@ -40,34 +55,30 @@ func readSingleConfigFile(filePath, fileName string, isBinary bool) (*ConfigFile
 		return nil, apperror.Wrap(err, "readSingleConfigFile", map[string]any{"path": filePath})
 	}
 
-	if isBinary {
-		return &ConfigFilePayload{
-			Name:     fileName,
-			Encoding: "base64",
-			Content:  base64.StdEncoding.EncodeToString(data),
-		}, nil
-	}
+	enc, content := resolveEncodingAndContent(data, isBinary)
 
-	return &ConfigFilePayload{
-		Name:     fileName,
-		Encoding: "utf-8",
-		Content:  string(data),
-	}, nil
+	return &ConfigFilePayload{Name: fileName, Encoding: enc, Content: content}, nil
+}
+
+// populateDefaultToolFiles assigns fallback template payloads per tool type.
+func populateDefaultToolFiles(toolType cfgenum.ConfigToolType, tool string, files map[string]ConfigFilePayload) {
+	switch toolType {
+	case cfgenum.ConfigToolVSCode:
+		files[cfgconst.FileSettingsJSON] = ConfigFilePayload{Name: cfgconst.FileSettingsJSON, Encoding: cfgconst.EncodingUTF8, Content: cfgconst.DefaultVSCodeSettings}
+		files[cfgconst.FileKeybindingsJSON] = ConfigFilePayload{Name: cfgconst.FileKeybindingsJSON, Encoding: cfgconst.EncodingUTF8, Content: cfgconst.DefaultVSCodeKeybindings}
+	case cfgenum.ConfigToolQTorrent:
+		cfgName := resolveDefaultConfigFileNameForOS(tool)
+		files[cfgName] = ConfigFilePayload{Name: cfgName, Encoding: cfgconst.EncodingUTF8, Content: cfgconst.DefaultQBittorrentConfig}
+	case cfgenum.ConfigToolUTorrent:
+		files[cfgconst.FileSettingsDat] = ConfigFilePayload{Name: cfgconst.FileSettingsDat, Encoding: cfgconst.EncodingUTF8, Content: cfgconst.DefaultUTorrentSettings}
+	}
 }
 
 // collectDefaultToolFiles supplies starter templates when no local files exist.
 func collectDefaultToolFiles(tool string) map[string]ConfigFilePayload {
 	files := make(map[string]ConfigFilePayload)
-	switch tool {
-	case "vscode":
-		files["settings.json"] = ConfigFilePayload{Name: "settings.json", Encoding: "utf-8", Content: "{\n  \"editor.tabSize\": 2,\n  \"editor.formatOnSave\": true\n}\n"}
-		files["keybindings.json"] = ConfigFilePayload{Name: "keybindings.json", Encoding: "utf-8", Content: "[]\n"}
-	case "qtorrent":
-		cfgName := resolveDefaultConfigFileNameForOS(tool)
-		files[cfgName] = ConfigFilePayload{Name: cfgName, Encoding: "utf-8", Content: "[LegalNotice]\nAccepted=true\n\n[Preferences]\nConnection\\PortRangeMin=6881\nDownloads\\SavePath=Downloads\n"}
-	case "utorrent":
-		files["settings.dat"] = ConfigFilePayload{Name: "settings.dat", Encoding: "utf-8", Content: "d4:name8:uTorrente"}
-	}
+	toolType, _ := cfgenum.ParseConfigToolType(tool)
+	populateDefaultToolFiles(toolType, tool, files)
 
 	return files
 }
@@ -76,26 +87,27 @@ func collectDefaultToolFiles(tool string) map[string]ConfigFilePayload {
 func collectToolFiles(tool, srcDir string) (map[string]ConfigFilePayload, []string) {
 	files := make(map[string]ConfigFilePayload)
 	var extensions []string
-	if tool == "vscode" {
+	toolType, _ := cfgenum.ParseConfigToolType(tool)
+	if toolType.IsVSCode() {
 		extensions = collectVSCodeExtensions()
-		appendFileIfExists(files, filepath.Join(srcDir, "settings.json"), "settings.json", false)
-		appendFileIfExists(files, filepath.Join(srcDir, "keybindings.json"), "keybindings.json", false)
+		appendFileIfExists(files, filepath.Join(srcDir, cfgconst.FileSettingsJSON), cfgconst.FileSettingsJSON, false)
+		appendFileIfExists(files, filepath.Join(srcDir, cfgconst.FileKeybindingsJSON), cfgconst.FileKeybindingsJSON, false)
 	}
 
-	collectTorrentFiles(tool, srcDir, files)
+	collectTorrentFiles(toolType, srcDir, files)
 
 	return files, extensions
 }
 
 // collectTorrentFiles collects qBittorrent and uTorrent configuration files.
-func collectTorrentFiles(tool, srcDir string, files map[string]ConfigFilePayload) {
-	if tool == "qtorrent" {
-		appendFileIfExists(files, filepath.Join(srcDir, "qBittorrent.ini"), "qBittorrent.ini", false)
-		appendFileIfExists(files, filepath.Join(srcDir, "qBittorrent.conf"), "qBittorrent.conf", false)
+func collectTorrentFiles(toolType cfgenum.ConfigToolType, srcDir string, files map[string]ConfigFilePayload) {
+	if toolType.IsQTorrent() {
+		appendFileIfExists(files, filepath.Join(srcDir, cfgconst.FileQBittorrentIni), cfgconst.FileQBittorrentIni, false)
+		appendFileIfExists(files, filepath.Join(srcDir, cfgconst.FileQBittorrentConf), cfgconst.FileQBittorrentConf, false)
 	}
 
-	if tool == "utorrent" {
-		appendFileIfExists(files, filepath.Join(srcDir, "settings.dat"), "settings.dat", true)
+	if toolType.IsUTorrent() {
+		appendFileIfExists(files, filepath.Join(srcDir, cfgconst.FileSettingsDat), cfgconst.FileSettingsDat, true)
 	}
 }
 
@@ -114,13 +126,17 @@ func appendFileIfExists(dest map[string]ConfigFilePayload, filePath, fileName st
 	dest[fileName] = *payload
 }
 
-// writeBundleJSON marshals the bundle to JSON and writes it to disk.
-func writeBundleJSON(bundle ConfigBundle, targetFile string) error {
+// ensureBundleParentDir creates parent folders for exported bundle.
+func ensureBundleParentDir(targetFile string) {
 	parentDir := filepath.Dir(targetFile)
-	if parentDir != "." && parentDir != "" {
+	if parentDir != cfgconst.DefaultExportFolder && parentDir != "" {
 		_ = os.MkdirAll(parentDir, 0o755)
 	}
+}
 
+// writeBundleJSON marshals the bundle to JSON and writes it to disk.
+func writeBundleJSON(bundle ConfigBundle, targetFile string) error {
+	ensureBundleParentDir(targetFile)
 	data, err := json.MarshalIndent(bundle, "", "  ")
 	if err != nil {
 		return apperror.Wrap(err, "writeBundleJSON.Marshal", map[string]any{"target": targetFile})
@@ -139,7 +155,7 @@ func writeBundleJSON(bundle ConfigBundle, targetFile string) error {
 func buildConfigBundle(tool, srcDir string, files map[string]ConfigFilePayload, extensions []string) ConfigBundle {
 	return ConfigBundle{
 		Tool:          tool,
-		SchemaVersion: 1,
+		SchemaVersion: cfgconst.DefaultSchemaVersion,
 		ExportedAt:    time.Now().UTC().Format(time.RFC3339),
 		SourceOS:      runtime.GOOS,
 		Files:         files,

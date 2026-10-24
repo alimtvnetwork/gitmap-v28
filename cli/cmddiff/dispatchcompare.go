@@ -3,14 +3,14 @@ package cmddiff
 import (
 	"os"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// dispatchCompare routes `gitmap compare` / `gitmap cmp`.
+// DispatchCompare routes `gitmap compare` / `gitmap cmp`.
 func DispatchCompare(command string) (bool, error) {
 	if isCompareCommand(command) {
-		err := cmdgit.RunCompare(os.Args[2:])
+		err := cmdgit.RunCompare(os.Args[constants.ArgsSubcommandOffset:])
 
 		return true, err
 	}

@@ -154,6 +154,7 @@ func locateCLIConstantsFiles() []string {
 	return []string{
 		filepath.Join(constantsDir, "constants_commands.go"),
 		filepath.Join(constantsDir, "constants_commands_extra.go"),
+		filepath.Join(constantsDir, "constants_commands_toolchain.go"),
 	}
 }
 

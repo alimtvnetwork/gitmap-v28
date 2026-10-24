@@ -3,11 +3,12 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -34,14 +35,18 @@ func parsePathCLIOpts(args []string) pathCLIOpts {
 
 func consumePathArg(opts *pathCLIOpts, a string) {
 	clean := strings.ToLower(strings.TrimSpace(a))
-	if clean == "--json" || clean == "-j" {
+	if constants.IsJSONFlag(clean) {
 		opts.isJSON = true
+
 		return
 	}
-	if clean == "--help" || clean == "-h" || clean == "help" {
+
+	if constants.IsHelpFlag(clean) {
 		opts.isHelp = true
+
 		return
 	}
+
 	if !strings.HasPrefix(clean, "-") && len(opts.target) == 0 {
 		opts.target = strings.TrimSpace(a)
 	}
@@ -57,20 +62,25 @@ func printPathHelp() error {
 	fmt.Println("  rc, repo-cache       Path to repo-cache directory")
 	fmt.Println("  rs, repo-secrets     Path to repo-secrets directory")
 	fmt.Println("  <repo|alias>         Path to repository or alias")
+
 	return nil
 }
 
 func resolveSpecialPathTarget(clean string) (string, bool) {
-	switch clean {
-	case "rc", "repo-cache":
-		p, err := resolveSpecialRepoCDPath("rc")
+	special := constants.SpecialPathType(clean)
+	if special.IsRepoCache() {
+		p, err := resolveSpecialRepoCDPath(string(constants.SpecialPathRepoCacheShort))
+
 		return p, err == nil && len(p) > 0
-	case "rs", "repo-secrets":
-		p, err := resolveSpecialRepoCDPath("rs")
-		return p, err == nil && len(p) > 0
-	default:
-		return "", false
 	}
+
+	if special.IsRepoSecrets() {
+		p, err := resolveSpecialRepoCDPath(string(constants.SpecialPathRepoSecretsShort))
+
+		return p, err == nil && len(p) > 0
+	}
+
+	return "", false
 }
 
 func queryDBForRepoPath(db *store.DB, clean string) (string, bool) {

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	clonerconstants "github.com/alimtvnetwork/gitmap-v28/cli/cloner/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/formatter"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
@@ -211,7 +212,7 @@ func runClone(rec model.ScanRecord, dest string) model.CloneResult {
 	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Env = gitutil.BuildSafeGitEnv()
 	if isSSHCloneURL(url) {
-		cmd.Env = append(cmd.Env, "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=accept-new")
+		cmd.Env = append(cmd.Env, clonerconstants.EnvGitSSHCommand)
 		return runInteractiveClone(InteractiveCloneParams{
 			Cmd:      cmd,
 			Record:   rec,

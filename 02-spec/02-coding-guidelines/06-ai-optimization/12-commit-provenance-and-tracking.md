@@ -97,8 +97,42 @@ When an agent or developer omits explicit CLI flags, GitMap automatically resolv
 
 If any AI flag or environment indicator is present, `isAiMode` is automatically set to `true`.
 
-### Rule 4: Hyphen-Separated Commit Message Preservation
-Commit messages must strictly follow GitMap's hyphen-separated standard: `<module> - <summary>`. Colons (`:`) inside message arguments are strictly prohibited because GitMap's semantic commit suite (`cpf`, `cpb`, `cpc`, `cpr`) automatically applies semantic prefixes (`Feature: `, `Bug: `, `Chore: `).
+### Rule 4: Hyphen-Separated Uppercase Module Standard (Zero Third Brackets)
+Square brackets (`[` `]`, colloquially termed "third brackets") are **strictly prohibited** in all Git commit headers, module tags, semantic verbs, and subjects. Square brackets embedded inside commit headers introduce critical hazards across automated build pipelines:
+- **Markdown Link Reference Collisions:** CommonMark and GitHub Flavored Markdown (GFM Section 4.7) interpret `[module]: description` as a Link Reference Definition, discarding the commit from visual changelog rendering.
+- **Changelog Generator Failures:** Standard conventional changelog parsers (`conventional-changelog`, `standard-version`, `git-cliff`) break when scopes contain brackets (`feat([scope]):`).
+- **Regex Capture Group Shattering:** Dynamic regexes interpolating component scopes fail with unescaped bracket character set errors.
+- **Double-Colon Parsing Ambiguity:** Splitting on `": "` creates multiple ambiguous chunks when headers contain both semantic and module colons.
+- **Shell Wildcard Hazards:** Unquoted square brackets in Unix shells and PowerShell act as filename glob patterns.
+
+#### Canonical Format & Grammar
+All semantic commits across GitMap CLI verbs (`cpf`, `cpb`, `cbf`, `cpc`, `cpr`, `cfr`) adhere to a clean input format with an uppercase module identifier and space-padded hyphen separator:
+```text
+gitmap cpf "MODULE - summary of changes"
+```
+which produces the sovereign Git commit header:
+```text
+Feature: MODULE - summary of changes
+```
+
+#### Banned vs. Approved Commit Formats
+
+| Category | Banned Example (Strictly Prohibited) | Primary Reason for Ban | Approved User Command | Approved Sovereign Git Header |
+| :--- | :--- | :--- | :--- | :--- |
+| **Feature** | `feat([workgroup]): add ssh keys` | Brackets break changelog & regex | `gitmap cpf "WORKGROUP - add ssh keys"` | `Feature: WORKGROUP - add ssh keys` |
+| **Feature** | `Feature: [auth]: add jwt` | Double colon and bracket syntax | `gitmap cpf "AUTH - add jwt"` | `Feature: AUTH - add jwt` |
+| **Feature** | `gitmap cpf "auth: add jwt"` | Colon separator instead of hyphen | `gitmap cpf "AUTH - add jwt"` | `Feature: AUTH - add jwt` |
+| **Bug Fix** | `fix([ci]): resolve gofmt` | Square brackets in scope | `gitmap cpb "CI - resolve gofmt"` | `Bug: CI - resolve gofmt` |
+| **Bug Fix** | `Bug: [db]: fix deadlock` | Bracketed module and double colon | `gitmap cbf "DB - fix deadlock"` | `Bug: DB - fix deadlock` |
+| **Chore** | `chore([skills]): update skill` | Bracket nesting breaks parsers | `gitmap cpc "SKILLS - update skill"` | `Chore: SKILLS - update skill` |
+| **Release Misuse** | `gitmap cpf "chore(release): bump version to v4.259.0"` | Misuses cpf (Feature) for release, nested chore(release) prefix, lowercase, colon | `gitmap cpr "RELEASE - bump version to v4.259.0"` | `Release: RELEASE - bump version to v4.259.0` |
+| **Chore Misuse** | `gitmap cpf "chore: sync prompts and skills"` | Misuses cpf (Feature) for chore, nested conventional prefix, colon | `gitmap cpc "SYNC - update prompts and skills"` | `Chore: SYNC - update prompts and skills` |
+| **Raw Git Commit** | `git commit -m "feat(auth): add jwt"` | Raw git commit bypasses GitMap atomic staging, split-db tracking, and push | `gitmap cpf "AUTH - add jwt"` | `Feature: AUTH - add jwt` |
+| **Raw Git Pull** | `git pull origin main` | Raw git pull bypasses GitMap multi-phase conflict detection and telemetry | `gitmap pull` (fallback `git pull`) | Pulls latest remote updates cleanly |
+| **Release** | `chore(release): [v6.600.0]: cut` | Markdown link collision hazard | `gitmap cpr "V6.600.0 - cut release"` | `Release: V6.600.0 - cut release` |
+| **Docs Spec** | `docs([spec]): add bracketed rules` | Square brackets in scope | `gitmap cpc "SPEC - update commit rules"` | `Chore: SPEC - update commit rules` |
+| **Docs Plan** | `docs([plan]): update master plan` | Square brackets in scope | `gitmap cpc "PLAN - update master plan"` | `Chore: PLAN - update master plan` |
+| **Mixed Case**| `gitmap cpf "workgroup - fix bind"` | Lowercase module tag | `gitmap cpf "WORKGROUP - fix bind"` | `Feature: WORKGROUP - fix bind` |
 
 ### Rule 5: External Split-DB Isolation & Storage
 Commit history, file touches, diff metrics, and AI provenance are recorded into GitMap's external split database:

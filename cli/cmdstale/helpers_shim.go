@@ -4,13 +4,16 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
 	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstale/enums"
 )
 
 // emitCSV writes a header + rows to stdout via encoding/csv.
@@ -27,9 +30,9 @@ func emitCSV(header []string, rows [][]string) {
 // emitJSON writes v as indented JSON to stdout.
 func emitJSON(v any) {
 	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
+	enc.SetIndent(constants.JSONPrefix, constants.JSONIndent)
 	if err := enc.Encode(v); err != nil {
-		fmt.Fprintf(os.Stderr, "  json encode: %v\n", err)
+		fmt.Fprintf(os.Stderr, constants.ErrJSONEncodeFmt, err)
 	}
 }
 
@@ -40,17 +43,13 @@ func isGitRepo(path string) bool {
 }
 
 // parseHygieneFormat normalizes and validates a --format value.
-func parseHygieneFormat(s string) (cmdhygiene.HygieneFormatType, error) {
-	switch s {
-	case "", "table":
-		return cmdhygiene.HygieneFormatTypeTable, nil
-	case "json":
-		return cmdhygiene.HygieneFormatTypeJSON, nil
-	case "csv":
-		return cmdhygiene.HygieneFormatTypeCSV, nil
+func parseHygieneFormat(s string) (enums.StaleOutputFormatType, error) {
+	fmtKind, err := enums.ParseStaleOutputFormatType(s)
+	if err != nil {
+		return "", apperror.NewValidationError(fmt.Sprintf(constants.ErrInvalidFormatFmt, s))
 	}
 
-	return "", apperror.NewValidationError(fmt.Sprintf("invalid --format %q (want table|json|csv)", s))
+	return fmtKind, nil
 }
 
 // scanForReposParallel walks the immediate children of root and returns
@@ -87,6 +86,7 @@ func spawnRepoWorkers(jobs <-chan string, results chan<- string, count int) *syn
 
 	return &wg
 }
+
 func runRepoWorker(wg *sync.WaitGroup, jobs <-chan string, results chan<- string) {
 	defer wg.Done()
 	for p := range jobs {
@@ -106,11 +106,11 @@ func filterCandidateDirs(root string, entries []os.DirEntry) []string {
 
 	return candidates
 }
+
 func collectGitRepos(candidates []string) []string {
 	jobs := make(chan string)
 	results := make(chan string, len(candidates))
 	wg := spawnRepoWorkers(jobs, results, hygieneWorkers())
-
 	for _, c := range candidates {
 		jobs <- c
 	}
@@ -124,11 +124,12 @@ func collectGitRepos(candidates []string) []string {
 
 func hygieneWorkers() int {
 	n := runtime.NumCPU()
-	if n < 2 {
-		return 2
+	if n < constants.MinHygieneWorkers {
+		return constants.MinHygieneWorkers
 	}
-	if n > 8 {
-		return 8
+	if n > constants.MaxHygieneWorkers {
+		return constants.MaxHygieneWorkers
 	}
+
 	return n
 }

@@ -3,6 +3,7 @@ package cmdstats
 import (
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -11,6 +12,8 @@ func openDB() (*store.DB, error) {
 }
 
 func isLegacyDataError(err error) bool {
-	return strings.Contains(err.Error(), "Scan error") ||
-		strings.Contains(err.Error(), "converting driver.Value type string")
+	hasScanErr := strings.Contains(err.Error(), constants.ErrPatternScanError)
+	hasDriverValErr := strings.Contains(err.Error(), constants.ErrPatternDriverValue)
+
+	return hasScanErr || hasDriverValErr
 }

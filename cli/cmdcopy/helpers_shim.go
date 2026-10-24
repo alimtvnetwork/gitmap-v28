@@ -1,17 +1,18 @@
 package cmdcopy
 
 import (
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy/constants"
 )
 
 // gitTopLevel returns the absolute path of the current repo's top-level dir.
 func gitTopLevel() (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitRevParse, "--show-toplevel")
+	cmd := exec.Command(constants.GitBin, constants.GitRevParse, constants.GitArgShowTopLevel)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -19,7 +20,7 @@ func gitTopLevel() (string, error) {
 
 	root := strings.TrimSpace(string(out))
 	if root == "" {
-		return "", apperror.NewValidationError("empty top-level")
+		return "", apperror.NewValidationError(constants.ErrMsgEmptyTopLevel)
 	}
 
 	return filepath.Clean(root), nil
@@ -27,13 +28,19 @@ func gitTopLevel() (string, error) {
 
 func isExistingFile(path string) bool {
 	info, err := os.Stat(path)
+
 	return err == nil && !info.IsDir()
 }
 
 func isFileFlagWithArg(arg string) bool {
 	lower := strings.ToLower(arg)
+	for _, flag := range constants.AllCopyFileFlags() {
+		if lower == flag {
+			return true
+		}
+	}
 
-	return lower == "--file" || lower == "--filepath" || lower == "--out" || lower == "--output" || lower == "-o" || lower == "-f"
+	return false
 }
 
 func isTerminalInput() bool {

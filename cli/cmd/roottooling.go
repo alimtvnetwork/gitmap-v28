@@ -6,7 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdautomation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbackup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbranch"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcompletion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
@@ -45,6 +44,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtask"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtemprelease"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoken"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoolchain"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvmware"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
@@ -183,6 +183,7 @@ func toolingOpsEntries() []dispatchEntry {
 		{[]string{"clean"}, func() error { return RunCleanTopLevel(argsTail()) }},
 		{[]string{"clear", "cls"}, func() error { return RunClearTopLevel(argsTail()) }},
 		{[]string{"winutil"}, func() error { return RunWinUtilTopLevel(argsTail()) }},
+		{[]string{constants.CmdKill, constants.CmdKillAlias}, func() error { return cmdtoolchain.RunKill(argsTail()) }},
 	}
 	return append(entries, toolingSpecialRepoEntries()...)
 }
@@ -232,7 +233,8 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{"sjc", "ssh-join-common", "ssh-join-c", "join-common"}, func() error { return runSJC(argsTail()) }},
 		{[]string{"se", "ssh-exe", "ssh-exec", "ssh-execute", "mm", "multi-machines", "multi-machine", "multimachine", "multimachines"}, func() error { return cmdssh.RunSSHExec(argsTail()) }},
 		{[]string{"remote"}, func() error { return cmdssh.RunRemote(argsTail()) }},
-		{[]string{constants.CmdCargo, constants.CmdCargoAlias}, func() error { return cmdcargo.RunCargo(argsTail()) }},
+		{[]string{constants.CmdCargo, constants.CmdCargoAlias}, func() error { return cmdtoolchain.RunCargo(argsTail()) }},
+		{[]string{constants.CmdRust, constants.CmdRustAlias, constants.CmdRustAlias2}, func() error { return cmdtoolchain.RunRust(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return cmdinstall.RunInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
 		{[]string{"apps", "app"}, func() error { return cmdapps.RunAppsDispatch(argsTail()) }},

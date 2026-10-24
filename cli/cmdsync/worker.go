@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -15,113 +16,144 @@ var leadingDigitsRe = regexp.MustCompile(`^(\d+)`)
 
 // SyncSingleRepo executes the safe 6-stage synchronization ceremony on a single target repo.
 func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) RepoSyncResult {
-	res := RepoSyncResult{
-		Repo:   proj.Name,
-		Status: "OK",
-		Action: "No Changes",
-	}
+	res := newInitialSyncResult(proj.Name)
+	branch := resolveCurrentRepoBranch(proj.Path)
+	pullLatestUpstream(proj.Path, branch)
 
-	repoPath := proj.Path
-	branchRes := gitutil.CurrentBranch(repoPath)
-	branch := branchRes.Data
-	if branchRes.IsFailure() || branch == "" {
-		branch = "main"
-	}
-
-	// 1. Pull latest upstream changes
-	_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "pull", "origin", branch, "--no-rebase")
-
-	// 2. Query pre-change tag
-	preTag := gitutil.GetLatestTag(repoPath)
-	if preTag == "" {
-		preTag = "v0.1.0"
-	}
+	preTag := resolvePreTag(proj.Path)
 	res.PreTag = preTag
 	res.PostTag = preTag
 
-	// 3. Safety backup branch
-	timestamp := time.Now().UTC().Format("20060102150405")
-	backupBranch := fmt.Sprintf("backup/sync-%s", timestamp)
+	performSafetyBackupIfMutating(proj.Path, branch, opts)
 
+	stats, mirrorErr := MirrorAssets(sourceRoot, proj.Path)
+	if mirrorErr != nil {
+		return failSyncResult(res, constants.ActionMirrorFailed, mirrorErr)
+	}
+
+	applyMirrorStats(&res, stats)
+
+	return processWorkingTreeChanges(proj.Path, branch, preTag, res, opts)
+}
+
+func newInitialSyncResult(repoName string) RepoSyncResult {
+	return RepoSyncResult{
+		Repo:   repoName,
+		Status: constants.StatusOk,
+		Action: constants.ActionNoChanges,
+	}
+}
+
+func resolveCurrentRepoBranch(repoPath string) string {
+	branchRes := gitutil.CurrentBranch(repoPath)
+	branch := branchRes.Data
+	if branchRes.IsFailure() || branch == "" {
+		return constants.DefaultBranch
+	}
+
+	return branch
+}
+
+func pullLatestUpstream(repoPath, branch string) {
+	_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdPull, constants.GitRemoteOrigin, branch, constants.FlagNoRebase)
+}
+
+func resolvePreTag(repoPath string) string {
+	preTag := gitutil.GetLatestTag(repoPath)
+	if preTag == "" {
+		return constants.DefaultInitialTag
+	}
+
+	return preTag
+}
+
+func performSafetyBackupIfMutating(repoPath, branch string, opts SyncOptions) {
 	if !opts.DryRun {
+		timestamp := time.Now().UTC().Format("20060102150405")
+		backupBranch := fmt.Sprintf("backup/sync-%s", timestamp)
 		createSafetyBackupBranch(repoPath, branch, backupBranch, !opts.NoPush)
 	}
+}
 
-	// 4. Mirror assets adhering to boundary invariants
-	stats, mirrorErr := MirrorAssets(sourceRoot, repoPath)
-	if mirrorErr != nil {
-		res.Status = "FAIL"
-		res.Action = "Mirror Failed"
-		res.Error = mirrorErr.Error()
-		return res
-	}
-
+func applyMirrorStats(res *RepoSyncResult, stats MirrorStats) {
 	res.FilesAdded = stats.Added
 	res.FilesUpdated = stats.Updated
 	res.FilesRemoved = stats.Removed
+}
 
-	// 5. Inspect dirty working tree status
-	statusBytes, _ := gitutil.ExecGitWithTimeout(10*time.Second, repoPath, "status", "--porcelain")
+func failSyncResult(res RepoSyncResult, action string, err error) RepoSyncResult {
+	res.Status = constants.StatusFail
+	res.Action = action
+	res.Error = err.Error()
+
+	return res
+}
+
+func processWorkingTreeChanges(repoPath, branch, preTag string, res RepoSyncResult, opts SyncOptions) RepoSyncResult {
+	statusBytes, _ := gitutil.ExecGitWithTimeout(10*time.Second, repoPath, constants.GitCmdStatus, constants.FlagPorcelain)
 	statusStr := strings.TrimSpace(string(statusBytes))
-
 	if statusStr == "" {
-		res.Action = "Already Synced"
+		res.Action = constants.ActionAlreadySynced
+
 		return res
 	}
 
 	if opts.DryRun {
-		res.Action = "Dry Run"
+		res.Action = constants.ActionDryRun
 		res.PostTag = bumpPatchTag(preTag)
+
 		return res
 	}
 
-	// 6. Stage and commit atomically
-	_, addErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "add", "-A")
+	return commitAndReleaseChanges(repoPath, branch, preTag, res, opts)
+}
+
+func commitAndReleaseChanges(repoPath, branch, preTag string, res RepoSyncResult, opts SyncOptions) RepoSyncResult {
+	_, addErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdAdd, constants.FlagAllShort)
 	if addErr != nil {
-		res.Status = "FAIL"
-		res.Action = "Git Add Failed"
-		res.Error = addErr.Error()
-		return res
+		return failSyncResult(res, constants.ActionGitAddFailed, addErr)
 	}
 
-	commitMsg := "chore(sync): mirror canonical prompts, skills, specs"
-	_, commitErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "commit", "-m", commitMsg)
+	_, commitErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdCommit, constants.FlagMsgShort, constants.DefaultCommitMsg)
 	if commitErr != nil {
-		res.Status = "FAIL"
-		res.Action = "Commit Failed"
-		res.Error = commitErr.Error()
-		return res
+		return failSyncResult(res, constants.ActionCommitFailed, commitErr)
 	}
 
 	if opts.NoRelease {
 		return pushNoRelease(repoPath, branch, res, opts.NoPush)
 	}
 
-	// Release ceremony with version bump
+	return releaseCeremonyWithTag(repoPath, branch, preTag, res, opts.NoPush)
+}
+
+func releaseCeremonyWithTag(repoPath, branch, preTag string, res RepoSyncResult, noPush bool) RepoSyncResult {
 	postTag := bumpPatchTag(preTag)
 	res.PostTag = postTag
 
-	_, tagErr := gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "tag", postTag)
+	_, tagErr := gitutil.ExecGitWithTimeout(15*time.Second, repoPath, constants.GitCmdTag, postTag)
 	if tagErr != nil {
-		res.Action = "Committed (Tag Failed)"
+		res.Action = constants.ActionTagFailed
+
 		return res
 	}
 
-	return pushReleaseWithTags(repoPath, branch, res, opts.NoPush)
+	return pushReleaseWithTags(repoPath, branch, res, noPush)
 }
 
 func handlePushError(res RepoSyncResult, err error) RepoSyncResult {
 	msg := err.Error()
 	if strings.Contains(msg, "Permission to") || strings.Contains(msg, "denied") {
-		res.Status = "SKIPPED"
-		res.Action = "Skipped (External Repo)"
+		res.Status = constants.StatusSkipped
+		res.Action = constants.ActionSkippedExternal
 		res.Error = "Push permission denied"
+
 		return res
 	}
 
-	res.Status = "FAIL"
-	res.Action = "Push Failed"
+	res.Status = constants.StatusFail
+	res.Action = constants.ActionPushFailed
 	res.Error = msg
+
 	return res
 }
 
@@ -132,7 +164,7 @@ func bumpPatchTag(tag string) string {
 
 	parts := strings.Split(numPart, ".")
 	if len(parts) < 3 {
-		return "v0.1.1"
+		return constants.DefaultFallbackTag
 	}
 
 	m := leadingDigitsRe.FindStringSubmatch(parts[2])
@@ -144,6 +176,7 @@ func bumpPatchTag(tag string) string {
 	if hasPrefixV {
 		res = "v" + res
 	}
+
 	return res
 }
 
@@ -152,48 +185,69 @@ func incrementPatchSegment(digits, fallback string) string {
 	if err != nil {
 		return fallback
 	}
+
 	return strconv.Itoa(patchNum + 1)
 }
 
 func createSafetyBackupBranch(repoPath, branch, backupBranch string, pushBackup bool) {
-	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", "-b", backupBranch)
+	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, constants.GitCmdCheckout, constants.FlagBranchShort, backupBranch)
 	if pushBackup {
-		_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", backupBranch)
+		_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdPush, constants.GitRemoteOrigin, backupBranch)
 	}
-	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, "checkout", branch)
+
+	_, _ = gitutil.ExecGitWithTimeout(15*time.Second, repoPath, constants.GitCmdCheckout, branch)
 }
 
 func pushNoRelease(repoPath, branch string, res RepoSyncResult, noPush bool) RepoSyncResult {
 	if noPush {
-		res.Action = "Committed"
+		res.Action = constants.ActionCommitted
+
 		return res
 	}
-	_, pushErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
+
+	_, pushErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, constants.GitCmdPush, constants.GitRemoteOrigin, branch)
 	if pushErr != nil {
 		return handlePushError(res, pushErr)
 	}
-	res.Action = "Committed & Pushed"
+
+	res.Action = constants.ActionCommittedAndPushed
+
 	return res
 }
 
 func pushReleaseWithTags(repoPath, branch string, res RepoSyncResult, noPush bool) RepoSyncResult {
 	if noPush {
-		res.Action = "Released Locally"
+		res.Action = constants.ActionReleasedLocally
+
 		return res
 	}
-	_, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, "push", "origin", branch, res.PostTag)
+
+	_, pushErr := gitutil.ExecGitWithTimeout(60*time.Second, repoPath, constants.GitCmdPush, constants.GitRemoteOrigin, branch, res.PostTag)
 	if pushErr != nil {
-		branchBytes, bErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, "push", "origin", branch)
-		if bErr != nil {
-			errStr := string(branchBytes) + " " + bErr.Error()
-			return handlePushError(res, apperror.NewExecutionError(errStr))
-		}
-		tagBytes, tErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, "push", "origin", res.PostTag)
-		if tErr != nil {
-			errStr := string(tagBytes) + " " + tErr.Error()
-			return handlePushError(res, apperror.NewExecutionError(errStr))
-		}
+		return retryPushBranchAndTag(repoPath, branch, res)
 	}
-	res.Action = "Released & Pushed"
+
+	res.Action = constants.ActionReleasedAndPushed
+
+	return res
+}
+
+func retryPushBranchAndTag(repoPath, branch string, res RepoSyncResult) RepoSyncResult {
+	branchBytes, bErr := gitutil.ExecGitWithTimeout(45*time.Second, repoPath, constants.GitCmdPush, constants.GitRemoteOrigin, branch)
+	if bErr != nil {
+		errStr := string(branchBytes) + " " + bErr.Error()
+
+		return handlePushError(res, apperror.NewExecutionError(errStr))
+	}
+
+	tagBytes, tErr := gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdPush, constants.GitRemoteOrigin, res.PostTag)
+	if tErr != nil {
+		errStr := string(tagBytes) + " " + tErr.Error()
+
+		return handlePushError(res, apperror.NewExecutionError(errStr))
+	}
+
+	res.Action = constants.ActionReleasedAndPushed
+
 	return res
 }

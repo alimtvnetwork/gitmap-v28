@@ -2,6 +2,8 @@
 package cmdpull
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -10,26 +12,26 @@ func formatPullStatus(status string, isDirty bool) string {
 		return constants.ColorYellow + "● dirty" + constants.ColorReset
 	}
 
-	if status == "active" || status == "ACTIVE" {
+	st := constants.PullChangesStatusType(strings.ToLower(status))
+	if st.IsActive() {
 		return constants.ColorGreen + "✔ active" + constants.ColorReset
 	}
 
-	if status == "UP_TO_DATE" || status == "up-to-date" || status == "synced" {
-		return constants.ColorGreen + "✔ active" + constants.ColorReset
-	}
-
-	return formatPullStatusOther(status)
+	return formatPullStatusOther(st, status)
 }
 
-func formatPullStatusOther(status string) string {
-	switch status {
-	case "SUCCESS", "ok", "updated", "FAST_FORWARD", "fast-forward":
+func formatPullStatusOther(st constants.PullChangesStatusType, raw string) string {
+	if st.IsUpdated() {
 		return constants.ColorGreen + "✔ updated" + constants.ColorReset
-	case "FAILED", "fail", "error":
-		return constants.ColorRed + "✖ failed" + constants.ColorReset
-	case "clean":
-		return constants.ColorGreen + "✔ clean" + constants.ColorReset
-	default:
-		return status
 	}
+
+	if st.IsFailed() {
+		return constants.ColorRed + "✖ failed" + constants.ColorReset
+	}
+
+	if st == constants.PullChangesStatusClean {
+		return constants.ColorGreen + "✔ clean" + constants.ColorReset
+	}
+
+	return raw
 }

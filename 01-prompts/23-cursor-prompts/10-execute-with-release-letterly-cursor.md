@@ -15,7 +15,7 @@ Format input text according to exact execution with minor release template below
    - Item 4: `4. Strictly use relative Git paths (02-spec/..., .ai-memory/..., cmd/...); only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well`
    - Items 5..N: discrete technical directives extracted from input.
    - Penultimate Item: `Verify live CI/CD pipeline health via gitmap pe -t until green`
-   - Final Item: `Execute minor version bump release ceremony via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>", update changelog.md, commit atomically via gitmap cpf, tag release, and push to remote tracking branch`
+   - Final Item: `Execute minor version bump release ceremony via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>", update changelog.md, commit atomically via gitmap cpr, tag release, and push to remote tracking branch`
 6. Append mandatory release skill invocation suffix pointing to `[minor-bump](file;.cursor/skills/minor-bump)`.
 7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
 8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
@@ -39,7 +39,7 @@ ${Input Text Verbatim}
 4. Strictly use relative Git paths (02-spec/..., .ai-memory/..., cmd/...); only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well
 5. [Fifth actionable technical directive extracted from input]
 6. Verify live CI/CD pipeline health via gitmap pe -t until green
-7. Execute minor version bump release ceremony via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>", update changelog.md, commit atomically via gitmap cpf, tag release, and push to remote tracking branch
+7. Execute minor version bump release ceremony via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>", update changelog.md, commit atomically via gitmap cpr, tag release, and push to remote tracking branch
 
 ## Must follow and spawn agent using
 

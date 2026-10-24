@@ -72,7 +72,10 @@ const DefaultNodeResourceThreshold = 30
 //   - The marker is cleared by `gitmap db-reset` and by migrateLegacyIDs()
 //     when it detects pre-integer-PK rows, so legacy databases will always
 //     re-run the full pipeline regardless of this number.
-const SchemaVersionCurrent = 33
+//
+// SchemaVersionCurrent advances to 34 to incorporate PascalCase WorkDirectory,
+// FolderWorkDir, FolderGroup, and SshKeyAssociation tables and indexes.
+const SchemaVersionCurrent = 34
 
 // Schema-version log strings.
 const (

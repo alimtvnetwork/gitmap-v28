@@ -10,7 +10,7 @@ This skill encapsulates the workflow for migrating a legacy `.lovable` repositor
 ## Instructions
 
 1. **Phase 1 (Planning & Spec Generation)**:
-   - Perform a `git pull` on the target repository.
+   - Perform a `gitmap pull` (fallback `git pull`) on the target repository.
    - Synchronize the `.ai-memory`, `02-spec`, `01-prompts`, `03-ai-scripts`, and `agents.md` from the central orchestration repo to the target repo.
    - Move existing `02-spec/21-app` and `02-spec/22-app-issues` to `02-spec/21-app/` and `02-spec/22-app-issues/` respectively.
    - Migrate `.lovable/memory/` into `.ai-memory/memory/`.

@@ -11,17 +11,20 @@ import (
 
 	"github.com/pterm/pterm"
 
+	searchconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/constants"
+	searchenums "github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/searcher"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// runSearch executes indexed keyword and symbol search across repositories.
+// RunSearch executes indexed keyword and symbol search across repositories.
 func RunSearch(args []string) error {
-	checkHelp("search", args)
+	checkHelp(searchconstants.CmdSearch, args)
 	query, limit, isAiCaller, hasQuery := parseSearchInvocation(args)
 	if !hasQuery {
 		printSearchUsage()
+
 		return nil
 	}
 
@@ -64,16 +67,16 @@ func matchSearchFlagOrPositional(args []string, i int) (string, string, int) {
 	if isSearchQueryArg(arg) && i+1 < len(args) {
 		return args[i+1], "", i + 1
 	}
-	if strings.HasPrefix(arg, "--query=") {
-		return strings.TrimPrefix(arg, "--query="), "", i
+	if strings.HasPrefix(arg, searchconstants.FlagArgQueryPrefix) {
+		return strings.TrimPrefix(arg, searchconstants.FlagArgQueryPrefix), "", i
 	}
-	if strings.HasPrefix(arg, "--pattern=") {
-		return strings.TrimPrefix(arg, "--pattern="), "", i
+	if strings.HasPrefix(arg, searchconstants.FlagArgPatternPrefix) {
+		return strings.TrimPrefix(arg, searchconstants.FlagArgPatternPrefix), "", i
 	}
 	if isSearchDirArg(arg) && i+1 < len(args) {
 		return "", "", i + 1
 	}
-	if !strings.HasPrefix(arg, "-") {
+	if !strings.HasPrefix(arg, searchconstants.FlagPrefixDash) {
 		return "", arg, i
 	}
 
@@ -81,18 +84,24 @@ func matchSearchFlagOrPositional(args []string, i int) (string, string, int) {
 }
 
 func isSearchQueryArg(arg string) bool {
-	return arg == "--query" || arg == "-q" || arg == "--pattern"
+	return arg == searchconstants.FlagArgQuery ||
+		arg == searchconstants.FlagArgQueryShort ||
+		arg == searchconstants.FlagArgPattern
 }
 
 func isSearchDirArg(arg string) bool {
-	return arg == "--root" || arg == "--dir" || arg == "--path" || arg == "-d" || arg == "-p"
+	return arg == searchconstants.FlagArgRoot ||
+		arg == searchconstants.FlagArgDir ||
+		arg == searchconstants.FlagArgPath ||
+		arg == searchconstants.FlagArgDirShort ||
+		arg == searchconstants.FlagArgPathShort
 }
 
 func parseSearchAiFlag(args []string) (bool, []string) {
 	var isAiCaller bool
 	var filtered []string
 	for _, arg := range args {
-		if arg == "--ai" || arg == "-ai" {
+		if arg == searchconstants.FlagArgAI || arg == searchconstants.FlagArgAIShort {
 			isAiCaller = true
 			continue
 		}
@@ -104,17 +113,17 @@ func parseSearchAiFlag(args []string) (bool, []string) {
 
 func printSearchUsage() {
 	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
-	fmt.Println("  gitmap search <query> [--limit <n>] [--ai]")
-	fmt.Println("  gitmap search clean")
+	fmt.Println(searchconstants.UsageSearch)
+	fmt.Println(searchconstants.UsageSearchClean)
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Description:" + constants.ColorReset)
-	fmt.Println("  Fast indexed keyword and symbol search across repositories using SplitDB.")
+	fmt.Println("  " + searchconstants.DescFastIndexedSearch)
 	fmt.Println()
 	fmt.Println(constants.ColorCyan + "Examples:" + constants.ColorReset)
-	fmt.Println("  gitmap search \"Resolve-Version\"")
-	fmt.Println("  gitmap search \"AppError\" --limit 10")
-	fmt.Println("  gitmap search \"type SearchResult struct\" --ai")
-	fmt.Println("  gitmap search clean")
+	fmt.Println(searchconstants.ExampleSearch1)
+	fmt.Println(searchconstants.ExampleSearch2)
+	fmt.Println(searchconstants.ExampleSearch3)
+	fmt.Println(searchconstants.UsageSearchClean)
 }
 
 func handleSearchCleanCommand() error {
@@ -122,25 +131,33 @@ func handleSearchCleanCommand() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n  %s✓ Search cache purged and database vacuumed (%d entries cleared).%s\n\n",
+	fmt.Printf(searchconstants.MsgSearchCleanSuccess,
 		constants.ColorGreen, cleared, constants.ColorReset)
+
 	return nil
 }
 
 func executeSearchCommand(query string, limit int, isAiCaller bool) error {
-	lowQ := strings.ToLower(strings.TrimSpace(query))
-	if lowQ == "history" || lowQ == "top" || lowQ == "stats" || lowQ == "dh2d" {
+	action, _ := searchenums.ParseSearchAction(query)
+	if action.IsHistoryAction() {
 		return searcher.RenderAUMSearchHistoryTable(limit)
 	}
-	if lowQ == "clean" || lowQ == "clear" || lowQ == "purge" {
+	if action.IsCleanAction() {
 		return handleSearchCleanCommand()
 	}
-	if cachedRes, dh2d, isHot := searcher.LookupHotCachedSearch(query, "keyword"); isHot {
-		_, _ = searcher.RecordAUMSearchExecution(query, "keyword", isAiCaller, 0, cachedRes)
-		fmt.Printf("⚡ [AUM Hot-Cache %s] Instant match (<0.04ms) — %d result(s)\n", dh2d, len(cachedRes))
+	matchMode := searchenums.SearchMatchModeKeyword.String()
+	if cachedRes, dh2d, isHot := searcher.LookupHotCachedSearch(query, matchMode); isHot {
+		_, _ = searcher.RecordAUMSearchExecution(query, matchMode, isAiCaller, 0, cachedRes)
+		fmt.Printf(searchconstants.FmtHotCacheMatch, dh2d, len(cachedRes))
 		renderSearchResults(cachedRes)
+
 		return nil
 	}
+
+	return executeSearchDatabaseQuery(query, limit, isAiCaller)
+}
+
+func executeSearchDatabaseQuery(query string, limit int, isAiCaller bool) error {
 	ctx := context.Background()
 	mainDB, db, err := getRepoDB(ctx)
 	if err != nil {
@@ -156,27 +173,30 @@ func runSearchWithMetrics(ctx context.Context, db *sql.DB, query string, limit i
 	start := time.Now()
 	res, searchErr := searcher.SearchRepoDB(ctx, db, query, limit, false)
 	durationMs := int(time.Since(start).Milliseconds())
-	dh2d, _ := searcher.RecordAUMSearchExecution(query, "keyword", isAiCaller, durationMs, res)
+	matchMode := searchenums.SearchMatchModeKeyword.String()
+	dh2d, _ := searcher.RecordAUMSearchExecution(query, matchMode, isAiCaller, durationMs, res)
 	logSearchExecution(query, isAiCaller, durationMs, len(res))
 	if searchErr != nil {
 		pterm.Error.Println(searchErr)
+
 		return nil
 	}
-	fmt.Printf("🔍 [AUM Search ID: %s] Completed in %d ms (%d matches)\n", dh2d, durationMs, len(res))
+	fmt.Printf(searchconstants.FmtSearchCompleted, dh2d, durationMs, len(res))
 	renderSearchResults(res)
+
 	return nil
 }
 
 func logSearchExecution(query string, isAiCaller bool, durationMs, count int) {
-	category := "user"
+	category := searchenums.SearchCategoryUser.String()
 	if isAiCaller {
-		category = "ai"
+		category = searchenums.SearchCategoryAI.String()
 	}
 
 	_ = searcher.LogSearchQuery(searcher.SearchLogEntry{
 		CategoryCode: category,
 		QueryText:    query,
-		SearchType:   "keyword",
+		SearchType:   searchenums.SearchMatchModeKeyword.String(),
 		IsAiCaller:   isAiCaller,
 		DurationMs:   durationMs,
 		ResultCount:  count,
@@ -185,7 +205,7 @@ func logSearchExecution(query string, isAiCaller bool, durationMs, count int) {
 
 func renderSearchResults(res []searcher.SearchResult) {
 	for _, r := range res {
-		pterm.DefaultHeader.WithFullWidth().Printf("Found in %s at position %d", r.RelativePath, r.StartPosition)
+		pterm.DefaultHeader.WithFullWidth().Printf(searchconstants.FmtFoundHeader, r.RelativePath, r.StartPosition)
 		fmt.Println(r.MatchedText)
 		fmt.Println()
 	}
@@ -193,40 +213,41 @@ func renderSearchResults(res []searcher.SearchResult) {
 
 func runUntrackedSearchFallback(query string, limit int, isAiCaller bool) error {
 	cwd, _ := os.Getwd()
-	fmt.Printf("Searching for %q in %s...\n", query, cwd)
+	fmt.Printf(searchconstants.FmtSearchingDir, query, cwd)
 	matches := findMatchingFilesLocal(cwd, query, limit)
-	hasFileMatches := len(matches) > 0
-	if hasFileMatches {
+	if len(matches) > 0 {
 		printFileMatches(matches)
+
 		return nil
 	}
 	repoMatches := findMatchingReposInStore(query, limit)
-	hasRepoMatches := len(repoMatches) > 0
-	if hasRepoMatches {
+	if len(repoMatches) > 0 {
 		printRepoMatches(repoMatches)
+
 		return nil
 	}
 	printUntrackedSearchHint(query)
+
 	return nil
 }
 
 func printFileMatches(matches []string) {
-	fmt.Printf("\n%sFound %d matching file(s):%s\n", constants.ColorGreen, len(matches), constants.ColorReset)
+	fmt.Printf(searchconstants.FmtMatchingFilesHeader, constants.ColorGreen, len(matches), constants.ColorReset)
 	for _, m := range matches {
-		fmt.Printf("  • %s%s%s\n", constants.ColorCyan, m, constants.ColorReset)
+		fmt.Printf(searchconstants.FmtBulletItem, constants.ColorCyan, m, constants.ColorReset)
 	}
 }
 
 func printRepoMatches(matches []string) {
-	fmt.Printf("\n%sFound %d matching repository(ies):%s\n", constants.ColorGreen, len(matches), constants.ColorReset)
+	fmt.Printf(searchconstants.FmtMatchingReposHeader, constants.ColorGreen, len(matches), constants.ColorReset)
 	for _, rm := range matches {
-		fmt.Printf("  • %s%s%s\n", constants.ColorCyan, rm, constants.ColorReset)
+		fmt.Printf(searchconstants.FmtBulletItem, constants.ColorCyan, rm, constants.ColorReset)
 	}
 }
 
 func printUntrackedSearchHint(query string) {
-	fmt.Printf("\n%sNo matches found for %q in untracked folder.%s\n", constants.ColorYellow, query, constants.ColorReset)
-	fmt.Println("  Tip: run 'gitmap scan' to index repositories or cd into a tracked repository.")
+	fmt.Printf(searchconstants.FmtUntrackedNotFound, constants.ColorYellow, query, constants.ColorReset)
+	fmt.Println(searchconstants.MsgUntrackedHintTip)
 }
 
 func findMatchingReposInStore(query string, limit int) []string {
@@ -244,16 +265,20 @@ func findMatchingReposInStore(query string, limit int) []string {
 		if !isRepoMatch && !isPathMatch {
 			continue
 		}
-		matches = append(matches, r.RepoName+" ("+r.AbsolutePath+")")
+		matches = append(matches, fmt.Sprintf(searchconstants.FmtRepoWithLocation, r.RepoName, r.AbsolutePath))
 		if len(matches) >= limit {
 			break
 		}
 	}
+
 	return matches
 }
 
 func isIgnoredSearchDir(name string) bool {
-	return strings.HasPrefix(name, ".") || name == "node_modules" || name == "vendor" || name == "bin"
+	return strings.HasPrefix(name, searchconstants.DirPrefixDot) ||
+		name == searchconstants.DirNodeModules ||
+		name == searchconstants.DirVendor ||
+		name == searchconstants.DirBin
 }
 
 func formatRelOrAbsPath(root, path string) string {
@@ -261,12 +286,13 @@ func formatRelOrAbsPath(root, path string) string {
 	if err == nil {
 		return rel
 	}
+
 	return path
 }
 
 func findMatchingFilesLocal(root, query string, limit int) []string {
 	if limit <= 0 {
-		limit = 20
+		limit = searchconstants.DefaultLocalSearchLimit
 	}
 	var matches []string
 	cleanQ := strings.ToLower(query)
@@ -287,7 +313,9 @@ func findMatchingFilesLocal(root, query string, limit int) []string {
 		if len(matches) >= limit {
 			return filepath.SkipAll
 		}
+
 		return nil
 	})
+
 	return matches
 }

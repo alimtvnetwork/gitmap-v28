@@ -75,8 +75,8 @@ func (s *RcHeatmapStore) LogAction(log HeatmapActionLogRecord) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	const q = `INSERT INTO HeatmapActionLog (ParentLogId, TaskSlug, RepoSlug, ActionType, FilePath, StartLine, EndLine, CodeSnippet, CommandText, ReasoningState, ReasoningNotes, ExpectedOutcome, ActualOutcome, IsExpectationMet, ExecutionDepth, ExecutionOrder, DurationMs, Notes, Comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`
-	res, err := s.repoConn.Exec(q, log.ParentLogId, log.TaskSlug, s.repoSlug, log.ActionType, log.FilePath, log.StartLine, log.EndLine, log.CodeSnippet, log.CommandText, log.ReasoningState, log.ReasoningNotes, log.ExpectedOutcome, log.ActualOutcome, boolToInt(log.IsExpectationMet), depth, order, log.Notes, log.Comments)
+	const q = `INSERT INTO HeatmapActionLog (ParentLogId, TaskSlug, RepoSlug, ActionType, FilePath, StartLine, EndLine, CodeSnippet, CommandText, ReasoningState, ReasoningNotes, ExpectedOutcome, ActualOutcome, IsExpectationMet, ExecutionDepth, ExecutionOrder, DurationMs, ModelName, ToolName, Notes, Comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)`
+	res, err := s.repoConn.Exec(q, log.ParentLogId, log.TaskSlug, s.repoSlug, log.ActionType, log.FilePath, log.StartLine, log.EndLine, log.CodeSnippet, log.CommandText, log.ReasoningState, log.ReasoningNotes, log.ExpectedOutcome, log.ActualOutcome, boolToInt(log.IsExpectationMet), depth, order, log.ModelName, log.ToolName, log.Notes, log.Comments)
 	if err != nil {
 		return 0, apperror.WrapSimple(err, "heatmap_rc.logAction")
 	}
@@ -104,16 +104,26 @@ func (s *RcHeatmapStore) calculateDepthAndOrder(parentID *int64, taskSlug string
 	return parentDepth + 1, int(maxChildOrder.Int64) + 1, nil
 }
 
+func (s *RcHeatmapStore) resolveParentTreeVector(nodeId int64, parentId int64) (int64, string) {
+	rootId, pathVector := nodeId, fmt.Sprintf("/%d", nodeId)
+	var pRoot int64
+	var pPath string
+	if err := s.repoConn.QueryRow(`SELECT RootLogId, PathVector FROM HeatmapExecutionTree WHERE NodeLogId = ?`, parentId).Scan(&pRoot, &pPath); err == nil {
+		rootId = pRoot
+		pathVector = fmt.Sprintf("%s/%d", pPath, nodeId)
+	}
+
+	_, _ = s.repoConn.Exec(`UPDATE HeatmapExecutionTree SET IsLeaf = 0, HasChildren = 1 WHERE NodeLogId = ?`, parentId)
+
+	return rootId, pathVector
+}
+
 func (s *RcHeatmapStore) insertExecutionTreeNode(nodeId int64, parentId *int64, depth, order int) {
 	rootId, pathVector := nodeId, fmt.Sprintf("/%d", nodeId)
 	if parentId != nil && *parentId > 0 {
-		var pRoot int64
-		var pPath string
-		if err := s.repoConn.QueryRow(`SELECT RootLogId, PathVector FROM HeatmapExecutionTree WHERE NodeLogId = ?`, *parentId).Scan(&pRoot, &pPath); err == nil {
-			rootId, pathVector = pRoot, fmt.Sprintf("%s/%d", pPath, nodeId)
-		}
-		_, _ = s.repoConn.Exec(`UPDATE HeatmapExecutionTree SET IsLeaf = 0, HasChildren = 1 WHERE NodeLogId = ?`, *parentId)
+		rootId, pathVector = s.resolveParentTreeVector(nodeId, *parentId)
 	}
+
 	const q = `INSERT INTO HeatmapExecutionTree (RootLogId, NodeLogId, ParentLogId, NodeDepth, SiblingOrder, PathVector, IsLeaf, HasChildren) VALUES (?, ?, ?, ?, ?, ?, 1, 0)`
 	_, _ = s.repoConn.Exec(q, rootId, nodeId, parentId, depth, order, pathVector)
 }

@@ -4,11 +4,14 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
+	cfgenum "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/enums"
 )
 
 // resolveWindowsConfigPath resolves path within APPDATA on Windows.
 func resolveWindowsConfigPath(subpath string) string {
-	appData := os.Getenv("APPDATA")
+	appData := os.Getenv(cfgconst.EnvAppData)
 	if appData != "" {
 		return filepath.Join(appData, filepath.FromSlash(subpath))
 	}
@@ -16,9 +19,18 @@ func resolveWindowsConfigPath(subpath string) string {
 	return ""
 }
 
+// resolveUnixConfigPath resolves configuration directory on Darwin or Linux.
+func resolveUnixConfigPath(home, macSub, linuxSub string) string {
+	if runtime.GOOS == cfgconst.OSDarwin {
+		return filepath.Join(home, cfgconst.PathMacLibrary, cfgconst.PathMacAppSupport, filepath.FromSlash(macSub))
+	}
+
+	return filepath.Join(home, cfgconst.PathLinuxConfig, filepath.FromSlash(linuxSub))
+}
+
 // resolveOSConfigPath resolves cross-platform configuration directory.
 func resolveOSConfigPath(winSub, macSub, linuxSub string) string {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == cfgconst.OSWindows {
 		return resolveWindowsConfigPath(winSub)
 	}
 
@@ -27,64 +39,67 @@ func resolveOSConfigPath(winSub, macSub, linuxSub string) string {
 		return ""
 	}
 
-	if runtime.GOOS == "darwin" {
-		return filepath.Join(home, "Library", "Application Support", filepath.FromSlash(macSub))
-	}
-
-	return filepath.Join(home, ".config", filepath.FromSlash(linuxSub))
+	return resolveUnixConfigPath(home, macSub, linuxSub)
 }
 
 // resolveVSCodeConfigDir returns the user settings directory for VS Code.
 func resolveVSCodeConfigDir() string {
-	return resolveOSConfigPath("Code/User", "Code/User", "Code/User")
+	return resolveOSConfigPath(cfgconst.PathVSCodeUser, cfgconst.PathVSCodeUser, cfgconst.PathVSCodeUser)
 }
 
 // resolveQBittorrentConfigDir returns the configuration directory for qBittorrent.
 func resolveQBittorrentConfigDir() string {
-	return resolveOSConfigPath("qBittorrent", "qBittorrent", "qBittorrent")
+	return resolveOSConfigPath(cfgconst.PathQBittorrent, cfgconst.PathQBittorrent, cfgconst.PathQBittorrent)
 }
 
 // resolveUTorrentConfigDir returns the configuration directory for uTorrent.
 func resolveUTorrentConfigDir() string {
-	return resolveOSConfigPath("uTorrent", "uTorrent", "utorrent")
+	return resolveOSConfigPath(cfgconst.PathUTorrent, cfgconst.PathUTorrent, cfgconst.PathUTorrentLower)
+}
+
+// dispatchToolDir dispatches directory resolution for a known tool type.
+func dispatchToolDir(toolType cfgenum.ConfigToolType) string {
+	switch toolType {
+	case cfgenum.ConfigToolVSCode:
+		return resolveVSCodeConfigDir()
+	case cfgenum.ConfigToolQTorrent:
+		return resolveQBittorrentConfigDir()
+	case cfgenum.ConfigToolUTorrent:
+		return resolveUTorrentConfigDir()
+	}
+
+	return ""
 }
 
 // resolveToolConfigDir returns the configuration directory for the given canonical tool.
 func resolveToolConfigDir(tool string) string {
-	switch tool {
-	case "vscode":
-
-		return resolveVSCodeConfigDir()
-	case "qtorrent":
-
-		return resolveQBittorrentConfigDir()
-	case "utorrent":
-
-		return resolveUTorrentConfigDir()
-	default:
-
+	toolType, err := cfgenum.ParseConfigToolType(tool)
+	if err != nil {
 		return ""
 	}
+
+	return dispatchToolDir(toolType)
 }
 
 // resolveQBittorrentFileName returns .ini on Windows and .conf elsewhere.
 func resolveQBittorrentFileName() string {
-	if runtime.GOOS == "windows" {
-		return "qBittorrent.ini"
+	if runtime.GOOS == cfgconst.OSWindows {
+		return cfgconst.FileQBittorrentIni
 	}
 
-	return "qBittorrent.conf"
+	return cfgconst.FileQBittorrentConf
 }
 
 // resolveDefaultConfigFileNameForOS returns primary config file name for the OS.
 func resolveDefaultConfigFileNameForOS(tool string) string {
-	if tool == "qtorrent" {
+	toolType, err := cfgenum.ParseConfigToolType(tool)
+	if err != nil || (!toolType.IsQTorrent() && !toolType.IsUTorrent()) {
+		return cfgconst.FileSettingsJSON
+	}
+
+	if toolType.IsQTorrent() {
 		return resolveQBittorrentFileName()
 	}
 
-	if tool == "utorrent" {
-		return "settings.dat"
-	}
-
-	return "settings.json"
+	return cfgconst.FileSettingsDat
 }

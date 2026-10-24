@@ -92,17 +92,18 @@ flowchart TD
     S1["Stage 1: Pre-Flight Pull Base Branch"] --> S2["Stage 2: Create & Push Safety Backup Branch"]
     S2 --> S3["Stage 3: Return to Base Branch"]
     S3 --> S4["Stage 4: Controlled Asset Mirroring with 5 Boundaries"]
-    S4 --> S5["Stage 5: Atomic Commit via gitmap cpf"]
+    S4 --> S5["Stage 5: Atomic Commit via gitmap cpc"]
     S5 --> S6["Stage 6: Post-Release Tagging Ceremony"]
 ```
 
 ### Stage 1: Pre-Flight Pull Base Branch
 - Detect the active base branch (`main` or `master`).
 - If currently on an ephemeral branch (`release/*`, `backup/*`, `feat/*`), switch back to the base branch.
-- Pull the latest remote commits cleanly:
+- Pull latest remote commits cleanly via GitMap:
   ```bash
   git checkout <base_branch>
-  git pull origin <base_branch> --no-rebase
+  gitmap pull
+  # (fallback if gitmap is missing: git pull origin <base_branch> --no-rebase)
   ```
 
 ### Stage 2: Pre-Change Safety Backup Branch
@@ -132,10 +133,10 @@ flowchart TD
   - `.ai-memory/coding-guidelines.md` and `.ai-memory/prompts.md` -> Synchronized conditionally if target `.ai-memory/` exists.
 - Rigorously enforce the **5 Non-Negotiable Boundaries** (detailed in Section 4).
 
-### Stage 5: Atomic Commit via `gitmap cpf`
-- Stage and commit all synchronized changes atomically using GitMap:
+### Stage 5: Atomic Commit via `gitmap cpc`
+- Stage and commit all synchronized changes atomically using GitMap chore verb:
   ```bash
-  gitmap cpf "sync: update prompts, skills, shared specs, and additive scripts"
+  gitmap cpc "SYNC - update prompts, skills, shared specs, and additive scripts"
   ```
 - If GitMap is temporarily unavailable, fall back to atomic git commands:
   ```bash
@@ -303,7 +304,7 @@ python 03-ai-scripts/38-sync-prompts-skills-scripts.py --workers 6
 
 Following synchronization, verify compliance before concluding:
 
-- [ ] **Pre-Flight Pull Verified:** Base branch checked out and pulled cleanly (`git pull origin <base> --no-rebase`).
+- [ ] **Pre-Flight Pull Verified:** Base branch checked out and pulled cleanly (`gitmap pull`, fallback `git pull origin <base> --no-rebase`).
 - [ ] **Safety Backup Branch Pushed:** Branch `backup/sync-<timestamp>` exists and is pushed to remote.
 - [ ] **Spec 21 Untouched:** Verified zero files in `02-spec/21-*` through `02-spec/25-*` were created, modified, or deleted.
 - [ ] **Bump Scripts Preserved:** Verified target repository bump scripts (`bump*`) remain completely intact.

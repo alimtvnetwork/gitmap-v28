@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy"
+	cmdcopyconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddocs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
@@ -222,8 +223,8 @@ func utilityPipelineEntries() []dispatchEntry {
 
 func utilityDesktopEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"copy", "cp-mem", "copy-to-memory"}, func() error { return cmdcopy.RunCopyCmd(argsTail()) }},
-		{[]string{"paste", "paste-mem"}, func() error { return cmdcopy.RunPasteCmd(argsTail()) }},
+		{[]string{cmdcopyconstants.CmdCopy, cmdcopyconstants.CmdCopyAliasMem, cmdcopyconstants.CmdCopyAliasToMem}, func() error { return cmdcopy.RunCopyCmd(argsTail()) }},
+		{[]string{cmdcopyconstants.CmdPaste, cmdcopyconstants.CmdPasteAliasMem}, func() error { return cmdcopy.RunPasteCmd(argsTail()) }},
 		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return RunExplorerCmd(argsTail()) }},
 		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return cmdbrowse.RunBrowseCmd(argsTail()) }},
 		{[]string{"cat", "view", "type"}, func() error { return cmdmacro.RunCatCmd(argsTail()) }},

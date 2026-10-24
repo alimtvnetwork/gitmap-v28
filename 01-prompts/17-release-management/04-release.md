@@ -87,7 +87,7 @@ When in doubt: MINOR.
 - [ ] All markdown filenames MUST be lowercase: `readme.md`, `changelog.md`, `release_notes.md`, every audit / issue / plan / spec `.md`. Rename any `README.md`, `changelog.md`, `ReadMe.md`, etc. in the same turn with `mv` (or `git mv` if tracked), and update every reference.
 - [ ] If ANY step fails or is flagged, log it under `.ai-memory/release/issues/xx-<new-version>-<slug>.md` AND add an `### Issues` bullet under the new changelog entry linking to that file. Never hide failures.
 - [ ] Never invent changelog bullets. Only real work since the previous release.
-- [ ] The repository must be synced before releasing. Always check `git status`, commit uncommitted work, and `git pull` before modifying release files.
+- [ ] The repository must be synced before releasing. Always check `gitmap status`, commit uncommitted work, and run `gitmap pull` (fallback `git pull`) before modifying release files.
 - [ ] The final release commit and tag MUST be pushed to Git.
 - [ ] No em dashes anywhere.
 
@@ -123,7 +123,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
 - Idempotency guard: if the canonical version file already equals the computed new version, STOP. Someone half-ran a release. Detect what is already done, resume from the first incomplete step, do NOT double-bump.
 - Placeholder guard: if the previous version's changelog entry is empty or a placeholder (`TBD`, `WIP`, no bullets), refuse to release until it is filled or the user overrides.
 - Date source: the release date is UTC today. Get it from `date -u +%Y-%m-%d`. Do not invent it.
-- Git Sync & Clean State: Run `git status`. If there are pending uncommitted changes, fix them and `git commit` them first. Then run `git pull` to fetch and merge upstream changes. Resolve any issues before starting the release steps.
+- Git Sync & Clean State: Run `gitmap status` (or `gitmap st`). If there are pending uncommitted changes, fix them and commit them first via GitMap. Then run `gitmap pull` (fallback `git pull`) to fetch and merge upstream changes. Resolve any issues before starting the release steps.
 
 ## Mandatory steps (in order, fail-fast)
 
@@ -138,7 +138,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
       - **CRITICAL REPOSITORY ADAPTATION & SCRIPT REPAIR:** The bump version script MUST be inspected, created, or adapted based on the target repository architecture. The agent MUST identify where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), where they will change (`readme.md`, `changelog.md`, badges, install scripts), and what sync operations run (`npm run sync`, `go generate ./...`). If the bump script is missing, outdated, or lacks support for this repository's version pin sites, **the agent MUST fix or recreate the Python bump script immediately** before running the release!
       - **Execution:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier>` or `python 03-ai-scripts/37-bump-version.py --tier <tier>` or `.ai-memory/release/bump_versions.py --type <tier>`.
    - **Step 3: Commit in Release Branch:**
-     Stage and commit all version bump and generated release files on the release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+     Stage and commit all version bump and generated release files on the release branch: `gitmap cpr "RELEASE - vX.Y.Z <scope>"`.
    - **Step 4: Create Annotated Git Tag:**
      Create the annotated tag on that release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5: Put Commit Back to Main Branch & Push:**
@@ -179,7 +179,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
    Follow the 5-step release branching lifecycle:
    - Checkout `release/vX.Y.Z`
    - Bump version on release branch via Python script
-   - Commit on release branch: `git commit -m "release: vX.Y.Z <headline>"`
+   - Commit on release branch: `gitmap cpr "RELEASE - vX.Y.Z <headline>"`
    - Tag on release branch commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
    - Checkout `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`. Restore starting branch.
 
@@ -227,7 +227,7 @@ Then link it from the `### Issues` bullet under the changelog entry.
 - [ ] Stale-version helper (if it exists) ran successfully; otherwise manual rewrite done.
 - [ ] Bundled / aggregated artifacts regenerated if their sources changed.
 - [ ] Version-sync check (if it exists) exited 0; otherwise a targeted search confirms allow-list only.
-- [ ] Pre-flight Git sync completed (`git status`, commit pending changes, `git pull`).
+- [ ] Pre-flight Git sync completed (`gitmap status`, commit pending changes, `gitmap pull` (fallback `git pull`)).
 - [ ] Commit + tag created (if git-tracked) with `release: vX.Y.Z <headline>` and `vX.Y.Z`, AND successfully pushed to Git.
 - [ ] Release notes file generated containing Quick Install One-Liners (PowerShell & Bash) and changelog.
 - [ ] GitHub/GitLab release created via `gh release create --notes-file` or `glab release create --notes-file` (NEVER bare `--generate-notes`).
@@ -281,11 +281,11 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 ## Actionable Items & Checklist
 
 - [ ] Read the overarching main task plan.
-- [ ] Ensure the git repository starts completely clean (`git status`, commit pending work, `git pull`).
+- [ ] Ensure git repository starts clean (`gitmap status`, commit pending changes, `gitmap pull` (fallback `git pull`)).
 - [ ] Inspect repository architecture and adapt/fix the Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) based on where versions are tracked and how they change.
 - [ ] Step 1: Create and switch to dedicated release branch: `git checkout -b release/vX.Y.Z`.
 - [ ] Step 2: Bump version on release branch using the repository-aware Python bump script (`python 03-ai-scripts/37-bump-version.py` or `python .ai-memory/release/bump_versions.py`).
-- [ ] Step 3: Stage and commit all release changes on release branch: `git commit -m "release: vX.Y.Z <scope>"`.
+- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpr "RELEASE - vX.Y.Z <scope>"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
 - [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
@@ -323,7 +323,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] AVOID: Do NOT touch or modify any files inside the `.gitmap` folder.
 - [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
 - [ ] Step 2: Bump version on release branch using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`).
-- [ ] Step 3: Stage and commit on release branch: `git commit -m "release: v<new_version> <scope>"`.
+- [ ] Step 3: Stage and commit on release branch: `gitmap cpr "RELEASE - v<new_version> <scope>"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
 - [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, and restore starting branch.
 

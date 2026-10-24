@@ -78,29 +78,32 @@ func executeSingleStep(repoName string, idx, total int, step gitutil.Remediation
 	return handleStepFailure(repoName, step, outBuf.String(), err)
 }
 
-func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr string, err error) error {
+func tryRecoverStepFailure(step gitutil.RemediationStep, outStr string) (bool, string) {
 	if isBenignCommitClean(step, outStr) || isBenignStashClean(step, outStr) {
-		fmt.Printf("%s clean (nothing to commit/apply)\n", constants.ColorYellow+"•"+constants.ColorReset)
-
-		return nil
+		return true, "clean (nothing to commit/apply)"
 	}
-
-	isRecovered := recoverStashCollision(step, outStr)
-	if isRecovered {
-		fmt.Printf("%s recovered (dropped stashed untracked collision)\n", constants.ColorYellow+"•"+constants.ColorReset)
-
-		return nil
+	if recoverStashCollision(step, outStr) {
+		return true, "recovered (dropped stashed untracked collision)"
 	}
-
-	isNoInit, msg := recoverNoInitialCommit(step, outStr)
-	if isNoInit {
-		fmt.Printf("%s %s\n", constants.ColorYellow+"•"+constants.ColorReset, msg)
-
-		return nil
+	if isNoInit, msg := recoverNoInitialCommit(step, outStr); isNoInit {
+		return true, msg
 	}
-
 	if isBenignPullNoTracking(step, outStr) {
-		fmt.Printf("%s clean (no remote to pull)\n", constants.ColorYellow+"•"+constants.ColorReset)
+		return true, "clean (no remote to pull)"
+	}
+	if isNeedsMerge, msg := recoverNeedsMerge(step, outStr); isNeedsMerge {
+		return true, msg
+	}
+	if isStashConflict, msg := recoverStashPopConflict(step, outStr); isStashConflict {
+		return true, msg
+	}
+
+	return false, ""
+}
+
+func handleStepFailure(repoName string, step gitutil.RemediationStep, outStr string, err error) error {
+	if isRecovered, msg := tryRecoverStepFailure(step, outStr); isRecovered {
+		fmt.Printf("%s %s\n", constants.ColorYellow+"•"+constants.ColorReset, msg)
 
 		return nil
 	}
@@ -226,16 +229,7 @@ func executeSingleStepSilent(repoName string, idx, total int, step gitutil.Remed
 }
 
 func handleStepFailureSilent(repoName string, step gitutil.RemediationStep, outStr string, err error) error {
-	if isBenignCommitClean(step, outStr) || isBenignStashClean(step, outStr) {
-		return nil
-	}
-	if recoverStashCollision(step, outStr) {
-		return nil
-	}
-	if isNoInit, _ := recoverNoInitialCommit(step, outStr); isNoInit {
-		return nil
-	}
-	if isBenignPullNoTracking(step, outStr) {
+	if isRecovered, _ := tryRecoverStepFailure(step, outStr); isRecovered {
 		return nil
 	}
 

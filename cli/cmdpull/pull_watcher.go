@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	pullconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -71,13 +72,14 @@ func processPolledTask(db *PullTaskSplitDB, task *PullTaskRecord) (bool, *apperr
 }
 
 func handleTerminalTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCompleted {
+	st := constants.PullTaskStatusType(task.Status)
+	if st.IsCompleted() {
 		renderWatcherCompletion(task)
 
 		return true, nil
 	}
 
-	if task.Status == constants.PullTaskStatusFailed {
+	if st.IsFailed() {
 		return handleFailedTaskStatus(task)
 	}
 
@@ -92,7 +94,7 @@ func handleFailedTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
 }
 
 func handleCanceledTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCanceled {
+	if constants.PullTaskStatusType(task.Status).IsCanceled() {
 		return true, apperror.NewSimple("pull task was canceled", "E_PULL_CANCELED")
 	}
 
@@ -151,7 +153,7 @@ func renderRepoTreeSnapshot(repos []PullTaskRepoRecord) {
 	reversed := reverseRepoRecords(repos)
 	for _, repo := range reversed {
 		line := formatRepoTreeLine(repo)
-		fmt.Printf("  ├── %s\n", line)
+		fmt.Printf("  %s%s\n", pullconstants.GlyphTreeBranch, line)
 	}
 }
 
@@ -169,7 +171,7 @@ func formatRepoTreeLine(repo PullTaskRepoRecord) string {
 	durSec := float64(repo.DurationMs) / 1000.0
 	slugPadded := fmt.Sprintf("%-25s", repo.RepoSlug)
 
-	if repo.Status == constants.PullTaskRepoStatusPulling {
+	if constants.PullTaskRepoStatusType(repo.Status).IsPulling() {
 		return fmt.Sprintf("%s ➜ pulling...", slugPadded)
 	}
 
@@ -177,11 +179,12 @@ func formatRepoTreeLine(repo PullTaskRepoRecord) string {
 }
 
 func formatCompletedRepoLine(repo PullTaskRepoRecord, slugPadded string, durSec float64) string {
-	if repo.Status == constants.PullTaskRepoStatusSuccess {
+	repoSt := constants.PullTaskRepoStatusType(repo.Status)
+	if repoSt.IsSuccess() {
 		return formatSuccessRepoLine(slugPadded, repo.CommitSha, repo.CommitTitle, durSec)
 	}
 
-	if repo.Status == constants.PullTaskRepoStatusFailed {
+	if repoSt.IsFailed() {
 		return fmt.Sprintf("%s ✘ failed (%s)", slugPadded, repo.ErrorMessage)
 	}
 
@@ -211,8 +214,8 @@ func renderOverallSummaryLine(task *PullTaskRecord) {
 	elapsed := calculateElapsedSeconds(task.StartedAt)
 	etaFormatted := FormatEtaDuration(task.EtaSeconds)
 
-	fmt.Printf("  └── Overall: %d/%d completed · Elapsed: %ds · ETA: ~%s remaining (8-run rolling avg)\n",
-		task.PulledRepos, task.TotalRepos, elapsed, etaFormatted)
+	fmt.Printf("  %sOverall: %d/%d completed · Elapsed: %ds · ETA: ~%s remaining (8-run rolling avg)\n",
+		pullconstants.GlyphTreeTerminal, task.PulledRepos, task.TotalRepos, elapsed, etaFormatted)
 }
 
 func calculateElapsedSeconds(startedAtStr string) int {

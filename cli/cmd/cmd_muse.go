@@ -73,29 +73,34 @@ func parseMuseCliFlags(args []string) cmdinstall.MuseInstallOptions {
 	opts := cmdinstall.MuseInstallOptions{}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if a == "--force" || a == "-f" || a == "-y" || a == "--yes" {
+		if constants.IsForceFlag(a) {
 			opts.Force = true
 			continue
 		}
-		if a == "--dry-run" {
+
+		if a == constants.FlagDryRun {
 			opts.DryRun = true
 			continue
 		}
-		if a == "--verify" {
+
+		if a == constants.FlagVerify {
 			opts.Verify = true
 			continue
 		}
-		if a == "--platform" && i+1 < len(args) {
+
+		if a == constants.FlagPlatform && i+1 < len(args) {
 			opts.Platform = cmdinstall.ResolveMusePlatform(args[i+1])
 			i++
 			continue
 		}
-		if a == "--timeout" && i+1 < len(args) {
+
+		if a == constants.FlagTimeout && i+1 < len(args) {
 			opts.Timeout = parseMuseTimeoutDuration(args[i+1])
 			i++
 			continue
 		}
 	}
+
 	return opts
 }
 

@@ -13,6 +13,7 @@ func runAlias(args []string) *apperror.AppError {
 	if !isMachineAliasInvocation(args) {
 		return dispatchAlias(args[0], args[1:])
 	}
+
 	if err := cmdos.RunAliasCLI(args); err != nil {
 		return apperror.New(err.Error(), "E9000", nil)
 	}
@@ -24,34 +25,45 @@ func isMachineAliasInvocation(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
+
 	for _, a := range args {
-		if a == "--ssh" || a == "-s" || a == "change" || a == "revert" || a == "help" || a == "-h" || a == "--help" {
+		if isMachineAliasFlag(a) {
 			return true
 		}
 	}
-	first := args[0]
-	if first == "set" && len(args) >= 3 {
+
+	first := constants.AliasActionType(args[0])
+	if first.IsSet() && len(args) >= 3 {
 		return false
 	}
 
-	return first == "ls" || first == "set"
+	return first.IsList() || first.IsSet()
+}
+
+func isMachineAliasFlag(a string) bool {
+	return a == "--ssh" || a == "-s" || a == "change" || a == "revert" || isHelpFlag(a)
 }
 
 // dispatchAlias routes legacy repository alias subcommands to their handlers.
 func dispatchAlias(sub string, args []string) *apperror.AppError {
-	if sub == constants.SubCmdAliasSet {
+	action := constants.AliasActionType(sub)
+	if action.IsSet() {
 		return dispatchAliasSet(args)
 	}
-	if sub == constants.SubCmdAliasRm {
+
+	if action.IsRemove() {
 		return dispatchAliasRemove(args)
 	}
-	if sub == constants.SubCmdAliasList {
+
+	if action.IsList() {
 		return dispatchAliasList()
 	}
-	if sub == constants.SubCmdAliasShow {
+
+	if action.IsShow() {
 		return dispatchAliasShow(args)
 	}
-	if sub == constants.SubCmdAliasSug {
+
+	if action.IsSuggest() {
 		return dispatchAliasSuggest(args)
 	}
 

@@ -94,11 +94,15 @@ const (
 	CmdPullCommitPush      = "pull-commit-push"
 	CmdPullCommitPushAlias = "pcp"
 	// CmdCommitPushBug commits with a "Bug: " prefix and pushes.
-	CmdCommitPushBug      = "commit-push-bug"
-	CmdCommitPushBugAlias = "cpb"
+	CmdCommitPushBug       = "commit-push-bug"
+	CmdCommitPushBugAlias  = "cpb"
+	CmdCommitPushBugAlias2 = "cbf"
 	// CmdCommitPushFeature commits with a "Feature: " prefix and pushes.
 	CmdCommitPushFeature      = "commit-push-feature"
 	CmdCommitPushFeatureAlias = "cpf"
+	// CmdCommitPushRefactor stages all changes, commits with a "REFACTOR: " prefix, and pushes.
+	CmdCommitPushRefactor      = "commit-push-refactor"
+	CmdCommitPushRefactorAlias = "cfr" // gitmap:cmd skip
 	// CmdCommitPushChore stages all changes, commits with a "Chore: " prefix, and pushes.
 	CmdCommitPushChore      = "commit-push-chore" // gitmap:cmd skip
 	CmdCommitPushChoreAlias = "cpc"               // gitmap:cmd skip
@@ -158,8 +162,13 @@ const (
 	CmdTail                       = "tail"
 	CmdFileSearch                 = "file-search"
 	CmdInstallScript              = "install-script"
-	CmdCargo                      = "cargo" // gitmap:cmd skip
-	CmdCargoAlias                 = "crg"   // gitmap:cmd skip
+	CmdCargo                      = "cargo"     // gitmap:cmd skip
+	CmdCargoAlias                 = "crg"       // gitmap:cmd skip
+	CmdRust                       = "rust"      // gitmap:cmd skip
+	CmdRustAlias                  = "rst"       // gitmap:cmd skip
+	CmdRustAlias2                 = "rustc"     // gitmap:cmd skip
+	CmdKill                       = "kill"      // gitmap:cmd skip
+	CmdKillAlias                  = "terminate" // gitmap:cmd skip
 	CmdReleaseShort               = "r"
 	CmdLlm                        = "llm"
 	CmdFind                       = "find"
@@ -244,6 +253,8 @@ const (
 	CmdListAlias             = "ls"
 	CmdGroup                 = "group"
 	CmdGroupAlias            = "g"
+	CmdWorkgroup             = "workgroup"
+	CmdWorkgroupAlias        = "wg"
 	SubCmdGroups             = "groups"
 	CmdCluster               = "cluster"
 	CmdClusterAlias          = "clst"
@@ -253,46 +264,8 @@ const (
 	CmdSC                    = "sc"
 	CmdClients               = "clients" // gitmap:cmd top-level
 	CmdClientsAlias          = "client"
-	CmdServersLS             = "servers ls"                       // gitmap:cmd top-level
-	CmdClientsLS             = "clients ls"                       // gitmap:cmd top-level
-	CmdSCLS                  = "servers-clients ls"               // gitmap:cmd top-level
-	CmdSCCat                 = "servers-clients cat"              // gitmap:cmd top-level
-	CmdSCWrite               = "servers-clients write"            // gitmap:cmd top-level
-	CmdSCSetDefaultPath      = "servers-clients set-default-path" // gitmap:cmd top-level
-	CmdSCSetPathAlias        = "servers-clients set-path-alias"   // gitmap:cmd top-level
-	CmdSCUpdate              = "servers-clients update"           // gitmap:cmd top-level
-	CmdSCUpdateAll           = "servers-clients update-all"       // gitmap:cmd top-level
-	CmdClusterHistory        = "cluster history"                  // gitmap:cmd top-level
-	CmdClusterExport         = "cluster export"                   // gitmap:cmd top-level
-	CmdClusterImport         = "cluster import"                   // gitmap:cmd top-level
-	CmdClusterSetPassword    = "cluster set-password"             // gitmap:cmd top-level
-	CmdService               = "service"                          // gitmap:cmd top-level
-	CmdServiceAlias          = "srv"
-	CmdGroupCreate           = "create" // gitmap:cmd skip
-	CmdGroupAdd              = "add"    // gitmap:cmd skip
-	CmdGroupRemove           = "remove" // gitmap:cmd skip
-	CmdGroupList             = "list"   // gitmap:cmd skip
-	CmdGroupShow             = "show"   // gitmap:cmd skip
-	CmdGroupDelete           = "delete" // gitmap:cmd skip
-	CmdDBReset               = "db-reset"
-	CmdDbReset               = CmdDBReset // gitmap:cmd skip
-	CmdDB                    = "db"
-	CmdDb                    = CmdDB // gitmap:cmd skip
-	CmdStartFresh            = "start-fresh"
-	CmdFindDuplicates        = "find-duplicates"
-	CmdFindDuplicatesAlias   = "dups"
-	CmdFindDuplicatesAlias2  = "find-dups"
-	CmdReset                 = "reset"
-	CmdListVersions          = "list-versions"
-	CmdListVersionsAlias     = "lv"
-	CmdRevert                = "revert"
-	CmdRevertRunner          = "revert-runner" // gitmap:cmd skip
-	CmdRm                    = "rm"
-	CmdRmAlias               = "remove"
-	CmdRmAlias2              = "del"
-	CmdListReleases          = "list-releases"
-	CmdListReleasesAlias     = "lr"
-	CmdReleases              = "releases" // v3.20.0: alias of list-releases, intended for --all-repos batch view
-	CmdNodesRunningOnly      = "nodes-running-only"
-	CmdNodesRunningOnlyAlias = "nro"
+	CmdServersLS             = "servers ls"          // gitmap:cmd top-level
+	CmdClientsLS             = "clients ls"          // gitmap:cmd top-level
+	CmdSCLS                  = "servers-clients ls"  // gitmap:cmd top-level
+	CmdSCCat                 = "servers-clients cat" // gitmap:cmd top-level
 )

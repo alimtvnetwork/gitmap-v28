@@ -2,18 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func RunPowerShell(args []string) error {
 	psPath, hasPS := findPowerShellExecutable()
 	if !hasPS {
 		printPowerShellMissingAdvice()
+
 		return apperror.NewSimple("powershell not found", "E_POWERSHELL_NOT_FOUND")
 	}
 
@@ -24,10 +25,13 @@ func findPowerShellExecutable() (string, bool) {
 	if p, err := exec.LookPath("pwsh"); err == nil && p != "" {
 		return p, true
 	}
-	if runtime.GOOS != constants.OSWindows {
+
+	if !constants.IsWindowsPlatform() {
 		return "", false
 	}
+
 	p, err := exec.LookPath("powershell")
+
 	return p, err == nil && p != ""
 }
 
@@ -39,6 +43,7 @@ func executePowerShellProcess(psPath string, args []string) error {
 	if err := cmd.Run(); err != nil {
 		return apperror.WrapSimple(err, "execute powershell")
 	}
+
 	return nil
 }
 
@@ -46,17 +51,21 @@ func buildPowerShellCmd(psPath string, args []string) *exec.Cmd {
 	if len(args) == 0 {
 		return exec.Command(psPath)
 	}
+
 	cleanArgs := stripForceFlag(args)
 	if len(cleanArgs) == 0 {
 		return exec.Command(psPath)
 	}
+
 	if cleanArgs[0] == "-Command" || cleanArgs[0] == "-c" {
 		return exec.Command(psPath, cleanArgs...)
 	}
-	isWin := runtime.GOOS == constants.OSWindows
+
+	isWin := constants.IsWindowsPlatform()
 	if isWin {
 		return exec.Command(psPath, "-NoProfile", "-Command", strings.Join(cleanArgs, " "))
 	}
+
 	return exec.Command(psPath, "-Command", strings.Join(cleanArgs, " "))
 }
 

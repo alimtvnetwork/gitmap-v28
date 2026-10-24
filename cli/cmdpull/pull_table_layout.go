@@ -9,6 +9,7 @@ import (
 	"github.com/pterm/pterm"
 	"golang.org/x/term"
 
+	pullconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
@@ -251,13 +252,13 @@ func (l *PullTableLayout) PrintHeader() {
 func (l *PullTableLayout) printWideHeader() {
 	sep := strings.Repeat(" ", l.ColGap)
 	line := "  " +
-		PadVisual("REPO", l.MaxRepo) + sep +
-		PadVisual("BRANCH", l.MaxBranch) + sep +
-		PadVisual("LATEST BRANCH", l.MaxLatestBr) + sep +
-		PadVisual("RELEASE", l.MaxRelease) + sep +
-		PadVisual("COMMIT", l.MaxSHA) + sep +
-		PadVisual("PR", l.MaxPR) + sep +
-		"STATUS"
+		PadVisual(pullconstants.TableColHeaderRepo, l.MaxRepo) + sep +
+		PadVisual(pullconstants.TableColHeaderBranch, l.MaxBranch) + sep +
+		PadVisual(pullconstants.TableColHeaderLatestBranch, l.MaxLatestBr) + sep +
+		PadVisual(pullconstants.TableColHeaderRelease, l.MaxRelease) + sep +
+		PadVisual(pullconstants.TableColHeaderCommit, l.MaxSHA) + sep +
+		PadVisual(pullconstants.TableColHeaderPR, l.MaxPR) + sep +
+		pullconstants.TableColHeaderStatus
 
 	fmt.Println(line)
 	fmt.Printf("  %s\n", strings.Repeat("-", l.DividerLen))
@@ -266,12 +267,12 @@ func (l *PullTableLayout) printWideHeader() {
 func (l *PullTableLayout) printCompactHeader() {
 	sep := strings.Repeat(" ", l.ColGap)
 	line := "  " +
-		PadVisual("REPO", l.MaxRepo) + sep +
-		PadVisual("BRANCH", l.MaxBranch) + sep +
-		PadVisual("RELEASE", l.MaxRelease) + sep +
-		PadVisual("COMMIT", l.MaxSHA) + sep +
-		PadVisual("PR", l.MaxPR) + sep +
-		"STATUS"
+		PadVisual(pullconstants.TableColHeaderRepo, l.MaxRepo) + sep +
+		PadVisual(pullconstants.TableColHeaderBranch, l.MaxBranch) + sep +
+		PadVisual(pullconstants.TableColHeaderRelease, l.MaxRelease) + sep +
+		PadVisual(pullconstants.TableColHeaderCommit, l.MaxSHA) + sep +
+		PadVisual(pullconstants.TableColHeaderPR, l.MaxPR) + sep +
+		pullconstants.TableColHeaderStatus
 
 	fmt.Println(line)
 	fmt.Printf("  %s\n", strings.Repeat("-", l.DividerLen))

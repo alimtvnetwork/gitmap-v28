@@ -13,7 +13,7 @@ In distributed multi-agent workflows, developer workstations, and polyglot meta-
 1. **Uncommitted Work Stranding:** Developers or automated agents frequently create or edit files in multiple repositories without committing or pushing, leading to work loss, workspace drift, and divergence when switching machines.
 2. **Cross-Platform Path Portability:** Scripts and prompts must seamlessly support Windows environments (`D:\work`, `C:\work`), POSIX/Linux paths (`~/git-work`, `/home/...`), and continuous integration environments without requiring hardcoded manual path changes.
 3. **Build Artifact & Non-Owned Repository Isolation:** Scanners must strictly distinguish genuine project repositories from transient build artifacts (`node_modules`, `target/`, `dist/`, `vendor/`, `.cache/`, `tmp/`) AND third-party/shell configurations that are NOT owned by us (e.g. `omis`, `oh-my-zsh`, `ohmyzsh`, `zsh`, `oh-my-posh`, `dotfiles`, `homebrew`, etc.).
-4. **Pre-Commit Pooling / Pulling:** Repositories must pull latest remote tracking updates (`git pull origin <branch> --no-rebase`) prior to committing dirty changes to prevent remote divergence and ensure local working trees reconcile cleanly.
+4. **Pre-Commit Pooling / Pulling:** Repositories must pull latest remote tracking updates (`gitmap pull`, fallback `gitmap pull` (fallback `git pull origin <branch> --no-rebase`)) prior to committing dirty changes to prevent remote divergence and ensure local working trees reconcile cleanly.
 5. **Upstream Safety & Monotonic History:** Commits must be clean, atomic, and structured with conventional semantics (`chore(sync): ...`). Pushes must respect upstream tracking branches (`git push -u origin <branch>` when unbound) and never force-push or rewrite published Git history.
 6. **Mandatory Completion Invariant ("No Push = Not Done"):** If code is not committed to Git and pushed upstream to GitHub (main/master/tracking branch), the task is strictly considered INCOMPLETE and NOT DONE. Leaving uncommitted dirty changes or unpushed commits means the execution is unfinished and has failed.
 
@@ -151,7 +151,7 @@ python 03-ai-scripts/49-commit-and-push-all-repos.py --json
 
 - [ ] Discover all genuine repositories under workspace root, skipping build folders (`target`, `node_modules`, `dist`, `vendor`).
 - [ ] Aggressively exclude third-party, non-owned repositories (`omis`, `oh-my-zsh`, `ohmyzsh`, `zsh`, `oh-my-posh`, `dotfiles`).
-- [ ] Perform pre-commit pooling / pull (`git pull origin <branch> --no-rebase`) before staging changes.
+- [ ] Perform pre-commit pooling / pull (`gitmap pull`, fallback `gitmap pull` (fallback `git pull origin <branch> --no-rebase`)) before staging changes.
 - [ ] Inspect git porcelain status, active branch, and remote divergence before mutating working trees.
 - [ ] Strictly avoid force-pushing (`--force`, `-f`) or history rewrites on published branches.
 - [ ] Stage all modifications (`git add -A`) and author atomic conventional commits (`chore(sync): ...`).

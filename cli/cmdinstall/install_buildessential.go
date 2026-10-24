@@ -3,10 +3,10 @@ package cmdinstall
 import (
 	"fmt"
 	"os/exec"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -36,7 +36,7 @@ func runInstallBuildEssential(opts installOptions) error {
 		return nil
 	}
 
-	if runtime.GOOS != "linux" {
+	if !constants.IsLinuxPlatform() {
 		fmt.Println("  ℹ Ubuntu common 'build-essential' profile is optimized for Debian/Ubuntu Linux.")
 
 		return nil

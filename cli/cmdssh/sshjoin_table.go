@@ -71,7 +71,7 @@ func padVisual(s string, width int) string {
 }
 
 func isControlPlaneRole(role string) bool {
-	return role == "control" || role == "control-plane" || role == "master" || role == "cp"
+	return constants.SSHHostRoleType(strings.ToLower(role)).IsControlPlane()
 }
 
 func formatRoleColored(role string, width int) string {
@@ -79,28 +79,37 @@ func formatRoleColored(role string, width int) string {
 	if isControlPlaneRole(role) {
 		return constants.ColorYellow + plain + constants.ColorReset
 	}
+
 	if role == defaultHostRole {
 		return constants.ColorCyan + plain + constants.ColorReset
 	}
+
 	return constants.ColorDim + plain + constants.ColorReset
 }
 
 func formatStatusColored(status string, width int) string {
-	if status == "ready" || status == "active" || strings.HasPrefix(status, "●") {
+	stType := constants.SSHNodeStatusType(strings.ToLower(status))
+	if stType.IsActive() || strings.HasPrefix(status, "●") {
 		text := ensureStatusPrefix(status, "●")
 		plain := padVisual(text, width)
+
 		return constants.ColorGreen + plain + constants.ColorReset
 	}
-	if strings.Contains(status, "auth failed") || strings.HasPrefix(status, "▲") {
+
+	if strings.Contains(status, string(constants.SSHNodeStatusAuthFailed)) || strings.HasPrefix(status, "▲") {
 		text := ensureStatusPrefix(status, "▲")
 		plain := padVisual(text, width)
+
 		return constants.ColorYellow + plain + constants.ColorReset
 	}
-	if strings.Contains(status, "offline") || strings.HasPrefix(status, "○") {
+
+	if strings.Contains(status, string(constants.SSHNodeStatusOffline)) || strings.HasPrefix(status, "○") {
 		text := ensureStatusPrefix(status, "○")
 		plain := padVisual(text, width)
+
 		return constants.ColorDim + plain + constants.ColorReset
 	}
+
 	return constants.ColorDim + padVisual(status, width) + constants.ColorReset
 }
 

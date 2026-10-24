@@ -2,19 +2,20 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
-	"os"
-	"os/exec"
-	"runtime"
-	"strings"
 )
 
 func RunBash(args []string) error {
 	gitPath, hasGit := findGitExecutable()
 	if !hasGit {
 		printGitMissingAdvice()
+
 		return apperror.NewSimple("git is required to run bash", "E_GIT_NOT_FOUND")
 	}
 
@@ -35,9 +36,11 @@ func findGitExecutable() (string, bool) {
 	if p, err := exec.LookPath("git"); err == nil && p != "" {
 		return p, true
 	}
-	if runtime.GOOS != constants.OSWindows {
+
+	if !constants.IsWindowsPlatform() {
 		return "", false
 	}
+
 	candidates := []string{
 		`C:\Program Files\Git\cmd\git.exe`,
 		`C:\Program Files\Git\bin\git.exe`,
@@ -47,6 +50,7 @@ func findGitExecutable() (string, bool) {
 			return c, true
 		}
 	}
+
 	return "", false
 }
 
@@ -54,24 +58,29 @@ func recordGitPathInDB(gitPath string) {
 	if gitPath == "" {
 		return
 	}
+
 	db, err := store.OpenDefault()
 	if err != nil {
 		return
 	}
 	defer db.Close()
+
 	_ = db.SetSetting("git_path", gitPath)
 }
 
 func findBashExecutable(gitPath string) (string, bool) {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		return findWindowsGitBash(gitPath)
 	}
+
 	if p, err := exec.LookPath("bash"); err == nil && p != "" {
 		return p, true
 	}
+
 	if p, err := exec.LookPath("sh"); err == nil && p != "" {
 		return p, true
 	}
+
 	return "", false
 }
 

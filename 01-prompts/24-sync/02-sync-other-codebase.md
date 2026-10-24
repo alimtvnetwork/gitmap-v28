@@ -110,7 +110,7 @@ The canonical script `03-ai-scripts/38-sync-prompts-skills-scripts.py` automates
 ```text
 SYNCHRONIZATION WORKFLOW PER TARGET REPOSITORY:
 1. Detect base branch: git branch --show-current (main / master)
-2. Pull latest changes: git pull origin <base_branch> --no-rebase
+2. Pull latest changes via GitMap: gitmap pull (fallback: git pull origin <base_branch> --no-rebase)
 3. Pre-change backup branch: git checkout -b backup/pre-v3-nsteps-sync-<timestamp> && git push origin backup/...
 4. Pre-change release verification: ensure pre-change release tag and release branch exist
 5. Safe directory mirroring:
@@ -267,7 +267,7 @@ Proceeding directly to Preflight & Phase 1B Discovery (Active Tool Call Running 
 3. **Update Central Registers:**
    - Update `01-prompts/readme.md`, `.ai-memory/prompts.md`, and `.ai-memory/plans/readme.md`.
 4. **Final Atomic Commit in Source Repo:**
-   - Call `gitmap cpf "SYNC - synchronize prompts skills and guidelines to connected repositories"`.
+   - Call `gitmap cpc "SYNC - synchronize prompts skills and guidelines to connected repositories"`.
    - Use hyphen `-` format (no colons in GitMap message argument).
 
 ---

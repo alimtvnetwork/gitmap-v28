@@ -20,7 +20,10 @@ import (
 )
 
 func isPullCWDEnabled(opts pullOptions) bool {
-	if opts.slug == "." || opts.slug == "cwd" {
+	if opts.all || opts.group != "" {
+		return false
+	}
+	if opts.slug == "." || opts.slug == "cwd" || opts.slug == "" {
 		return isGitRepoCWD()
 	}
 
@@ -103,7 +106,8 @@ func runPullCWDTracked() error {
 }
 
 func executeCWDTrackedPull(cwd string) *PullRepoState {
-	rec := model.ScanRecord{RepoName: filepath.Base(cwd), AbsolutePath: cwd}
+	targetDir := resolveCWDRepoDir(cwd)
+	rec := model.ScanRecord{RepoName: filepath.Base(targetDir), AbsolutePath: targetDir}
 	isTTY := resolveTerminalMode()
 	if isTTY {
 		fmt.Print("  ↓ pulling remote changes...")
@@ -114,9 +118,27 @@ func executeCWDTrackedPull(cwd string) *PullRepoState {
 	if isTTY {
 		fmt.Print("\r\033[K")
 	}
-	RenderSingleRepoPullSummary(state, cwd)
+	RenderSingleRepoPullSummary(state, targetDir)
 
 	return state
+}
+
+func resolveCWDRepoDir(cwd string) string {
+	top := getGitRepoCWDTopLevel()
+	if top != "" {
+		return top
+	}
+
+	return cwd
+}
+
+func getGitRepoCWDTopLevel() string {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return ""
+	}
+
+	return filepath.Clean(strings.TrimSpace(string(out)))
 }
 
 func runPullCWDWithTransport(useSSH, useHTTPS bool, extraArgs []string) error {
@@ -252,31 +274,4 @@ func pullSingleDiscoveredChild(repoPath string, extraArgs []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	_ = cmd.Run()
-}
-
-func enqueueTaskQueue(action, target string) (string, *store.TasksSplitDB) {
-	queueId := fmt.Sprintf("%s-%d", action, time.Now().UnixNano())
-	tasksDB, err := store.OpenTasksRootSplitDB()
-	hasErr := err != nil
-	if hasErr {
-		return "", nil
-	}
-	now := time.Now().UTC().Format(time.RFC3339)
-	store.ExecWrapper(tasksDB.Conn(), "INSERT INTO TaskQueue (QueueId, Section, Action, Target, Status, CreatedAt, UpdatedAt) VALUES (?, 'pull', ?, ?, 'pending', ?, ?)", queueId, action, target, now, now)
-	return queueId, tasksDB
-}
-
-func updateTaskQueue(db *store.TasksSplitDB, queueId, status string) {
-	hasDB := db != nil
-	if !hasDB {
-		return
-	}
-	now := time.Now().UTC().Format(time.RFC3339)
-	store.ExecWrapper(db.Conn(), "UPDATE TaskQueue SET Status = ?, UpdatedAt = ? WHERE QueueId = ?", status, now, queueId)
-}
-
-func closeTaskDB(db *store.TasksSplitDB) {
-	if db != nil {
-		_ = db.Close()
-	}
 }

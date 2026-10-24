@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -46,7 +45,7 @@ func findBeyondCompare() (CompareTool, bool) {
 
 func getBeyondCompareCandidates() []string {
 	names := []string{"bcomp", "bcompare"}
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return append(names, getWindowsBeyondComparePaths()...)
 	}
 
@@ -69,7 +68,7 @@ func findVSCode() (CompareTool, bool) {
 		return CompareTool{Name: constants.CompareToolCode, Path: path}, true
 	}
 
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return findWindowsVSCode()
 	}
 
@@ -96,7 +95,7 @@ func findMeld() (CompareTool, bool) {
 
 func findWinMerge() (CompareTool, error) {
 	candidates := []string{"winmergeu", "winmerge"}
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		candidates = append(candidates, `C:\Program Files\WinMerge\WinMergeU.exe`, `C:\Program Files (x86)\WinMerge\WinMergeU.exe`)
 	}
 

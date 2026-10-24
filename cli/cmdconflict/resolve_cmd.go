@@ -7,174 +7,211 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
-func parseResolveFlags(args []string) (target string, strategy string) {
+func parseResolveFlags(args []string) (string, string) {
+	target := ""
+	strategy := ""
 	for _, arg := range args {
-		low := strings.ToLower(strings.TrimSpace(arg))
-		switch low {
-		case "--theirs", "-t", "theirs":
-			strategy = "theirs"
-		case "--ours", "-o", "ours":
-			strategy = "ours"
-		case "--ide", "-i", "--code", "ide", "code", "resolve", "v":
-			strategy = "ide"
-		case "--abort", "-a", "abort":
-			strategy = "abort"
-		case "--rerere", "rerere":
-			strategy = "rerere"
-		default:
-			if !strings.HasPrefix(arg, "-") && target == "" {
-				target = arg
-			}
-		}
+		target, strategy = processResolveFlagArg(arg, target, strategy)
 	}
+
+	return target, strategy
+}
+
+func processResolveFlagArg(arg, target, strategy string) (string, string) {
+	if act, err := enums.ParseConflictActionType(arg); err == nil {
+		return target, act.String()
+	}
+
+	if !strings.HasPrefix(arg, "-") && target == "" {
+		return arg, strategy
+	}
+
 	return target, strategy
 }
 
 // ResolveConflictAction performs a targeted resolution action on repoPath.
 // Returns true if the action was recognized and executed.
 func ResolveConflictAction(repoPath string, action string) (bool, error) {
-	low := strings.ToLower(strings.TrimSpace(action))
-	switch low {
-	case "theirs", "t":
-		return true, applyTheirs(repoPath)
-	case "ours", "o":
-		return true, applyOurs(repoPath)
-	case "resolve", "ide", "code", "v":
-		return true, applyIDE(repoPath)
-	case "abort", "a":
-		return true, applyAbort(repoPath)
-	case "rerere":
-		return true, applyRerere(repoPath)
+	act, err := enums.ParseConflictActionType(action)
+	if err != nil {
+		return false, nil
 	}
-	return false, nil
+
+	return true, dispatchConflictAction(repoPath, act)
+}
+
+func dispatchConflictAction(repoPath string, act enums.ConflictActionType) error {
+	switch act {
+	case enums.ConflictActionTheirs:
+		return applyTheirs(repoPath)
+	case enums.ConflictActionOurs:
+		return applyOurs(repoPath)
+	default:
+		return dispatchExtendedAction(repoPath, act)
+	}
+}
+
+func dispatchExtendedAction(repoPath string, act enums.ConflictActionType) error {
+	switch act {
+	case enums.ConflictActionIDE:
+		return applyIDE(repoPath)
+	case enums.ConflictActionAbort:
+		return applyAbort(repoPath)
+	case enums.ConflictActionRerere:
+		return applyRerere(repoPath)
+	default:
+		return nil
+	}
 }
 
 func applyTheirs(repoPath string) error {
-	files, err := GetConflictedFiles(repoPath)
-	if err != nil {
-		return err
-	}
-	if len(files) == 0 {
-		fmt.Printf("%s No conflicted files detected in %s\n", constants.ColorYellow+"⚠"+constants.ColorReset, repoPath)
-		return nil
-	}
-	for _, f := range files {
-		_ = exec.Command("git", "-C", repoPath, "checkout", "--theirs", "--", f).Run()
-		_ = exec.Command("git", "-C", repoPath, "add", "--", f).Run()
-	}
-	fmt.Printf("%s Accepted incoming (theirs) changes on %d conflicted file(s) in %s\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, len(files), repoPath)
-	fmt.Println("  Next: Run 'gitmap cpf \"resolve merge conflicts\"' to commit and push.")
-	return nil
+	return applySideResolution(repoPath, constants.GitArgTheirs, constants.MsgAcceptedTheirsFmt)
 }
 
 func applyOurs(repoPath string) error {
+	return applySideResolution(repoPath, constants.GitArgOurs, constants.MsgAcceptedOursFmt)
+}
+
+func applySideResolution(repoPath, sideFlag, msgFmt string) error {
 	files, err := GetConflictedFiles(repoPath)
 	if err != nil {
 		return err
 	}
+
 	if len(files) == 0 {
-		fmt.Printf("%s No conflicted files detected in %s\n", constants.ColorYellow+"⚠"+constants.ColorReset, repoPath)
+		fmt.Printf(constants.MsgNoConflictedFilesDetectedFmt,
+			constants.ColorYellow+constants.GlyphWarn+constants.ColorReset, repoPath)
+
 		return nil
 	}
-	for _, f := range files {
-		_ = exec.Command("git", "-C", repoPath, "checkout", "--ours", "--", f).Run()
-		_ = exec.Command("git", "-C", repoPath, "add", "--", f).Run()
-	}
-	fmt.Printf("%s Accepted current (ours) changes on %d conflicted file(s) in %s\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, len(files), repoPath)
-	fmt.Println("  Next: Run 'gitmap cpf \"resolve merge conflicts\"' to commit and push.")
+
+	return finishSideResolution(repoPath, sideFlag, msgFmt, files)
+}
+
+func finishSideResolution(repoPath, sideFlag, msgFmt string, files []string) error {
+	checkoutAndStageFiles(repoPath, sideFlag, files)
+	fmt.Printf(msgFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, len(files), repoPath)
+	fmt.Println(constants.MsgNextCommitInstruction)
+
 	return nil
+}
+
+func checkoutAndStageFiles(repoPath, sideFlag string, files []string) {
+	for _, f := range files {
+		_ = exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitSubCmdCheckout, sideFlag, constants.GitArgDoubleDash, f).Run()
+		_ = exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitArgAdd, constants.GitArgDoubleDash, f).Run()
+	}
 }
 
 func applyIDE(repoPath string) error {
 	files, _ := GetConflictedFiles(repoPath)
 	ideErr := LaunchIDEForRepo(repoPath, files)
 	if ideErr != nil {
-		fmt.Printf("%s Could not launch IDE: %v\n", constants.ColorYellow+"⚠"+constants.ColorReset, ideErr)
+		fmt.Printf(constants.MsgIDELaunchFailedFmt, constants.ColorYellow+constants.GlyphWarn+constants.ColorReset, ideErr)
 	} else {
 		_, name := DetectInstalledIDE()
-		fmt.Printf("%s Launched %s for %s\n", constants.ColorGreen+"✓"+constants.ColorReset, name, repoPath)
+		fmt.Printf(constants.MsgIDELaunchedFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, name, repoPath)
 	}
+
 	fmt.Print(FormatMergeEditorGuide(repoPath, files))
+
 	return nil
 }
 
 func applyAbort(repoPath string) error {
-	mergeCmd := exec.Command("git", "-C", repoPath, "merge", "--abort")
-	if mergeCmd.Run() == nil {
-		fmt.Printf("%s Merge aborted successfully in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
+	if hasAbortedSubCmd(repoPath, constants.GitSubCmdMerge, constants.MsgMergeAbortedFmt) {
 		return nil
 	}
-	rebaseCmd := exec.Command("git", "-C", repoPath, "rebase", "--abort")
-	if rebaseCmd.Run() == nil {
-		fmt.Printf("%s Rebase aborted successfully in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
+
+	if hasAbortedSubCmd(repoPath, constants.GitSubCmdRebase, constants.MsgRebaseAbortedFmt) {
 		return nil
 	}
-	cherryCmd := exec.Command("git", "-C", repoPath, "cherry-pick", "--abort")
-	if cherryCmd.Run() == nil {
-		fmt.Printf("%s Cherry-pick aborted successfully in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
+
+	if hasAbortedSubCmd(repoPath, constants.GitSubCmdCherryPick, constants.MsgCherryPickAbortedFmt) {
 		return nil
 	}
-	return apperror.NewExecutionError(fmt.Sprintf("no merge, rebase, or cherry-pick in progress to abort in %s", repoPath))
+
+	return apperror.NewExecutionError(fmt.Sprintf(constants.ErrNoAbortInProgressFmt, repoPath))
+}
+
+func hasAbortedSubCmd(repoPath, subCmd, msgFmt string) bool {
+	cmd := exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, subCmd, constants.GitArgAbort)
+	if cmd.Run() != nil {
+		return false
+	}
+
+	fmt.Printf(msgFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, repoPath)
+
+	return true
 }
 
 func applyRerere(repoPath string) error {
-	_ = exec.Command("git", "-C", repoPath, "config", "rerere.enabled", "true").Run()
-	_ = exec.Command("git", "-C", repoPath, "config", "rerere.autoupdate", "true").Run()
-	fmt.Printf("%s Git rerere (Reuse Recorded Resolution) enabled for %s\n",
-		constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
-	return nil
-}
+	_ = exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitSubCmdConfig, constants.GitConfigRerereEnabled, constants.GitTrue).Run()
+	_ = exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitSubCmdConfig, constants.GitConfigRerereAutoupdate, constants.GitTrue).Run()
+	fmt.Printf(constants.MsgRerereEnabledFmt,
+		constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, repoPath)
 
-func hasHelpFlag(args []string) bool {
-	for _, a := range args {
-		if a == "-h" || a == "--help" || a == "help" {
-			return true
-		}
-	}
-	return false
+	return nil
 }
 
 // RunResolveCmd implements 'gitmap resolve <repo> [--theirs | --ours | --ide | --abort]'.
 func RunResolveCmd(args []string) error {
 	if hasHelpFlag(args) {
-		helpdoc.Print("resolve")
+		helpdoc.Print(constants.CmdResolve)
+
 		return nil
 	}
 
 	target, strategy := parseResolveFlags(args)
+
+	return executeResolve(target, strategy)
+}
+
+func executeResolve(target, strategy string) error {
 	repoPath := ResolveRepoPath(target)
 	if repoPath == "" {
-		return apperror.NewValidationError("not inside a git repository and no repository specified.\nUsage: gitmap resolve <repo> [--theirs | --ours | --ide | --abort]")
+		return apperror.NewValidationError(constants.ErrResolveUsage)
 	}
 
 	if strategy != "" {
 		_, err := ResolveConflictAction(repoPath, strategy)
+
 		return err
 	}
 
+	return resolveDefaultWorkflow(target, repoPath)
+}
+
+func resolveDefaultWorkflow(target, repoPath string) error {
 	files, err := GetConflictedFiles(repoPath)
 	if err != nil {
 		return err
 	}
+
 	if len(files) == 0 {
-		fmt.Printf("%s No merge conflicts detected in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
+		fmt.Printf(constants.MsgNoConflictsDetectedFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, repoPath)
+
 		return nil
 	}
 
+	return presentConflictAndLaunch(target, repoPath, files)
+}
+
+func presentConflictAndLaunch(target, repoPath string, files []string) error {
 	displayName := target
 	if displayName == "" {
 		displayName = filepath.Base(getAbsPath(repoPath))
 	}
+
 	printConflictTree(displayName, repoPath, files)
 	printQuickActions(displayName)
-
 	autoLaunchIDEIfAvailable(repoPath, files)
+
 	return nil
 }
 
@@ -183,7 +220,8 @@ func autoLaunchIDEIfAvailable(repoPath string, files []string) {
 	if name == "" {
 		return
 	}
-	fmt.Printf("  Auto-launching %s...\n", name)
+
+	fmt.Printf(constants.MsgAutoLaunchingIDEFmt, name)
 	_ = LaunchIDEForRepo(repoPath, files)
 	fmt.Print(FormatMergeEditorGuide(repoPath, files))
 }

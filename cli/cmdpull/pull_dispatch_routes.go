@@ -3,8 +3,10 @@ package cmdpull
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 )
@@ -73,16 +75,72 @@ func isPullAllToken(token string) bool {
 	return token == "--all" || token == "-all" || token == "-a" || token == "all" || token == "pa" || token == "ta" || token == "pull-all" || token == "pat" || token == "pull-all-table" || token == "pas" || token == "pull-all-ssh"
 }
 
-func printPullInvocationHeader(isPullAll bool) {
-	cmdName := "pull"
-	scope := "(all workspaces)"
-	if isPullAll {
-		cmdName = "pull-all"
+func printPullInvocationHeader(isPullAll bool, args []string) {
+	header := resolvePullInvocationHeader(isPullAll, args)
+	arrow := resolveSubArrow()
+	fmt.Printf("\n  %s%s%s %s\n",
+		constants.ColorCyan, arrow, constants.ColorReset, header)
+}
+
+func resolvePullInvocationHeader(isPullAll bool, args []string) string {
+	if isPullAll || hasPullAllArg(args) {
+		return formatPullAllHeader()
 	}
-	fmt.Printf("\n  %s→%s %sgitmap %s%s %s%s%s\n",
-		constants.ColorCyan, constants.ColorReset,
-		constants.ColorBold, cmdName, constants.ColorReset,
-		constants.ColorDim, scope, constants.ColorReset)
+	targetArg := findFirstPositionalArg(args)
+	if targetArg != "" {
+		return formatRepoPathHeader(resolveTargetRepoPath(targetArg))
+	}
+	if isGitRepoCWD() {
+		return formatRepoPathHeader(resolveCWDRepoPath())
+	}
+
+	return formatPullAllHeader()
+}
+
+func formatPullAllHeader() string {
+	return fmt.Sprintf("%spull-all%s %s(all workspaces)%s",
+		constants.ColorBold, constants.ColorReset,
+		constants.ColorDim, constants.ColorReset)
+}
+
+func formatRepoPathHeader(repoPath string) string {
+	return fmt.Sprintf("%s%s%s", constants.ColorBold, repoPath, constants.ColorReset)
+}
+
+func resolveCWDRepoPath() string {
+	top := getGitRepoCWDTopLevel()
+	if top != "" {
+		return top
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "."
+	}
+
+	return filepath.Clean(cwd)
+}
+
+func resolveTargetRepoPath(target string) string {
+	abs, err := filepath.Abs(target)
+	if err == nil && !cloner.IsMissingRepo(abs) {
+		return filepath.Clean(abs)
+	}
+	records := resolveSlugTarget(target)
+	if len(records) > 0 && records[0].AbsolutePath != "" {
+		return filepath.Clean(records[0].AbsolutePath)
+	}
+
+	return target
+}
+
+func findFirstPositionalArg(args []string) string {
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") && !isPullAllToken(strings.ToLower(a)) {
+			return a
+		}
+	}
+
+	return ""
 }
 
 func resolveSubArrow() string {

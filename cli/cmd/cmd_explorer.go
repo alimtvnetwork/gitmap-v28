@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
@@ -82,11 +81,11 @@ func launchNativeExplorer(path string, isDir bool) error {
 }
 
 func buildExplorerCmd(path string, isDir bool) *exec.Cmd {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		return buildWindowsExplorerCmd(path, isDir)
 	}
 
-	if runtime.GOOS == "darwin" {
+	if constants.IsDarwinPlatform() {
 		return buildDarwinExplorerCmd(path, isDir)
 	}
 

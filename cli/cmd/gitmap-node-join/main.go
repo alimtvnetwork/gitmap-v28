@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"runtime"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type Config struct {
@@ -97,7 +99,7 @@ func handleHeartbeatSuccess(server string, resp *http.Response, failures int) in
 }
 
 func installStartup() {
-	if runtime.GOOS != "windows" {
+	if !constants.IsWindowsPlatform() {
 		fmt.Println("Auto-startup registration is currently supported on Windows.")
 
 		return
@@ -122,7 +124,7 @@ func installStartup() {
 }
 
 func uninstallStartup() {
-	if runtime.GOOS != "windows" {
+	if !constants.IsWindowsPlatform() {
 		return
 	}
 

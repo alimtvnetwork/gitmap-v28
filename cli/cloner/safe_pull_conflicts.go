@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	clonerconstants "github.com/alimtvnetwork/gitmap-v28/cli/cloner/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -129,7 +131,8 @@ func parseArbitraryConflictPrefix(line string) string {
 
 // ExtractConflictedFilesFromRepo finds unmerged files in the repository using git status --porcelain.
 func ExtractConflictedFilesFromRepo(repoDir string) []string {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, "status", "--porcelain")
+	args := append([]string{constants.GitDirFlag, repoDir}, clonerconstants.GitStatusPorcelainArgs...)
+	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Env = buildSafePullEnv()
 	out, err := cmd.Output()
 	if err != nil {
@@ -171,8 +174,8 @@ func parseUnmergedPorcelainLine(line string) (string, bool) {
 }
 
 func isUnmergedStatusCode(code string) bool {
-	switch code {
-	case "UU", "AA", "UD", "DU", "UA", "AU", "DD":
+	switch enums.GitUnmergedStatusType(code) {
+	case enums.StatusBothModified, enums.StatusBothAdded, enums.StatusUpdatedByUs, enums.StatusUpdatedByThem, enums.StatusBothDeleted, "UA", "AU":
 		return true
 	default:
 		return len(code) == 2 && (code[0] == 'U' || code[1] == 'U')

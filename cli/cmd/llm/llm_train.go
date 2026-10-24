@@ -144,10 +144,10 @@ func outputTrainJSON() *apperror.AppError {
 		"sponsor":   SponsorName,
 		"doc_links": GetPublicDocLinks(),
 		"phases": []map[string]string{
-			{"phase": "1. Discovery", "commands": "gitmap find-files, find-files-any, search, list-files", "purpose": "Rapid context gathering without loading large trees"},
+			{"phase": "1. Discovery", "commands": "gitmap find-files, find-files-any, search, list-files, workgroup ls", "purpose": "Rapid context gathering without loading large trees"},
 			{"phase": "2. Refactoring", "commands": "gitmap replace, replace-regex, surgical edits", "purpose": "Safe code transformation with rollback support"},
 			{"phase": "3. Verification", "commands": "python go-format-check.py, go test", "purpose": "Local AST syntax and regression checks"},
-			{"phase": "4. Semantic Commit", "commands": "gitmap cpf, gitmap cpb, gitmap cpr", "purpose": "Structured Conventional commits and branch push"},
+			{"phase": "4. Semantic Commit", "commands": "gitmap cpf, gitmap cpb, gitmap cbf, gitmap cpr", "purpose": "Structured Conventional commits and [module]: <item> format"},
 			{"phase": "5. Telemetry & Heal", "commands": "gitmap pipeline-ai status --json, pe, pe history-ai", "purpose": "Dynamic ETA waiting, error diagnosis, and anti-mistake AI dossiers"},
 			{"phase": "6. Heal & Fix", "commands": "gitmap stash ls, gitmap fix all", "purpose": "In-process remediation scan + parallel content-fix audit (report-only); optional --heal-apply for git-state recipes"},
 		},
@@ -177,10 +177,10 @@ func executeSelfLoopSimulation(count int) {
 	fmt.Println()
 	for iter := 1; iter <= count; iter++ {
 		fmt.Printf("--- [LOOP ITERATION %d of %d] ---\n", iter, count)
-		fmt.Println("  Phase 1 [Discovery]:    Scanning workspace with gitmap find-files / aum search")
+		fmt.Println("  Phase 1 [Discovery]:    Scanning workspace with gitmap find-files / aum search / workgroup ls")
 		fmt.Println("  Phase 2 [Refactoring]:  Targeted zero-nesting modification with gitmap replace")
 		fmt.Println("  Phase 3 [Verification]: Running local verification (python go-format-check, go test)")
-		fmt.Println("  Phase 4 [Semantic]:     Preparing structured commit (cpf/cpb) with Conventional format")
+		fmt.Println("  Phase 4 [Semantic]:     Preparing structured commit (cpf/cbf) with [module]: <item> format")
 		fmt.Println("  Phase 5 [CI Telemetry]: Dynamic ETA sleep & telemetry loop via gitmap pipeline-ai")
 		fmt.Println("  Phase 6 [Heal & Fix]:   In-process remediation scan (cmdfix) + fix content audit (report-only)")
 		fmt.Printf("  Iteration %d completed successfully with 0 errors.\n\n", iter)

@@ -7,46 +7,49 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/enums"
 )
-
-type ideCandidate struct {
-	bin  string
-	name string
-}
-
-var supportedIDEs = []ideCandidate{
-	{bin: "code", name: "VS Code"},
-	{bin: "cursor", name: "Cursor"},
-	{bin: "windsurf", name: "Windsurf"},
-	{bin: "codium", name: "VSCodium"},
-}
 
 // DetectInstalledIDE checks PATH for code, cursor, windsurf, or codium.
 // Returns the binary name and friendly display name, or empty strings if none found.
 func DetectInstalledIDE() (string, string) {
-	for _, ide := range supportedIDEs {
-		path, err := exec.LookPath(ide.bin)
-		if err == nil && path != "" {
-			return ide.bin, ide.name
-		}
-		if winPath := findWindowsIDEBinary(ide.bin); winPath != "" {
-			return ide.bin, ide.name
+	for _, tool := range enums.AllConflictToolTypes() {
+		if bin, name, hasFound := checkIDETool(tool); hasFound {
+			return bin, name
 		}
 	}
 
 	return "", ""
 }
 
+func checkIDETool(tool enums.ConflictToolType) (string, string, bool) {
+	bin := tool.BinaryName()
+	name := tool.DisplayName()
+	path, err := exec.LookPath(bin)
+	if err == nil && path != "" {
+		return bin, name, true
+	}
+
+	if winPath := findWindowsIDEBinary(bin); winPath != "" {
+		return bin, name, true
+	}
+
+	return "", "", false
+}
+
 func findWindowsIDEBinary(bin string) string {
 	if runtime.GOOS != "windows" {
 		return ""
 	}
+
 	for _, ext := range []string{".cmd", ".exe"} {
 		path, err := exec.LookPath(bin + ext)
 		if err == nil && path != "" {
 			return path
 		}
 	}
+
 	return ""
 }
 
@@ -55,7 +58,7 @@ func findWindowsIDEBinary(bin string) string {
 func LaunchIDEForRepo(repoPath string, files []string) error {
 	bin, _ := DetectInstalledIDE()
 	if bin == "" {
-		return apperror.NewNotFoundError("no supported IDE found on PATH (checked: code, cursor, windsurf, codium)")
+		return apperror.NewNotFoundError(constants.ErrNoSupportedIDE)
 	}
 
 	args := resolveIDEFileArgs(repoPath, files)
@@ -71,10 +74,13 @@ func resolveIDEFileArgs(repoPath string, files []string) []string {
 	if len(files) == 0 {
 		return resolveIDERepoArgs(repoPath)
 	}
-	args := []string{"-r"}
+
+	args := []string{constants.FlagReuseWindow}
+
 	for _, f := range files {
 		args = append(args, resolveTargetFilePath(repoPath, f))
 	}
+
 	return args
 }
 
@@ -82,6 +88,7 @@ func resolveTargetFilePath(repoPath, f string) string {
 	if !filepath.IsAbs(f) && repoPath != "" {
 		return filepath.Join(repoPath, f)
 	}
+
 	return f
 }
 
@@ -89,23 +96,32 @@ func resolveIDERepoArgs(repoPath string) []string {
 	if repoPath != "" {
 		return []string{repoPath}
 	}
+
 	return []string{"."}
 }
 
 // FormatMergeEditorGuide returns a clean formatted walkthrough for the VS Code 3-Way Merge Editor.
 func FormatMergeEditorGuide(repoPath string, conflictedFiles []string) string {
 	var sb strings.Builder
-	sb.WriteString("\n--------------------------------------------------------------------------------\n")
-	sb.WriteString("  VS Code 3-Way Merge Editor — Resolution Guide\n")
-	sb.WriteString("--------------------------------------------------------------------------------\n")
-	sb.WriteString("  1. Press Ctrl+Shift+G (or Cmd+Shift+G on macOS) to open the Source Control view.\n")
-	sb.WriteString("  2. Under 'Merge Changes', click on any conflicted file.\n")
-	sb.WriteString("  3. Click 'Resolve in Merge Editor' in the bottom-right of the editor tab.\n")
-	sb.WriteString("  4. Check 'Accept Incoming' (remote) or 'Accept Current' (local) for each conflict.\n")
-	sb.WriteString("  5. Click 'Complete Merge' at the bottom-right and save the file (Ctrl+S).\n")
-	sb.WriteString("  6. In GitMap, commit and push your resolution:\n")
-	sb.WriteString("     gitmap cpf \"resolve merge conflicts\"\n")
-	sb.WriteString("--------------------------------------------------------------------------------\n\n")
+	writeGuideHeader(&sb)
+	writeGuideSteps(&sb)
+	sb.WriteString(constants.GuideDivider + "\n")
 
 	return sb.String()
+}
+
+func writeGuideHeader(sb *strings.Builder) {
+	sb.WriteString("\n" + constants.GuideDivider)
+	sb.WriteString(constants.GuideTitle)
+	sb.WriteString(constants.GuideDivider)
+}
+
+func writeGuideSteps(sb *strings.Builder) {
+	sb.WriteString(constants.GuideStep1)
+	sb.WriteString(constants.GuideStep2)
+	sb.WriteString(constants.GuideStep3)
+	sb.WriteString(constants.GuideStep4)
+	sb.WriteString(constants.GuideStep5)
+	sb.WriteString(constants.GuideStep6)
+	sb.WriteString(constants.GuideStep6Sub)
 }

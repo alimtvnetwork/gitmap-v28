@@ -12,19 +12,21 @@ import (
 	"path/filepath"
 	"sort"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/constants"
 )
 
-const statsSchemaFilename = "stats.schema.json"
+const statsSchemaFilename = constants.SchemaStatsFilename
 
 // statsTopLevelRequiredKeys mirrors the schema's top-level required array.
 var statsTopLevelRequiredKeys = []string{
-	"avgDurationMs",
-	"commands",
-	"overallFailRate",
-	"totalCommands",
-	"totalFail",
-	"totalSuccess",
-	"uniqueCommands",
+	constants.WireKeyAvgDurationMs,
+	constants.WireKeyCommands,
+	constants.WireKeyOverallFailRate,
+	constants.WireKeyTotalCommands,
+	constants.WireKeyTotalFail,
+	constants.WireKeyTotalSuccess,
+	constants.WireKeyUniqueCommands,
 }
 
 // TestStatsJSONSchema_TopLevelShape pins the root type (object) and

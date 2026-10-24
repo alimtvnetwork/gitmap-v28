@@ -6,10 +6,25 @@ import "time"
 type OriginType string
 
 const (
-	OriginLocalAI         OriginType = "LOCAL_AI"
-	OriginForeignAI       OriginType = "FOREIGN_AI"
-	OriginHumanOrExternal OriginType = "HUMAN_OR_EXTERNAL"
+	OriginLocalAI         OriginType = "LocalAI"
+	OriginForeignAI       OriginType = "ForeignAI"
+	OriginHumanOrExternal OriginType = "HumanOrExternal"
 )
+
+// IsValid reports whether the origin type matches a recognized classification.
+func (o OriginType) IsValid() bool {
+	switch o {
+	case OriginLocalAI, OriginForeignAI, OriginHumanOrExternal:
+		return true
+	default:
+		return false
+	}
+}
+
+// String returns the string representation of the origin type.
+func (o OriginType) String() string {
+	return string(o)
+}
 
 // CommitFileDelta captures changes to a single file in a commit.
 type CommitFileDelta struct {

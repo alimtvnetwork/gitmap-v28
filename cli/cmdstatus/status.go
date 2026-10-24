@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
+	statusconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -12,7 +13,7 @@ import (
 
 // RunStatus handles the "status" subcommand.
 func RunStatus(args []string) error {
-	checkHelp("status", args)
+	checkHelp(statusconstants.CmdStatus, args)
 	groupName, isAll, isOnlyDirty := parseStatusFlags(args)
 	records, err := loadStatusByScope(groupName, isAll)
 	if err != nil {
@@ -28,7 +29,7 @@ func renderStatusFiltered(records []model.ScanRecord, isOnlyDirty bool) error {
 	}
 
 	if isOnlyDirty && len(records) == 0 {
-		fmt.Println("✨ All repositories are !clean")
+		fmt.Println(statusconstants.StatusCleanSuccessMsg)
 
 		return nil
 	}
@@ -38,7 +39,7 @@ func renderStatusFiltered(records []model.ScanRecord, isOnlyDirty bool) error {
 
 func renderStatusView(records []model.ScanRecord) error {
 	printStatusBanner(len(records))
-	prog := cloner.NewBatchProgress(len(records), "Status", true)
+	prog := cloner.NewBatchProgress(len(records), statusconstants.StatusBatchProgressLabel, true)
 	summary := printStatusTableTracked(records, prog)
 	printStatusSummary(summary)
 
@@ -59,12 +60,12 @@ func filterDirtyRecords(records []model.ScanRecord) []model.ScanRecord {
 
 // parseStatusFlags parses --group, --all, and --dirty flags.
 func parseStatusFlags(args []string) (string, bool, bool) {
-	fs := flag.NewFlagSet(constants.CmdStatus, flag.ExitOnError)
-	gFlag := fs.String("group", "", constants.FlagDescGroup)
-	fs.StringVar(gFlag, "g", "", constants.FlagDescGroup)
-	aFlag := fs.Bool("all", false, constants.FlagDescAll)
-	dFlag := fs.Bool("dirty", false, "Display only repositories with uncommitted, unstaged, or unpushed changes")
-	fs.BoolVar(dFlag, "only-dirty", false, "Display only repositories with uncommitted, unstaged, or unpushed changes")
+	fs := flag.NewFlagSet(statusconstants.CmdStatus, flag.ExitOnError)
+	gFlag := fs.String(statusconstants.FlagGroup, "", constants.FlagDescGroup)
+	fs.StringVar(gFlag, statusconstants.FlagGroupShort, "", constants.FlagDescGroup)
+	aFlag := fs.Bool(statusconstants.FlagAll, false, constants.FlagDescAll)
+	dFlag := fs.Bool(statusconstants.FlagDirty, false, statusconstants.FlagDescDirty)
+	fs.BoolVar(dFlag, statusconstants.FlagOnlyDirty, false, statusconstants.FlagDescDirty)
 	fs.Parse(args)
 
 	isAll := *aFlag

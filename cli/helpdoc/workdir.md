@@ -53,3 +53,8 @@ $ gitmap cd work
 - `set <path|id>`: Set the active default work directory.
 - `default [path]`: Show or set the active default work directory.
 - `path`, `get`: Print only the absolute path of the default work directory.
+
+## See Also
+
+- `gitmap hd workgroup` — Manage folder-specific work directories, SSH key bindings, and grouping.
+- `gitmap hd commit-format` — Modular bracket syntax and conventional commit formatting guide.

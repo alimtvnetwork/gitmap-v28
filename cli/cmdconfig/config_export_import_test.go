@@ -4,6 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	cfgconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/constants"
+	cfgenum "github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig/enums"
 )
 
 func TestNormalizeConfigTool(t *testing.T) {
@@ -11,16 +14,16 @@ func TestNormalizeConfigTool(t *testing.T) {
 		input string
 		want  string
 	}{
-		{"vscode", "vscode"},
-		{"code", "vscode"},
-		{"vcode", "vscode"},
-		{"qtorrent", "qtorrent"},
-		{"qbittorrent", "qtorrent"},
-		{"qbit", "qtorrent"},
-		{"utorrent", "utorrent"},
-		{"uttorrent", "utorrent"},
-		{"u-torrent", "utorrent"},
-		{"all", "all"},
+		{cfgconst.ToolVSCode, cfgconst.ToolVSCode},
+		{cfgconst.ToolCode, cfgconst.ToolVSCode},
+		{cfgconst.ToolVCode, cfgconst.ToolVSCode},
+		{cfgconst.ToolQTorrent, cfgconst.ToolQTorrent},
+		{cfgconst.ToolQBittorrent, cfgconst.ToolQTorrent},
+		{cfgconst.ToolQBit, cfgconst.ToolQTorrent},
+		{cfgconst.ToolUTorrent, cfgconst.ToolUTorrent},
+		{cfgconst.ToolUTTorrent, cfgconst.ToolUTorrent},
+		{cfgconst.ToolUTorrentHyphen, cfgconst.ToolUTorrent},
+		{cfgconst.ToolAll, cfgconst.ToolAll},
 	}
 
 	for _, tc := range cases {
@@ -32,24 +35,24 @@ func TestNormalizeConfigTool(t *testing.T) {
 }
 
 func TestResolveDefaultConfigFileName(t *testing.T) {
-	if got := resolveDefaultConfigFileName("qtorrent", "qtorrent"); got != "qtorrent.json" {
+	if got := resolveDefaultConfigFileName(cfgconst.ToolQTorrent, cfgconst.ToolQTorrent); got != cfgconst.ToolQTorrent+cfgconst.ExtJSON {
 		t.Errorf("expected qtorrent.json, got %s", got)
 	}
 
-	if got := resolveDefaultConfigFileName("uttorrent", "utorrent"); got != "uttorrent.json" {
+	if got := resolveDefaultConfigFileName(cfgconst.ToolUTTorrent, cfgconst.ToolUTorrent); got != cfgconst.ToolUTTorrent+cfgconst.ExtJSON {
 		t.Errorf("expected uttorrent.json, got %s", got)
 	}
 
-	if got := resolveDefaultConfigFileName("vscode", "vscode"); got != "vscode.json" {
+	if got := resolveDefaultConfigFileName(cfgconst.ToolVSCode, cfgconst.ToolVSCode); got != cfgconst.ToolVSCode+cfgconst.ExtJSON {
 		t.Errorf("expected vscode.json, got %s", got)
 	}
 }
 
 func TestExportAndImportRoundtrip(t *testing.T) {
 	tmpDir := t.TempDir()
-	exportPath := filepath.Join(tmpDir, "qtorrent.json")
-	files := collectDefaultToolFiles("qtorrent")
-	bundle := buildConfigBundle("qtorrent", tmpDir, files, nil)
+	exportPath := filepath.Join(tmpDir, cfgconst.ToolQTorrent+cfgconst.ExtJSON)
+	files := collectDefaultToolFiles(cfgconst.ToolQTorrent)
+	bundle := buildConfigBundle(cfgconst.ToolQTorrent, tmpDir, files, nil)
 	if err := writeBundleJSON(bundle, exportPath); err != nil {
 		t.Fatalf("failed to write bundle: %v", err)
 	}
@@ -76,7 +79,11 @@ func TestExportAllToolConfigs(t *testing.T) {
 		t.Fatalf("exportAllToolConfigs failed: %v", err)
 	}
 
-	expectedFiles := []string{"vscode.json", "qtorrent.json", "utorrent.json"}
+	expectedFiles := []string{
+		cfgconst.ToolVSCode + cfgconst.ExtJSON,
+		cfgconst.ToolQTorrent + cfgconst.ExtJSON,
+		cfgconst.ToolUTorrent + cfgconst.ExtJSON,
+	}
 	for _, f := range expectedFiles {
 		fullPath := filepath.Join(tmpDir, f)
 		if _, err := os.Stat(fullPath); err != nil {
@@ -86,19 +93,20 @@ func TestExportAllToolConfigs(t *testing.T) {
 }
 
 func TestConfigCLICalls(t *testing.T) {
-	if err := runExportConfig([]string{"--help"}); err != nil {
+	if err := runExportConfig([]string{cfgconst.FlagArgHelp}); err != nil {
 		t.Errorf("export-config help returned error: %v", err)
 	}
 
-	if err := runImportConfig([]string{"--help"}); err != nil {
+	if err := runImportConfig([]string{cfgconst.FlagArgHelp}); err != nil {
 		t.Errorf("import-config help returned error: %v", err)
 	}
 }
 
 func TestResolveConfigFilePathDirectoryHandling(t *testing.T) {
 	tmpDir := t.TempDir()
-	got := resolveConfigFilePath(tmpDir, "qtorrent.json")
-	want := filepath.Join(tmpDir, "qtorrent.json")
+	defaultFile := cfgconst.ToolQTorrent + cfgconst.ExtJSON
+	got := resolveConfigFilePath(tmpDir, defaultFile)
+	want := filepath.Join(tmpDir, defaultFile)
 	if got != want {
 		t.Errorf("resolveConfigFilePath(%q) = %q; want %q", tmpDir, got, want)
 	}
@@ -106,8 +114,8 @@ func TestResolveConfigFilePathDirectoryHandling(t *testing.T) {
 
 func TestBase64BinaryDecodeRoundtrip(t *testing.T) {
 	payload := ConfigFilePayload{
-		Name:     "settings.dat",
-		Encoding: "base64",
+		Name:     cfgconst.FileSettingsDat,
+		Encoding: cfgconst.EncodingBase64,
 		Content:  "ZDRpZDFleQ==",
 	}
 
@@ -118,9 +126,9 @@ func TestBase64BinaryDecodeRoundtrip(t *testing.T) {
 }
 
 func TestResolveTargetFileName(t *testing.T) {
-	orig := "qBittorrent.conf"
-	target := resolveTargetFileName("qtorrent", orig)
-	if target != "qBittorrent.ini" && target != "qBittorrent.conf" {
+	orig := cfgconst.FileQBittorrentConf
+	target := resolveTargetFileName(cfgconst.ToolQTorrent, orig)
+	if target != cfgconst.FileQBittorrentIni && target != cfgconst.FileQBittorrentConf {
 		t.Errorf("unexpected target file name %q", target)
 	}
 }
@@ -133,5 +141,17 @@ func TestImportAllToolConfigs(t *testing.T) {
 
 	if err := importAllToolConfigs(tmpDir); err != nil {
 		t.Fatalf("importAllToolConfigs failed: %v", err)
+	}
+}
+
+func TestConfigEnumsAndConstantsCoverage(t *testing.T) {
+	action := cfgenum.ConfigActionExport
+	if !action.IsExport() {
+		t.Errorf("expected action to be export")
+	}
+
+	format := cfgenum.ConfigFileFormatJSON
+	if !format.IsJSON() {
+		t.Errorf("expected format to be JSON")
 	}
 }

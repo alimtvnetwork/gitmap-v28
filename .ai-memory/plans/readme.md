@@ -61,19 +61,26 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 
 ## 2b. Recently Completed (awaiting milestone consolidation)
 
-*(All historical completed plans have been consolidated into Milestones 01–32 under `completed/`.)*
+- [319-package-constants-and-enums-dry-restructuring.md](completed/319-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring: Modular enum types (*Type suffix), centralized constants (pkg/constants/constants.go), and 5-package rollout (cmdpull, cloner, cmdclone, store, cmdcommit) (Spec: [319-package-constants-and-enums-dry-restructuring](../../02-spec/21-app/319-package-constants-and-enums-dry-restructuring/readme.md)) (Status: `completed`)
+- [320-package-constants-and-enums-dry-restructuring.md](completed/320-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 2: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdsync, cmdplans, cmdstatus, cmdlogin, cmdcargo) (Status: `completed`)
+- [321-package-constants-and-enums-dry-restructuring.md](completed/321-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 3: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdconfig, cmddiff, cmdsearch, cmdbranch, cmdhealth) (Status: `completed`)
+- [322-package-constants-and-enums-dry-restructuring.md](completed/322-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 4: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdstats, cmdhooks, cmdprune, cmdadd, cmddocs) (Status: `completed`)
+- [323-package-constants-and-enums-dry-restructuring.md](completed/323-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 5: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdundo, cmdrevert, cmdstale, cmdconflict, cmdcopy) (Status: `completed`)
 
 ---
 
 ## 3. Pending Plans
 
-None. All active execution tracks are maintained directly under `.ai-memory/plans/subtasks/`.
+- [318-gitmap-command-and-coding-guideline-synchronization.md](pending/318-gitmap-command-and-coding-guideline-synchronization.md) — GitMap Command and Coding Guideline Synchronization: Alternative Commands in GitMap Skill, Third-Bracket Commit Elimination, Magic Strings Refactoring to Domain Enums, and V6 Execute Prompt Error Management Embedding (Spec: [318-gitmap-command-and-coding-guideline-synchronization](../../02-spec/21-app/318-gitmap-command-and-coding-guideline-synchronization/00-overview.md)) (Status: `pending`)
 
 ---
 
 ## 4. Active Subtasks Directories
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
+
+- [319-package-constants-and-enums-dry-restructuring](subtasks/319-package-constants-and-enums-dry-restructuring/) — Enums and constants DRY restructuring across cmdpull, cloner, cmdclone, store, and cmdcommit
+- [318-gitmap-command-and-coding-guideline-synchronization](subtasks/318-gitmap-command-and-coding-guideline-synchronization/) — Alternative commands in GitMap skill, third bracket elimination in commit tools, magic strings replacement, V6 execute prompt error management, and multi-repo sync
 
 - [316-repository-management-and-testing-instructions](subtasks/316-repository-management-and-testing-instructions/) — AGM autoswitch, fast-forward rerun, gitmap commands, img-pdf, yt-manage
 - [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/) — Ubuntu Pull-All Remediation Engine & Ignore Rules

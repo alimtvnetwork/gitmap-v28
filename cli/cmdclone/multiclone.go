@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	cloneconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdclone/constants"
 )
 
 // RunMultiCloneCommand executes the batch multiclone command workflow.
@@ -36,21 +36,20 @@ func processMultiCloneExecution(opts MultiCloneOptions) error {
 	urls := ParseMultiCloneText(opts.RawInput)
 	hasURLs := len(urls) > 0
 	if !hasURLs {
-		fmt.Fprint(os.Stderr, "  ⚠ No valid repository URLs or slugs found in input.\n")
-		fmt.Fprint(os.Stderr, "  Run 'gitmap mc --help' to see supported input formats.\n")
-		cliexit.HandleError(nil, constants.ExitCloneMultiAllInvalid)
-		return nil
+		fmt.Fprint(os.Stderr, cloneconstants.MsgMultiCloneNoURLs)
+		return apperror.NewValidationError("no valid repository URLs or slugs found in input")
 	}
 
 	items := BuildMultiCloneItems(urls, opts.TargetDir)
 	if opts.IsDryRun {
 		RenderMultiCloneDryRun(items, opts.TargetDir)
+
 		return nil
 	}
 
 	summary := ExecuteMultiCloneBatch(items, opts)
 	if summary.Failed > 0 {
-		cliexit.HandleError(nil, constants.ExitCloneMultiPartialFail)
+		return apperror.NewWithDetails("clone_multi", "MULTI_CLONE_PARTIAL_FAIL", fmt.Sprintf("%d repositories failed to clone", summary.Failed), "processMultiCloneExecution", apperror.ErrorTypeExecution, apperror.SeverityError, nil)
 	}
 
 	return nil

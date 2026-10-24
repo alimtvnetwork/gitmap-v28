@@ -3,15 +3,14 @@ package cmddiff
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 	"os"
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/diff"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diff"
+	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 )
 
 // runDiff implements `gitmap diff LEFT RIGHT`: a read-only preview
@@ -19,55 +18,91 @@ import (
 //
 // Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func runDiff(args []string) error {
-	checkHelp("diff", args)
+	checkHelp(constants.CmdDiff, args)
 	left, right, walkOpts, printOpts := parseDiffArgs(args)
 
-	leftEP, err := diff.ResolveEndpoint(left)
+	leftEP, rightEP, err := resolveAndGuardEndpoints(left, right)
 	if err != nil {
-		return apperror.WrapSimple(err, "resolve-endpoint left")
+		return err
 	}
 
-	rightEP, err := diff.ResolveEndpoint(right)
+	return executeDiffAndReport(leftEP, rightEP, walkOpts, printOpts)
+}
+
+func resolveEndpointSide(target, wrapToken string) (diff.Endpoint, error) {
+	ep, err := diff.ResolveEndpoint(target)
 	if err != nil {
-		return apperror.WrapSimple(err, "resolve-endpoint right")
+		return diff.Endpoint{}, apperror.WrapSimple(err, wrapToken)
+	}
+
+	return ep, nil
+}
+
+func resolveAndGuardEndpoints(left, right string) (diff.Endpoint, diff.Endpoint, error) {
+	leftEP, err := resolveEndpointSide(left, constants.WrapResolveEndpointLeft)
+	if err != nil {
+		return diff.Endpoint{}, diff.Endpoint{}, err
+	}
+
+	rightEP, err := resolveEndpointSide(right, constants.WrapResolveEndpointRight)
+	if err != nil {
+		return diff.Endpoint{}, diff.Endpoint{}, err
 	}
 
 	if guardErr := guardDiffPaths(leftEP, rightEP); guardErr != nil {
-		return apperror.WrapSimple(guardErr, "guard-paths")
+		return diff.Endpoint{}, diff.Endpoint{}, apperror.WrapSimple(guardErr, constants.WrapGuardPaths)
 	}
 
+	return leftEP, rightEP, nil
+}
+
+func executeDiffAndReport(leftEP, rightEP diff.Endpoint, walkOpts diff.WalkOptions, printOpts diff.PrintOptions) error {
 	entries, err := diff.DiffTrees(leftEP.WorkingDir, rightEP.WorkingDir, walkOpts)
 	if err != nil {
-		return apperror.WrapSimple(err, "diff failed: "+constants.LogPrefixDiff)
+		return apperror.WrapSimple(err, constants.WrapDiffFailed)
 	}
 
 	if reportErr := diff.Report(os.Stdout, entries, printOpts); reportErr != nil {
-		return apperror.WrapSimple(reportErr, "report failed: "+constants.LogPrefixDiff)
+		return apperror.WrapSimple(reportErr, constants.WrapReportFailed)
 	}
 
 	return nil
 }
 
-// parseDiffArgs parses positional + flag arguments.
-func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, print diff.PrintOptions) {
-	fs := flag.NewFlagSet(constants.CmdDiff, flag.ExitOnError)
-	jsonOut := fs.Bool(constants.FlagDiffJSON, false, "emit JSON instead of text")
-	onlyConf := fs.Bool(constants.FlagDiffOnlyConflicts, false, "show only conflicting files")
-	onlyMiss := fs.Bool(constants.FlagDiffOnlyMissing, false, "show only missing-side files")
-	includeIdent := fs.Bool(constants.FlagDiffIncludeIdentical, false, "include identical files in output")
-	includeVCS := fs.Bool(constants.FlagDiffIncludeVCS, false, "include .git/ in the walk")
-	includeNM := fs.Bool(constants.FlagDiffIncludeNodeMods, false, "include node_modules/ in the walk")
+type diffFlagBindings struct {
+	jsonOut      *bool
+	onlyConf     *bool
+	onlyMiss     *bool
+	includeIdent *bool
+	includeVCS   *bool
+	includeNM    *bool
+}
 
+func initDiffFlags(fs *flag.FlagSet) diffFlagBindings {
+	return diffFlagBindings{
+		jsonOut:      fs.Bool(constants.FlagDiffJSON, false, constants.FlagDescJSON),
+		onlyConf:     fs.Bool(constants.FlagDiffOnlyConflicts, false, constants.FlagDescOnlyConflicts),
+		onlyMiss:     fs.Bool(constants.FlagDiffOnlyMissing, false, constants.FlagDescOnlyMissing),
+		includeIdent: fs.Bool(constants.FlagDiffIncludeIdentical, false, constants.FlagDescIncludeIdentical),
+		includeVCS:   fs.Bool(constants.FlagDiffIncludeVCS, false, constants.FlagDescIncludeVCS),
+		includeNM:    fs.Bool(constants.FlagDiffIncludeNodeMods, false, constants.FlagDescIncludeNodeMods),
+	}
+}
+
+// parseDiffArgs parses positional + flag arguments.
+func parseDiffArgs(args []string) (string, string, diff.WalkOptions, diff.PrintOptions) {
+	fs := flag.NewFlagSet(constants.CmdDiff, flag.ExitOnError)
+	flags := initDiffFlags(fs)
 	positional := flagutil.ReorderFlagsBeforeArgs(args)
 	if err := fs.Parse(positional); err != nil {
-		cliexit.HandleError(err, 2)
+		cliexit.HandleError(err, constants.ExitUsageError)
 	}
 
-	left, right = extractDiffPositional(fs.Args())
-	walk = diff.WalkOptions{IncludeVCS: *includeVCS, IncludeNodeModules: *includeNM}
-	print = diff.PrintOptions{
-		OnlyConflicts: *onlyConf, OnlyMissing: *onlyMiss,
-		IncludeIdentical: *includeIdent, JSON: *jsonOut,
+	left, right := extractDiffPositional(fs.Args())
+	walk := diff.WalkOptions{IncludeVCS: *flags.includeVCS, IncludeNodeModules: *flags.includeNM}
+	print := diff.PrintOptions{
+		OnlyConflicts: *flags.onlyConf, OnlyMissing: *flags.onlyMiss,
+		IncludeIdentical: *flags.includeIdent, JSON: *flags.jsonOut,
 	}
 
 	return left, right, walk, print
@@ -75,12 +110,12 @@ func parseDiffArgs(args []string) (left, right string, walk diff.WalkOptions, pr
 
 // extractDiffPositional pulls LEFT and RIGHT from the parsed args.
 func extractDiffPositional(rest []string) (string, string) {
-	if len(rest) != 2 {
+	if len(rest) != constants.ExpectedDiffPositionalArgs {
 		fmt.Fprintf(os.Stderr, constants.ErrDiffUsageFmt)
 		cliexit.HandleUsageError(nil)
 	}
 
-	return rest[0], rest[1]
+	return rest[constants.IndexDiffLeft], rest[constants.IndexDiffRight]
 }
 
 // guardDiffPaths blocks LEFT==RIGHT (nested folders are still useful for
@@ -89,7 +124,7 @@ func guardDiffPaths(left, right diff.Endpoint) error {
 	lAbs, _ := filepath.Abs(left.WorkingDir)
 	rAbs, _ := filepath.Abs(right.WorkingDir)
 	if lAbs == rAbs {
-		return apperror.NewExecutionError(fmt.Sprintf((constants.ErrDiffSameFolder), lAbs))
+		return apperror.NewExecutionError(fmt.Sprintf(constants.ErrDiffSameFolder, lAbs))
 	}
 
 	return nil

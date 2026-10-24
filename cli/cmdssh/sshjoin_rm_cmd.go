@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/spf13/cobra"
 )
 
@@ -18,18 +20,16 @@ var SJRmCmd = &cobra.Command{
 }
 
 func dispatchRmCategory(ctx context.Context, target string, args []string) (bool, error) {
-	isKeys := target == "keys" || target == "key"
-	if isKeys {
+	rmTarget := constants.SSHRmTargetType(strings.ToLower(target))
+	if rmTarget.IsKeys() {
 		return true, runSSHDelete(args[1:])
 	}
 
-	isClear := target == "clear" || target == "all"
-	if isClear {
+	if rmTarget.IsAll() {
 		return true, runSSHClearNodes(args[1:])
 	}
 
-	isNodes := target == "nodes" || target == "node"
-	if isNodes {
+	if rmTarget.IsNodes() {
 		return true, dispatchRmNodesArgs(args[1:])
 	}
 

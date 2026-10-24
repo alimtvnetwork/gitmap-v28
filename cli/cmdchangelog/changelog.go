@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -211,13 +210,13 @@ func openChangelogFile() error {
 
 // runOpenCommand executes the platform-specific open command.
 func runOpenCommand(path string) error {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		cmd := exec.Command(constants.CmdWindowsShell, constants.CmdArgSlashC, constants.CmdArgStart, constants.CmdArgEmpty, path)
 
 		return cmd.Run()
 	}
 
-	if runtime.GOOS == constants.OSDarwin {
+	if constants.IsDarwinPlatform() {
 		cmd := exec.Command(constants.CmdOpen, path)
 
 		return cmd.Run()

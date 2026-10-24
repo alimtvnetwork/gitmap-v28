@@ -41,7 +41,7 @@ func buildGitUserSection() termout.HelpSection {
 			{Command: "list / ls", Description: "List configured Git profiles with active and bound indicators"},
 			{Command: "switch / use <alias>", Description: "Switch active Git profile (--global or --project)"},
 			{Command: "project [bind|unbind]", Description: "Manage per-repository profile bindings"},
-			{Command: "config [global|local]", Description: "Inspect or configure Git user.name and user.email"},
+			{Command: "config, set [scope]", Description: "Inspect or configure Git user.name and user.email (--name, --email, -i)"},
 			{Command: "sync", Description: "Apply bound project user profile to current repository"},
 		},
 	}

@@ -1,5 +1,9 @@
 package cmdcommit
 
+import (
+	commitconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit/constants"
+)
+
 // CommitMetadata encapsulates operational flags and ambient AI provenance.
 type CommitMetadata struct {
 	TaskSlug  string
@@ -13,26 +17,26 @@ type CommitMetadata struct {
 }
 
 const (
-	FlagAgentID     = "--agent-id"
+	FlagAgentID     = commitconstants.FlagAgentID
 	FlagAgent       = "--agent"
-	FlagHeatmapID   = "--heatmap-id"
+	FlagHeatmapID   = commitconstants.FlagHeatmapID
 	FlagHeatmap     = "--heatmap"
-	FlagAI          = "--ai"
-	FlagSpec        = "--spec"
-	FlagTask        = "--task"
+	FlagAI          = commitconstants.FlagAI
+	FlagSpec        = commitconstants.FlagSpec
+	FlagTask        = commitconstants.FlagTask
 	FlagTaskShort   = "-t"
-	FlagPushLong    = "--push"
+	FlagPushLong    = commitconstants.FlagPush
 	FlagPushShort   = "-p"
-	FlagDryRunLong  = "--dry-run"
+	FlagDryRunLong  = commitconstants.FlagDryRun
 	FlagDryRunShort = "-n"
 
-	EnvGitmapAgentID          = "GITMAP_AGENT_ID"
-	EnvAntigravityAgentID     = "ANTIGRAVITY_AGENT_ID"
+	EnvGitmapAgentID          = commitconstants.EnvGitmapAgentID
+	EnvAntigravityAgentID     = commitconstants.EnvAntigravityAgentID
 	EnvAgentID                = "AGENT_ID"
-	EnvGitmapHeatmapID        = "GITMAP_HEATMAP_ID"
+	EnvGitmapHeatmapID        = commitconstants.EnvGitmapHeatmapID
 	EnvGitmapHeatmapSessionID = "GITMAP_HEATMAP_SESSION_ID"
 	EnvGitmapAIName           = "GITMAP_AI_NAME"
-	EnvAIModel                = "AI_MODEL"
+	EnvAIModel                = commitconstants.EnvAIModel
 	EnvGeminiModel            = "GEMINI_MODEL"
 	EnvMuseModel              = "MUSE_MODEL"
 	EnvGitmapTaskSlug         = "GITMAP_TASK_SLUG"

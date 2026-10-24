@@ -37,6 +37,9 @@ func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gi
 	if repoPath == "" {
 		return recipe
 	}
+	if r, ok := conflictStateReplacement(repoPath, recipe); ok {
+		return r
+	}
 	if r, ok := noInitialCommitReplacement(repoPath, recipe); ok {
 		return r
 	}
@@ -118,11 +121,9 @@ func recoverNoInitialCommit(step gitutil.RemediationStep, output string) (bool, 
 		return false, ""
 	}
 
-	commitArgs := []string{"-C", repoPath, "commit", "-m", "feat: initial commit"}
-	if !hasConfiguredGitIdentity(repoPath) {
-		// Fall back to a tool identity so the recovery commit succeeds on
-		// machines without a configured git user.name/user.email.
-		commitArgs = []string{"-C", repoPath, "-c", "user.name=gitmap", "-c", "user.email=gitmap@localhost", "commit", "-m", "feat: initial commit"}
+	commitArgs, hasIdentity := buildCommitArgsWithIdentity(repoPath, "feat: initial commit")
+	if !hasIdentity {
+		return false, "failed: git identity not configured"
 	}
 	cmdCommit := exec.Command("git", commitArgs...)
 	if err := cmdCommit.Run(); err != nil {
@@ -130,17 +131,6 @@ func recoverNoInitialCommit(step gitutil.RemediationStep, output string) (bool, 
 	}
 
 	return true, "recovered (created initial commit)"
-}
-
-// hasConfiguredGitIdentity reports whether git resolves an author identity
-// for repoPath (repo-local or global config).
-func hasConfiguredGitIdentity(repoPath string) bool {
-	out, err := exec.Command("git", "-C", repoPath, "config", "user.email").Output()
-	if err != nil {
-		return false
-	}
-
-	return strings.TrimSpace(string(out)) != ""
 }
 
 func isBenignPullNoTracking(step gitutil.RemediationStep, output string) bool {

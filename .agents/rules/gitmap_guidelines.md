@@ -21,3 +21,8 @@ trigger: always_on
 
   ### 3. Automated Refactoring Warning
   - **No Blind Regex Mass Refactoring**: Never blindly regex-replace exit calls without matching function return signatures.
+
+  ### 4. GitMap Command Discipline & Commit Standards
+  - **Mandatory Pre-Flight Pull**: Always execute `gitmap pull` (fallback `git pull`) before creating or modifying code.
+  - **Dedicated Semantic Commit Verbs**: Always use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. TOTAL BAN on using `cpf` for releases or chores.
+  - **Commit Formatting Standard**: Format as `"MODULE - summary"`. TOTAL BAN on raw `git commit`, `git add -A`, square brackets `[...]`, colons inside arguments, or nested conventional prefixes like `chore(release):` in commit arguments.

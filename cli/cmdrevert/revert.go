@@ -6,84 +6,99 @@ import (
 	"os/exec"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
-// runRevert handles the "revert" command.
+// RunRevert handles the "revert" command.
 func RunRevert(args []string) error {
-	checkHelp("revert", args)
-	if handleRevertTxnFlags(args) {
+	checkHelp(constants.CmdRevert, args)
+	isHandled, err := handleRevertTxnFlags(args)
+	if err != nil {
+		return err
+	}
+	if isHandled {
 		return nil
 	}
 
 	if len(args) == 0 {
-		cliexit.HandleError(apperror.NewSimple(constants.ErrRevertUsage, "E9000"), 1)
+		return apperror.NewSimple(constants.MsgRevertUsage, constants.ErrCodeE9000)
 	}
 
 	version := release.NormalizeVersion(args[0])
-	validateRevertVersion(version)
-	checkoutRevertTag(version)
-	launchRevertHandoff()
+	if err := validateRevertVersion(version); err != nil {
+		return err
+	}
+	if err := checkoutRevertTag(version); err != nil {
+		return err
+	}
 
-	return nil
+	return launchRevertHandoff()
 }
 
 // validateRevertVersion ensures the tag exists locally.
-func validateRevertVersion(version string) {
+func validateRevertVersion(version string) error {
 	if release.TagExistsLocally(version) {
-		return
+		return nil
 	}
 
-	cliexit.HandleError(apperror.NewSimple(constants.ErrRevertTagNotFound, "E9000"), 1)
+	msg := fmt.Sprintf(constants.ErrTagNotFound, version)
+
+	return apperror.NewSimple(msg, constants.ErrCodeE9000)
 }
 
 // checkoutRevertTag checks out the tag in the repo directory.
-func checkoutRevertTag(version string) {
-	repoPath := constants.RepoPath
+func checkoutRevertTag(version string) error {
+	repoPath := getRepoPath()
 	if len(repoPath) == 0 {
-		appErr := apperror.NewWithDetails(
-			"revert.checkout",
-			"E2012",
-			constants.ErrNoRepoPath,
-			"cmd.revert",
-			apperror.ErrorTypePrecondition,
-			apperror.SeverityError,
-			map[string]any{"version": version},
-		)
-		cliexit.HandleError(appErr, 1)
+		return newRepoPathError(version)
 	}
 
 	fmt.Printf(constants.MsgRevertCheckout, version)
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoPath,
-		constants.GitCheckout, version)
+
+	return executeGitCheckout(repoPath, version)
+}
+
+func newRepoPathError(version string) *apperror.AppError {
+	return apperror.NewWithDetails(
+		constants.OpRevertCheckout,
+		constants.ErrCodeE2012,
+		constants.ErrNoRepoPath,
+		constants.DomainCmdRevert,
+		apperror.ErrorTypePrecondition,
+		apperror.SeverityError,
+		map[string]any{"version": version},
+	)
+}
+
+func executeGitCheckout(repoPath, version string) error {
+	cmd := exec.Command(constants.BinGit, constants.GitFlagDir, repoPath,
+		constants.GitCmdCheckout, version)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		cliexit.HandleError(err, 1)
-	}
+	return cmd.Run()
 }
 
 // launchRevertHandoff creates a handoff copy and runs the revert-runner.
-func launchRevertHandoff() {
+func launchRevertHandoff() error {
 	selfPath, err := os.Executable()
 	if err != nil {
-		cliexit.HandleError(err, 1)
+		return err
 	}
 
 	copyPath := cmdupdate.CreateHandoffCopy(selfPath)
 	fmt.Printf(constants.MsgUpdateActive, selfPath, copyPath)
-	launchRevertRunner(copyPath)
+
+	return launchRevertRunner(copyPath)
 }
 
 // launchRevertRunner runs the handoff binary with revert-runner command.
-func launchRevertRunner(copyPath string) {
+func launchRevertRunner(copyPath string) error {
 	copyArgs := []string{constants.CmdRevertRunner}
 	if cmdupdate.HasFlag(constants.FlagVerbose) {
-		copyArgs = append(copyArgs, constants.FlagVerbose)
+		copyArgs = append(copyArgs, constants.FlagArgVerbose)
 	}
 
 	cmd := exec.Command(copyPath, copyArgs...)
@@ -92,5 +107,9 @@ func launchRevertRunner(copyPath string) {
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
 		cmdupdate.HandleHandoffError(err)
+
+		return err
 	}
+
+	return nil
 }

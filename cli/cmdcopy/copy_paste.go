@@ -1,4 +1,4 @@
-// Package cmd — copy_paste.go: cross-platform clipboard and memory buffer copy-paste operations.
+// Package cmdcopy — copy_paste.go: cross-platform clipboard and memory buffer copy-paste operations.
 package cmdcopy
 
 import (
@@ -9,7 +9,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcopy/enums"
 	"github.com/atotto/clipboard"
 )
 
@@ -29,7 +30,7 @@ func RunCopyCmd(args []string) error {
 func reportEmptyCopy() error {
 	printCopyUsage()
 
-	return apperror.NewValidationError("nothing to copy: text or file required")
+	return apperror.NewValidationError(constants.ErrMsgNothingToCopy)
 }
 
 func persistAndAnnounceCopy(content string) error {
@@ -37,17 +38,34 @@ func persistAndAnnounceCopy(content string) error {
 		return err
 	}
 
-	fmt.Printf("  %s📋 Copied %d bytes to memory & clipboard ✅%s\n",
+	fmt.Printf(constants.MsgCopiedSuccessFmt,
 		constants.ColorGreen, len(content), constants.ColorReset)
 
 	return nil
 }
 
 func printCopyUsage() {
-	fmt.Println("Usage: gitmap copy <text...> [--file <path>]")
+	fmt.Println(constants.HelpCopyUsage)
 	fmt.Println()
-	fmt.Println("Copies text, items, or file contents to OS clipboard and persistent repository memory.")
+	fmt.Println(constants.HelpCopyDesc)
 	fmt.Println()
+}
+
+func determineCopySource(args []string) enums.CopySourceType {
+	if extractCopyFilePath(args) != "" {
+		return enums.CopySourceFile
+	}
+
+	filtered := filterFlagArgs(args)
+	if len(filtered) == 1 && isExistingFile(filtered[0]) {
+		return enums.CopySourceFile
+	}
+
+	if len(filtered) > 0 {
+		return enums.CopySourceArgs
+	}
+
+	return enums.CopySourceStdin
 }
 
 func resolveCopyContent(args []string) (string, error) {
@@ -75,12 +93,12 @@ func resolveCopyTextOrStdin(filtered []string) (string, error) {
 func extractCopyFilePath(args []string) string {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
-		if (a == "--file" || a == "-f") && i+1 < len(args) {
+		if (a == constants.FlagFile || a == constants.FlagFileShort) && i+1 < len(args) {
 			return args[i+1]
 		}
 
-		if strings.HasPrefix(a, "--file=") {
-			return strings.TrimPrefix(a, "--file=")
+		if strings.HasPrefix(a, constants.FlagPrefixFile) {
+			return strings.TrimPrefix(a, constants.FlagPrefixFile)
 		}
 	}
 
@@ -90,14 +108,13 @@ func extractCopyFilePath(args []string) string {
 func filterFlagArgs(args []string) []string {
 	var out []string
 	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if (a == "--file" || a == "-f") && i+1 < len(args) {
+		if (args[i] == constants.FlagFile || args[i] == constants.FlagFileShort) && i+1 < len(args) {
 			i++
 			continue
 		}
 
-		if !strings.HasPrefix(a, "-") {
-			out = append(out, a)
+		if !strings.HasPrefix(args[i], "-") {
+			out = append(out, args[i])
 		}
 	}
 
@@ -107,7 +124,7 @@ func filterFlagArgs(args []string) []string {
 func readFileContentForCopy(path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return "", apperror.WrapSimple(err, fmt.Sprintf("read file %q for copy", path))
+		return "", apperror.WrapSimple(err, fmt.Sprintf(constants.ErrFmtReadFile, path))
 	}
 
 	return string(data), nil
@@ -120,7 +137,7 @@ func readPipedStdinForCopy() (string, error) {
 
 	data, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		return "", apperror.WrapSimple(err, "read stdin for copy")
+		return "", apperror.WrapSimple(err, constants.ErrFmtReadStdin)
 	}
 
 	return string(data), nil
@@ -133,8 +150,8 @@ func saveContentToMemoryAndClipboard(content string) error {
 		return err
 	}
 
-	if err := os.WriteFile(memPath, []byte(content), 0644); err != nil {
-		return apperror.WrapSimple(err, "write memory clipboard buffer")
+	if err := os.WriteFile(memPath, []byte(content), constants.DefaultFilePerm); err != nil {
+		return apperror.WrapSimple(err, constants.ErrFmtWriteMemoryClipboard)
 	}
 
 	return nil
@@ -142,24 +159,24 @@ func saveContentToMemoryAndClipboard(content string) error {
 
 func resolveMemoryFilePath() (string, error) {
 	dir := resolveMemoryBaseDir()
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return "", apperror.WrapSimple(err, "create memory directory")
+	if err := os.MkdirAll(dir, constants.DefaultDirPerm); err != nil {
+		return "", apperror.WrapSimple(err, constants.ErrFmtCreateMemoryDir)
 	}
 
-	return filepath.Join(dir, "clipboard.txt"), nil
+	return filepath.Join(dir, constants.FileClipboard), nil
 }
 
 func resolveMemoryBaseDir() string {
 	if root, err := gitTopLevel(); err == nil && len(root) > 0 {
-		return filepath.Join(root, ".gitmap", "memory")
+		return filepath.Join(root, constants.DirGitmap, constants.DirMemory)
 	}
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join(".", ".gitmap", "memory")
+		return filepath.Join(constants.DotDirSentinel, constants.DirGitmap, constants.DirMemory)
 	}
 
-	return filepath.Join(home, ".gitmap", "memory")
+	return filepath.Join(home, constants.DirGitmap, constants.DirMemory)
 }
 
 func RunPasteCmd(args []string) error {
@@ -178,7 +195,15 @@ func RunPasteCmd(args []string) error {
 }
 
 func printEmptyPasteNotice() {
-	fmt.Printf("  %s⚠️  Clipboard and memory buffer are empty.%s\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Printf(constants.MsgEmptyPasteNoticeFmt, constants.ColorYellow, constants.ColorReset)
+}
+
+func determinePasteTarget(outFile string) enums.CopyTargetType {
+	if outFile != "" {
+		return enums.CopyTargetFile
+	}
+
+	return enums.CopyTargetStdout
 }
 
 func dispatchPasteOutput(args []string, content string) error {
@@ -206,8 +231,8 @@ func extractPasteOutFile(args []string) string {
 			return args[i+1]
 		}
 
-		if strings.HasPrefix(a, "--file=") || strings.HasPrefix(a, "--out=") {
-			return strings.TrimPrefix(strings.TrimPrefix(a, "--file="), "--out=")
+		if strings.HasPrefix(a, constants.FlagPrefixFile) || strings.HasPrefix(a, constants.FlagPrefixOut) {
+			return strings.TrimPrefix(strings.TrimPrefix(a, constants.FlagPrefixFile), constants.FlagPrefixOut)
 		}
 	}
 
@@ -216,15 +241,15 @@ func extractPasteOutFile(args []string) string {
 
 func writePastedContentToFile(outFile, content string) error {
 	dir := filepath.Dir(outFile)
-	if dir != "" && dir != "." {
-		_ = os.MkdirAll(dir, 0755)
+	if dir != "" && dir != constants.DotDirSentinel {
+		_ = os.MkdirAll(dir, constants.DefaultDirPerm)
 	}
 
-	if err := os.WriteFile(outFile, []byte(content), 0644); err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf("write pasted content to %q", outFile))
+	if err := os.WriteFile(outFile, []byte(content), constants.DefaultFilePerm); err != nil {
+		return apperror.WrapSimple(err, fmt.Sprintf(constants.ErrFmtWritePastedContent, outFile))
 	}
 
-	fmt.Printf("  %s📋 Pasted %d bytes to %s ✅%s\n",
+	fmt.Printf(constants.MsgPastedSuccessFmt,
 		constants.ColorGreen, len(content), outFile, constants.ColorReset)
 
 	return nil
@@ -236,9 +261,13 @@ func fetchClipboardOrMemoryContent() (string, error) {
 		return clipText, nil
 	}
 
-	memPath, memErr := resolveMemoryFilePath()
-	if memErr != nil {
-		return "", memErr
+	return readMemoryFallbackContent()
+}
+
+func readMemoryFallbackContent() (string, error) {
+	memPath, err := resolveMemoryFilePath()
+	if err != nil {
+		return "", err
 	}
 
 	data, readErr := os.ReadFile(memPath)
