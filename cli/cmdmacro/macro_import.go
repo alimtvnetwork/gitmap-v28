@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -143,10 +144,10 @@ func processImportFormatFlag(arg string, args []string, index *int, opts *macroI
 	case arg == "--json":
 		opts.Format = constants.OutputJSON
 		return true
-	case arg == "--yaml" || arg == "--yml" || arg == "-y":
+	case slices.Contains([]string{"--yaml", "--yml", "-y"}, arg):
 		opts.Format = constants.OutputYAML
 		return true
-	case arg == "--sqlite" || arg == "--db" || arg == "--sqlitedb":
+	case slices.Contains([]string{"--sqlite", "--db", "--sqlitedb"}, arg):
 		opts.Format = "sqlite"
 		return true
 	case arg == "--zip":
@@ -159,15 +160,15 @@ func processImportFormatFlag(arg string, args []string, index *int, opts *macroI
 
 func processImportModifierFlag(arg string, opts *macroImportOpts) bool {
 	switch {
-	case arg == "--all" || arg == "all":
+	case slices.Contains([]string{"--all", "all"}, arg):
 		opts.IsAll = true
 		opts.IsSingle = false
 		return true
-	case arg == "--single" || arg == "single":
+	case slices.Contains([]string{"--single", "single"}, arg):
 		opts.IsSingle = true
 		opts.IsAll = false
 		return true
-	case arg == "--force" || arg == "--overwrite":
+	case slices.Contains([]string{"--force", "--overwrite"}, arg):
 		opts.IsForce = true
 		return true
 	case arg == "--dry-run":

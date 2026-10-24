@@ -3,6 +3,7 @@ package cmdmacro
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -115,10 +116,10 @@ func processExportFormatFlag(arg string, args []string, index *int, opts *macroE
 	case arg == "--json":
 		opts.Format = constants.OutputJSON
 		return true
-	case arg == "--yaml" || arg == "--yml" || arg == "-y":
+	case slices.Contains([]string{"--yaml", "--yml", "-y"}, arg):
 		opts.Format = constants.OutputYAML
 		return true
-	case arg == "--sqlite" || arg == "--db" || arg == "--sqlitedb":
+	case slices.Contains([]string{"--sqlite", "--db", "--sqlitedb"}, arg):
 		opts.Format = "sqlite"
 		return true
 	case arg == "--zip":
@@ -131,11 +132,11 @@ func processExportFormatFlag(arg string, args []string, index *int, opts *macroE
 
 func processExportScopeFlag(arg string, opts *macroExportOpts) bool {
 	switch {
-	case arg == "--all" || arg == "all" || arg == "*":
+	case slices.Contains([]string{"--all", "all", "*"}, arg):
 		opts.IsAll = true
 		opts.IsSingle = false
 		return true
-	case arg == "--single" || arg == "single":
+	case slices.Contains([]string{"--single", "single"}, arg):
 		opts.IsSingle = true
 		opts.IsAll = false
 		return true
