@@ -8,13 +8,15 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro/enums"
 )
 
-type ContextKeyType string
+// ContextKeyType is the canonical macro context key type, defined in enums.
+type ContextKeyType = enums.ContextKeyType
 
 const (
-	callStackKey    ContextKeyType = "macroCallStack"
-	currentMacroKey ContextKeyType = "currentMacroName"
+	callStackKey    = enums.CallStackKey
+	currentMacroKey = enums.CurrentMacroKey
 )
 
 const maxMacroRecursionDepth = 10
