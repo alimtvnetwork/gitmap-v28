@@ -97,8 +97,19 @@ When an agent or developer omits explicit CLI flags, GitMap automatically resolv
 
 If any AI flag or environment indicator is present, `isAiMode` is automatically set to `true`.
 
-### Rule 4: Hyphen-Separated Commit Message Preservation
-Commit messages must strictly follow GitMap's hyphen-separated standard: `<module> - <summary>`. Colons (`:`) inside message arguments are strictly prohibited because GitMap's semantic commit suite (`cpf`, `cpb`, `cpc`, `cpr`) automatically applies semantic prefixes (`Feature: `, `Bug: `, `Chore: `).
+### Rule 4: Hyphen-Separated & Bracketed Module Commit Message Standards
+GitMap commit suites (`cpf`, `cpb` / `cbf`, `cpc`, `cpr`) support two authorized naming formats:
+
+1. **Bracketed Module Format (Recommended)**: `[module]: <summary>` or `type([module]): <summary>`
+   - `gitmap cpf "[auth]: add jwt validation"` $\rightarrow$ `feat(auth): add jwt validation`
+   - `gitmap cbf "[db]: fix connection pool leak"` $\rightarrow$ `fix(db): fix connection pool leak`
+   - `gitmap cpc "[ci]: update go version"` $\rightarrow$ `chore(ci): update go version`
+   - `gitmap cpr "[v2.0]: production cut"` $\rightarrow$ `chore(release): [v2.0]: production cut`
+   - Bracketed modules allow developers and AI agents to explicitly specify the component scope directly inside the bracket enclosure.
+
+2. **Hyphen-Separated Standard**: `<module> - <summary>`
+   - `gitmap cpf "auth - add jwt validation"` $\rightarrow$ `feat(auth): add jwt validation`
+   - When using hyphen-separated syntax, colons (`:`) inside raw message arguments are avoided because semantic prefixes are applied automatically.
 
 ### Rule 5: External Split-DB Isolation & Storage
 Commit history, file touches, diff metrics, and AI provenance are recorded into GitMap's external split database:
