@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -108,7 +109,7 @@ func applySendEmailUIArg(args []string, i int, opts *sendEmailUIOptions) (int, e
 		opts.task, i = nextUIFlagValue(args, i, arg, "--task")
 	case arg == "--html":
 		opts.isHTML = true
-	case arg == "--dry-run" || arg == "-n":
+	case slices.Contains([]string{"--dry-run", "-n"}, arg):
 		opts.isDryRun = true
 	case arg == "--non-interactive":
 		opts.isInteractive = false
