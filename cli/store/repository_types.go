@@ -28,6 +28,39 @@ type (
 	// SQLiteDBWrap is the canonical single reusable result container for an opened SQLite connection.
 	SQLiteDBWrap = result.Wrap[*sql.DB]
 
+	// ErrorsSplitDBWrap is the canonical single reusable result container for an errors split database.
+	ErrorsSplitDBWrap = result.Wrap[*ErrorsSplitDB]
+
+	// InternalErrorRecordWrap is the canonical single reusable result container for an internal error record.
+	InternalErrorRecordWrap = result.Wrap[*InternalErrorRecord]
+
+	// InternalErrorRecordSliceWrap is the canonical single reusable collection container for internal error records.
+	InternalErrorRecordSliceWrap = result.WrapSlice[InternalErrorRecord]
+
+	// IPSnapshotRecordWrap is the canonical single reusable result container for an IP snapshot record.
+	IPSnapshotRecordWrap = result.Wrap[*IPSnapshotRecord]
+
+	// IPSnapshotRecordSliceWrap is the canonical single reusable collection container for IP snapshot records.
+	IPSnapshotRecordSliceWrap = result.WrapSlice[IPSnapshotRecord]
+
+	// SQLRowsWrap is the canonical single reusable result container for a SQL rows cursor.
+	SQLRowsWrap = result.Wrap[*sql.Rows]
+
+	// SnapshotJSONWrap is the canonical single reusable result container for a marshalled snapshot payload.
+	SnapshotJSONWrap = result.Wrap[[]byte]
+
+	// PendingTaskRecordWrap is the canonical single reusable result container for a pending task record.
+	PendingTaskRecordWrap = result.Wrap[model.PendingTaskRecord]
+
+	// PullErrorRecordSliceWrap is the canonical single reusable collection container for pull error records.
+	PullErrorRecordSliceWrap = result.WrapSlice[PullErrorRecord]
+
+	// Int64Wrap is the canonical single reusable result container for an int64 identifier.
+	Int64Wrap = result.Wrap[int64]
+
+	// Int64SliceWrap is the canonical single reusable collection container for int64 identifiers.
+	Int64SliceWrap = result.WrapSlice[int64]
+
 	// ScanRecordsResult is an alias for ScanRecordSliceWrap using canonical WrapSlice.
 	ScanRecordsResult = result.WrapSlice[model.ScanRecord]
 )

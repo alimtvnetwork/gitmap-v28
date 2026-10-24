@@ -75,10 +75,11 @@ func extractShowID(args []string) (int64, bool) {
 }
 
 func handleClearErrors() error {
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 
@@ -92,19 +93,20 @@ func handleClearErrors() error {
 }
 
 func handleShowError(id int64) error {
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 
-	rec, err := db.FederatedGetError(id)
-	if err != nil {
+	getRes := db.FederatedGetError(id)
+	if getRes.IsFailure() {
 		return apperror.NewNotFound("internal_error", "E404", fmt.Sprintf("internal error #%d not found", id))
 	}
 
-	renderSingleError(rec)
+	renderSingleError(getRes.Value)
 
 	return nil
 }
@@ -113,17 +115,19 @@ func handleListErrors(args []string) error {
 	isJSON := hasFlag(args, "--json")
 	limit := parseLimitArg(args, 25)
 
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 
-	records, err := db.FederatedListErrors(limit, false)
-	if err != nil {
-		return apperror.WrapSimple(err, "list errors")
+	listRes := db.FederatedListErrors(limit, false)
+	if listRes.IsFailure() {
+		return apperror.WrapSimple(listRes.AppError(), "list errors")
 	}
+	records := listRes.Items()
 
 	if isJSON {
 		return emitJSONErrors(records)

@@ -46,20 +46,18 @@ func RunErrorsLast(args []string) *appfault.AppError {
 		return apperror.WrapSimple(parseErr, "errors.last.flags")
 	}
 
-	splitDB, openErr := store.OpenErrorsSplitDB()
-	if openErr != nil {
-		return apperror.WrapSimple(openErr, "errors.last.open")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "errors.last.open")
 	}
+	splitDB := openRes.Value
 	defer splitDB.Close()
 
-	records, listErr := splitDB.FederatedListErrors(1, false)
-	if listErr != nil {
-		if strings.Contains(strings.ToLower(listErr.Error()), "no such table") {
-			fmt.Println("errors last: no tracked errors recorded. the error module has nothing on file.")
-			return nil
-		}
-		return apperror.WrapSimple(listErr, "errors.last.list")
+	listRes := splitDB.FederatedListErrors(1, false)
+	if listRes.IsFailure() {
+		return handleErrorsLastListFailure(listRes.AppError())
 	}
+	records := listRes.Items()
 	if len(records) == 0 {
 		fmt.Println("errors last: no tracked errors recorded. the error module has nothing on file.")
 		return nil
@@ -67,13 +65,7 @@ func RunErrorsLast(args []string) *appfault.AppError {
 
 	rec := records[0]
 	if *asJSON {
-		raw, jsonErr := json.MarshalIndent(rec, "", "  ")
-		if jsonErr != nil {
-			return apperror.WrapSimple(jsonErr, "errors.last.json")
-		}
-		fmt.Println(string(raw))
-
-		return nil
+		return printErrorsLastJSON(rec)
 	}
 
 	message := strings.ReplaceAll(strings.SplitN(rec.Message, "\n", 2)[0], "\r", "")
@@ -99,5 +91,25 @@ func RunErrorsLast(args []string) *appfault.AppError {
 	}
 	fmt.Printf("  resolved:  %s\n", resolved)
 
+	return nil
+}
+
+// handleErrorsLastListFailure maps a failed error-list read to the user-facing
+// outcome, treating a missing table as an empty store.
+func handleErrorsLastListFailure(listErr error) *appfault.AppError {
+	if strings.Contains(strings.ToLower(listErr.Error()), "no such table") {
+		fmt.Println("errors last: no tracked errors recorded. the error module has nothing on file.")
+		return nil
+	}
+	return apperror.WrapSimple(listErr, "errors.last.list")
+}
+
+// printErrorsLastJSON renders one tracked error record as indented JSON.
+func printErrorsLastJSON(rec store.InternalErrorRecord) *appfault.AppError {
+	raw, jsonErr := json.MarshalIndent(rec, "", "  ")
+	if jsonErr != nil {
+		return apperror.WrapSimple(jsonErr, "errors.last.json")
+	}
+	fmt.Println(string(raw))
 	return nil
 }

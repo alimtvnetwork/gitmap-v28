@@ -61,10 +61,11 @@ func isFailedCountRequested(args []string) bool {
 }
 
 func handleClearFailedCommands() error {
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 
@@ -80,10 +81,11 @@ func handleClearFailedCommands() error {
 func handleCountFailedCommands(args []string) error {
 	isJSON := hasFlag(args, "--json")
 
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 
@@ -121,10 +123,11 @@ func handleListFailedCommands(args []string) error {
 	isJSON := hasFlag(args, "--json")
 	limit := parseLimitArg(args, 50)
 
-	db, err := store.OpenErrorsSplitDB()
-	if err != nil {
-		return apperror.WrapSimple(err, "open errors db")
+	openRes := store.OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open errors db")
 	}
+	db := openRes.Value
 
 	defer db.Close()
 

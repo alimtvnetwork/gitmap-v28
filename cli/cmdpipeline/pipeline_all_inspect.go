@@ -198,7 +198,7 @@ func queryPullErrorsForAll() []store.PullErrorRecord {
 	}
 	defer pullDb.Close()
 
-	records, _ := pullDb.QueryLatestPullErrors("all", 10)
+	recordsRes := pullDb.QueryLatestPullErrors("all", 10)
 
-	return records
+	return recordsRes.Items()
 }

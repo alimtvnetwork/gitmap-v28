@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	_ "modernc.org/sqlite"
 )
 
@@ -120,39 +121,39 @@ func resolveGlobalUserDataDB(fileName, defaultPath string) string {
 }
 
 // OpenErrorsSplitDB opens the canonical split database for internal errors.
-func OpenErrorsSplitDB() (*ErrorsSplitDB, *apperror.AppError) {
+func OpenErrorsSplitDB() ErrorsSplitDBWrap {
 	return OpenErrorsSplitDBAt(ErrorsDBPath())
 }
 
 // OpenErrorsSplitDBAt opens or creates an errors split database at a specific path.
-func OpenErrorsSplitDBAt(dbPath string) (*ErrorsSplitDB, *apperror.AppError) {
+func OpenErrorsSplitDBAt(dbPath string) ErrorsSplitDBWrap {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
-		return nil, apperror.WrapSimple(err, "errors_split.mkdir")
+		return result.Fail[*ErrorsSplitDB](apperror.WrapSimple(err, "errors_split.mkdir"))
 	}
 
 	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "errors_split.open")
+		return result.Fail[*ErrorsSplitDB](apperror.WrapSimple(err, "errors_split.open"))
 	}
 
 	return initErrorsSplitConn(conn, dbPath)
 }
 
-func initErrorsSplitConn(conn *sql.DB, dbPath string) (*ErrorsSplitDB, *apperror.AppError) {
+func initErrorsSplitConn(conn *sql.DB, dbPath string) ErrorsSplitDBWrap {
 	if err := ConfigureSQLiteConn(conn); err != nil {
 		_ = conn.Close()
 
-		return nil, apperror.WrapSimple(err, "errors_split.config")
+		return result.Fail[*ErrorsSplitDB](err)
 	}
 
 	db := &ErrorsSplitDB{conn: conn, Path: dbPath}
 	if err := db.InitSchema(); err != nil {
 		_ = conn.Close()
 
-		return nil, err
+		return result.Fail[*ErrorsSplitDB](err)
 	}
 
-	return db, nil
+	return result.Ok(db)
 }
 
 // InitSchema creates the InternalErrorLog and FailedCommand tables and indexes if absent.
@@ -222,7 +223,7 @@ func clearRepoErrorsFile(repoPath string) {
 	}
 }
 
-func (s *ErrorsSplitDB) FederatedGetError(id int64) (*InternalErrorRecord, *apperror.AppError) {
+func (s *ErrorsSplitDB) FederatedGetError(id int64) InternalErrorRecordWrap {
 	row := s.conn.QueryRow(`SELECT InternalErrorLogId, ErrorCode, ErrorType, Command, Message, GitMapVersion, IsResolved, CreatedAt, COALESCE(RepoPath, '') FROM RootErrorIndex WHERE InternalErrorLogId = ?`, id)
 	var rec InternalErrorRecord
 	var isResolvedInt int
@@ -232,15 +233,15 @@ func (s *ErrorsSplitDB) FederatedGetError(id int64) (*InternalErrorRecord, *appe
 		&rec.GitMapVersion, &isResolvedInt, &rec.CreatedAt, &rec.RepoPath,
 	)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "errors_split.get")
+		return result.Fail[*InternalErrorRecord](apperror.WrapSimple(err, "errors_split.get"))
 	}
 
 	rec.IsResolved = isResolvedInt > 0
 	populateRepoErrorDetails(&rec)
-	return &rec, nil
+	return result.Ok(&rec)
 }
 
-func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) ([]InternalErrorRecord, *apperror.AppError) {
+func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) InternalErrorRecordSliceWrap {
 	if limit <= 0 {
 		limit = 50
 	}
@@ -252,7 +253,7 @@ func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) ([]I
 
 	rows, err := s.conn.Query(query, limit)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "errors_split.list")
+		return result.FailSlice[InternalErrorRecord](apperror.WrapSimple(err, "errors_split.list"))
 	}
 	defer rows.Close()
 
@@ -272,51 +273,5 @@ func (s *ErrorsSplitDB) FederatedListErrors(limit int, unresolvedOnly bool) ([]I
 		populateRepoErrorDetails(&records[i])
 	}
 
-	return records, nil
-}
-
-func populateRepoErrorDetails(rec *InternalErrorRecord) {
-	if rec.RepoPath == "" {
-		return
-	}
-
-	repoDBPath := filepath.Join(rec.RepoPath, ".gitmap", "errors.db")
-	repoConn, err := sql.Open("sqlite", repoDBPath)
-	if err != nil {
-		return
-	}
-	defer repoConn.Close()
-
-	fetchAndApplyRepoErrorDetails(repoConn, rec)
-}
-
-func fetchAndApplyRepoErrorDetails(conn *sql.DB, rec *InternalErrorRecord) {
-	row := conn.QueryRow(`SELECT Details, SourceFile, ContextJson, StackTrace, Notes, Comments FROM RepoErrorDB WHERE InternalErrorLogId = ?`, rec.ID)
-	var det, src, ctx, stack, notes, comm sql.NullString
-	if errScan := row.Scan(&det, &src, &ctx, &stack, &notes, &comm); errScan != nil {
-		return
-	}
-
-	applyNullStringFields(rec, det, src, ctx, stack, notes, comm)
-}
-
-func applyNullStringFields(rec *InternalErrorRecord, det, src, ctx, stack, notes, comm sql.NullString) {
-	if det.Valid {
-		rec.Details = det.String
-	}
-	if src.Valid {
-		rec.SourceFile = src.String
-	}
-	if ctx.Valid {
-		rec.ContextJson = ctx.String
-	}
-	if stack.Valid {
-		rec.StackTrace = stack.String
-	}
-	if notes.Valid {
-		rec.Notes = notes.String
-	}
-	if comm.Valid {
-		rec.Comments = comm.String
-	}
+	return result.OkSlice(records)
 }

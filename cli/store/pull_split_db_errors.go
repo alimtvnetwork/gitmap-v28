@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 const (
@@ -126,33 +127,34 @@ func saveRepoPullErrorDetails(repoDBPath string, rec PullErrorRecord) *apperror.
 }
 
 // QueryAllLatestPullErrors retrieves the most recent pull errors across all repositories.
-func (s *PullSplitDB) QueryAllLatestPullErrors(limit int) ([]PullErrorRecord, *apperror.AppError) {
+func (s *PullSplitDB) QueryAllLatestPullErrors(limit int) PullErrorRecordSliceWrap {
 	return s.QueryLatestPullErrors("all", limit)
 }
 
 // QueryLatestPullErrors retrieves the most recent pull errors, optionally filtered by repoSlug.
-func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) ([]PullErrorRecord, *apperror.AppError) {
+func (s *PullSplitDB) QueryLatestPullErrors(repoSlug string, limit int) PullErrorRecordSliceWrap {
 	if s.conn == nil {
-		return nil, apperror.NewValidationError("database connection is nil")
+		return result.FailSlice[PullErrorRecord](apperror.NewValidationError("database connection is nil"))
 	}
 
 	limit = normalizePullErrorLimit(limit)
 	query, args := buildPullErrorQuery(repoSlug, limit)
 	rows, err := s.conn.Query(query, args...)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "pull_errors.query")
+		return result.FailSlice[PullErrorRecord](apperror.WrapSimple(err, "pull_errors.query"))
 	}
 	defer rows.Close()
 
-	records, scanErr := scanPullErrorRows(rows)
-	if scanErr != nil {
-		return records, scanErr
+	scanRes := scanPullErrorRows(rows)
+	if scanRes.IsFailure() {
+		return scanRes
 	}
 
+	records := scanRes.Items()
 	for i := range records {
 		records[i] = enrichPullErrorRecord(records[i])
 	}
-	return records, nil
+	return result.OkSlice(records)
 }
 
 func enrichPullErrorRecord(rec PullErrorRecord) PullErrorRecord {
@@ -200,7 +202,7 @@ func isAllReposQuery(repoSlug string) bool {
 	return clean == "" || clean == "all"
 }
 
-func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, *apperror.AppError) {
+func scanPullErrorRows(rows *sql.Rows) PullErrorRecordSliceWrap {
 	var records []PullErrorRecord
 	for rows.Next() {
 		rec, isOk := scanSinglePullError(rows)
@@ -209,9 +211,9 @@ func scanPullErrorRows(rows *sql.Rows) ([]PullErrorRecord, *apperror.AppError) {
 		}
 	}
 	if rows.Err() != nil {
-		return records, apperror.WrapSimple(rows.Err(), "scan")
+		return result.FailSlice[PullErrorRecord](apperror.WrapSimple(rows.Err(), "scan"))
 	}
-	return records, nil
+	return result.OkSlice(records)
 }
 
 func scanSinglePullError(rows *sql.Rows) (PullErrorRecord, bool) {

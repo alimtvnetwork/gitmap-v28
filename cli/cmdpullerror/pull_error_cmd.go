@@ -195,12 +195,12 @@ func executeLocalPullErrors(opts PullErrorOptions) error {
 	}
 	defer db.Close()
 
-	records, appErr := db.QueryLatestPullErrors(opts.RepoSlug, opts.Limit)
-	if appErr != nil {
-		return apperror.WrapSimple(appErr, "query pull errors")
+	recordsRes := db.QueryLatestPullErrors(opts.RepoSlug, opts.Limit)
+	if recordsRes.IsFailure() {
+		return apperror.WrapSimple(recordsRes.AppError(), "query pull errors")
 	}
 
-	return renderPullErrorsOutput(records, opts)
+	return renderPullErrorsOutput(recordsRes.Items(), opts)
 }
 
 func renderPullErrorsOutput(records []store.PullErrorRecord, opts PullErrorOptions) error {

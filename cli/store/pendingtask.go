@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // InsertPendingTask creates a new pending task and returns its ID.
@@ -110,7 +111,8 @@ func (db *DB) CompleteTask(taskID int64) error {
 }
 
 func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
-	task, appErr := findPendingTaskInTx(ctx, tx, taskID)
+	taskRes := findPendingTaskInTx(ctx, tx, taskID)
+	appErr := taskRes.AppError()
 	if isPendingTaskAlreadyCompleted(ctx, tx, taskID, appErr) {
 		return nil
 	}
@@ -119,7 +121,7 @@ func executeCompleteTaskTx(ctx context.Context, tx *dbengine.TxWrapper, taskID i
 		return appErr
 	}
 
-	if insertErr := insertCompletedTaskInTx(ctx, tx, task); insertErr != nil {
+	if insertErr := insertCompletedTaskInTx(ctx, tx, taskRes.Value); insertErr != nil {
 		return insertErr
 	}
 
@@ -209,10 +211,10 @@ func (db *DB) DeletePendingTask(id int64) error {
 }
 
 // findPendingTaskInTx reads a pending task within an existing transaction.
-func findPendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, id int64) (model.PendingTaskRecord, *apperror.AppError) {
+func findPendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, id int64) PendingTaskRecordWrap {
 	row, appErr := tx.QueryRow(ctx, constants.SQLSelectPendingTaskByID, id)
 	if appErr != nil {
-		return model.PendingTaskRecord{}, appErr
+		return result.Fail[model.PendingTaskRecord](appErr)
 	}
 
 	var r model.PendingTaskRecord
@@ -220,8 +222,8 @@ func findPendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, id int64) 
 		&r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 		&r.FailureReason, &r.CreatedAt, &r.UpdatedAt)
 	if err != nil {
-		return r, apperror.WrapSimple(err, "scan pending task in tx")
+		return result.Fail[model.PendingTaskRecord](apperror.WrapSimple(err, "scan pending task in tx"))
 	}
 
-	return r, nil
+	return result.Ok(r)
 }

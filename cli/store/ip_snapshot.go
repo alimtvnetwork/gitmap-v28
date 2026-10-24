@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 const (
@@ -80,7 +81,7 @@ func assignInsertID(rec *IPSnapshotRecord, res sql.Result) *apperror.AppError {
 }
 
 // GetLatestIPSnapshot fetches the latest snapshot for an interface or falls back to JSON.
-func (db *DB) GetLatestIPSnapshot(ifaceName string) (*IPSnapshotRecord, *apperror.AppError) {
+func (db *DB) GetLatestIPSnapshot(ifaceName string) IPSnapshotRecordWrap {
 	if db == nil || db.conn == nil {
 		return LoadLatestIPSnapshotJSON()
 	}
@@ -92,17 +93,17 @@ func (db *DB) GetLatestIPSnapshot(ifaceName string) (*IPSnapshotRecord, *apperro
 	return db.queryLatestSnapshot(ifaceName)
 }
 
-func (db *DB) queryLatestSnapshot(ifaceName string) (*IPSnapshotRecord, *apperror.AppError) {
+func (db *DB) queryLatestSnapshot(ifaceName string) IPSnapshotRecordWrap {
 	row := db.conn.QueryRow(sqlSelectLatestIPSnapshot, ifaceName)
-	rec, err := scanIPSnapshotRow(row)
-	if err != nil || rec == nil {
+	scanRes := scanIPSnapshotRow(row)
+	if scanRes.IsFailure() || scanRes.Value == nil {
 		return LoadLatestIPSnapshotJSON()
 	}
 
-	return rec, nil
+	return scanRes
 }
 
-func scanIPSnapshotRow(row *sql.Row) (*IPSnapshotRecord, *apperror.AppError) {
+func scanIPSnapshotRow(row *sql.Row) IPSnapshotRecordWrap {
 	var rec IPSnapshotRecord
 	var isDHCP int
 	if err := scanFields(row.Scan, &rec, &isDHCP); err != nil {
@@ -111,42 +112,43 @@ func scanIPSnapshotRow(row *sql.Row) (*IPSnapshotRecord, *apperror.AppError) {
 
 	rec.IsDHCP = isDHCP == 1
 
-	return &rec, nil
+	return result.Ok(&rec)
 }
 
-func handleRowScanError(err error) (*IPSnapshotRecord, *apperror.AppError) {
+func handleRowScanError(err error) IPSnapshotRecordWrap {
 	if err == sql.ErrNoRows {
-		return nil, nil
+		return result.Ok((*IPSnapshotRecord)(nil))
 	}
 
-	return nil, apperror.WrapSimple(err, "store.handleRowScanError")
+	return result.Fail[*IPSnapshotRecord](apperror.WrapSimple(err, "store.handleRowScanError"))
 }
 
 // ListIPSnapshots returns historical snapshots for an interface.
 func (db *DB) ListIPSnapshots(
 	ifaceName string,
 	limit int,
-) ([]IPSnapshotRecord, *apperror.AppError) {
-	rows, err := db.querySnapshotRows(ifaceName, limit)
-	if err != nil {
-		return nil, err
+) IPSnapshotRecordSliceWrap {
+	rowsRes := db.querySnapshotRows(ifaceName, limit)
+	if rowsRes.IsFailure() {
+		return result.FailSlice[IPSnapshotRecord](rowsRes.AppError())
 	}
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	return scanIPSnapshotRows(rows)
 }
 
-func (db *DB) querySnapshotRows(ifaceName string, limit int) (*sql.Rows, *apperror.AppError) {
+func (db *DB) querySnapshotRows(ifaceName string, limit int) SQLRowsWrap {
 	if err := db.checkSnapshotTable(); err != nil {
-		return nil, err
+		return result.Fail[*sql.Rows](err)
 	}
 
 	rows, err := db.conn.Query(sqlSelectListIPSnapshots, ifaceName, limit)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "store.querySnapshotRows.Query")
+		return result.Fail[*sql.Rows](apperror.WrapSimple(err, "store.querySnapshotRows.Query"))
 	}
 
-	return rows, nil
+	return result.Ok(rows)
 }
 
 func (db *DB) checkSnapshotTable() *apperror.AppError {
@@ -157,27 +159,27 @@ func (db *DB) checkSnapshotTable() *apperror.AppError {
 	return db.EnsureIPSnapshotTable()
 }
 
-func scanIPSnapshotRows(rows *sql.Rows) ([]IPSnapshotRecord, *apperror.AppError) {
+func scanIPSnapshotRows(rows *sql.Rows) IPSnapshotRecordSliceWrap {
 	records := make([]IPSnapshotRecord, 0)
 	for rows.Next() {
-		rec, err := scanOneIPSnapshotRow(rows)
-		if err != nil {
-			return nil, err
+		recRes := scanOneIPSnapshotRow(rows)
+		if recRes.IsFailure() {
+			return result.FailSlice[IPSnapshotRecord](recRes.AppError())
 		}
-		records = append(records, *rec)
+		records = append(records, *recRes.Value)
 	}
 
-	return records, nil
+	return result.OkSlice(records)
 }
 
-func scanOneIPSnapshotRow(rows *sql.Rows) (*IPSnapshotRecord, *apperror.AppError) {
+func scanOneIPSnapshotRow(rows *sql.Rows) IPSnapshotRecordWrap {
 	var rec IPSnapshotRecord
 	var isDHCP int
 	if err := scanFields(rows.Scan, &rec, &isDHCP); err != nil {
-		return nil, apperror.WrapSimple(err, "store.scanOneIPSnapshotRow")
+		return result.Fail[*IPSnapshotRecord](apperror.WrapSimple(err, "store.scanOneIPSnapshotRow"))
 	}
 
 	rec.IsDHCP = isDHCP == 1
 
-	return &rec, nil
+	return result.Ok(&rec)
 }

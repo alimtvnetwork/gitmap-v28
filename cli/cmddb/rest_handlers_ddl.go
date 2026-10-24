@@ -169,6 +169,13 @@ func handleMigrate(mgr *MultiDbManager, cache *MigrationCache) http.HandlerFunc 
 	}
 }
 
+func logMigrationResult(cache *MigrationCache, alias string, p MigratePayload, applied bool, errMsg string) {
+	if cache == nil {
+		return
+	}
+	_ = cache.LogMigration(alias, p.Version, p.Name, p.Sql, applied, errMsg)
+}
+
 func executeMigrate(w http.ResponseWriter, mgr *MultiDbManager, cache *MigrationCache, conn *sql.DB, alias string, p MigratePayload) {
 	if strings.TrimSpace(p.Sql) == "" {
 		writeRestEnvelope(w, http.StatusBadRequest, nil, nil, apperror.NewValidationError("migration sql is empty"))
@@ -177,18 +184,14 @@ func executeMigrate(w http.ResponseWriter, mgr *MultiDbManager, cache *Migration
 	}
 
 	if _, err := conn.Exec(p.Sql); err != nil {
-		if cache != nil {
-			_ = cache.LogMigration(alias, p.Version, p.Name, p.Sql, false, err.Error())
-		}
+		logMigrationResult(cache, alias, p, false, err.Error())
 		writeRestEnvelope(w, http.StatusInternalServerError, nil, nil, err)
 
 		return
 	}
 
 	mgr.InvalidateCache(alias)
-	if cache != nil {
-		_ = cache.LogMigration(alias, p.Version, p.Name, p.Sql, true, "")
-	}
+	logMigrationResult(cache, alias, p, true, "")
 	res := map[string]any{"Version": p.Version, "Name": p.Name, "HasApplied": true}
 	writeRestEnvelope(w, http.StatusOK, res, map[string]any{"IsSingle": true}, nil)
 }

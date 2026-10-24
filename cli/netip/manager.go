@@ -236,21 +236,21 @@ func (m *Manager) loadSnapshotFromDB(ifaceName string) (Snapshot, bool, *apperro
 		return Snapshot{}, false, nil
 	}
 
-	rec, err := m.db.GetLatestIPSnapshot(ifaceName)
-	if err != nil || rec == nil {
+	snapRes := m.db.GetLatestIPSnapshot(ifaceName)
+	if snapRes.IsFailure() || snapRes.Value == nil {
 		return Snapshot{}, false, nil
 	}
 
-	return recordToSnapshot(*rec), true, nil
+	return recordToSnapshot(*snapRes.Value), true, nil
 }
 
 func loadFallbackSnapshot() (Snapshot, *apperror.AppError) {
-	rec, err := store.LoadLatestIPSnapshotJSON()
-	if err != nil {
-		return Snapshot{}, err
+	snapRes := store.LoadLatestIPSnapshotJSON()
+	if snapRes.IsFailure() {
+		return Snapshot{}, snapRes.AppError()
 	}
 
-	return recordToSnapshot(*rec), nil
+	return recordToSnapshot(*snapRes.Value), nil
 }
 
 func snapshotFromInterface(info InterfaceInfo) Snapshot {
@@ -279,28 +279,4 @@ func snapshotToRecord(snap Snapshot) store.IPSnapshotRecord {
 		Notes:         snap.Notes,
 		Comments:      snap.Comments,
 	}
-}
-
-func recordToSnapshot(rec store.IPSnapshotRecord) Snapshot {
-	return Snapshot{
-		IPSnapshotId:  rec.IPSnapshotId,
-		InterfaceName: rec.InterfaceName,
-		IP:            rec.IP,
-		Netmask:       rec.Netmask,
-		Gateway:       rec.Gateway,
-		DNS:           parseDNSList(rec.DNS),
-		IsDHCP:        rec.IsDHCP,
-		Timestamp:     rec.Timestamp,
-		Notes:         rec.Notes,
-		Comments:      rec.Comments,
-		IsValid:       rec.IP != "",
-	}
-}
-
-func parseDNSList(dnsStr string) []string {
-	if dnsStr == "" {
-		return nil
-	}
-
-	return strings.Split(dnsStr, ",")
 }

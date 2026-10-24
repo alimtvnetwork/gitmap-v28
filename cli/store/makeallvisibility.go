@@ -21,45 +21,51 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/dbengine"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // InsertMakeAllVisibilityRun writes the pre-prompt run row and returns
 // its autogen ID. Pure single-statement insert — no tx needed.
-func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) (int64, error) {
+func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) Int64Wrap {
 	res, err := ExecWrapper(db.conn, constants.SQLInsertMakeAllVisibilityRun,
 		r.CommandKind, r.TargetVisibility, r.Provider, r.Owner, r.TargetRaw,
 		r.PatternList, boolToInt(r.IsYesFlag), boolToInt(r.IsVerboseFlag),
 		r.OwnerRepoTotal, r.MatchedCount, r.StartedAt).Destruct()
 	if err != nil {
-		return 0, apperror.WrapSimple(err, "insert MakeAllVisibilityRun failed (operation: SQLInsertMakeAllVisibilityRun)")
+		return result.Fail[int64](apperror.WrapSimple(err, "insert MakeAllVisibilityRun failed (operation: SQLInsertMakeAllVisibilityRun)"))
 	}
 
-	return res.LastInsertId()
+	id, idErr := res.LastInsertId()
+	if idErr != nil {
+		return result.Fail[int64](apperror.WrapSimple(idErr, "insert MakeAllVisibilityRun last insert id"))
+	}
+
+	return result.Ok(id)
 }
 
 // InsertMakeAllVisibilityPendingResults writes one 'Pending' row per
 // matched repo inside a single transaction. Returns the assigned IDs
 // in input order so callers can later UPDATE by primary key without
 // re-querying.
-func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) ([]int64, error) {
+func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) Int64SliceWrap {
 	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
 	if appErr != nil {
-		return nil, apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)")
+		return result.FailSlice[int64](apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)"))
 	}
 
 	var ids []int64
 	ctx := context.Background()
 	appErr = wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
-		var err *apperror.AppError
-		ids, err = insertPendingResultsInTx(ctx, tx, runID, rows)
+		idsRes := insertPendingResultsInTx(ctx, tx, runID, rows)
+		ids = idsRes.Items()
 
-		return err
+		return idsRes.AppError()
 	})
 	if appErr != nil {
-		return nil, apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)")
+		return result.FailSlice[int64](apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)"))
 	}
 
-	return ids, nil
+	return result.OkSlice(ids)
 }
 
 func insertPendingRow(
@@ -67,20 +73,20 @@ func insertPendingRow(
 	tx *dbengine.TxWrapper,
 	runID int64,
 	r model.MakeAllVisibilityResultRecord,
-) (int64, *apperror.AppError) {
+) Int64Wrap {
 	res, appErr := tx.Exec(ctx, constants.SQLInsertMakeAllVisibilityResult,
 		runID, r.RepoName, r.MatchedPattern,
 		constants.ResultStatusPending, r.StartedAt)
 	if appErr != nil {
-		return 0, appErr
+		return result.Fail[int64](appErr)
 	}
 
 	id, idErr := res.LastInsertId()
 	if idErr != nil {
-		return 0, apperror.WrapSimple(idErr, "last insert id")
+		return result.Fail[int64](apperror.WrapSimple(idErr, "last insert id"))
 	}
 
-	return id, nil
+	return result.Ok(id)
 }
 
 // insertPendingResultsInTx is the per-row insert loop executed within a transaction.
@@ -89,18 +95,18 @@ func insertPendingResultsInTx(
 	tx *dbengine.TxWrapper,
 	runID int64,
 	rows []model.MakeAllVisibilityResultRecord,
-) ([]int64, *apperror.AppError) {
+) Int64SliceWrap {
 	ids := make([]int64, 0, len(rows))
 	for _, r := range rows {
-		id, appErr := insertPendingRow(ctx, tx, runID, r)
-		if appErr != nil {
-			return nil, appErr
+		idRes := insertPendingRow(ctx, tx, runID, r)
+		if idRes.IsFailure() {
+			return result.FailSlice[int64](idRes.AppError())
 		}
 
-		ids = append(ids, id)
+		ids = append(ids, idRes.Value)
 	}
 
-	return ids, nil
+	return result.OkSlice(ids)
 }
 
 // MarkMakeAllVisibilityResultsExcluded flips the given result rows to

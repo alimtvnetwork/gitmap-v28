@@ -231,10 +231,10 @@ func LogFailedCommand(command, fullArgs, domain, errorCode, message string, sugg
 		GitMapVersion: constants.Version,
 	}
 
-	db, err := OpenErrorsSplitDB()
-	if err == nil {
-		_, _ = db.RecordFailedCommand(rec)
-		_ = db.Close()
+	openRes := OpenErrorsSplitDB()
+	if openRes.IsSuccess() {
+		_, _ = openRes.Value.RecordFailedCommand(rec)
+		_ = openRes.Value.Close()
 	}
 
 	mirrorFailedCommandToPrimaryDB(rec)

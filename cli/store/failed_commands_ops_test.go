@@ -7,10 +7,11 @@ import (
 
 func TestFailedCommandTableAndOperations(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "test-errors.db")
-	db, err := OpenErrorsSplitDBAt(dbPath)
-	if err != nil {
-		t.Fatalf("OpenErrorsSplitDBAt failed: %v", err)
+	openRes := OpenErrorsSplitDBAt(dbPath)
+	if openRes.IsFailure() {
+		t.Fatalf("OpenErrorsSplitDBAt failed: %v", openRes.AppError())
 	}
+	db := openRes.Value
 	defer db.Close()
 
 	rec1 := FailedCommandRecord{

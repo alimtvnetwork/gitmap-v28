@@ -41,12 +41,12 @@ func seedVisibilityRun(t *testing.T, db *DB) int64 {
 		StartedAt:        "2026-09-12T10:00:00Z",
 	}
 
-	id, err := db.InsertMakeAllVisibilityRun(run)
-	if err != nil {
-		t.Fatalf("InsertMakeAllVisibilityRun failed: %v", err)
+	idRes := db.InsertMakeAllVisibilityRun(run)
+	if idRes.IsFailure() {
+		t.Fatalf("InsertMakeAllVisibilityRun failed: %v", idRes.AppError())
 	}
 
-	return id
+	return idRes.Value
 }
 
 func TestMakeAllVisibilityPendingAndExclude(t *testing.T) {
@@ -59,10 +59,11 @@ func TestMakeAllVisibilityPendingAndExclude(t *testing.T) {
 		{RepoName: "repo-b", MatchedPattern: "*", StartedAt: "2026-09-12T10:00:00Z"},
 	}
 
-	ids, err := db.InsertMakeAllVisibilityPendingResults(runID, rows)
-	if err != nil || len(ids) != 2 {
-		t.Fatalf("InsertMakeAllVisibilityPendingResults failed: %v", err)
+	idsRes := db.InsertMakeAllVisibilityPendingResults(runID, rows)
+	if idsRes.IsFailure() || len(idsRes.Items()) != 2 {
+		t.Fatalf("InsertMakeAllVisibilityPendingResults failed: %v", idsRes.AppError())
 	}
+	ids := idsRes.Items()
 
 	if err := db.MarkMakeAllVisibilityResultsExcluded(ids, "2026-09-12T10:01:00Z"); err != nil {
 		t.Fatalf("MarkMakeAllVisibilityResultsExcluded failed: %v", err)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fspath"
+	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
 // IPSnapshotRecord represents a persisted IP snapshot in SQLite or JSON fallback.
@@ -36,21 +37,21 @@ func SaveIPSnapshotJSON(record *IPSnapshotRecord) *apperror.AppError {
 		return apperror.NewSimple("store.SaveIPSnapshotJSON", "E_NIL_RECORD")
 	}
 
-	payload, err := marshalSnapshotJSON(record)
-	if err != nil {
-		return err
+	payloadRes := marshalSnapshotJSON(record)
+	if payloadRes.IsFailure() {
+		return payloadRes.AppError()
 	}
 
-	return writeSnapshotJSONFile(payload)
+	return writeSnapshotJSONFile(payloadRes.Value)
 }
 
-func marshalSnapshotJSON(record *IPSnapshotRecord) ([]byte, *apperror.AppError) {
+func marshalSnapshotJSON(record *IPSnapshotRecord) SnapshotJSONWrap {
 	payload, err := json.MarshalIndent(record, "", "  ")
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "store.marshalSnapshotJSON")
+		return result.Fail[[]byte](apperror.WrapSimple(err, "store.marshalSnapshotJSON"))
 	}
 
-	return payload, nil
+	return result.Ok(payload)
 }
 
 func writeSnapshotJSONFile(payload []byte) *apperror.AppError {
@@ -63,21 +64,21 @@ func writeSnapshotJSONFile(payload []byte) *apperror.AppError {
 }
 
 // LoadLatestIPSnapshotJSON loads the latest snapshot from the JSON fallback file.
-func LoadLatestIPSnapshotJSON() (*IPSnapshotRecord, *apperror.AppError) {
+func LoadLatestIPSnapshotJSON() IPSnapshotRecordWrap {
 	filePath := GetIPSnapshotFallbackPath()
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "store.LoadLatestIPSnapshotJSON.ReadFile")
+		return result.Fail[*IPSnapshotRecord](apperror.WrapSimple(err, "store.LoadLatestIPSnapshotJSON.ReadFile"))
 	}
 
 	return unmarshalSnapshotJSON(data)
 }
 
-func unmarshalSnapshotJSON(data []byte) (*IPSnapshotRecord, *apperror.AppError) {
+func unmarshalSnapshotJSON(data []byte) IPSnapshotRecordWrap {
 	var record IPSnapshotRecord
 	if err := json.Unmarshal(data, &record); err != nil {
-		return nil, apperror.WrapSimple(err, "store.unmarshalSnapshotJSON")
+		return result.Fail[*IPSnapshotRecord](apperror.WrapSimple(err, "store.unmarshalSnapshotJSON"))
 	}
 
-	return &record, nil
+	return result.Ok(&record)
 }

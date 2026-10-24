@@ -15,13 +15,8 @@ import (
 
 // ResolveRepoCacheDir resolves the local path to the repo-cache directory.
 func ResolveRepoCacheDir() (string, error) {
-	if db, err := store.OpenSpecialReposSplitDB(); err == nil {
-		defer db.Close()
-		if rec, getErr := db.GetSpecialRepo("rc"); getErr == nil && rec.LocalPath != "" {
-			if info, statErr := os.Stat(rec.LocalPath); statErr == nil && info.IsDir() {
-				return rec.LocalPath, nil
-			}
-		}
+	if cached, ok := resolveRepoCacheFromSpecialDB(); ok {
+		return cached, nil
 	}
 	for _, c := range []string{`D:\work\repo-cache`, `d:\work\repo-cache`, `../repo-cache`} {
 		if info, statErr := os.Stat(c); statErr == nil && info.IsDir() {
@@ -94,10 +89,11 @@ func exportParentTasks(rootDbPath string, tempConn *sql.DB, timestamp string) in
 	count := 0
 	for qRows.Next() {
 		var s, n, rd, rp, st, not, c, ca, ua string
-		if qRows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua) == nil {
-			if _, execErr := tempConn.Exec(`INSERT OR REPLACE INTO HeatmapParentTask VALUES (?,?,?,?,?,?,?,?,?)`, s, n, rd, rp, st, not, c, ca, ua); execErr == nil {
-				count++
-			}
+		if qRows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua) != nil {
+			continue
+		}
+		if insertParentTaskRow(tempConn, s, n, rd, rp, st, not, c, ca, ua) {
+			count++
 		}
 	}
 	return count
@@ -153,11 +149,7 @@ func DiscardUncommittedHeatmapDbs(repoCachePath string) error {
 	cmd := exec.Command("git", "restore", ".heatmap/")
 	cmd.Dir = repoCachePath
 	if _, err := cmd.CombinedOutput(); err != nil {
-		fbCmd := exec.Command("git", "checkout", "--", ".heatmap/")
-		fbCmd.Dir = repoCachePath
-		if out, fbErr := fbCmd.CombinedOutput(); fbErr != nil {
-			return apperror.WrapSimple(fbErr, "heatmap_conflict.discard: "+string(out))
-		}
+		return discardHeatmapDbsFallback(repoCachePath)
 	}
 	return nil
 }
@@ -222,10 +214,11 @@ func replayParentTasks(tempConn *sql.DB, rootDbPath string) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(TaskSlug) DO UPDATE SET Status = excluded.Status, Notes = excluded.Notes, Comments = excluded.Comments, UpdatedAt = excluded.UpdatedAt`
 	for rows.Next() {
 		var s, n, rd, rp, st, not, c, ca, ua string
-		if scanErr := rows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua); scanErr == nil {
-			if _, execErr := rootConn.Exec(upsertSQL, s, n, rd, rp, st, not, c, ca, ua); execErr != nil {
-				return execErr
-			}
+		if scanErr := rows.Scan(&s, &n, &rd, &rp, &st, &not, &c, &ca, &ua); scanErr != nil {
+			continue
+		}
+		if _, execErr := rootConn.Exec(upsertSQL, s, n, rd, rp, st, not, c, ca, ua); execErr != nil {
+			return execErr
 		}
 	}
 	return nil
@@ -245,23 +238,6 @@ func replayActionLogs(tempConn *sql.DB, repoDbPath string) error {
 	defer rows.Close()
 	_ = copyActionLogRows(rows, repoConn)
 	return nil
-}
-
-func copyActionLogRows(rows *sql.Rows, destConn *sql.DB) int {
-	insertSQL := `INSERT INTO HeatmapActionLog (ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine, CodeSnippet, CommandText, ReasoningState, ReasoningNotes, ExpectedOutcome, ActualOutcome, IsExpectationMet, ExecutionDepth, ExecutionOrder, Notes, Comments, CreatedAt)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	count := 0
-	for rows.Next() {
-		var pid sql.NullInt64
-		var ts, rn, act, fp, cs, ct, rs, rnot, eo, ao, not, com, ca string
-		var sl, el, isMet, ed, eoOrder int
-		if rows.Scan(&pid, &ts, &rn, &act, &fp, &sl, &el, &cs, &ct, &rs, &rnot, &eo, &ao, &isMet, &ed, &eoOrder, &not, &com, &ca) == nil {
-			if _, execErr := destConn.Exec(insertSQL, pid, ts, rn, act, fp, sl, el, cs, ct, rs, rnot, eo, ao, isMet, ed, eoOrder, not, com, ca); execErr == nil {
-				count++
-			}
-		}
-	}
-	return count
 }
 
 // CleanupTempDB removes the ephemeral snapshot SQLite database and journal files.
@@ -286,12 +262,7 @@ func RunRcHeatmapSyncWithConflictResolution(aiName, repoSlug, taskSlug string) e
 	}
 	if diverged, _ := DetectRemoteDivergence(repoCachePath, tracking.LastCommittedSha); diverged || tracking.IsDirty {
 		_ = SetSyncStatus(repoSlug, aiName, "SYNCING", true)
-		if tempDbPath, exportErr := ExportPendingChangesToTempDB(aiName, repoSlug); exportErr == nil && tempDbPath != "" {
-			_ = DiscardUncommittedHeatmapDbs(repoCachePath)
-			_ = PullRebaseRepoCache(repoCachePath)
-			_ = ReconcileAndReplayChanges(tempDbPath, aiName, repoSlug)
-			_ = CleanupTempDB(tempDbPath)
-		}
+		replayExportedChanges(repoCachePath, aiName, repoSlug)
 	}
 	taskSummary := taskSlug
 	if taskSummary == "" {

@@ -18,16 +18,16 @@ import (
 
 func insertKind(t *testing.T, db *DB, kind, target, startedAt string) int64 {
 	t.Helper()
-	id, err := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
+	idRes := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
 		CommandKind: kind, TargetVisibility: target,
 		Provider: constants.ProviderGitHub, Owner: "acme", TargetRaw: "acme",
 		PatternList: "*", StartedAt: startedAt,
 	})
-	if err != nil {
-		t.Fatalf("InsertRun(%s): %v", kind, err)
+	if idRes.IsFailure() {
+		t.Fatalf("InsertRun(%s): %v", kind, idRes.AppError())
 	}
 
-	return id
+	return idRes.Value
 }
 
 // TestVisibilityRoundTripStoreLayer: pub → undo → redo lifecycle.

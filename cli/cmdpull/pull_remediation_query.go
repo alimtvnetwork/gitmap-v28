@@ -34,12 +34,12 @@ func loadRecentPullFailuresFromDB() ([]PullFailureSummary, *apperror.AppError) {
 		return nil, apperror.WrapSimple(errDB, "open_pull_db")
 	}
 	defer db.Close()
-	records, errQuery := db.QueryAllLatestPullErrors(50)
-	if errQuery != nil {
-		return nil, errQuery
+	recordsRes := db.QueryAllLatestPullErrors(50)
+	if recordsRes.IsFailure() {
+		return nil, recordsRes.AppError()
 	}
 
-	return convertRecordsToFailures(records), nil
+	return convertRecordsToFailures(recordsRes.Items()), nil
 }
 
 func convertRecordsToFailures(records []store.PullErrorRecord) []PullFailureSummary {

@@ -35,20 +35,22 @@ func freshUndoDB(t *testing.T) *DB {
 // and finalizes counts so it qualifies as undoable (OkCount>0).
 func seedRun(t *testing.T, db *DB, kind, owner string) int64 {
 	t.Helper()
-	runID, err := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
+	runIDRes := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
 		CommandKind: kind, TargetVisibility: constants.VisibilityPrivate,
 		Provider: constants.ProviderGitHub, Owner: owner, TargetRaw: owner,
 		PatternList: "*", MatchedCount: 1, StartedAt: "2026-06-06T00:00:00Z",
 	})
-	if err != nil {
-		t.Fatalf("InsertRun: %v", err)
+	if runIDRes.IsFailure() {
+		t.Fatalf("InsertRun: %v", runIDRes.AppError())
 	}
+	runID := runIDRes.Value
 
-	ids, err := db.InsertMakeAllVisibilityPendingResults(runID,
+	idsRes := db.InsertMakeAllVisibilityPendingResults(runID,
 		[]model.MakeAllVisibilityResultRecord{{RepoName: "repo1", MatchedPattern: "*", StartedAt: "x"}})
-	if err != nil {
-		t.Fatalf("InsertPending: %v", err)
+	if idsRes.IsFailure() {
+		t.Fatalf("InsertPending: %v", idsRes.AppError())
 	}
+	ids := idsRes.Items()
 
 	if err := db.UpdateMakeAllVisibilityResult(model.MakeAllVisibilityResultRecord{
 		ID: ids[0], Status: constants.ResultStatusOk,

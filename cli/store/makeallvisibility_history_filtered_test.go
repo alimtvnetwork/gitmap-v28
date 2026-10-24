@@ -71,10 +71,11 @@ func TestBuildRecentRunsQueryBothFilters(t *testing.T) {
 func TestSelectRecentMakeAllVisibilityRunsFilteredKindPushdown(t *testing.T) {
 	db := freshHistoryDB(t)
 	_ = insertHistoryRun(t, db, "a") // MakeAllPublic
-	id2, err := db.InsertMakeAllVisibilityRun(modelKindRow("VisibilityUndo"))
-	if err != nil {
-		t.Fatalf("insert undo: %v", err)
+	id2Res := db.InsertMakeAllVisibilityRun(modelKindRow("VisibilityUndo"))
+	if id2Res.IsFailure() {
+		t.Fatalf("insert undo: %v", id2Res.AppError())
 	}
+	id2 := id2Res.Value
 
 	got, err := db.SelectRecentMakeAllVisibilityRunsFiltered(RecentRunsFilter{
 		Kind: "VisibilityUndo", Limit: 10,

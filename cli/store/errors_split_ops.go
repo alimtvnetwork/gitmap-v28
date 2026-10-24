@@ -157,12 +157,13 @@ func LogInternalErrorRecord(rec InternalErrorRecord) {
 		return
 	}
 
-	db, err := OpenErrorsSplitDB()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "warning: could not open errors DB: %v\n", err)
+	openRes := OpenErrorsSplitDB()
+	if openRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "warning: could not open errors DB: %v\n", openRes.AppError())
 
 		return
 	}
+	db := openRes.Value
 
 	defer db.Close()
 

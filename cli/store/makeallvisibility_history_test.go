@@ -29,17 +29,17 @@ func freshHistoryDB(t *testing.T) *DB {
 
 func insertHistoryRun(t *testing.T, db *DB, owner string) int64 {
 	t.Helper()
-	id, err := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
+	idRes := db.InsertMakeAllVisibilityRun(model.MakeAllVisibilityRunRecord{
 		CommandKind:      constants.CommandKindMakeAllPublic,
 		TargetVisibility: constants.VisibilityPublic,
 		Provider:         constants.ProviderGitHub, Owner: owner, TargetRaw: owner,
 		PatternList: "*", StartedAt: "2026-06-06T00:00:00Z",
 	})
-	if err != nil {
-		t.Fatalf("InsertRun(%s): %v", owner, err)
+	if idRes.IsFailure() {
+		t.Fatalf("InsertRun(%s): %v", owner, idRes.AppError())
 	}
 
-	return id
+	return idRes.Value
 }
 
 func TestSelectRecentMakeAllVisibilityRunsEmpty(t *testing.T) {

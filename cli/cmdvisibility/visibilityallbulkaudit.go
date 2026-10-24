@@ -73,14 +73,14 @@ func insertRunRow(db *store.DB, ctx ownerContext, target, cmdName, patternsRaw s
 		StartedAt:        nowRFC3339(),
 	}
 
-	id, err := db.InsertMakeAllVisibilityRun(rec)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
+	idRes := db.InsertMakeAllVisibilityRun(rec)
+	if idRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", idRes.AppError())
 
 		return 0
 	}
 
-	return id
+	return idRes.Value
 }
 
 // persistPendingResults writes one Pending result row per matched repo
@@ -98,12 +98,13 @@ func persistPendingResults(audit *runAudit, matches []visibility.MatchedRepo) {
 		})
 	}
 
-	ids, err := audit.db.InsertMakeAllVisibilityPendingResults(audit.runID, rows)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", err)
+	idsRes := audit.db.InsertMakeAllVisibilityPendingResults(audit.runID, rows)
+	if idsRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "make-all-*: %v\n", idsRes.AppError())
 
 		return
 	}
+	ids := idsRes.Items()
 
 	for i, m := range matches {
 		audit.resultIDs[m.RepoName] = ids[i]
