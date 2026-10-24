@@ -264,4 +264,3 @@ func resolveTargetRepo(flag string) string {
 	}
 	return store.ResolveAmbientRepoSlug("")
 }
-}
