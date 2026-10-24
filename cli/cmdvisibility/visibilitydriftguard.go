@@ -6,22 +6,17 @@
 // Spec: 02-spec/01-app/116-bulk-visibility-mapub-mapri.md §undo-redo.
 package cmdvisibility
 
-// DriftActionType answers: given the *current* visibility we just read
-// from the provider, the *expected* visibility we persisted as
-// NewVisibility on the original run, and the caller's --force flag,
-// should reverseOneRepo proceed, force-override, or skip-with-drift?
-//
-//	action == "proceed"  → no drift, apply PrevVisibility normally.
-//	action == "force"    → --force set, log override line then apply.
-//	action == "skip"     → drift detected, leave repo untouched.
-type DriftActionType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility/enums"
+
+// DriftActionType is the canonical drift action type, defined in enums.
+type DriftActionType = enums.DriftActionType
 
 type driftAction = DriftActionType
 
 const (
-	DriftActionTypeProceed DriftActionType = "proceed"
-	DriftActionTypeForce   DriftActionType = "force"
-	DriftActionTypeSkip    DriftActionType = "skip"
+	DriftActionTypeProceed = enums.DriftActionTypeProceed
+	DriftActionTypeForce   = enums.DriftActionTypeForce
+	DriftActionTypeSkip    = enums.DriftActionTypeSkip
 )
 
 const (
