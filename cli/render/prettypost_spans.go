@@ -1,13 +1,13 @@
 package render
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var commandAliasRowRe = regexp.MustCompile(`^(\s*[-*]\s+)([a-z][a-z0-9-]*)\s+\(([^)]+)\)(\s+.*)?$`)
+var commandAliasRowRe = lazyregex.New(`^(\s*[-*]\s+)([a-z][a-z0-9-]*)\s+\(([^)]+)\)(\s+.*)?$`)
 
 func renderCommandAliasRow(line string) string {
 	m := commandAliasRowRe.FindStringSubmatch(line)
@@ -26,42 +26,42 @@ func renderCommandAliasRow(line string) string {
 		tail
 }
 
-var bareFlagRe = regexp.MustCompile(`(^|[\s(\[,/])(-{1,2}[A-Za-z][A-Za-z0-9-]*)`)
+var bareFlagRe = lazyregex.New(`(^|[\s(\[,/])(-{1,2}[A-Za-z][A-Za-z0-9-]*)`)
 
 func renderBareFlagTokens(line string) string {
 	return bareFlagRe.ReplaceAllString(line,
 		"$1"+constants.ColorCyan+"$2"+constants.ColorReset)
 }
 
-var anglePlaceholderRe = regexp.MustCompile(`<([a-zA-Z][a-zA-Z0-9_-]*)>`)
+var anglePlaceholderRe = lazyregex.New(`<([a-zA-Z][a-zA-Z0-9_-]*)>`)
 
 func renderAnglePlaceholders(line string) string {
 	return anglePlaceholderRe.ReplaceAllString(line,
 		constants.ColorGreen+"<$1>"+constants.ColorReset)
 }
 
-var defaultParenRe = regexp.MustCompile(`\((default:?\s+[^)]+)\)`)
+var defaultParenRe = lazyregex.New(`\((default:?\s+[^)]+)\)`)
 
 func renderDefaultParen(line string) string {
 	return defaultParenRe.ReplaceAllString(line,
 		constants.ColorDim+"($1)"+constants.ColorReset)
 }
 
-var inlineCodeRe = regexp.MustCompile("`([^`]+?)`")
+var inlineCodeRe = lazyregex.New(lazyregex.MdInlineCode)
 
 func renderInlineCode(s string) string {
 	return inlineCodeRe.ReplaceAllString(s,
 		constants.ColorMagenta+"$1"+constants.ColorReset)
 }
 
-var inlineBoldRe = regexp.MustCompile(`\*\*([^*]+?)\*\*`)
+var inlineBoldRe = lazyregex.New(lazyregex.MdBold)
 
 func renderInlineBold(s string) string {
 	return inlineBoldRe.ReplaceAllString(s,
 		constants.ColorWhite+"$1"+constants.ColorReset)
 }
 
-var inlineLinkRe = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+var inlineLinkRe = lazyregex.New(lazyregex.MdLink)
 
 func renderInlineLinks(s string) string {
 	return inlineLinkRe.ReplaceAllString(s,
@@ -69,7 +69,7 @@ func renderInlineLinks(s string) string {
 			constants.ColorDim+" ($2)"+constants.ColorReset)
 }
 
-var examplePromptRe = regexp.MustCompile(`^\s*(\$\s+)(gitmap\s+.*)$`)
+var examplePromptRe = lazyregex.New(`^\s*(\$\s+)(gitmap\s+.*)$`)
 
 func renderExamplePrompt(line string) string {
 	m := examplePromptRe.FindStringSubmatch(line)

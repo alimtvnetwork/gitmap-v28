@@ -4,6 +4,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // DefaultDropPatterns mirrors spec §6.1.
@@ -106,7 +108,7 @@ func applyStrip(subject string, patterns []string) string {
 }
 
 // conventionalPrefix matches `type` or `type(scope):` at the start.
-var conventionalPrefix = regexp.MustCompile(
+var conventionalPrefix = lazyregex.New(
 	`^(feat|fix|chore|docs|refactor|test|build|ci|perf|style|revert)(\([^)]+\))?:\s`)
 
 // normalizeConventional applies the spec §6.3 heuristic. It does NOT

@@ -1,8 +1,9 @@
 package render
 
 import (
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // emitBlock writes one parsed block in pretty form.
@@ -102,18 +103,18 @@ func processQuoteChar(b *strings.Builder, inQuote bool) bool {
 // shellCommentRe matches a line that is entirely a shell-style comment
 // (leading `#` after optional indent), e.g. `# sync settings`. The whole
 // line renders green so command examples read like annotated transcripts.
-var shellCommentRe = regexp.MustCompile(`^(\s*)(#.*)$`)
+var shellCommentRe = lazyregex.New(`^(\s*)(#.*)$`)
 
 // keyTokenRe matches uppercase identifiers that read like credentials or
 // env-var names (API_KEY, GITMAP_TOKEN, GH_PAT, SOMETHING_SECRET, …) so
 // they pop out of dense help text. Three-char minimum keeps it from
 // painting random short words.
-var keyTokenRe = regexp.MustCompile(`\b[A-Z][A-Z0-9_]{2,}(?:KEY|TOKEN|SECRET|PASSWORD|PAT|API)[A-Z0-9_]*\b|\b(?:API|GITMAP|GH|GITHUB|OPENAI)_[A-Z0-9_]+\b`)
+var keyTokenRe = lazyregex.New(lazyregex.SecretPattern)
 
 // hdAliasRe matches the standalone `hd` help-doc alias so it pops next
 // to its full `help-docs` name. Word-bounded so it doesn't eat HD inside
 // other words.
-var hdAliasRe = regexp.MustCompile(`\bhd\b`)
+var hdAliasRe = lazyregex.New(`\bhd\b`)
 
 // highlightFenceLine paints fenced/code lines:
 //   - whole-line `# comments` go green
@@ -131,10 +132,10 @@ func highlightFenceLine(line string) string {
 // non-comment string. Idempotent against already-tokenized output: the
 // regexes only match raw ASCII identifiers, not sentinel tokens.
 func highlightInline(s string) string {
-	s = keyTokenRe.ReplaceAllStringFunc(s, func(m string) string {
+	s = keyTokenRe.Compiled().ReplaceAllStringFunc(s, func(m string) string {
 		return TokMagentaOpen + m + TokMagentaClose
 	})
-	s = hdAliasRe.ReplaceAllStringFunc(s, func(m string) string {
+	s = hdAliasRe.Compiled().ReplaceAllStringFunc(s, func(m string) string {
 		return TokMagentaOpen + m + TokMagentaClose
 	})
 

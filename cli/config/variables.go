@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
 	varMu         sync.RWMutex
-	varRegex      = regexp.MustCompile(`\$\{([a-zA-Z0-9_:-]+)\}|\$([a-zA-Z0-9_:-]+)`)
+	varRegex      = lazyregex.New(`\$\{([a-zA-Z0-9_:-]+)\}|\$([a-zA-Z0-9_:-]+)`)
 	cachedVarData *VariableStore
 )
 
@@ -196,7 +197,7 @@ func ExpandVariables(input, scope string) string {
 		return input
 	}
 
-	return varRegex.ReplaceAllStringFunc(input, func(m string) string {
+	return varRegex.Compiled().ReplaceAllStringFunc(input, func(m string) string {
 		varName := m
 		if strings.HasPrefix(m, "${") && strings.HasSuffix(m, "}") {
 			varName = m[2 : len(m)-1]

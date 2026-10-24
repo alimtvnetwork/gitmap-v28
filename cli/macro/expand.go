@@ -3,12 +3,13 @@ package macro
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var winEnvRegex = regexp.MustCompile(`%([a-zA-Z0-9_]+)%`)
+var winEnvRegex = lazyregex.New(`%([a-zA-Z0-9_]+)%`)
 
 func getNormalizedTempDir() string {
 	return strings.TrimRight(os.TempDir(), `/\`)
@@ -33,7 +34,7 @@ func expandWindowsEnv(input string) string {
 		return input
 	}
 
-	return winEnvRegex.ReplaceAllStringFunc(input, func(token string) string {
+	return winEnvRegex.Compiled().ReplaceAllStringFunc(input, func(token string) string {
 		varName := token[1 : len(token)-1]
 		if val, hasVal := getEnvCaseInsensitive(varName); hasVal {
 			return val

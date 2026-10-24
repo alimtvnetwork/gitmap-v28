@@ -4,10 +4,10 @@ package render
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // applyANSIPost runs cosmetic passes on the output of RenderANSI.
@@ -79,7 +79,7 @@ func transformLine(line string) string {
 	return line
 }
 
-var headingRe = regexp.MustCompile(`^(#{1,6})\s+(.+?)\s*$`)
+var headingRe = lazyregex.New(lazyregex.MdHeader)
 
 func renderHeadingLine(line string) (string, bool) {
 	m := headingRe.FindStringSubmatch(line)
@@ -182,7 +182,7 @@ func unescapeMarkdown(s string) string {
 	return s
 }
 
-var tableSepRe = regexp.MustCompile(`^\s*\|(\s*:?-{2,}:?\s*\|)+\s*$`)
+var tableSepRe = lazyregex.New(lazyregex.MdTableDivider)
 
 func colorTableSeparator(line string) string {
 	if !tableSepRe.MatchString(line) {

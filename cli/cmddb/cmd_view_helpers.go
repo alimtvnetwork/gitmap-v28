@@ -11,13 +11,14 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
 var (
-	findLikeRe  = regexp.MustCompile(`(?i)\blike\s+'([^']*)'`)
-	findEqAndRe = regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s+((?i:and|or))\b`)
-	findEqEndRe = regexp.MustCompile(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s*$`)
+	findLikeRe  = lazyregex.New(`(?i)\blike\s+'([^']*)'`)
+	findEqAndRe = lazyregex.New(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s+((?i:and|or))\b`)
+	findEqEndRe = lazyregex.New(`=\s*([a-zA-Z0-9_]+(?:\s+[a-zA-Z0-9_]+)*)\s*$`)
 )
 
 func inferAutoJoin(conn *sql.DB, t1, t2 tableAlias) string {
@@ -136,11 +137,11 @@ func normalizeFindCondition(cond string) string {
 	if cond == "" {
 		return ""
 	}
-	s := findLikeRe.ReplaceAllStringFunc(cond, func(m string) string {
+	s := findLikeRe.Compiled().ReplaceAllStringFunc(cond, func(m string) string {
 		return strings.ReplaceAll(m, "*", "%")
 	})
 
-	s = findEqAndRe.ReplaceAllStringFunc(s, func(m string) string {
+	s = findEqAndRe.Compiled().ReplaceAllStringFunc(s, func(m string) string {
 		parts := findEqAndRe.FindStringSubmatch(m)
 		if len(parts) >= 3 {
 			val := strings.TrimSpace(parts[1])
@@ -150,7 +151,7 @@ func normalizeFindCondition(cond string) string {
 		return m
 	})
 
-	s = findEqEndRe.ReplaceAllStringFunc(s, func(m string) string {
+	s = findEqEndRe.Compiled().ReplaceAllStringFunc(s, func(m string) string {
 		parts := findEqEndRe.FindStringSubmatch(m)
 		if len(parts) >= 2 {
 			val := strings.TrimSpace(parts[1])

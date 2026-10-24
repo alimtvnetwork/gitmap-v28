@@ -3,14 +3,15 @@ package store
 import (
 	"encoding/json"
 	"math/rand"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	varArrayRefPattern = regexp.MustCompile(`^([A-Za-z0-9_.-]+)\[(\d+)\]$`)
+	varArrayRefPattern = lazyregex.New(`^([A-Za-z0-9_.-]+)\[(\d+)\]$`)
 	seededRand         = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
