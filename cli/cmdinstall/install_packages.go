@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // UninstallPlan encapsulates package and directory targets for uninstallation.
@@ -91,7 +92,7 @@ func removePathTargets(paths []string) error {
 }
 
 func runSystemCmd(cmdStr string) error {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return nil
 	}
 	cmd := exec.Command("sh", "-c", cmdStr)
@@ -103,7 +104,7 @@ func runSystemCmd(cmdStr string) error {
 }
 
 func unpinCursorGnomeDock() error {
-	if runtime.GOOS != "linux" {
+	if !constants.IsLinuxPlatform() {
 		return nil
 	}
 	out, err := exec.Command("gsettings", "get", "org.gnome.shell", "favorite-apps").Output()

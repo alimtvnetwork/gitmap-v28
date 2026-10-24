@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -25,13 +24,13 @@ const (
 func handleBeyondCompareInstall(opts installOptions, defaultVersion int) {
 	err := runInstallBeyondCompare(defaultVersion, opts)
 	if err != nil {
-		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installBeyondCompare"), 1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, "cmdinstall.installBeyondCompare"))
 	}
 }
 
 func runInstallBeyondCompare(defaultVersion int, opts installOptions) error {
 	version := resolveBCVersion(opts.Version, defaultVersion)
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return runInstallBeyondCompareWindows(version, opts)
 	}
 

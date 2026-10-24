@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -29,11 +28,11 @@ type chromeLaunchOptions struct {
 }
 
 func findChromeBinaryPath() (string, error) {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return findChromeWindows()
 	}
 
-	if runtime.GOOS == "darwin" {
+	if constants.IsDarwinPlatform() {
 		return findChromeDarwin()
 	}
 

@@ -20,7 +20,7 @@ const (
 )
 
 func runInstallTortoiseGit(opts installOptions) error {
-	if runtime.GOOS != "windows" {
+	if !constants.IsWindowsPlatform() {
 		fmt.Println("  ℹ TortoiseGit is a Windows Explorer shell extension and only available on Windows.")
 		return nil
 	}

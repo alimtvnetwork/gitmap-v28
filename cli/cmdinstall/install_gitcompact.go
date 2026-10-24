@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -40,7 +39,7 @@ func runInstallGitCompact(opts installOptions) error {
 
 func printGitCompactDryRun() {
 	cmdStr := gitCompactUnixScript
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		cmdStr = gitCompactWinScript
 	}
 
@@ -94,7 +93,7 @@ func executeGitCompactInstall(opts installOptions) error {
 }
 
 func buildGitCompactCommand() *exec.Cmd {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return exec.Command("powershell", "-NoProfile", "-Command", gitCompactWinScript)
 	}
 

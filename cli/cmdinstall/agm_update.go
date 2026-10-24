@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -92,7 +91,7 @@ func runAgmUpdateWithQuietOutput(opts installOptions) error {
 		fmt.Printf("  [dry-run] Would run: %s (version: %s)\n", resolveAgManagerCommandForOS(), opts.Version)
 		return nil
 	}
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		return runUpdateAgManagerWithOpts(opts)
 	}
 

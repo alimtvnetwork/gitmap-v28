@@ -3,7 +3,6 @@ package cmddoctor
 import (
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -32,7 +31,7 @@ func checkDuplicateBinaries() int {
 //
 //nolint:unused
 func findAllBinaries() []string {
-	if runtime.GOOS == constants.PlatformWindows {
+	if constants.IsWindowsPlatform() {
 		return findAllBinariesWindows()
 	}
 
@@ -127,7 +126,7 @@ func formatDupList(paths []string) string {
 //nolint:unused
 func formatDupFix(paths []string) string {
 	stale := paths[1:]
-	if runtime.GOOS == constants.PlatformWindows {
+	if constants.IsWindowsPlatform() {
 		return formatDupFixWindows(stale)
 	}
 

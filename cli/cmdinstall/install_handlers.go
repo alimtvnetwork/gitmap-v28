@@ -1,8 +1,6 @@
 package cmdinstall
 
 import (
-	"runtime"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -82,12 +80,12 @@ func handleAgManagerInstall(opts installOptions) {
 
 func handleCustomToolInstall(tool string) {
 	if err := runInstallCustomTool(tool); err != nil {
-		cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installCustomTool"), 1)
+		cliexit.HandleGeneralError(apperror.WrapSimple(err, "cmdinstall.installCustomTool"))
 	}
 }
 
 func specialLinuxHandler(tool string) func(installOptions) {
-	if runtime.GOOS != "linux" {
+	if !constants.IsLinuxPlatform() {
 		return nil
 	}
 

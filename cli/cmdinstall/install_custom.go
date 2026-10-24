@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 var customToolUrls = map[string]struct{ win, unix string }{
@@ -42,7 +42,7 @@ func runInstallCustomTool(tool string) error {
 }
 
 func buildCustomToolCmd(winUrl, unixUrl string) *exec.Cmd {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		psCmd := fmt.Sprintf("irm %s | iex", winUrl)
 
 		return exec.Command("powershell", "-NoProfile", "-Command", psCmd)

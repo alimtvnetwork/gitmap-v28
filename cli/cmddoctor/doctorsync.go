@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 
@@ -63,7 +62,7 @@ func tryRenameFallback(src, dst string) bool {
 //
 //nolint:unused
 func tryKillAndCopy(src, dst string) bool {
-	if runtime.GOOS == constants.OSWindows {
+	if constants.IsWindowsPlatform() {
 		return tryKillWindows(src, dst)
 	}
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -24,12 +23,11 @@ func openHostedDocsFallback() {
 func openURL(url string) {
 	var cmd *exec.Cmd
 
-	switch runtime.GOOS {
-	case constants.OSWindows:
+	if constants.IsWindowsPlatform() {
 		cmd = exec.Command(constants.CmdWindowsShell, constants.CmdArgSlashC, constants.CmdArgStart, url)
-	case constants.OSDarwin:
+	} else if constants.IsDarwinPlatform() {
 		cmd = exec.Command(constants.CmdOpen, url)
-	default:
+	} else {
 		cmd = exec.Command(constants.CmdXdgOpen, url)
 	}
 
