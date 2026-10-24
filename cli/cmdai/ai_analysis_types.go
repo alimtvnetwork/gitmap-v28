@@ -7,25 +7,26 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai/enums"
 )
 
-// AiTaskStatusType defines valid task statuses.
-type AiTaskStatusType string
+// AiTaskStatusType is the canonical AI task status type, defined in enums.
+type AiTaskStatusType = enums.AiTaskStatusType
 
 const (
-	AiTaskStatusInProgress AiTaskStatusType = "in_progress"
-	AiTaskStatusCompleted  AiTaskStatusType = "completed"
-	AiTaskStatusFailed     AiTaskStatusType = "failed"
-	AiTaskStatusCanceled   AiTaskStatusType = "canceled"
+	AiTaskStatusInProgress = enums.AiTaskStatusInProgress
+	AiTaskStatusCompleted  = enums.AiTaskStatusCompleted
+	AiTaskStatusFailed     = enums.AiTaskStatusFailed
+	AiTaskStatusCanceled   = enums.AiTaskStatusCanceled
 )
 
-// AiOperationType defines the file interaction performed.
-type AiOperationType string
+// AiOperationType is the canonical AI operation type, defined in enums.
+type AiOperationType = enums.AiOperationType
 
 const (
-	AiOperationRead   AiOperationType = "read"
-	AiOperationEdit   AiOperationType = "edit"
-	AiOperationDelete AiOperationType = "delete"
+	AiOperationRead   = enums.AiOperationRead
+	AiOperationEdit   = enums.AiOperationEdit
+	AiOperationDelete = enums.AiOperationDelete
 )
 
 // AiTaskRecord represents an AI analysis session record for JSON serialization and CLI display.

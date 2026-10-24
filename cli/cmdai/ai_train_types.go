@@ -1,13 +1,17 @@
 package cmdai
 
-import "time"
+import (
+	"time"
 
-// LlmTrainingFormatType defines output format for LLM reasoning ingestion.
-type LlmTrainingFormatType string
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai/enums"
+)
+
+// LlmTrainingFormatType is the canonical LLM training format type, defined in enums.
+type LlmTrainingFormatType = enums.LlmTrainingFormatType
 
 const (
-	LlmFormatMarkdown LlmTrainingFormatType = "markdown"
-	LlmFormatJsonl    LlmTrainingFormatType = "jsonl"
+	LlmFormatMarkdown = enums.LlmFormatMarkdown
+	LlmFormatJsonl    = enums.LlmFormatJsonl
 )
 
 // LlmMessageItem represents a single role turn in conversational training schemas.
@@ -36,13 +40,13 @@ type LlmTrainOptions struct {
 	RepoRoot string
 }
 
-// ExportFormatType defines supported packaging formats for export.
-type ExportFormatType string
+// ExportFormatType is the canonical export format type, defined in enums.
+type ExportFormatType = enums.ExportFormatType
 
 const (
-	ExportFormatJson ExportFormatType = "json"
-	ExportFormatZip  ExportFormatType = "zip"
-	ExportFormatDb   ExportFormatType = "db"
+	ExportFormatJson = enums.ExportFormatJson
+	ExportFormatZip  = enums.ExportFormatZip
+	ExportFormatDb   = enums.ExportFormatDb
 )
 
 // AiExportBundle represents a serialized collection of tasks and lines.
