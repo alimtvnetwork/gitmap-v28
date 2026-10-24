@@ -125,11 +125,11 @@ func tryReadConvEntry(dir string, e os.DirEntry) (AgyConvInfo, bool) {
 
 func readSingleConvDB(dbPath, fileName string) (AgyConvInfo, bool) {
 	convID := strings.TrimSuffix(fileName, ".db")
-	conn, err := store.OpenSQLiteDB(dbPath)
-	hasErr := err != nil
-	if hasErr {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return readConvFallback(convID), true
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return buildConvInfo(conn, convID), true

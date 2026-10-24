@@ -97,7 +97,11 @@ func collectRunningPrompts(maxWords int) ([]AgyPromptSnapshotItem, error) {
 	}
 
 	dbPath, _ := getConversationSummariesDBPath()
-	conn, _ := store.OpenSQLiteDB(dbPath)
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "warning: prompts summaries db unavailable, previews fall back to titles: %v\n", openRes.AppError())
+	}
+	conn := openRes.Value
 	if conn != nil {
 		defer conn.Close()
 	}

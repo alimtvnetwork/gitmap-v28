@@ -25,10 +25,11 @@ func OpenMigrationCache(customPath ...string) (*MigrationCache, error) {
 		return nil, err
 	}
 
-	conn, appErr := store.OpenSQLiteDB(path)
-	if appErr != nil {
-		return nil, apperror.WrapSimple(appErr, "open migration cache "+path)
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
+		return nil, apperror.WrapSimple(openRes.AppError(), "open migration cache "+path)
 	}
+	conn := openRes.Value
 	conn.SetMaxOpenConns(1)
 
 	if err := initCacheTables(conn); err != nil {

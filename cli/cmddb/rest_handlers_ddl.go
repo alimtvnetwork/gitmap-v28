@@ -275,11 +275,11 @@ func verifyClonedSqlite(path string) error {
 		return apperror.NewExecutionError("cloned file verification failed: empty or missing")
 	}
 
-	testConn, appErr := store.OpenSQLiteDB(path)
-	if appErr != nil {
-		return apperror.WrapSimple(appErr, "cloned database verification failed")
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "cloned database verification failed")
 	}
-	_ = testConn.Close()
+	_ = openRes.Value.Close()
 
 	return nil
 }

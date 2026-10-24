@@ -3,6 +3,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -23,6 +24,9 @@ type (
 
 	// RepoPathWrap is the canonical single reusable result container for repository paths.
 	RepoPathWrap = result.Wrap[string]
+
+	// SQLiteDBWrap is the canonical single reusable result container for an opened SQLite connection.
+	SQLiteDBWrap = result.Wrap[*sql.DB]
 
 	// ScanRecordsResult is an alias for ScanRecordSliceWrap using canonical WrapSlice.
 	ScanRecordsResult = result.WrapSlice[model.ScanRecord]

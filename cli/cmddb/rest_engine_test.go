@@ -19,10 +19,11 @@ func createEngineTestDbFile(t *testing.T, name string) string {
 	t.Helper()
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, name)
-	conn, appErr := store.OpenSQLiteDB(dbPath)
-	if appErr != nil {
-		t.Fatalf("create test db: %v", appErr)
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		t.Fatalf("create test db: %v", openRes.AppError())
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	ddl := `CREATE TABLE User (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER, IsActive INTEGER DEFAULT 1);

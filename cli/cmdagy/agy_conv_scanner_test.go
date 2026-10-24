@@ -13,10 +13,11 @@ func TestReadSingleConvDB(t *testing.T) {
 	tempDir := t.TempDir()
 	dbPath := filepath.Join(tempDir, "test-conv-123.db")
 
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		t.Fatalf("OpenSQLiteDB failed: %v", err)
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		t.Fatalf("OpenSQLiteDB failed: %v", openRes.AppError())
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 

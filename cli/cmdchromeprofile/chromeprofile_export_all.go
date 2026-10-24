@@ -184,10 +184,11 @@ func writeAllChromeProfilesSQLite(names []string, outPath string) (int, error) {
 		return 0, err
 	}
 
-	db, err := store.OpenSQLiteDB(outPath)
-	if err != nil {
-		return 0, apperror.WrapSimple(err, "open sqlite db "+outPath)
+	openRes := store.OpenSQLiteDB(outPath)
+	if openRes.IsFailure() {
+		return 0, apperror.WrapSimple(openRes.AppError(), "open sqlite db "+outPath)
 	}
+	db := openRes.Value
 
 	defer db.Close()
 

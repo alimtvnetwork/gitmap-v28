@@ -117,11 +117,11 @@ func collectConvsFromDB(seen map[string]bool) []AGYSnapshotConv {
 	if hasErr {
 		return nil
 	}
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	hasOpenErr := openErr != nil
-	if hasOpenErr {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return nil
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return readSummaryRowsForSnapshot(conn, seen)

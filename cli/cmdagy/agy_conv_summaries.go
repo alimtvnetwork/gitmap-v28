@@ -47,11 +47,11 @@ func scanConversationsFromSummaries(pClean, pName string) ([]AgyConvInfo, error)
 	if hasErr {
 		return nil, err
 	}
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	hasOpenErr := openErr != nil
-	if hasOpenErr {
-		return nil, openErr
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return queryAndScoreSummaries(conn, pClean, pName)

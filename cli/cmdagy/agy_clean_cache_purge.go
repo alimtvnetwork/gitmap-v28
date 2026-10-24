@@ -19,7 +19,11 @@ func purgeCandidateConversations(pruned []ConvPruneCandidate) int {
 	convDir := filepath.Join(home, ".gemini", "antigravity", "conversations")
 	brainDir := filepath.Join(home, ".gemini", "antigravity", "brain")
 	dbPath, _ := getConversationSummariesDBPath()
-	conn, _ := store.OpenSQLiteDB(dbPath)
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "warning: purge summaries db unavailable, skipping summary cleanup: %v\n", openRes.AppError())
+	}
+	conn := openRes.Value
 	if conn != nil {
 		defer conn.Close()
 	}

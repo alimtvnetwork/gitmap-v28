@@ -209,10 +209,11 @@ func getLatestActiveConversationID() (string, error) {
 		return "", apperror.WrapSimple(err, "conversation summaries db path")
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return "", apperror.WrapSimple(openErr, "open conversation summaries db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return "", apperror.WrapSimple(openRes.AppError(), "open conversation summaries db")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := "SELECT conversation_id FROM conversation_summaries WHERE (killed IS NULL OR killed = 0) ORDER BY last_modified_time DESC LIMIT 1"

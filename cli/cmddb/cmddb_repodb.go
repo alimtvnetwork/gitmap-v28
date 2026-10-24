@@ -80,10 +80,11 @@ func buildRepoDBRows(splitDBs []DBFileInfo, repoMap map[int64]string) []repoDBRo
 }
 
 func querySplitDBCounts(path string) (int, int) {
-	conn, err := store.OpenSQLiteDB(path)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
 		return 0, 0
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 

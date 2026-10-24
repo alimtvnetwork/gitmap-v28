@@ -24,10 +24,11 @@ func InitAliasRegistry() error {
 	dbPath := store.DefaultDBPath()
 	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
 
-	conn, appErr := store.OpenSQLiteDB(dbPath)
-	if appErr != nil {
-		return appErr
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	ddl := `CREATE TABLE IF NOT EXISTS DatabaseAlias (
@@ -103,10 +104,11 @@ func RegisterAlias(name, path, desc string) error {
 }
 
 func executeRegisterAlias(name, path, dbType, desc string, size int64) error {
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
-		return appErr
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
+		return openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -168,10 +170,11 @@ func resolveSystemDbAlias(input string) (string, bool) {
 }
 
 func lookupAliasInRegistry(name string) (string, bool) {
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
 		return "", false
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	var resolvedPath string
@@ -194,10 +197,11 @@ func IncrementAliasSearchCount(aliasOrPath string) {
 	cleanPath := filepath.Clean(trimmed)
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
 		return
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `UPDATE DatabaseAlias SET SearchHistoryCount = SearchHistoryCount + 1, LastAccessedAt = ? WHERE LOWER(AliasName) = LOWER(?) OR DatabasePath = ?`
@@ -212,10 +216,11 @@ func ListAliases() ([]DatabaseAlias, error) {
 		return nil, err
 	}
 
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
-		return nil, appErr
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `SELECT DatabaseAliasId, AliasName, DatabasePath, DatabaseType, IsActive, FileSizeBytes, SearchHistoryCount, COALESCE(LastAccessedAt, ''), COALESCE(Description, ''), COALESCE(Notes, '') FROM DatabaseAlias ORDER BY DatabaseAliasId ASC`

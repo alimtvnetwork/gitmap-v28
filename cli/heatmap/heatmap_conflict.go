@@ -54,10 +54,11 @@ func ExportPendingChangesToTempDB(aiName, repoSlug string) (string, error) {
 // ExportUncommittedChanges queries and exports pending deltas into tempDbPath.
 func ExportUncommittedChanges(rootDbPath, repoDbPath, tempDbPath, lastCommitTimestamp string) (int, error) {
 	_ = os.MkdirAll(filepath.Dir(tempDbPath), 0755)
-	tempConn, appErr := store.OpenSQLiteDB(tempDbPath)
-	if appErr != nil {
-		return 0, appErr
+	openTempRes := store.OpenSQLiteDB(tempDbPath)
+	if openTempRes.IsFailure() {
+		return 0, openTempRes.AppError()
 	}
+	tempConn := openTempRes.Value
 	defer tempConn.Close()
 
 	if err := createTempExportTables(tempConn); err != nil {
@@ -79,10 +80,11 @@ func createTempExportTables(conn *sql.DB) error {
 }
 
 func exportParentTasks(rootDbPath string, tempConn *sql.DB, timestamp string) int {
-	rootConn, err := store.OpenSQLiteDB(rootDbPath)
-	if err != nil {
+	openRootRes := store.OpenSQLiteDB(rootDbPath)
+	if openRootRes.IsFailure() {
 		return 0
 	}
+	rootConn := openRootRes.Value
 	defer rootConn.Close()
 	qRows, qErr := rootConn.Query(`SELECT TaskSlug, TaskName, RunDirectory, RootDbPath, Status, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt, UpdatedAt FROM HeatmapParentTask WHERE CreatedAt > ? OR UpdatedAt > ?`, timestamp, timestamp)
 	if qErr != nil {
@@ -101,10 +103,11 @@ func exportParentTasks(rootDbPath string, tempConn *sql.DB, timestamp string) in
 	return count
 }
 func exportActionLogs(repoDbPath string, tempConn *sql.DB, timestamp string) int {
-	repoConn, err := store.OpenSQLiteDB(repoDbPath)
-	if err != nil {
+	openRepoRes := store.OpenSQLiteDB(repoDbPath)
+	if openRepoRes.IsFailure() {
 		return 0
 	}
+	repoConn := openRepoRes.Value
 	defer repoConn.Close()
 	qRows, qErr := repoConn.Query(`SELECT ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine, COALESCE(CodeSnippet,''), COALESCE(CommandText,''), ReasoningState, COALESCE(ReasoningNotes,''), COALESCE(ExpectedOutcome,''), COALESCE(ActualOutcome,''), IsExpectationMet, ExecutionDepth, ExecutionOrder, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt FROM HeatmapActionLog WHERE CreatedAt > ?`, timestamp)
 	if qErr != nil {
@@ -192,10 +195,11 @@ func ReplayExportedTransactions(rootDbPath, repoDbPath, tempDbPath string) error
 	if _, err := os.Stat(tempDbPath); err != nil {
 		return nil
 	}
-	tempConn, appErr := store.OpenSQLiteDB(tempDbPath)
-	if appErr != nil {
-		return appErr
+	openTempRes := store.OpenSQLiteDB(tempDbPath)
+	if openTempRes.IsFailure() {
+		return openTempRes.AppError()
 	}
+	tempConn := openTempRes.Value
 	defer tempConn.Close()
 	_ = replayParentTasks(tempConn, rootDbPath)
 	_ = replayActionLogs(tempConn, repoDbPath)
@@ -203,10 +207,11 @@ func ReplayExportedTransactions(rootDbPath, repoDbPath, tempDbPath string) error
 }
 
 func replayParentTasks(tempConn *sql.DB, rootDbPath string) error {
-	rootConn, err := store.OpenSQLiteDB(rootDbPath)
-	if err != nil {
-		return err
+	openRootRes := store.OpenSQLiteDB(rootDbPath)
+	if openRootRes.IsFailure() {
+		return openRootRes.AppError()
 	}
+	rootConn := openRootRes.Value
 	defer rootConn.Close()
 	rows, qErr := tempConn.Query(`SELECT TaskSlug, TaskName, RunDirectory, RootDbPath, Status, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt, UpdatedAt FROM HeatmapParentTask`)
 	if qErr != nil {
@@ -227,10 +232,11 @@ func replayParentTasks(tempConn *sql.DB, rootDbPath string) error {
 }
 
 func replayActionLogs(tempConn *sql.DB, repoDbPath string) error {
-	repoConn, err := store.OpenSQLiteDB(repoDbPath)
-	if err != nil {
-		return err
+	openRepoRes := store.OpenSQLiteDB(repoDbPath)
+	if openRepoRes.IsFailure() {
+		return openRepoRes.AppError()
 	}
+	repoConn := openRepoRes.Value
 	defer repoConn.Close()
 	rows, qErr := tempConn.Query(`SELECT ParentLogId, TaskSlug, RepoName, ActionType, FilePath, StartLine, EndLine, COALESCE(CodeSnippet,''), COALESCE(CommandText,''), ReasoningState, COALESCE(ReasoningNotes,''), COALESCE(ExpectedOutcome,''), COALESCE(ActualOutcome,''), IsExpectationMet, ExecutionDepth, ExecutionOrder, COALESCE(Notes,''), COALESCE(Comments,''), CreatedAt FROM HeatmapActionLog`)
 	if qErr != nil {

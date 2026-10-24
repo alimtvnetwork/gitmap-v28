@@ -224,10 +224,11 @@ func fetchProjectLatestActivityMap() map[string]string {
 		return result
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return result
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `SELECT project_id, workspace_uris, MAX(last_modified_time)
@@ -263,10 +264,11 @@ func fetchRunningProjectsSet() map[string]bool {
 		return result
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return result
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `SELECT project_id, workspace_uris, title
@@ -337,10 +339,11 @@ func fetchPinnedProjectRankMap() map[string]int {
 		return rankMap
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return rankMap
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	for rank, convID := range convOrder {

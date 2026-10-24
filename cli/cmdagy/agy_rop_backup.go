@@ -54,10 +54,11 @@ func OpenAGYBackupDB(repoSlug string) (*sql.DB, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		return nil, apperror.WrapSimple(err, "mkdir agy backup dir")
 	}
-	db, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		return nil, apperror.WrapSimple(err, "open agy backup db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, apperror.WrapSimple(openRes.AppError(), "open agy backup db")
 	}
+	db := openRes.Value
 	if _, err := db.Exec(sqlCreateAGYBackupTable); err != nil {
 		_ = db.Close()
 		return nil, apperror.WrapSimple(err, "create agy backup table")

@@ -97,10 +97,11 @@ func refreshRegistrySizes() {
 		return
 	}
 
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
 		return
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	for _, a := range aliases {
@@ -163,10 +164,11 @@ func countTablesInDb(dbPath string) int {
 		return 0
 	}
 
-	conn, appErr := store.OpenSQLiteDB(dbPath)
-	if appErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return 0
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	var count int

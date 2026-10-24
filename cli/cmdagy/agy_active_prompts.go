@@ -39,10 +39,11 @@ func FetchActiveRunningConversations() ([]AgyActiveConversation, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return nil, openErr
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return queryRunningConversations(conn)

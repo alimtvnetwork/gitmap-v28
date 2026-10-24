@@ -53,10 +53,11 @@ func runMostConv(n int) error {
 		return apperror.WrapSimple(err, "get summaries db path")
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return apperror.WrapSimple(openErr, "open summaries db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open summaries db")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `SELECT project_id, MAX(workspace_uris) as ws, COUNT(*) as c,

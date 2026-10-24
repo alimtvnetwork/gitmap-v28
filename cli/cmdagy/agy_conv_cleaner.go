@@ -16,10 +16,11 @@ func purgeProjectConversations(p AgyProject) (int, error) {
 		return 0, nil
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return 0, apperror.WrapSimple(openErr, "open summaries db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return 0, apperror.WrapSimple(openRes.AppError(), "open summaries db")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	convIDs, findErr := findConversationIDs(conn, p)

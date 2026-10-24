@@ -44,10 +44,11 @@ func hasDirectoryEntries(entries []os.DirEntry) bool {
 func runAutoHealLocalDB() error {
 	dbPath := store.DefaultDBPath()
 	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		return apperror.WrapSimple(err, "storage.restore-db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "storage.restore-db")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	checkResult := checkDBIntegrity(conn)

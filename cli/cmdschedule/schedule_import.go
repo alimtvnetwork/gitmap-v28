@@ -94,10 +94,11 @@ func parseImportYAML(filePath string) ScheduleExportBundleResult {
 }
 
 func parseImportSQLite(filePath string) ScheduleExportBundleResult {
-	conn, appErr := store.OpenSQLiteDB(filePath)
-	if appErr != nil {
-		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(appErr, "open import sqlite db"))
+	openRes := store.OpenSQLiteDB(filePath)
+	if openRes.IsFailure() {
+		return result.FailSlice[ScheduleExportBundle](apperror.WrapSimple(openRes.AppError(), "open import sqlite db"))
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 

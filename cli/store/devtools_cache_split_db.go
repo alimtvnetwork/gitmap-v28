@@ -28,10 +28,11 @@ type DevtoolsCacheSplitDB struct {
 // OpenDevtoolsCacheSplitDB opens the split SQLite database at .gitmap/data/devtools/cache/sql.db.
 func OpenDevtoolsCacheSplitDB() (*DevtoolsCacheSplitDB, error) {
 	dbPath := ResolveSplitDbPath("devtools", "cache", "")
-	conn, err := OpenSQLiteDB(dbPath)
-	if err != nil {
-		return nil, err
+	openRes := OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	s := &DevtoolsCacheSplitDB{conn: conn, Path: dbPath}
 	if err := s.EnsureDevtoolsCacheTable(); err != nil {
 		_ = conn.Close()

@@ -79,7 +79,12 @@ func openAgentDB(dbPath string) (*sql.DB, *appfault.AppError) {
 		return nil, dirErr
 	}
 
-	return OpenSQLiteDB(dbPath)
+	openRes := OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
+	}
+
+	return openRes.Value, nil
 }
 
 func executeAgentDDL(conn *sql.DB, queries []string, op string) *appfault.AppError {

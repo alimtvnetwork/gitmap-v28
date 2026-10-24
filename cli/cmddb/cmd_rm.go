@@ -119,10 +119,11 @@ func consumeDbRmArg(arg string, p *dbRmParams) {
 }
 
 func findAliasPathInRegistry(alias string) (string, *appfault.AppError) {
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
-		return "", appfault.NewNotFoundError(fmt.Sprintf("open master db: %v", appErr))
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
+		return "", appfault.NewNotFoundError(fmt.Sprintf("open master db: %v", openRes.AppError()))
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return queryAliasPath(conn, alias)
@@ -168,10 +169,11 @@ func executeAliasRemoval(p dbRmParams, resolvedPath string) *appfault.AppError {
 }
 
 func deleteAliasFromDatabase(aliasName string) *appfault.AppError {
-	conn, appErr := store.OpenSQLiteDB(store.DefaultDBPath())
-	if appErr != nil {
-		return appfault.NewValidationError(fmt.Sprintf("open master db: %v", appErr))
+	openRes := store.OpenSQLiteDB(store.DefaultDBPath())
+	if openRes.IsFailure() {
+		return appfault.NewValidationError(fmt.Sprintf("open master db: %v", openRes.AppError()))
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	delQuery := `DELETE FROM DatabaseAlias WHERE LOWER(AliasName) = LOWER(?)`

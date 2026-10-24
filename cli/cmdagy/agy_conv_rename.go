@@ -41,10 +41,11 @@ func renameProjectInitialConversation(p AgyProject, newTitle string) error {
 		return apperror.WrapSimple(err, "get conversation summaries db path")
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return apperror.WrapSimple(openErr, "open summaries db for rename")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "open summaries db for rename")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	convID, findErr := findLatestConvIDForProject(conn, p)

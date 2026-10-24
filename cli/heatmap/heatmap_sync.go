@@ -74,10 +74,11 @@ func OpenLocalTrackingDB() (*sql.DB, error) {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, apperror.WrapSimple(err, "heatmap_sync.mkdir")
 	}
-	conn, appErr := store.OpenSQLiteDB(filepath.Join(dataDir, "heatmap.db"))
-	if appErr != nil {
-		return nil, appErr
+	openRes := store.OpenSQLiteDB(filepath.Join(dataDir, "heatmap.db"))
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	if err := EnsureLocalTrackingTable(conn); err != nil {
 		_ = conn.Close()
 		return nil, err
@@ -276,10 +277,11 @@ func logCommitToRootDb(repoCachePath, aiName, repoSlug, taskSlug, commitSha, com
 	aiFolder := ResolveAiFolderName(aiName)
 	rootDbPath := filepath.Join(repoCachePath, ".heatmap", aiFolder, "root-heatmap.db")
 	_ = os.MkdirAll(filepath.Dir(rootDbPath), 0755)
-	conn, appErr := store.OpenSQLiteDB(rootDbPath)
-	if appErr != nil {
-		return appErr
+	openRes := store.OpenSQLiteDB(rootDbPath)
+	if openRes.IsFailure() {
+		return openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 	if _, err := conn.Exec(sqlCreateHeatmapCommitLog); err != nil {
 		return apperror.WrapSimple(err, "heatmap_sync.ensureCommitLogTable")

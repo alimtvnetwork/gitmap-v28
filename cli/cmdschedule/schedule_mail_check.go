@@ -98,10 +98,11 @@ func parseNextFlagValue(args []string, idx int, flag string) (string, int) {
 
 func loadMailboxProfiles(targetAlias string) ([]MailboxProfileRecord, *appfault.AppError) {
 	dbPath := store.InstallationDBPath()
-	conn, appErr := store.OpenSQLiteDB(dbPath)
-	if appErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return fallbackMailboxProfiles(targetAlias)
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	if err := ensureMailboxProfileSchema(conn); err != nil {

@@ -27,10 +27,11 @@ func OpenResolvedDb(dbArg string) (*sql.DB, string, error) {
 		return nil, dbPath, apperror.NewNotFoundError(fmt.Sprintf("database file not found: %s", dbPath))
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return nil, dbPath, apperror.WrapSimple(openErr, "open database '"+dbPath+"'")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, dbPath, apperror.WrapSimple(openRes.AppError(), "open database '"+dbPath+"'")
 	}
+	conn := openRes.Value
 
 	IncrementAliasSearchCount(dbArg)
 

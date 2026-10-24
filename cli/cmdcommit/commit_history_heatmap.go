@@ -44,10 +44,11 @@ func buildHeatmapActionRecord(rec store.CommitHistoryRecord) store.HeatmapAction
 func recordHeatmapCommitLogSafely(rec store.CommitHistoryRecord) {
 	dataDir := store.EffectiveDataDir()
 	dbPath := filepath.Join(dataDir, "heatmap.db")
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil || conn == nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() || openRes.Value == nil {
 		return
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	ensureHeatmapCommitLogTable(conn)

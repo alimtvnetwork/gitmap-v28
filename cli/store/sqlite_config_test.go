@@ -84,10 +84,11 @@ func TestOpenSQLiteDB_Success(t *testing.T) {
 	tempDir := t.TempDir()
 	dbPath := filepath.Join(tempDir, "test_open_factory.db")
 
-	conn, appErr := OpenSQLiteDB(dbPath)
-	if appErr != nil {
-		t.Fatalf("OpenSQLiteDB failed: %v", appErr)
+	openRes := OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		t.Fatalf("OpenSQLiteDB failed: %v", openRes.AppError())
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 
@@ -101,13 +102,13 @@ func TestOpenSQLiteDB_Success(t *testing.T) {
 func TestOpenSQLiteDB_ConfigError(t *testing.T) {
 	invalidPath := filepath.Join(t.TempDir(), "nonexistent_dir", "sub", "test.db")
 
-	conn, appErr := OpenSQLiteDB(invalidPath)
-	if appErr == nil {
-		conn.Close()
+	openRes := OpenSQLiteDB(invalidPath)
+	if openRes.IsSuccess() {
+		openRes.Value.Close()
 		t.Fatalf("expected error for invalid directory path, got nil")
 	}
 
-	if conn != nil {
-		t.Errorf("expected nil connection on error, got %v", conn)
+	if openRes.Value != nil {
+		t.Errorf("expected nil connection on error, got %v", openRes.Value)
 	}
 }

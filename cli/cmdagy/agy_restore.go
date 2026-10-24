@@ -174,11 +174,11 @@ func restoreConversationsFromSnapshot(convs []AGYSnapshotConv) int {
 		return 0
 	}
 	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	hasOpenErr := openErr != nil
-	if hasOpenErr {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return 0
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	initConvSummariesTable(conn)

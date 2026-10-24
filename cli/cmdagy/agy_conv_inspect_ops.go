@@ -87,10 +87,11 @@ func FetchConversationInspectRows(n int, projectFilter string) ([]AgyConvInspect
 		return nil, false, err
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return nil, false, openErr
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, false, openRes.AppError()
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	isDepthMode := false

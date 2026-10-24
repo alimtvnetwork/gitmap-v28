@@ -359,10 +359,11 @@ func isConvMatchingRepo(convDir, brainDir, convID, cleanTarget, slug string) boo
 }
 
 func hasConvDBMatch(dbPath, cleanTarget, slug string) bool {
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return false
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 	blob := readTrajectoryBlob(conn)

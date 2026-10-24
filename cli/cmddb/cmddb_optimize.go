@@ -93,10 +93,11 @@ func tryOptimizeDBFile(path, label string) (int64, int) {
 }
 
 func optimizeSingleDBFile(path string) (int64, error) {
-	db, err := store.OpenSQLiteDB(path)
-	if err != nil {
-		return 0, err
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
+		return 0, openRes.AppError()
 	}
+	db := openRes.Value
 
 	defer db.Close()
 

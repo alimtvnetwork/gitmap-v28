@@ -121,10 +121,11 @@ func (m *MultiDbManager) GetDB(alias string) (*sql.DB, string, error) {
 }
 
 func (m *MultiDbManager) openAndConfigureConn(path string) (*sql.DB, error) {
-	conn, appErr := store.OpenSQLiteDB(path)
-	if appErr != nil {
-		return nil, apperror.WrapSimple(appErr, "open sqlite "+path)
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
+		return nil, apperror.WrapSimple(openRes.AppError(), "open sqlite "+path)
 	}
+	conn := openRes.Value
 	conn.SetMaxOpenConns(1)
 
 	return conn, nil

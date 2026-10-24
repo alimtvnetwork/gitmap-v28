@@ -208,10 +208,11 @@ func writeScheduleExportSQLite(bundles []ScheduleExportBundle, filePath string) 
 	_ = os.Remove(outPath)
 	_ = os.MkdirAll(filepath.Dir(outPath), constants.DirPermission)
 
-	conn, appErr := store.OpenSQLiteDB(outPath)
-	if appErr != nil {
-		return apperror.WrapSimple(appErr, "create export sqlite db")
+	openRes := store.OpenSQLiteDB(outPath)
+	if openRes.IsFailure() {
+		return apperror.WrapSimple(openRes.AppError(), "create export sqlite db")
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 

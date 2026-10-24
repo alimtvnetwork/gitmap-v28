@@ -80,10 +80,11 @@ func ResolveGitIgnoreSplitDbPath() string {
 func OpenGitIgnoreSplitDB() (*GitIgnoreSplitDB, error) {
 	dbPath := ResolveGitIgnoreSplitDbPath()
 	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	conn, appErr := OpenSQLiteDB(dbPath)
-	if appErr != nil {
-		return nil, appErr
+	openRes := OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	db := &GitIgnoreSplitDB{conn: conn, Path: dbPath}
 	if err := db.EnsureGitIgnoreTable(); err != nil {
 		_ = conn.Close()

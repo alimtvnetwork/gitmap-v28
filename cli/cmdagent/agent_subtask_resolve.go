@@ -31,10 +31,11 @@ func ResolveSubtaskIdentifier(dbPath, identifier, code, slug string) (string, er
 	if valErr != nil {
 		return "", valErr
 	}
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return "", appfault.WrapSimple(openErr, fmt.Sprintf("open subtask database at %s", dbPath))
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return "", appfault.WrapSimple(openRes.AppError(), fmt.Sprintf("open subtask database at %s", dbPath))
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return querySubtaskCanonicalId(conn, dbPath, cleanId, cleanCode, cleanSlug)

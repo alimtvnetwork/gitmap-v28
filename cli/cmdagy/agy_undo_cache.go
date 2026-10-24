@@ -4,6 +4,7 @@ package cmdagy
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -54,7 +55,11 @@ func restoreFromCacheBackupDir(dir string, m *CacheUndoManifest) int {
 	_ = os.MkdirAll(brainDst, constants.DirPermission)
 
 	dbPath, _ := getConversationSummariesDBPath()
-	conn, _ := store.OpenSQLiteDB(dbPath)
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		fmt.Fprintf(os.Stderr, "warning: undo summaries db unavailable, skipping summary restore: %v\n", openRes.AppError())
+	}
+	conn := openRes.Value
 	if conn != nil {
 		defer conn.Close()
 	}

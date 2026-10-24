@@ -35,10 +35,11 @@ func clearAllSplitDBs(splitDBs []DBFileInfo) int {
 }
 
 func clearSingleSplitDB(path string) bool {
-	db, err := store.OpenSQLiteDB(path)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(path)
+	if openRes.IsFailure() {
 		return false
 	}
+	db := openRes.Value
 
 	defer db.Close()
 

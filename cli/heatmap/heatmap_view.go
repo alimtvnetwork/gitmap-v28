@@ -137,10 +137,11 @@ func resolveRcHeatmapDB(flags map[string]string, table string) (string, error) {
 }
 
 func openViewDB(dbPath string, isRc bool) (*sql.DB, error) {
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		return nil, err
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	if !isRc {
 		_ = store.EnsureHeatmapTables(conn)
 	} else {

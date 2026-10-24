@@ -53,10 +53,11 @@ func discoverProjectsFromSummariesDB() []AgyProject {
 	if err != nil {
 		return nil
 	}
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return nil
 	}
+	conn := openRes.Value
 	defer conn.Close()
 	return queryProjectsFromSummariesConn(conn)
 }

@@ -14,10 +14,11 @@ func evaluateConvRetention(keep int) ([]ConvPruneCandidate, []ConvPruneCandidate
 		return nil, nil, apperror.WrapSimple(err, "get db path")
 	}
 
-	conn, openErr := store.OpenSQLiteDB(dbPath)
-	if openErr != nil {
-		return nil, nil, apperror.WrapSimple(openErr, "open summaries db")
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, nil, apperror.WrapSimple(openRes.AppError(), "open summaries db")
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	return queryAndPartitionConvs(conn, keep)

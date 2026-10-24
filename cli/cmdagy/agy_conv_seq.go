@@ -24,10 +24,11 @@ func getAgySequenceDBPath() string {
 func openAgySequenceDB() (*sql.DB, error) {
 	dbPath := getAgySequenceDBPath()
 	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
-		return nil, err
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
+		return nil, openRes.AppError()
 	}
+	conn := openRes.Value
 	initErr := initAgySequenceTable(conn)
 	if initErr != nil {
 		_ = conn.Close()

@@ -377,10 +377,11 @@ func queryDistinctWorkspacesFromDB(dbPath string) []string {
 		return nil
 	}
 
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return nil
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	query := `SELECT DISTINCT workspace_uris FROM conversation_summaries WHERE (killed IS NULL OR killed = 0) AND workspace_uris IS NOT NULL ORDER BY last_modified_time DESC LIMIT 20;`
@@ -551,10 +552,11 @@ func fetchInstanceRunningPrompts(inst AgyInstanceInfo, maxWords int) []AgyPrompt
 		return nil
 	}
 
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return nil
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	activeConvs, qErr := queryRunningConversations(conn)
@@ -617,10 +619,11 @@ func fetchInstanceRecentConversations(inst AgyInstanceInfo, limit, maxWords int)
 		return nil
 	}
 
-	conn, err := store.OpenSQLiteDB(dbPath)
-	if err != nil {
+	openRes := store.OpenSQLiteDB(dbPath)
+	if openRes.IsFailure() {
 		return nil
 	}
+	conn := openRes.Value
 	defer conn.Close()
 
 	if limit <= 0 {

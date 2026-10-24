@@ -192,13 +192,14 @@ func newDefaultSplitEntry(dbType, dbKey, path, desc string) SplitDatabaseEntry {
 }
 
 func inspectDBInternals(path string, entry *SplitDatabaseEntry) {
-	conn, err := OpenSQLiteDB(path)
-	if err != nil {
+	openRes := OpenSQLiteDB(path)
+	if openRes.IsFailure() {
 		entry.Status = "error"
 		entry.IsActive = false
 
 		return
 	}
+	conn := openRes.Value
 
 	defer conn.Close()
 
