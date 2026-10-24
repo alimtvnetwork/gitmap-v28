@@ -7,18 +7,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdpushfix/enums"
 
 // PushFixBadgeType designates the status badge state.
-type PushFixBadgeType string
+// PushFixBadgeType aliases the strongly-typed enum from the enums package.
+type PushFixBadgeType = enums.PushFixBadgeType
 
 const (
-	BadgeDiagnosing PushFixBadgeType = "DIAGNOSING"
-	BadgeAuthError  PushFixBadgeType = "AUTH_ERROR"
-	BadgeDiverged   PushFixBadgeType = "DIVERGED"
-	BadgeTransport  PushFixBadgeType = "TRANSPORT"
-	BadgeLeaseForce PushFixBadgeType = "LEASE_FORCE"
-	BadgeDryRun     PushFixBadgeType = "DRY_RUN"
-	BadgeSuccess    PushFixBadgeType = "SUCCESS"
+	BadgeDiagnosing = enums.BadgeDiagnosing
+	BadgeAuthError  = enums.BadgeAuthError
+	BadgeDiverged   = enums.BadgeDiverged
+	BadgeTransport  = enums.BadgeTransport
+	BadgeLeaseForce = enums.BadgeLeaseForce
+	BadgeDryRun     = enums.BadgeDryRun
+	BadgeSuccess    = enums.BadgeSuccess
 )
 
 var safePushFixBadges = map[PushFixBadgeType]string{

@@ -7,23 +7,19 @@ import (
 	"path/filepath"
 	"strings"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdsends/enums"
 
 // FileCategoryType defines semantic classification categories for changed files.
-type FileCategoryType string
+// FileCategoryType aliases the strongly-typed enum from the enums package.
+type FileCategoryType = enums.FileCategoryType
 
 const (
-	// CategoryStyle classifies CSS and styling assets.
-	CategoryStyle FileCategoryType = "style"
-	// CategoryCore classifies core programming code logic.
-	CategoryCore FileCategoryType = "core"
-	// CategoryBoolean classifies boolean conventions and predicate files.
-	CategoryBoolean FileCategoryType = "boolean"
-	// CategoryAsset classifies static visual assets, icons, and logos.
-	CategoryAsset FileCategoryType = "asset"
-	// CategorySpec classifies documentation and architectural specifications.
-	CategorySpec FileCategoryType = "spec"
-	// CategoryOther classifies auxiliary configuration and general files.
-	CategoryOther FileCategoryType = "other"
+	CategoryStyle   = enums.CategoryStyle
+	CategoryCore    = enums.CategoryCore
+	CategoryBoolean = enums.CategoryBoolean
+	CategoryAsset   = enums.CategoryAsset
+	CategorySpec    = enums.CategorySpec
+	CategoryOther   = enums.CategoryOther
 )
 
 // ChangedFile represents an individual changed file with its semantic classification.

@@ -12,15 +12,17 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdresolver/enums"
 
 // RepoFeatureTargetType enumerates classification modes for destination targets.
-type RepoFeatureTargetType string
+// RepoFeatureTargetType aliases the strongly-typed enum from the enums package.
+type RepoFeatureTargetType = enums.RepoFeatureTargetType
 
 const (
-	TargetTypeRemoteURL  RepoFeatureTargetType = "remote-url"
-	TargetTypeLocalGit   RepoFeatureTargetType = "local-git"
-	TargetTypeLocalNoGit RepoFeatureTargetType = "local-no-git"
-	TargetTypeBareSlug   RepoFeatureTargetType = "bare-slug"
+	TargetTypeRemoteURL  = enums.TargetTypeRemoteURL
+	TargetTypeLocalGit   = enums.TargetTypeLocalGit
+	TargetTypeLocalNoGit = enums.TargetTypeLocalNoGit
+	TargetTypeBareSlug   = enums.TargetTypeBareSlug
 )
 
 // ResolvedRepoFeature represents the resolved workspace destination for a 'repo feature' target.

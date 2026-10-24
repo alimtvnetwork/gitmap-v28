@@ -12,14 +12,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdpurge/enums"
 
 // TargetType defines the resolution mode for history purging.
-type TargetType string
+// TargetType aliases the strongly-typed enum from the enums package.
+type TargetType = enums.TargetType
 
 const (
-	TargetTypeFolder TargetType = "folder"
-	TargetTypeFile   TargetType = "file"
-	TargetTypeCommit TargetType = "commit"
+	TargetTypeFolder = enums.TargetTypeFolder
+	TargetTypeFile   = enums.TargetTypeFile
+	TargetTypeCommit = enums.TargetTypeCommit
 )
 
 // PreflightScanOptions encapsulates inputs for scanning the commit graph.

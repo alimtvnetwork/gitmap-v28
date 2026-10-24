@@ -5,15 +5,17 @@ import (
 	"strings"
 	"time"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon/enums"
 
 // EmailFormatType represents the encoding of an incoming email command.
-type EmailFormatType string
+// EmailFormatType aliases the strongly-typed enum from the enums package.
+type EmailFormatType = enums.EmailFormatType
 
 const (
-	EmailFormatTypeText    EmailFormatType = "text"
-	EmailFormatTypeJSON    EmailFormatType = "json"
-	EmailFormatTypeYAML    EmailFormatType = "yaml"
-	EmailFormatTypeUnknown EmailFormatType = "unknown"
+	EmailFormatTypeText    = enums.EmailFormatTypeText
+	EmailFormatTypeJSON    = enums.EmailFormatTypeJSON
+	EmailFormatTypeYAML    = enums.EmailFormatTypeYAML
+	EmailFormatTypeUnknown = enums.EmailFormatTypeUnknown
 )
 
 // EmailMessage models an incoming or outgoing raw email message.

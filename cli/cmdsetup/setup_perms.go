@@ -11,14 +11,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdsetup/enums"
 
 // PermsAppType defines the web application profile for permission auditing.
-type PermsAppType string
+// PermsAppType aliases the strongly-typed enum from the enums package.
+type PermsAppType = enums.PermsAppType
 
 const (
-	PermsAppTypeGeneric   PermsAppType = "generic"
-	PermsAppTypeWordPress PermsAppType = "wordpress"
-	PermsAppTypeLaravel   PermsAppType = "laravel"
+	PermsAppTypeGeneric   = enums.PermsAppTypeGeneric
+	PermsAppTypeWordPress = enums.PermsAppTypeWordPress
+	PermsAppTypeLaravel   = enums.PermsAppTypeLaravel
 )
 
 var currentOS = runtime.GOOS

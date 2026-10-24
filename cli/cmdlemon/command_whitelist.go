@@ -8,13 +8,19 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon/enums"
 
-type WhitelistAuthType string
+// WhitelistAuthType aliases the strongly-typed enum from the enums package.
+type WhitelistAuthType = enums.WhitelistAuthType
 
 const (
-	AuthAllowedType, AuthDeniedType WhitelistAuthType = "ALLOWED", "DENIED"
-	DefaultTimeout, MaxTimeout                        = 60 * time.Second, 300 * time.Second
-	MaxBufferBytes, dangerousChars                    = 64 * 1024, ";|&><$`\r\n"
+	AuthAllowedType = enums.AuthAllowedType
+	AuthDeniedType  = enums.AuthDeniedType
+)
+
+const (
+	DefaultTimeout, MaxTimeout     = 60 * time.Second, 300 * time.Second
+	MaxBufferBytes, dangerousChars = 64 * 1024, ";|&><$`\r\n"
 )
 
 var allowedSubcommands = map[string]bool{

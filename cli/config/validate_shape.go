@@ -38,6 +38,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/config/enums"
 
 // expectedRequiredKeyTypes maps each required JSON key to the JSON
 // kind ("string" / "number" / "object" / "array") it must hold. We
@@ -53,17 +54,18 @@ var expectedRequiredKeyTypes = map[string]jsonKind{
 // JSONKindType enumerates the JSON value types we care about. Stringer-
 // style String() method exists so error messages can name the
 // expected type without a separate lookup table.
-type JSONKindType int
-
-type jsonKind = JSONKindType
+// JSONKindType aliases the strongly-typed enum from the enums package.
+type JSONKindType = enums.JSONKindType
 
 const (
-	JSONKindTypeString JSONKindType = iota
-	JSONKindTypeNumber
-	JSONKindTypeBool
-	JSONKindTypeObject
-	JSONKindTypeArray
+	JSONKindTypeString = enums.JSONKindTypeString
+	JSONKindTypeNumber = enums.JSONKindTypeNumber
+	JSONKindTypeBool   = enums.JSONKindTypeBool
+	JSONKindTypeObject = enums.JSONKindTypeObject
+	JSONKindTypeArray  = enums.JSONKindTypeArray
 )
+
+type jsonKind = enums.JSONKindType
 
 const (
 	kindString = JSONKindTypeString
@@ -72,26 +74,6 @@ const (
 	kindObject = JSONKindTypeObject
 	kindArray  = JSONKindTypeArray
 )
-
-// String renders the human-readable JSON type name used in error
-// messages. Spelled out (not "str"/"num") because the audience is a
-// user reading their own config file.
-func (k jsonKind) String() string {
-	switch k {
-	case kindString:
-		return "string"
-	case kindNumber:
-		return "number"
-	case kindBool:
-		return "boolean"
-	case kindObject:
-		return "object"
-	case kindArray:
-		return "array"
-	}
-
-	return "unknown"
-}
 
 // ValidateRawShape inspects raw JSON bytes for type mismatches on
 // required keys. Runs AFTER ValidateRawConfig has confirmed every

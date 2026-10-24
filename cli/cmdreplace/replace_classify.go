@@ -3,16 +3,19 @@ package cmdreplace
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdreplace/enums"
+import "slices"
 
 // ReplaceModeType enumerates the invocation shapes the spec accepts.
-type ReplaceModeType int
+// ReplaceModeType aliases the strongly-typed enum from the enums package.
+type ReplaceModeType = enums.ReplaceModeType
 
 const (
-	ReplaceModeTypeUnknown ReplaceModeType = iota
-	ReplaceModeTypeLiteral
-	ReplaceModeTypeVersionN
-	ReplaceModeTypeAll
-	ReplaceModeTypeAudit
+	ReplaceModeTypeUnknown  = enums.ReplaceModeTypeUnknown
+	ReplaceModeTypeLiteral  = enums.ReplaceModeTypeLiteral
+	ReplaceModeTypeVersionN = enums.ReplaceModeTypeVersionN
+	ReplaceModeTypeAll      = enums.ReplaceModeTypeAll
+	ReplaceModeTypeAudit    = enums.ReplaceModeTypeAudit
 )
 
 // classifyReplaceMode picks the operating mode from positional args and audit flag.
@@ -37,7 +40,7 @@ func classifySingleArgMode(arg string) ReplaceModeType {
 		return ReplaceModeTypeAll
 	}
 
-	if arg == "history" || arg == "audit" {
+	if slices.Contains([]string{"history", "audit"}, arg) {
 		return ReplaceModeTypeAudit
 	}
 

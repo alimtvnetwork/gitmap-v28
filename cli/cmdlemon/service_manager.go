@@ -6,24 +6,27 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdlemon/enums"
 
-type ServiceActionType string
+// ServiceActionType aliases the strongly-typed enum from the enums package.
+type ServiceActionType = enums.ServiceActionType
 
 const (
-	ServiceActionTypeInstall   ServiceActionType = "install"
-	ServiceActionTypeUninstall ServiceActionType = "uninstall"
-	ServiceActionTypeStart     ServiceActionType = "start"
-	ServiceActionTypeStop      ServiceActionType = "stop"
-	ServiceActionTypeRestart   ServiceActionType = "restart"
-	ServiceActionTypeStatus    ServiceActionType = "status"
+	ServiceActionTypeInstall   = enums.ServiceActionTypeInstall
+	ServiceActionTypeUninstall = enums.ServiceActionTypeUninstall
+	ServiceActionTypeStart     = enums.ServiceActionTypeStart
+	ServiceActionTypeStop      = enums.ServiceActionTypeStop
+	ServiceActionTypeRestart   = enums.ServiceActionTypeRestart
+	ServiceActionTypeStatus    = enums.ServiceActionTypeStatus
 )
 
-type ServiceStatusType string
+// ServiceStatusType aliases the strongly-typed enum from the enums package.
+type ServiceStatusType = enums.ServiceStatusType
 
 const (
-	ServiceStatusTypeRunning ServiceStatusType = "running"
-	ServiceStatusTypeStopped ServiceStatusType = "stopped"
-	ServiceStatusTypeUnknown ServiceStatusType = "unknown"
+	ServiceStatusTypeRunning = enums.ServiceStatusTypeRunning
+	ServiceStatusTypeStopped = enums.ServiceStatusTypeStopped
+	ServiceStatusTypeUnknown = enums.ServiceStatusTypeUnknown
 )
 
 type ServiceDetails struct {

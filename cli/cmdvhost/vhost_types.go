@@ -1,17 +1,20 @@
 package cmdvhost
 
-// VHostSiteType represents the supported site types for virtual hosts.
-type VHostSiteType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost/enums"
 
-// SiteType alias for VHostSiteType.
-type SiteType = VHostSiteType
+// VHostSiteType represents the supported site types for virtual hosts.
+// VHostSiteType aliases the strongly-typed enum from the enums package.
+type VHostSiteType = enums.VHostSiteType
 
 const (
-	VHostSiteTypeWordpress VHostSiteType = "wordpress"
-	VHostSiteTypeLaravel   VHostSiteType = "laravel"
-	VHostSiteTypePHP       VHostSiteType = "php"
-	VHostSiteTypeStatic    VHostSiteType = "static"
+	VHostSiteTypeWordpress = enums.VHostSiteTypeWordpress
+	VHostSiteTypeLaravel   = enums.VHostSiteTypeLaravel
+	VHostSiteTypePHP       = enums.VHostSiteTypePHP
+	VHostSiteTypeStatic    = enums.VHostSiteTypeStatic
 )
+
+// SiteType alias for VHostSiteType.
+type SiteType = enums.VHostSiteType
 
 const (
 	defaultVHostPort           = 80

@@ -16,19 +16,16 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/committransfer/enums"
 
 // DirectionType names which side receives the new commits.
-type DirectionType int
+// DirectionType aliases the strongly-typed enum from the enums package.
+type DirectionType = enums.DirectionType
 
 const (
-	// DirRight replays LEFT → RIGHT (writes commits on RIGHT).
-	DirRight DirectionType = iota
-	// DirLeft replays RIGHT → LEFT (writes commits on LEFT).
-	DirLeft
-	// DirBoth replays in both directions sequentially: LEFT → RIGHT
-	// first, then RIGHT → LEFT. Each pass builds its own plan and
-	// shares the same Options (with a directional log-prefix suffix).
-	DirBoth
+	DirRight = enums.DirRight
+	DirLeft  = enums.DirLeft
+	DirBoth  = enums.DirBoth
 )
 
 // MessagePolicy controls the per-commit message normalization pipeline.
@@ -76,15 +73,13 @@ type MessagePolicy struct {
 // PreferPolicyType mirrors movemerge.PreferPolicyType for file-level conflicts
 // during the snapshot-copy step. We re-export the values rather than
 // importing the type to keep the package decoupled in tests.
-type PreferPolicyType int
+// PreferPolicyType aliases the strongly-typed enum from the enums package.
+type PreferPolicyType = enums.PreferPolicyType
 
 const (
-	// PreferNone means use the existing file (no overwrite on conflict).
-	PreferNone PreferPolicyType = iota
-	// PreferSource overwrites target with source on every conflict.
-	PreferSource
-	// PreferTarget keeps target on every conflict (effectively skip).
-	PreferTarget
+	PreferNone   = enums.PreferNone
+	PreferSource = enums.PreferSource
+	PreferTarget = enums.PreferTarget
 )
 
 // Options bundles every CLI flag for the commit-transfer family.

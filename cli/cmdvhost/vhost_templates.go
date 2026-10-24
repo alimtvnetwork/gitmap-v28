@@ -9,27 +9,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost/enums"
 
-// ParseVHostSiteType normalizes raw strings into a VHostSiteType.
+// ParseVHostSiteType aliases the enums package parser so existing callers keep working.
 func ParseVHostSiteType(raw string) (VHostSiteType, *apperror.AppError) {
-	norm := strings.ToLower(strings.TrimSpace(raw))
-	switch norm {
-	case "wordpress", "wp":
-
-		return VHostSiteTypeWordpress, nil
-	case "laravel", "art", "artisan":
-
-		return VHostSiteTypeLaravel, nil
-	case "php":
-
-		return VHostSiteTypePHP, nil
-	case "static", "html":
-
-		return VHostSiteTypeStatic, nil
-	default:
-
-		return "", apperror.NewValidationError("unrecognized site type: " + raw)
-	}
+	return enums.ParseVHostSiteType(raw)
 }
 
 // ValidateVHostConfig validates required virtual host fields.
@@ -120,7 +104,7 @@ func SelectVHostTemplate(siteType VHostSiteType) (string, *apperror.AppError) {
 		return staticVHostTemplate, nil
 	default:
 
-		return "", apperror.NewValidationError("unknown site type: " + string(siteType))
+		return "", apperror.NewValidationError("unknown site type: " + siteType.String())
 	}
 }
 

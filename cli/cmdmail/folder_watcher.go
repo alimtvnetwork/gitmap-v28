@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdmail/enums"
 
 const (
 	MinPollingInterval     = 5 * time.Second
@@ -33,12 +34,13 @@ func NewIntervalGuard(requested time.Duration) IntervalGuard {
 }
 
 // FileEventType identifies file mutation categories.
-type FileEventType string
+// FileEventType aliases the strongly-typed enum from the enums package.
+type FileEventType = enums.FileEventType
 
 const (
-	EventCreate FileEventType = "create"
-	EventModify FileEventType = "modify"
-	EventDelete FileEventType = "delete"
+	EventCreate = enums.EventCreate
+	EventModify = enums.EventModify
+	EventDelete = enums.EventDelete
 )
 
 // FileItemSnapshot captures filesystem metadata for change detection.

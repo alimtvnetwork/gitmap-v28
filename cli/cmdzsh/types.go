@@ -4,33 +4,36 @@ package cmdzsh
 import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdzsh/enums"
 
 // ZshThemeType represents supported ZSH prompt theme names.
-type ZshThemeType string
+// ZshThemeType aliases the strongly-typed enum from the enums package.
+type ZshThemeType = enums.ZshThemeType
 
 const (
-	ZshThemeRobbyrussell ZshThemeType = "robbyrussell"
-	ZshThemeAgnoster     ZshThemeType = "agnoster"
-	ZshThemeFletcherm    ZshThemeType = "fletcherm"
-	ZshThemeAfMagic      ZshThemeType = "af-magic"
-	ZshThemeAfowler      ZshThemeType = "afowler"
-	ZshThemeBira         ZshThemeType = "bira"
-	ZshThemeCandy        ZshThemeType = "candy"
-	ZshThemeClean        ZshThemeType = "clean"
-	ZshThemeCloud        ZshThemeType = "cloud"
-	ZshThemeGnzh         ZshThemeType = "gnzh"
-	ZshThemeHalfLife     ZshThemeType = "half-life"
+	ZshThemeRobbyrussell = enums.ZshThemeRobbyrussell
+	ZshThemeAgnoster     = enums.ZshThemeAgnoster
+	ZshThemeFletcherm    = enums.ZshThemeFletcherm
+	ZshThemeAfMagic      = enums.ZshThemeAfMagic
+	ZshThemeAfowler      = enums.ZshThemeAfowler
+	ZshThemeBira         = enums.ZshThemeBira
+	ZshThemeCandy        = enums.ZshThemeCandy
+	ZshThemeClean        = enums.ZshThemeClean
+	ZshThemeCloud        = enums.ZshThemeCloud
+	ZshThemeGnzh         = enums.ZshThemeGnzh
+	ZshThemeHalfLife     = enums.ZshThemeHalfLife
 )
 
 // PackageManagerType identifies supported system package managers.
-type PackageManagerType string
+// PackageManagerType aliases the strongly-typed enum from the enums package.
+type PackageManagerType = enums.PackageManagerType
 
 const (
-	PkgMgrApt     PackageManagerType = "apt"
-	PkgMgrDnf     PackageManagerType = "dnf"
-	PkgMgrBrew    PackageManagerType = "brew"
-	PkgMgrPacman  PackageManagerType = "pacman"
-	PkgMgrUnknown PackageManagerType = "unknown"
+	PkgMgrApt     = enums.PkgMgrApt
+	PkgMgrDnf     = enums.PkgMgrDnf
+	PkgMgrBrew    = enums.PkgMgrBrew
+	PkgMgrPacman  = enums.PkgMgrPacman
+	PkgMgrUnknown = enums.PkgMgrUnknown
 )
 
 // ZshOptions encapsulates configuration parameters for ZSH installation and suite setup.
