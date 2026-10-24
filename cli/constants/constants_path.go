@@ -4,9 +4,9 @@ package constants
 type SpecialPathType string
 
 const (
-	SpecialPathRepoCache      SpecialPathType = "repo-cache"
-	SpecialPathRepoCacheShort SpecialPathType = "rc"
-	SpecialPathRepoSecrets    SpecialPathType = "repo-secrets"
+	SpecialPathRepoCache        SpecialPathType = "repo-cache"
+	SpecialPathRepoCacheShort   SpecialPathType = "rc"
+	SpecialPathRepoSecrets      SpecialPathType = "repo-secrets"
 	SpecialPathRepoSecretsShort SpecialPathType = "rs"
 )
 
