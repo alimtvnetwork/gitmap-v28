@@ -1,6 +1,7 @@
 package cmdworkgroup
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -83,8 +84,10 @@ func parseUserHostFlag(args []string, idx int, opts *WorkgroupOptions) int {
 	return parseHostFlag(args, idx, opts)
 }
 
+var workgroupJSONFlagTokens = []string{string(constants.WorkgroupFlagJSONShort), string(constants.WorkgroupFlagJSON)}
+
 func parseBoolFlag(arg string, opts *WorkgroupOptions) bool {
-	if arg == string(constants.WorkgroupFlagJSONShort) || arg == string(constants.WorkgroupFlagJSON) {
+	if slices.Contains(workgroupJSONFlagTokens, arg) {
 		opts.IsJSON = true
 
 		return true
