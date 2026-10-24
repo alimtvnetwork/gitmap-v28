@@ -67,13 +67,15 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 
 ## 3. Pending Plans
 
-None. All active execution tracks are maintained directly under `.ai-memory/plans/subtasks/`.
+- [318-gitmap-command-and-coding-guideline-synchronization.md](pending/318-gitmap-command-and-coding-guideline-synchronization.md) — GitMap Command and Coding Guideline Synchronization: Alternative Commands in GitMap Skill, Third-Bracket Commit Elimination, Magic Strings Refactoring to Domain Enums, and V6 Execute Prompt Error Management Embedding (Spec: [318-gitmap-command-and-coding-guideline-synchronization](../../02-spec/21-app/318-gitmap-command-and-coding-guideline-synchronization/00-overview.md)) (Status: `pending`)
 
 ---
 
 ## 4. Active Subtasks Directories
 
 Only active subtask directories are maintained under `.ai-memory/plans/subtasks/`:
+
+- [318-gitmap-command-and-coding-guideline-synchronization](subtasks/318-gitmap-command-and-coding-guideline-synchronization/) — Alternative commands in GitMap skill, third bracket elimination in commit tools, magic strings replacement, V6 execute prompt error management, and multi-repo sync
 
 - [316-repository-management-and-testing-instructions](subtasks/316-repository-management-and-testing-instructions/) — AGM autoswitch, fast-forward rerun, gitmap commands, img-pdf, yt-manage
 - [219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging](subtasks/219-ubuntu-pull-all-remediation-omz-ignore-and-error-logging/) — Ubuntu Pull-All Remediation Engine & Ignore Rules

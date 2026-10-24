@@ -15,4 +15,7 @@ const (
 	FlagGroups      = "--groups"
 	FlagFilter      = "--filter" // v5.42.0: `gitmap help --filter <q>` search
 	FlagFilterShort = "-f"
+	FlagHelp        = "--help"
+	FlagHelpShort   = "-h"
+	FlagHelpWord    = "help"
 )

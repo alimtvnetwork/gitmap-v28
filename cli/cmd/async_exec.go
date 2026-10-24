@@ -86,7 +86,7 @@ func runAsyncSingleJob(opts *asyncTaskOpts) error {
 }
 
 func buildAsyncExecCmd(ctx context.Context, command string) *exec.Cmd {
-	if constants.OSWindows == "windows" {
+	if constants.IsWindowsPlatform() {
 		return exec.CommandContext(ctx, "powershell", "-NoProfile", "-Command", command)
 	}
 

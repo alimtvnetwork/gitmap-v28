@@ -625,6 +625,11 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
 
         return result
 
+    if target.resolve() == SOURCE_ROOT.resolve():
+        result["skipped"] = "self repository (source of truth)"
+
+        return result
+
     base_branch = detect_base_branch(target)
     result["base_branch"] = base_branch
 

@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/completion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type termSession struct {
@@ -103,7 +103,7 @@ func attachPipes(cmdExec *exec.Cmd) (io.WriteCloser, io.ReadCloser, error) {
 }
 
 func getShell() string {
-	isWindows := runtime.GOOS == "windows"
+	isWindows := constants.IsWindowsPlatform()
 	if isWindows {
 		return "cmd.exe"
 	}

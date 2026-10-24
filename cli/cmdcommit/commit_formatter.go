@@ -7,20 +7,21 @@ import (
 
 // ParsedCommitMessage contains the decomposed components of a semantic commit message.
 type ParsedCommitMessage struct {
-	RawInput         string
-	FormattedMessage string
-	CommitType       string
-	Module           string
-	ItemDescription  string
-	HasModule        bool
-	HasBracketSyntax bool
-	IsConventional   bool
+	RawInput           string
+	FormattedMessage   string
+	CommitType         string
+	Module             string
+	ItemDescription    string
+	HasModule          bool
+	HasHyphenSeparator bool
+	IsConventional     bool
 }
 
 var (
-	bracketRegex      = regexp.MustCompile(`^\[([A-Za-z0-9_\-\./]+)\]:\s*(.+)$`)
-	conventionalRegex = regexp.MustCompile(`^([a-z]+)(?:\((?:\[([A-Za-z0-9_\-\./]+)\]|([A-Za-z0-9_\-\./]+))\))?:\s*(.+)$`)
-	legacyHyphenRegex = regexp.MustCompile(`^([A-Za-z0-9_\-\./]+)\s+-\s+(.+)$`)
+	// hyphenRegex matches "<module> - <summary>" or "<module>: <summary>"
+	hyphenRegex = regexp.MustCompile(`^([A-Za-z0-9_\-\./]+)\s*[:-]\s*(.+)$`)
+	// conventionalRegex matches standard conventional commits without brackets: "<type>(<module>): <summary>"
+	conventionalRegex = regexp.MustCompile(`^([a-z]+)\(([A-Za-z0-9_\-\./]+)\):\s*(.+)$`)
 )
 
 func stripWrappingQuotes(s string) string {
@@ -61,25 +62,50 @@ func trimDuplicatePrefix(verb, s string) string {
 	return s
 }
 
-func buildBracketRecord(raw, prefix, mod, item string) ParsedCommitMessage {
+func cleanseBracketArtifacts(s string) string {
+	cleaned := strings.ReplaceAll(s, "([", "(")
+	cleaned = strings.ReplaceAll(cleaned, "])", ")")
+	if !strings.HasPrefix(cleaned, "[") {
+		return cleaned
+	}
+
+	idx := strings.Index(cleaned, "]")
+	if idx == -1 {
+		return cleaned
+	}
+
+	return strings.TrimSpace(cleaned[1:idx]) + cleaned[idx+1:]
+}
+
+func sanitizeInput(verb string, rawArgs []string) string {
+	raw := stripWrappingQuotes(strings.Join(rawArgs, " "))
+	normalized := trimDuplicatePrefix(verb, raw)
+
+	return cleanseBracketArtifacts(normalized)
+}
+
+func buildHyphenRecord(raw, prefix, mod, item string) ParsedCommitMessage {
+	upperMod := strings.ToUpper(strings.Trim(mod, "[] "))
+	cleanItem := strings.TrimSpace(item)
+
 	return ParsedCommitMessage{
-		RawInput:         raw,
-		FormattedMessage: prefix + "[" + mod + "]: " + item,
-		CommitType:       strings.TrimSuffix(prefix, ": "),
-		Module:           mod,
-		ItemDescription:  item,
-		HasModule:        true,
-		HasBracketSyntax: true,
+		RawInput:           raw,
+		FormattedMessage:   prefix + upperMod + " - " + cleanItem,
+		CommitType:         strings.TrimSuffix(prefix, ": "),
+		Module:             upperMod,
+		ItemDescription:    cleanItem,
+		HasModule:          true,
+		HasHyphenSeparator: true,
 	}
 }
 
-func tryParseBracketSyntax(verb, s string) (ParsedCommitMessage, bool) {
-	matches := bracketRegex.FindStringSubmatch(s)
+func tryParseHyphenSyntax(verb, s string) (ParsedCommitMessage, bool) {
+	matches := hyphenRegex.FindStringSubmatch(s)
 	if len(matches) < 3 {
 		return ParsedCommitMessage{}, false
 	}
 
-	record := buildBracketRecord(s, resolveVerbPrefix(verb), matches[1], strings.TrimSpace(matches[2]))
+	record := buildHyphenRecord(s, resolveVerbPrefix(verb), matches[1], matches[2])
 
 	return record, true
 }
@@ -93,46 +119,26 @@ func isKnownConventionalType(t string) bool {
 	}
 }
 
-func extractConventionalModule(matches []string) (string, bool) {
-	if matches[2] != "" {
-		return matches[2], true
-	}
-
-	return matches[3], false
-}
-
-func buildConventionalRecord(s, ctype, mod, item string, hasBracket bool) ParsedCommitMessage {
+func buildConventionalRecord(s, ctype, mod, item string) ParsedCommitMessage {
 	return ParsedCommitMessage{
-		RawInput:         s,
-		FormattedMessage: s,
-		CommitType:       ctype,
-		Module:           mod,
-		ItemDescription:  item,
-		HasModule:        mod != "",
-		HasBracketSyntax: hasBracket,
-		IsConventional:   true,
+		RawInput:           s,
+		FormattedMessage:   s,
+		CommitType:         ctype,
+		Module:             mod,
+		ItemDescription:    item,
+		HasModule:          mod != "",
+		HasHyphenSeparator: false,
+		IsConventional:     true,
 	}
 }
 
 func tryParseConventionalSyntax(verb, s string) (ParsedCommitMessage, bool) {
 	matches := conventionalRegex.FindStringSubmatch(s)
-	if len(matches) < 5 || !isKnownConventionalType(matches[1]) {
+	if len(matches) < 4 || !isKnownConventionalType(matches[1]) {
 		return ParsedCommitMessage{}, false
 	}
 
-	mod, hasBracket := extractConventionalModule(matches)
-	record := buildConventionalRecord(s, matches[1], mod, strings.TrimSpace(matches[4]), hasBracket)
-
-	return record, true
-}
-
-func tryParseLegacyHyphenSyntax(verb, s string) (ParsedCommitMessage, bool) {
-	matches := legacyHyphenRegex.FindStringSubmatch(s)
-	if len(matches) < 3 {
-		return ParsedCommitMessage{}, false
-	}
-
-	record := buildBracketRecord(s, resolveVerbPrefix(verb), matches[1], strings.TrimSpace(matches[2]))
+	record := buildConventionalRecord(s, matches[1], matches[2], strings.TrimSpace(matches[3]))
 
 	return record, true
 }
@@ -151,23 +157,17 @@ func buildFallbackCommitMessage(verb, s string) ParsedCommitMessage {
 
 // ParseAndFormatCommitMessage processes raw arguments according to the target semantic verb.
 func ParseAndFormatCommitMessage(verb string, rawArgs []string) ParsedCommitMessage {
-	cleanMessage := strings.TrimSpace(strings.Join(rawArgs, " "))
-	stripped := stripWrappingQuotes(cleanMessage)
-	normalized := trimDuplicatePrefix(verb, stripped)
+	cleansed := sanitizeInput(verb, rawArgs)
 
-	if parsed, ok := tryParseBracketSyntax(verb, normalized); ok {
+	if parsed, ok := tryParseConventionalSyntax(verb, cleansed); ok {
 		return parsed
 	}
 
-	if parsed, ok := tryParseConventionalSyntax(verb, normalized); ok {
+	if parsed, ok := tryParseHyphenSyntax(verb, cleansed); ok {
 		return parsed
 	}
 
-	if parsed, ok := tryParseLegacyHyphenSyntax(verb, normalized); ok {
-		return parsed
-	}
-
-	return buildFallbackCommitMessage(verb, normalized)
+	return buildFallbackCommitMessage(verb, cleansed)
 }
 
 // FormatCommitMessage formats raw commit arguments into a standardized commit message string.

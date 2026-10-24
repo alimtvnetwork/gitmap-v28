@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
@@ -227,7 +227,7 @@ func printWhoAmIFixHints(url string) {
 	switch classifyTransport(url) {
 	case "HTTPS":
 		fmt.Println("  Wrong GitHub account cached? Clear it, then push again:")
-		if runtime.GOOS == "windows" {
+		if constants.IsWindowsPlatform() {
 			fmt.Println("    cmdkey /delete:LegacyGeneric:target=git:https://github.com")
 		} else {
 			fmt.Println("    printf 'protocol=https\\nhost=github.com\\n\\n' | git credential-manager erase")

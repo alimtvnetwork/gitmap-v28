@@ -24,12 +24,12 @@ func RunAsyncCmd(args []string) error {
 		return nil
 	}
 
-	sub := strings.ToLower(args[0])
-	if sub == "ls" || sub == "list" {
+	action := constants.AsyncActionType(strings.ToLower(args[0]))
+	if action.IsList() {
 		return runAsyncList()
 	}
 
-	if sub == "stop" || sub == "kill" {
+	if action.IsStop() {
 		return runAsyncStop(args[1:])
 	}
 
@@ -37,16 +37,23 @@ func RunAsyncCmd(args []string) error {
 }
 
 func parseAsyncArgs(args []string) (*asyncTaskOpts, error) {
+	opts, cmdParts := collectAsyncOptions(args)
+	opts.command = strings.Join(cmdParts, " ")
+	if strings.TrimSpace(opts.command) == "" {
+		return nil, apperror.New("async", "E_CMD_REQUIRED", map[string]any{"msg": "Command required for async"})
+	}
+
+	return opts, nil
+}
+
+func collectAsyncOptions(args []string) (*asyncTaskOpts, []string) {
 	opts := &asyncTaskOpts{}
 	var cmdParts []string
 
 	for i := 0; i < len(args); i++ {
 		consumed, interval := tryParseInterval(args, i)
 		if consumed > 0 {
-			if interval > 0 && interval < 30 {
-				interval = 30
-			}
-			opts.intervalS = interval
+			opts.intervalS = normalizeInterval(interval)
 			i += consumed - 1
 
 			continue
@@ -55,12 +62,15 @@ func parseAsyncArgs(args []string) (*asyncTaskOpts, error) {
 		cmdParts = append(cmdParts, args[i])
 	}
 
-	opts.command = strings.Join(cmdParts, " ")
-	if strings.TrimSpace(opts.command) == "" {
-		return nil, apperror.New("async", "E_CMD_REQUIRED", map[string]any{"msg": "Command required for async"})
+	return opts, cmdParts
+}
+
+func normalizeInterval(interval int) int {
+	if interval > 0 && interval < 30 {
+		return 30
 	}
 
-	return opts, nil
+	return interval
 }
 
 func tryParseInterval(args []string, idx int) (int, int) {

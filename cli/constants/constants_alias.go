@@ -12,6 +12,60 @@ const (
 	SubCmdAliasSug  = "suggest"
 )
 
+// AliasActionType defines actions for the alias subcommand.
+type AliasActionType string
+
+// Backwards-compatible type alias.
+type AliasAction = AliasActionType
+
+const (
+	AliasActionInvalid AliasActionType = ""
+	AliasActionSet     AliasActionType = "set"
+	AliasActionRemove  AliasActionType = "remove"
+	AliasActionRm      AliasActionType = "rm"
+	AliasActionList    AliasActionType = "list"
+	AliasActionLs      AliasActionType = "ls"
+	AliasActionShow    AliasActionType = "show"
+	AliasActionSuggest AliasActionType = "suggest"
+)
+
+// String returns the canonical serialized string representation.
+func (a AliasActionType) String() string {
+	return string(a)
+}
+
+// Label returns the display label.
+func (a AliasActionType) Label() string {
+	return a.String()
+}
+
+// IsValid reports whether the alias action is recognized.
+func (a AliasActionType) IsValid() bool {
+	hasAction := a.IsSet() || a.IsRemove() || a.IsList() || a.IsShow() || a.IsSuggest()
+
+	return hasAction
+}
+
+func (a AliasActionType) IsSet() bool {
+	return a == AliasActionSet
+}
+
+func (a AliasActionType) IsRemove() bool {
+	return a == AliasActionRemove || a == AliasActionRm
+}
+
+func (a AliasActionType) IsList() bool {
+	return a == AliasActionList || a == AliasActionLs
+}
+
+func (a AliasActionType) IsShow() bool {
+	return a == AliasActionShow
+}
+
+func (a AliasActionType) IsSuggest() bool {
+	return a == AliasActionSuggest
+}
+
 // Alias table name (v15: singular).
 const TableAlias = "Alias"
 

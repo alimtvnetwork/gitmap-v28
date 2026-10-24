@@ -17,12 +17,11 @@ This specification establishes the user-facing CLI command suite, commit message
    - Intelligent ancestor resolution: child repositories dynamically inherit workgroup settings and SSH credentials from parent directories without per-repo reconfiguration.
 
 2. **Enhanced `cpf` and `cbf` Commit Message Parser and Formatter**:
-   - Universal parser supporting modular Conventional Commit syntax:
-     - Bracketed module: `[module]: <item>` (e.g. `[auth]: implement refresh token rotation`)
-     - Type with bracketed module: `type([module]): <item>` (e.g. `feat([workgroup]): add folder-specific ssh binding`)
-     - Standard type prefix: `feat(module): <item>`, `fix(module): <item>`, `chore(module): <item>`, `release(version): <item>`
+   - Universal parser supporting the Hyphen-Separated Uppercase Module Standard (Zero Third Brackets):
+     - Uppercase module hyphen format: `MODULE - <item>` (e.g. `AUTH - implement refresh token rotation`)
+     - Conventional syntax without brackets: `feat(module): <item>`, `fix(module): <item>`, `chore(module): <item>`, `release(version): <item>`
    - First-class `cbf` alias alongside `cpf`, `cpb`, `cpc`, and `cpr`, providing instantaneous stage-commit-push cycles with semantic validation.
-   - Normalization pipeline that sanitizes duplicate prefixes, strips unwanted shell quotation, preserves conventional commit invariants, and provides backwards compatibility with legacy hyphen-delimited messages.
+   - Normalization pipeline that sanitizes duplicate prefixes, strips unwanted shell quotation, sanitizes legacy brackets, normalizes module to uppercase, and produces canonical hyphen format.
 
 3. **UI Help Menus (`cli/termout/`) & HD Markdown Help Cards (`cli/helpdoc/`)**:
    - Lipgloss-styled terminal cards with responsive borders, semantic ANSI color palettes, command syntax tables, and real-world examples.
@@ -183,29 +182,29 @@ flowchart TD
 
 Historically, GitMap strictly prohibited colons inside commit arguments to prevent duplicate prefix accidents (e.g., `gitmap cpf "Feature: my title"` turning into `Feature: Feature: my title`).
 
-Under this specification, GitMap modernizes the commit message engine to natively embrace and standardize **bracketed module syntax** and **Conventional Commit syntax**:
-- **Bracketed Module Pattern**: `[module]: <item>`
-- **Type with Bracketed Module**: `type([module]): <item>`
+Under this specification, GitMap modernizes the commit message engine to natively embrace and standardize the **hyphen-separated uppercase module syntax** and **Conventional Commit syntax** while strictly eliminating square brackets:
+- **Uppercase Module Pattern**: `MODULE - <item>`
 - **Conventional Scope Pattern**: `type(module): <item>`
 
-The parser distinguishes between unauthorized naked leading colons and valid modular bracketed prefixes, guaranteeing semantic cleanliness without breaking existing workflows.
+The parser strips legacy bracket artifacts, normalizes the module token to uppercase, and formats output with clean space-padded hyphens.
 
 ### 4.2 Format Grammar & Supported Syntaxes
 
 The commit message parser recognizes the following canonical syntax grammar:
 
 ```ebnf
-CommitMessage      ::= BracketedItem | ScopedConventional | PlainConventional | LegacyHyphen | RawItem ;
-BracketedItem      ::= "[" ModuleName "]:" Whitespace ItemSummary ;
-ScopedConventional ::= CommitType "([" ModuleName "]):" Whitespace ItemSummary 
-                     | CommitType "(" ModuleName "):" Whitespace ItemSummary ;
-PlainConventional  ::= CommitType ":" Whitespace ItemSummary ;
-LegacyHyphen       ::= ModuleName Whitespace "-" Whitespace ItemSummary ;
-RawItem            ::= String ;
+CommitMessage      ::= SemanticHeader | ConventionalItem | FlatHeader ;
+SemanticHeader     ::= SemanticPrefix Whitespace ModuleIdentifier Whitespace "-" Whitespace Subject ;
+ConventionalItem   ::= CommitType "(" ModuleName "):" Whitespace ItemSummary ;
+FlatHeader         ::= ModuleIdentifier Whitespace "-" Whitespace Subject ;
 
-CommitType         ::= "feat" | "fix" | "chore" | "release" | "refactor" | "test" | "docs" | "perf" ;
+SemanticPrefix     ::= "Feature:" | "Bug:" | "Chore:" | "Release:" ;
+ModuleIdentifier   ::= [A-Z0-9_\-/]+ ;
 ModuleName         ::= [A-Za-z0-9_\-\./]+ ;
+CommitType         ::= "feat" | "fix" | "chore" | "release" | "refactor" | "test" | "docs" | "perf" ;
+Subject            ::= [^\r\n]+ ;
 ItemSummary        ::= [^\r\n]+ ;
+Whitespace         ::= " " ;
 ```
 
 ### 4.3 Semantic Verb to Commit Type Mapping
@@ -214,35 +213,35 @@ When calling GitMap's specialized semantic commit commands (`cpf`, `cbf`, `cpc`,
 
 | Invocation Command | Alias | Injected Standard Prefix | Conventional Equivalent | Description |
 |:---|:---|:---|:---|:---|
-| `gitmap commit-push-feature` | `gitmap cpf` | `Feature: ` | `feat([module]): ` | Feature development |
-| `gitmap commit-push-bug` | `gitmap cpb`, `gitmap cbf` | `Bug: ` | `fix([module]): ` | Bug fixes and patches |
-| `gitmap commit-push-chore` | `gitmap cpc` | `Chore: ` | `chore([module]): ` | Maintenance and tooling |
-| `gitmap commit-push-release` | `gitmap cpr` | `Release: ` | `release([module]): ` | Release and version bump |
+| `gitmap commit-push-feature` | `gitmap cpf` | `Feature: ` | `feat(module): ` | Feature development |
+| `gitmap commit-push-bug` | `gitmap cpb`, `gitmap cbf` | `Bug: ` | `fix(module): ` | Bug fixes and patches |
+| `gitmap commit-push-chore` | `gitmap cpc` | `Chore: ` | `chore(module): ` | Maintenance and tooling |
+| `gitmap commit-push-release` | `gitmap cpr` | `Release: ` | `release(module): ` | Release and version bump |
 | `gitmap pull-commit-push` | `gitmap pcp` | (Contextual / Raw) | (Contextual / Raw) | Pre-pull then commit |
 
 ### 4.4 Examples Matrix Across Message Types
 
 | User Input Message | Command | Formatted Commit Subject | Module | Type |
 |:---|:---|:---|:---|:---|
-| `"[auth]: support jwt refresh tokens"` | `gitmap cpf` | `Feature: [auth]: support jwt refresh tokens` | `auth` | `Feature` |
-| `"[sqlite]: handle connection pool lock"` | `gitmap cbf` | `Bug: [sqlite]: handle connection pool lock` | `sqlite` | `Bug` |
-| `"feat([workgroup]): add folder ssh key binding"`| `gitmap cpf` | `feat([workgroup]): add folder ssh key binding` | `workgroup` | `feat` |
-| `"fix([ssh]): handle missing private key"` | `gitmap cbf` | `fix([ssh]): handle missing private key` | `ssh` | `fix` |
-| `"[skills]: sync gitmap skill across repositories"`| `gitmap cpc` | `Chore: [skills]: sync gitmap skill across repositories` | `skills` | `Chore` |
-| `"[v6.600.0]: folder-specific workdirs & ssh automation"`| `gitmap cpr` | `Release: [v6.600.0]: folder-specific workdirs & ssh automation` | `v6.600.0` | `Release` |
-| `"auth - add jwt validation"` (legacy) | `gitmap cpf` | `Feature: [auth]: add jwt validation` | `auth` | `Feature` |
+| `"AUTH - support jwt refresh tokens"` | `gitmap cpf` | `Feature: AUTH - support jwt refresh tokens` | `AUTH` | `Feature` |
+| `"SQLITE - handle connection pool lock"` | `gitmap cbf` | `Bug: SQLITE - handle connection pool lock` | `SQLITE` | `Bug` |
+| `"feat(workgroup): add folder ssh key binding"`| `gitmap cpf` | `feat(workgroup): add folder ssh key binding` | `workgroup` | `feat` |
+| `"fix(ssh): handle missing private key"` | `gitmap cbf` | `fix(ssh): handle missing private key` | `ssh` | `fix` |
+| `"SKILLS - sync gitmap skill across repositories"`| `gitmap cpc` | `Chore: SKILLS - sync gitmap skill across repositories` | `SKILLS` | `Chore` |
+| `"V6.600.0 - folder-specific workdirs & ssh automation"`| `gitmap cpr` | `Release: V6.600.0 - folder-specific workdirs & ssh automation` | `V6.600.0` | `Release` |
+| `"[auth]: add jwt validation"` (legacy sanitized) | `gitmap cpf` | `Feature: AUTH - add jwt validation` | `AUTH` | `Feature` |
 
 ### 4.5 Normalization & Sanitization Pipeline
 
 The normalization engine executes five sequential filter passes:
 
 1. **Outer Quote Strip**: Removes wrapping quotes (`"..."`, `'...'`) injected by Windows cmd or PowerShell argument splitting.
-2. **Duplicate Prefix Trimming**: Strips redundant prefixes matching the command's target type (e.g. `Feature: [auth]: ...` passed to `cpf` does not produce `Feature: Feature: [auth]: ...`).
-3. **Bracket Syntax Extraction**: Detects `[module]:` or `type([module]):`, extracting `Module` and `Item`.
-4. **Legacy Hyphen Translation**: If message matches `<module> - <item>`, converts cleanly to `[<module>]: <item>`.
-5. **Whitespace Normalization**: Collapses internal double whitespace and trims leading/trailing space.
+2. **Duplicate Prefix Trimming**: Strips redundant prefixes matching the command's target type (e.g. `Feature: AUTH - ...` passed to `cpf` does not produce `Feature: Feature: AUTH - ...`).
+3. **Bracket Sanitization**: Strips any square brackets from module tokens or input headers.
+4. **Hyphen Syntax Resolution**: Extracts module and summary, converts module to uppercase (`strings.ToUpper(mod)`).
+5. **Standard Output Assembly**: Formats as `prefix + upperMod + " - " + item`.
 
-### 4.6 Go Structural Design (`cli/cmdcommit/commit_message_parser.go`)
+### 4.6 Go Structural Design (`cli/cmdcommit/commit_formatter.go`)
 
 ```go
 package cmdcommit
@@ -254,34 +253,29 @@ import (
 
 // ParsedCommitMessage contains the decomposed components of a semantic commit message.
 type ParsedCommitMessage struct {
-	RawInput          string
-	FormattedMessage  string
-	CommitType        string
-	Module            string
-	ItemDescription   string
-	HasModule         bool
-	HasBracketSyntax  bool
-	IsConventional    bool
+	RawInput           string
+	FormattedMessage   string
+	CommitType         string
+	Module             string
+	ItemDescription    string
+	HasModule          bool
+	HasHyphenSeparator bool
+	IsConventional     bool
 }
 
 // ParseAndFormatCommitMessage processes raw arguments according to the target semantic verb.
 func ParseAndFormatCommitMessage(verb string, rawArgs []string) ParsedCommitMessage {
-	cleanMessage := strings.TrimSpace(strings.Join(rawArgs, " "))
-	stripped := stripWrappingQuotes(cleanMessage)
+	cleansed := sanitizeInput(verb, rawArgs)
 	
-	if parsed, ok := tryParseBracketSyntax(verb, stripped); ok {
+	if parsed, ok := tryParseConventionalSyntax(verb, cleansed); ok {
 		return parsed
 	}
 	
-	if parsed, ok := tryParseConventionalSyntax(verb, stripped); ok {
+	if parsed, ok := tryParseHyphenSyntax(verb, cleansed); ok {
 		return parsed
 	}
 	
-	if parsed, ok := tryParseLegacyHyphenSyntax(verb, stripped); ok {
-		return parsed
-	}
-	
-	return buildFallbackCommitMessage(verb, stripped)
+	return buildFallbackCommitMessage(verb, cleansed)
 }
 ```
 
@@ -323,10 +317,10 @@ WORKGROUP COMMANDS:
   rm <name|id>                 Safely remove workgroup registration
 
 COMMIT FORMATTER ENHANCEMENTS (cpf / cbf):
-  gitmap cpf "[auth]: add jwt validation"
-  gitmap cbf "[db]: fix sqlite connection lock timeout"
-  gitmap cpc "[ci]: update go version in workflows"
-  gitmap cpr "[v6.600.0]: release folder-specific workdirs & ssh automation"
+  gitmap cpf "AUTH - add jwt validation"
+  gitmap cbf "DB - fix sqlite connection lock timeout"
+  gitmap cpc "CI - update go version in workflows"
+  gitmap cpr "V6.600.0 - release folder-specific workdirs & ssh automation"
 ```
 
 ### 5.2 HD Markdown Help Cards (`cli/helpdoc/`)
@@ -336,7 +330,7 @@ Dedicated high-definition markdown help cards are maintained under `cli/helpdoc/
 1. **`cli/helpdoc/workgroup.md`**:
    - Comprehensive reference card covering workgroup registration, SQLite storage mechanisms, inheritance resolution, SSH key binding, Git author overriding, and remote authentication testing.
 2. **`cli/helpdoc/commit-format.md`**:
-   - Complete developer guide detailing bracketed module formatting `[module]: <item>`, `type([module]): <item>`, semantic aliases (`cpf`, `cbf`, `cpc`, `cpr`), and normalization algorithms.
+   - Complete developer guide detailing the zero-bracket uppercase hyphen standard `MODULE - <item>`, conventional format `type(module): <item>`, semantic aliases (`cpf`, `cbf`, `cpc`, `cpr`), and normalization algorithms.
 3. **`cli/helpdoc/cbf.md`**:
    - Shorthand documentation card explaining the `cbf` (`commit-push-bug` / bug fix) command.
 
@@ -346,8 +340,8 @@ Dedicated high-definition markdown help cards are maintained under `cli/helpdoc/
   "workgroup":     "Manage folder-specific work directories, SSH key bindings, and grouping.",
   "wg":            "Short alias for workgroup.",
   "group":         "Grouping alias for workgroup.",
-  "commit-format": "Guide and syntax reference for [module]: <item> commit formatting.",
-  "cbf":           "Stages all changes, commits with bug fix prefix and bracketed module, and pushes.",
+  "commit-format": "Guide and syntax reference for uppercase hyphen MODULE - <item> commit formatting.",
+  "cbf":           "Stages all changes, commits with bug fix prefix and uppercase module, and pushes.",
   ```
 - Update `cli/helpdoc/aliases.go`:
   ```go
@@ -367,8 +361,8 @@ The autonomous 6-phase LLM training curriculum is extended to explicitly guide A
 1. **Phase 1 [Discovery]**:
    - Introduce `gitmap workgroup ls` to inspect repository groupings and bound SSH credentials before initiating clone or sync operations.
 2. **Phase 4 [Semantic Commit]**:
-   - Update instructions to mandate bracketed module syntax: `gitmap cpf "[module]: <item>"` and `gitmap cbf "[module]: <item>"`.
-   - Explicitly document that colons enclosed within brackets `[module]:` are now authorized and required.
+   - Update instructions to mandate uppercase module hyphen syntax: `gitmap cpf "MODULE - <item>"` and `gitmap cbf "MODULE - <item>"`.
+   - Explicitly document that square brackets are strictly forbidden in commit messages.
 3. **Phase 6 [Heal & Fix]**:
    - Document `gitmap workgroup test-ssh` as a diagnostic tool for resolving SSH handshake failures (`Permission denied (publickey)`).
 4. **JSON Catalog (`outputTrainJSON`)**:
@@ -380,9 +374,9 @@ The embedded skill template in `cli/cmd/llm/llm_skill.go` and the persistent fil
 
 1. **Semantic Commit & Push Section**:
    - Update rule table: Replace the previous blanket colon ban with the refined rule:
-     - ❌ **Forbidden**: Naked leading colons without brackets (`gitmap cpf ": add feature"` or `gitmap cpf "Feature: add feature"`).
-     - ✅ **Authorized & Standard**: Bracketed module syntax: `gitmap cpf "[module]: <summary>"` and `gitmap cbf "[module]: <summary>"`.
-     - ✅ **Authorized Conventional**: `gitmap cpf "feat([module]): <summary>"` and `gitmap cbf "fix([module]): <summary>"`.
+     - ❌ **Forbidden**: Square brackets in commit messages (`gitmap cpf "[module]: add feature"`) or naked leading colons.
+     - ✅ **Authorized & Standard**: Uppercase module hyphen syntax: `gitmap cpf "MODULE - <summary>"` and `gitmap cbf "MODULE - <summary>"`.
+     - ✅ **Authorized Conventional**: `gitmap cpf "feat(module): <summary>"` and `gitmap cbf "fix(module): <summary>"`.
 2. **Workgroup & SSH Automation Section**:
    - Add cheat sheet section detailing `gitmap workgroup add`, `gitmap workgroup bind`, and `gitmap workgroup ls`.
 
@@ -401,7 +395,7 @@ flowchart TD
     Filter -- "No (Dirty)" --> Skip["Log Warning & Skip Repo<br>(Zero Accidental Overwrite)"]
     Filter -- "Yes (Clean)" --> Sync["Copy Updated skill.md<br>to Target .agents/skills/gitmap/skill.md"]
 
-    Sync --> Commit["Atomic Git Commit in Target<br>gitmap cpc '[skills]: sync gitmap skill v6.600.0'"]
+    Sync --> Commit["Atomic Git Commit in Target<br>gitmap cpc 'SKILLS - sync gitmap skill v6.600.0'"]
     Commit --> Done["Fleet Synchronization Complete<br>All Repos Aligned"]
     Skip --> Done
 ```
@@ -413,7 +407,7 @@ flowchart TD
 All code implemented under this specification strictly follows GitMap coding standards:
 
 1. **Positive Booleans Only**:
-   - Every boolean field and variable MUST start with `is` or `has` only (`isDefault`, `hasActiveBinding`, `isValidKey`, `hasModule`, `hasBracketSyntax`, `isConventional`, `hasPushRequested`, `isVerbose`).
+   - Every boolean field and variable MUST start with `is` or `has` only (`isDefault`, `hasActiveBinding`, `isValidKey`, `hasModule`, `hasHyphenSeparator`, `isConventional`, `hasPushRequested`, `isVerbose`).
    - Banned prefixes: `can`, `should`, `was`, `will`. Negative booleans are completely forbidden.
 2. **15-Line Function Limit**:
    - Functions <= 8 lines preferred, <= 15 lines maximum.
@@ -436,12 +430,12 @@ All code implemented under this specification strictly follows GitMap coding sta
 | **AC-01** | Workgroup CLI Dispatch | `gitmap workgroup`, `gitmap wg`, and `gitmap group` dispatch identically without errors. |
 | **AC-02** | Workgroup Add & List | `gitmap wg add client-a D:\work\client-a --ssh-key ~/.ssh/id_test` registers record; `gitmap wg ls` renders formatted Lipgloss table. |
 | **AC-03** | Lineage Key Resolution | Invocations within child directory `D:\work\client-a\sub\repo` inherit `client-a`'s bound SSH key. |
-| **AC-04** | Bracket Commit Formatting | `gitmap cpf "[auth]: add jwt"` outputs commit subject `Feature: [auth]: add jwt`. |
-| **AC-05** | Conventional Type Parsing | `gitmap cpf "feat([workgroup]): add ssh binding"` preserves `feat([workgroup]): add ssh binding`. |
-| **AC-06** | `cbf` Command Alias | `gitmap cbf "[db]: fix lock"` executes `commit-push-bug` with `Bug: [db]: fix lock`. |
-| **AC-07** | Duplicate Prefix Trimming | `gitmap cpf "Feature: [auth]: test"` normalizes cleanly to `Feature: [auth]: test` without duplication. |
+| **AC-04** | Bracket Commit Sanitization | `gitmap cpf "[auth]: add jwt"` outputs commit subject `Feature: AUTH - add jwt`. |
+| **AC-05** | Conventional Type Parsing | `gitmap cpf "feat(workgroup): add ssh binding"` preserves `feat(workgroup): add ssh binding`. |
+| **AC-06** | `cbf` Command Alias | `gitmap cbf "DB - fix lock"` executes `commit-push-bug` with `Bug: DB - fix lock`. |
+| **AC-07** | Duplicate Prefix Trimming | `gitmap cpf "Feature: AUTH - test"` normalizes cleanly to `Feature: AUTH - test` without duplication. |
 | **AC-08** | Terminal UI Menus | `gitmap workgroup help` and `gitmap cpf --help` render high-contrast Lipgloss ANSI cards. |
 | **AC-09** | HD Markdown Docs | `cli/helpdoc/workgroup.md` and `commit-format.md` present and registered in `catalog.go`. |
-| **AC-10** | LLM Training Curriculum | `gitmap llm train` includes workgroups and bracketed commit formatting in Stage 1 & 4. |
+| **AC-10** | LLM Training Curriculum | `gitmap llm train` includes workgroups and zero-bracket commit formatting in Stage 1 & 4. |
 | **AC-11** | Cross-Repo Skill Sync | `03-ai-scripts/38-sync-prompts-skills-scripts.py` synchronizes updated skill across repositories cleanly. |
 | **AC-12** | Coding Standards | Zero nested ifs, functions <= 15 lines, positive booleans (`is`/`has` only), clean AST formatting. |
