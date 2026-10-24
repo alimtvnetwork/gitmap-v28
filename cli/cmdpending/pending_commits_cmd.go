@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os/exec"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -101,9 +102,9 @@ func normalizePendingCommitsOptions(opts *PendingCommitsOptions) {
 func processPendingCommitArg(args []string, i int, opts *PendingCommitsOptions) int {
 	arg := args[i]
 	switch {
-	case arg == "-s" || arg == "--sort" || strings.HasPrefix(arg, "--sort="):
+	case slices.Contains([]string{"-s", "--sort"}, arg) || strings.HasPrefix(arg, "--sort="):
 		return parseSortFlag(args, i, opts)
-	case arg == "-d" || arg == "--detail" || strings.HasPrefix(arg, "--detail="):
+	case slices.Contains([]string{"-d", "--detail"}, arg) || strings.HasPrefix(arg, "--detail="):
 		return parseDetailFlag(args, i, opts)
 	default:
 		applyPendingBooleanOrTarget(arg, opts)
@@ -147,10 +148,10 @@ func applyPendingBooleanOrTarget(arg string, opts *PendingCommitsOptions) {
 
 func applyPendingScopeFlags(arg string, opts *PendingCommitsOptions) bool {
 	switch {
-	case arg == "-j" || arg == "--json":
+	case slices.Contains([]string{"-j", "--json"}, arg):
 		opts.IsJSON = true
 		return true
-	case arg == "--ssh" || arg == "-ssh":
+	case slices.Contains([]string{"--ssh", "-ssh"}, arg):
 		opts.IsSSH = true
 		return true
 	case arg == "--dirty-only":
@@ -171,7 +172,7 @@ func applyPendingCacheAndTarget(arg string, opts *PendingCommitsOptions) bool {
 	case arg == "--refresh":
 		opts.IsRefresh = true
 		return true
-	case arg == "--backup" || arg == "--serve-backup":
+	case slices.Contains([]string{"--backup", "--serve-backup"}, arg):
 		opts.IsBackup = true
 		return true
 	case !strings.HasPrefix(arg, "-"):

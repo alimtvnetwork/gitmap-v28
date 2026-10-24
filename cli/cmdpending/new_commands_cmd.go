@@ -4,6 +4,7 @@
 package cmdpending
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
@@ -144,24 +145,24 @@ func clampNewCommandsLimit(opts *NewCommandsOptions) {
 }
 
 func isHelpFlag(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains([]string{"-h", "--help", "help"}, arg)
 }
 
 func isJSONFlag(arg string) bool {
-	return arg == "--json" || arg == "-j"
+	return slices.Contains([]string{"--json", "-j"}, arg)
 }
 
 func isCategoryFlag(arg string) bool {
-	return arg == "--category" || arg == "-c" || strings.HasPrefix(arg, "--category=") || strings.HasPrefix(arg, "-c=")
+	return slices.Contains([]string{"--category", "-c"}, arg) || strings.HasPrefix(arg, "--category=") || strings.HasPrefix(arg, "-c=")
 }
 
 func isFilterFlag(arg string) bool {
-	return arg == "--filter" || arg == "-f" || arg == "-q" ||
+	return slices.Contains([]string{"--filter", "-f", "-q"}, arg) ||
 		strings.HasPrefix(arg, "--filter=") || strings.HasPrefix(arg, "-f=") || strings.HasPrefix(arg, "-q=")
 }
 
 func isLimitFlag(arg string) bool {
-	return arg == "--limit" || arg == "-n" || strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-n=")
+	return slices.Contains([]string{"--limit", "-n"}, arg) || strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-n=")
 }
 
 // buildNewCommandsCatalog returns the new-commands catalog generated at
