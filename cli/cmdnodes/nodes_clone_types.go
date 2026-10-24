@@ -5,18 +5,19 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes/enums"
 )
 
-// NodesCloneKindType defines the clone operation mode.
-type NodesCloneKindType string
+// NodesCloneKindType is the canonical clone operation mode type, defined in enums.
+type NodesCloneKindType = enums.NodesCloneKindType
 
 const (
 	// CloneKindClone executes standard multi-repo or single-repo clone.
-	CloneKindClone NodesCloneKindType = "clone"
+	CloneKindClone = enums.CloneKindClone
 	// CloneKindCFR executes clone-fix-repo (remediation & auto-setup).
-	CloneKindCFR NodesCloneKindType = "cfr"
+	CloneKindCFR = enums.CloneKindCFR
 	// CloneKindCFRP executes clone-fix-repo with public visibility promotion.
-	CloneKindCFRP NodesCloneKindType = "cfrp"
+	CloneKindCFRP = enums.CloneKindCFRP
 )
 
 // NodesCloneDestination describes resolved destination directory settings for clone operations.

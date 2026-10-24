@@ -3,6 +3,7 @@ package cmdnodes
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -94,7 +95,7 @@ func hasExplicitTargetFlag(args []string) bool {
 		if strings.HasPrefix(a, "--target=") || strings.HasPrefix(a, "-t=") {
 			return true
 		}
-		if (a == "--target" || a == "-t") && i+1 < len(args) {
+		if slices.Contains([]string{"--target", "-t"}, a) && i+1 < len(args) {
 			return true
 		}
 	}
@@ -103,7 +104,7 @@ func hasExplicitTargetFlag(args []string) bool {
 
 func parseSingleRemoteFlag(opts *NodesRemoteOptions, args []string, i int) int {
 	arg := args[i]
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJSON = true
 		return 1
 	}

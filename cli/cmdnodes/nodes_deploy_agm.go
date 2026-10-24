@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -80,11 +81,11 @@ func parseSingleDeployAGMFlag(opts *DeployAGMOptions, args []string, i int) (int
 		opts.OpenOnly = true
 		return 1, nil
 	}
-	if arg == "--dry-run" || arg == "-n" {
+	if slices.Contains([]string{"--dry-run", "-n"}, arg) {
 		opts.DryRun = true
 		return 1, nil
 	}
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJSON = true
 		return 1, nil
 	}
@@ -101,7 +102,7 @@ func parseParamDeployAGMFlag(opts *DeployAGMOptions, args []string, i int) (int,
 		opts.Target = strings.TrimPrefix(arg, "-t=")
 		return 1, nil
 	}
-	if (arg == "--target" || arg == "-t") && i+1 < len(args) {
+	if slices.Contains([]string{"--target", "-t"}, arg) && i+1 < len(args) {
 		opts.Target = args[i+1]
 		return 2, nil
 	}
@@ -122,7 +123,7 @@ func parseExceptFlag(opts *DeployAGMOptions, args []string, i int) (int, error) 
 		appendExceptTokens(opts, strings.TrimPrefix(arg, "--exclude="))
 		return 1, nil
 	}
-	if (arg == "--except" || arg == "-e" || arg == "--exclude") && i+1 < len(args) {
+	if slices.Contains([]string{"--except", "-e", "--exclude"}, arg) && i+1 < len(args) {
 		appendExceptTokens(opts, args[i+1])
 		return 2, nil
 	}
@@ -140,7 +141,7 @@ func appendExceptTokens(opts *DeployAGMOptions, raw string) {
 }
 
 func isDeployAGMHelpFlag(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
+	return slices.Contains([]string{"--help", "-h", "help"}, arg)
 }
 
 // ResolveDeployAGMExceptList determines final except slice with default "main" inclusion.

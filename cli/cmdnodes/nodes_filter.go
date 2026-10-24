@@ -4,6 +4,7 @@ package cmdnodes
 import (
 	"context"
 	"net"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -48,7 +49,7 @@ func parseSingleNodeFilterFlag(opts *NodeFilterOptions, args []string, i int) in
 		return 1
 	}
 
-	if arg == "--running-only" || arg == "-ro" || arg == "--open-only" {
+	if slices.Contains([]string{"--running-only", "-ro", "--open-only"}, arg) {
 		opts.RunningOnly = true
 		opts.OpenOnly = true
 		return 1
@@ -77,7 +78,7 @@ func parseTargetParamFlag(opts *NodeFilterOptions, args []string, i int) int {
 		return 1
 	}
 
-	if (arg == "--target" || arg == "-t") && i+1 < len(args) {
+	if slices.Contains([]string{"--target", "-t"}, arg) && i+1 < len(args) {
 		opts.Target = strings.TrimSpace(args[i+1])
 		return 2
 	}
@@ -102,7 +103,7 @@ func parseExceptParamFlag(opts *NodeFilterOptions, args []string, i int) int {
 		return 1
 	}
 
-	if (arg == "--except" || arg == "-e" || arg == "--exclude") && i+1 < len(args) {
+	if slices.Contains([]string{"--except", "-e", "--exclude"}, arg) && i+1 < len(args) {
 		appendSplitTokens(&opts.Except, args[i+1])
 		return 2
 	}
@@ -122,7 +123,7 @@ func parseIncludeParamFlag(opts *NodeFilterOptions, args []string, i int) int {
 		return 1
 	}
 
-	if (arg == "--include" || arg == "--accept") && i+1 < len(args) {
+	if slices.Contains([]string{"--include", "--accept"}, arg) && i+1 < len(args) {
 		appendSplitTokens(&opts.Include, args[i+1])
 		return 2
 	}
