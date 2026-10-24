@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -162,6 +163,8 @@ func isInsideOrSame(child, parent string) bool {
 	return !strings.HasPrefix(rel, "..")
 }
 
+var flattenConfirmTokens = []string{"y", "yes"}
+
 func promptConfirmation() (bool, error) {
 	fmt.Println(constants.ColorYellow + "WARNING: This operation squashes repository history into a single flat commit. It is irreversible unless restored via undo." + constants.ColorReset)
 	fmt.Print("Proceed with repository flattening? [y/N]: ")
@@ -173,7 +176,7 @@ func promptConfirmation() (bool, error) {
 	}
 
 	clean := strings.ToLower(strings.TrimSpace(response))
-	return clean == "y" || clean == "yes", nil
+	return slices.Contains(flattenConfirmTokens, clean), nil
 }
 
 func formatBytes(bytes int64) string {
@@ -209,9 +212,11 @@ func printSuccessSummary(repoName, absTarget, archivePath string) {
 	fmt.Printf("\n  %sTo undo: gitmap repo undo-flatten %s%s\n\n", constants.ColorCyan, repoName, constants.ColorReset)
 }
 
+var flattenHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func hasHelpFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "-h" || arg == "--help" || arg == "help" {
+		if slices.Contains(flattenHelpFlagTokens, arg) {
 			return true
 		}
 	}
