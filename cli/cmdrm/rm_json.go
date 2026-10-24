@@ -101,8 +101,8 @@ func resolveRepoIDForRm(ctx context.Context, tx *dbengine.TxWrapper, r model.Sca
 	}
 
 	var id int64
-	row, appErr := tx.QueryRow(ctx, "SELECT RepoId FROM Repo WHERE AbsolutePath = ?", r.AbsolutePath)
-	if appErr == nil && row.Scan(&id) == nil {
+	rowRes := tx.QueryRow(ctx, "SELECT RepoId FROM Repo WHERE AbsolutePath = ?", r.AbsolutePath)
+	if rowRes.IsSuccess() && rowRes.Value.Scan(&id) == nil {
 		return id
 	}
 
@@ -111,12 +111,12 @@ func resolveRepoIDForRm(ctx context.Context, tx *dbengine.TxWrapper, r model.Sca
 
 func scanFallbackRepoID(ctx context.Context, tx *dbengine.TxWrapper, absPath string) int64 {
 	var id int64
-	row, appErr := tx.QueryRow(ctx, "SELECT Id FROM Repo WHERE AbsolutePath = ?", absPath)
-	if appErr != nil {
+	rowRes := tx.QueryRow(ctx, "SELECT Id FROM Repo WHERE AbsolutePath = ?", absPath)
+	if rowRes.IsFailure() {
 		return 0
 	}
 
-	if err := row.Scan(&id); err != nil {
+	if err := rowRes.Value.Scan(&id); err != nil {
 		return 0
 	}
 
@@ -128,8 +128,8 @@ func removeAliasIfPresent(ctx context.Context, tx *dbengine.TxWrapper, repoID in
 		return nil
 	}
 
-	if _, err := tx.Exec(ctx, "DELETE FROM Alias WHERE RepoId = ?", repoID); err != nil {
-		return apperror.WrapSimple(err, "rm: delete alias")
+	if execRes := tx.Exec(ctx, "DELETE FROM Alias WHERE RepoId = ?", repoID); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "rm: delete alias")
 	}
 
 	return nil
@@ -150,8 +150,8 @@ func executeRemoveRepoTx(ctx context.Context, tx *dbengine.TxWrapper, repoID int
 func deleteRepoByIDAndPath(ctx context.Context, tx *dbengine.TxWrapper, repoID int64, absPath string) *apperror.AppError {
 	normalizedPath := store.NormalizeStoragePath(absPath)
 	query := "DELETE FROM Repo WHERE RepoId = ? OR AbsolutePath = ? OR AbsolutePath = ?"
-	if _, err := tx.Exec(ctx, query, repoID, absPath, normalizedPath); err != nil {
-		return apperror.WrapSimple(err, "rm: delete repo")
+	if execRes := tx.Exec(ctx, query, repoID, absPath, normalizedPath); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "rm: delete repo")
 	}
 
 	return recordRmHistory(ctx, tx, absPath)
@@ -160,8 +160,8 @@ func deleteRepoByIDAndPath(ctx context.Context, tx *dbengine.TxWrapper, repoID i
 func deleteRepoByPath(ctx context.Context, tx *dbengine.TxWrapper, absPath string) *apperror.AppError {
 	normalizedPath := store.NormalizeStoragePath(absPath)
 	query := "DELETE FROM Repo WHERE AbsolutePath = ? OR AbsolutePath = ?"
-	if _, err := tx.Exec(ctx, query, absPath, normalizedPath); err != nil {
-		return apperror.WrapSimple(err, "rm: delete repo")
+	if execRes := tx.Exec(ctx, query, absPath, normalizedPath); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "rm: delete repo")
 	}
 
 	return recordRmHistory(ctx, tx, absPath)
@@ -171,9 +171,9 @@ func recordRmHistory(ctx context.Context, tx *dbengine.TxWrapper, absPath string
 	now := time.Now().UTC().Format(time.RFC3339)
 	query := `INSERT INTO CommandHistory (Command, Alias, Args, Flags, StartedAt, FinishedAt, DurationMs, ExitCode, Summary, RepoCount)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := tx.Exec(ctx, query, "rm", "", absPath, "", now, now, 0, 0, "removed repository", 1)
-	if err != nil {
-		return apperror.WrapSimple(err, "record rm history")
+	execRes := tx.Exec(ctx, query, "rm", "", absPath, "", now, now, 0, 0, "removed repository", 1)
+	if execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "record rm history")
 	}
 
 	return nil

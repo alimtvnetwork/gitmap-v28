@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS PipelineRunRecord (
     CreatedAt TEXT NOT NULL,
     UpdatedAt TEXT NOT NULL
 );`
-	_, runErr := r.db.Exec(ctx, createRunQuery)
-	if runErr != nil {
-		return runErr
+	execRes := r.db.Exec(ctx, createRunQuery)
+	if execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	createErrQuery := `
@@ -56,9 +56,9 @@ CREATE TABLE IF NOT EXISTS PipelineErrorRecord (
     Comments TEXT NULL,
     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
 );`
-	_, errLogErr := r.db.Exec(ctx, createErrQuery)
-	if errLogErr != nil {
-		return errLogErr
+	execRes = r.db.Exec(ctx, createErrQuery)
+	if execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	return nil

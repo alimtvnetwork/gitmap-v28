@@ -41,13 +41,13 @@ func executeMoveDBTx(ctx context.Context, tx *dbengine.TxWrapper, repoID int64, 
 
 func updateRepoRow(ctx context.Context, tx *dbengine.TxWrapper, repoID int64, newPath, newName string) *apperror.AppError {
 	query := "UPDATE Repo SET AbsolutePath = ?, RepoName = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE RepoId = ?"
-	if _, err := tx.Exec(ctx, query, newPath, newName, repoID); err == nil {
+	if execRes := tx.Exec(ctx, query, newPath, newName, repoID); execRes.IsSuccess() {
 		return nil
 	}
 
 	fallbackQuery := "UPDATE Repo SET AbsolutePath = ?, RepoName = ? WHERE Id = ?"
-	if _, fallbackErr := tx.Exec(ctx, fallbackQuery, newPath, newName, repoID); fallbackErr != nil {
-		return apperror.WrapSimple(fallbackErr, "mv: update repo row")
+	if fallbackRes := tx.Exec(ctx, fallbackQuery, newPath, newName, repoID); fallbackRes.IsFailure() {
+		return apperror.WrapSimple(fallbackRes.AppError(), "mv: update repo row")
 	}
 
 	return nil
@@ -60,19 +60,20 @@ func updateAliasRowIfPresent(ctx context.Context, tx *dbengine.TxWrapper, repoID
 	}
 
 	query := "UPDATE Alias SET AbsolutePath = ? WHERE RepoId = ?"
-	if _, err := tx.Exec(ctx, query, newPath, repoID); err != nil {
-		return apperror.WrapSimple(err, "mv: update alias row")
+	if execRes := tx.Exec(ctx, query, newPath, repoID); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "mv: update alias row")
 	}
 
 	return nil
 }
 
 func hasAliasPathColumn(ctx context.Context, tx *dbengine.TxWrapper) bool {
-	rows, appErr := tx.Query(ctx, "PRAGMA table_info(Alias)")
-	if appErr != nil {
+	rowsRes := tx.Query(ctx, "PRAGMA table_info(Alias)")
+	if rowsRes.IsFailure() {
 		return false
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	return scanForColumnName(rows, "AbsolutePath")

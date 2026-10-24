@@ -14,7 +14,7 @@ func TestQueryBuilder_InnerJoinAndInnerWhere(t *testing.T) {
 	defer wrapper.Close()
 
 	// Create secondary table for join tests
-	_, execErr := wrapper.Exec(ctx, `
+	execRes := wrapper.Exec(ctx, `
 CREATE TABLE TestDetail (
     DetailId INTEGER PRIMARY KEY AUTOINCREMENT,
     ItemId INTEGER NOT NULL,
@@ -23,8 +23,8 @@ CREATE TABLE TestDetail (
 INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Detail for Alpha');
 INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 `)
-	if execErr != nil {
-		t.Fatalf("failed creating TestDetail: %v", execErr)
+	if execRes.IsFailure() {
+		t.Fatalf("failed creating TestDetail: %v", execRes.AppError())
 	}
 
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)
@@ -48,14 +48,14 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 	}
 
 	// Test joined query execution scanning projected columns
-	row, queryErr := wrapper.QueryRow(ctx, sqlStr, args...)
-	if queryErr != nil {
-		t.Fatalf("joined query failed: %v", queryErr)
+	rowRes := wrapper.QueryRow(ctx, sqlStr, args...)
+	if rowRes.IsFailure() {
+		t.Fatalf("joined query failed: %v", rowRes.AppError())
 	}
 
 	var id uint64
 	var name, detail string
-	if err := row.Scan(&id, &name, &detail); err != nil {
+	if err := rowRes.Value.Scan(&id, &name, &detail); err != nil {
 		t.Fatalf("joined scan failed: %v", err)
 	}
 
@@ -108,7 +108,7 @@ func TestQueryBuilder_JoinsAndGroupBy(t *testing.T) {
 	wrapper := setupInMemoryDb(t)
 	defer wrapper.Close()
 
-	_, execErr := wrapper.Exec(ctx, `
+	execRes := wrapper.Exec(ctx, `
 CREATE TABLE TestDetail (
     DetailId INTEGER PRIMARY KEY AUTOINCREMENT,
     ItemId INTEGER NOT NULL,
@@ -118,8 +118,8 @@ INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Detail for Alpha');
 INSERT INTO TestDetail (ItemId, DetailText) VALUES (1, 'Second detail for Alpha');
 INSERT INTO TestDetail (ItemId, DetailText) VALUES (2, 'Detail for Beta');
 `)
-	if execErr != nil {
-		t.Fatalf("failed creating TestDetail: %v", execErr)
+	if execRes.IsFailure() {
+		t.Fatalf("failed creating TestDetail: %v", execRes.AppError())
 	}
 
 	repo := NewRepository[TestItem, TestItemFieldType](wrapper, "TestItem", scanTestItem)

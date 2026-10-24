@@ -1,6 +1,8 @@
 package dbengine
 
 import (
+	"database/sql"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
@@ -16,6 +18,21 @@ type (
 	ListResult[T any]   = result.WrapSlice[T]
 	CompiledQueryWrap   = result.Wrap[CompiledQuery]
 	CompiledQueryResult = CompiledQueryWrap
+
+	// DBWrapperWrap is the canonical single reusable result container for a database wrapper.
+	DBWrapperWrap = result.Wrap[*DBWrapper]
+
+	// DBRowWrap is the canonical single reusable result container for a single query row.
+	DBRowWrap = result.Wrap[*sql.Row]
+
+	// DBRowsWrap is the canonical single reusable result container for a query rows cursor.
+	DBRowsWrap = result.Wrap[*sql.Rows]
+
+	// DBResultWrap is the canonical single reusable result container for an exec result.
+	DBResultWrap = result.Wrap[sql.Result]
+
+	// DBStmtWrap is the canonical single reusable result container for a prepared statement.
+	DBStmtWrap = result.Wrap[*sql.Stmt]
 )
 
 // SuccessUint64 wraps a uint64 value in a successful result envelope.
@@ -135,4 +152,54 @@ func FailureCompiledQuery(err *apperror.AppError) CompiledQueryResult {
 
 	return result.Fail[CompiledQuery](err)
 
+}
+
+// SuccessDBWrapper wraps a database wrapper in a successful result envelope.
+func SuccessDBWrapper(val *DBWrapper) DBWrapperWrap {
+	return result.Ok(val)
+}
+
+// FailureDBWrapper wraps an AppError in a failed DBWrapperWrap envelope.
+func FailureDBWrapper(err *apperror.AppError) DBWrapperWrap {
+	return result.Fail[*DBWrapper](err)
+}
+
+// SuccessDBRow wraps a single query row in a successful result envelope.
+func SuccessDBRow(val *sql.Row) DBRowWrap {
+	return result.Ok(val)
+}
+
+// FailureDBRow wraps an AppError in a failed DBRowWrap envelope.
+func FailureDBRow(err *apperror.AppError) DBRowWrap {
+	return result.Fail[*sql.Row](err)
+}
+
+// SuccessDBRows wraps a query rows cursor in a successful result envelope.
+func SuccessDBRows(val *sql.Rows) DBRowsWrap {
+	return result.Ok(val)
+}
+
+// FailureDBRows wraps an AppError in a failed DBRowsWrap envelope.
+func FailureDBRows(err *apperror.AppError) DBRowsWrap {
+	return result.Fail[*sql.Rows](err)
+}
+
+// SuccessDBResult wraps an exec result in a successful result envelope.
+func SuccessDBResult(val sql.Result) DBResultWrap {
+	return result.Ok(val)
+}
+
+// FailureDBResult wraps an AppError in a failed DBResultWrap envelope.
+func FailureDBResult(err *apperror.AppError) DBResultWrap {
+	return result.Fail[sql.Result](err)
+}
+
+// SuccessDBStmt wraps a prepared statement in a successful result envelope.
+func SuccessDBStmt(val *sql.Stmt) DBStmtWrap {
+	return result.Ok(val)
+}
+
+// FailureDBStmt wraps an AppError in a failed DBStmtWrap envelope.
+func FailureDBStmt(err *apperror.AppError) DBStmtWrap {
+	return result.Fail[*sql.Stmt](err)
 }

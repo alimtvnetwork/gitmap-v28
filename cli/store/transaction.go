@@ -157,8 +157,8 @@ func deleteTransactionRows(db *DB, ids []int64) error {
 
 func deleteTransactionRowsInTx(ctx context.Context, tx *dbengine.TxWrapper, ids []int64) *apperror.AppError {
 	for _, id := range ids {
-		if _, appErr := tx.Exec(ctx, constants.SQLDeleteTransaction, id); appErr != nil {
-			return apperror.WrapSimple(appErr, "transaction prune delete")
+		if execRes := tx.Exec(ctx, constants.SQLDeleteTransaction, id); execRes.IsFailure() {
+			return apperror.WrapSimple(execRes.AppError(), "transaction prune delete")
 		}
 	}
 

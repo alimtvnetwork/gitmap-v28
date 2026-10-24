@@ -135,20 +135,20 @@ func saveSequenceToRepoDB(payload *SequencePayload) error {
 
 func executeSaveSequenceTx(ctx context.Context, tx *dbengine.TxWrapper, payload *SequencePayload) *apperror.AppError {
 	now := time.Now().Unix()
-	_, err := tx.Exec(ctx, "DELETE FROM FileSequence WHERE Directory = ?", payload.Directory)
-	if err != nil {
-		return apperror.WrapSimple(err, "delete existing file sequence")
+	if execRes := tx.Exec(ctx, "DELETE FROM FileSequence WHERE Directory = ?", payload.Directory); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "delete existing file sequence")
 	}
 
 	return insertSequenceFilesTx(ctx, tx, payload, now)
 }
 
 func insertSequenceFilesTx(ctx context.Context, tx *dbengine.TxWrapper, payload *SequencePayload, now int64) *apperror.AppError {
-	stmt, err := tx.Prepare(ctx, "INSERT OR REPLACE INTO FileSequence (Directory, Filename, SequenceNumber, BaseName, UpdatedAt) VALUES (?, ?, ?, ?, ?)")
-	if err != nil {
-		return apperror.WrapSimple(err, "prepare insert file sequence")
+	stmtRes := tx.Prepare(ctx, "INSERT OR REPLACE INTO FileSequence (Directory, Filename, SequenceNumber, BaseName, UpdatedAt) VALUES (?, ?, ?, ?, ?)")
+	if stmtRes.IsFailure() {
+		return apperror.WrapSimple(stmtRes.AppError(), "prepare insert file sequence")
 	}
 
+	stmt := stmtRes.Value
 	defer stmt.Close()
 
 	for _, f := range payload.Files {

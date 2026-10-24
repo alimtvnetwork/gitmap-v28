@@ -21,8 +21,8 @@ func insertProfileMetaToSQLite(tx *dbengine.TxWrapper, name string, exp chromeEx
 	ctx := context.Background()
 	displayName := chromeProfileDisplayName(name)
 	query := "INSERT OR REPLACE INTO chrome_profiles (name, display_name, exported_at, extension_count) VALUES (?, ?, ?, ?)"
-	if _, err := tx.Exec(ctx, query, name, displayName, exp.ExportedAt, len(exp.ExtensionIDs)); err != nil {
-		return err
+	if execRes := tx.Exec(ctx, query, name, displayName, exp.ExportedAt, len(exp.ExtensionIDs)); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	if prefErr := insertOptionalJSONToSQLite(tx, "chrome_preferences", "preferences_json", name, exp.Preferences); prefErr != nil {
@@ -40,8 +40,8 @@ func insertTokensToSQLite(tx *dbengine.TxWrapper, name string, vault *ChromeToke
 	ctx := context.Background()
 	query := "INSERT OR REPLACE INTO chrome_tokens (profile_name, service, account_id, raw_base64, double_base64) VALUES (?, ?, ?, ?, ?)"
 	for _, t := range vault.Tokens {
-		if _, err := tx.Exec(ctx, query, name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64); err != nil {
-			return err
+		if execRes := tx.Exec(ctx, query, name, t.Service, t.AccountID, t.RawBase64, t.DoubleBase64); execRes.IsFailure() {
+			return execRes.AppError()
 		}
 	}
 
@@ -54,16 +54,16 @@ func insertOptionalJSONToSQLite(tx *dbengine.TxWrapper, table, col, name string,
 	}
 
 	query := fmt.Sprintf("INSERT OR REPLACE INTO %s (profile_name, %s) VALUES (?, ?)", table, col)
-	_, err := tx.Exec(context.Background(), query, name, string(raw))
+	execRes := tx.Exec(context.Background(), query, name, string(raw))
 
-	return err
+	return execRes.AppError()
 }
 
 func insertExtensionsAndBlobsToSQLite(tx *dbengine.TxWrapper, name string, extIDs []string) *apperror.AppError {
 	ctx := context.Background()
 	for _, id := range extIDs {
-		if _, err := tx.Exec(ctx, "INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id); err != nil {
-			return err
+		if execRes := tx.Exec(ctx, "INSERT OR REPLACE INTO chrome_extensions (profile_name, extension_id) VALUES (?, ?)", name, id); execRes.IsFailure() {
+			return execRes.AppError()
 		}
 	}
 
@@ -89,9 +89,9 @@ func saveBlobEntry(tx *dbengine.TxWrapper, name, srcPath, blobFile string) *appe
 	}
 
 	query := "INSERT OR REPLACE INTO chrome_blobs (profile_name, file_name, payload) VALUES (?, ?, ?)"
-	_, execErr := tx.Exec(context.Background(), query, name, blobFile, bytes)
+	execRes := tx.Exec(context.Background(), query, name, blobFile, bytes)
 
-	return execErr
+	return execRes.AppError()
 }
 
 func writeAllChromeProfilesZIP(names []string, outPath string) (int, error) {

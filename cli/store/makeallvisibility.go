@@ -74,14 +74,14 @@ func insertPendingRow(
 	runID int64,
 	r model.MakeAllVisibilityResultRecord,
 ) Int64Wrap {
-	res, appErr := tx.Exec(ctx, constants.SQLInsertMakeAllVisibilityResult,
+	execRes := tx.Exec(ctx, constants.SQLInsertMakeAllVisibilityResult,
 		runID, r.RepoName, r.MatchedPattern,
 		constants.ResultStatusPending, r.StartedAt)
-	if appErr != nil {
-		return result.Fail[int64](appErr)
+	if execRes.IsFailure() {
+		return result.Fail[int64](execRes.AppError())
 	}
 
-	id, idErr := res.LastInsertId()
+	id, idErr := execRes.Value.LastInsertId()
 	if idErr != nil {
 		return result.Fail[int64](apperror.WrapSimple(idErr, "last insert id"))
 	}
@@ -135,9 +135,8 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 
 func markIdsExcludedInTx(ctx context.Context, tx *dbengine.TxWrapper, ids []int64, finishedAt string) *apperror.AppError {
 	for _, id := range ids {
-		_, appErr := tx.Exec(ctx, constants.SQLUpdateMakeAllVisibilityResultExcluded, finishedAt, id)
-		if appErr != nil {
-			return appErr
+		if execRes := tx.Exec(ctx, constants.SQLUpdateMakeAllVisibilityResultExcluded, finishedAt, id); execRes.IsFailure() {
+			return execRes.AppError()
 		}
 	}
 

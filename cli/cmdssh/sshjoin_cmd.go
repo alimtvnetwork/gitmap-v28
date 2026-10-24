@@ -88,8 +88,8 @@ func insertJoinRecords(ctx context.Context, tx *dbengine.TxWrapper, target strin
 
 func logSSHJoinInTx(ctx context.Context, tx *dbengine.TxWrapper, history store.SSHHistory) *apperror.AppError {
 	query := `INSERT INTO ssh_history (id, host_ip, joined_at, user) VALUES (?, ?, ?, ?)`
-	if _, err := tx.Exec(ctx, query, history.ID, history.HostIP, history.JoinedAt, history.User); err != nil {
-		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "log join error", "err": err.Error()})
+	if execRes := tx.Exec(ctx, query, history.ID, history.HostIP, history.JoinedAt, history.User); execRes.IsFailure() {
+		return apperror.New("executeSSHJoin", "E_INTERNAL_ERROR", map[string]any{"msg": "log join error", "err": execRes.AppError().Error()})
 	}
 
 	return nil

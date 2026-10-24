@@ -136,29 +136,27 @@ func isPendingTaskAlreadyCompleted(ctx context.Context, tx *dbengine.TxWrapper, 
 	if !isNoRows {
 		return false
 	}
-	row, qErr := tx.QueryRow(ctx, "SELECT 1 FROM CompletedTask WHERE OriginalTaskId = ? LIMIT 1", taskID)
-	if qErr != nil {
+	rowRes := tx.QueryRow(ctx, "SELECT 1 FROM CompletedTask WHERE OriginalTaskId = ? LIMIT 1", taskID)
+	if rowRes.IsFailure() {
 		return false
 	}
 	var dummy int
-	return row.Scan(&dummy) == nil
+	return rowRes.Value.Scan(&dummy) == nil
 }
 
 func insertCompletedTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, task model.PendingTaskRecord) *apperror.AppError {
-	_, appErr := tx.Exec(ctx, constants.SQLInsertCompletedTask,
+	if execRes := tx.Exec(ctx, constants.SQLInsertCompletedTask,
 		task.ID, task.TaskTypeId, task.TargetPath, task.WorkingDirectory,
-		task.SourceCommand, task.CommandArgs, task.CreatedAt)
-	if appErr != nil {
-		return appErr
+		task.SourceCommand, task.CommandArgs, task.CreatedAt); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	return nil
 }
 
 func deletePendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, taskID int64) *apperror.AppError {
-	_, appErr := tx.Exec(ctx, constants.SQLDeletePendingTask, taskID)
-	if appErr != nil {
-		return appErr
+	if execRes := tx.Exec(ctx, constants.SQLDeletePendingTask, taskID); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	return nil
@@ -212,13 +210,13 @@ func (db *DB) DeletePendingTask(id int64) error {
 
 // findPendingTaskInTx reads a pending task within an existing transaction.
 func findPendingTaskInTx(ctx context.Context, tx *dbengine.TxWrapper, id int64) PendingTaskRecordWrap {
-	row, appErr := tx.QueryRow(ctx, constants.SQLSelectPendingTaskByID, id)
-	if appErr != nil {
-		return result.Fail[model.PendingTaskRecord](appErr)
+	rowRes := tx.QueryRow(ctx, constants.SQLSelectPendingTaskByID, id)
+	if rowRes.IsFailure() {
+		return result.Fail[model.PendingTaskRecord](rowRes.AppError())
 	}
 
 	var r model.PendingTaskRecord
-	err := row.Scan(&r.ID, &r.TaskTypeId, &r.TaskTypeName, &r.TargetPath,
+	err := rowRes.Value.Scan(&r.ID, &r.TaskTypeId, &r.TaskTypeName, &r.TargetPath,
 		&r.WorkingDirectory, &r.SourceCommand, &r.CommandArgs,
 		&r.FailureReason, &r.CreatedAt, &r.UpdatedAt)
 	if err != nil {

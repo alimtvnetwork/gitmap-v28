@@ -71,17 +71,17 @@ func executeCommitInsertTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCo
 
 // insertSourceCommitTx writes the SourceCommit row only.
 func insertSourceCommitTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCommitRow) (int64, *apperror.AppError) {
-	res, err := tx.Exec(
+	execRes := tx.Exec(
 		context.Background(), sqlInsertSourceCommit,
 		inputRepoID, c.Sha, c.AuthorName, c.AuthorEmail,
 		c.AuthorDateRFC3339, c.CommitterDateRFC3339,
 		c.OriginalMessage, c.OrderIndex,
 	)
-	if err != nil {
-		return 0, apperror.WrapSimple(err, fmt.Sprintf("runlog: insert SourceCommit %s", c.Sha))
+	if execRes.IsFailure() {
+		return 0, apperror.WrapSimple(execRes.AppError(), fmt.Sprintf("runlog: insert SourceCommit %s", c.Sha))
 	}
 
-	rowID, idErr := res.LastInsertId()
+	rowID, idErr := execRes.Value.LastInsertId()
 	if idErr != nil {
 		return 0, apperror.WrapSimple(idErr, "get last insert id for source commit")
 	}
@@ -93,8 +93,8 @@ func insertSourceCommitTx(tx *dbengine.TxWrapper, inputRepoID int64, c SourceCom
 func insertSourceFilesTx(tx *dbengine.TxWrapper, sourceCommitID int64, files []string) *apperror.AppError {
 	ctx := context.Background()
 	for _, rel := range files {
-		if _, err := tx.Exec(ctx, sqlInsertSourceFile, sourceCommitID, rel); err != nil {
-			return apperror.WrapSimple(err, fmt.Sprintf("runlog: insert SourceCommitFile %q", rel))
+		if execRes := tx.Exec(ctx, sqlInsertSourceFile, sourceCommitID, rel); execRes.IsFailure() {
+			return apperror.WrapSimple(execRes.AppError(), fmt.Sprintf("runlog: insert SourceCommitFile %q", rel))
 		}
 	}
 

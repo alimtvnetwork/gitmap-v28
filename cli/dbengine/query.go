@@ -49,12 +49,12 @@ func (b *QueryBuilder[T, F]) First(ctx context.Context) EntityResult[T] {
 	b.limit = 1
 	sqlStr, args := b.BuildSelect()
 
-	row, appErr := b.repo.db.QueryRow(ctx, sqlStr, args...)
-	if appErr != nil {
-		return FailureEntity[T](appErr)
+	rowRes := b.repo.db.QueryRow(ctx, sqlStr, args...)
+	if rowRes.IsFailure() {
+		return FailureEntity[T](rowRes.AppError())
 	}
 
-	item, scanErr := b.repo.scanner(row)
+	item, scanErr := b.repo.scanner(rowRes.Value)
 	if scanErr != nil {
 		return FailureEntity[T](apperror.WrapSimple(scanErr, "scan first "+b.repo.tableName))
 	}
@@ -70,11 +70,12 @@ func (b *QueryBuilder[T, F]) FindAll(ctx context.Context) ListResult[T] {
 
 	sqlStr, args := b.BuildSelect()
 
-	rows, appErr := b.repo.db.Query(ctx, sqlStr, args...)
-	if appErr != nil {
-		return FailureList[T](appErr)
+	rowsRes := b.repo.db.Query(ctx, sqlStr, args...)
+	if rowsRes.IsFailure() {
+		return FailureList[T](rowsRes.AppError())
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	var items []T
@@ -98,13 +99,13 @@ func (b *QueryBuilder[T, F]) Count(ctx context.Context) Int64Result {
 
 	sqlStr, args := b.BuildCount()
 
-	row, appErr := b.repo.db.QueryRow(ctx, sqlStr, args...)
-	if appErr != nil {
-		return FailureInt64(appErr)
+	rowRes := b.repo.db.QueryRow(ctx, sqlStr, args...)
+	if rowRes.IsFailure() {
+		return FailureInt64(rowRes.AppError())
 	}
 
 	var count int64
-	scanErr := row.Scan(&count)
+	scanErr := rowRes.Value.Scan(&count)
 	if scanErr != nil {
 		return FailureInt64(apperror.WrapSimple(scanErr, "count "+b.repo.tableName))
 	}
@@ -119,12 +120,12 @@ func (b *QueryBuilder[T, F]) Delete(ctx context.Context) RowsAffectedResult {
 	}
 
 	sqlStr, args := b.BuildDelete()
-	res, appErr := b.repo.db.Exec(ctx, sqlStr, args...)
-	if appErr != nil {
-		return FailureRowsAffected(appErr)
+	execRes := b.repo.db.Exec(ctx, sqlStr, args...)
+	if execRes.IsFailure() {
+		return FailureRowsAffected(execRes.AppError())
 	}
 
-	affected, err := res.RowsAffected()
+	affected, err := execRes.Value.RowsAffected()
 	if err != nil {
 		return FailureRowsAffected(apperror.WrapSimple(err, "get rows affected for delete "+b.repo.tableName))
 	}

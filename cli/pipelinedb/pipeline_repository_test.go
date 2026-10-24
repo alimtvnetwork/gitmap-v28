@@ -173,11 +173,12 @@ func TestPipelineRepository_ActiveErrorsViewAndJoin(t *testing.T) {
 	}
 
 	// 5. Query ActiveCiErrors view directly
-	rows, queryErr := repo.Db().Query(ctx, "SELECT RunId, RepoSlug, StepName, ErrorText FROM ActiveCiErrors;")
-	if queryErr != nil {
-		t.Fatalf("failed querying ActiveCiErrors view: %v", queryErr)
+	rowsRes := repo.Db().Query(ctx, "SELECT RunId, RepoSlug, StepName, ErrorText FROM ActiveCiErrors;")
+	if rowsRes.IsFailure() {
+		t.Fatalf("failed querying ActiveCiErrors view: %v", rowsRes.AppError())
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	var count int

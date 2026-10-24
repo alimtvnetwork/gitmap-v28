@@ -58,12 +58,12 @@ func (db *DB) deleteChromeProfileTx(name string) error {
 }
 
 func executeDeleteChromeProfileTx(ctx context.Context, tx *dbengine.TxWrapper, name string) *apperror.AppError {
-	if _, appErr := tx.Exec(ctx, sqlDeleteChromeProfileExports, name); appErr != nil {
-		return apperror.WrapSimple(appErr, "delete chrome-profile exports")
+	if execRes := tx.Exec(ctx, sqlDeleteChromeProfileExports, name); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "delete chrome-profile exports")
 	}
 
-	if _, appErr := tx.Exec(ctx, sqlDeleteChromeProfile, name); appErr != nil {
-		return apperror.WrapSimple(appErr, "delete chrome-profile")
+	if execRes := tx.Exec(ctx, sqlDeleteChromeProfile, name); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "delete chrome-profile")
 	}
 
 	return nil

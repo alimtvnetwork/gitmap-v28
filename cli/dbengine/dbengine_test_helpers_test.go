@@ -10,13 +10,13 @@ import (
 
 func assertItemCount(t *testing.T, wrapper *DBWrapper, expected int) {
 	t.Helper()
-	row, err := wrapper.QueryRow(context.Background(), "SELECT COUNT(*) FROM TestItem WHERE ItemName = ?", "Delta")
-	if err != nil {
-		t.Fatalf("query row failed: %v", err)
+	rowRes := wrapper.QueryRow(context.Background(), "SELECT COUNT(*) FROM TestItem WHERE ItemName = ?", "Delta")
+	if rowRes.IsFailure() {
+		t.Fatalf("query row failed: %v", rowRes.AppError())
 	}
 
 	var count int
-	if scanErr := row.Scan(&count); scanErr != nil {
+	if scanErr := rowRes.Value.Scan(&count); scanErr != nil {
 		t.Fatalf("scan count failed: %v", scanErr)
 	}
 
@@ -33,8 +33,8 @@ func testTxExecutors(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	}
 
 	insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-	if _, err := tx.Exec(context.Background(), insQ); err != nil {
-		return err
+	if execRes := tx.Exec(context.Background(), insQ); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	res := tx.ExecRowsAffected(context.Background(), "UPDATE TestItem SET IsActive = 0 WHERE ItemName = ?", "Delta")
@@ -47,21 +47,22 @@ func testTxExecutors(t *testing.T, tx *TxWrapper) *apperror.AppError {
 
 func testTxQueries(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	t.Helper()
-	row, err := tx.QueryRow(context.Background(), "SELECT Category FROM TestItem WHERE ItemName = ?", "Delta")
-	if err != nil {
-		return err
+	rowRes := tx.QueryRow(context.Background(), "SELECT Category FROM TestItem WHERE ItemName = ?", "Delta")
+	if rowRes.IsFailure() {
+		return rowRes.AppError()
 	}
 
 	var cat string
-	if scanErr := row.Scan(&cat); scanErr != nil || cat != "Tool" {
+	if scanErr := rowRes.Value.Scan(&cat); scanErr != nil || cat != "Tool" {
 		t.Fatalf("QueryRow scan failed: %v, got %s", scanErr, cat)
 	}
 
-	rows, qErr := tx.Query(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemName = ?", "Delta")
-	if qErr != nil {
-		return qErr
+	rowsRes := tx.Query(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemName = ?", "Delta")
+	if rowsRes.IsFailure() {
+		return rowsRes.AppError()
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	return nil
@@ -69,23 +70,23 @@ func testTxQueries(t *testing.T, tx *TxWrapper) *apperror.AppError {
 
 func verifySQLiteWrapperPragmas(t *testing.T, wrapper *DBWrapper) {
 	t.Helper()
-	row, err := wrapper.QueryRow(context.Background(), "PRAGMA busy_timeout;")
-	if err != nil {
-		t.Fatalf("query busy_timeout failed: %v", err)
+	rowRes := wrapper.QueryRow(context.Background(), "PRAGMA busy_timeout;")
+	if rowRes.IsFailure() {
+		t.Fatalf("query busy_timeout failed: %v", rowRes.AppError())
 	}
 
 	var timeout int
-	if scanErr := row.Scan(&timeout); scanErr != nil || timeout != 5000 {
+	if scanErr := rowRes.Value.Scan(&timeout); scanErr != nil || timeout != 5000 {
 		t.Errorf("expected busy_timeout 5000, got %d (err: %v)", timeout, scanErr)
 	}
 
-	rowFk, fkErr := wrapper.QueryRow(context.Background(), "PRAGMA foreign_keys;")
-	if fkErr != nil {
-		t.Fatalf("query foreign_keys failed: %v", fkErr)
+	rowFkRes := wrapper.QueryRow(context.Background(), "PRAGMA foreign_keys;")
+	if rowFkRes.IsFailure() {
+		t.Fatalf("query foreign_keys failed: %v", rowFkRes.AppError())
 	}
 
 	var fk int
-	if scanErr := rowFk.Scan(&fk); scanErr != nil || fk != 1 {
+	if scanErr := rowFkRes.Value.Scan(&fk); scanErr != nil || fk != 1 {
 		t.Errorf("expected foreign_keys 1, got %d (err: %v)", fk, scanErr)
 	}
 }
@@ -126,13 +127,13 @@ func testRepoInsideTx(t *testing.T, ctx context.Context, baseRepo *Repository[Te
 }
 
 func runReadOnlyCheck(tx *TxWrapper) *apperror.AppError {
-	row, err := tx.QueryRow(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemId = 1")
-	if err != nil {
-		return err
+	rowRes := tx.QueryRow(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemId = 1")
+	if rowRes.IsFailure() {
+		return rowRes.AppError()
 	}
 
 	var name string
-	if scanErr := row.Scan(&name); scanErr != nil {
+	if scanErr := rowRes.Value.Scan(&name); scanErr != nil {
 		return apperror.WrapSimple(scanErr, "scan item name")
 	}
 
@@ -151,9 +152,8 @@ func TestWithReadOnlyTransaction(t *testing.T) {
 
 func runExclusiveInsert(tx *TxWrapper) *apperror.AppError {
 	insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-	_, err := tx.Exec(context.Background(), insQ)
-	if err != nil {
-		return err
+	if execRes := tx.Exec(context.Background(), insQ); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	return nil
@@ -173,9 +173,8 @@ func TestWithExclusiveTransaction(t *testing.T) {
 
 func runTxOptionsInsert(tx *TxWrapper) *apperror.AppError {
 	insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-	_, err := tx.Exec(context.Background(), insQ)
-	if err != nil {
-		return err
+	if execRes := tx.Exec(context.Background(), insQ); execRes.IsFailure() {
+		return execRes.AppError()
 	}
 
 	return nil
@@ -196,11 +195,12 @@ func TestWithTxOptions(t *testing.T) {
 
 func testTxPrepareAndValidate(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	t.Helper()
-	stmt, prepErr := tx.Prepare(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemId = ?")
-	if prepErr != nil {
-		return prepErr
+	stmtRes := tx.Prepare(context.Background(), "SELECT ItemName FROM TestItem WHERE ItemId = ?")
+	if stmtRes.IsFailure() {
+		return stmtRes.AppError()
 	}
 
+	stmt := stmtRes.Value
 	defer stmt.Close()
 
 	return tx.ValidateSql(context.Background(), "SELECT ItemName FROM TestItem")

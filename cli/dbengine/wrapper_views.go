@@ -16,9 +16,9 @@ import (
 // DropView drops a database view.
 func (w *DBWrapper) DropView(ctx context.Context, name string) BoolResult {
 	query := w.compiler.CompileDropView(name)
-	_, err := w.Exec(ctx, query)
-	if err != nil {
-		return FailureBool(err)
+	execRes := w.Exec(ctx, query)
+	if execRes.IsFailure() {
+		return FailureBool(execRes.AppError())
 	}
 
 	return SuccessBool(true)
@@ -27,13 +27,13 @@ func (w *DBWrapper) DropView(ctx context.Context, name string) BoolResult {
 // CallFunction executes a database function and returns the scalar string result.
 func (w *DBWrapper) CallFunction(ctx context.Context, name string, args ...any) StringResult {
 	query := w.compiler.CompileFunctionCall(name, len(args))
-	row, appErr := w.QueryRow(ctx, query, args...)
-	if appErr != nil {
-		return FailureString(appErr)
+	rowRes := w.QueryRow(ctx, query, args...)
+	if rowRes.IsFailure() {
+		return FailureString(rowRes.AppError())
 	}
 
 	var res string
-	if err := row.Scan(&res); err != nil {
+	if err := rowRes.Value.Scan(&res); err != nil {
 		return FailureString(apperror.WrapSimple(err, "scan result of function "+name))
 	}
 
@@ -42,12 +42,12 @@ func (w *DBWrapper) CallFunction(ctx context.Context, name string, args ...any) 
 
 // ExecRowsAffected executes a statement and returns the number of rows affected wrapped in RowsAffectedResult.
 func (w *DBWrapper) ExecRowsAffected(ctx context.Context, query string, args ...any) RowsAffectedResult {
-	res, appErr := w.Exec(ctx, query, args...)
-	if appErr != nil {
-		return FailureRowsAffected(appErr)
+	execRes := w.Exec(ctx, query, args...)
+	if execRes.IsFailure() {
+		return FailureRowsAffected(execRes.AppError())
 	}
 
-	affected, err := res.RowsAffected()
+	affected, err := execRes.Value.RowsAffected()
 	if err != nil {
 		return FailureRowsAffected(apperror.WrapSimple(err, "get rows affected"))
 	}
@@ -62,13 +62,13 @@ func (w *DBWrapper) ViewExists(ctx context.Context, name string) (bool, *apperro
 		return false, nil
 	}
 
-	row, appErr := w.QueryRow(ctx, query, name)
-	if appErr != nil {
-		return false, appErr
+	rowRes := w.QueryRow(ctx, query, name)
+	if rowRes.IsFailure() {
+		return false, rowRes.AppError()
 	}
 
 	var dummy int
-	err := row.Scan(&dummy)
+	err := rowRes.Value.Scan(&dummy)
 	if err == nil {
 		return true, nil
 	}
@@ -95,11 +95,12 @@ func (w *DBWrapper) GetTableColumns(ctx context.Context, name string) ([]string,
 }
 
 func (w *DBWrapper) scanSqliteColumns(ctx context.Context, query string) ([]string, *apperror.AppError) {
-	rows, appErr := w.Query(ctx, query)
-	if appErr != nil {
-		return nil, appErr
+	rowsRes := w.Query(ctx, query)
+	if rowsRes.IsFailure() {
+		return nil, rowsRes.AppError()
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	var cols []string
@@ -123,11 +124,12 @@ func (w *DBWrapper) scanSqliteColumns(ctx context.Context, query string) ([]stri
 }
 
 func (w *DBWrapper) scanStandardColumns(ctx context.Context, query string, name string) ([]string, *apperror.AppError) {
-	rows, appErr := w.Query(ctx, query, name)
-	if appErr != nil {
-		return nil, appErr
+	rowsRes := w.Query(ctx, query, name)
+	if rowsRes.IsFailure() {
+		return nil, rowsRes.AppError()
 	}
 
+	rows := rowsRes.Value
 	defer rows.Close()
 
 	var cols []string
@@ -194,9 +196,9 @@ func (w *DBWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.Ap
 
 // EnsureViewMetaTable initializes the view metadata table if it does not already exist.
 func (w *DBWrapper) EnsureViewMetaTable(ctx context.Context) *apperror.AppError {
-	_, err := w.Exec(ctx, sqlCreateViewMeta)
-	if err != nil {
-		return apperror.WrapSimple(err, "ensure view metadata table")
+	execRes := w.Exec(ctx, sqlCreateViewMeta)
+	if execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "ensure view metadata table")
 	}
 
 	return nil
@@ -205,13 +207,13 @@ func (w *DBWrapper) EnsureViewMetaTable(ctx context.Context) *apperror.AppError 
 // GetViewHash retrieves the recorded query hash for a view from __gitmap_view_meta.
 func (w *DBWrapper) GetViewHash(ctx context.Context, name string) (string, *apperror.AppError) {
 	query := "SELECT QueryHash FROM __gitmap_view_meta WHERE ViewName = ?"
-	row, appErr := w.QueryRow(ctx, query, name)
-	if appErr != nil {
-		return "", appErr
+	rowRes := w.QueryRow(ctx, query, name)
+	if rowRes.IsFailure() {
+		return "", rowRes.AppError()
 	}
 
 	var hash string
-	err := row.Scan(&hash)
+	err := rowRes.Value.Scan(&hash)
 	if err == nil {
 		return hash, nil
 	}
@@ -229,9 +231,9 @@ func (w *DBWrapper) SaveViewMeta(ctx context.Context, name, queryHash, viewSql s
 	query := `
 INSERT OR REPLACE INTO __gitmap_view_meta (ViewName, QueryHash, ViewSql, UpdatedAt)
 VALUES (?, ?, ?, ?);`
-	_, appErr := w.Exec(ctx, query, name, queryHash, viewSql, now)
-	if appErr != nil {
-		return apperror.WrapSimple(appErr, "save view metadata for "+name)
+	execRes := w.Exec(ctx, query, name, queryHash, viewSql, now)
+	if execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "save view metadata for "+name)
 	}
 
 	return nil

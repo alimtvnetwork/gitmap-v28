@@ -72,8 +72,8 @@ func TestWithTransaction_RollbackOnError(t *testing.T) {
 
 	appErr := wrapper.WithTransaction(context.Background(), func(tx *TxWrapper) *apperror.AppError {
 		insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-		if _, err := tx.Exec(context.Background(), insQ); err != nil {
-			return err
+		if execRes := tx.Exec(context.Background(), insQ); execRes.IsFailure() {
+			return execRes.AppError()
 		}
 
 		return apperror.WrapSimple(errors.New("simulated error"), "test rollback")
@@ -89,7 +89,7 @@ func TestWithTransaction_RollbackOnError(t *testing.T) {
 func runTxPanic(wrapper *DBWrapper) {
 	_ = wrapper.WithTransaction(context.Background(), func(tx *TxWrapper) *apperror.AppError {
 		insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-		_, _ = tx.Exec(context.Background(), insQ)
+		_ = tx.Exec(context.Background(), insQ)
 
 		panic("panic inside tx") // lint-allow: panic
 	})
@@ -122,9 +122,9 @@ func TestWithImmediateTransaction_Success(t *testing.T) {
 
 	appErr := wrapper.WithImmediateTransaction(context.Background(), func(tx *TxWrapper) *apperror.AppError {
 		insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-		_, err := tx.Exec(context.Background(), insQ)
+		execRes := tx.Exec(context.Background(), insQ)
 
-		return err
+		return execRes.AppError()
 	})
 
 	if appErr != nil {
@@ -140,8 +140,8 @@ func TestWithImmediateTransaction_Rollback(t *testing.T) {
 
 	appErr := wrapper.WithImmediateTransaction(context.Background(), func(tx *TxWrapper) *apperror.AppError {
 		insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
-		if _, err := tx.Exec(context.Background(), insQ); err != nil {
-			return err
+		if execRes := tx.Exec(context.Background(), insQ); execRes.IsFailure() {
+			return execRes.AppError()
 		}
 
 		return apperror.WrapSimple(errors.New("immediate tx fail"), "rollback immediate")

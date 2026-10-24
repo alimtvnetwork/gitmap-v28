@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store/enums"
 )
 
 // DbWrapper encapsulates a SQL database connection with dialect query compilation.
@@ -22,25 +24,6 @@ type TxWrapper struct {
 	compiler DialectCompiler
 }
 
-var sqlitePragmas = []string{
-	"PRAGMA busy_timeout = 5000",
-	"PRAGMA journal_mode = WAL",
-	"PRAGMA synchronous = NORMAL",
-	"PRAGMA foreign_keys = ON",
-}
-
-func applySQLitePragmas(conn *sql.DB) *apperror.AppError {
-	for _, pragma := range sqlitePragmas {
-		if _, err := conn.Exec(pragma); err != nil {
-			_ = conn.Close()
-
-			return apperror.WrapSimple(err, "configure sqlite pragma: "+pragma)
-		}
-	}
-
-	return nil
-}
-
 func configureConnForDialect(dialect DatabaseDialectType, conn *sql.DB) *apperror.AppError {
 	if dialect != DBSQLite {
 		return nil
@@ -48,7 +31,15 @@ func configureConnForDialect(dialect DatabaseDialectType, conn *sql.DB) *apperro
 
 	conn.SetMaxOpenConns(1)
 
-	return applySQLitePragmas(conn)
+	for _, pragma := range enums.DefaultPragmas() {
+		if _, err := conn.Exec(pragma.Query()); err != nil {
+			_ = conn.Close()
+
+			return apperror.WrapSimple(err, "configure sqlite pragma: "+strings.TrimSuffix(pragma.Query(), ";"))
+		}
+	}
+
+	return nil
 }
 
 // OpenDb opens a database connection for the specified dialect.
@@ -94,43 +85,43 @@ func (w *DBWrapper) Close() *apperror.AppError {
 }
 
 // QueryRow executes a query that is expected to return at most one row.
-func (w *DBWrapper) QueryRow(ctx context.Context, query string, args ...any) (*sql.Row, *apperror.AppError) {
+func (w *DBWrapper) QueryRow(ctx context.Context, query string, args ...any) DBRowWrap {
 	row := w.conn.QueryRowContext(ctx, query, args...)
 	if row.Err() != nil {
-		return nil, apperror.WrapSimple(row.Err(), "execute query row: "+query)
+		return FailureDBRow(apperror.WrapSimple(row.Err(), "execute query row: "+query))
 	}
 
-	return row, nil
+	return SuccessDBRow(row)
 }
 
 // Query executes a query that returns rows.
-func (w *DBWrapper) Query(ctx context.Context, query string, args ...any) (*sql.Rows, *apperror.AppError) {
+func (w *DBWrapper) Query(ctx context.Context, query string, args ...any) DBRowsWrap {
 	rows, err := w.conn.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "execute query: "+query)
+		return FailureDBRows(apperror.WrapSimple(err, "execute query: "+query))
 	}
 
-	return rows, nil
+	return SuccessDBRows(rows)
 }
 
 // Exec executes a query without returning rows.
-func (w *DBWrapper) Exec(ctx context.Context, query string, args ...any) (sql.Result, *apperror.AppError) {
+func (w *DBWrapper) Exec(ctx context.Context, query string, args ...any) DBResultWrap {
 	result, err := w.conn.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "execute exec: "+query)
+		return FailureDBResult(apperror.WrapSimple(err, "execute exec: "+query))
 	}
 
-	return result, nil
+	return SuccessDBResult(result)
 }
 
 // Prepare creates a prepared statement on the database connection.
-func (w *DBWrapper) Prepare(ctx context.Context, query string) (*sql.Stmt, *apperror.AppError) {
+func (w *DBWrapper) Prepare(ctx context.Context, query string) DBStmtWrap {
 	stmt, err := w.conn.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "prepare statement: "+query)
+		return FailureDBStmt(apperror.WrapSimple(err, "prepare statement: "+query))
 	}
 
-	return stmt, nil
+	return SuccessDBStmt(stmt)
 }
 
 func handleRollback(tx *sql.Tx, txErr *apperror.AppError) *apperror.AppError {
@@ -256,9 +247,9 @@ func (w *DBWrapper) Conn() *sql.DB {
 // CreateView creates a database view with the specified SELECT statement.
 func (w *DBWrapper) CreateView(ctx context.Context, name string, selectSql string) BoolResult {
 	query := w.compiler.CompileCreateView(name, selectSql)
-	_, err := w.Exec(ctx, query)
-	if err != nil {
-		return FailureBool(err)
+	execRes := w.Exec(ctx, query)
+	if execRes.IsFailure() {
+		return FailureBool(execRes.AppError())
 	}
 
 	return SuccessBool(true)

@@ -11,9 +11,9 @@ import (
 
 // SqlExecuter provides a unified interface for executing queries across database connections and transactions.
 type SqlExecuter interface {
-	QueryRow(ctx context.Context, query string, args ...any) (*sql.Row, *apperror.AppError)
-	Query(ctx context.Context, query string, args ...any) (*sql.Rows, *apperror.AppError)
-	Exec(ctx context.Context, query string, args ...any) (sql.Result, *apperror.AppError)
+	QueryRow(ctx context.Context, query string, args ...any) DBRowWrap
+	Query(ctx context.Context, query string, args ...any) DBRowsWrap
+	Exec(ctx context.Context, query string, args ...any) DBResultWrap
 	ExecRowsAffected(ctx context.Context, query string, args ...any) RowsAffectedResult
 	Compiler() DialectCompiler
 }
@@ -37,43 +37,43 @@ func (t *TxWrapper) Compiler() DialectCompiler {
 }
 
 // QueryRow executes a query within the transaction expecting at most one row.
-func (t *TxWrapper) QueryRow(ctx context.Context, query string, args ...any) (*sql.Row, *apperror.AppError) {
+func (t *TxWrapper) QueryRow(ctx context.Context, query string, args ...any) DBRowWrap {
 	row := t.tx.QueryRowContext(ctx, query, args...)
 	if row.Err() != nil {
-		return nil, apperror.WrapSimple(row.Err(), "execute tx query row: "+query)
+		return FailureDBRow(apperror.WrapSimple(row.Err(), "execute tx query row: "+query))
 	}
 
-	return row, nil
+	return SuccessDBRow(row)
 }
 
 // Query executes a query within the transaction returning rows.
-func (t *TxWrapper) Query(ctx context.Context, query string, args ...any) (*sql.Rows, *apperror.AppError) {
+func (t *TxWrapper) Query(ctx context.Context, query string, args ...any) DBRowsWrap {
 	rows, err := t.tx.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "execute tx query: "+query)
+		return FailureDBRows(apperror.WrapSimple(err, "execute tx query: "+query))
 	}
 
-	return rows, nil
+	return SuccessDBRows(rows)
 }
 
 // Exec executes a query within the transaction without returning rows.
-func (t *TxWrapper) Exec(ctx context.Context, query string, args ...any) (sql.Result, *apperror.AppError) {
+func (t *TxWrapper) Exec(ctx context.Context, query string, args ...any) DBResultWrap {
 	result, err := t.tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "execute tx exec: "+query)
+		return FailureDBResult(apperror.WrapSimple(err, "execute tx exec: "+query))
 	}
 
-	return result, nil
+	return SuccessDBResult(result)
 }
 
 // ExecRowsAffected executes a statement within the transaction and returns rows affected.
 func (t *TxWrapper) ExecRowsAffected(ctx context.Context, query string, args ...any) RowsAffectedResult {
-	res, appErr := t.Exec(ctx, query, args...)
-	if appErr != nil {
-		return FailureRowsAffected(appErr)
+	execRes := t.Exec(ctx, query, args...)
+	if execRes.IsFailure() {
+		return FailureRowsAffected(execRes.AppError())
 	}
 
-	affected, err := res.RowsAffected()
+	affected, err := execRes.Value.RowsAffected()
 	if err != nil {
 		return FailureRowsAffected(apperror.WrapSimple(err, "get tx rows affected"))
 	}
@@ -82,25 +82,25 @@ func (t *TxWrapper) ExecRowsAffected(ctx context.Context, query string, args ...
 }
 
 // Prepare creates a prepared statement within the transaction.
-func (t *TxWrapper) Prepare(ctx context.Context, query string) (*sql.Stmt, *apperror.AppError) {
+func (t *TxWrapper) Prepare(ctx context.Context, query string) DBStmtWrap {
 	stmt, err := t.tx.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, apperror.WrapSimple(err, "prepare tx statement: "+query)
+		return FailureDBStmt(apperror.WrapSimple(err, "prepare tx statement: "+query))
 	}
 
-	return stmt, nil
+	return SuccessDBStmt(stmt)
 }
 
 // ValidateSql performs a dry-run syntax and reference check using EXPLAIN within the transaction.
 func (t *TxWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.AppError {
 	cleanSql := strings.TrimRight(strings.TrimSpace(sqlStr), ";")
 	explainQuery := fmt.Sprintf("EXPLAIN %s", cleanSql)
-	rows, appErr := t.Query(ctx, explainQuery)
-	if appErr != nil {
-		return appErr
+	rowsRes := t.Query(ctx, explainQuery)
+	if rowsRes.IsFailure() {
+		return rowsRes.AppError()
 	}
 
-	defer rows.Close()
+	defer rowsRes.Value.Close()
 
 	return nil
 }
@@ -108,13 +108,13 @@ func (t *TxWrapper) ValidateSql(ctx context.Context, sqlStr string) *apperror.Ap
 // CallFunction executes a database function within the transaction and returns the scalar string result.
 func (t *TxWrapper) CallFunction(ctx context.Context, name string, args ...any) StringResult {
 	query := t.compiler.CompileFunctionCall(name, len(args))
-	row, appErr := t.QueryRow(ctx, query, args...)
-	if appErr != nil {
-		return FailureString(appErr)
+	rowRes := t.QueryRow(ctx, query, args...)
+	if rowRes.IsFailure() {
+		return FailureString(rowRes.AppError())
 	}
 
 	var res string
-	if err := row.Scan(&res); err != nil {
+	if err := rowRes.Value.Scan(&res); err != nil {
 		return FailureString(apperror.WrapSimple(err, "scan result of tx function "+name))
 	}
 

@@ -50,18 +50,19 @@ func populateOwnerRepoIndexTx(
 	fetchedAt time.Time,
 ) *apperror.AppError {
 	delQuery := `DELETE FROM OwnerRepoNameIndex WHERE Provider=? AND Owner=?`
-	if _, appErr := tx.Exec(ctx, delQuery, provider, owner); appErr != nil {
-		return apperror.WrapSimple(appErr, "delete existing owner repo index")
+	if execRes := tx.Exec(ctx, delQuery, provider, owner); execRes.IsFailure() {
+		return apperror.WrapSimple(execRes.AppError(), "delete existing owner repo index")
 	}
 
 	insQuery := `INSERT INTO OwnerRepoNameIndex
 		(Provider, Owner, RepoName, BaseName, VersionNumber, FetchedAt)
 		VALUES (?, ?, ?, ?, ?, ?)`
-	stmt, appErr := tx.Prepare(ctx, insQuery)
-	if appErr != nil {
-		return apperror.WrapSimple(appErr, "prepare insert owner repo index")
+	stmtRes := tx.Prepare(ctx, insQuery)
+	if stmtRes.IsFailure() {
+		return apperror.WrapSimple(stmtRes.AppError(), "prepare insert owner repo index")
 	}
 
+	stmt := stmtRes.Value
 	defer stmt.Close()
 
 	return insertOwnerRepoNames(stmt, provider, owner, names, fetchedAt)
