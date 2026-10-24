@@ -1,6 +1,9 @@
 package cmdautofix
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // Argument helpers for `gitmap fix`: subcommand splitting, interspersed
 // flag reordering, and --ext/--category normalization.
@@ -57,8 +60,10 @@ func isFixSubcommand(name string) bool {
 	return false
 }
 
+var fixHelpFlagTokens = []string{"--help", "-h"}
+
 func isHelpFlag(arg string) bool {
-	return arg == "--help" || arg == "-h"
+	return slices.Contains(fixHelpFlagTokens, arg)
 }
 
 func hasHelpFlag(args []string) bool {
