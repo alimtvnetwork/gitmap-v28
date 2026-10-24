@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.604.0] - 2026-10-24
+
+### Added
+- Folder-specific work directory and SSH automation with bracketed commit formatter
+
+---
+
 ## [v6.603.0] - 2026-10-24
 
 ### Added
