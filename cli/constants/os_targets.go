@@ -12,16 +12,27 @@ type OSTargetType string
 type OSTarget = OSTargetType
 
 const (
-	OSTargetInvalid OSTargetType = ""
-	OSTargetWin     OSTargetType = "win"
-	OSTargetUbuntu  OSTargetType = "ubuntu"
-	OSTargetCentOS  OSTargetType = "centos"
-	OSTargetDebian  OSTargetType = "debian"
-	OSTargetFedora  OSTargetType = "fedora"
-	OSTargetArch    OSTargetType = "arch-linux"
-	OSTargetMac     OSTargetType = "macos"
-	OSTargetUnix    OSTargetType = "unix"
-	OSTargetAll     OSTargetType = "all"
+	OSTargetInvalid    OSTargetType = ""
+	OSTargetTypeWin    OSTargetType = "win"
+	OSTargetTypeUbuntu OSTargetType = "ubuntu"
+	OSTargetTypeCentOS OSTargetType = "centos"
+	OSTargetTypeDebian OSTargetType = "debian"
+	OSTargetTypeFedora OSTargetType = "fedora"
+	OSTargetTypeArch   OSTargetType = "arch-linux"
+	OSTargetTypeMac    OSTargetType = "macos"
+	OSTargetTypeUnix   OSTargetType = "unix"
+	OSTargetTypeAll    OSTargetType = "all"
+
+	// Target OS identifiers for installers (untyped string constants for backwards compatibility)
+	OSTargetWin    = "win"
+	OSTargetUbuntu = "ubuntu"
+	OSTargetCentOS = "centos"
+	OSTargetDebian = "debian"
+	OSTargetFedora = "fedora"
+	OSTargetArch   = "arch-linux"
+	OSTargetMac    = "macos"
+	OSTargetUnix   = "unix"
+	OSTargetAll    = "all"
 )
 
 // OSGroupType categorizes operating system families.
@@ -31,11 +42,17 @@ type OSGroupType string
 type OSGroup = OSGroupType
 
 const (
-	OSGroupInvalid OSGroupType = ""
-	OSGroupWindows OSGroupType = "windows"
-	OSGroupUnix    OSGroupType = "unix"
-	OSGroupMac     OSGroupType = "macos"
-	OSGroupPOSIX   OSGroupType = "posix"
+	OSGroupInvalid     OSGroupType = ""
+	OSGroupTypeWindows OSGroupType = "windows"
+	OSGroupTypeUnix    OSGroupType = "unix"
+	OSGroupTypeMac     OSGroupType = "macos"
+	OSGroupTypePOSIX   OSGroupType = "posix"
+
+	// OS Group categories (untyped string constants for backwards compatibility)
+	OSGroupWindows = "windows"
+	OSGroupUnix    = "unix"
+	OSGroupMac     = "macos"
+	OSGroupPOSIX   = "posix"
 )
 
 // OrderModeType specifies installer execution ordering.
@@ -50,6 +67,11 @@ const (
 	OrderModeOSFirst   OrderModeType = "os-first"
 	OrderModeOSOnly    OrderModeType = "os-only"
 	OrderModeFallback  OrderModeType = "fallback"
+
+	OrderUnixFirst = "unix-first"
+	OrderOSFirst   = "os-first"
+	OrderOSOnly    = "os-only"
+	OrderFallback  = "fallback"
 )
 
 // SupportedOSTargets returns the list of all supported installer operating systems.
