@@ -20,8 +20,10 @@ type ParsedCommitMessage struct {
 var (
 	// hyphenRegex matches "<module> - <summary>" or "<module>: <summary>"
 	hyphenRegex = regexp.MustCompile(`^([A-Za-z0-9_\-\./]+)\s*[:-]\s*(.+)$`)
-	// conventionalRegex matches standard conventional commits without brackets: "<type>(<module>): <summary>"
-	conventionalRegex = regexp.MustCompile(`^([a-z]+)\(([A-Za-z0-9_\-\./]+)\):\s*(.+)$`)
+	// bracketedModuleRegex matches "(<module>): <summary>" or "(<module>) - <summary>"
+	bracketedModuleRegex = regexp.MustCompile(`^\(([A-Za-z0-9_\-\./]+)\)\s*[:-]\s*(.+)$`)
+	// conventionalRegex matches standard conventional commits: "<type>(<module>): <summary>"
+	conventionalRegex = regexp.MustCompile(`^([A-Za-z]+)\(([A-Za-z0-9_\-\./]+)\):\s*(.+)$`)
 )
 
 func stripWrappingQuotes(s string) string {
@@ -47,6 +49,22 @@ func resolveVerbPrefix(verb string) string {
 	default:
 		return ""
 	}
+}
+
+func resolveUppercaseType(verb string) string {
+	mapping := map[string]string{
+		"cpf": "FEAT", "feature": "FEAT", "commit-push-feature": "FEAT", "feat": "FEAT",
+		"cpb": "FIX", "cbf": "FIX", "bug": "FIX", "commit-push-bug": "FIX", "fix": "FIX",
+		"cpc": "CHORE", "chore": "CHORE", "commit-push-chore": "CHORE",
+		"cfr": "REFACTOR", "refactor": "REFACTOR", "commit-push-refactor": "REFACTOR",
+		"cpr": "RELEASE", "release": "RELEASE", "commit-push-release": "RELEASE",
+		"test": "TEST", "docs": "DOCS", "perf": "PERF",
+	}
+	if val, hasVal := mapping[strings.ToLower(verb)]; hasVal {
+		return val
+	}
+
+	return strings.ToUpper(verb)
 }
 
 func trimDuplicatePrefix(verb, s string) string {
@@ -119,26 +137,42 @@ func isKnownConventionalType(t string) bool {
 	}
 }
 
-func buildConventionalRecord(s, ctype, mod, item string) ParsedCommitMessage {
+func buildConventionalRecord(raw, ctype, mod, item string) ParsedCommitMessage {
+	uType := resolveUppercaseType(ctype)
+	uMod := strings.ToUpper(strings.Trim(mod, "() "))
+	cleanItem := strings.TrimSpace(item)
+	formatted := uType + "(" + uMod + "): " + cleanItem
+
 	return ParsedCommitMessage{
-		RawInput:           s,
-		FormattedMessage:   s,
-		CommitType:         ctype,
-		Module:             mod,
-		ItemDescription:    item,
-		HasModule:          mod != "",
+		RawInput:           raw,
+		FormattedMessage:   formatted,
+		CommitType:         uType,
+		Module:             uMod,
+		ItemDescription:    cleanItem,
+		HasModule:          uMod != "",
 		HasHyphenSeparator: false,
 		IsConventional:     true,
 	}
 }
 
-func tryParseConventionalSyntax(verb, s string) (ParsedCommitMessage, bool) {
-	matches := conventionalRegex.FindStringSubmatch(s)
-	if len(matches) < 4 || !isKnownConventionalType(matches[1]) {
+func tryParseBracketedModuleSyntax(verb, s string) (ParsedCommitMessage, bool) {
+	matches := bracketedModuleRegex.FindStringSubmatch(s)
+	if len(matches) < 3 {
 		return ParsedCommitMessage{}, false
 	}
 
-	record := buildConventionalRecord(s, matches[1], matches[2], strings.TrimSpace(matches[3]))
+	record := buildConventionalRecord(s, verb, matches[1], matches[2])
+
+	return record, true
+}
+
+func tryParseConventionalSyntax(verb, s string) (ParsedCommitMessage, bool) {
+	matches := conventionalRegex.FindStringSubmatch(s)
+	if len(matches) < 4 || !isKnownConventionalType(strings.ToLower(matches[1])) {
+		return ParsedCommitMessage{}, false
+	}
+
+	record := buildConventionalRecord(s, matches[1], matches[2], matches[3])
 
 	return record, true
 }
@@ -158,6 +192,10 @@ func buildFallbackCommitMessage(verb, s string) ParsedCommitMessage {
 // ParseAndFormatCommitMessage processes raw arguments according to the target semantic verb.
 func ParseAndFormatCommitMessage(verb string, rawArgs []string) ParsedCommitMessage {
 	cleansed := sanitizeInput(verb, rawArgs)
+
+	if parsed, ok := tryParseBracketedModuleSyntax(verb, cleansed); ok {
+		return parsed
+	}
 
 	if parsed, ok := tryParseConventionalSyntax(verb, cleansed); ok {
 		return parsed
