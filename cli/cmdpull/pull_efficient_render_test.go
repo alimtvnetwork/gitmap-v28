@@ -197,6 +197,34 @@ func TestResolveDualPullRemediationHints_Conflict(t *testing.T) {
 	}
 }
 
+func TestResolveDualPullRemediationHints_PromptDisabled(t *testing.T) {
+	err := "fatal: Cannot prompt because user interactivity has been disabled."
+	l1, c1, l2, c2 := ResolveDualPullRemediationHints(err, "", "alim-cv-v8")
+
+	if l1 != "Auto-Fix Auth & Convert to SSH" || c1 != "gitmap fix alim-cv-v8" {
+		t.Fatalf("unexpected option 1: label=%q, cmd=%q", l1, c1)
+	}
+	if l2 != "Fix Credential Store" || c2 != "gitmap fix-credential" {
+		t.Fatalf("unexpected option 2: label=%q, cmd=%q", l2, c2)
+	}
+}
+
+func TestClassifyPullErrorString_PromptDisabled(t *testing.T) {
+	got := classifyPullErrorString("fatal: Cannot prompt because user interactivity has been disabled.")
+	want := "Git credentials unavailable - credential prompt is disabled in this non-interactive session"
+	if got != want {
+		t.Fatalf("unexpected reason: %q", got)
+	}
+}
+
+func TestResolvePullRemediationHint_PromptDisabled(t *testing.T) {
+	s := &PullRepoState{RepoName: "alim-cv-v8", ErrorMsg: "fatal: Cannot prompt because user interactivity has been disabled."}
+	got := ResolvePullRemediationHint(s)
+	if !strings.Contains(got, "gitmap fix alim-cv-v8") || !strings.Contains(got, "gitmap fix-credential") {
+		t.Fatalf("unexpected remediation hint: %q", got)
+	}
+}
+
 func TestRenderFailedGroup_SubtreeAndYellow(t *testing.T) {
 	states := []*PullRepoState{
 		{

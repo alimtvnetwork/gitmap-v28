@@ -211,3 +211,8 @@ func RunSSHPublicCLI(args []string) error {
 func RunSSHTroubleshootCLI(ctx context.Context, args []string) error {
 	return runSSHTroubleshootCLI(ctx, args)
 }
+
+// RunSSHPullRemediateCLI routes to multi-machine post-pull remediation entrypoint.
+func RunSSHPullRemediateCLI(args []string) error {
+	return RunSSHPullFleetRemediate(args)
+}

@@ -63,6 +63,9 @@ func checkPullHelp(isPullAll bool, args []string) {
 }
 
 func handleSSHFleetPullAll(args []string) error {
+	if hasFleetRemediateFlag(args) && RunRemoteSSHPullFleetRemediateFn != nil {
+		return RunRemoteSSHPullFleetRemediateFn(args)
+	}
 	cleanArgs := stripSSHFleetFlags(args)
 	hasHook := RunRemoteSSHPullAllFleetFn != nil
 	if !hasHook {
@@ -70,6 +73,17 @@ func handleSSHFleetPullAll(args []string) error {
 	}
 
 	return executeSSHFleetPullTask(cleanArgs)
+}
+
+func hasFleetRemediateFlag(args []string) bool {
+	for _, a := range args {
+		low := strings.ToLower(a)
+		if low == "--fix" || low == "-fix" || low == "--remediate" || low == "-remediate" || low == "--fleet-fix" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func executeSSHFleetPullTask(cleanArgs []string) error {

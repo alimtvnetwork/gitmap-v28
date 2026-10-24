@@ -43,7 +43,7 @@ func resolveStateOrAuthDualHints(msg, repoDir, repoName string) (string, string,
 	if isDirtyTreeError(msg) {
 		return resolveDirtyTreeDualHints(repoDir)
 	}
-	if isWincredmanFailure(msg) || isCacheFailure(msg) || isAuthFailure(msg) {
+	if isWincredmanFailure(msg) || isCacheFailure(msg) || isAuthFailure(msg) || isPromptDisabledFailure(msg) {
 		return resolveCredentialAndSSHDualHints(repoDir, repoName)
 	}
 	return resolveFallbackDualHints(repoDir, repoName)

@@ -106,6 +106,7 @@ func init() {
 	cmdpull.ApplyTransportFlagFn = cmdclone.ApplyTransportFlag
 	cmdpull.RunRemoteSSHPullFn = cmdssh.RunSSHPullJSON
 	cmdpull.RunRemoteSSHPullAllFleetFn = cmdssh.RunSSHPullAllFleet
+	cmdpull.RunRemoteSSHPullFleetRemediateFn = cmdssh.RunSSHPullFleetRemediate
 	cmdssh.RunLocalPullAllJSONFn = cmdpull.RunPullAllJSON
 	cmdignore.RunFixIgnoresAllSSHFn = func(args []string) *apperror.AppError {
 		err := cmdssh.RunFleetPASCommand("fix-ignore-all", "gitmap fix-ignore-all -y", func() error {

@@ -48,22 +48,52 @@ type fleetNodeLiveness struct {
 // RunSSHPullAllFleet executes pull-all across SSH fleet nodes and Local VM concurrently.
 func RunSSHPullAllFleet(cleanArgs []string) error {
 	isJSON := hasFleetJSONFlag(cleanArgs)
+	outcomes, conns := probeAndExecuteFleetPull(cleanArgs, isJSON)
+	if renderErr := renderFleetPullAllOutcomes(outcomes, isJSON); renderErr != nil {
+		return renderErr
+	}
+	if tryRemediateFleetIssues(outcomes, conns, isJSON) {
+		return nil
+	}
+
+	return checkFleetFailures(outcomes)
+}
+
+func probeAndExecuteFleetPull(cleanArgs []string, isJSON bool) ([]FleetNodePullOutcome, []db.SSHConnection) {
 	conns, _ := fetchAllSSHConnections()
 	probes := probeFleetLiveness(conns)
 	if !isJSON {
 		printFleetEnqueueBanner(probes)
 	}
-	outcomes := executeFleetPullAll(probes, cleanArgs)
-	renderErr := renderFleetPullAllOutcomes(outcomes, isJSON)
-	if renderErr != nil {
-		return renderErr
+
+	return executeFleetPullAll(probes, cleanArgs), conns
+}
+
+func tryRemediateFleetIssues(outcomes []FleetNodePullOutcome, conns []db.SSHConnection, isJSON bool) bool {
+	if !hasFleetRemediationTrigger(outcomes, isJSON) {
+		return false
 	}
+	remErr := PromptFleetPostPullRemediation(outcomes, conns)
+
+	return remErr == nil
+}
+
+func checkFleetFailures(outcomes []FleetNodePullOutcome) error {
 	failures := countFleetFailures(outcomes)
 	if failures > 0 {
 		return apperror.NewSimple(fmt.Sprintf("SSH fleet pull-all had %d node failure(s)", failures), "E_SSH_FLEET_FAIL")
 	}
 
 	return nil
+}
+
+func hasFleetRemediationTrigger(outcomes []FleetNodePullOutcome, isJSON bool) bool {
+	if isJSON || !IsInteractiveFleetPromptEligible() {
+		return false
+	}
+	issues := ExtractFleetIssues(outcomes)
+
+	return HasAnyFleetIssues(issues)
 }
 
 func countFleetFailures(outcomes []FleetNodePullOutcome) int {
