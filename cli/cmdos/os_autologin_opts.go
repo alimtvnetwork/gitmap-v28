@@ -2,6 +2,7 @@ package cmdos
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -52,12 +53,7 @@ func parseAutoLoginArgs(args []string) AutoLoginConfig {
 }
 
 func isMatchFlag(arg string, targets ...string) bool {
-	for _, target := range targets {
-		if arg == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(targets, arg)
 }
 
 func printAutoLoginUsage() {

@@ -49,7 +49,7 @@ func parseFixLinkArgs(args []string) (FixLinkOptions, []string) {
 }
 
 func isTargetFlag(arg string) bool {
-	return arg == "--target" || arg == "-t"
+	return argMatches(arg, "--target", "-t")
 }
 
 func applyFlagIfMatch(arg string, opts *FixLinkOptions) bool {

@@ -22,5 +22,5 @@ func runOSSystemClean() error {
 }
 
 func isSystemCleanTarget(arg string) bool {
-	return arg == "sys" || arg == "system" || arg == "--system"
+	return argMatches(arg, "sys", "system", "--system")
 }

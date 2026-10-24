@@ -26,7 +26,7 @@ func RunDevToolClear(args []string) error {
 }
 
 func isHelpDevTool(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help" || arg == "/?"
+	return argMatches(arg, "-h", "--help", "help", "/?")
 }
 
 func printDevToolUsage() {

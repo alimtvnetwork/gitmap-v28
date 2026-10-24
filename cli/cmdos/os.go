@@ -57,7 +57,7 @@ func renderOSMachineIdentityFooter() {
 }
 
 func isOSHelpArg(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return argMatches(arg, "-h", "--help", "help")
 }
 
 func dispatchOSSubcommand(subCmd string, subArgs []string) error {

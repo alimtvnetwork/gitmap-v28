@@ -22,23 +22,11 @@ func RunOSTUICommand(args []string) error {
 }
 
 func isTUIHelpRequested(args []string) bool {
-	for _, arg := range args {
-		if arg == "-h" || arg == "--help" || arg == "help" {
-			return true
-		}
-	}
-
-	return false
+	return anyArgIn(args, "-h", "--help", "help")
 }
 
 func hasTUIDryRunFlag(args []string) bool {
-	for _, arg := range args {
-		if arg == "--dry-run" || arg == "-n" {
-			return true
-		}
-	}
-
-	return false
+	return anyArgIn(args, "--dry-run", "-n")
 }
 
 func printTUIUsage() {

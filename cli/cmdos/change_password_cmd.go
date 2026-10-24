@@ -81,7 +81,7 @@ func parseChangePasswordArgs(args []string) (ChangePasswordOptions, bool, error)
 }
 
 func isChangePasswordHelpArg(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return argMatches(arg, "-h", "--help", "help")
 }
 
 func consumeChangePasswordFlag(args []string, i int, opts *ChangePasswordOptions) (int, bool) {
