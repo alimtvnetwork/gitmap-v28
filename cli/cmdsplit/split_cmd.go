@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -48,21 +49,25 @@ func RunSplitLargeFilesCmd(args []string) error {
 	return processSplitOperation(flags)
 }
 
+var splitHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func normalizeSplitArgs(args []string) []string {
 	if len(args) >= 2 && args[0] == "large" && args[1] == "files" {
 		return args[2:]
 	}
 
-	if len(args) >= 1 && (args[0] == "large-files" || args[0] == "large_files") {
+	if len(args) >= 1 && slices.Contains(splitLargeFilesTokens, args[0]) {
 		return args[1:]
 	}
 
 	return args
 }
 
+var splitLargeFilesTokens = []string{"large-files", "large_files"}
+
 func hasHelpFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "-h" || arg == "--help" || arg == "help" {
+		if slices.Contains(splitHelpFlagTokens, arg) {
 			return true
 		}
 	}
