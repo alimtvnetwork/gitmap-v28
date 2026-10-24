@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // ExecViaREST attempts to execute a command on a remote node daemon via REST.
@@ -23,7 +24,7 @@ func ExecViaREST(host string, port int, token string, req DaemonExecReq) (*Daemo
 		return nil, apperror.WrapSimple(err, "daemon_new_request")
 	}
 
-	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if token != "" {
 		httpReq.Header.Set("X-GitMap-Token", token)
 	}

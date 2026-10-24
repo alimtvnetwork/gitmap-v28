@@ -38,7 +38,7 @@ func termCommandExecHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := executeCLIForAPI(req.Command)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(resp)
 }
 

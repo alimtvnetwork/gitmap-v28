@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -258,7 +259,7 @@ func formatActionLogMap(id int64, subId, role, aType, file, details, status, cAt
 }
 
 func writeJSON(w http.ResponseWriter, statusCode int, data any) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.WriteHeader(statusCode)

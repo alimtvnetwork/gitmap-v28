@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -98,7 +99,7 @@ func postTelegramMessage(botToken, chatID, text string) bool {
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", botToken)
 	payload, _ := json.Marshal(map[string]string{"chat_id": chatID, "text": text})
 	client := &http.Client{Timeout: 4 * time.Second}
-	resp, err := client.Post(apiURL, "application/json", bytes.NewReader(payload))
+	resp, err := client.Post(apiURL, constants.MediaTypeJSON, bytes.NewReader(payload))
 	if err != nil {
 		return false
 	}

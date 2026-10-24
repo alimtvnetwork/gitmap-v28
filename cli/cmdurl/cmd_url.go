@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -390,7 +391,7 @@ func buildCacheEntry(opts UrlOptions, resp *http.Response, payload []byte, durMs
 	entry.StatusCode = resp.StatusCode
 	entry.ETag = resp.Header.Get("ETag")
 	entry.LastModified = resp.Header.Get("Last-Modified")
-	entry.ContentType = resp.Header.Get("Content-Type")
+	entry.ContentType = resp.Header.Get(constants.HeaderContentType)
 	entry.HeadersJson = string(headerBytes)
 
 	return entry
@@ -450,7 +451,7 @@ func emitHeadersOnly(entry store.UrlCacheEntry) error {
 
 func printFixedHeaders(entry store.UrlCacheEntry) {
 	fmt.Fprintf(output.Raw(), "HTTP/1.1 %d\n", entry.StatusCode)
-	fmt.Fprintf(output.Raw(), "Content-Type: %s\n", entry.ContentType)
+	fmt.Fprintf(output.Raw(), constants.HeaderContentType+": %s\n", entry.ContentType)
 	fmt.Fprintf(output.Raw(), "Content-Length: %d\n", entry.ContentLength)
 	if entry.ETag != "" {
 		fmt.Fprintf(output.Raw(), "ETag: %s\n", entry.ETag)
@@ -644,7 +645,7 @@ func printFormattedInfo(entry store.UrlCacheEntry) error {
 	fmt.Fprintf(output.UI(), "URL:          %s\n", entry.EffectiveURL())
 	fmt.Fprintf(output.UI(), "Hash:         %s\n", entry.UrlHash)
 	fmt.Fprintf(output.UI(), "Status:       %d\n", entry.StatusCode)
-	fmt.Fprintf(output.UI(), "Content-Type: %s\n", entry.ContentType)
+	fmt.Fprintf(output.UI(), constants.HeaderContentType+": %s\n", entry.ContentType)
 	fmt.Fprintf(output.UI(), "Size:         %d bytes\n", entry.ContentLength)
 	fmt.Fprintf(output.UI(), "Access Count: %d\n", entry.AccessCount)
 	fmt.Fprintf(output.UI(), "Expires At:   %s\n", time.Unix(entry.ExpiresAt, 0).Format(time.RFC3339))

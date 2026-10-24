@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
@@ -176,7 +177,7 @@ func fetchReleases(ctx releaseApiContext) ([]ghReleaseItem, error) {
 }
 
 func applyGitHubHeaders(req *http.Request, token string) {
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Authorization", constants.AuthBearerPrefix+token)
 	req.Header.Set("Accept", "application/vnd.github+json")
 	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 	req.Header.Set("User-Agent", "GitMap-History-Purge")
@@ -297,7 +298,7 @@ func patchReleaseBody(ctx releaseApiContext, releaseId int64, newBody string) er
 	}
 
 	applyGitHubHeaders(req, ctx.token)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
 	resp, err := ctx.client.Do(req)
 	if err != nil {

@@ -53,7 +53,7 @@ func buildAIMemoryMux(boundPort int) *http.ServeMux {
 	bootTime := time.Now()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/ai/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		resp := map[string]any{
 			"status":          "ok",
 			"engine":          "gitmap-ai-memory-v1",
@@ -66,7 +66,7 @@ func buildAIMemoryMux(boundPort int) *http.ServeMux {
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/api/v1/ai/status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		topSearches, _ := searcher.ListTopAUMSearches(5)
 		resp := map[string]any{
 			"status":              "ready",
@@ -79,7 +79,7 @@ func buildAIMemoryMux(boundPort int) *http.ServeMux {
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 	mux.HandleFunc("/api/v1/ai/search-cache", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		q := strings.TrimSpace(r.URL.Query().Get("q"))
 		if q != "" {
 			res, dh2d, isHot := searcher.LookupHotCachedSearch(q, "keyword")

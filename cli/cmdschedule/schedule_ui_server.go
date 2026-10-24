@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net"
 	"net/http"
 	"sync"
@@ -157,7 +158,7 @@ func handleScheduleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPIScheduleTasks(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	uiTaskLock.RLock()
 	defer uiTaskLock.RUnlock()
 	w.WriteHeader(http.StatusOK)
@@ -165,7 +166,7 @@ func handleAPIScheduleTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPIScheduleToggle(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		writeScheduleJSONError(w, http.StatusMethodNotAllowed, "POST method required")
 		return
@@ -193,7 +194,7 @@ func executeTaskToggle(req TaskToggleRequest) TaskToggleResponse {
 }
 
 func handleAPIScheduleWatchers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method == http.MethodGet {
 		w.WriteHeader(http.StatusOK)
 		uiWatcherLock.RLock()
@@ -243,7 +244,7 @@ func appendWatcher(req WatcherCreateRequest) FolderWatcherItem {
 }
 
 func handleAPIScheduleNotifiers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	uiNotifierLock.RLock()
 	defer uiNotifierLock.RUnlock()
 	w.WriteHeader(http.StatusOK)

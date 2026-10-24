@@ -68,7 +68,7 @@ func runPR(args []string) error {
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+user:%s&per_page=50", owner)
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	if len(token) > 0 {
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Authorization", constants.AuthBearerPrefix+token)
 	}
 
 	resp, err := http.DefaultClient.Do(req)

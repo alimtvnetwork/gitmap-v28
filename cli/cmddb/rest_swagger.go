@@ -2,6 +2,7 @@ package cmddb
 
 import (
 	"encoding/json"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net/http"
 	"strings"
 )
@@ -266,7 +267,7 @@ func HandleSwaggerDoc(mgr *MultiDbManager) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(spec)
 	}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
 )
 
@@ -17,7 +18,7 @@ type topicSummaryItem struct {
 }
 
 func handleAPIHelpTopics(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		_ = json.NewEncoder(w).Encode(map[string]any{"isSuccess": false, "error": "method not allowed, GET required"})
@@ -60,7 +61,7 @@ func handleAPIHelpDoc(w http.ResponseWriter, r *http.Request) {
 
 	format := r.URL.Query().Get("format")
 	if format == "json" {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON+"; charset=utf-8")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"isSuccess": true,
 			"topic":     topic,

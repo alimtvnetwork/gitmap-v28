@@ -25,7 +25,7 @@ func RunDaemon(port int, expectedToken string) error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		_ = json.NewEncoder(w).Encode(DaemonStatusResp{
 			Status:    "online",
 			Version:   constants.Version,
@@ -49,7 +49,7 @@ func RunDaemon(port int, expectedToken string) error {
 }
 
 func handleDaemonExec(w http.ResponseWriter, r *http.Request, expectedToken string) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 

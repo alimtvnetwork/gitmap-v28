@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // GitHubRelease represents the response from creating a GitHub release.
@@ -71,5 +72,5 @@ func CreateGitHubRelease(
 func setGitHubHeaders(req *http.Request, token string) {
 	req.Header.Set("Authorization", "token "+token)
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(constants.HeaderContentType, constants.MediaTypeJSON)
 }

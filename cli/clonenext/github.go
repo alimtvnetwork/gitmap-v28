@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
@@ -125,7 +126,7 @@ func postCreateRepo(params RepoCreateParams) error {
 
 	req.Header.Set("Authorization", "token "+params.Token)
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

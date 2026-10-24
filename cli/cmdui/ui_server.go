@@ -12,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexclude"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -86,7 +87,7 @@ func mountAPIRoutes(mux *http.ServeMux) {
 }
 
 func handleAPIEditorRead(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 		return
@@ -110,7 +111,7 @@ func handleAPIEditorRead(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPIEditorSave(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 		return
@@ -133,7 +134,7 @@ func handleAPIEditorSave(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPICommitinExec(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	var opts CommitinOptions
 	_ = json.NewDecoder(r.Body).Decode(&opts)
 
@@ -189,7 +190,7 @@ type ToggleScanReposResponse struct {
 }
 
 func handleAPIScanRepos(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodGet {
 		http.Error(w, "GET required", http.StatusMethodNotAllowed)
 		return
@@ -254,7 +255,7 @@ func handleAPIScanEnable(w http.ResponseWriter, r *http.Request) {
 }
 
 func processScanToggleAPI(w http.ResponseWriter, r *http.Request, isDisable bool) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 		return

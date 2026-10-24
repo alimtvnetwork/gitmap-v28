@@ -179,7 +179,7 @@ func spaHandler(distDir string) http.Handler {
 
 		if err != nil || info.IsDir() {
 			// Fallback to SPA index.
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set(constants.HeaderContentType, "text/html; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-cache")
 			http.ServeFile(w, r, indexPath)
 
@@ -188,7 +188,7 @@ func spaHandler(distDir string) http.Handler {
 
 		// Explicit HTML content type for .html assets (Windows fix).
 		if strings.HasSuffix(r.URL.Path, ".html") {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set(constants.HeaderContentType, "text/html; charset=utf-8")
 		}
 
 		fs.ServeHTTP(w, r)

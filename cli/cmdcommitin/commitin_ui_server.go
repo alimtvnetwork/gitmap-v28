@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net"
 	"net/http"
 	"os"
@@ -167,7 +168,7 @@ func handleCommitPullUISave(w http.ResponseWriter, r *http.Request) {
 	}
 	data, _ := json.MarshalIndent(body, "", "  ")
 	_ = os.WriteFile("commit-pull-config.json", data, 0o644)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 }
 
@@ -179,7 +180,7 @@ func handleCommitPullUITemplates(w http.ResponseWriter, _ *http.Request) {
 	}
 	defer db.Close()
 	items, _ := db.ListTemplateItems("seo")
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(items)
 }
 

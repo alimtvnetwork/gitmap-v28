@@ -15,6 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -186,7 +187,7 @@ func buildMIMEMessage(from, to, subject, htmlBody string) []byte {
 	sb.WriteString("To: " + to + "\r\n")
 	sb.WriteString("Subject: " + subject + "\r\n")
 	sb.WriteString("MIME-Version: 1.0\r\n")
-	sb.WriteString("Content-Type: text/html; charset=UTF-8\r\n")
+	sb.WriteString(constants.HeaderContentType + ": text/html; charset=UTF-8\r\n")
 	sb.WriteString("\r\n")
 	sb.WriteString(htmlBody)
 

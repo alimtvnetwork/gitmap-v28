@@ -275,7 +275,7 @@ func handleSUGUIStatus(w http.ResponseWriter, _ *http.Request) {
 		IntervalSeconds: cfg.IntervalSec,
 		Targets:         evals,
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
@@ -287,7 +287,7 @@ func handleSUGUIAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	_, isValid := ValidateSUGTarget(target)
 	if !isValid {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"error": fmt.Sprintf("Target %q is not a valid directory, repository name, or Git URL", target),
@@ -297,7 +297,7 @@ func handleSUGUIAdd(w http.ResponseWriter, r *http.Request) {
 	cfg := loadSUGConfig()
 	appendNewSUGTargets(&cfg, []string{target})
 	_ = saveSUGConfig(cfg)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
@@ -308,13 +308,13 @@ func handleSUGUIRemove(w http.ResponseWriter, r *http.Request) {
 		cfg.ProjectTargets = filterKeptSUGProjects(cfg.ProjectTargets, []string{target})
 		_ = saveSUGConfig(cfg)
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 func handleSUGUIRunningProjects(w http.ResponseWriter, _ *http.Request) {
 	_ = setSUGRunningProjects()
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
@@ -323,7 +323,7 @@ func handleSUGUIEvaluateOnce(w http.ResponseWriter, _ *http.Request) {
 	for _, p := range cfg.ProjectTargets {
 		_ = checkSingleProjectPipelineGreen(p)
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"golang.org/x/crypto/ssh"
@@ -40,7 +41,7 @@ func tryRestFleetUpdate(target FleetTarget, opts FleetUpdateOptions) (string, bo
 		return "", false
 	}
 	client := http.Client{Timeout: 3000 * time.Millisecond}
-	resp, reqErr := client.Post(url, "application/json", strings.NewReader(string(b)))
+	resp, reqErr := client.Post(url, constants.MediaTypeJSON, strings.NewReader(string(b)))
 	if reqErr != nil {
 		return "", false
 	}

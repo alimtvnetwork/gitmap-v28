@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -69,7 +70,7 @@ func handleAgyUIPromptResend(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(res)
 }
 
@@ -128,7 +129,7 @@ func handleAgyUIPromptTree(w http.ResponseWriter, _ *http.Request) {
 		treeList = append(treeList, *item)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(treeList)
 }
 
@@ -147,7 +148,7 @@ func handleAgyUIPromptBackup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf(`{"error":%q}`, err.Error()), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"batchId": summary.BatchId,
@@ -179,7 +180,7 @@ func handleAgyUIPromptRestore(w http.ResponseWriter, r *http.Request) {
 	restoredCount := restoreItemsToWorkspaces(summary.Items)
 	_ = db.MarkBatchRestored(summary.BatchId, true, restoredCount)
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success":  true,
 		"restored": restoredCount,
@@ -199,7 +200,7 @@ func handleAgyUIPromptReset(w http.ResponseWriter, r *http.Request) {
 	if activeText := resolveActiveTextPath("."); activeText != "" {
 		_ = os.Remove(activeText)
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 	})

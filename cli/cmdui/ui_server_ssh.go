@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
@@ -39,7 +40,7 @@ func RegisterAPISSHRoutes(mux *http.ServeMux) {
 }
 
 func handleAPISSHNodes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.URL.Query().Get("action") == "test" || r.URL.Query().Get("action") == "ping" {
 		handleAPISSHTest(w, r)
 		return
@@ -95,7 +96,7 @@ func extractAliasFromRequestBody(r *http.Request) string {
 }
 
 func handleAPISSHTest(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
 	alias := strings.TrimSpace(r.URL.Query().Get("alias"))
 	if alias == "" {
@@ -183,7 +184,7 @@ func executeNodePingCheck(alias string) SSHPingResult {
 }
 
 func handleAPISSHExport(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	envelope, err := cmdssh.BuildSSHNodesExportEnvelope()
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": err.Error()})
@@ -216,7 +217,7 @@ func parseConnectionsFromRaw(raw []byte) ([]db.SSHConnection, error) {
 }
 
 func handleAPISSHImport(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 		return
@@ -242,7 +243,7 @@ func handleAPISSHImport(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPISSHDeployKeys(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST required", http.StatusMethodNotAllowed)
 		return

@@ -2,6 +2,7 @@ package cmddb
 
 import (
 	"encoding/json"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net/http"
 	"reflect"
 	"time"
@@ -38,7 +39,7 @@ func writeRestEnvelope(w http.ResponseWriter, code int, results any, attributes 
 		Errors:     errPayload,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	w.WriteHeader(status.Code)
 	_ = json.NewEncoder(w).Encode(envelope)
 }

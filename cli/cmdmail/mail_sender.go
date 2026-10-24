@@ -3,6 +3,7 @@ package cmdmail
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"net"
 	"net/smtp"
 	"strings"
@@ -129,9 +130,9 @@ func BuildMIMEMessage(opts MailSendOptions) []byte {
 	writeHeader(&sb, "Date", time.Now().UTC().Format(time.RFC1123Z))
 	writeHeader(&sb, "MIME-Version", "1.0")
 	if opts.IsHTML {
-		writeHeader(&sb, "Content-Type", "text/html; charset=UTF-8")
+		writeHeader(&sb, constants.HeaderContentType, "text/html; charset=UTF-8")
 	} else {
-		writeHeader(&sb, "Content-Type", "text/plain; charset=UTF-8")
+		writeHeader(&sb, constants.HeaderContentType, "text/plain; charset=UTF-8")
 	}
 	sb.WriteString("\r\n")
 	sb.WriteString(opts.Body)

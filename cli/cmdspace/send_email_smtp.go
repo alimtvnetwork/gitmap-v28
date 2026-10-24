@@ -15,6 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -291,7 +292,7 @@ func buildSMTPMessage(from string, msg EmailMessage) string {
 	}
 	sb.WriteString("Subject: " + msg.Subject + "\r\n")
 	sb.WriteString("MIME-Version: 1.0\r\n")
-	sb.WriteString("Content-Type: " + contentType + "\r\n")
+	sb.WriteString(constants.HeaderContentType + ": " + contentType + "\r\n")
 	sb.WriteString("\r\n")
 	sb.WriteString(msg.Body)
 

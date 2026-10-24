@@ -48,7 +48,7 @@ func executePingProbe(p *SupabaseProjectRecord) error {
 	}
 
 	req.Header.Set("apikey", apiKey)
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", constants.AuthBearerPrefix+apiKey)
 
 	start := time.Now()
 	resp, reqErr := client.Do(req)

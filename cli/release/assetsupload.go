@@ -32,7 +32,7 @@ func UploadAsset(owner, repo string, releaseID int, filePath, token string) erro
 
 	req := newGitHubRequest(http.MethodPost, u, file, info.Size())
 	req.Header.Set("Authorization", "token "+token)
-	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set(constants.HeaderContentType, "application/octet-stream")
 
 	resp, err := doGitHubRequest(req)
 	if err != nil {

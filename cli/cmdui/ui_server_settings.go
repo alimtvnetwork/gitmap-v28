@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
 
@@ -159,7 +160,7 @@ func mergeSettings(current, req SettingsData) SettingsData {
 }
 
 func handleAPISettings(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
 	if r.Method == http.MethodGet {
 		_ = json.NewEncoder(w).Encode(loadSettings())

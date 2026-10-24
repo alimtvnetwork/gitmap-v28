@@ -214,7 +214,7 @@ func writeTermJSONError(w http.ResponseWriter, status int, msg string) {
 		Error:    msg,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(resp)
 }
@@ -227,6 +227,6 @@ func termAutocompleteHandler(httpWriter http.ResponseWriter, httpRequest *http.R
 		completions = completion.AllCommands()
 	}
 
-	httpWriter.Header().Set("Content-Type", "application/json")
+	httpWriter.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 	_ = json.NewEncoder(httpWriter).Encode(completions)
 }

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
@@ -103,7 +104,7 @@ func probeGitHubEndpoint(client *http.Client, url, token string) (bool, string) 
 	}
 
 	if token != "" {
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Authorization", constants.AuthBearerPrefix+token)
 	}
 
 	resp, err := client.Do(req)
