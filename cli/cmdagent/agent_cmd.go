@@ -1,6 +1,7 @@
 package cmdagent
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -99,7 +100,7 @@ func rewriteSubtaskJSONArgs(args []string) []string {
 
 func tryRewriteJSONFlag(args []string, i int) ([]string, bool, bool) {
 	arg := args[i]
-	if (arg == "--json" || arg == "-j") && i+1 < len(args) && IsJSONPayloadToken(args[i+1]) {
+	if slices.Contains([]string{"--json", "-j"}, arg) && i+1 < len(args) && IsJSONPayloadToken(args[i+1]) {
 		return []string{"--data", args[i+1], "--json"}, true, true
 	}
 

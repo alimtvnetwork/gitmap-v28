@@ -3,6 +3,7 @@ package cmdagent
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -79,7 +80,7 @@ func extractFlagValueJSON(arg string) (string, bool) {
 }
 
 func checkNextArgJSON(args []string, i int, arg string) (string, bool) {
-	isMatch := arg == "--json" || arg == "-j" || arg == "--data" || arg == "-d" || arg == "--input"
+	isMatch := slices.Contains([]string{"--json", "-j", "--data", "-d", "--input"}, arg)
 	hasNext := i+1 < len(args) && IsJSONPayloadToken(args[i+1])
 	if isMatch && hasNext {
 		return args[i+1], true
