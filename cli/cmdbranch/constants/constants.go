@@ -40,17 +40,17 @@ const (
 
 // Help menu layout strings, section titles, and tips.
 const (
-	HelpTitleBranch         = "Branch Resolution & Management (gitmap branch)"
-	HelpUsageDefault        = "gitmap branch default [flags]"
-	HelpUsageDefAlias       = "gitmap b def"
-	HelpUsageLatestBranch   = "gitmap latest-branch"
-	HelpSectionOperations   = "Branch Operations"
-	HelpEntryDefault        = "default (def)"
-	HelpDescDefault         = "Resolve repository's default branch using symbolic refs"
-	HelpEntryLatest         = "latest-branch (lb)"
-	HelpDescLatest          = "Inspect the newest branch with recent commit activity"
-	HelpTipResolveDefault   = "Quickly resolve default branch (main/master) for any cloned repo."
-	HelpTipOfflineFallback  = "Works offline and falls back gracefully to 'main' when no remotes are configured."
+	HelpTitleBranch        = "Branch Resolution & Management (gitmap branch)"
+	HelpUsageDefault       = "gitmap branch default [flags]"
+	HelpUsageDefAlias      = "gitmap b def"
+	HelpUsageLatestBranch  = "gitmap latest-branch"
+	HelpSectionOperations  = "Branch Operations"
+	HelpEntryDefault       = "default (def)"
+	HelpDescDefault        = "Resolve repository's default branch using symbolic refs"
+	HelpEntryLatest        = "latest-branch (lb)"
+	HelpDescLatest         = "Inspect the newest branch with recent commit activity"
+	HelpTipResolveDefault  = "Quickly resolve default branch (main/master) for any cloned repo."
+	HelpTipOfflineFallback = "Works offline and falls back gracefully to 'main' when no remotes are configured."
 )
 
 // Error codes, error messages, and logging format strings.

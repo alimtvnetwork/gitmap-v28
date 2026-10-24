@@ -153,9 +153,3 @@ func newRevertManyError(err error, id int64, kind string, isForce bool) *apperro
 	)
 }
 
-// revertManyOrExit maintains compatibility for external callers.
-func revertManyOrExit(rows []model.TransactionRecord, isForce bool) {
-	if err := revertMany(rows, isForce); err != nil {
-		cliexit.HandleError(err, int(enums.ExitCodeGeneralError))
-	}
-}

@@ -11,18 +11,18 @@ const (
 
 // Flag literals and aliases for cmdundo.
 const (
-	FlagListLong      = "--list"
-	FlagListShort1    = "-list"
-	FlagListShort2    = "-l"
-	FlagDryRunLong    = "--dry-run"
+	FlagListLong       = "--list"
+	FlagListShort1     = "-list"
+	FlagListShort2     = "-l"
+	FlagDryRunLong     = "--dry-run"
 	FlagDryRunShort1   = "-dry-run"
 	FlagDryRunShort2   = "-DryRun"
-	FlagSnapshotLong  = "--snapshot"
+	FlagSnapshotLong   = "--snapshot"
 	FlagSnapshotShort1 = "-snapshot"
 	FlagSnapshotShort2 = "-s"
-	FlagHelpLong      = "--help"
-	FlagHelpShort     = "-h"
-	FlagHelpWord      = "help"
+	FlagHelpLong       = "--help"
+	FlagHelpShort      = "-h"
+	FlagHelpWord       = "help"
 )
 
 // Directory paths, subtrees, and markers.

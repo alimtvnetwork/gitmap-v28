@@ -75,4 +75,3 @@ func resolveConfigFilePath(specifiedPath, defaultFilename string) string {
 
 	return cleanPath
 }
-

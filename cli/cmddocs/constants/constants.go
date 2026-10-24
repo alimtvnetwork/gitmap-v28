@@ -75,7 +75,7 @@ const (
 // Error codes for cmddocs execution failures.
 const (
 	ErrCodeDocsLaunchFailed = "EDOCS01"
-	ErrCodeDocsInvalidArgs   = "EDOCS02"
+	ErrCodeDocsInvalidArgs  = "EDOCS02"
 	ErrCodeDocsServerFailed = "EDOCS03"
 )
 

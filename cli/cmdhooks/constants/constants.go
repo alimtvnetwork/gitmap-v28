@@ -124,11 +124,11 @@ const (
 
 // Informational and formatted log messages.
 const (
-	MsgDryRunNotice       = "dry-run: no hooks were installed. re-run with --yes to install."
-	MsgNoReposFoundFmt    = "hooks install: no git repos found in %s\n"
-	MsgPlanHeaderFmt      = "hooks install plan: %d repos (%d would install, %d already guarded, %d skipped)\n"
-	MsgPlanRowFmt         = "  %-9s %-32s %s\n"
-	MsgInstallSummaryFmt  = "hooks install: installed commit-msg guard in %d/%d repos (%d already had it, %d skipped).\n"
+	MsgDryRunNotice      = "dry-run: no hooks were installed. re-run with --yes to install."
+	MsgNoReposFoundFmt   = "hooks install: no git repos found in %s\n"
+	MsgPlanHeaderFmt     = "hooks install plan: %d repos (%d would install, %d already guarded, %d skipped)\n"
+	MsgPlanRowFmt        = "  %-9s %-32s %s\n"
+	MsgInstallSummaryFmt = "hooks install: installed commit-msg guard in %d/%d repos (%d already had it, %d skipped).\n"
 )
 
 // Error messages and wrapped error context prefixes.

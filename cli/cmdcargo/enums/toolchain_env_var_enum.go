@@ -10,14 +10,14 @@ type ToolchainEnvVarType string
 
 const (
 	ToolchainEnvLibclangPath ToolchainEnvVarType = "LIBCLANG_PATH"
-	ToolchainEnvPath          ToolchainEnvVarType = "PATH"
-	ToolchainEnvCargoHome     ToolchainEnvVarType = "CARGO_HOME"
-	ToolchainEnvRustupHome    ToolchainEnvVarType = "RUSTUP_HOME"
-	ToolchainEnvSystemRoot    ToolchainEnvVarType = "SYSTEMROOT"
-	ToolchainEnvComSpec       ToolchainEnvVarType = "COMSPEC"
-	ToolchainEnvTmp           ToolchainEnvVarType = "TMP"
-	ToolchainEnvTemp          ToolchainEnvVarType = "TEMP"
-	ToolchainEnvUserProfile   ToolchainEnvVarType = "USERPROFILE"
+	ToolchainEnvPath         ToolchainEnvVarType = "PATH"
+	ToolchainEnvCargoHome    ToolchainEnvVarType = "CARGO_HOME"
+	ToolchainEnvRustupHome   ToolchainEnvVarType = "RUSTUP_HOME"
+	ToolchainEnvSystemRoot   ToolchainEnvVarType = "SYSTEMROOT"
+	ToolchainEnvComSpec      ToolchainEnvVarType = "COMSPEC"
+	ToolchainEnvTmp          ToolchainEnvVarType = "TMP"
+	ToolchainEnvTemp         ToolchainEnvVarType = "TEMP"
+	ToolchainEnvUserProfile  ToolchainEnvVarType = "USERPROFILE"
 )
 
 // IsValid reports whether the environment variable name matches a known variant.

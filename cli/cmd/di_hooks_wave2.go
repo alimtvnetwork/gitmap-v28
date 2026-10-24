@@ -23,7 +23,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommittransfer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcompletion"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddashboard"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
@@ -98,6 +97,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvisibility"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdwatch"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func wireWave2Hooks() {

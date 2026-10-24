@@ -144,4 +144,3 @@ func reportAllExportSuccess(folder string) {
 	fmt.Printf("%s Successfully exported all configurations to %s\n",
 		constants.ColorGreen+"✓"+constants.ColorReset, folder)
 }
-

@@ -47,14 +47,14 @@ const (
 
 // Flag descriptions for help and flag parsing.
 const (
-	FlagDescDirty       = "Display only repositories with uncommitted, unstaged, or unpushed changes"
-	FlagDescFilterDirty = "Filter to only repositories with uncommitted working changes"
-	FlagDescFilterAhead = "Filter to repositories with commits ahead of remote tracking"
+	FlagDescDirty        = "Display only repositories with uncommitted, unstaged, or unpushed changes"
+	FlagDescFilterDirty  = "Filter to only repositories with uncommitted working changes"
+	FlagDescFilterAhead  = "Filter to repositories with commits ahead of remote tracking"
 	FlagDescFilterBehind = "Filter to repositories with remote commits waiting to pull"
-	FlagDescJSON        = "Output status records in structured JSON array"
-	FlagDescTable       = "Render rich ANSI status table with colored columns"
-	FlagDescCompact     = "Single-line per repository compact output"
-	FlagDescHelp        = "Show this status help menu"
+	FlagDescJSON         = "Output status records in structured JSON array"
+	FlagDescTable        = "Render rich ANSI status table with colored columns"
+	FlagDescCompact      = "Single-line per repository compact output"
+	FlagDescHelp         = "Show this status help menu"
 )
 
 // Table column header names for cmdstatus table presentation.
@@ -95,14 +95,14 @@ const (
 
 // Remediation UI strings for missing repositories.
 const (
-	RemediationHeader       = "  To resolve missing repositories:"
-	RemediationStep1        = "  1. Relocate to a new folder:"
-	RemediationStep1Cmd     = "     $ gitmap scan-folder update <slug> <new-path>"
-	RemediationStep2        = "  2. Untrack from database:"
-	RemediationStep2CmdFmt  = "     $ gitmap rm %s\n"
-	RemediationStep3        = "  3. Clear or reset tracking database:"
-	RemediationStep3Cmd     = "     $ gitmap db-reset  (or: $ gitmap storage reset-errors)"
-	MissingRepoBannerFmt    = "  ▲ %d missing repository(ies) detected:"
-	MissingRepoItemBullet   = "     • "
-	DirtySummaryTipFmt      = "  Tip: %d repository(ies) dirty. Run 'gitmap fix' or 'gitmap pull --fix' to remediate."
+	RemediationHeader      = "  To resolve missing repositories:"
+	RemediationStep1       = "  1. Relocate to a new folder:"
+	RemediationStep1Cmd    = "     $ gitmap scan-folder update <slug> <new-path>"
+	RemediationStep2       = "  2. Untrack from database:"
+	RemediationStep2CmdFmt = "     $ gitmap rm %s\n"
+	RemediationStep3       = "  3. Clear or reset tracking database:"
+	RemediationStep3Cmd    = "     $ gitmap db-reset  (or: $ gitmap storage reset-errors)"
+	MissingRepoBannerFmt   = "  ▲ %d missing repository(ies) detected:"
+	MissingRepoItemBullet  = "     • "
+	DirtySummaryTipFmt     = "  Tip: %d repository(ies) dirty. Run 'gitmap fix' or 'gitmap pull --fix' to remediate."
 )

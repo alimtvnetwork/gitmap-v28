@@ -385,4 +385,3 @@ func RunCommonLFSInstall(dry bool) error {
 
 	return nil
 }
-

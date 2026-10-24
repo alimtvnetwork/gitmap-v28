@@ -61,14 +61,14 @@ const (
 
 // Platform installation suggestions.
 const (
-	WingetInstallRust      = "    winget install Rustlang.Rustup\n    (or: choco install rust)\n\n"
-	ChocoInstallRust       = "choco install rust"
-	BrewInstallRust        = "    brew install rust\n\n"
-	AptInstallCargo        = "    sudo apt install -y cargo\n\n"
-	SuggestOfficialRustup  = "    https://rustup.rs/\n    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\n\n"
-	SuggestMissingHeader   = "✗ Cargo (Rust toolchain) is not installed or not found in PATH."
-	SuggestGitMapInstall   = "gitmap install cargo"
-	SuggestGitMapInCargo   = "gitmap in cargo"
+	WingetInstallRust        = "    winget install Rustlang.Rustup\n    (or: choco install rust)\n\n"
+	ChocoInstallRust         = "choco install rust"
+	BrewInstallRust          = "    brew install rust\n\n"
+	AptInstallCargo          = "    sudo apt install -y cargo\n\n"
+	SuggestOfficialRustup    = "    https://rustup.rs/\n    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\n\n"
+	SuggestMissingHeader     = "✗ Cargo (Rust toolchain) is not installed or not found in PATH."
+	SuggestGitMapInstall     = "gitmap install cargo"
+	SuggestGitMapInCargo     = "gitmap in cargo"
 	SuggestGitMapInstallRust = "gitmap install rust"
 )
 
@@ -84,6 +84,6 @@ const (
 
 // Error codes and messages.
 const (
-	ErrCodeMissingCargo   = "E7100"
-	MissingCargoErrorMsg  = "cargo is not installed or not in PATH. Run 'gitmap install cargo' to install it."
+	ErrCodeMissingCargo  = "E7100"
+	MissingCargoErrorMsg = "cargo is not installed or not in PATH. Run 'gitmap install cargo' to install it."
 )

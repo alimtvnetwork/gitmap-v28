@@ -16,30 +16,30 @@ const (
 
 // Command flag identifiers and arguments for cmdlogin.
 const (
-	FlagHelp         = "help"
-	FlagHelpArg      = "--help"
-	FlagHelpShortArg = "-h"
-	FlagStatus       = "status"
-	FlagStatusArg    = "--status"
-	FlagWeb          = "web"
-	FlagWebArg       = "--web"
-	FlagBrowser      = "browser"
-	FlagBrowserArg   = "--browser"
-	FlagNoVerify     = "no-verify"
-	FlagNoVerifyArg  = "--no-verify"
-	FlagToken        = "token"
-	FlagTokenArg     = "--token"
-	FlagTokenPrefix  = "--token="
-	FlagYes          = "yes"
-	FlagYesArg       = "--yes"
-	FlagYesShortArg  = "-y"
-	FlagForce        = "force"
-	FlagForceArg     = "--force"
+	FlagHelp          = "help"
+	FlagHelpArg       = "--help"
+	FlagHelpShortArg  = "-h"
+	FlagStatus        = "status"
+	FlagStatusArg     = "--status"
+	FlagWeb           = "web"
+	FlagWebArg        = "--web"
+	FlagBrowser       = "browser"
+	FlagBrowserArg    = "--browser"
+	FlagNoVerify      = "no-verify"
+	FlagNoVerifyArg   = "--no-verify"
+	FlagToken         = "token"
+	FlagTokenArg      = "--token"
+	FlagTokenPrefix   = "--token="
+	FlagYes           = "yes"
+	FlagYesArg        = "--yes"
+	FlagYesShortArg   = "-y"
+	FlagForce         = "force"
+	FlagForceArg      = "--force"
 	FlagForceShortArg = "-f"
-	FlagDir          = "dir"
-	FlagDirArg       = "--dir"
-	FlagDirShortArg  = "-d"
-	FlagDirPrefix    = "--dir="
+	FlagDir           = "dir"
+	FlagDirArg        = "--dir"
+	FlagDirShortArg   = "-d"
+	FlagDirPrefix     = "--dir="
 )
 
 // Git configuration keys and credential commands.
@@ -117,12 +117,12 @@ const (
 
 // GitProfile defaults.
 const (
-	DefaultProfileName     = "default"
-	DefaultProfileType     = "user"
-	ProfileProviderGitHub  = "github"
-	ProfileAuthMethodSSH   = "ssh"
-	TokenMaskFull          = "********"
-	TokenScopeRepo         = "repo"
+	DefaultProfileName    = "default"
+	DefaultProfileType    = "user"
+	ProfileProviderGitHub = "github"
+	ProfileAuthMethodSSH  = "ssh"
+	TokenMaskFull         = "********"
+	TokenScopeRepo        = "repo"
 )
 
 // UI messages, labels, and dividers.

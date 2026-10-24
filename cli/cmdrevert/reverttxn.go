@@ -226,13 +226,6 @@ func applyRevert(db *store.DB, id int64, rec model.TransactionRecord, isForce bo
 	return nil
 }
 
-// applyRevertOrExit maintains compatibility for external callers.
-func applyRevertOrExit(db *store.DB, id int64, rec model.TransactionRecord, isForce bool) {
-	if err := applyRevert(db, id, rec, isForce); err != nil {
-		cliexit.HandleError(err, int(enums.ExitCodeGeneralError))
-	}
-}
-
 // hasUserConfirmedRevert prompts the user; returns true on affirmative response.
 func hasUserConfirmedRevert(r model.TransactionRecord, fileCount int) bool {
 	fmt.Printf(constants.MsgTxnConfirmRevert, r.ID, r.Kind, fileCount)
@@ -271,16 +264,6 @@ func runPruneTxn() error {
 	fmt.Printf(constants.MsgTxnPruned, len(dropped))
 
 	return nil
-}
-
-// mustOpenForTxn opens the gitmap database or exits with general error.
-func mustOpenForTxn() *store.DB {
-	db, err := openDB()
-	if err != nil {
-		cliexit.HandleError(err, int(enums.ExitCodeGeneralError))
-	}
-
-	return db
 }
 
 // parseTxnID parses a positive int64 transaction id or reports usage error.

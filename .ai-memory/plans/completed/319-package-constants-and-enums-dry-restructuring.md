@@ -11,7 +11,7 @@
 ## 1. User Request (Verbatim)
 
 ```text
-@[01-prompts/15-cg-execute/06-constants-and-enums.md] first make a plan for each 4 packages with a pkg/enums/<enum>, pkg/constants/constants.go and other go files to organize constants to make the code DRY and next when I share @[d:\work\gitmap\01-prompts\15-cg-execute\06-constants-and-enums.md] 
+@[01-prompts/15-cg-execute/06-constants-and-enums.md] first make a plan for each 4 packages with a pkg/enums/<enum>, pkg/constants/constants.go and other go files to organize constants to make the code DRY and next when I share @[01-prompts/15-cg-execute/06-constants-and-enums.md] 
 
 You should apply on the 5 packages, clear???
 ```

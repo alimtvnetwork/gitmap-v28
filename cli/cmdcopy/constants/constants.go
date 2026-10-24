@@ -25,12 +25,12 @@ const (
 
 // Directory paths, filenames, and default file permissions.
 const (
-	DirGitmap                 = ".gitmap"
-	DirMemory                 = "memory"
-	FileClipboard             = "clipboard.txt"
-	DefaultFilePerm           = os.FileMode(0644)
-	DefaultDirPerm            = os.FileMode(0755)
-	DotDirSentinel            = "."
+	DirGitmap       = ".gitmap"
+	DirMemory       = "memory"
+	FileClipboard   = "clipboard.txt"
+	DefaultFilePerm = os.FileMode(0644)
+	DefaultDirPerm  = os.FileMode(0755)
+	DotDirSentinel  = "."
 )
 
 // Git CLI executable and subcommands.
@@ -71,17 +71,17 @@ const (
 
 // Error codes, static messages, and diagnostic error format strings.
 const (
-	ErrCodeCopyEmpty            = "COPY_EMPTY"
-	ErrCodeReadFileFailed       = "READ_FILE_FAILED"
-	ErrCodeReadStdinFailed      = "READ_STDIN_FAILED"
-	ErrCodeWriteMemoryFailed    = "WRITE_MEMORY_FAILED"
-	ErrMsgNothingToCopy         = "nothing to copy: text or file required"
-	ErrMsgEmptyTopLevel         = "empty top-level"
-	ErrFmtReadFile              = "read file %q for copy"
-	ErrFmtReadStdin             = "read stdin for copy"
-	ErrFmtWriteMemoryClipboard  = "write memory clipboard buffer"
-	ErrFmtCreateMemoryDir       = "create memory directory"
-	ErrFmtWritePastedContent    = "write pasted content to %q"
+	ErrCodeCopyEmpty           = "COPY_EMPTY"
+	ErrCodeReadFileFailed      = "READ_FILE_FAILED"
+	ErrCodeReadStdinFailed     = "READ_STDIN_FAILED"
+	ErrCodeWriteMemoryFailed   = "WRITE_MEMORY_FAILED"
+	ErrMsgNothingToCopy        = "nothing to copy: text or file required"
+	ErrMsgEmptyTopLevel        = "empty top-level"
+	ErrFmtReadFile             = "read file %q for copy"
+	ErrFmtReadStdin            = "read stdin for copy"
+	ErrFmtWriteMemoryClipboard = "write memory clipboard buffer"
+	ErrFmtCreateMemoryDir      = "create memory directory"
+	ErrFmtWritePastedContent   = "write pasted content to %q"
 )
 
 // Process exit codes for command termination.

@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -50,7 +51,11 @@ func TestResolveDirectPathTarget_CurrentRepo(t *testing.T) {
 	if len(records) != 1 {
 		t.Fatalf("expected 1 record for cwd direct path, got %d", len(records))
 	}
-	if !strings.EqualFold(records[0].RepoName, "gitmap") {
-		t.Fatalf("expected repo name gitmap, got %s", records[0].RepoName)
+	root := findGitRepoRoot(cwd)
+	if root == "" {
+		t.Fatalf("expected cwd to resolve to a git repo root")
+	}
+	if !strings.EqualFold(records[0].RepoName, filepath.Base(root)) {
+		t.Fatalf("expected repo name %s, got %s", filepath.Base(root), records[0].RepoName)
 	}
 }

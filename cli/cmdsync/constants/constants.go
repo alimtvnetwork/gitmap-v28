@@ -108,13 +108,13 @@ const (
 
 // Git CLI command names and arguments.
 const (
-	GitCmdPull     = "pull"
-	GitCmdStatus   = "status"
-	GitCmdAdd      = "add"
-	GitCmdCommit   = "commit"
-	GitCmdTag      = "tag"
-	GitCmdPush     = "push"
-	GitCmdCheckout = "checkout"
+	GitCmdPull      = "pull"
+	GitCmdStatus    = "status"
+	GitCmdAdd       = "add"
+	GitCmdCommit    = "commit"
+	GitCmdTag       = "tag"
+	GitCmdPush      = "push"
+	GitCmdCheckout  = "checkout"
 	GitRemoteOrigin = "origin"
 )
 
@@ -129,13 +129,13 @@ const (
 
 // UI and summary layout labels.
 const (
-	SummaryHeader    = "MULTI-REPOSITORY SYNCHRONIZATION SUMMARY"
-	SummaryColRepo   = "Repository"
-	SummaryColStatus = "Status"
-	SummaryColPreTag = "Pre-Tag"
+	SummaryHeader     = "MULTI-REPOSITORY SYNCHRONIZATION SUMMARY"
+	SummaryColRepo    = "Repository"
+	SummaryColStatus  = "Status"
+	SummaryColPreTag  = "Pre-Tag"
 	SummaryColPostTag = "Post-Tag"
-	SummaryColFiles  = "Files"
-	SummaryColAction = "Action"
-	MenuTitle        = "Repository Baseline Sync (gitmap sync)"
-	MenuSection      = "Configuration Sync Targets"
+	SummaryColFiles   = "Files"
+	SummaryColAction  = "Action"
+	MenuTitle         = "Repository Baseline Sync (gitmap sync)"
+	MenuSection       = "Configuration Sync Targets"
 )

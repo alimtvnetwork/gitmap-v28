@@ -33,6 +33,23 @@ Coordinator decisions: see 01-architecture-spec.md (ambiguity decisions 1–9)
 - Wave 2: Task-05 refactor waves from the audit groups, Task-06 prompt update (after the cargo_exe exemplar lands).
 - Wave 3: Task-07 gitmap release, Task-08 morning report.
 
+## Audit results (Worker audit, 2026-10-25 ~03:05 +08) — Task-04 DONE
+
+Corrections to the original order (verified, not assumed):
+- cli_cmd_cargo/cargo_exe.go does NOT exist. Real file: cli/cmdcargo/cargo_exec.go (4 `+` sites, 3 enum-derived).
+- cli/cmdpool/pool_cli_input.go does NOT exist (no cli/cmdpool package). Real file: cli/cmdpull/pull_cli_input.go, flag chain starts line 76 (13 comparisons, 12 constants, already constant-based; remaining step is set lookup). One suspect inside it: `"--" + pullconstants.FlagWorkerShort` (short flag with long prefix) — verify against flag registration before copying.
+- ApplyDefaultPragmas (cli/store/constants/constants.go:17) ALREADY returns *apperror.AppError. Remaining work there is context enrichment (driver, path) at the OpenSQLiteDB caller, not conversion. Also fix three call sites that discard the error outright (cli/cmdagy/agy_clean_cache_purge.go:22, agy_prompts_collector.go:100, agy_undo_cache.go:57) and delete the dbengine pragma duplicate (cli/dbengine/wrapper.go applySQLitePragmas, same 4 PRAGMAs as literals).
+
+Totals: 27 packages have their own enums/ (49 files); 48 packages still hold stray enums (incl. partially-done cmdclone, cmdcommit). 25 packages have own constants/. String `+` on enum values: 9 open sites (4 cmdcargo, 4 cmdrelease/release, 1 dbengine adjacent). `==` flag chains: 517 `arg ==` lines tree-wide, overwhelmingly literal. Regex: 166 eager regexp.MustCompile hits (package-level var), 18 regexp.Compile mostly legit dynamic (keep); lazy pattern to copy is cli/lazyregex (lazyregex.New, pattern from constants + lazy compile, e.g. cli/cmdcommit/commit_formatter.go). Wrapped returns: convention is cli/result containers + flat per-payload aliases (cli/store/repository_types.go: ScanRecordWrap etc.); OpenSQLiteDB is the 1 of 2 sqlite_config.go functions still two-valued; dozens of cli/store two-value functions remain; every done enum's Parse still returns plain error.
+Name collisions to never merge: ModeType (glyphs, termout, render PrettyModeType), DirectionType/PreferPolicyType (committransfer, movemerge), AlignmentType (termgeneric, termout).
+
+Wave 0 decisions (coordinator):
+- (a) DB vs Db vs Database: DB wins (Go initialism rule). Rename DbWrapper → DBWrapper, OpenDb → OpenDB, WrapDb → WrapDB, DbSQLite → DBSQLite. String values unchanged.
+- (b) cli/apperror ErrorType/SeverityType: LEAVE in place (error infra; moving it risks everything). Intentional exception, recorded.
+- (c) cli/pipelinedb/enums and cli/repodb/enums record structs: LEAVE (already there; moving them is churn). Mixed-but-accepted, recorded.
+- (d) FlagWorkerShort long-prefix suspect: exemplar worker verifies against registration before copying the pattern.
+- Wave order: Wave 1 store/dbengine core (largest blast radius, 75+ OpenSQLiteDB call sites — never parallelize with other waves) → Wave 2 done-package cleanups (cmdcargo, cmdpull, cmdrelease/release, then remaining done packages' Parse conversions) → Wave 3 remaining small packages → Wave 4 remaining large packages → Wave 5 shared cli/constants + lazyregex sweep. Wave 1 is HELD until the gitmap-ci worker finishes, to avoid colliding on CI-blocking files.
+
 ## Assumptions
 
 - The other session's releases (AGM 4.266.0, gitmap v6.608.0) are legitimate user-side work; this run builds on top of them.
