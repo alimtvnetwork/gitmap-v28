@@ -81,11 +81,7 @@ func collectDryRunPlan(message string, meta CommitMetadata, push, pullFirst bool
 	}
 	plan.Head = resolveShortHeadSha()
 	plan.Remote = resolvePushRemote(plan.Branch)
-	if plan.Remote != "" {
-		if url, err := execGitOutputCP("config", "--get", "remote."+plan.Remote+".url"); err == nil {
-			plan.RemoteURL = strings.TrimSpace(url)
-		}
-	}
+	plan.RemoteURL = resolveRemoteURL(plan.Remote)
 	plan.HasUpstream = hasRemoteTracking(plan.Branch)
 	if plan.HasUpstream {
 		plan.Unpushed = countUnpushedCommitsCP()
@@ -96,13 +92,25 @@ func collectDryRunPlan(message string, meta CommitMetadata, push, pullFirst bool
 	}
 	plan.Clean = len(plan.Changed) == 0
 	plan.WouldStage = plan.Changed
-	if strings.TrimSpace(meta.TaskSlug) != "" {
-		if claimed := scopedStageFiles(meta.TaskSlug); len(claimed) > 0 {
-			plan.Scoped = true
-			plan.Claimed = claimed
-			plan.WouldStage, plan.UnchangedClaims = scopeWouldStage(plan.Changed, claimed)
-		}
+	plan = applyTaskScope(plan, meta.TaskSlug)
+
+	return plan
+}
+
+// applyTaskScope narrows the would-stage list to a task's claimed files.
+// It is a flat early-return helper so collectDryRunPlan stays free of
+// nested conditionals (CI policy-check linters reject nested ifs).
+func applyTaskScope(plan dryRunPlan, taskSlug string) dryRunPlan {
+	if strings.TrimSpace(taskSlug) == "" {
+		return plan
 	}
+	claimed := scopedStageFiles(taskSlug)
+	if len(claimed) == 0 {
+		return plan
+	}
+	plan.Scoped = true
+	plan.Claimed = claimed
+	plan.WouldStage, plan.UnchangedClaims = scopeWouldStage(plan.Changed, claimed)
 
 	return plan
 }
@@ -144,18 +152,40 @@ func containsClaim(claimed []string, path string) bool {
 // resolvePushRemote names the remote a push would target: the branch's
 // configured remote, else origin when it exists, else empty.
 func resolvePushRemote(branch string) string {
-	if branch != "" && branch != "HEAD" {
-		if remote, err := execGitOutputCP("config", "--get", "branch."+branch+".remote"); err == nil {
-			if name := strings.TrimSpace(remote); name != "" {
-				return name
-			}
-		}
+	if name := branchRemote(branch); name != "" {
+		return name
 	}
 	if _, err := execGitOutputCP("config", "--get", "remote.origin.url"); err == nil {
 		return "origin"
 	}
 
 	return ""
+}
+
+// branchRemote returns the branch's configured remote, or empty.
+func branchRemote(branch string) string {
+	if branch == "" || branch == "HEAD" {
+		return ""
+	}
+	remote, err := execGitOutputCP("config", "--get", "branch."+branch+".remote")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(remote)
+}
+
+// resolveRemoteURL returns the remote's URL, or empty when unconfigured.
+func resolveRemoteURL(remote string) string {
+	if remote == "" {
+		return ""
+	}
+	url, err := execGitOutputCP("config", "--get", "remote."+remote+".url")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(url)
 }
 
 // renderDryRunPlan prints the full plan and states the no-mutation
@@ -179,11 +209,7 @@ func renderDryRunPlan(plan dryRunPlan) {
 	}
 	if plan.Clean {
 		printPaddedInfo("Working tree clean: nothing to stage or commit.")
-		if plan.Push && plan.HasUpstream && plan.Unpushed > 0 {
-			printPaddedInfo("Would push: %d unpushed commit(s) to %s (not pushed).", plan.Unpushed, plan.pushTarget())
-		} else if plan.Push {
-			printPaddedInfo("Would push: nothing - no unpushed commits.")
-		}
+		renderCleanPush(plan)
 	} else {
 		printPaddedInfo("Files that would be staged (%d):", len(plan.WouldStage))
 		for _, f := range plan.WouldStage {
@@ -192,12 +218,32 @@ func renderDryRunPlan(plan dryRunPlan) {
 		for _, c := range plan.UnchangedClaims {
 			printPaddedInfo("Claimed but unchanged (would not be staged): %s", c)
 		}
-		if plan.Push && plan.HasUpstream && plan.Unpushed > 0 {
-			printPaddedInfo("Plus %d already-unpushed commit(s) would also go to %s.", plan.Unpushed, plan.pushTarget())
-		}
+		renderDirtyPushNote(plan)
 	}
 	printPaddedInfo("Tag/release actions: none - the commit suite creates no tags or releases.")
 	printPaddedSuccess("Dry run complete: tree and index unchanged.")
+}
+
+// renderCleanPush prints what a clean-tree commit-push would push.
+// Flat helper so renderDryRunPlan keeps no nested conditionals.
+func renderCleanPush(plan dryRunPlan) {
+	if !plan.Push {
+		return
+	}
+	if plan.HasUpstream && plan.Unpushed > 0 {
+		printPaddedInfo("Would push: %d unpushed commit(s) to %s (not pushed).", plan.Unpushed, plan.pushTarget())
+
+		return
+	}
+	printPaddedInfo("Would push: nothing - no unpushed commits.")
+}
+
+// renderDirtyPushNote prints the already-unpushed line for a dirty tree.
+func renderDirtyPushNote(plan dryRunPlan) {
+	if !plan.Push || !plan.HasUpstream || plan.Unpushed <= 0 {
+		return
+	}
+	printPaddedInfo("Plus %d already-unpushed commit(s) would also go to %s.", plan.Unpushed, plan.pushTarget())
 }
 
 func (plan dryRunPlan) pushTarget() string {
