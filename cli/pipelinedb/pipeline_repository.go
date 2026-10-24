@@ -13,7 +13,7 @@ type PipelineRepository struct {
 }
 
 // NewPipelineRepository creates a new domain repository wrapping a DbWrapper.
-func NewPipelineRepository(db *dbengine.DbWrapper) *PipelineRepository {
+func NewPipelineRepository(db *dbengine.DBWrapper) *PipelineRepository {
 	return &PipelineRepository{
 		PipelineRunRecordDbRepo: NewPipelineRunRecordDbRepo(db),
 	}

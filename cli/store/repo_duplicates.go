@@ -106,7 +106,7 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 	hasGroupRepo := isTablePresent(db.conn, "GroupRepo")
 	hasVersionProbe := isTablePresent(db.conn, "VersionProbe")
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return nil, appErr
 	}

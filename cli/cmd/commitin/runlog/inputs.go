@@ -37,7 +37,7 @@ func InsertInputRepo(
 // both writes in a single transaction so a partial insert never
 // leaves orphaned rows.
 func InsertSourceCommit(db *sql.DB, inputRepoID int64, c SourceCommitRow) (int64, error) {
-	wrapper, appErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	wrapper, appErr := dbengine.WrapDB(db, dbengine.DBSQLite)
 	if appErr != nil {
 		return 0, apperror.WrapSimple(appErr, "runlog: wrap db")
 	}

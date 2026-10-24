@@ -41,7 +41,7 @@ func (db *DB) DeleteChromeProfile(name string) ([]string, error) {
 }
 
 func (db *DB) deleteChromeProfileTx(name string) error {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}

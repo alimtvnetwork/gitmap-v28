@@ -77,7 +77,7 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 		return folder, 0, err
 	}
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return folder, 0, appErr
 	}
@@ -89,7 +89,7 @@ func (db *DB) removeScanFolderRow(folder model.ScanFolder) (model.ScanFolder, in
 	return folder, count, nil
 }
 
-func runDetachAndDeleteTx(wrap *dbengine.DbWrapper, folderID int64) *apperror.AppError {
+func runDetachAndDeleteTx(wrap *dbengine.DBWrapper, folderID int64) *apperror.AppError {
 	ctx := context.Background()
 
 	return wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {

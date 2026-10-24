@@ -44,12 +44,12 @@ func ScanSearchCache(row dbengine.RowScanner) (*SearchCache, error) {
 
 // SearchCacheDbRepo provides typed database repository access for SearchCache.
 type SearchCacheDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *SearchCacheRepository
 }
 
 // NewSearchCacheDbRepo initializes a typed repository for SearchCache.
-func NewSearchCacheDbRepo(db *dbengine.DbWrapper) *SearchCacheDbRepo {
+func NewSearchCacheDbRepo(db *dbengine.DBWrapper) *SearchCacheDbRepo {
 	repo := dbengine.NewRepository[SearchCache, enums.SearchCacheFieldType](
 		db,
 		enums.SearchCacheTable,
@@ -63,7 +63,7 @@ func NewSearchCacheDbRepo(db *dbengine.DbWrapper) *SearchCacheDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *SearchCacheDbRepo) Db() *dbengine.DbWrapper {
+func (r *SearchCacheDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

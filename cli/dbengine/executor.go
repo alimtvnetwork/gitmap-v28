@@ -22,7 +22,7 @@ type SqlExecuter interface {
 type SqlExecutor = SqlExecuter
 
 var (
-	_ SqlExecutor = (*DbWrapper)(nil)
+	_ SqlExecutor = (*DBWrapper)(nil)
 	_ SqlExecutor = (*TxWrapper)(nil)
 )
 

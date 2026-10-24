@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func assertItemCount(t *testing.T, wrapper *DbWrapper, expected int) {
+func assertItemCount(t *testing.T, wrapper *DBWrapper, expected int) {
 	t.Helper()
 	row, err := wrapper.QueryRow(context.Background(), "SELECT COUNT(*) FROM TestItem WHERE ItemName = ?", "Delta")
 	if err != nil {
@@ -67,7 +67,7 @@ func testTxQueries(t *testing.T, tx *TxWrapper) *apperror.AppError {
 	return nil
 }
 
-func verifySQLiteWrapperPragmas(t *testing.T, wrapper *DbWrapper) {
+func verifySQLiteWrapperPragmas(t *testing.T, wrapper *DBWrapper) {
 	t.Helper()
 	row, err := wrapper.QueryRow(context.Background(), "PRAGMA busy_timeout;")
 	if err != nil {

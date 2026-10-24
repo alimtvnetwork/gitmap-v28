@@ -86,7 +86,7 @@ func TestWithTransaction_RollbackOnError(t *testing.T) {
 	assertItemCount(t, wrapper, 0)
 }
 
-func runTxPanic(wrapper *DbWrapper) {
+func runTxPanic(wrapper *DBWrapper) {
 	_ = wrapper.WithTransaction(context.Background(), func(tx *TxWrapper) *apperror.AppError {
 		insQ := "INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Delta', 'Tool', 1)"
 		_, _ = tx.Exec(context.Background(), insQ)
@@ -156,7 +156,7 @@ func TestWithImmediateTransaction_Rollback(t *testing.T) {
 
 func TestOpenDb_SQLiteConfigured(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "opendb_test.db")
-	wrapper, appErr := OpenDb(DbSQLite, dbPath)
+	wrapper, appErr := OpenDB(DBSQLite, dbPath)
 	if appErr != nil {
 		t.Fatalf("OpenDb failed: %v", appErr)
 	}

@@ -54,12 +54,12 @@ func ScanRepoFile(row dbengine.RowScanner) (*RepoFile, error) {
 
 // RepoFileDbRepo provides typed database repository access for RepoFile.
 type RepoFileDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *RepoFileRepository
 }
 
 // NewRepoFileDbRepo initializes a typed repository for RepoFile.
-func NewRepoFileDbRepo(db *dbengine.DbWrapper) *RepoFileDbRepo {
+func NewRepoFileDbRepo(db *dbengine.DBWrapper) *RepoFileDbRepo {
 	repo := dbengine.NewRepository[RepoFile, enums.RepoFileFieldType](
 		db,
 		enums.RepoFileTable,
@@ -73,7 +73,7 @@ func NewRepoFileDbRepo(db *dbengine.DbWrapper) *RepoFileDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *RepoFileDbRepo) Db() *dbengine.DbWrapper {
+func (r *RepoFileDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 
@@ -115,7 +115,7 @@ func resolveInsertId(id uint64) any {
 	return id
 }
 
-func checkFileUniqueInDb(ctx context.Context, db *dbengine.DbWrapper, relPath string) *apperror.AppError {
+func checkFileUniqueInDb(ctx context.Context, db *dbengine.DBWrapper, relPath string) *apperror.AppError {
 	if db == nil || db.Conn() == nil {
 		return nil
 	}

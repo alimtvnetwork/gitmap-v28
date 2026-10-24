@@ -19,9 +19,9 @@ func initSchemas(ctx context.Context, db *sql.DB) error {
 	return InitRootSchema(ctx, db)
 }
 
-func setupTestRepoWrapper(t *testing.T) (*dbengine.DbWrapper, func()) {
+func setupTestRepoWrapper(t *testing.T) (*dbengine.DBWrapper, func()) {
 	t.Helper()
-	wrapper, appErr := dbengine.OpenDb(dbengine.DbSQLite, ":memory:")
+	wrapper, appErr := dbengine.OpenDB(dbengine.DBSQLite, ":memory:")
 	if appErr != nil {
 		t.Fatalf("failed to open in-memory sqlite db: %v", appErr)
 	}

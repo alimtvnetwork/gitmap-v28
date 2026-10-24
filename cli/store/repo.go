@@ -36,7 +36,7 @@ var OnRepoAddedHook func(records []model.ScanRecord)
 
 // UpsertRepos inserts or updates all records by absolute_path.
 func (db *DB) UpsertRepos(records []model.ScanRecord) error {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}

@@ -94,7 +94,7 @@ func (db *DB) FindPendingTaskByID(id int64) (model.PendingTaskRecord, error) {
 
 // CompleteTask moves a pending task to the completed table in a transaction.
 func (db *DB) CompleteTask(taskID int64) error {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "failed to complete task (operation: complete)")
 	}

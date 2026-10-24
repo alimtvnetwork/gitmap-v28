@@ -14,7 +14,7 @@ type Variant = any
 type DbType string
 
 const (
-	DbSQLite     DbType = "sqlite"
+	DBSQLite     DbType = "sqlite"
 	DbPostgreSQL DbType = "postgres"
 	DbMySQL      DbType = "mysql"
 	DbMariaDB    DbType = "mariadb"
@@ -40,7 +40,7 @@ func (d DbType) Value() string {
 
 // dbTypeValidMap provides O(1) map validation for database types.
 var dbTypeValidMap = map[DbType]bool{
-	DbSQLite:     true,
+	DBSQLite:     true,
 	DbPostgreSQL: true,
 	DbMySQL:      true,
 	DbMariaDB:    true,
@@ -61,7 +61,7 @@ func (d DbType) IsEnum() bool {
 
 // IsSQLite checks whether this database type is SQLite.
 func (d DbType) IsSQLite() bool {
-	return d == DbSQLite
+	return d == DBSQLite
 }
 
 // IsPostgreSQL checks whether this database type is PostgreSQL.
@@ -243,7 +243,7 @@ func (r dbTypeRegistry) ToJSON() (string, *apperror.AppError) {
 
 // DbTypes provides scoped access to database type enums without repeating prefixes.
 var DbTypes = dbTypeRegistry{
-	SQLite:     DbSQLite,
+	SQLite:     DBSQLite,
 	PostgreSQL: DbPostgreSQL,
 	Postgres:   DbPostgreSQL,
 	MySQL:      DbMySQL,
@@ -257,7 +257,7 @@ var DbTypes = dbTypeRegistry{
 type DatabaseDialectType = DbType
 
 const (
-	DatabaseDialectSQLite     = DbSQLite
+	DatabaseDialectSQLite     = DBSQLite
 	DatabaseDialectPostgreSQL = DbPostgreSQL
 	DatabaseDialectMySQL      = DbMySQL
 	DatabaseDialectMariaDB    = DbMariaDB
@@ -265,39 +265,3 @@ const (
 	DatabaseDialectOracle     = DbOracle
 	DatabaseDialectMongoDB    = DbMongoDB
 )
-
-// DialectCompiler translates generic query definitions into database-specific SQL.
-type DialectCompiler interface {
-	Dialect() DatabaseDialectType
-	Placeholder(paramIndex int) string
-	QuoteIdentifier(name string) string
-	CompilePagination(limit, offset int) string
-	CompileSearch(table string, fields []string, limit int) string
-	CompileCreateView(name string, selectSql string) string
-	CompileDropView(name string) string
-	CompileFunctionCall(name string, argCount int) string
-	CompileCount(table string, field string) string
-	CompileDelete(table string, field string) string
-	CompileInspectColumns(tableOrView string) string
-	CompileInspectViewExists(viewName string) string
-}
-
-// ResolveCompiler returns the appropriate DialectCompiler for a dialect enum.
-func ResolveCompiler(dialect DatabaseDialectType) (DialectCompiler, *apperror.AppError) {
-	switch dialect {
-	case DatabaseDialectSQLite:
-		return &SQLiteCompiler{}, nil
-	case DatabaseDialectPostgreSQL:
-		return &PostgresCompiler{}, nil
-	case DatabaseDialectMySQL, DatabaseDialectMariaDB:
-		return &MySQLCompiler{dialect: dialect}, nil
-	case DatabaseDialectMSSQL:
-		return &MSSQLCompiler{}, nil
-	case DatabaseDialectOracle:
-		return &OracleCompiler{}, nil
-	case DatabaseDialectMongoDB:
-		return &MongoDBCompiler{}, nil
-	default:
-		return nil, apperror.NewValidationError(fmt.Sprintf("unsupported dialect: %s", dialect))
-	}
-}

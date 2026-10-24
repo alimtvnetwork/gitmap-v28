@@ -97,7 +97,7 @@ func configureAndInitRepoDB(ctx context.Context, db *sql.DB) (*sql.DB, error) {
 		return nil, closeAndWrapInitError(db, err)
 	}
 
-	if _, err := dbengine.WrapDb(db, dbengine.DbSQLite); err != nil {
+	if _, err := dbengine.WrapDB(db, dbengine.DBSQLite); err != nil {
 		return nil, closeAndWrapInitError(db, err)
 	}
 
@@ -110,13 +110,13 @@ func OpenRepoDbWrapper(
 	rootDbDir string,
 	absolutePath string,
 	repoId int64,
-) (*dbengine.DbWrapper, error) {
+) (*dbengine.DBWrapper, error) {
 	db, err := OpenRepoDB(ctx, rootDbDir, absolutePath, repoId)
 	if err != nil {
 		return nil, err
 	}
 
-	wrap, wrapErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	wrap, wrapErr := dbengine.WrapDB(db, dbengine.DBSQLite)
 	if wrapErr != nil {
 		return nil, wrapErr
 	}

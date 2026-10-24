@@ -12,7 +12,7 @@ import (
 
 func updateRepoInDB(db *store.DB, repoID int64, newPath, newName string) error {
 	ctx := context.Background()
-	wrapper, appErr := dbengine.WrapDb(db.Conn(), dbengine.DbSQLite)
+	wrapper, appErr := dbengine.WrapDB(db.Conn(), dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}
@@ -25,7 +25,7 @@ func updateRepoInDB(db *store.DB, repoID int64, newPath, newName string) error {
 	return nil
 }
 
-func runUpdateMoveTx(ctx context.Context, wrapper *dbengine.DbWrapper, repoID int64, newPath, newName string) *apperror.AppError {
+func runUpdateMoveTx(ctx context.Context, wrapper *dbengine.DBWrapper, repoID int64, newPath, newName string) *apperror.AppError {
 	return wrapper.WithImmediateTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
 		return executeMoveDBTx(ctx, tx, repoID, newPath, newName)
 	})

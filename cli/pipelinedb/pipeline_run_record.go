@@ -99,12 +99,12 @@ func ScanPipelineRunRecord(row dbengine.RowScanner) (*PipelineRunRecord, error) 
 
 // PipelineRunRecordDbRepo provides typed database repository access for PipelineRunRecord.
 type PipelineRunRecordDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *PipelineRunRecordRepository
 }
 
 // NewPipelineRunRecordDbRepo initializes a typed repository for PipelineRunRecord.
-func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo {
+func NewPipelineRunRecordDbRepo(db *dbengine.DBWrapper) *PipelineRunRecordDbRepo {
 	repo := dbengine.NewRepository[PipelineRunRecord, enums.PipelineRunRecordFieldType](
 		db,
 		enums.PipelineRunRecordTable,
@@ -118,12 +118,12 @@ func NewPipelineRunRecordDbRepo(db *dbengine.DbWrapper) *PipelineRunRecordDbRepo
 }
 
 // NewPipelineRunDbRepo is an alias constructor for PipelineRunRecordDbRepo.
-func NewPipelineRunDbRepo(db *dbengine.DbWrapper) *PipelineRunDbRepo {
+func NewPipelineRunDbRepo(db *dbengine.DBWrapper) *PipelineRunDbRepo {
 	return NewPipelineRunRecordDbRepo(db)
 }
 
 // Db returns the underlying DbWrapper.
-func (r *PipelineRunRecordDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineRunRecordDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

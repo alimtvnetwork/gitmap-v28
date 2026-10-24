@@ -246,7 +246,7 @@ func initChromeSQLiteTables(db *sql.DB) error {
 }
 
 func populateProfilesInSQLite(db *sql.DB, names []string) error {
-	wrapper, appErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	wrapper, appErr := dbengine.WrapDB(db, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}

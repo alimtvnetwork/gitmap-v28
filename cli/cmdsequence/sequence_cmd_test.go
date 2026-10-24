@@ -106,7 +106,7 @@ func TestExecuteSaveSequenceTx(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	wrapper, wrapErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	wrapper, wrapErr := dbengine.WrapDB(db, dbengine.DBSQLite)
 	if wrapErr != nil {
 		t.Fatalf("wrap db failed: %v", wrapErr)
 	}
@@ -150,7 +150,7 @@ func TestExecuteSaveSequenceTxErrorPropagation(t *testing.T) {
 	defer db.Close()
 
 	ctx := context.Background()
-	wrapper, wrapErr := dbengine.WrapDb(db, dbengine.DbSQLite)
+	wrapper, wrapErr := dbengine.WrapDB(db, dbengine.DBSQLite)
 	if wrapErr != nil {
 		t.Fatalf("wrap db failed: %v", wrapErr)
 	}

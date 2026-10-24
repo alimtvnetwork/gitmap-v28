@@ -139,7 +139,7 @@ func deleteTransactionRows(db *DB, ids []int64) error {
 		return nil
 	}
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "transaction prune delete")
 	}

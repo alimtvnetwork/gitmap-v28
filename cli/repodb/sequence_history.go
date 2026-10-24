@@ -38,12 +38,12 @@ func ScanSequenceHistory(row dbengine.RowScanner) (*SequenceHistory, error) {
 
 // SequenceHistoryDbRepo provides typed database repository access for SequenceHistory.
 type SequenceHistoryDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *SequenceHistoryRepository
 }
 
 // NewSequenceHistoryDbRepo initializes a typed repository for SequenceHistory.
-func NewSequenceHistoryDbRepo(db *dbengine.DbWrapper) *SequenceHistoryDbRepo {
+func NewSequenceHistoryDbRepo(db *dbengine.DBWrapper) *SequenceHistoryDbRepo {
 	repo := dbengine.NewRepository[SequenceHistory, enums.SequenceHistoryFieldType](
 		db,
 		enums.SequenceHistoryTable,
@@ -57,7 +57,7 @@ func NewSequenceHistoryDbRepo(db *dbengine.DbWrapper) *SequenceHistoryDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *SequenceHistoryDbRepo) Db() *dbengine.DbWrapper {
+func (r *SequenceHistoryDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

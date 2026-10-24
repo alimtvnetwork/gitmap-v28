@@ -65,12 +65,12 @@ func ScanPipelineErrorRecord(row dbengine.RowScanner) (*PipelineErrorRecord, err
 
 // PipelineErrorRecordDbRepo provides typed database repository access for PipelineErrorRecord.
 type PipelineErrorRecordDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *PipelineErrorRecordRepository
 }
 
 // NewPipelineErrorRecordDbRepo initializes a typed repository for PipelineErrorRecord.
-func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDbRepo {
+func NewPipelineErrorRecordDbRepo(db *dbengine.DBWrapper) *PipelineErrorRecordDbRepo {
 	repo := dbengine.NewRepository[PipelineErrorRecord, enums.PipelineErrorRecordFieldType](
 		db,
 		enums.PipelineErrorRecordTable,
@@ -84,12 +84,12 @@ func NewPipelineErrorRecordDbRepo(db *dbengine.DbWrapper) *PipelineErrorRecordDb
 }
 
 // NewPipelineErrorDbRepo is an alias constructor for PipelineErrorRecordDbRepo.
-func NewPipelineErrorDbRepo(db *dbengine.DbWrapper) *PipelineErrorDbRepo {
+func NewPipelineErrorDbRepo(db *dbengine.DBWrapper) *PipelineErrorDbRepo {
 	return NewPipelineErrorRecordDbRepo(db)
 }
 
 // Db returns the underlying DbWrapper.
-func (r *PipelineErrorRecordDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineErrorRecordDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

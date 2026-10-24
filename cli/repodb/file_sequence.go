@@ -44,12 +44,12 @@ func ScanFileSequence(row dbengine.RowScanner) (*FileSequence, error) {
 
 // FileSequenceDbRepo provides typed database repository access for FileSequence.
 type FileSequenceDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *FileSequenceRepository
 }
 
 // NewFileSequenceDbRepo initializes a typed repository for FileSequence.
-func NewFileSequenceDbRepo(db *dbengine.DbWrapper) *FileSequenceDbRepo {
+func NewFileSequenceDbRepo(db *dbengine.DBWrapper) *FileSequenceDbRepo {
 	repo := dbengine.NewRepository[FileSequence, enums.FileSequenceFieldType](
 		db,
 		enums.FileSequenceTable,
@@ -63,7 +63,7 @@ func NewFileSequenceDbRepo(db *dbengine.DbWrapper) *FileSequenceDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *FileSequenceDbRepo) Db() *dbengine.DbWrapper {
+func (r *FileSequenceDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

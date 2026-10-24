@@ -44,12 +44,12 @@ func ScanIndexedRepo(row dbengine.RowScanner) (*IndexedRepo, error) {
 
 // IndexedRepoDbRepo provides typed database repository access for IndexedRepo.
 type IndexedRepoDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *IndexedRepoRepository
 }
 
 // NewIndexedRepoDbRepo initializes a typed repository for IndexedRepo.
-func NewIndexedRepoDbRepo(db *dbengine.DbWrapper) *IndexedRepoDbRepo {
+func NewIndexedRepoDbRepo(db *dbengine.DBWrapper) *IndexedRepoDbRepo {
 	repo := dbengine.NewRepository[IndexedRepo, enums.IndexedRepoFieldType](
 		db,
 		enums.IndexedRepoTable,
@@ -63,7 +63,7 @@ func NewIndexedRepoDbRepo(db *dbengine.DbWrapper) *IndexedRepoDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *IndexedRepoDbRepo) Db() *dbengine.DbWrapper {
+func (r *IndexedRepoDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

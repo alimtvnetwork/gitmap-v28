@@ -56,12 +56,12 @@ func ScanRepoScanLog(row dbengine.RowScanner) (*RepoScanLog, error) {
 
 // RepoScanLogDbRepo provides typed database repository access for RepoScanLog.
 type RepoScanLogDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *RepoScanLogRepository
 }
 
 // NewRepoScanLogDbRepo initializes a typed repository for RepoScanLog.
-func NewRepoScanLogDbRepo(db *dbengine.DbWrapper) *RepoScanLogDbRepo {
+func NewRepoScanLogDbRepo(db *dbengine.DBWrapper) *RepoScanLogDbRepo {
 	repo := dbengine.NewRepository[RepoScanLog, enums.RepoScanLogFieldType](
 		db,
 		enums.RepoScanLogTable,
@@ -75,7 +75,7 @@ func NewRepoScanLogDbRepo(db *dbengine.DbWrapper) *RepoScanLogDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *RepoScanLogDbRepo) Db() *dbengine.DbWrapper {
+func (r *RepoScanLogDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

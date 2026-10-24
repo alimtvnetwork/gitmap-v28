@@ -48,7 +48,7 @@ func (db *DB) InsertMakeAllVisibilityRun(r model.MakeAllVisibilityRunRecord) Int
 // in input order so callers can later UPDATE by primary key without
 // re-querying.
 func (db *DB) InsertMakeAllVisibilityPendingResults(runID int64, rows []model.MakeAllVisibilityResultRecord) Int64SliceWrap {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return result.FailSlice[int64](apperror.WrapSimple(appErr, "insert MakeAllVisibilityResult failed (operation: SQLInsertMakeAllVisibilityResult)"))
 	}
@@ -117,7 +117,7 @@ func (db *DB) MarkMakeAllVisibilityResultsExcluded(ids []int64, finishedAt strin
 		return nil
 	}
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return apperror.WrapSimple(appErr, "exclude MakeAllVisibilityResult rows failed (operation: SQLUpdateMakeAllVisibilityResultExcluded)")
 	}

@@ -24,7 +24,7 @@ func (db *DB) UpsertRelease(r model.ReleaseRecord) error {
 }
 
 func (db *DB) runUpsertReleaseTx(r model.ReleaseRecord) error {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}

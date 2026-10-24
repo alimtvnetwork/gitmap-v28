@@ -62,12 +62,12 @@ func ScanPipelineDbStats(row dbengine.RowScanner) (*PipelineDbStats, error) {
 
 // PipelineDbStatsDbRepo provides typed database repository access for PipelineDbStats.
 type PipelineDbStatsDbRepo struct {
-	db   *dbengine.DbWrapper
+	db   *dbengine.DBWrapper
 	repo *PipelineDbStatsRepository
 }
 
 // NewPipelineDbStatsDbRepo initializes a typed repository for PipelineDbStats.
-func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) *PipelineDbStatsDbRepo {
+func NewPipelineDbStatsDbRepo(db *dbengine.DBWrapper) *PipelineDbStatsDbRepo {
 	repo := dbengine.NewRepository[PipelineDbStats, enums.PipelineDbStatsFieldType](
 		db,
 		enums.PipelineDbStatsTable,
@@ -81,7 +81,7 @@ func NewPipelineDbStatsDbRepo(db *dbengine.DbWrapper) *PipelineDbStatsDbRepo {
 }
 
 // Db returns the underlying DbWrapper.
-func (r *PipelineDbStatsDbRepo) Db() *dbengine.DbWrapper {
+func (r *PipelineDbStatsDbRepo) Db() *dbengine.DBWrapper {
 	return r.db
 }
 

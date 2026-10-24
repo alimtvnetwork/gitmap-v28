@@ -26,7 +26,7 @@ func (db *DB) ResetInstallers(slug string, isAll bool) error {
 		return appErr
 	}
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}
@@ -55,7 +55,7 @@ func validateResetInput(db *DB, slug string, isAll bool) *apperror.AppError {
 	return nil
 }
 
-func runResetInstallersTx(wrap *dbengine.DbWrapper, slug string, isAll bool) *apperror.AppError {
+func runResetInstallersTx(wrap *dbengine.DBWrapper, slug string, isAll bool) *apperror.AppError {
 	ctx := context.Background()
 
 	appErr := wrap.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {

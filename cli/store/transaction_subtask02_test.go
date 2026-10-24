@@ -161,7 +161,7 @@ func TestInsertSSHHost_TxWrapper(t *testing.T) {
 		t.Fatalf("RegisterSSHHostMigration failed: %v", err)
 	}
 
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		t.Fatalf("WrapDb failed: %v", appErr)
 	}

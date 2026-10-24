@@ -42,7 +42,7 @@ func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 
 	defer db.Close()
 
-	wrapper, appErr := dbengine.WrapDb(db.Conn(), dbengine.DbSQLite)
+	wrapper, appErr := dbengine.WrapDB(db.Conn(), dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}
@@ -50,7 +50,7 @@ func saveAliasCommand(ctx context.Context, ip string, alias string) error {
 	return runSaveAliasTx(ctx, wrapper, ip, alias)
 }
 
-func runSaveAliasTx(ctx context.Context, wrapper *dbengine.DbWrapper, ip, alias string) error {
+func runSaveAliasTx(ctx context.Context, wrapper *dbengine.DBWrapper, ip, alias string) error {
 	txErr := wrapper.WithTransaction(ctx, func(tx *dbengine.TxWrapper) *apperror.AppError {
 		return executeSaveAliasTx(ctx, tx, ip, alias)
 	})

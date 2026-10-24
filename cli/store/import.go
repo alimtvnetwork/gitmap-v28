@@ -12,7 +12,7 @@ import (
 
 // ImportAll restores a DatabaseExport into the database using upsert/insert-or-ignore semantics atomically.
 func (db *DB) ImportAll(data model.DatabaseExport) error {
-	wrap, appErr := dbengine.WrapDb(db.conn, dbengine.DbSQLite)
+	wrap, appErr := dbengine.WrapDB(db.conn, dbengine.DBSQLite)
 	if appErr != nil {
 		return appErr
 	}

@@ -23,7 +23,7 @@ func TestDbType_Methods(t *testing.T) {
 		t.Errorf("expected IsCompare('sqlite') to be true")
 	}
 
-	if !DbTypes.SQLite.IsCompare(DbSQLite) {
+	if !DbTypes.SQLite.IsCompare(DBSQLite) {
 		t.Errorf("expected IsCompare(DbSQLite) to be true")
 	}
 
@@ -32,7 +32,7 @@ func TestDbType_Methods(t *testing.T) {
 	}
 
 	// Test IsEnum and Is<Dialect> on registry (object based)
-	if !DbTypes.IsEnum(DbSQLite) {
+	if !DbTypes.IsEnum(DBSQLite) {
 		t.Errorf("expected DbTypes.IsEnum(DbSQLite) to be true")
 	}
 
@@ -44,7 +44,7 @@ func TestDbType_Methods(t *testing.T) {
 		t.Errorf("expected DbTypes.IsEnum('invalid_db') to be false")
 	}
 
-	if !DbTypes.IsSQLite(DbSQLite) {
+	if !DbTypes.IsSQLite(DBSQLite) {
 		t.Errorf("expected DbTypes.IsSQLite(DbSQLite) to be true")
 	}
 

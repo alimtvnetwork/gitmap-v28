@@ -71,7 +71,7 @@ func TestCompilerSyntaxes(t *testing.T) {
 	}
 }
 
-func setupInMemoryDb(t *testing.T) *DbWrapper {
+func setupInMemoryDb(t *testing.T) *DBWrapper {
 	conn, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatalf("failed to open in-memory sqlite: %v", err)
@@ -93,7 +93,7 @@ INSERT INTO TestItem (ItemName, Category, IsActive) VALUES ('Gamma', 'Service', 
 		t.Fatalf("failed creating test table: %v", execErr)
 	}
 
-	wrapper, appErr := WrapDb(conn, DatabaseDialectSQLite)
+	wrapper, appErr := WrapDB(conn, DatabaseDialectSQLite)
 	if appErr != nil {
 		t.Fatalf("WrapDb failed: %v", appErr)
 	}
