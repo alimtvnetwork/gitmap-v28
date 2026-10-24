@@ -38,7 +38,7 @@ func dispatchCommit(args []string) error {
 	}
 
 	if meta.IsDryRun {
-		return previewCommitChanges()
+		return previewCommit(cleanArgs, meta)
 	}
 
 	return executeCommit(cleanArgs, meta)
@@ -48,12 +48,6 @@ func parseCommitFlags(args []string) ([]string, bool, bool) {
 	clean, meta := ExtractCommitFlags(args)
 
 	return clean, meta.HasPush, meta.IsDryRun
-}
-
-func previewCommitChanges() error {
-	printPaddedInfo("Dry run: previewing changes to be committed...")
-
-	return ExecGitInheritCP("status", "--short")
 }
 
 func executeCommit(args []string, meta CommitMetadata) error {

@@ -53,6 +53,12 @@ func RunPullCommitPush(args []string) error {
 }
 
 func executePullCommitPush(commitMessage string, meta CommitMetadata) error {
+	// Dry-run must return before the pull: a preview must not move the
+	// tree, and a failing or unreachable remote must not fail a preview.
+	if meta.IsDryRun {
+		return previewCommitPush(commitMessage, meta, true)
+	}
+
 	fmt.Println()
 	printPaddedInfo("Pulling latest changes before commit...")
 
@@ -157,6 +163,13 @@ func RunCommitPushRefactor(args []string) error {
 func executeCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommitPush()
+	}
+
+	// Dry-run early return: the flag was parsed into meta.IsDryRun but
+	// never checked here, so --dry-run previously fell through to staging,
+	// committing, and pushing. Preview and return before any mutation.
+	if meta.IsDryRun {
+		return previewCommitPush(commitMessage, meta, false)
 	}
 
 	hasChanges, errPrep := stageAndCheckChanges(meta.TaskSlug)
