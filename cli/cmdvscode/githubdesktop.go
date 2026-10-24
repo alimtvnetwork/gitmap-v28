@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -55,7 +56,7 @@ func dispatchGHDesktopSubcommand(args []string) error {
 // hasGHDesktopInstallFlag reports whether --install or -i was passed.
 func HasGHDesktopInstallFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == constants.FlagGHDesktopInstall || arg == constants.FlagGHDesktopInstallShort {
+		if slices.Contains([]string{constants.FlagGHDesktopInstall, constants.FlagGHDesktopInstallShort}, arg) {
 			return true
 		}
 	}

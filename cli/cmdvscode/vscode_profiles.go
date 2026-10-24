@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -40,7 +41,7 @@ func runVSCodeProfiles(args []string) error {
 }
 
 func isVSCodeHelp(arg string) bool {
-	return arg == "help" || arg == "-h" || arg == "--help"
+	return slices.Contains([]string{"help", "-h", "--help"}, arg)
 }
 
 func dispatchVSCodeProfiles(sub string, args []string) error {
