@@ -2,7 +2,6 @@ package cmdpull
 
 import (
 	"bytes"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -271,4 +270,3 @@ func TestRenderFailedGroup_SubtreeAndYellow(t *testing.T) {
 		t.Fatalf("flat 'Next Step:' line must not appear in output, got:\n%s", out)
 	}
 }
-

@@ -31,10 +31,7 @@ func runPullStandardFlow(args []string, isPullAll bool) error {
 	args = NormalizePullArgs(args)
 	printHeaderUnlessJSON(isPullAll, args)
 	requireOnline()
-	if db, err := openDB(); err == nil {
-		_, _ = OptimizeRedundantRepos(db, hasJSONArg(args))
-		db.Close()
-	}
+	optimizeRedundantReposIfPullAll(isPullAll, args)
 	useSSH, useHTTPS, restArgs := ExtractTransportFlags(args)
 	if isCWDTransportEligible(isPullAll, useSSH, useHTTPS) {
 		return runPullCWDWithTransport(useSSH, useHTTPS, restArgs)
@@ -42,6 +39,18 @@ func runPullStandardFlow(args []string, isPullAll bool) error {
 	opts := resolveParsedPullOptions(restArgs, useSSH, useHTTPS)
 
 	return executePullWithResolvedOptions(opts)
+}
+
+func optimizeRedundantReposIfPullAll(isPullAll bool, args []string) {
+	if !isPullAll {
+		return
+	}
+	db, err := openDB()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_, _ = OptimizeRedundantRepos(db, hasJSONArg(args))
 }
 
 func printHeaderUnlessJSON(isPullAll bool, args []string) {

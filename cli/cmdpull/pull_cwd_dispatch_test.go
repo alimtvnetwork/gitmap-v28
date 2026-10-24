@@ -2,43 +2,29 @@ package cmdpull
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
 
-func TestResolvePullInvocationTarget_CWD(t *testing.T) {
-	cmdName, scope := resolvePullInvocationTarget(false, []string{})
-	if cmdName != "pull" {
-		t.Fatalf("expected cmdName=pull, got %s", cmdName)
+func TestResolvePullInvocationHeader_CWD(t *testing.T) {
+	header := resolvePullInvocationHeader(false, []string{})
+	top := getGitRepoCWDTopLevel()
+	if top == "" {
+		cwd, _ := os.Getwd()
+		top = cwd
 	}
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("unexpected getwd error: %v", err)
+	if !strings.Contains(header, top) {
+		t.Fatalf("expected header to contain repo path %q, got %q", top, header)
 	}
-	expectedScope := "(" + filepath.Base(cwd) + ")"
-	if scope != expectedScope {
-		t.Fatalf("expected scope=%s, got %s", expectedScope, scope)
-	}
-}
-
-func TestResolvePullInvocationTarget_ExplicitRepo(t *testing.T) {
-	cmdName, scope := resolvePullInvocationTarget(false, []string{"my-repo"})
-	if cmdName != "pull" {
-		t.Fatalf("expected cmdName=pull, got %s", cmdName)
-	}
-	if scope != "(my-repo)" {
-		t.Fatalf("expected scope=(my-repo), got %s", scope)
+	if strings.Contains(header, "gitmap pull") {
+		t.Fatalf("expected header to not repeat 'gitmap pull', got %q", header)
 	}
 }
 
-func TestResolvePullInvocationTarget_PullAll(t *testing.T) {
-	cmdName, scope := resolvePullInvocationTarget(true, []string{})
-	if cmdName != "pull-all" {
-		t.Fatalf("expected cmdName=pull-all, got %s", cmdName)
-	}
-	if scope != "(all workspaces)" {
-		t.Fatalf("expected scope=(all workspaces), got %s", scope)
+func TestResolvePullInvocationHeader_PullAll(t *testing.T) {
+	header := resolvePullInvocationHeader(true, []string{})
+	if !strings.Contains(header, "pull-all") || !strings.Contains(header, "(all workspaces)") {
+		t.Fatalf("expected pull-all (all workspaces), got %q", header)
 	}
 }
 
