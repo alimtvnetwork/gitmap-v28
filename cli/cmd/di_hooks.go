@@ -32,6 +32,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdtoolchain"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkdir"
@@ -78,6 +79,7 @@ func init() {
 	cmdchrome.RunFindDuplicatesFn = cmdfind.RunFindDuplicates
 	cmdchrome.CheckHelpFn = checkHelp
 	cmdcargo.CheckHelpFn = checkHelp
+	cmdtoolchain.CheckHelpFn = checkHelp
 	cmdinstall.CheckHelpFn = checkHelp
 	cmdinstall.RemoteAgmUpdateFn = func(target string) error {
 		return cmdssh.RunSSHUpdateCLI([]string{"agm", target})

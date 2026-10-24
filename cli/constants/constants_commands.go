@@ -100,6 +100,9 @@ const (
 	// CmdCommitPushFeature commits with a "Feature: " prefix and pushes.
 	CmdCommitPushFeature      = "commit-push-feature"
 	CmdCommitPushFeatureAlias = "cpf"
+	// CmdCommitPushRefactor stages all changes, commits with a "REFACTOR: " prefix, and pushes.
+	CmdCommitPushRefactor      = "commit-push-refactor"
+	CmdCommitPushRefactorAlias = "cfr" // gitmap:cmd skip
 	// CmdCommitPushChore stages all changes, commits with a "Chore: " prefix, and pushes.
 	CmdCommitPushChore      = "commit-push-chore" // gitmap:cmd skip
 	CmdCommitPushChoreAlias = "cpc"               // gitmap:cmd skip
@@ -159,8 +162,13 @@ const (
 	CmdTail                       = "tail"
 	CmdFileSearch                 = "file-search"
 	CmdInstallScript              = "install-script"
-	CmdCargo                      = "cargo" // gitmap:cmd skip
-	CmdCargoAlias                 = "crg"   // gitmap:cmd skip
+	CmdCargo                      = "cargo"     // gitmap:cmd skip
+	CmdCargoAlias                 = "crg"       // gitmap:cmd skip
+	CmdRust                       = "rust"      // gitmap:cmd skip
+	CmdRustAlias                  = "rst"       // gitmap:cmd skip
+	CmdRustAlias2                 = "rustc"     // gitmap:cmd skip
+	CmdKill                       = "kill"      // gitmap:cmd skip
+	CmdKillAlias                  = "terminate" // gitmap:cmd skip
 	CmdReleaseShort               = "r"
 	CmdLlm                        = "llm"
 	CmdFind                       = "find"

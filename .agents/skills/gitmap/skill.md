@@ -30,7 +30,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
-| ❌ Naked leading colons in commit messages (`gitmap cpf ": add feature"` or `gitmap cpf "Feature: add feature"`) | ✅ `gitmap cpf "[module]: <summary>"` or `gitmap cbf "[module]: <summary>"` | GitMap modern commit formatter supports `[module]: <item>` and Conventional syntax `type([module]): <item>`, auto-sanitizing prefixes cleanly. |
+| ❌ Third brackets or lower-case commits (`gitmap cpf "[module]: feat: ..."`, `gitmap cbf "[module]: ..."`) | ✅ `gitmap cpf "(module): <summary>"`, `gitmap cbf "(module): <summary>"`, `gitmap cfr "(module): <summary>"` | GitMap commit formatter strictly enforces uppercase `TYPE(MODULE): <summary>` with parentheses; square brackets `[...]` are strictly prohibited. |
+| ❌ Raw `$env:LIBCLANG_PATH` exports or manual Cargo wrapper scripts | ✅ `gitmap cargo [args...]` or `gitmap rust status` | Automated LLVM/libclang path discovery on Windows and Linux, injecting `LIBCLANG_PATH` and `PATH` transparently. |
+| ❌ Raw `taskkill /F /PID <pid>` or `kill -9 <pid>` | ✅ `gitmap kill <pid|name|:port> [--force] [--tree]` (alias: `gitmap terminate`) | Cross-platform process termination with safety guards protecting system-critical processes, IDEs, and shells. |
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
@@ -125,35 +127,43 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap pe history-ai` — Analyze CI/CD pipeline history across branches and recent runs.
 - `gitmap pipeline purge` — Actions zero-storage purge maintaining 0.0 GB footprint.
 
-### 7. Semantic & Flat Commit Suite
+### 7. Uppercase Semantic Commit Suite, CFR & Workgroup
 
 #### GitMap Commit & Release Commands
 | Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
-| `gitmap cpf "[module]: <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature with bracketed module, and push directly to remote. |
-| `gitmap cbf "[module]: <summary>"` | `gitmap cpb` | Remote | `Bug: ` | Yes | Stage all, commit bugfix with bracketed module, and push directly to remote. |
-| `gitmap cpc "[module]: <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore with bracketed module, and push directly to remote. |
-| `gitmap cpr "[module]: <summary>"` | - | Remote | Release Chore | Yes | Stage all, commit release chore, and push directly to remote. |
-| `gitmap pcp "<module> - <summary>"` | - | Remote | Hyphen format | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+| `gitmap cpf "(module): <summary>"` | - | Remote | `FEAT(MODULE): ` | Yes | Stage all, commit feature with uppercase `FEAT(MODULE): `, and push to remote. |
+| `gitmap cbf "(module): <summary>"` | `gitmap cpb` | Remote | `FIX(MODULE): ` | Yes | Stage all, commit bugfix with uppercase `FIX(MODULE): `, and push to remote. |
+| `gitmap cfr "(module): <summary>"` | - | Remote | `REFACTOR(MODULE): ` | Yes | Stage all, commit refactor with uppercase `REFACTOR(MODULE): `, and push to remote. |
+| `gitmap cpc "(module): <summary>"` | - | Remote | `CHORE(MODULE): ` | Yes | Stage all, commit chore with uppercase `CHORE(MODULE): `, and push to remote. |
+| `gitmap cpr "(module): <summary>"` | - | Remote | `RELEASE(MODULE): ` | Yes | Stage all, commit release chore, and push directly to remote. |
+| `gitmap pcp "<module> - <summary>"` | - | Remote | Normalized | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
 
 #### Command Details & Behavioral Guidelines
-- `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing ('Feature: ', 'Bug: ') and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap cpf "[module]: <summary>"` — Stage, commit, and push feature branch (GitMap auto-prefixes `Feature: [module]: <summary>`).
-- `gitmap cbf "[module]: <summary>"` (alias: `gitmap cpb`) — Stage, commit, and push bugfix branch (GitMap auto-prefixes `Bug: [module]: <summary>`).
-- `gitmap cpc "[module]: <summary>"` — Stage, commit, and push chore branch (GitMap auto-prefixes `Chore: [module]: <summary>`).
-- `gitmap cpr "[module]: <summary>"` — Stage, commit, and push release chore.
-- `gitmap pcp "[module]: <summary>"` — Pull latest, commit, and push with preflight verification.
-- `gitmap workgroup ls` (alias: `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
+- `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
+- `gitmap cpf "(module): <summary>"` — Stage, commit, and push feature branch (GitMap formats to `FEAT(MODULE): <summary>`).
+- `gitmap cbf "(module): <summary>"` (alias: `gitmap cpb`) — Stage, commit, and push bugfix branch (GitMap formats to `FIX(MODULE): <summary>`).
+- `gitmap cfr "(module): <summary>"` — Stage, commit, and push refactor branch (GitMap formats to `REFACTOR(MODULE): <summary>`).
+- `gitmap cpc "(module): <summary>"` — Stage, commit, and push chore branch (GitMap formats to `CHORE(MODULE): <summary>`).
+- `gitmap cpr "(module): <summary>"` — Stage, commit, and push release branch (GitMap formats to `RELEASE(MODULE): <summary>`).
+- `gitmap pcp "(module): <summary>"` — Pull latest, commit, and push with preflight verification.
+- `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
+- `gitmap workgroup bind <dir> <key>` — Bind folder to dedicated SSH key.
 - `gitmap workgroup test-ssh [name|dir]` — Test remote SSH handshake authentication against GitHub/GitLab.
 - `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository.
 - `gitmap pull-all` (alias `gitmap pa`) — Pull all repositories in workspace.
 - `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
-- **AUTHORIZED COMMIT SYNTAX:** Use bracketed module syntax `gitmap cpf "[module]: <summary>"` or conventional commit syntax `type([module]): <summary>`. Colons inside brackets `[module]:` are fully supported. Naked leading colons outside brackets (e.g. `Feature: title` or `: title`) are sanitized.
-- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "[module]: <summary>"` or an explicit remote push.
+- **ZERO THIRD BRACKETS IN COMMITS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets"). Use standard round parentheses: `(module)`. If square brackets are passed, GitMap automatically sanitizes them to round parentheses.
+- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "(module): <summary>"` or an explicit remote push.
+
+### 8. Native Toolchains & Process Termination (Rust, Cargo, Kill)
+- `gitmap cargo [args...]` (alias: `gitmap crg`) — Native Cargo runner with automatic LLVM/libclang path injection (`LIBCLANG_PATH` and `PATH`) and install suggestions.
+- `gitmap rust status` (alias: `gitmap rst`, `gitmap rustc`) — Unified Rust frontend inspecting rustc, cargo, rustup, and LLVM/libclang versions and directories. Supports `gitmap rust build`, `gitmap rust test`, `gitmap rust check`, `gitmap rust clippy`.
+- `gitmap kill <pid|name|:port> [--force] [--tree]` (alias: `gitmap terminate`) — Safe, cross-platform process termination with safety guards protecting critical system processes (PID 0, 1, 4) and IDEs/shells (`code`, `antigravity`, `pwsh`, `bash`).
 
 ### 8. Autonomous Agent Onboarding, Curriculum & Memory Training (LLM)
 - `gitmap llm train [ai-name] [flags]` (aliases: `gitmap train`, `gitmap llm-train`, `gitmap llm chain`) — Full 6-phase self-looping onboarding curriculum (Discovery, Refactoring, Verification, Semantic Commit, Telemetry, Heal & Fix), auto-generates Antigravity skill, author/sponsor attribution.

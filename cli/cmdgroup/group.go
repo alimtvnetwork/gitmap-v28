@@ -24,21 +24,26 @@ func RunGroup(args []string) error {
 	return result.AsError(dispatchGroup(args[0], args[1:]))
 }
 
-func isWorkgroupDelegation(args []string) bool {
-	if len(args) == 0 {
-		return false
-	}
-	sub := args[0]
-	if sub == "bind" || sub == "unbind" || sub == "test-ssh" {
-		return true
-	}
+func hasSSHKeyFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "--ssh-key" {
+		if arg == string(constants.WorkgroupFlagSSHKey) {
 			return true
 		}
 	}
 
 	return false
+}
+
+func isWorkgroupDelegation(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	sub := args[0]
+	if sub == string(constants.WorkgroupCmdBind) || sub == string(constants.WorkgroupCmdUnbind) || sub == string(constants.WorkgroupCmdTestSSH) {
+		return true
+	}
+
+	return hasSSHKeyFlag(args)
 }
 
 func displayActiveGroup(value string) {

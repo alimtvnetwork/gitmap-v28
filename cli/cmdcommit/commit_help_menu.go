@@ -38,6 +38,7 @@ func buildCommitUsageLines() []string {
 		"gitmap commit-right <left> <right> [flags]",
 		"gitmap cpf \"<message>\" (commit-push-feature)",
 		"gitmap cpb \"<message>\" (commit-push-bug)",
+		"gitmap cfr \"<message>\" (commit-push-refactor)",
 		"gitmap cpc \"<message>\" (commit-push-chore)",
 		"gitmap cpr \"<message>\" (commit-push-release)",
 		"gitmap pcp \"<message>\" (pull-commit-push)",
@@ -49,9 +50,10 @@ func buildCommitTips() []string {
 		"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
 		"Use 'gitmap ci <sha>' to view universal SHA resolution and AI provenance tree.",
 		"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
-		"Use 'gitmap cpf \"[module]: description\"' for 1-step stage, commit, and push.",
-		"Use 'gitmap cbf \"[module]: description\"' for 1-step bug fix stage, commit, and push.",
-		"Use 'gitmap cpc \"[module]: description\"' for 1-step chore stage, commit, and push.",
+		"Use 'gitmap cpf \"(module): description\"' for 1-step stage, commit, and push.",
+		"Use 'gitmap cbf \"(module): description\"' for 1-step bug fix stage, commit, and push.",
+		"Use 'gitmap cfr \"(module): description\"' for 1-step refactor stage, commit, and push.",
+		"Use 'gitmap cpc \"(module): description\"' for 1-step chore stage, commit, and push.",
 	}
 }
 
@@ -90,10 +92,11 @@ func buildCommitAIEntries() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "commit, cm <msg>", Description: "commit: flat git commit with auto-stage (git add -A)"},
 		{Command: "commit info, ci <sha>", Description: "Inspect commit provenance, AI telemetry, and tree view"},
-		{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit [module]: feat, and push"},
-		{Command: "cpb, cbf <msg>", Description: "commit-push-bug: stage all, commit [module]: bugfix, and push"},
-		{Command: "cpc <msg>", Description: "commit-push-chore: stage all, commit [module]: chore, and push"},
-		{Command: "cpr <msg>", Description: "commit-push-release: stage all, commit [module]: release chore, and push"},
+		{Command: "cpf <msg>", Description: "commit-push-feature: stage all, commit FEAT(MODULE): ..., and push"},
+		{Command: "cpb, cbf <msg>", Description: "commit-push-bug: stage all, commit FIX(MODULE): ..., and push"},
+		{Command: "cfr <msg>", Description: "commit-push-refactor: stage all, commit REFACTOR(MODULE): ..., and push"},
+		{Command: "cpc <msg>", Description: "commit-push-chore: stage all, commit CHORE(MODULE): ..., and push"},
+		{Command: "cpr <msg>", Description: "commit-push-release: stage all, commit RELEASE(MODULE): ..., and push"},
 		{Command: "pcp <msg>", Description: "pull-commit-push: pull latest rebase, stage, commit, and push"},
 		{Command: "pas", Description: "pull-all-ssh: pull all repositories using SSH transport"},
 	}

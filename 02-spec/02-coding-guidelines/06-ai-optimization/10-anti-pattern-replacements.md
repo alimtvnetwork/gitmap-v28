@@ -41,6 +41,10 @@ This specification mandates 5 primary anti-pattern replacements with native GitM
 | ❌ Single-stream downloads for files $\ge 1\text{--}2\text{ MB}$ | ✅ GitMap 10-split segmented engine<br>*(Host `aria2c` or native Go Range workers)* | Automatic threshold detection; 10 parallel connections with 5KB chunks saturate bandwidth and prevent socket timeouts. |
 | ❌ Grepping filesystem or guessing past agent decisions | ✅ `gitmap heatmap`<br>`gitmap rc heatmap --repo <alias>` | 3-tier SQLite discovery, alias resolution via `db.ListAliasesWithRepo()`, recent tasks across 2–5 repos, dynamic suggestion pills. |
 | ❌ `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr` | ✅ `gitmap aum search "<pattern>" [dir]`<br>`gitmap find "<pattern>" [dir]`<br>`gitmap cat <filepath>` | Multi-core streaming live search (<15ms), binary null-byte probe, 500 KB file cap, DH2D SQLite hot cache, zero buffer bloat. |
+| ❌ Raw `$env:LIBCLANG_PATH` exports & ad-hoc Cargo scripts | ✅ `gitmap cargo [args...]`<br>`gitmap rust status` | Automated LLVM/libclang path discovery on Windows & Linux, injecting `LIBCLANG_PATH` & `PATH` transparently. |
+| ❌ Raw `taskkill /F /PID <pid>` or `kill -9 <pid>` | ✅ `gitmap kill <pid\|name\|:port>`<br>*(alias: `gitmap terminate`)* | Cross-platform process termination with safety guards protecting system-critical processes, IDEs, and shells. |
+| ❌ Third brackets or lower-case commits (`feat([module]): ...`) | ✅ `gitmap cpf "(module): summary"`<br>`gitmap cbf "(module): summary"`<br>`gitmap cfr "(module): summary"` | Enforces uppercase `TYPE(MODULE): summary` with parentheses; square brackets `[...]` are strictly prohibited. |
+| ❌ Manual per-folder `~/.ssh/config` host aliases | ✅ `gitmap wg add <name> <dir> --ssh-key <key>`<br>`gitmap wg bind <dir> <key>` | SQLite-backed folder & ancestor SSH key inheritance for zero-prompt remote Git operations. |
 | ❌ Absolute filesystem paths (`C:\`, `D:\`, `file:///`) | ✅ Relative Git-root paths<br>*(e.g. `02-spec/...`, `cli/...`)* | Ensures zero path leakage across host machines, container boundaries, and multi-node SSH cluster fleets. |
 
 ---

@@ -164,14 +164,15 @@ If sources conflict, follow stricter one and record under `Conflicts:` in ledger
 
 ### 1.1.E Strict Coding Guideline Enforcement Matrix
 Every code modification executed across any subtask or wave must pass the 8-Pillar Quality Gate:
-1. **Error Management:** Zero orphaned errors (`_ = err` banned). Structured errors must return `*appfault.AppError` from `pkg/appfault`.
-2. **Monadic Results:** Fallible functions return `Result[T]` or `*appfault.AppError`.
-3. **Parameter Structs:** Any function with >2–3 parameters must use a dedicated `*Params` struct.
-4. **String Constants & Enums:** Zero raw magic strings; all strings must use PascalCase enums with `Type` suffix.
-5. **Function Sizing:** Functions kept strictly between 8–15 lines (target 8–10 lines).
-6. **File Sizing:** Files bounded within 150–300 lines (UI components <= 100 lines).
-7. **Vertical Spacing:** Mandatory blank line before `if`, after `}`, before `return`, and around multiline structs.
-8. **Positive Booleans:** Affirmative `is*`/`has*` only, zero explicit `== true`, zero mixed polarity in conditions.
+1. **Error Management & Leaf Error Sovereignty (02-spec/03-error-manage/):** Leaf functions returning an `error` or `*appfault.AppError` must return the error directly (`return err` or `return appfault.Wrap(...)`). Leaf functions must NEVER invoke exit handlers (`cliexit.HandleError`) or `os.Exit` and return `nil`. Outer callers (root command dispatchers) receive errors and decide how to terminate, ensuring database audit capture (`finishCommandAudit`). Zero orphaned errors (`_ = err` banned).
+2. **No Magic Exit Codes & Specialized Handlers:** Raw integers (`1`, `2`) are strictly banned in exit handlers. Strongly-typed enums ending in `Type` (`constants.ExitGeneralError`, `constants.ExitUsageError`) must be passed. Use parameter-reduced specialized helpers (`cliexit.HandleValidationError`, `cliexit.HandleUsageError`).
+3. **Monadic Results:** Fallible functions return `Result[T]` or `*appfault.AppError`.
+4. **Parameter Structs:** Any function with >2–3 parameters must use a dedicated `*Params` struct.
+5. **String Constants & Enums:** Zero raw magic strings; all domain strings and error codes must use PascalCase enums with `Type` suffix (`WorkgroupCmdType`, `CommitVerbType`, `ErrorCodeType`, etc.).
+6. **Function Sizing & Zero Nested Ifs:** Functions <= 15 lines max (<= 8 lines preferred). Flatten all conditionals with early return guard clauses (zero nested `if`s).
+7. **File Sizing:** Files bounded within 150–300 lines (UI components <= 100 lines).
+8. **Vertical Spacing & Return Styling:** Mandatory blank line before `if`, after `}`, before `return`, and around multiline structs.
+9. **Positive Booleans Only:** Affirmative `is*`/`has*` only (`can`, `should`, `was`, `will` are banned). Zero negative booleans (`notValid`, `disabled`), zero explicit `== true`, zero mixed polarity in conditions.
 
 ### Scope Control Rules
 - **Turn 1 Task Showcase:** In your very first response turn, you MUST showcase and list out the given task in visible chat. Running tools silently without presenting the task breakdown is strictly banned.
@@ -737,12 +738,13 @@ Confirm scripts exist via harmless workspace call before invoking (R4). Run on c
 
 - [ ] Master Guidelines: Fully enforced every file in `02-spec/02-coding-guidelines/` and `.ai-memory/coding-guidelines.md`.
 - [ ] Concrete Types Centralization (`types.go`): Extracted domain structs, raw generic instantiations, and Result wrappers into dedicated `types.go` files as single reusable named types with follow-through comments (never leak raw generics like `result.Result[*Config]`).
-- [ ] Error Management: Enforced `02-spec/03-error-manage/` using domain-specific `*appfault.AppError`, never generic error.
+- [ ] Error Management & Leaf Sovereignty: Enforced `02-spec/03-error-manage/` — leaf functions return `*appfault.AppError` or error directly; never call exit handlers or `os.Exit`. Outer root dispatchers handle exits to capture database audit logging (`finishCommandAudit`).
+- [ ] No Magic Exit Codes & Specialized Handlers: Raw integers (`1`, `2`) strictly banned in exit handlers; strongly-typed `*Type` constants (`constants.ExitGeneralError`, `constants.ExitUsageError`) and specialized helpers (`cliexit.HandleValidationError`, `cliexit.HandleUsageError`) used.
 - [ ] Boolean Conventions: All booleans begin with is or has only (all other prefixes like can, should, was, will, did, must are banned). No negatives (`!isSuccess` is banned; use `isFail`).
 - [ ] Semantic Naming: Zero generic garbage names (`temp`, `data`, `obj`). Behavior-driven unit test names.
 - [ ] Multi-Line Arguments (Rule 9a/9b): Signatures and call sites with >2 arguments formatted one argument per line with trailing commas.
 - [ ] Line Endings & Encoding: Strictly Unix LF (`\n`) and UTF-8 without BOM.
-- [ ] Function Sizing: Functions <= 8 lines preferred (hard cap 15 lines).
+- [ ] Function Sizing & Zero Nested Ifs: Functions <= 15 lines max (<= 8 lines preferred). All nested conditionals flattened with early return guard clauses.
 - [ ] Strict Relative Git Paths & Lowercase: Zero absolute paths (`/absolute/path/to/...`) or `file:///` URIs anywhere in the diff, ledger, plans, release notes, or release page; strictly relative paths and lowercase filenames.
 
 ---

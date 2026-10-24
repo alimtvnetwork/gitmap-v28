@@ -1,10 +1,10 @@
 # gitmap cbf
 
-Stages all changes, commits with a "Bug: " prefix, and pushes to remote. First-class alias for `commit-push-bug`.
+Stages all changes, commits with an uppercase `FIX(MODULE): ` prefix, and pushes to remote. First-class alias for `commit-push-bug`.
 
 ## Synopsis
 
-```
+```bash
 gitmap cbf "<message>" [flags]
 gitmap commit-push-bug "<message>" [flags]
 gitmap cpb "<message>" [flags]
@@ -13,23 +13,32 @@ gitmap cpb "<message>" [flags]
 ## Behavior
 
 1. **Auto-Stage:** Automatically stages all tracked and untracked changes (`git add -A`).
-2. **Semantic Prefix:** Injects `Bug: ` prefix into the commit message.
-3. **Bracketed Module Support:** Recognizes `[module]: <item>` syntax and formats cleanly as `Bug: [module]: <item>`.
-4. **Duplicate Prefix Trimming:** Safely strips duplicate `Bug: ` or `fix: ` prefixes if already typed by the user or AI agent.
+2. **Semantic Prefix:** Injects uppercase `FIX:` or `FIX(MODULE):` prefix into the commit message.
+3. **Module Scope Support:** Formats module scopes cleanly into uppercase parentheses `(MODULE)`. Square brackets are automatically converted.
+4. **Duplicate Prefix Trimming:** Safely strips duplicate `Bug: `, `fix: `, or `FIX:` prefixes if already typed.
 5. **Immediate Push:** Executes `git push` with bound SSH keys and error handling.
+
+## Aliases
+
+- `gitmap cbf "(module): description"`
+- `gitmap cpb "(module): description"`
 
 ## Examples
 
+### Bug Fix with Module Scope
+
 ```bash
-# Standard bracketed module syntax (recommended)
-gitmap cbf "[db]: fix sqlite connection pool deadlock"
+gitmap cbf "(db): fix sqlite connection pool deadlock"
+```
 
-# Conventional type syntax preservation
-gitmap cbf "fix([ssh]): handle missing private key"
+### Bug Fix with Bare Module
 
-# Legacy hyphen conversion (automatically converted to [module]: item)
-gitmap cbf "cache - fix ttl expiration check"
+```bash
+gitmap cbf "ssh: handle missing private key"
+```
 
-# Scope commit to claimed task files only
-gitmap cbf "[auth]: fix token expiration" --task 317
+### Dry Run Bug Fix
+
+```bash
+gitmap cbf "(scanner): handle nil pointer when DB is empty" --dry-run
 ```

@@ -171,7 +171,7 @@ func coreCloneExtEntries() []dispatchEntry {
 		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias, "commitin"}, func() error { return cmdcommitin.RunCommitIn(argsTail()) }},
 		{[]string{"commit-pull", "cpull", "pull-commits"}, func() error { return cmdcommitpull.RunCommitPull(argsTail()) }},
 		{[]string{"migrate", "wizard", "migration-wizard"}, func() error { return cmdmigrate.RunMigrateWizard(argsTail()) }},
-		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoAlias}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},
+		{[]string{constants.CmdCloneFixRepo}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepoPub, constants.CmdCloneFixRepoPubAlias}, func() error { return cmdclone.RunCloneFixRepoPub(argsTail()) }},
 		{[]string{constants.CmdVSCodePMSync, constants.CmdVSCodePMSyncAlias}, func() error { return cmdvscode.RunVSCodePMSync(argsTail()) }},
 	}

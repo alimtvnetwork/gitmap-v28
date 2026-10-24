@@ -81,9 +81,9 @@ func RunCommitPushBug(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := FormatCommitMessage("cpb", cleanArgs)
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbBugAlt), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -98,9 +98,9 @@ func RunCommitPushFeature(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := FormatCommitMessage("cpf", cleanArgs)
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbFeature), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -115,9 +115,9 @@ func RunCommitPushChore(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := FormatCommitMessage("cpc", cleanArgs)
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbChore), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }
@@ -132,9 +132,26 @@ func RunCommitPushRelease(args []string) error {
 
 	cleanArgs, meta := ExtractCommitFlags(args)
 	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", "E9000")
+		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", string(constants.ErrCodeGenericExecution))
 	}
-	commitMessage := FormatCommitMessage("cpr", cleanArgs)
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbRelease), cleanArgs)
+
+	return executeCommitPush(commitMessage, meta)
+}
+
+// RunCommitPushRefactor commits with a "REFACTOR: " prefix.
+func RunCommitPushRefactor(args []string) error {
+	if IsCommitPushHelpArg(args) {
+		checkHelp(constants.CmdCommitPushRefactor, []string{"--help"})
+
+		return nil
+	}
+
+	cleanArgs, meta := ExtractCommitFlags(args)
+	if len(cleanArgs) == 0 {
+		return apperror.NewSimple("Usage: gitmap commit-push-refactor <message>", string(constants.ErrCodeGenericExecution))
+	}
+	commitMessage := FormatCommitMessage(string(constants.CommitVerbRefactor), cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }

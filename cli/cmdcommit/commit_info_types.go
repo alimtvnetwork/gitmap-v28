@@ -6,9 +6,9 @@ import "time"
 type OriginType string
 
 const (
-	OriginLocalAI         OriginType = "LOCAL_AI"
-	OriginForeignAI       OriginType = "FOREIGN_AI"
-	OriginHumanOrExternal OriginType = "HUMAN_OR_EXTERNAL"
+	OriginLocalAI         OriginType = "LocalAI"
+	OriginForeignAI       OriginType = "ForeignAI"
+	OriginHumanOrExternal OriginType = "HumanOrExternal"
 )
 
 // CommitFileDelta captures changes to a single file in a commit.
