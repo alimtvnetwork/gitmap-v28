@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.605.0] - 2026-10-24
+
+### Added
+- Native toolchains (cargo, rust, kill), uppercase conventional commits, and error management alignment
+
+---
+
 ## [v6.604.0] - 2026-10-24
 
 ### Added

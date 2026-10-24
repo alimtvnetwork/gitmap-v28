@@ -7,10 +7,11 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 func isHelpTrigger(s string) bool {
-	return s == "help" || s == "--help" || s == "-h"
+	return s == "help" || s == string(constants.WorkgroupFlagHelp) || s == string(constants.WorkgroupFlagHelpShort)
 }
 
 func tryExtractFlagValue(arg, flag string) (string, bool) {
@@ -24,22 +25,22 @@ func tryExtractFlagValue(arg, flag string) (string, bool) {
 
 func parseKeyValueFlag(args []string, idx int, opts *WorkgroupOptions) int {
 	arg := args[idx]
-	if val, ok := tryExtractFlagValue(arg, "--ssh-key"); ok {
+	if val, ok := tryExtractFlagValue(arg, string(constants.WorkgroupFlagSSHKey)); ok {
 		opts.SSHKeyPath = val
 
 		return idx
 	}
-	if arg == "--ssh-key" && idx+1 < len(args) {
+	if arg == string(constants.WorkgroupFlagSSHKey) && idx+1 < len(args) {
 		opts.SSHKeyPath = args[idx+1]
 
 		return idx + 1
 	}
-	if val, ok := tryExtractFlagValue(arg, "--desc"); ok {
+	if val, ok := tryExtractFlagValue(arg, string(constants.WorkgroupFlagDesc)); ok {
 		opts.Description = val
 
 		return idx
 	}
-	if arg == "--desc" && idx+1 < len(args) {
+	if arg == string(constants.WorkgroupFlagDesc) && idx+1 < len(args) {
 		opts.Description = args[idx+1]
 
 		return idx + 1
@@ -50,12 +51,12 @@ func parseKeyValueFlag(args []string, idx int, opts *WorkgroupOptions) int {
 
 func parseHostFlag(args []string, idx int, opts *WorkgroupOptions) int {
 	arg := args[idx]
-	if val, ok := tryExtractFlagValue(arg, "--host"); ok {
+	if val, ok := tryExtractFlagValue(arg, string(constants.WorkgroupFlagHost)); ok {
 		opts.Host = val
 
 		return idx
 	}
-	if arg == "--host" && idx+1 < len(args) {
+	if arg == string(constants.WorkgroupFlagHost) && idx+1 < len(args) {
 		opts.Host = args[idx+1]
 
 		return idx + 1
@@ -66,22 +67,22 @@ func parseHostFlag(args []string, idx int, opts *WorkgroupOptions) int {
 
 func parseUserHostFlag(args []string, idx int, opts *WorkgroupOptions) int {
 	arg := args[idx]
-	if val, ok := tryExtractFlagValue(arg, "--user-name"); ok {
+	if val, ok := tryExtractFlagValue(arg, string(constants.WorkgroupFlagUserName)); ok {
 		opts.UserName = val
 
 		return idx
 	}
-	if arg == "--user-name" && idx+1 < len(args) {
+	if arg == string(constants.WorkgroupFlagUserName) && idx+1 < len(args) {
 		opts.UserName = args[idx+1]
 
 		return idx + 1
 	}
-	if val, ok := tryExtractFlagValue(arg, "--user-email"); ok {
+	if val, ok := tryExtractFlagValue(arg, string(constants.WorkgroupFlagUserEmail)); ok {
 		opts.UserEmail = val
 
 		return idx
 	}
-	if arg == "--user-email" && idx+1 < len(args) {
+	if arg == string(constants.WorkgroupFlagUserEmail) && idx+1 < len(args) {
 		opts.UserEmail = args[idx+1]
 
 		return idx + 1
@@ -91,12 +92,12 @@ func parseUserHostFlag(args []string, idx int, opts *WorkgroupOptions) int {
 }
 
 func parseBoolFlag(arg string, opts *WorkgroupOptions) bool {
-	if arg == "-j" || arg == "--json" {
+	if arg == string(constants.WorkgroupFlagJSONShort) || arg == string(constants.WorkgroupFlagJSON) {
 		opts.IsJSON = true
 
 		return true
 	}
-	if arg == "--default" {
+	if arg == string(constants.WorkgroupFlagDefault) {
 		opts.IsDefault = true
 
 		return true
@@ -144,7 +145,7 @@ func assignPositionalWorkgroup(pos []string, opts *WorkgroupOptions) {
 }
 
 func assignSecondPositional(val string, opts *WorkgroupOptions) {
-	if opts.Subcommand == "bind" && opts.SSHKeyPath == "" {
+	if opts.Subcommand == string(constants.WorkgroupCmdBind) && opts.SSHKeyPath == "" {
 		opts.SSHKeyPath = val
 
 		return
@@ -162,7 +163,7 @@ func ParseWorkgroupOptions(args []string) WorkgroupOptions {
 }
 
 func isHelpSubcommand(sub string) bool {
-	return sub == "" || sub == "help" || sub == "--help" || sub == "-h"
+	return sub == "" || sub == "help" || sub == string(constants.WorkgroupFlagHelp) || sub == string(constants.WorkgroupFlagHelpShort)
 }
 
 func dispatchWorkgroupAction(opts WorkgroupOptions) error {
@@ -172,13 +173,13 @@ func dispatchWorkgroupAction(opts WorkgroupOptions) error {
 		return nil
 	}
 	switch opts.Subcommand {
-	case "ls", "list":
+	case string(constants.WorkgroupCmdLs), string(constants.WorkgroupCmdList):
 		return runWorkgroupList(opts)
-	case "add":
+	case string(constants.WorkgroupCmdAdd):
 		return runWorkgroupAdd(opts)
-	case "bind":
+	case string(constants.WorkgroupCmdBind):
 		return runWorkgroupBind(opts)
-	case "unbind":
+	case string(constants.WorkgroupCmdUnbind):
 		return runWorkgroupUnbind(opts)
 	default:
 		return dispatchWorkgroupSecondaryAction(opts)
@@ -187,11 +188,11 @@ func dispatchWorkgroupAction(opts WorkgroupOptions) error {
 
 func dispatchWorkgroupSecondaryAction(opts WorkgroupOptions) error {
 	switch opts.Subcommand {
-	case "show":
+	case string(constants.WorkgroupCmdShow):
 		return runWorkgroupShow(opts)
-	case "test-ssh", "test":
+	case string(constants.WorkgroupCmdTestSSH), string(constants.WorkgroupCmdTest):
 		return runWorkgroupTestSSH(opts)
-	case "rm", "delete", "remove":
+	case string(constants.WorkgroupCmdRm), string(constants.WorkgroupCmdDelete), string(constants.WorkgroupCmdRemove):
 		return runWorkgroupDelete(opts)
 	default:
 		return runWorkgroupDefaultShow(opts)
@@ -221,12 +222,10 @@ func runWorkgroupList(opts WorkgroupOptions) error {
 	return nil
 }
 
-func runWorkgroupAdd(opts WorkgroupOptions) error {
-	if opts.Name == "" || opts.Path == "" {
-		return apperror.NewSimple("Usage: gitmap wg add <name> <dir> [flags]", "E9003")
-	}
+func createWorkgroupRecord(opts WorkgroupOptions) WorkgroupRecord {
 	absPath, _ := filepath.Abs(opts.Path)
-	rec := WorkgroupRecord{
+
+	return WorkgroupRecord{
 		Name:          opts.Name,
 		RootDirectory: absPath,
 		SSHKeyPath:    opts.SSHKeyPath,
@@ -235,6 +234,13 @@ func runWorkgroupAdd(opts WorkgroupOptions) error {
 		GitUserEmail:  opts.UserEmail,
 		IsDefault:     opts.IsDefault,
 	}
+}
+
+func runWorkgroupAdd(opts WorkgroupOptions) error {
+	if opts.Name == "" || opts.Path == "" {
+		return apperror.NewSimple("Usage: gitmap wg add <name> <dir> [flags]", string(constants.ErrCodeWorkgroupAddUsage))
+	}
+	rec := createWorkgroupRecord(opts)
 	created, err := AddWorkgroup(rec)
 	if err != nil {
 		return err
@@ -244,17 +250,22 @@ func runWorkgroupAdd(opts WorkgroupOptions) error {
 	return nil
 }
 
-func runWorkgroupBind(opts WorkgroupOptions) error {
-	if opts.Name == "" || opts.SSHKeyPath == "" {
-		return apperror.NewSimple("Usage: gitmap wg bind <dir> <ssh-key-path> [flags]", "E9004")
-	}
+func createFolderBindingRecord(opts WorkgroupOptions) FolderBindingRecord {
 	absPath, _ := filepath.Abs(opts.Name)
-	rec := FolderBindingRecord{
+
+	return FolderBindingRecord{
 		FolderPath:   absPath,
 		SSHKeyPath:   opts.SSHKeyPath,
 		GitUserName:  opts.UserName,
 		GitUserEmail: opts.UserEmail,
 	}
+}
+
+func runWorkgroupBind(opts WorkgroupOptions) error {
+	if opts.Name == "" || opts.SSHKeyPath == "" {
+		return apperror.NewSimple("Usage: gitmap wg bind <dir> <ssh-key-path> [flags]", string(constants.ErrCodeWorkgroupBindUsage))
+	}
+	rec := createFolderBindingRecord(opts)
 	created, err := BindFolder(rec)
 	if err != nil {
 		return err
@@ -309,17 +320,9 @@ func runWorkgroupDefaultShow(opts WorkgroupOptions) error {
 	return nil
 }
 
-func runWorkgroupTestSSH(opts WorkgroupOptions) error {
-	target := opts.Name
-	if target == "" {
-		target = "."
-	}
-	eff, err := ResolveWorkgroupForPath(target)
-	if err != nil || !eff.HasSSHKey {
-		return apperror.NewSimple("No bound SSH key found for target: "+target, "E9005")
-	}
-	fmt.Printf("Testing SSH handshake for key: %s (host: %s)...\n", eff.SSHKeyPath, resolveSSHHost(opts.Host))
-	res, errTest := TestSSHConnection(eff.SSHKeyPath, opts.Host)
+func executeSSHTestHandshake(keyPath, host string) error {
+	fmt.Printf("Testing SSH handshake for key: %s (host: %s)...\n", keyPath, resolveSSHHost(host))
+	res, errTest := TestSSHConnection(keyPath, host)
 	if errTest != nil {
 		return errTest
 	}
@@ -328,9 +331,22 @@ func runWorkgroupTestSSH(opts WorkgroupOptions) error {
 	return nil
 }
 
+func runWorkgroupTestSSH(opts WorkgroupOptions) error {
+	target := opts.Name
+	if target == "" {
+		target = "."
+	}
+	eff, err := ResolveWorkgroupForPath(target)
+	if err != nil || !eff.HasSSHKey {
+		return apperror.NewSimple("No bound SSH key found for target: "+target, string(constants.ErrCodeWorkgroupNoBoundKey))
+	}
+
+	return executeSSHTestHandshake(eff.SSHKeyPath, opts.Host)
+}
+
 func runWorkgroupDelete(opts WorkgroupOptions) error {
 	if opts.Name == "" {
-		return apperror.NewSimple("Usage: gitmap wg rm <name|id>", "E9006")
+		return apperror.NewSimple("Usage: gitmap wg rm <name|id>", string(constants.ErrCodeWorkgroupDeleteUsage))
 	}
 	if err := DeleteWorkgroup(opts.Name); err != nil {
 		return err

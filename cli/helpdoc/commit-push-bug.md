@@ -1,39 +1,29 @@
 # commit-push-bug
 
-Stages all changes, commits with a "Bug: " prefix, and pushes. Use this for bug fix commits so the git history is clearly categorized.
+Stages all changes, commits with an uppercase `FIX(MODULE): ` prefix, and pushes. Use this for bug fix commits so the git history is clearly categorized.
 
-## Why use this instead of shell commands?
-
-Instead of manually typing the prefix:
+## Synopsis
 
 ```bash
-git add -A
-git commit -m "Bug: fix null pointer in scanner"
-git push
+gitmap commit-push-bug "(module): description" [flags]
+gitmap cbf "(module): description" [flags]
+gitmap cpb "(module): description" [flags]
 ```
-
-You should use:
-
-```bash
-gitmap commit-push-bug "fix null pointer in scanner"
-```
-
-The commit message will be: `Bug: fix null pointer in scanner`
 
 ## Aliases
 
-- `gitmap cpb "description"`
-- `gitmap cbf "description"` (first-class bug fix alias)
+- `gitmap cbf "(module): description"` (first-class bug fix alias)
+- `gitmap cpb "(module): description"`
 
 ## Examples
 
 ```bash
-gitmap cbf "[db]: fix race condition in version flush"
-gitmap cpb "[sqlite]: resolve driver mismatch"
-gitmap commit-push-bug "[scanner]: handle nil pointer when DB is empty"
+gitmap cbf "(db): fix race condition in version flush"
+gitmap cpb "(sqlite): resolve driver mismatch"
+gitmap commit-push-bug "(scanner): handle nil pointer when DB is empty"
 ```
 
 ## See Also
 
 - `gitmap hd cbf` — High-speed bug fix commit and push alias.
-- `gitmap hd commit-format` — Modular bracket syntax and conventional commit formatting guide.
+- `gitmap hd commit-format` — Uppercase Conventional Commit formatting guide.

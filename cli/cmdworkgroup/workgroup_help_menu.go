@@ -53,12 +53,13 @@ func buildWorkgroupCommandsSection() termout.HelpSection {
 
 func buildCommitFormatterSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "COMMIT FORMATTER ENHANCEMENTS (cpf / cbf)",
+		Title: "COMMIT FORMATTER ENHANCEMENTS (cpf / cbf / cfr)",
 		Entries: []termout.CommandEntry{
-			{Command: "cpf \"[auth]: add jwt\"", Description: "Commit with Feature: [auth]: prefix"},
-			{Command: "cbf \"[db]: fix lock\"", Description: "Commit with Bug: [db]: prefix (alias: cpb)"},
-			{Command: "cpc \"[ci]: update go\"", Description: "Commit with Chore: [ci]: prefix"},
-			{Command: "cpr \"[v1.0]: release\"", Description: "Commit with Release: [v1.0]: prefix"},
+			{Command: "cpf \"(auth): add jwt\"", Description: "Commit with FEAT(AUTH): prefix"},
+			{Command: "cbf \"(db): fix lock\"", Description: "Commit with FIX(DB): prefix (alias: cpb)"},
+			{Command: "cfr \"(cache): hoist regex\"", Description: "Commit with REFACTOR(CACHE): prefix"},
+			{Command: "cpc \"(ci): update go\"", Description: "Commit with CHORE(CI): prefix"},
+			{Command: "cpr \"(v1.0): release\"", Description: "Commit with RELEASE(V1.0): prefix"},
 		},
 	}
 }
@@ -80,7 +81,8 @@ func buildWorkgroupTips() []string {
 	return []string{
 		"Use 'gitmap wg add client-a D:\\work\\client-a --ssh-key ~/.ssh/id_client' for 1-step setup.",
 		"Repositories inside child folders automatically inherit parent folder SSH keys.",
-		"Use 'gitmap cbf \"[module]: fix\"' as a fast alias for bug fix commit and push.",
+		"Use 'gitmap cbf \"(module): fix\"' as a fast alias for bug fix commit and push.",
+		"Use 'gitmap cfr \"(module): refactor\"' as a fast alias for refactor commit and push.",
 		"Use 'gitmap wg test-ssh' to verify SSH authentication before pushing.",
 	}
 }

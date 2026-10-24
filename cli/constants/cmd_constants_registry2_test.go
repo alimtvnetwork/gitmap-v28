@@ -281,5 +281,7 @@ func topLevelCmdsPart2() map[string]string {
 		"CmdGitmapDaemon":               CmdGitmapDaemon,
 		"CmdLemon":                      CmdLemon,
 		"CmdLemonAlias":                 CmdLemonAlias,
+		"CmdWorkgroup":                  CmdWorkgroup,
+		"CmdWorkgroupAlias":             CmdWorkgroupAlias,
 	}
 }

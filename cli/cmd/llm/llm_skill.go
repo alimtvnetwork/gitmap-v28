@@ -80,15 +80,23 @@ GitMap is an ultra-fast developer companion and autonomous CLI engine designed f
 - ` + "`gitmap replace-regex <pat> <subst>`" + ` — Regex replacement across repository.
 - ` + "`gitmap rm <pattern> [--task <id>] [--reason <msg>] [--undo]`" + ` — Safe task-based file removal with backup in OS temp and undo support.
 
-### 5. Semantic Commit & Push & Workgroup
-- ` + "`gitmap cpf \"[module]: <item>\"`" + ` — Stage, commit, and push feature branch with bracketed module syntax (commit-push-feature).
-- ` + "`gitmap cbf \"[module]: <item>\"`" + ` / ` + "`gitmap cpb`" + ` — Stage, commit, and push bugfix branch (commit-push-bug).
-- ` + "`gitmap cpc \"[module]: <item>\"`" + ` — Stage, commit, and push chore branch (commit-push-chore).
-- ` + "`gitmap cpr \"[module]: <item>\"`" + ` — Stage, commit, and push release chore (commit-push-release).
+### 5. Semantic Commit & Push, CFR & Workgroup
+- ` + "`gitmap cpf \"(module): <item>\"`" + ` — Stage, commit, and push feature with uppercase FEAT(MODULE): summary (commit-push-feature).
+- ` + "`gitmap cbf \"(module): <item>\"`" + ` / ` + "`gitmap cpb`" + ` — Stage, commit, and push bugfix with uppercase FIX(MODULE): summary (commit-push-bug).
+- ` + "`gitmap cfr \"(module): <item>\"`" + ` — Stage, commit, and push refactor with uppercase REFACTOR(MODULE): summary (commit-push-refactor).
+- ` + "`gitmap cpc \"(module): <item>\"`" + ` — Stage, commit, and push chore with uppercase CHORE(MODULE): summary (commit-push-chore).
+- ` + "`gitmap cpr \"(module): <item>\"`" + ` — Stage, commit, and push release with uppercase RELEASE(MODULE): summary (commit-push-release).
 - ` + "`gitmap pcp \"<msg>\"`" + ` — Pull latest, commit, and push with preflight verification (pull-commit-push).
+- Zero third brackets: Square brackets [...] are strictly prohibited in commit titles and are automatically normalized to round parentheses.
 - ` + "`gitmap workgroup ls`" + ` (alias: ` + "`gitmap wg ls`" + `) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - ` + "`gitmap workgroup add <name> <dir> --ssh-key <key>`" + ` — Register folder workgroup and bind dedicated SSH private key.
+- ` + "`gitmap workgroup bind <dir> <key>`" + ` — Bind folder to specific SSH private key.
 - ` + "`gitmap workgroup test-ssh [name|dir]`" + ` — Test remote SSH handshake authentication against GitHub/GitLab.
+
+### 6. Native Toolchains & Process Termination (Rust, Cargo, Kill)
+- ` + "`gitmap cargo [args...]`" + ` (alias: ` + "`gitmap crg`" + `) — Native Cargo runner with automatic LLVM/libclang path injection and install suggestions.
+- ` + "`gitmap rust status`" + ` (alias: ` + "`gitmap rst`" + `, ` + "`gitmap rustc`" + `) — Unified Rust frontend inspecting rustc, cargo, rustup, and LLVM/libclang versions and directories.
+- ` + "`gitmap kill <pid|name|:port> [--force] [--tree]`" + ` (alias: ` + "`gitmap terminate`" + `) — Cross-platform process termination with safety guards protecting critical system processes and IDEs/shells.
 
 ### 6. Script Runners & Multi-Repo Operations
 - ` + "`gitmap py <script.py> [args...]`" + ` / ` + "`gitmap py -c \"<code>\"`" + ` (alias: ` + "`gitmap python`" + `) — Native Python runner with process exit code propagation and Split-DB telemetry recording.
@@ -188,6 +196,10 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 | Raw ` + "`Remove-Item`" + ` / ` + "`rm`" + ` | ` + "`gitmap rm <path> --task <id> --reason <text>`" + ` | Safe removal with backup & undo restoration |
 | Tight polling loop (` + "`while`" + ` / ` + "`sleep`" + `) | ` + "`gitmap pe -t --ai`" + ` / ` + "`gitmap pe -ud`" + ` | Non-blocking telemetry with dynamic ETA |
 | Manual ` + "`.git/config`" + ` identity editing | ` + "`gitmap user switch <alias> --project`" + ` | Safe profile management and project-binding persistence |
+| Raw ` + "`$env:LIBCLANG_PATH`" + ` / manual Cargo scripts | ` + "`gitmap cargo [args...]`" + ` / ` + "`gitmap rust status`" + ` | Automated LLVM/libclang discovery across Windows/Linux |
+| Raw ` + "`taskkill /F /PID`" + ` / ` + "`kill -9`" + ` | ` + "`gitmap kill <pid|name|:port>`" + ` | Cross-platform termination with IDE & shell safety guards |
+| Third bracket / lower commits (` + "`feat([module]): ...`" + `) | ` + "`gitmap cpf \"(module): ...\"`" + ` / ` + "`gitmap cfr`" + ` | Enforces uppercase TYPE(MODULE): without square brackets |
+| Manual ` + "`~/.ssh/config`" + ` per-folder host aliases | ` + "`gitmap wg add <name> <dir> --ssh-key <key>`" + ` | SQLite-backed folder and child-folder SSH inheritance |
 
 ## Authoritative Documentation Registry (For LLM Ingestion)
 

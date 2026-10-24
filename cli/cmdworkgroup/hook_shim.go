@@ -6,16 +6,17 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 )
 
 // ValidateSSHKey checks whether the specified private key file exists.
 func ValidateSSHKey(keyPath string) error {
 	if keyPath == "" {
-		return apperror.NewSimple("SSH key path cannot be empty", "E9001")
+		return apperror.NewSimple("SSH key path cannot be empty", string(constants.ErrCodeSSHKeyEmpty))
 	}
 	if !fsutil.FileExists(keyPath) {
-		return apperror.NewSimple(fmt.Sprintf("SSH key file does not exist: %s", keyPath), "E9002")
+		return apperror.NewSimple(fmt.Sprintf("SSH key file does not exist: %s", keyPath), string(constants.ErrCodeSSHKeyMissing))
 	}
 
 	return nil
