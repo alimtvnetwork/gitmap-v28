@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -53,9 +54,11 @@ func normalizeLFSArgs(args []string) []string {
 	return args
 }
 
+var lfsHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func hasHelpFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "-h" || arg == "--help" || arg == "help" {
+		if slices.Contains(lfsHelpFlagTokens, arg) {
 			return true
 		}
 	}
