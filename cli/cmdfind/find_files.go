@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -13,18 +14,20 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdfind/enums"
 
-type MatchKindType int
-
-type MatchKind = MatchKindType
+// MatchKindType aliases the strongly-typed enum from the enums package.
+type MatchKindType = enums.MatchKindType
 
 const (
-	MatchExact MatchKindType = iota
-	MatchContains
-	MatchStartsWith
-	MatchEndsWith
-	MatchWildcard
+	MatchExact      = enums.MatchExact
+	MatchContains   = enums.MatchContains
+	MatchStartsWith = enums.MatchStartsWith
+	MatchEndsWith   = enums.MatchEndsWith
+	MatchWildcard   = enums.MatchWildcard
 )
+
+type MatchKind = enums.MatchKindType
 
 type FindFilesOptions struct {
 	Query     string
@@ -127,7 +130,7 @@ func evaluateFindArg(args []string, i int, opts FindFilesOptions, nonFlags []str
 		opts.Exts = parseExtensionList(args[i+1])
 		return opts, nonFlags, i + 1
 	}
-	if (arg == "--limit" || arg == "-l") && i+1 < len(args) {
+	if slices.Contains([]string{"--limit", "-l"}, arg) && i+1 < len(args) {
 		opts.Limit, _ = strconv.Atoi(args[i+1])
 		return opts, nonFlags, i + 1
 	}
@@ -137,7 +140,7 @@ func evaluateFindArg(args []string, i int, opts FindFilesOptions, nonFlags []str
 
 func evaluateFindInlineArg(args []string, i int, opts FindFilesOptions, nonFlags []string) (FindFilesOptions, []string, int) {
 	arg := args[i]
-	if arg == "--json" || arg == "-json" {
+	if slices.Contains([]string{"--json", "-json"}, arg) {
 		opts.IsJson = true
 		return opts, nonFlags, i
 	}
@@ -161,15 +164,15 @@ func evaluateFindInlineArg(args []string, i int, opts FindFilesOptions, nonFlags
 }
 
 func isDirFlag(arg string) bool {
-	return arg == "--dir" || arg == "-d" || arg == "--root" || arg == "--path" || arg == "-p"
+	return slices.Contains([]string{"--dir", "-d", "--root", "--path", "-p"}, arg)
 }
 
 func isQueryFlag(arg string) bool {
-	return arg == "--query" || arg == "-q" || arg == "--pattern"
+	return slices.Contains([]string{"--query", "-q", "--pattern"}, arg)
 }
 
 func isExtFlag(arg string) bool {
-	return arg == "-ext" || arg == "--ext"
+	return slices.Contains([]string{"-ext", "--ext"}, arg)
 }
 
 func extractPrefixedFlag(arg string, prefixes ...string) (string, bool) {

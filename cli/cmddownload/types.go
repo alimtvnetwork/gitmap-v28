@@ -5,19 +5,21 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmddownload/enums"
 
 // DownloadEngineType represents the active downloader backend.
-type DownloadEngineType string
-
-// DownloadEngine is an alias for DownloadEngineType for backwards compatibility.
-type DownloadEngine = DownloadEngineType
+// DownloadEngineType aliases the strongly-typed enum from the enums package.
+type DownloadEngineType = enums.DownloadEngineType
 
 const (
-	EngineAria2c DownloadEngine = "aria2c"
-	EngineCurl   DownloadEngine = "curl"
-	EngineGoHTTP DownloadEngine = "go_http"
-	EngineAuto   DownloadEngine = "auto"
+	EngineAria2c = enums.EngineAria2c
+	EngineCurl   = enums.EngineCurl
+	EngineGoHTTP = enums.EngineGoHTTP
+	EngineAuto   = enums.EngineAuto
 )
+
+// DownloadEngine is an alias for DownloadEngineType for backwards compatibility.
+type DownloadEngine = enums.DownloadEngineType
 
 // DownloadOptions parameterizes the download operation.
 type DownloadOptions struct {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/workspace/enums"
 
 // SourceHandle is the resolved <source> from spec §2.3. Path is the
 // absolute on-disk location after the four-case resolution. Kind
@@ -24,21 +25,18 @@ type SourceHandle struct {
 
 // SourceKindType enumerates spec §2.3 cases. PascalCase per Core memory
 // rules; literal strings live in this file (single use site).
-type SourceKindType uint8
-
-// SourceKind is a backward-compatible alias for SourceKindType.
-type SourceKind = SourceKindType
+// SourceKindType aliases the strongly-typed enum from the enums package.
+type SourceKindType = enums.SourceKindType
 
 const (
-	// SourceKindCloned is spec §2.3 case 1: URL → git clone.
-	SourceKindCloned SourceKindType = iota + 1
-	// SourceKindExistingRepo is spec §2.3 case 2: dir w/ .git → reuse.
-	SourceKindExistingRepo
-	// SourceKindInitInPlace is spec §2.3 case 3: dir w/o .git → git init.
-	SourceKindInitInPlace
-	// SourceKindCreatedAndInit is spec §2.3 case 4: missing → mkdir + init.
-	SourceKindCreatedAndInit
+	SourceKindCloned         = enums.SourceKindCloned
+	SourceKindExistingRepo   = enums.SourceKindExistingRepo
+	SourceKindInitInPlace    = enums.SourceKindInitInPlace
+	SourceKindCreatedAndInit = enums.SourceKindCreatedAndInit
 )
+
+// SourceKind is a backward-compatible alias for SourceKindType.
+type SourceKind = enums.SourceKindType
 
 // EnsureSource implements spec §3.1 stage 06. Pure routing — heavy
 // work is delegated to one helper per spec case so each function stays

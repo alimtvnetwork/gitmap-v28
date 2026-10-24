@@ -6,46 +6,48 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/mholt/archives"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/archive/enums"
 
 // FormatType is a string tag persisted in ArchiveHistory.ArchiveFormat. It
 // reads cleanly in PascalCase logs ("Zip", "TarGz") yet round-trips
 // through the canonical extension via FormatFromExt / FormatType.Extension.
-type FormatType string
+// FormatType aliases the strongly-typed enum from the enums package.
+type FormatType = enums.FormatType
+
+const (
+	FormatZip     = enums.FormatZip
+	FormatTar     = enums.FormatTar
+	FormatTarGz   = enums.FormatTarGz
+	FormatTarBz2  = enums.FormatTarBz2
+	FormatTarXz   = enums.FormatTarXz
+	FormatTarZst  = enums.FormatTarZst
+	FormatGz      = enums.FormatGz
+	FormatBz2     = enums.FormatBz2
+	FormatXz      = enums.FormatXz
+	FormatZst     = enums.FormatZst
+	Format7z      = enums.Format7z
+	FormatRar     = enums.FormatRar
+	FormatUnknown = enums.FormatUnknown
+)
 
 // Format is retained as a type alias for backwards compatibility.
-type Format = FormatType
-
-const (
-	FormatZip     FormatType = "Zip"
-	FormatTar     FormatType = "Tar"
-	FormatTarGz   FormatType = "TarGz"
-	FormatTarBz2  FormatType = "TarBz2"
-	FormatTarXz   FormatType = "TarXz"
-	FormatTarZst  FormatType = "TarZst"
-	FormatGz      FormatType = "Gz"
-	FormatBz2     FormatType = "Bz2"
-	FormatXz      FormatType = "Xz"
-	FormatZst     FormatType = "Zst"
-	Format7z      FormatType = "SevenZip"
-	FormatRar     FormatType = "Rar"
-	FormatUnknown FormatType = ""
-)
+type Format = enums.FormatType
 
 // CompressionModeType is the user-facing knob persisted in ArchiveHistory.CompressionMode.
-type CompressionModeType string
-
-// CompressionMode is retained as a type alias for backwards compatibility.
-type CompressionMode = CompressionModeType
+// CompressionModeType aliases the strongly-typed enum from the enums package.
+type CompressionModeType = enums.CompressionModeType
 
 const (
-	ModeStandard CompressionModeType = constants.CompressionStandard
-	ModeBest     CompressionModeType = constants.CompressionBest
-	ModeFast     CompressionModeType = constants.CompressionFast
+	ModeStandard = enums.ModeStandard
+	ModeBest     = enums.ModeBest
+	ModeFast     = enums.ModeFast
 )
+
+// CompressionMode is retained as a type alias for backwards compatibility.
+type CompressionMode = enums.CompressionModeType
 
 // CreateOptions bundles every knob `gitmap zip` exposes.
 type CreateOptions struct {
@@ -122,16 +124,17 @@ type ListExtractParams struct {
 }
 
 // SourceKindType classifies one entry on the command line.
-type SourceKindType int
-
-// SourceKind is retained as a type alias for backwards compatibility.
-type SourceKind = SourceKindType
+// SourceKindType aliases the strongly-typed enum from the enums package.
+type SourceKindType = enums.SourceKindType
 
 const (
-	SourceLocal SourceKindType = iota
-	SourceHTTP
-	SourceGit
+	SourceLocal = enums.SourceLocal
+	SourceHTTP  = enums.SourceHTTP
+	SourceGit   = enums.SourceGit
 )
+
+// SourceKind is retained as a type alias for backwards compatibility.
+type SourceKind = enums.SourceKindType
 
 // ResolvedSource is the materialized form of one user-supplied input.
 type ResolvedSource struct {

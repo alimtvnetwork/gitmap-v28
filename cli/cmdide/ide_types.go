@@ -1,15 +1,18 @@
 package cmdide
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdide/enums"
+
 // IDETargetType represents a supported IDE or editor target.
-type IDETargetType string
+// IDETargetType aliases the strongly-typed enum from the enums package.
+type IDETargetType = enums.IDETargetType
 
 const (
-	TargetVSCode        IDETargetType = "vscode"
-	TargetCursor        IDETargetType = "cursor"
-	TargetAntigravity   IDETargetType = "antigravity"
-	TargetDesktop       IDETargetType = "desktop"
-	TargetAll           IDETargetType = "all"
-	TargetGitHubDesktop IDETargetType = "github-desktop"
+	TargetVSCode        = enums.TargetVSCode
+	TargetCursor        = enums.TargetCursor
+	TargetAntigravity   = enums.TargetAntigravity
+	TargetDesktop       = enums.TargetDesktop
+	TargetAll           = enums.TargetAll
+	TargetGitHubDesktop = enums.TargetGitHubDesktop
 )
 
 // IDEOptions controls target selection and execution modes.

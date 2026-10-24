@@ -6,47 +6,51 @@ import (
 	"os/exec"
 	"time"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdfixreleasetags/enums"
 
 // AuditReasonType identifies the primary cause for flagging a release tag.
-type AuditReasonType string
+// AuditReasonType aliases the strongly-typed enum from the enums package.
+type AuditReasonType = enums.AuditReasonType
+
+const (
+	ReasonHealthy         = enums.ReasonHealthy
+	ReasonOrphanTag       = enums.ReasonOrphanTag
+	ReasonDraftRelease    = enums.ReasonDraftRelease
+	ReasonMissingAssets   = enums.ReasonMissingAssets
+	ReasonCorruptedAssets = enums.ReasonCorruptedAssets
+	ReasonCICDFailed      = enums.ReasonCICDFailed
+)
 
 // AuditReason is an alias for AuditReasonType.
-type AuditReason = AuditReasonType
-
-const (
-	ReasonHealthy         AuditReasonType = "HEALTHY"
-	ReasonOrphanTag       AuditReasonType = "ORPHAN_TAG"
-	ReasonDraftRelease    AuditReasonType = "DRAFT_RELEASE"
-	ReasonMissingAssets   AuditReasonType = "MISSING_ASSETS"
-	ReasonCorruptedAssets AuditReasonType = "CORRUPTED_ASSETS"
-	ReasonCICDFailed      AuditReasonType = "CICD_FAILED"
-)
+type AuditReason = enums.AuditReasonType
 
 // ProtectionStatusType indicates whether a tag is immune to deletion.
-type ProtectionStatusType string
+// ProtectionStatusType aliases the strongly-typed enum from the enums package.
+type ProtectionStatusType = enums.ProtectionStatusType
+
+const (
+	StatusEligible        = enums.StatusEligible
+	StatusProtectedActive = enums.StatusProtectedActive
+	StatusProtectedLatest = enums.StatusProtectedLatest
+	StatusProtectedGrace  = enums.StatusProtectedGrace
+)
 
 // ProtectionStatus is an alias for ProtectionStatusType.
-type ProtectionStatus = ProtectionStatusType
-
-const (
-	StatusEligible        ProtectionStatusType = "ELIGIBLE"
-	StatusProtectedActive ProtectionStatusType = "PROTECTED_ACTIVE_VERSION"
-	StatusProtectedLatest ProtectionStatusType = "PROTECTED_LATEST_HEALTHY"
-	StatusProtectedGrace  ProtectionStatusType = "PROTECTED_GRACE_WINDOW"
-)
+type ProtectionStatus = enums.ProtectionStatusType
 
 // StepStatusType tracks execution outcomes for individual deletion steps.
-type StepStatusType string
-
-// StepStatus is an alias for StepStatusType.
-type StepStatus = StepStatusType
+// StepStatusType aliases the strongly-typed enum from the enums package.
+type StepStatusType = enums.StepStatusType
 
 const (
-	StepPending StepStatusType = "PENDING"
-	StepSuccess StepStatusType = "SUCCESS"
-	StepSkipped StepStatusType = "SKIPPED"
-	StepFailed  StepStatusType = "FAILED"
+	StepPending = enums.StepPending
+	StepSuccess = enums.StepSuccess
+	StepSkipped = enums.StepSkipped
+	StepFailed  = enums.StepFailed
 )
+
+// StepStatus is an alias for StepStatusType.
+type StepStatus = enums.StepStatusType
 
 // ReleaseAssetInfo details an uploaded asset file.
 type ReleaseAssetInfo struct {

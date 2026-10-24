@@ -48,21 +48,6 @@ var singleExtMap = map[string]FormatType{
 	".rar": FormatRar,
 }
 
-var formatExtMap = map[FormatType]string{
-	FormatZip:    ".zip",
-	FormatTar:    ".tar",
-	FormatTarGz:  ".tar.gz",
-	FormatTarBz2: ".tar.bz2",
-	FormatTarXz:  ".tar.xz",
-	FormatTarZst: ".tar.zst",
-	FormatGz:     ".gz",
-	FormatBz2:    ".bz2",
-	FormatXz:     ".xz",
-	FormatZst:    ".zst",
-	Format7z:     ".7z",
-	FormatRar:    ".rar",
-}
-
 func matchExtMap(lower string, m map[string]FormatType) FormatType {
 	for ext, f := range m {
 		if strings.HasSuffix(lower, ext) {
@@ -88,12 +73,6 @@ func FormatFromPath(p string) FormatType {
 	}
 
 	return FormatUnknown
-}
-
-// Extension returns the canonical extension (with leading dot) the
-// CreateArchive path uses to construct mholt/archives Format objects.
-func (f FormatType) Extension() string {
-	return formatExtMap[f]
 }
 
 // IdentifyArchive opens the file and asks mholt/archives to sniff the

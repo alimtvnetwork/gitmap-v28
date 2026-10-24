@@ -31,38 +31,21 @@
 
 package cliexit
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/cliexit/enums"
+
 // KindType classifies a CLI failure into one of the documented buckets.
 // Use FailKind(ctx, kind, mode) at the cmd entry-point error path so
 // the (message, exit-code) pair stays atomic.
-type KindType int
+// KindType aliases the strongly-typed enum from the enums package.
+type KindType = enums.KindType
 
 const (
-	// KindSuccess is the zero-value sentinel. Never pass it to
-	// FailKind — it's only here so `var k KindType` defaults to a
-	// meaningful name in debuggers.
-	KindSuccess KindType = iota
-	// KindExecutionFailed covers any operational failure that
-	// happened while doing real work: git clone died, a file
-	// couldn't be written, a network call timed out. Exit 1.
-	KindExecutionFailed
-	// KindUserCanceled is "the user said no" — interactive
-	// abort, non-TTY without --yes, Ctrl-C at a confirm prompt.
-	// Exit 2. Distinct semantics from KindInvalidInput but
-	// shares the code (see file header).
-	KindUserCanceled
-	// KindInvalidInput is bad CLI input: unknown flag, missing
-	// positional, malformed manifest, unparseable URL. Exit 2.
-	KindInvalidInput
-	// KindVerifyFailed is a read-only check that found a
-	// divergence (clone-audit mismatch, verify-cmd-faithful
-	// mismatch). Exit 3 — distinguishable from operational
-	// failures so CI can branch on "drift vs broken".
-	KindVerifyFailed
-	// KindPreconditionFailed means the environment isn't ready:
-	// `git` not on PATH, DB locked by another process, required
-	// secret missing. Exit 4 — separate from input errors so
-	// retry logic can wait-and-retry instead of giving up.
-	KindPreconditionFailed
+	KindSuccess            = enums.KindSuccess
+	KindExecutionFailed    = enums.KindExecutionFailed
+	KindUserCanceled       = enums.KindUserCanceled
+	KindInvalidInput       = enums.KindInvalidInput
+	KindVerifyFailed       = enums.KindVerifyFailed
+	KindPreconditionFailed = enums.KindPreconditionFailed
 )
 
 // kindCodes is the single authoritative table. Wrapper scripts and

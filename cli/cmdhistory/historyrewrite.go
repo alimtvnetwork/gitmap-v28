@@ -12,16 +12,18 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdhistory/enums"
 
 // HistoryModeType picks which filter-repo behavior to wrap.
-type HistoryModeType int
-
-type historyMode = HistoryModeType
+// HistoryModeType aliases the strongly-typed enum from the enums package.
+type HistoryModeType = enums.HistoryModeType
 
 const (
-	HistoryModeTypePurge HistoryModeType = iota
-	HistoryModeTypePin
+	HistoryModeTypePurge = enums.HistoryModeTypePurge
+	HistoryModeTypePin   = enums.HistoryModeTypePin
 )
+
+type historyMode = enums.HistoryModeType
 
 const (
 	historyModePurge = HistoryModeTypePurge

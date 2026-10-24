@@ -1,14 +1,17 @@
 // Package cliexit — exitcodes.go defines strongly-typed exit codes and specialized helpers.
 package cliexit
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/cliexit/enums"
+
 // ExitCodeType classifies CLI process termination codes.
-type ExitCodeType int
+// ExitCodeType aliases the strongly-typed enum from the enums package.
+type ExitCodeType = enums.ExitCodeType
 
 const (
-	ExitCodeSuccess         ExitCodeType = 0
-	ExitCodeGeneralError    ExitCodeType = 1
-	ExitCodeUsageError      ExitCodeType = 2
-	ExitCodePartialFailure  ExitCodeType = 3
-	ExitCodeNotFound        ExitCodeType = 4
-	ExitCodeValidationError ExitCodeType = 5
+	ExitCodeSuccess         = enums.ExitCodeSuccess
+	ExitCodeGeneralError    = enums.ExitCodeGeneralError
+	ExitCodeUsageError      = enums.ExitCodeUsageError
+	ExitCodePartialFailure  = enums.ExitCodePartialFailure
+	ExitCodeNotFound        = enums.ExitCodeNotFound
+	ExitCodeValidationError = enums.ExitCodeValidationError
 )

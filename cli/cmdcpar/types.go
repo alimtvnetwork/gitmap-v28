@@ -5,6 +5,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdcpar/enums"
 
 type cparOptions struct {
 	isAutoYes    bool
@@ -28,14 +29,15 @@ type CPARRunState struct {
 }
 
 // CPARReviewActionType represents user choice in review flow.
-type CPARReviewActionType string
+// CPARReviewActionType aliases the strongly-typed enum from the enums package.
+type CPARReviewActionType = enums.CPARReviewActionType
 
 const (
-	ActionCommitAllFeature CPARReviewActionType = "feature"
-	ActionCommitAllBug     CPARReviewActionType = "bug"
-	ActionSingleRepo       CPARReviewActionType = "single"
-	ActionCommitAllChore   CPARReviewActionType = "chore"
-	ActionAbort            CPARReviewActionType = "abort"
+	ActionCommitAllFeature = enums.ActionCommitAllFeature
+	ActionCommitAllBug     = enums.ActionCommitAllBug
+	ActionSingleRepo       = enums.ActionSingleRepo
+	ActionCommitAllChore   = enums.ActionCommitAllChore
+	ActionAbort            = enums.ActionAbort
 )
 
 func parseCPAROptions(args []string) cparOptions {

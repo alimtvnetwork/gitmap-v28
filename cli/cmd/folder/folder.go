@@ -9,19 +9,21 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmd/folder/enums"
 
 // OutputFormat defines the rendering strategy for folder output.
-type OutputFormatType string
-
-type OutputFormat = OutputFormatType
+// OutputFormatType aliases the strongly-typed enum from the enums package.
+type OutputFormatType = enums.OutputFormatType
 
 const (
-	FormatTree OutputFormatType = "tree"
-	FormatMd   OutputFormatType = "md"
-	FormatJson OutputFormatType = "json"
-	FormatYaml OutputFormatType = "yaml"
-	FormatFlat OutputFormatType = "flat"
+	FormatTree = enums.FormatTree
+	FormatMd   = enums.FormatMd
+	FormatJson = enums.FormatJson
+	FormatYaml = enums.FormatYaml
+	FormatFlat = enums.FormatFlat
 )
+
+type OutputFormat = enums.OutputFormatType
 
 // Options holds CLI configurations and flags for folder scanning.
 type Options struct {

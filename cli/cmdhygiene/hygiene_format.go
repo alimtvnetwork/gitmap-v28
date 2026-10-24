@@ -7,17 +7,19 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdhygiene/enums"
 
 // HygieneFormatType is the value of --format; "" means default table output.
-type HygieneFormatType string
-
-type hygieneFormat = HygieneFormatType
+// HygieneFormatType aliases the strongly-typed enum from the enums package.
+type HygieneFormatType = enums.HygieneFormatType
 
 const (
-	HygieneFormatTypeTable HygieneFormatType = ""
-	HygieneFormatTypeJSON  HygieneFormatType = "json"
-	HygieneFormatTypeCSV   HygieneFormatType = "csv"
+	HygieneFormatTypeTable = enums.HygieneFormatTypeTable
+	HygieneFormatTypeJSON  = enums.HygieneFormatTypeJSON
+	HygieneFormatTypeCSV   = enums.HygieneFormatTypeCSV
 )
+
+type hygieneFormat = enums.HygieneFormatType
 
 const (
 	hygieneFormatTable = HygieneFormatTypeTable

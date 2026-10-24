@@ -10,14 +10,16 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmddesktopsync/enums"
 
 // SyncResultType represents the outcome of syncing one repo.
-type SyncResultType int
+// SyncResultType aliases the strongly-typed enum from the enums package.
+type SyncResultType = enums.SyncResultType
 
 const (
-	SyncResultTypeAdded SyncResultType = iota
-	SyncResultTypeSkipped
-	SyncResultTypeFailed
+	SyncResultTypeAdded   = enums.SyncResultTypeAdded
+	SyncResultTypeSkipped = enums.SyncResultTypeSkipped
+	SyncResultTypeFailed  = enums.SyncResultTypeFailed
 )
 
 // syncOne attempts to register a single repo with GitHub Desktop.

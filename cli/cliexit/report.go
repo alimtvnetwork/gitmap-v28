@@ -44,21 +44,20 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cliexit/enums"
 
 // OutputMode selects the rendering for Report / FailWith. Zero value
 // (OutputHuman) keeps the existing terminal-friendly shape so callers
 // that don't care about JSON pay no migration cost.
-type OutputModeType int
-
-type OutputMode = OutputModeType
+// OutputModeType aliases the strongly-typed enum from the enums package.
+type OutputModeType = enums.OutputModeType
 
 const (
-	// OutputHuman renders the canonical text line + indented
-	// context fields. This is the default.
-	OutputHuman OutputModeType = iota
-	// OutputJSON renders one single-line JSON object per failure.
-	OutputJSON
+	OutputHuman = enums.OutputHuman
+	OutputJSON  = enums.OutputJSON
 )
+
+type OutputMode = enums.OutputModeType
 
 // Context carries the structured fields a rich error site can
 // supply. Every field is optional — empty / zero values are elided

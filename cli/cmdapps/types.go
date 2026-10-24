@@ -1,42 +1,36 @@
 package cmdapps
 
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdapps/enums"
+
 // AppScopeType designates system-wide vs user-specific installations.
-type AppScopeType string
+// AppScopeType aliases the strongly-typed enum from the enums package.
+type AppScopeType = enums.AppScopeType
+
+const (
+	ScopeSystem = enums.ScopeSystem
+	ScopeUser   = enums.ScopeUser
+)
 
 // AppScope is an alias for AppScopeType for backward compatibility.
-type AppScope = AppScopeType
-
-const (
-	// ScopeSystem indicates a system-wide installed application.
-	ScopeSystem AppScope = "system"
-	// ScopeUser indicates a user-scoped application installation.
-	ScopeUser AppScope = "user"
-)
+type AppScope = enums.AppScopeType
 
 // PackageManagerType represents the detected managing package manager.
-type PackageManagerType string
-
-// PackageManager is an alias for PackageManagerType for backward compatibility.
-type PackageManager = PackageManagerType
+// PackageManagerType aliases the strongly-typed enum from the enums package.
+type PackageManagerType = enums.PackageManagerType
 
 const (
-	// ManagerApt represents Debian/Ubuntu APT.
-	ManagerApt PackageManager = "apt"
-	// ManagerDpkg represents Debian DPKG.
-	ManagerDpkg PackageManager = "dpkg"
-	// ManagerSnap represents Canonical Snap.
-	ManagerSnap PackageManager = "snap"
-	// ManagerFlatpak represents Flatpak.
-	ManagerFlatpak PackageManager = "flatpak"
-	// ManagerWinget represents Windows Package Manager (winget).
-	ManagerWinget PackageManager = "winget"
-	// ManagerReg represents Windows Registry Uninstall entry.
-	ManagerReg PackageManager = "registry"
-	// ManagerNpm represents Global Node Package Manager.
-	ManagerNpm PackageManager = "npm"
-	// ManagerCustom represents a standalone custom installed binary.
-	ManagerCustom PackageManager = "custom"
+	ManagerApt     = enums.ManagerApt
+	ManagerDpkg    = enums.ManagerDpkg
+	ManagerSnap    = enums.ManagerSnap
+	ManagerFlatpak = enums.ManagerFlatpak
+	ManagerWinget  = enums.ManagerWinget
+	ManagerReg     = enums.ManagerReg
+	ManagerNpm     = enums.ManagerNpm
+	ManagerCustom  = enums.ManagerCustom
 )
+
+// PackageManager is an alias for PackageManagerType for backward compatibility.
+type PackageManager = enums.PackageManagerType
 
 // InstalledApp represents an application discovered on the host system.
 type InstalledApp struct {

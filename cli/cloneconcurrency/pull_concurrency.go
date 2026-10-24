@@ -3,24 +3,23 @@ package cloneconcurrency
 import (
 	"runtime"
 )
+import "github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency/enums"
 
 // CPUProfileType defines the CPU auto-scaling profile for pull operations.
-type CPUProfileType string
-
-// CPUProfile is an alias for CPUProfileType for backwards compatibility.
-type CPUProfile = CPUProfileType
+// CPUProfileType aliases the strongly-typed enum from the enums package.
+type CPUProfileType = enums.CPUProfileType
 
 const (
-	// CPUProfileAuto dynamically scales concurrency based on available CPU logical cores.
-	CPUProfileAuto CPUProfile = "auto"
-	// CPUProfileHighPerf scales concurrency aggressively for high-performance low-pressure environments.
-	CPUProfileHighPerf CPUProfile = "high-perf"
-	// CPUProfileLowCPU throttles concurrency conservatively for resource-constrained systems.
-	CPUProfileLowCPU CPUProfile = "low-cpu"
+	CPUProfileAuto     = enums.CPUProfileAuto
+	CPUProfileHighPerf = enums.CPUProfileHighPerf
+	CPUProfileLowCPU   = enums.CPUProfileLowCPU
 )
 
+// CPUProfile is an alias for CPUProfileType for backwards compatibility.
+type CPUProfile = enums.CPUProfileType
+
 // ConcurrencyPreset is an alias for CPUProfile for backwards compatibility with component specs.
-type ConcurrencyPreset = CPUProfile
+type ConcurrencyPreset = enums.CPUProfileType
 
 const (
 	// PresetAutoScale is an alias for CPUProfileAuto.
