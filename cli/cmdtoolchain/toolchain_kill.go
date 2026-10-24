@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -62,14 +63,20 @@ func extractKillFlags(args []string) (KillOptions, []string) {
 	return opts, pos
 }
 
+var (
+	killForceFlagTokens = []string{"-f", "--force"}
+	killTreeFlagTokens  = []string{"-t", "--tree"}
+	killPortFlagTokens  = []string{"-p", "--port"}
+)
+
 func isFlagProcessed(opts *KillOptions, arg string) bool {
-	if arg == "-f" || arg == "--force" {
+	if slices.Contains(killForceFlagTokens, arg) {
 		opts.HasForce = true
 
 		return true
 	}
 
-	if arg == "-t" || arg == "--tree" {
+	if slices.Contains(killTreeFlagTokens, arg) {
 		opts.HasTree = true
 
 		return true
@@ -79,7 +86,7 @@ func isFlagProcessed(opts *KillOptions, arg string) bool {
 }
 
 func isPortFlag(arg string) bool {
-	return arg == "-p" || arg == "--port"
+	return slices.Contains(killPortFlagTokens, arg)
 }
 
 func executeKill(opts KillOptions) error {
