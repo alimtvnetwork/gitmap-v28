@@ -1,6 +1,7 @@
 package cmdchromeprofile
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -109,7 +110,7 @@ func parseOptionLimit(arg string, args []string, i *int, opts *chromeTransferOpt
 		return true
 	}
 
-	isLimitFlag := arg == "--limit" || arg == "-n" || arg == "-l" || arg == "-limit"
+	isLimitFlag := slices.Contains([]string{"--limit", "-n", "-l", "-limit"}, arg)
 	if isLimitFlag && *i+1 < len(args) {
 		*i++
 		opts.Limit, _ = strconv.Atoi(args[*i])
@@ -133,7 +134,7 @@ func parseOptionProfile(arg string, args []string, i *int, opts *chromeTransferO
 		return true
 	}
 
-	isProfileFlag := arg == "--profile" || arg == "-p" || arg == "-profile"
+	isProfileFlag := slices.Contains([]string{"--profile", "-p", "-profile"}, arg)
 	if isProfileFlag && *i+1 < len(args) {
 		*i++
 		opts.Profile = args[*i]
@@ -157,7 +158,7 @@ func parseOptionEmail(arg string, args []string, i *int, opts *chromeTransferOpt
 		return true
 	}
 
-	isFlag := arg == "--email" || arg == "-email"
+	isFlag := slices.Contains([]string{"--email", "-email"}, arg)
 	if isFlag && *i+1 < len(args) {
 		*i++
 		opts.Email = args[*i]
@@ -193,7 +194,7 @@ func parseOptionExcept(arg string, args []string, i *int, opts *chromeTransferOp
 		return true
 	}
 
-	isFlag := arg == "--except" || arg == "--exclude" || arg == "--skip" || arg == "-e"
+	isFlag := slices.Contains([]string{"--except", "--exclude", "--skip", "-e"}, arg)
 	if isFlag && *i+1 < len(args) {
 		*i++
 		appendExceptValues(opts, args[*i])

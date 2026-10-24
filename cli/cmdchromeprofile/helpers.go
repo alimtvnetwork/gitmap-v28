@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -33,7 +34,7 @@ func hasJSONFlag(args []string) bool {
 }
 
 func isHelpFlag(arg string) bool {
-	return arg == "help" || arg == "--help" || arg == "-h"
+	return slices.Contains([]string{"help", "--help", "-h"}, arg)
 }
 
 func resolveTempDir() string {
