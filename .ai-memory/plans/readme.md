@@ -65,6 +65,7 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 - [320-package-constants-and-enums-dry-restructuring.md](completed/320-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 2: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdsync, cmdplans, cmdstatus, cmdlogin, cmdcargo) (Status: `completed`)
 - [321-package-constants-and-enums-dry-restructuring.md](completed/321-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 3: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdconfig, cmddiff, cmdsearch, cmdbranch, cmdhealth) (Status: `completed`)
 - [322-package-constants-and-enums-dry-restructuring.md](completed/322-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 4: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdstats, cmdhooks, cmdprune, cmdadd, cmddocs) (Status: `completed`)
+- [323-package-constants-and-enums-dry-restructuring.md](completed/323-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 5: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdundo, cmdrevert, cmdstale, cmdconflict, cmdcopy) (Status: `completed`)
 
 ---
 

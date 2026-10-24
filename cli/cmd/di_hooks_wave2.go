@@ -23,6 +23,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommitpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcommittransfer"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcompletion"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcreate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddashboard"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
@@ -192,6 +193,7 @@ func wireWave2Hooks() {
 	cmdreplace.CheckHelpFn = checkHelp
 	cmdrepo.CheckHelpFn = checkHelp
 	cmdrevert.CheckHelpFn = checkHelp
+	cmdrevert.RepoPathFn = func() string { return constants.RepoPath }
 	cmdignore.CheckHelpFn = checkHelp
 	cmdinject.CheckHelpFn = checkHelp
 	cmdinject.WriteShellHandoffFn = cmdclone.WriteShellHandoff

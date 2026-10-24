@@ -8,8 +8,10 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconflict/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -19,63 +21,85 @@ func GetConflictedFiles(repoPath string) ([]string, error) {
 	if target == "" {
 		target = "."
 	}
+
 	diffFiles := parseDiffUnmergedFiles(target)
 	statusFiles := parseStatusUnmergedFiles(target, diffFiles)
+
 	return statusFiles, nil
 }
 
 func parseDiffUnmergedFiles(repoPath string) []string {
-	cmd := exec.Command("git", "-C", repoPath, "diff", "--name-only", "--diff-filter=U")
+	cmd := exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitSubCmdDiff, constants.GitArgNameOnly, constants.GitDiffFilterUnmerged)
 	out, err := cmd.Output()
 	if err != nil || len(out) == 0 {
 		return nil
 	}
+
+	return extractNonEmptyLines(string(out))
+}
+
+func extractNonEmptyLines(output string) []string {
 	var files []string
-	for _, line := range strings.Split(string(out), "\n") {
+	for _, line := range strings.Split(output, "\n") {
 		trimmed := strings.TrimSpace(line)
 		if trimmed != "" {
 			files = append(files, trimmed)
 		}
 	}
+
 	return files
 }
 
 func parseStatusUnmergedFiles(repoPath string, existing []string) []string {
-	statusCmd := exec.Command("git", "-C", repoPath, "status", "--porcelain")
+	statusCmd := exec.Command(constants.GitBin, constants.GitFlagDir, repoPath, constants.GitSubCmdStatus, constants.GitArgPorcelain)
 	statusOut, sErr := statusCmd.Output()
 	if sErr != nil || len(statusOut) == 0 {
 		return existing
 	}
+
+	return appendUnmergedStatusFiles(string(statusOut), existing)
+}
+
+func appendUnmergedStatusFiles(output string, existing []string) []string {
 	files := existing
-	for _, line := range strings.Split(string(statusOut), "\n") {
-		line = strings.TrimRight(line, "\r")
-		if len(line) < 4 {
-			continue
-		}
-		code := line[:2]
-		filePath := strings.TrimSpace(line[3:])
-		isUnmerged := isUnmergedStatusCode(code) && !containsString(files, filePath)
-		if isUnmerged {
-			files = append(files, filePath)
-		}
+	for _, line := range strings.Split(output, "\n") {
+		files = appendStatusLineIfUnmerged(line, files)
 	}
+
+	return files
+}
+
+func appendStatusLineIfUnmerged(line string, files []string) []string {
+	clean := strings.TrimRight(line, "\r")
+	if len(clean) < 4 {
+		return files
+	}
+
+	code := clean[:2]
+	filePath := strings.TrimSpace(clean[3:])
+	if isUnmergedStatusCode(code) && !hasString(files, filePath) {
+		return append(files, filePath)
+	}
+
 	return files
 }
 
 func isUnmergedStatusCode(code string) bool {
-	switch code {
-	case "UU", "AA", "UD", "DU", "DD", "AU", "UA":
-		return true
+	statusCode, err := enums.ParseConflictStatusCodeType(code)
+	if err != nil {
+		return false
 	}
-	return false
+
+	return statusCode.IsUnmerged()
 }
 
-func containsString(list []string, item string) bool {
+func hasString(list []string, item string) bool {
 	for _, v := range list {
 		if v == item {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -84,29 +108,48 @@ func isInsideGitRepo(path string) bool {
 	if target == "" {
 		target = "."
 	}
-	cmd := exec.Command("git", "-C", target, "rev-parse", "--is-inside-work-tree")
+
+	cmd := exec.Command(constants.GitBin, constants.GitFlagDir, target, constants.GitSubCmdRevParse, constants.GitArgIsInsideWorkTree)
 	out, err := cmd.Output()
-	return err == nil && strings.TrimSpace(string(out)) == "true"
+
+	return err == nil && strings.TrimSpace(string(out)) == constants.GitTrue
 }
 
 // ResolveRepoPath resolves a repo query (name, slug, or path) to an existing directory.
 func ResolveRepoPath(repoQuery string) string {
 	clean := strings.TrimSpace(repoQuery)
+	if path, hasResolved := resolveDirectRepoPath(clean); hasResolved {
+		return path
+	}
+
+	return queryStoredRepoDir(clean)
+}
+
+func resolveDirectRepoPath(clean string) (string, bool) {
 	if clean == "" && isInsideGitRepo(".") {
-		return "."
+		return ".", true
 	}
+
 	if clean == "" {
-		return ""
+		return "", true
 	}
+
 	if info, err := os.Stat(clean); err == nil && info.IsDir() {
-		return clean
+		return clean, true
 	}
+
+	return "", false
+}
+
+func queryStoredRepoDir(clean string) string {
 	if found := querySpecialRepoDir(clean); found != "" {
 		return found
 	}
+
 	if found := queryDefaultRepoDir(clean); found != "" {
 		return found
 	}
+
 	return clean
 }
 
@@ -115,15 +158,22 @@ func querySpecialRepoDir(clean string) string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 	rec, err := db.GetSpecialRepo(clean)
 	if err != nil || rec == nil || rec.LocalPath == "" {
 		return ""
 	}
-	info, statErr := os.Stat(rec.LocalPath)
+
+	return checkValidDir(rec.LocalPath)
+}
+
+func checkValidDir(path string) string {
+	info, statErr := os.Stat(path)
 	if statErr == nil && info.IsDir() {
-		return rec.LocalPath
+		return path
 	}
+
 	return ""
 }
 
@@ -132,40 +182,53 @@ func queryDefaultRepoDir(clean string) string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 	recs, err := db.FindBySlug(clean)
 	if err != nil || len(recs) == 0 {
 		return ""
 	}
+
+	return findFirstValidRepoDir(recs)
+}
+
+func findFirstValidRepoDir(recs []model.ScanRecord) string {
 	for _, r := range recs {
 		if r.AbsolutePath == "" {
 			continue
 		}
-		info, statErr := os.Stat(r.AbsolutePath)
-		if statErr == nil && info.IsDir() {
-			return r.AbsolutePath
+
+		if valid := checkValidDir(r.AbsolutePath); valid != "" {
+			return valid
 		}
 	}
+
 	return ""
 }
 
 // RunConflictsCmd implements 'gitmap conflicts [repo]'.
 func RunConflictsCmd(args []string) error {
 	if hasHelpFlag(args) {
-		helpdoc.Print("conflicts")
+		helpdoc.Print(constants.CmdConflicts)
+
 		return nil
 	}
 
 	target := extractFirstNonFlagArg(args)
-	if target != "" {
+	scope := enums.ResolveConflictScope(target, isInsideGitRepo("."))
+
+	return dispatchConflictScope(scope, target)
+}
+
+func dispatchConflictScope(scope enums.ConflictScopeType, target string) error {
+	switch scope {
+	case enums.ConflictScopeTarget:
 		return inspectTargetRepoConflicts(target)
-	}
-
-	if isInsideGitRepo(".") {
+	case enums.ConflictScopeCurrent:
 		return inspectCurrentRepoConflicts()
+	default:
+		return scanTrackedReposForConflicts()
 	}
-
-	return scanTrackedReposForConflicts()
 }
 
 func extractFirstNonFlagArg(args []string) string {
@@ -174,57 +237,92 @@ func extractFirstNonFlagArg(args []string) string {
 			return a
 		}
 	}
+
 	return ""
 }
 
 func inspectTargetRepoConflicts(target string) error {
 	repoPath := ResolveRepoPath(target)
 	if repoPath == "" {
-		return apperror.NewNotFoundError(fmt.Sprintf("repository %q not found or not a valid directory", target))
+		return apperror.NewNotFoundError(fmt.Sprintf(constants.ErrRepoNotFoundFmt, target))
 	}
+
 	files, err := GetConflictedFiles(repoPath)
 	if err != nil {
 		return err
 	}
+
+	return renderTargetRepoReport(target, repoPath, files)
+}
+
+func renderTargetRepoReport(target, repoPath string, files []string) error {
 	if len(files) == 0 {
-		fmt.Printf("%s No merge conflicts detected in %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoPath)
+		fmt.Printf(constants.MsgNoConflictsDetectedFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, repoPath)
+
 		return nil
 	}
+
 	printConflictTree(target, repoPath, files)
 	printQuickActions(target)
+
 	return nil
 }
 
 func scanTrackedReposForConflicts() error {
+	repos, err := loadTrackedRepos()
+	if err != nil {
+		return err
+	}
+
+	conflictCount := checkReposConflicts(repos)
+	if conflictCount == 0 {
+		fmt.Printf(constants.MsgNoConflictsAcrossTrackedFmt,
+			constants.ColorGreen+constants.GlyphCheck+constants.ColorReset, len(repos))
+	}
+
+	return nil
+}
+
+func loadTrackedRepos() ([]model.ScanRecord, error) {
 	db, err := store.OpenDefault()
 	if err != nil {
-		return apperror.WrapSimple(err, "cannot read repository store")
+		return nil, apperror.WrapSimple(err, constants.ErrCannotReadRepoStore)
 	}
-	defer db.Close()
 
+	defer db.Close()
 	repos, err := db.ListRepos()
 	if err != nil {
-		return apperror.WrapSimple(err, "cannot list repositories")
+		return nil, apperror.WrapSimple(err, constants.ErrCannotListRepos)
 	}
 
+	return repos, nil
+}
+
+func checkReposConflicts(repos []model.ScanRecord) int {
 	conflictCount := 0
 	for _, r := range repos {
-		if r.AbsolutePath == "" {
-			continue
-		}
-		files, _ := GetConflictedFiles(r.AbsolutePath)
-		if len(files) > 0 {
+		if hasRepoConflict(r) {
 			conflictCount++
-			printConflictTree(r.RepoName, r.AbsolutePath, files)
-			printQuickActions(r.RepoName)
 		}
 	}
 
-	if conflictCount == 0 {
-		fmt.Printf("%s No merge conflicts detected across %d tracked repositories.\n",
-			constants.ColorGreen+"✓"+constants.ColorReset, len(repos))
+	return conflictCount
+}
+
+func hasRepoConflict(r model.ScanRecord) bool {
+	if r.AbsolutePath == "" {
+		return false
 	}
-	return nil
+
+	files, _ := GetConflictedFiles(r.AbsolutePath)
+	if len(files) == 0 {
+		return false
+	}
+
+	printConflictTree(r.RepoName, r.AbsolutePath, files)
+	printQuickActions(r.RepoName)
+
+	return true
 }
 
 func inspectCurrentRepoConflicts() error {
@@ -232,35 +330,54 @@ func inspectCurrentRepoConflicts() error {
 	if err != nil {
 		return err
 	}
+
+	return renderCurrentRepoConflicts(files)
+}
+
+func renderCurrentRepoConflicts(files []string) error {
 	if len(files) == 0 {
-		fmt.Printf("%s No merge conflicts detected in current repository.\n", constants.ColorGreen+"✓"+constants.ColorReset)
+		fmt.Printf(constants.MsgNoConflictsCurrentRepoFmt, constants.ColorGreen+constants.GlyphCheck+constants.ColorReset)
+
 		return nil
 	}
+
 	name := filepath.Base(getAbsPath("."))
 	printConflictTree(name, ".", files)
 	printQuickActions(name)
+
 	return nil
 }
 
 func printConflictTree(repoName, repoPath string, files []string) {
-	fmt.Printf("\n📁 Repository: %s (%s)\n", repoName, repoPath)
-	fmt.Printf("   Conflicted Files (%d):\n", len(files))
+	fmt.Printf(constants.HeaderRepoConflictsFmt, repoName, repoPath)
+	fmt.Printf(constants.HeaderConflictedFilesCountFmt, len(files))
 	for i, f := range files {
-		prefix := "├──"
+		prefix := constants.TreePrefixBranch
 		if i == len(files)-1 {
-			prefix = "└──"
+			prefix = constants.TreePrefixLeaf
 		}
-		fmt.Printf("   %s %s\n", prefix, f)
+
+		fmt.Printf(constants.LineConflictFileFmt, prefix, f)
 	}
 }
 
 func printQuickActions(repoName string) {
-	fmt.Printf("\n⚡ Quick Actions:\n")
-	fmt.Printf("   gitmap resolve %s --ide      Launch VS Code / IDE 3-Way Merge Editor\n", repoName)
-	fmt.Printf("   gitmap resolve %s --theirs   Accept incoming remote changes\n", repoName)
-	fmt.Printf("   gitmap resolve %s --ours     Accept local current changes\n", repoName)
-	fmt.Printf("   gitmap resolve %s --abort    Abort merge or rebase\n", repoName)
-	fmt.Printf("   gitmap cpf \"resolve conflicts\" Stage, commit, and push once resolved\n\n")
+	fmt.Print(constants.HelpSectionQuickActions)
+	fmt.Printf(constants.HelpActionIDE, repoName)
+	fmt.Printf(constants.HelpActionTheirs, repoName)
+	fmt.Printf(constants.HelpActionOurs, repoName)
+	fmt.Printf(constants.HelpActionAbort, repoName)
+	fmt.Print(constants.HelpActionCommit)
+}
+
+func hasHelpFlag(args []string) bool {
+	for _, a := range args {
+		if a == constants.FlagHelpShort || a == constants.FlagHelpLong || a == constants.FlagHelp {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getAbsPath(path string) string {
@@ -268,5 +385,6 @@ func getAbsPath(path string) string {
 	if err != nil {
 		return path
 	}
+
 	return abs
 }

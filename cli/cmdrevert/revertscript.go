@@ -7,63 +7,66 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
-// runRevertRunner is the hidden command that performs the revert build.
-//
-// Phase 3 of the handoff chain runs at the end via scheduleDeployedCleanupHandoff
-// so the freshly-deployed binary can remove the still-locked handoff copy
-// and the just-renamed *.exe.old (the same flow used by runUpdateRunner).
-// The PS template (RevertPSPostActions) intentionally does NOT call
-// `update-cleanup` synchronously — that would race against this still-alive
-// handoff process and emit two scary "Access is denied" lines.
+// RunRevertRunner is the hidden command that performs the revert build.
 func RunRevertRunner() error {
-	repoPath := constants.RepoPath
+	repoPath := getRepoPath()
 	if len(repoPath) == 0 {
-		appErr := apperror.NewWithDetails(
-			"revert.runner",
-			"E2013",
-			constants.ErrNoRepoPath,
-			"cmd.revertscript",
-			apperror.ErrorTypePrecondition,
-			apperror.SeverityError,
-			nil,
-		)
-		cliexit.HandleError(appErr, 1)
+		return newRunnerRepoPathError()
 	}
 
 	cmdupdate.InitRunnerVerbose()
-	fmt.Printf(constants.MsgRevertStarting)
-	executeRevert(repoPath)
+	fmt.Print(constants.MsgRevertStarting)
+	if err := executeRevert(repoPath); err != nil {
+		return err
+	}
+
 	cmdupdate.ScheduleDeployedCleanupHandoff()
 
 	return nil
 }
 
+func newRunnerRepoPathError() *apperror.AppError {
+	return apperror.NewWithDetails(
+		constants.OpRevertRunner,
+		constants.ErrCodeE2013,
+		constants.ErrNoRepoPath,
+		constants.DomainCmdRevertScript,
+		apperror.ErrorTypePrecondition,
+		apperror.SeverityError,
+		nil,
+	)
+}
+
 // executeRevert writes a temp PS1 script and runs it.
-func executeRevert(repoPath string) {
+func executeRevert(repoPath string) error {
 	scriptPath, err := writeRevertScript(repoPath)
 	if err != nil {
-		cliexit.HandleError(err, 1)
+		return err
 	}
 
 	defer os.Remove(scriptPath)
+	logRevertExec(scriptPath)
 
+	return runRevertPS(scriptPath)
+}
+
+func logRevertExec(scriptPath string) {
 	log := verbose.Get()
-	if log != nil {
-		log.Log(constants.RevertScriptLogExec, scriptPath)
+	if log == nil {
+		return
 	}
 
-	runRevertPS(scriptPath)
+	log.Log(constants.RevertScriptLogExec, scriptPath)
 }
 
 // writeRevertScript creates a temporary PowerShell script for revert build.
 func writeRevertScript(repoPath string) (string, error) {
-	runPS1 := filepath.Join(repoPath, "run.ps1")
+	runPS1 := filepath.Join(repoPath, constants.ScriptRunPS1)
 	script := buildRevertScript(repoPath, runPS1)
 
 	return cmdupdate.WriteScriptToTemp(script)
@@ -78,8 +81,8 @@ func buildRevertScript(repoPath, runPS1 string) string {
 
 // runRevertPS executes the PowerShell script with output piped to terminal.
 func runRevertPS(scriptPath string) error {
-	cmd := exec.Command(constants.PSBin, constants.PSExecPolicy, constants.PSBypass,
-		constants.PSNoProfile, constants.PSNoLogo, constants.PSFile, scriptPath)
+	cmd := exec.Command(constants.BinPowershell, constants.PSArgExecPolicy, constants.PSValBypass,
+		constants.PSArgNoProfile, constants.PSArgNoLogo, constants.PSArgFile, scriptPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -87,10 +90,10 @@ func runRevertPS(scriptPath string) error {
 
 	logRevertResult(err)
 	if err != nil {
-		return apperror.WrapSimple(err, "runRevertPS")
+		return apperror.WrapSimple(err, constants.OpRunRevertPS)
 	}
 
-	fmt.Printf(constants.MsgRevertDone)
+	fmt.Print(constants.MsgRevertDone)
 
 	return nil
 }
@@ -98,7 +101,9 @@ func runRevertPS(scriptPath string) error {
 // logRevertResult logs the revert script exit status if verbose is active.
 func logRevertResult(err error) {
 	log := verbose.Get()
-	if log != nil {
-		log.Log(constants.RevertScriptLogExit, err)
+	if log == nil {
+		return
 	}
+
+	log.Log(constants.RevertScriptLogExit, err)
 }
