@@ -4,16 +4,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/types"
 )
 
-var slugSeparatorRuns = regexp.MustCompile(`[-_\s]+`)
+var slugSeparatorRuns = lazyregex.New(`[-_\s]+`)
 
 func validateSubtaskIdentifierParams(id, code, slug string) (string, string, string, error) {
 	cleanId, cleanCode, cleanSlug := strings.TrimSpace(id), strings.TrimSpace(code), strings.TrimSpace(slug)

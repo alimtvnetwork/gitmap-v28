@@ -3,16 +3,16 @@ package cmdagy
 import (
 	"fmt"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // DefaultQueueCheckPrefix is prepended to queued prompts when re-injecting after an active rerun.
 const DefaultQueueCheckPrefix = "is it completed properly and released?? Please verify if the following task is already completed; if not, execute and complete it now:"
 
-var imagePathRegex = regexp.MustCompile(`(?i)(?:file:///|[a-zA-Z]:[\\/]|[\w\-\./\\]+\/)[a-zA-Z0-9_\-\./\\]+\.(?:png|jpg|jpeg|gif|webp)`)
+var imagePathRegex = lazyregex.New(`(?i)(?:file:///|[a-zA-Z]:[\\/]|[\w\-\./\\]+\/)[a-zA-Z0-9_\-\./\\]+\.(?:png|jpg|jpeg|gif|webp)`)
 
 // ExtractAllImagePathsFromPrompt combines structured transcript media URIs and inline file paths.
 func ExtractAllImagePathsFromPrompt(content string, media []rawTranscriptMedia) []string {

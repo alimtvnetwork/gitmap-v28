@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -30,8 +30,8 @@ type AgyConvInspectRow struct {
 }
 
 var (
-	xmlTagRegex  = regexp.MustCompile(`(?s)<[^>]+>.*?</[^>]+>`)
-	tagLineRegex = regexp.MustCompile(`(?m)^\s*<[^>]+>\s*$`)
+	xmlTagRegex  = lazyregex.New(`(?s)<[^>]+>.*?</[^>]+>`)
+	tagLineRegex = lazyregex.New(`(?m)^\s*<[^>]+>\s*$`)
 )
 
 // TrimBoilerplatePrompt cleans system tags and extracts up to 200 chars of user prompt.

@@ -10,16 +10,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-var runPrefixRe = regexp.MustCompile(`^(\d+)-`)
+var runPrefixRe = lazyregex.New(`^(\d+)-`)
 
 func buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug string, parentId int64, budget int) map[string]any {
 	absDbPath, _ := filepath.Abs(dbPath)

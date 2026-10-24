@@ -4,12 +4,13 @@ package cmdagy
 import (
 	"encoding/csv"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var targetProcRegex = regexp.MustCompile(`(?i)^(antigravity|electron|msedge|msedgewebview2)(\.exe)?$`)
+var targetProcRegex = lazyregex.New(`(?i)^(antigravity|electron|msedge|msedgewebview2)(\.exe)?$`)
 
 func parseTasklistCSV(output string, currentPid int) []AgyProcessInfo {
 	var procs []AgyProcessInfo

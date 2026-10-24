@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 	DefaultGlobalAssetsDir = "~/.gitmap/assets"
 )
 
-var base64ImageRegex = regexp.MustCompile(`data:image/(png|jpeg|jpg|webp|gif);base64,([A-Za-z0-9+/=]+)`)
+var base64ImageRegex = lazyregex.New(`data:image/(png|jpeg|jpg|webp|gif);base64,([A-Za-z0-9+/=]+)`)
 
 type imageMatchResult struct {
 	MatchStart  int
@@ -46,7 +46,7 @@ func ExtractAndStoreBase64Images(promptText string, targetDir string) (string, [
 		return "", nil, err
 	}
 
-	matches := base64ImageRegex.FindAllStringSubmatchIndex(promptText, -1)
+	matches := base64ImageRegex.Compiled().FindAllStringSubmatchIndex(promptText, -1)
 
 	return processImageMatches(promptText, resolvedDir, matches)
 }

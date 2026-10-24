@@ -5,12 +5,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // ResolvedInput is one entry in the post-expansion input list. Order
@@ -141,7 +141,7 @@ func reindex(in []ResolvedInput) []ResolvedInput {
 // versionSuffix matches the canonical `-vN` suffix used everywhere in
 // the project (clone-next, fix-repo, history-rewrite). N is captured
 // as group 1.
-var versionSuffix = regexp.MustCompile(`-v(\d+)$`)
+var versionSuffix = lazyregex.New(`-v(\d+)$`)
 
 // discoverSiblings reads source's parent directory and returns every
 // versioned sibling sorted ascending by version (plain base = v0).
@@ -223,7 +223,7 @@ func matchSibling(base, name string) (int, bool) {
 // stripVersionSuffix removes a single trailing `-vN` from a basename.
 // Public-named helper used by discoverSiblings AND the test suite.
 func stripVersionSuffix(name string) string {
-	m := versionSuffix.FindStringSubmatchIndex(name)
+	m := versionSuffix.Compiled().FindStringSubmatchIndex(name)
 	if m == nil {
 		return name
 	}

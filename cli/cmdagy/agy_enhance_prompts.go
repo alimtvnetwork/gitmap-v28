@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/spf13/cobra"
 )
 
 var (
 	enhancePromptsFolder string
-	promptHeaderRe       = regexp.MustCompile(`^(#{1,3})\s+(.+)`)
-	promptListHeaderRe   = regexp.MustCompile(`^(\d+\.|\*|\-)\s+\*\*(.+?)\*\*`)
+	promptHeaderRe       = lazyregex.New(`^(#{1,3})\s+(.+)`)
+	promptListHeaderRe   = lazyregex.New(`^(\d+\.|\*|\-)\s+\*\*(.+?)\*\*`)
 )
 
 // AgyEnhancePromptsCmd decomposes a complex prompt into structured micro-task markdown files.
@@ -47,7 +47,7 @@ type decomposedSection struct {
 	FileName string
 }
 
-var nonAlphaNumRegex = regexp.MustCompile(`[^a-z0-9]+`)
+var nonAlphaNumRegex = lazyregex.New(`[^a-z0-9]+`)
 
 func slugify(text string) string {
 	lower := strings.ToLower(text)

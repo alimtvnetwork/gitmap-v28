@@ -6,19 +6,19 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 var (
-	reMarkdownMedia = regexp.MustCompile(`!\[[^\]]*\]\(([^)]+)\)`)
-	reRawUUID       = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+	reMarkdownMedia = lazyregex.New(`!\[[^\]]*\]\(([^)]+)\)`)
+	reRawUUID       = lazyregex.New(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 )
 
 func getAllProjects() ([]AgyProject, error) {
@@ -175,7 +175,7 @@ func extractPromptMediaPaths(text, projectPath string) []string {
 }
 
 func appendMarkdownMediaPaths(paths []string, seen map[string]bool, text string) []string {
-	matches := reMarkdownMedia.FindAllStringSubmatch(text, -1)
+	matches := reMarkdownMedia.Compiled().FindAllStringSubmatch(text, -1)
 	for _, m := range matches {
 		if len(m) > 1 {
 			paths = addUniqueMediaPath(paths, seen, m[1])

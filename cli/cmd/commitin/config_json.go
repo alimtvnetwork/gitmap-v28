@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var configVarRegex = regexp.MustCompile(`\$\{([a-zA-Z0-9_.-]+)\}|\$([a-zA-Z0-9_.-]+)`)
+var configVarRegex = lazyregex.New(`\$\{([a-zA-Z0-9_.-]+)\}|\$([a-zA-Z0-9_.-]+)`)
 
 // SyncStateTemplatesHook allows the orchestrator or cmd layer to sync
 // imported JSON files into gitmap-templates.db with hash deduplication.
@@ -430,7 +430,7 @@ func expandStaticVars(input string, vars map[string]string) string {
 	if !strings.Contains(input, "$") || len(vars) == 0 {
 		return input
 	}
-	return configVarRegex.ReplaceAllStringFunc(input, func(m string) string {
+	return configVarRegex.Compiled().ReplaceAllStringFunc(input, func(m string) string {
 		key := strings.TrimPrefix(m, "$")
 		key = strings.TrimPrefix(key, "{")
 		key = strings.TrimSuffix(key, "}")
