@@ -256,3 +256,86 @@ const (
 	SSHFallbackTierGlobalDefault SSHFallbackTierType = 4
 	SSHFallbackTierSystemDefault SSHFallbackTierType = 5
 )
+
+// SSHHostRoleType represents host cluster roles.
+type SSHHostRoleType string
+
+const (
+	SSHHostRoleControl      SSHHostRoleType = "control"
+	SSHHostRoleWorker       SSHHostRoleType = "worker"
+	SSHHostRoleMaster       SSHHostRoleType = "master"
+	SSHHostRoleControlPlane SSHHostRoleType = "control-plane"
+	SSHHostRoleCP           SSHHostRoleType = "cp"
+)
+
+// IsControlPlane reports whether r represents a control plane node.
+func (r SSHHostRoleType) IsControlPlane() bool {
+	switch r {
+	case SSHHostRoleControl, SSHHostRoleMaster, SSHHostRoleControlPlane, SSHHostRoleCP:
+		return true
+	default:
+		return false
+	}
+}
+
+// String returns the string representation.
+func (r SSHHostRoleType) String() string {
+	return string(r)
+}
+
+// SSHNodeStatusType represents the health and connectivity status of an SSH host.
+type SSHNodeStatusType string
+
+const (
+	SSHNodeStatusReady      SSHNodeStatusType = "ready"
+	SSHNodeStatusActive     SSHNodeStatusType = "active"
+	SSHNodeStatusOffline    SSHNodeStatusType = "offline"
+	SSHNodeStatusAuthFailed SSHNodeStatusType = "auth failed"
+)
+
+// IsActive reports whether the status is ready or active.
+func (s SSHNodeStatusType) IsActive() bool {
+	return s == SSHNodeStatusReady || s == SSHNodeStatusActive
+}
+
+// IsOffline reports whether the status is offline.
+func (s SSHNodeStatusType) IsOffline() bool {
+	return s == SSHNodeStatusOffline
+}
+
+// String returns the string representation.
+func (s SSHNodeStatusType) String() string {
+	return string(s)
+}
+
+// SSHRmTargetType represents targets for ssh removal operations.
+type SSHRmTargetType string
+
+const (
+	SSHRmTargetKeys  SSHRmTargetType = "keys"
+	SSHRmTargetKey   SSHRmTargetType = "key"
+	SSHRmTargetNodes SSHRmTargetType = "nodes"
+	SSHRmTargetNode  SSHRmTargetType = "node"
+	SSHRmTargetAll   SSHRmTargetType = "all"
+	SSHRmTargetClear SSHRmTargetType = "clear"
+)
+
+// IsKeys reports whether target refers to SSH keys.
+func (t SSHRmTargetType) IsKeys() bool {
+	return t == SSHRmTargetKeys || t == SSHRmTargetKey
+}
+
+// IsNodes reports whether target refers to SSH nodes.
+func (t SSHRmTargetType) IsNodes() bool {
+	return t == SSHRmTargetNodes || t == SSHRmTargetNode
+}
+
+// IsAll reports whether target refers to clearing all entries.
+func (t SSHRmTargetType) IsAll() bool {
+	return t == SSHRmTargetAll || t == SSHRmTargetClear
+}
+
+// String returns the string representation.
+func (t SSHRmTargetType) String() string {
+	return string(t)
+}

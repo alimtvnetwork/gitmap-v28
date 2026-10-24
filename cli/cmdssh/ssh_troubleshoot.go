@@ -14,13 +14,26 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+// SSHDiagnosisType classifies the root-cause diagnosis of SSH connectivity probes.
+type SSHDiagnosisType string
+
 const (
-	DiagFirewallInboundDrop = "FIREWALL INBOUND DROP"
-	DiagDaemonNotRunning    = "SSH DAEMON NOT RUNNING"
-	DiagHostOffline         = "HOST UNREACHABLE / OFFLINE"
-	DiagSSHPortOpen         = "SSH PORT OPEN & ACCESSIBLE"
-	DiagUnknownError        = "NETWORK PROBE ERROR"
+	DiagFirewallInboundDrop SSHDiagnosisType = "FIREWALL INBOUND DROP"
+	DiagDaemonNotRunning    SSHDiagnosisType = "SSH DAEMON NOT RUNNING"
+	DiagHostOffline         SSHDiagnosisType = "HOST UNREACHABLE / OFFLINE"
+	DiagSSHPortOpen         SSHDiagnosisType = "SSH PORT OPEN & ACCESSIBLE"
+	DiagUnknownError        SSHDiagnosisType = "NETWORK PROBE ERROR"
 )
+
+// String returns the string representation.
+func (d SSHDiagnosisType) String() string {
+	return string(d)
+}
+
+// IsOpen reports whether SSH port is open and accessible.
+func (d SSHDiagnosisType) IsOpen() bool {
+	return d == DiagSSHPortOpen
+}
 
 type tcpProbeFunc func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, error)
 type pingProbeFunc func(ctx context.Context, ip string, timeout time.Duration) bool
@@ -46,7 +59,7 @@ var defaultPingProber pingProbeFunc = func(ctx context.Context, ip string, timeo
 }
 
 func buildPingCommand(ctx context.Context, ip string, timeout time.Duration) *exec.Cmd {
-	if runtime.GOOS == "windows" {
+	if constants.IsWindowsPlatform() {
 		ms := strconv.Itoa(int(timeout / time.Millisecond))
 
 		return exec.CommandContext(ctx, "ping", "-n", "1", "-w", ms, ip)
@@ -76,7 +89,7 @@ type troubleshootReport struct {
 	isPingOk     bool
 	isWinRMOpen  bool
 	isRDPOpen    bool
-	diagnosis    string
+	diagnosis    SSHDiagnosisType
 	probeErrText string
 }
 
@@ -133,7 +146,7 @@ func isRefusedError(err error) bool {
 	return strings.Contains(msg, "refused") || strings.Contains(msg, "wsaeconnrefused")
 }
 
-func classifyTroubleshootDiagnosis(isSSHOpen, isTimeout, isRefused, isPingOk bool) string {
+func classifyTroubleshootDiagnosis(isSSHOpen, isTimeout, isRefused, isPingOk bool) SSHDiagnosisType {
 	if isSSHOpen {
 		return DiagSSHPortOpen
 	}

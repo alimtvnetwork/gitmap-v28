@@ -40,6 +40,8 @@ func resolveVerbPrefix(verb string) string {
 		return "Feature: "
 	case "cpb", "cbf", "bug", "commit-push-bug":
 		return "Bug: "
+	case "cfr", "refactor", "commit-push-refactor":
+		return "Refactor: "
 	case "cpc", "chore", "commit-push-chore":
 		return "Chore: "
 	case "cpr", "release", "commit-push-release":
@@ -57,6 +59,10 @@ func trimDuplicatePrefix(verb, s string) string {
 
 	if prefix == "Bug: " && strings.HasPrefix(strings.ToLower(s), "fix: ") {
 		return strings.TrimSpace(s[5:])
+	}
+
+	if prefix == "Refactor: " && strings.HasPrefix(strings.ToLower(s), "refactor: ") {
+		return strings.TrimSpace(s[10:])
 	}
 
 	return s

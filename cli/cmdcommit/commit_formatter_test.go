@@ -49,6 +49,13 @@ func TestParseAndFormatCommitMessage_HyphenSyntax(t *testing.T) {
 			module:   "V6.600.0",
 		},
 		{
+			name:     "cfr hyphen refactor",
+			verb:     "cfr",
+			args:     []string{"toolchain", "-", "extract", "llvm", "resolver"},
+			expected: "Refactor: TOOLCHAIN - extract llvm resolver",
+			module:   "TOOLCHAIN",
+		},
+		{
 			name:     "module with path slashes",
 			verb:     "cpf",
 			args:     []string{"cli/cmdworkgroup", "-", "add", "resolver"},

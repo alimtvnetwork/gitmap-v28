@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
-	"strings"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // runPinCLI handles 'gitmap pin [installer] <target> <version>'.
@@ -12,6 +14,7 @@ func RunPinCLI(args []string) error {
 	cleanArgs := filterLeadingPinKeywords(args)
 	if isPinHelp(cleanArgs) {
 		printPinHelp()
+
 		return nil
 	}
 
@@ -21,6 +24,7 @@ func RunPinCLI(args []string) error {
 
 	target := cleanArgs[0]
 	version := cleanArgs[1]
+
 	return cmdinstaller.PinVersion(target, version)
 }
 
@@ -28,20 +32,20 @@ func isPinHelp(tokens []string) bool {
 	if len(tokens) == 0 {
 		return true
 	}
-	first := tokens[0]
-	return first == "-h" || first == "--help" || first == "help"
+
+	return constants.IsHelpFlag(tokens[0])
 }
 
 func filterLeadingPinKeywords(args []string) []string {
 	tokens := args
 	for len(tokens) > 0 {
-		first := strings.ToLower(tokens[0])
-		isKeyword := first == "installer" || first == "object" || first == "version"
-		if !isKeyword {
+		if !constants.IsPinKeyword(tokens[0]) {
 			break
 		}
+
 		tokens = tokens[1:]
 	}
+
 	return tokens
 }
 
@@ -50,10 +54,12 @@ func RunUnpinCLI(args []string) error {
 	cleanArgs := filterLeadingPinKeywords(args)
 	if isPinHelp(cleanArgs) {
 		printUnpinHelp()
+
 		return nil
 	}
 
 	target := cleanArgs[0]
+
 	return cmdinstaller.UnpinVersion(target)
 }
 

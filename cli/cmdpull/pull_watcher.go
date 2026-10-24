@@ -71,13 +71,14 @@ func processPolledTask(db *PullTaskSplitDB, task *PullTaskRecord) (bool, *apperr
 }
 
 func handleTerminalTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCompleted {
+	st := constants.PullTaskStatusType(task.Status)
+	if st.IsCompleted() {
 		renderWatcherCompletion(task)
 
 		return true, nil
 	}
 
-	if task.Status == constants.PullTaskStatusFailed {
+	if st.IsFailed() {
 		return handleFailedTaskStatus(task)
 	}
 
@@ -92,7 +93,7 @@ func handleFailedTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
 }
 
 func handleCanceledTaskStatus(task *PullTaskRecord) (bool, *apperror.AppError) {
-	if task.Status == constants.PullTaskStatusCanceled {
+	if constants.PullTaskStatusType(task.Status).IsCanceled() {
 		return true, apperror.NewSimple("pull task was canceled", "E_PULL_CANCELED")
 	}
 
@@ -169,7 +170,7 @@ func formatRepoTreeLine(repo PullTaskRepoRecord) string {
 	durSec := float64(repo.DurationMs) / 1000.0
 	slugPadded := fmt.Sprintf("%-25s", repo.RepoSlug)
 
-	if repo.Status == constants.PullTaskRepoStatusPulling {
+	if constants.PullTaskRepoStatusType(repo.Status).IsPulling() {
 		return fmt.Sprintf("%s ➜ pulling...", slugPadded)
 	}
 
@@ -177,11 +178,12 @@ func formatRepoTreeLine(repo PullTaskRepoRecord) string {
 }
 
 func formatCompletedRepoLine(repo PullTaskRepoRecord, slugPadded string, durSec float64) string {
-	if repo.Status == constants.PullTaskRepoStatusSuccess {
+	repoSt := constants.PullTaskRepoStatusType(repo.Status)
+	if repoSt.IsSuccess() {
 		return formatSuccessRepoLine(slugPadded, repo.CommitSha, repo.CommitTitle, durSec)
 	}
 
-	if repo.Status == constants.PullTaskRepoStatusFailed {
+	if repoSt.IsFailed() {
 		return fmt.Sprintf("%s ✘ failed (%s)", slugPadded, repo.ErrorMessage)
 	}
 

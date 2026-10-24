@@ -2,7 +2,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -53,11 +52,13 @@ func isSendsHelpRequested(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
+
 	for _, a := range args {
-		if a == "-h" || a == "--help" || a == "help" {
+		if constants.IsHelpFlag(a) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -72,13 +73,13 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "-n" || arg == "--dry-run":
+		case constants.IsDryRunFlag(arg):
 			opts.IsDryRun = true
-		case arg == "--no-push":
+		case arg == constants.FlagNoPush:
 			isLocalOnlyRequested = true
-		case arg == "-j" || arg == "--json":
+		case constants.IsJSONFlag(arg):
 			opts.IsJSON = true
-		case arg == "-v" || arg == "--verbose":
+		case constants.IsVerboseFlag(arg):
 			opts.IsVerbose = true
 		case strings.HasPrefix(arg, "-"):
 			// Ignore unknown flags or handle as needed
@@ -88,7 +89,7 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 	}
 
 	if len(positional) < 3 {
-		return opts, apperror.NewSimple("Usage: gitmap sends <verb> <target> \"<message>\" [flags]", "E9000")
+		return opts, apperror.NewSimple("Usage: gitmap sends <verb> <target> \"<message>\" [flags]", string(constants.ErrCodeGenericExecution))
 	}
 
 	opts.Verb = strings.ToLower(positional[0])
@@ -97,13 +98,13 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 
 	if !isValidSendsVerb(opts.Verb) {
 		return opts, apperror.NewSimple(
-			fmt.Sprintf("unknown semantic verb '%s'. Supported verbs: cpf, cpb, cbf, cpr, commit-fix, cp, cm", opts.Verb),
-			"E9000",
+			fmt.Sprintf("unknown semantic verb '%s'. Supported verbs: cpf, cpb, cbf, cfr, cpc, cpr, commit-fix, cp, cm", opts.Verb),
+			string(constants.ErrCodeGenericExecution),
 		)
 	}
 
 	// cm verb defaults to local commit only (no push)
-	if opts.Verb == "cm" || isLocalOnlyRequested {
+	if opts.Verb == string(constants.CommitVerbFlat) || isLocalOnlyRequested {
 		opts.IsPushed = false
 	}
 
@@ -111,27 +112,25 @@ func parseSendsArguments(args []string) (cmdpending.SendsOptions, error) {
 }
 
 func isValidSendsVerb(verb string) bool {
-	switch verb {
-	case "cpf", "cpb", "cbf", "cpr", "commit-fix", "cp", "cm":
+	switch constants.CommitVerbType(verb) {
+	case constants.CommitVerbFeature, constants.CommitVerbBug, constants.CommitVerbBugAlt, constants.CommitVerbRefactor, constants.CommitVerbChore, constants.CommitVerbRelease, constants.CommitVerbFlat:
 		return true
 	default:
-		return false
+		return verb == "commit-fix" || verb == "cp"
 	}
 }
 
 func resolveSemanticCommitPrefix(verb string) string {
-	switch verb {
-	case "cpf":
-		return "Feature: "
-	case "cpb", "cbf":
-		return "Bug: "
-	case "cpr":
-		return "Release: "
-	case "commit-fix":
-		return "Fix: "
-	default:
-		return ""
+	verbType := constants.CommitVerbType(verb)
+	if verbType.IsValid() {
+		return verbType.Prefix()
 	}
+
+	if verb == "commit-fix" {
+		return "Fix: "
+	}
+
+	return ""
 }
 
 func executeSendsDispatch(opts cmdpending.SendsOptions) error {
@@ -423,223 +422,4 @@ func handleUnpushedCleanRepo(dir, repoName, relPath, branch string, isDryRun boo
 		FilesStaged:  0,
 		IsSuccess:    true,
 	}, true
-}
-
-func executeRealRepoCommitAndPush(dir, repoName, relPath, branch string, filesStaged int, finalMsg string, isPushed bool) cmdpending.RepoSendResultRecord {
-	_, errAdd := currentSendsGitExecutor(dir, "add", "-A")
-	if errAdd != nil {
-		return cmdpending.RepoSendResultRecord{
-			RepoName:     repoName,
-			RelativePath: relPath,
-			Status:       "failed",
-			Branch:       branch,
-			FilesStaged:  filesStaged,
-			IsSuccess:    false,
-			ErrorMessage: fmt.Sprintf("git add failed: %v", errAdd),
-		}
-	}
-
-	_, errCommit := currentSendsGitExecutor(dir, "commit", "-m", finalMsg)
-	if errCommit != nil {
-		return cmdpending.RepoSendResultRecord{
-			RepoName:     repoName,
-			RelativePath: relPath,
-			Status:       "failed",
-			Branch:       branch,
-			FilesStaged:  filesStaged,
-			IsSuccess:    false,
-			ErrorMessage: fmt.Sprintf("git commit failed: %v", errCommit),
-		}
-	}
-
-	headShaOut, _ := currentSendsGitExecutor(dir, "rev-parse", "--short", "HEAD")
-	headSha := strings.TrimSpace(headShaOut)
-
-	if isPushed {
-		return pushCommittedRepo(dir, repoName, relPath, branch, headSha, filesStaged)
-	}
-
-	return cmdpending.RepoSendResultRecord{
-		RepoName:     repoName,
-		RelativePath: relPath,
-		Status:       "committed",
-		Branch:       branch,
-		HeadSHA:      headSha,
-		FilesStaged:  filesStaged,
-		IsSuccess:    true,
-	}
-}
-
-func pushCommittedRepo(dir, repoName, relPath, branch, headSha string, filesStaged int) cmdpending.RepoSendResultRecord {
-	_, errPush := currentSendsGitExecutor(dir, "push", "origin", branch)
-	if errPush != nil {
-		return cmdpending.RepoSendResultRecord{
-			RepoName:     repoName,
-			RelativePath: relPath,
-			Status:       "failed",
-			Branch:       branch,
-			HeadSHA:      headSha,
-			FilesStaged:  filesStaged,
-			IsSuccess:    false,
-			ErrorMessage: fmt.Sprintf("git push failed: %v", errPush),
-		}
-	}
-
-	return cmdpending.RepoSendResultRecord{
-		RepoName:     repoName,
-		RelativePath: relPath,
-		Status:       "pushed",
-		Branch:       branch,
-		HeadSHA:      headSha,
-		FilesStaged:  filesStaged,
-		IsSuccess:    true,
-	}
-}
-
-func checkRepoUnpushedCount(dir string) int {
-	revCount, errCount := currentSendsGitExecutor(dir, "rev-list", "--count", "@{u}..HEAD")
-	if errCount != nil {
-		return 0
-	}
-	count, _ := strconv.Atoi(strings.TrimSpace(revCount))
-	return count
-}
-
-func emitSendsJSON(payload cmdpending.SendsExecutionPayload) error {
-	b, err := json.MarshalIndent(payload, "", "  ")
-	if err != nil {
-		return apperror.WrapSimple(err, "marshal sends json")
-	}
-	fmt.Println(string(b))
-	return nil
-}
-
-func renderSendsTerminalSummary(payload cmdpending.SendsExecutionPayload) {
-	border := constants.ColorCyan
-	reset := constants.ColorReset
-	bold := constants.ColorBold
-
-	prefixDisplay := payload.PrefixApplied
-	if prefixDisplay == "" {
-		prefixDisplay = "none"
-	}
-
-	fmt.Println()
-	fmt.Printf("  %s┌──────────────────────────────────────────────────────────────────────────────┐%s\n", border, reset)
-	fmt.Printf("  %s│%s%s                        GITMAP SENDS EXECUTION CARD                           %s%s│%s\n", border, reset, bold, reset, border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	fmt.Printf("  %s│%s Verb: %-4s (%-8s) │ Target: %-6s │ Dry-Run: %-5t │ Push: %-5t          %s│%s\n",
-		border, reset,
-		payload.Verb, prefixDisplay, payload.TargetScope, payload.IsDryRun, payload.IsPushed,
-		border, reset)
-	fmt.Printf("  %s│%s Message: %-65s %s│%s\n",
-		border, reset, truncateText(payload.FinalCommitMessage, 65), border, reset)
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-
-	failedCount := 0
-	for _, r := range payload.Results {
-		if r.Status == "failed" {
-			failedCount++
-		}
-		line := formatSendResultLine(r)
-		fmt.Printf("  %s│%s %-76s %s│%s\n", border, reset, line, border, reset)
-	}
-
-	fmt.Printf("  %s├──────────────────────────────────────────────────────────────────────────────┤%s\n", border, reset)
-	summaryLine := fmt.Sprintf("Summary: %d committed & pushed | %d skipped clean | %d failed",
-		payload.TotalCommitted, payload.TotalSkipped, failedCount)
-	fmt.Printf("  %s│%s %-76s %s│%s\n", border, reset, summaryLine, border, reset)
-	fmt.Printf("  %s└──────────────────────────────────────────────────────────────────────────────┘%s\n", border, reset)
-}
-
-func formatSendResultLine(r cmdpending.RepoSendResultRecord) string {
-	reset := constants.ColorReset
-	switch r.Status {
-	case "pushed":
-		return fmt.Sprintf(" %s✓%s %-14s -> Staged %d files -> Committed %s -> Pushed origin",
-			constants.ColorGreen, reset, r.RepoName, r.FilesStaged, r.HeadSHA)
-	case "committed":
-		return fmt.Sprintf(" %s✓%s %-14s -> Staged %d files -> Committed %s (local only)",
-			constants.ColorGreen, reset, r.RepoName, r.FilesStaged, r.HeadSHA)
-	case "dry-run-simulated":
-		return fmt.Sprintf(" %s●%s %-14s -> Simulation: %d files staged -> Push planned",
-			constants.ColorYellow, reset, r.RepoName, r.FilesStaged)
-	case "clean-skipped":
-		return fmt.Sprintf(" %s-%s %-14s -> Clean working tree -> Skipped",
-			constants.ColorDim, reset, r.RepoName)
-	case "already-clean":
-		return fmt.Sprintf(" %s-%s %-14s -> Already clean and up-to-date",
-			constants.ColorDim, reset, r.RepoName)
-	case "failed":
-		return fmt.Sprintf(" %s✗%s %-14s -> FAILED: %s",
-			constants.ColorRed, reset, r.RepoName, truncateText(r.ErrorMessage, 45))
-	default:
-		return fmt.Sprintf(" ? %-14s -> %s", r.RepoName, r.Status)
-	}
-}
-
-func truncateText(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	if maxLen <= 3 {
-		return s[:maxLen]
-	}
-	return s[:maxLen-3] + "..."
-}
-
-func printSendsHelp() {
-	cyan := constants.ColorCyan
-	reset := constants.ColorReset
-	bold := constants.ColorBold
-	yellow := constants.ColorYellow
-
-	fmt.Printf(`
-%s┌──────────────────────────────────────────────────────────────────────────────┐
-│                           GITMAP SENDS HELP                                  │
-└──────────────────────────────────────────────────────────────────────────────┘%s
-
-%sDESCRIPTION:%s
-  Dispatches conventional commits across targeted repositories with standardized
-  semantic prefixes, non-destructive clean repository skipping, and push automation.
-
-%sUSAGE:%s
-  gitmap sends <verb> <target> "<message>" [flags]
-
-%sSEMANTIC VERBS:%s
-  cpf         Injects "Feature: " prefix, commits, and pushes
-  cpb, cbf    Injects "Bug: " prefix, commits, and pushes
-  cpr         Injects "Release: " prefix, commits, and pushes
-  commit-fix  Injects "Fix: " prefix, commits, and pushes
-  cp          Flat commit without prefix, commits, and pushes
-  cm          Local commit only without prefix, does not push
-
-%sTARGETS:%s
-  all         Iterates across all workspace repositories (skips clean repos)
-  <repoName>  Targets a specific repository by name, slug, or relative path
-
-%sFLAGS:%s
-  -n, --dry-run     Preview commit and push actions without mutating Git refs
-      --no-push     Commit locally but do not push to upstream remote
-  -j, --json        Output structured JSON telemetry
-  -v, --verbose     Print detailed git subprocess execution output
-  -h, --help        Display this help menu
-
-%sEXAMPLES:%s
-  %sgitmap sends cpf all "add unified pending commits suite"%s
-      Stages and commits all dirty repositories with "Feature: " prefix and pushes.
-
-  %sgitmap sends cpb gitmap "fix null pointer in table renderer" -n%s
-      Simulates a bug fix commit against 'gitmap' in dry-run mode.
-`,
-		cyan, reset,
-		bold, reset,
-		bold, reset,
-		bold, reset,
-		bold, reset,
-		bold, reset,
-		bold, reset,
-		yellow, reset,
-		yellow, reset,
-	)
 }
