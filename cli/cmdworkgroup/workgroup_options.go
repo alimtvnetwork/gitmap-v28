@@ -6,10 +6,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-func isHelpTrigger(s string) bool {
-	return s == "help" || s == string(constants.WorkgroupFlagHelp) || s == string(constants.WorkgroupFlagHelpShort)
-}
-
 func tryExtractFlagValue(arg, flag string) (string, bool) {
 	prefix := flag + "="
 	if strings.HasPrefix(arg, prefix) {
