@@ -2,6 +2,7 @@ package cmdcluster
 
 import (
 	"context"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -162,8 +163,10 @@ func dispatchClusterSubcommand(sub string, rest []string) result.ErrorWrapper {
 	return routeClusterExt(sub, rest)
 }
 
+var clusterHelpFlagTokens = []string{"--help", "-h", "help"}
+
 func isClusterHelpToken(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
+	return slices.Contains(clusterHelpFlagTokens, arg)
 }
 
 func isClusterRootHelp(args []string) bool {
