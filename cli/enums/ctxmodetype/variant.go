@@ -102,7 +102,7 @@ func ByIndex(i int) VariantType {
 }
 
 // Parse parses a serialized mode using case-insensitive matching.
-func Parse(s string) (VariantType, error) {
+func Parse(s string) (VariantType, *apperror.AppError) {
 	trimmed := strings.TrimSpace(s)
 	for i, label := range variantLabels {
 		if strings.EqualFold(label, trimmed) {

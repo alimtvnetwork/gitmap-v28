@@ -44,7 +44,7 @@ func RunReleaseUndo(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrReleaseInvalidVersion)
 	}
 
-	tag := "v" + v.String()
+	tag := strings.Join([]string{"v", v.String()}, "")
 	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 
 	fmt.Printf("\x1b[1;36m▶ release-undo\x1b[0m: %s\n", tag)
@@ -67,7 +67,7 @@ func RunReleaseUndo(args []string) error {
 
 	steps := applyReleaseUndo(tag, jsonPath, keepRemote)
 	summary := fmt.Sprintf("✅ release-undo complete — %s removed (%s)", tag, strings.Join(steps, ", "))
-	fmt.Println("\x1b[1;32m" + summary + "\x1b[0m")
+	fmt.Println(strings.Join([]string{"\x1b[1;32m", summary, "\x1b[0m"}, ""))
 	fmt.Println("\x1b[2m(share this line in your task report)\x1b[0m")
 
 	return nil
@@ -109,7 +109,7 @@ func applyReleaseUndo(tag, jsonPath string, keepRemote bool) []string {
 
 	errPush := error(nil)
 	if !keepRemote {
-		errPush = runGitQuiet("push", "origin", ":refs/tags/"+tag)
+		errPush = runGitQuiet("push", "origin", strings.Join([]string{":refs/tags/", tag}, ""))
 	}
 
 	if !keepRemote && errPush == nil {

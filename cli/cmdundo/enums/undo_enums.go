@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // UndoModeType specifies the execution mode for undo operations.
@@ -32,13 +34,13 @@ func (m UndoModeType) String() string {
 }
 
 // ParseUndoModeType parses a raw string into an UndoModeType.
-func ParseUndoModeType(s string) (UndoModeType, error) {
+func ParseUndoModeType(s string) (UndoModeType, *apperror.AppError) {
 	val := UndoModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid undo mode: %q", s)
+	return "", apperror.NewValidation("ParseUndoModeType", "E1000", fmt.Sprintf("invalid undo mode: %q", s)).WithContext("value", s)
 }
 
 // AllUndoModeTypes returns all supported UndoModeType values.
@@ -101,13 +103,13 @@ func (a UndoActionType) String() string {
 }
 
 // ParseUndoActionType parses a raw string into an UndoActionType.
-func ParseUndoActionType(s string) (UndoActionType, error) {
+func ParseUndoActionType(s string) (UndoActionType, *apperror.AppError) {
 	val := UndoActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid undo action: %q", s)
+	return "", apperror.NewValidation("ParseUndoActionType", "E1000", fmt.Sprintf("invalid undo action: %q", s)).WithContext("value", s)
 }
 
 // AllUndoActionTypes returns all supported UndoActionType values.
@@ -179,7 +181,7 @@ func (c UndoExitCodeType) String() string {
 }
 
 // ParseUndoExitCodeType parses a raw string or integer representation into an UndoExitCodeType.
-func ParseUndoExitCodeType(s string) (UndoExitCodeType, error) {
+func ParseUndoExitCodeType(s string) (UndoExitCodeType, *apperror.AppError) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "0", "success":
 		return UndoExitSuccess, nil
@@ -192,7 +194,7 @@ func ParseUndoExitCodeType(s string) (UndoExitCodeType, error) {
 	case "8", "bad-config", "badconfig":
 		return UndoExitBadConfig, nil
 	default:
-		return UndoExitGeneral, fmt.Errorf("invalid undo exit code: %q", s)
+		return UndoExitGeneral, apperror.NewValidation("ParseUndoExitCodeType", "E1000", fmt.Sprintf("invalid undo exit code: %q", s)).WithContext("value", s)
 	}
 }
 

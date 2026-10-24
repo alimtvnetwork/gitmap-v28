@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // PruneScopeType specifies the scope of prune operations.
@@ -31,13 +33,13 @@ func (s PruneScopeType) String() string {
 }
 
 // ParsePruneScopeType parses a raw string into a PruneScopeType.
-func ParsePruneScopeType(s string) (PruneScopeType, error) {
+func ParsePruneScopeType(s string) (PruneScopeType, *apperror.AppError) {
 	val := PruneScopeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid prune scope: %q", s)
+	return "", apperror.NewValidation("ParsePruneScopeType", "E1000", fmt.Sprintf("invalid prune scope: %q", s)).WithContext("value", s)
 }
 
 // AllPruneScopeTypes returns all supported PruneScopeType values.
@@ -103,13 +105,13 @@ func (t PruneTargetType) String() string {
 }
 
 // ParsePruneTargetType parses a raw string into a PruneTargetType.
-func ParsePruneTargetType(s string) (PruneTargetType, error) {
+func ParsePruneTargetType(s string) (PruneTargetType, *apperror.AppError) {
 	val := PruneTargetType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid prune target: %q", s)
+	return "", apperror.NewValidation("ParsePruneTargetType", "E1000", fmt.Sprintf("invalid prune target: %q", s)).WithContext("value", s)
 }
 
 // AllPruneTargetTypes returns all supported PruneTargetType values.
@@ -181,13 +183,13 @@ func (a PruneActionType) String() string {
 }
 
 // ParsePruneActionType parses a raw string into a PruneActionType.
-func ParsePruneActionType(s string) (PruneActionType, error) {
+func ParsePruneActionType(s string) (PruneActionType, *apperror.AppError) {
 	val := PruneActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid prune action: %q", s)
+	return "", apperror.NewValidation("ParsePruneActionType", "E1000", fmt.Sprintf("invalid prune action: %q", s)).WithContext("value", s)
 }
 
 // AllPruneActionTypes returns all supported PruneActionType values.
@@ -259,13 +261,13 @@ func (s PruneStatusType) String() string {
 }
 
 // ParsePruneStatusType parses a raw string into a PruneStatusType.
-func ParsePruneStatusType(s string) (PruneStatusType, error) {
+func ParsePruneStatusType(s string) (PruneStatusType, *apperror.AppError) {
 	val := PruneStatusType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid prune status: %q", s)
+	return "", apperror.NewValidation("ParsePruneStatusType", "E1000", fmt.Sprintf("invalid prune status: %q", s)).WithContext("value", s)
 }
 
 // AllPruneStatusTypes returns all supported PruneStatusType values.

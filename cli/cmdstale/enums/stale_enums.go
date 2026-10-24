@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // StaleOutputFormatType specifies the output formatting mode for stale repo reporting.
@@ -30,7 +32,7 @@ func (f StaleOutputFormatType) String() string {
 }
 
 // ParseStaleOutputFormatType parses a raw string into a StaleOutputFormatType.
-func ParseStaleOutputFormatType(s string) (StaleOutputFormatType, error) {
+func ParseStaleOutputFormatType(s string) (StaleOutputFormatType, *apperror.AppError) {
 	norm := strings.ToLower(strings.TrimSpace(s))
 	if norm == "" {
 		return StaleOutputFormatTable, nil
@@ -41,7 +43,7 @@ func ParseStaleOutputFormatType(s string) (StaleOutputFormatType, error) {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stale output format: %q", s)
+	return "", apperror.NewValidation("ParseStaleOutputFormatType", "E1000", fmt.Sprintf("invalid stale output format: %q", s)).WithContext("value", s)
 }
 
 // AllStaleOutputFormatTypes returns all supported StaleOutputFormatType values.
@@ -98,13 +100,13 @@ func (a StaleActionType) String() string {
 }
 
 // ParseStaleActionType parses a raw string into a StaleActionType.
-func ParseStaleActionType(s string) (StaleActionType, error) {
+func ParseStaleActionType(s string) (StaleActionType, *apperror.AppError) {
 	val := StaleActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stale action: %q", s)
+	return "", apperror.NewValidation("ParseStaleActionType", "E1000", fmt.Sprintf("invalid stale action: %q", s)).WithContext("value", s)
 }
 
 // AllStaleActionTypes returns all supported StaleActionType values.
@@ -162,13 +164,13 @@ func (f StaleFilterType) String() string {
 }
 
 // ParseStaleFilterType parses a raw string into a StaleFilterType.
-func ParseStaleFilterType(s string) (StaleFilterType, error) {
+func ParseStaleFilterType(s string) (StaleFilterType, *apperror.AppError) {
 	val := StaleFilterType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stale filter: %q", s)
+	return "", apperror.NewValidation("ParseStaleFilterType", "E1000", fmt.Sprintf("invalid stale filter: %q", s)).WithContext("value", s)
 }
 
 // AllStaleFilterTypes returns all supported StaleFilterType values.

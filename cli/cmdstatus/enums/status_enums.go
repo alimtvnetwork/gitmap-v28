@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // StatusFilterModeType represents filtering criteria for workspace repositories.
@@ -51,17 +53,17 @@ func (f StatusFilterModeType) IsBehind() bool {
 }
 
 // ParseStatusFilterMode parses a filter mode string into a typed enum.
-func ParseStatusFilterMode(s string) (StatusFilterModeType, error) {
+func ParseStatusFilterMode(s string) (StatusFilterModeType, *apperror.AppError) {
 	val := StatusFilterModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid status filter mode: %q", s)
+	return "", apperror.NewValidation("ParseStatusFilterMode", "E1000", fmt.Sprintf("invalid status filter mode: %q", s)).WithContext("value", s)
 }
 
 // ParseStatusFilterModeType is an alias for ParseStatusFilterMode.
-func ParseStatusFilterModeType(s string) (StatusFilterModeType, error) {
+func ParseStatusFilterModeType(s string) (StatusFilterModeType, *apperror.AppError) {
 	return ParseStatusFilterMode(s)
 }
 
@@ -120,17 +122,17 @@ func (o StatusOutputModeType) IsCompact() bool {
 }
 
 // ParseStatusOutputMode parses an output mode string into a typed enum.
-func ParseStatusOutputMode(s string) (StatusOutputModeType, error) {
+func ParseStatusOutputMode(s string) (StatusOutputModeType, *apperror.AppError) {
 	val := StatusOutputModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid status output mode: %q", s)
+	return "", apperror.NewValidation("ParseStatusOutputMode", "E1000", fmt.Sprintf("invalid status output mode: %q", s)).WithContext("value", s)
 }
 
 // ParseStatusOutputModeType is an alias for ParseStatusOutputMode.
-func ParseStatusOutputModeType(s string) (StatusOutputModeType, error) {
+func ParseStatusOutputModeType(s string) (StatusOutputModeType, *apperror.AppError) {
 	return ParseStatusOutputMode(s)
 }
 
@@ -207,7 +209,7 @@ func (c StatusTableColumnType) IsFiles() bool {
 }
 
 // ParseStatusTableColumn parses a table column string (case-insensitive) into a typed enum.
-func ParseStatusTableColumn(s string) (StatusTableColumnType, error) {
+func ParseStatusTableColumn(s string) (StatusTableColumnType, *apperror.AppError) {
 	norm := strings.ToLower(strings.TrimSpace(s))
 	for _, col := range AllStatusTableColumns() {
 		if strings.ToLower(col.String()) == norm {
@@ -215,11 +217,11 @@ func ParseStatusTableColumn(s string) (StatusTableColumnType, error) {
 		}
 	}
 
-	return "", fmt.Errorf("invalid status table column: %q", s)
+	return "", apperror.NewValidation("ParseStatusTableColumn", "E1000", fmt.Sprintf("invalid status table column: %q", s)).WithContext("value", s)
 }
 
 // ParseStatusTableColumnType is an alias for ParseStatusTableColumn.
-func ParseStatusTableColumnType(s string) (StatusTableColumnType, error) {
+func ParseStatusTableColumnType(s string) (StatusTableColumnType, *apperror.AppError) {
 	return ParseStatusTableColumn(s)
 }
 
@@ -299,17 +301,17 @@ func (s StatusRepoStateType) IsMissing() bool {
 }
 
 // ParseStatusRepoState parses a repo state string into a typed enum.
-func ParseStatusRepoState(s string) (StatusRepoStateType, error) {
+func ParseStatusRepoState(s string) (StatusRepoStateType, *apperror.AppError) {
 	val := StatusRepoStateType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid status repo state: %q", s)
+	return "", apperror.NewValidation("ParseStatusRepoState", "E1000", fmt.Sprintf("invalid status repo state: %q", s)).WithContext("value", s)
 }
 
 // ParseStatusRepoStateType is an alias for ParseStatusRepoState.
-func ParseStatusRepoStateType(s string) (StatusRepoStateType, error) {
+func ParseStatusRepoStateType(s string) (StatusRepoStateType, *apperror.AppError) {
 	return ParseStatusRepoState(s)
 }
 

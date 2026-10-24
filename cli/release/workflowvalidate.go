@@ -97,7 +97,7 @@ func resolveFromFile() (Version, error) {
 func checkDuplicate(v Version) error {
 	isRelease := ReleaseExists(v)
 	tagExists := TagExistsLocally(v.String()) || TagExistsRemote(v.String())
-	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchName := strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, "")
 	branchExists := BranchExists(branchName)
 
 	if isRelease && !tagExists && !branchExists {

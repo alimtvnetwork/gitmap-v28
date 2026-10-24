@@ -2,6 +2,7 @@ package cmdplans
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -10,12 +11,12 @@ import (
 )
 
 func parseFormatFlag(arg string, opts *PlansOptions) bool {
-	if arg == constants.FlagJSONShort || arg == constants.FlagJSON {
+	if slices.Contains([]string{constants.FlagJSONShort, constants.FlagJSON}, arg) {
 		opts.IsJSON = true
 		opts.Format = enums.PlansOutputFormatJSON
 		return true
 	}
-	if arg == constants.FlagYAML || arg == constants.FlagYML {
+	if slices.Contains([]string{constants.FlagYAML, constants.FlagYML}, arg) {
 		opts.IsYAML = true
 		opts.Format = enums.PlansOutputFormatYAML
 		return true
@@ -25,17 +26,17 @@ func parseFormatFlag(arg string, opts *PlansOptions) bool {
 }
 
 func parseFilterFlag(arg string, opts *PlansOptions) bool {
-	if arg == constants.FlagAllShort || arg == constants.FlagAll {
+	if slices.Contains([]string{constants.FlagAllShort, constants.FlagAll}, arg) {
 		opts.IsAll = true
 		opts.FilterMode = enums.PlansFilterModeAll
 		return true
 	}
-	if arg == constants.FlagPendingShort || arg == constants.FlagPending {
+	if slices.Contains([]string{constants.FlagPendingShort, constants.FlagPending}, arg) {
 		opts.IsPendingOnly = true
 		opts.FilterMode = enums.PlansFilterModePending
 		return true
 	}
-	if arg == constants.FlagCompletedShort || arg == constants.FlagCompleted {
+	if slices.Contains([]string{constants.FlagCompletedShort, constants.FlagCompleted}, arg) {
 		opts.IsCompletedOnly = true
 		opts.FilterMode = enums.PlansFilterModeCompleted
 		return true
@@ -63,7 +64,7 @@ func parsePositionalLimit(arg string, opts *PlansOptions) bool {
 
 func parseLimitOption(args []string, idx int, opts *PlansOptions) (int, bool) {
 	arg := args[idx]
-	if (arg != constants.FlagLimitShort && arg != constants.FlagLimit) || idx+1 >= len(args) {
+	if !slices.Contains([]string{constants.FlagLimitShort, constants.FlagLimit}, arg) || idx+1 >= len(args) {
 		return idx, false
 	}
 
@@ -85,7 +86,7 @@ func parsePlansOptions(args []string) (PlansOptions, bool) {
 		FilterMode: enums.PlansFilterModeAll,
 	}
 	for i := 0; i < len(args); i++ {
-		if args[i] == constants.FlagHelpShort || args[i] == constants.FlagHelp {
+		if slices.Contains([]string{constants.FlagHelpShort, constants.FlagHelp}, args[i]) {
 			fmt.Print(constants.UsagePlans)
 			return opts, false
 		}

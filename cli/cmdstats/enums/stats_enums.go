@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // StatsOutputFormatType specifies presentation output formats for stats.
@@ -57,17 +59,17 @@ func (f StatsOutputFormatType) HasFormatting() bool {
 }
 
 // ParseStatsOutputFormatType parses a raw string into a StatsOutputFormatType.
-func ParseStatsOutputFormatType(s string) (StatsOutputFormatType, error) {
+func ParseStatsOutputFormatType(s string) (StatsOutputFormatType, *apperror.AppError) {
 	val := StatsOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stats output format: %q", s)
+	return "", apperror.NewValidation("ParseStatsOutputFormatType", "E1000", fmt.Sprintf("invalid stats output format: %q", s)).WithContext("value", s)
 }
 
 // ParseStatsOutputFormat is an alias for ParseStatsOutputFormatType.
-func ParseStatsOutputFormat(s string) (StatsOutputFormatType, error) {
+func ParseStatsOutputFormat(s string) (StatsOutputFormatType, *apperror.AppError) {
 	return ParseStatsOutputFormatType(s)
 }
 
@@ -182,17 +184,17 @@ func (m StatsMetricType) HasCount() bool {
 }
 
 // ParseStatsMetricType parses a raw string into a StatsMetricType.
-func ParseStatsMetricType(s string) (StatsMetricType, error) {
+func ParseStatsMetricType(s string) (StatsMetricType, *apperror.AppError) {
 	val := StatsMetricType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stats metric: %q", s)
+	return "", apperror.NewValidation("ParseStatsMetricType", "E1000", fmt.Sprintf("invalid stats metric: %q", s)).WithContext("value", s)
 }
 
 // ParseStatsMetric is an alias for ParseStatsMetricType.
-func ParseStatsMetric(s string) (StatsMetricType, error) {
+func ParseStatsMetric(s string) (StatsMetricType, *apperror.AppError) {
 	return ParseStatsMetricType(s)
 }
 
@@ -275,17 +277,17 @@ func (t StatsTimeRangeType) HasBoundedTime() bool {
 }
 
 // ParseStatsTimeRangeType parses a raw string into a StatsTimeRangeType.
-func ParseStatsTimeRangeType(s string) (StatsTimeRangeType, error) {
+func ParseStatsTimeRangeType(s string) (StatsTimeRangeType, *apperror.AppError) {
 	val := StatsTimeRangeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stats time range: %q", s)
+	return "", apperror.NewValidation("ParseStatsTimeRangeType", "E1000", fmt.Sprintf("invalid stats time range: %q", s)).WithContext("value", s)
 }
 
 // ParseStatsTimeRange is an alias for ParseStatsTimeRangeType.
-func ParseStatsTimeRange(s string) (StatsTimeRangeType, error) {
+func ParseStatsTimeRange(s string) (StatsTimeRangeType, *apperror.AppError) {
 	return ParseStatsTimeRangeType(s)
 }
 
@@ -369,17 +371,17 @@ func (c StatsCategoryType) HasCategoryFilter() bool {
 }
 
 // ParseStatsCategoryType parses a raw string into a StatsCategoryType.
-func ParseStatsCategoryType(s string) (StatsCategoryType, error) {
+func ParseStatsCategoryType(s string) (StatsCategoryType, *apperror.AppError) {
 	val := StatsCategoryType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stats category: %q", s)
+	return "", apperror.NewValidation("ParseStatsCategoryType", "E1000", fmt.Sprintf("invalid stats category: %q", s)).WithContext("value", s)
 }
 
 // ParseStatsCategory is an alias for ParseStatsCategoryType.
-func ParseStatsCategory(s string) (StatsCategoryType, error) {
+func ParseStatsCategory(s string) (StatsCategoryType, *apperror.AppError) {
 	return ParseStatsCategoryType(s)
 }
 
@@ -452,17 +454,17 @@ func (c StatsChartModeType) HasVisualChart() bool {
 }
 
 // ParseStatsChartModeType parses a raw string into a StatsChartModeType.
-func ParseStatsChartModeType(s string) (StatsChartModeType, error) {
+func ParseStatsChartModeType(s string) (StatsChartModeType, *apperror.AppError) {
 	val := StatsChartModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid stats chart mode: %q", s)
+	return "", apperror.NewValidation("ParseStatsChartModeType", "E1000", fmt.Sprintf("invalid stats chart mode: %q", s)).WithContext("value", s)
 }
 
 // ParseStatsChartMode is an alias for ParseStatsChartModeType.
-func ParseStatsChartMode(s string) (StatsChartModeType, error) {
+func ParseStatsChartMode(s string) (StatsChartModeType, *apperror.AppError) {
 	return ParseStatsChartModeType(s)
 }
 

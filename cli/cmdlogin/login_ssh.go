@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -111,7 +112,7 @@ func isSSHCommandOrForceFlag(arg string, opts *sshLoginOptions) bool {
 
 func parseSSHDirFlag(args []string, i int, opts *sshLoginOptions) (int, bool) {
 	arg := args[i]
-	if (arg == constants.FlagDirShortArg || arg == constants.FlagDirArg) && i+1 < len(args) {
+	if slices.Contains([]string{constants.FlagDirShortArg, constants.FlagDirArg}, arg) && i+1 < len(args) {
 		opts.customDir = args[i+1]
 		return 1, true
 	}

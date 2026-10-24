@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // BranchFilterType specifies criteria for filtering branches.
@@ -33,13 +35,13 @@ func (f BranchFilterType) String() string {
 }
 
 // ParseBranchFilterType parses a raw string into a BranchFilterType.
-func ParseBranchFilterType(s string) (BranchFilterType, error) {
+func ParseBranchFilterType(s string) (BranchFilterType, *apperror.AppError) {
 	val := BranchFilterType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid branch filter: %q", s)
+	return "", apperror.NewValidation("ParseBranchFilterType", "E1000", fmt.Sprintf("invalid branch filter: %q", s)).WithContext("value", s)
 }
 
 // AllBranchFilterTypes returns all supported BranchFilterType values.
@@ -115,13 +117,13 @@ func (a BranchActionType) String() string {
 }
 
 // ParseBranchActionType parses a raw string into a BranchActionType.
-func ParseBranchActionType(s string) (BranchActionType, error) {
+func ParseBranchActionType(s string) (BranchActionType, *apperror.AppError) {
 	val := BranchActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid branch action: %q", s)
+	return "", apperror.NewValidation("ParseBranchActionType", "E1000", fmt.Sprintf("invalid branch action: %q", s)).WithContext("value", s)
 }
 
 // AllBranchActionTypes returns all supported BranchActionType values.
@@ -214,13 +216,13 @@ func (s BranchSortOrderType) String() string {
 }
 
 // ParseBranchSortOrderType parses a raw string into a BranchSortOrderType.
-func ParseBranchSortOrderType(s string) (BranchSortOrderType, error) {
+func ParseBranchSortOrderType(s string) (BranchSortOrderType, *apperror.AppError) {
 	val := BranchSortOrderType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid branch sort order: %q", s)
+	return "", apperror.NewValidation("ParseBranchSortOrderType", "E1000", fmt.Sprintf("invalid branch sort order: %q", s)).WithContext("value", s)
 }
 
 // AllBranchSortOrderTypes returns all supported BranchSortOrderType values.
@@ -283,13 +285,13 @@ func (o BranchOutputFormatType) String() string {
 }
 
 // ParseBranchOutputFormatType parses a raw string into a BranchOutputFormatType.
-func ParseBranchOutputFormatType(s string) (BranchOutputFormatType, error) {
+func ParseBranchOutputFormatType(s string) (BranchOutputFormatType, *apperror.AppError) {
 	val := BranchOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid branch output format: %q", s)
+	return "", apperror.NewValidation("ParseBranchOutputFormatType", "E1000", fmt.Sprintf("invalid branch output format: %q", s)).WithContext("value", s)
 }
 
 // AllBranchOutputFormatTypes returns all supported BranchOutputFormatType values.

@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DocsCategoryType specifies documentation content categories.
@@ -75,18 +77,18 @@ func (c DocsCategoryType) HasCategoryFilter() bool {
 }
 
 // ParseDocsCategoryType parses a raw string into a DocsCategoryType.
-func ParseDocsCategoryType(s string) (DocsCategoryType, error) {
+func ParseDocsCategoryType(s string) (DocsCategoryType, *apperror.AppError) {
 	val := DocsCategoryType(strings.ToLower(strings.TrimSpace(s)))
 
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid docs category: %q", s)
+	return "", apperror.NewValidation("ParseDocsCategoryType", "E1000", fmt.Sprintf("invalid docs category: %q", s)).WithContext("value", s)
 }
 
 // ParseDocsCategory is an alias for ParseDocsCategoryType.
-func ParseDocsCategory(s string) (DocsCategoryType, error) {
+func ParseDocsCategory(s string) (DocsCategoryType, *apperror.AppError) {
 	return ParseDocsCategoryType(s)
 }
 
@@ -160,18 +162,18 @@ func (m DocsViewerModeType) HasServerTarget() bool {
 }
 
 // ParseDocsViewerModeType parses a raw string into a DocsViewerModeType.
-func ParseDocsViewerModeType(s string) (DocsViewerModeType, error) {
+func ParseDocsViewerModeType(s string) (DocsViewerModeType, *apperror.AppError) {
 	val := DocsViewerModeType(strings.ToLower(strings.TrimSpace(s)))
 
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid docs viewer mode: %q", s)
+	return "", apperror.NewValidation("ParseDocsViewerModeType", "E1000", fmt.Sprintf("invalid docs viewer mode: %q", s)).WithContext("value", s)
 }
 
 // ParseDocsViewerMode is an alias for ParseDocsViewerModeType.
-func ParseDocsViewerMode(s string) (DocsViewerModeType, error) {
+func ParseDocsViewerMode(s string) (DocsViewerModeType, *apperror.AppError) {
 	return ParseDocsViewerModeType(s)
 }
 
@@ -242,18 +244,18 @@ func (f DocsFormatType) HasFormatting() bool {
 }
 
 // ParseDocsFormatType parses a raw string into a DocsFormatType.
-func ParseDocsFormatType(s string) (DocsFormatType, error) {
+func ParseDocsFormatType(s string) (DocsFormatType, *apperror.AppError) {
 	val := DocsFormatType(strings.ToLower(strings.TrimSpace(s)))
 
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid docs format: %q", s)
+	return "", apperror.NewValidation("ParseDocsFormatType", "E1000", fmt.Sprintf("invalid docs format: %q", s)).WithContext("value", s)
 }
 
 // ParseDocsFormat is an alias for ParseDocsFormatType.
-func ParseDocsFormat(s string) (DocsFormatType, error) {
+func ParseDocsFormat(s string) (DocsFormatType, *apperror.AppError) {
 	return ParseDocsFormatType(s)
 }
 

@@ -3,9 +3,55 @@ package cmdclone
 import (
 	"io"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
+
+// MultiClone flag tokens, constantized so flag matching uses set lookup.
+const (
+	multiCloneFlagDryRun        = "--dry-run"
+	multiCloneFlagNoReplace     = "--no-replace"
+	multiCloneFlagNoVSCodeSync  = "--no-vscode-sync"
+	multiCloneFlagGitHubDesktop = "--github-desktop"
+	multiCloneFlagDesktop       = "--desktop"
+	multiCloneFlagDirShort      = "-d"
+	multiCloneFlagDir           = "--dir"
+	multiCloneFlagTarget        = "--target"
+	multiCloneFlagFileShort     = "-f"
+	multiCloneFlagFile          = "--file"
+	multiCloneFlagConcurrencyJ  = "-j"
+	multiCloneFlagConcurrencyP  = "-p"
+	multiCloneFlagConcurrency   = "--concurrency"
+	multiCloneFlagParallel      = "--parallel"
+)
+
+// multiCloneDesktopFlags selects the GitHub Desktop launch flag set.
+var multiCloneDesktopFlags = []string{
+	multiCloneFlagGitHubDesktop,
+	multiCloneFlagDesktop,
+}
+
+// multiCloneDirFlags selects the target-directory flag set.
+var multiCloneDirFlags = []string{
+	multiCloneFlagDirShort,
+	multiCloneFlagDir,
+	multiCloneFlagTarget,
+}
+
+// multiCloneFileFlags selects the input-file flag set.
+var multiCloneFileFlags = []string{
+	multiCloneFlagFileShort,
+	multiCloneFlagFile,
+}
+
+// multiCloneConcurrencyFlags selects the concurrency flag set.
+var multiCloneConcurrencyFlags = []string{
+	multiCloneFlagConcurrencyJ,
+	multiCloneFlagConcurrencyP,
+	multiCloneFlagConcurrency,
+	multiCloneFlagParallel,
+}
 
 // ResolveMultiCloneOptions parses flags, target directory, files, and multiline inputs.
 func ResolveMultiCloneOptions(args []string) (MultiCloneOptions, error) {
@@ -28,19 +74,19 @@ func ResolveMultiCloneOptions(args []string) (MultiCloneOptions, error) {
 
 func parseMultiCloneFlag(args []string, idx int, opts *MultiCloneOptions) (int, bool) {
 	arg := args[idx]
-	if arg == "--dry-run" {
+	if arg == multiCloneFlagDryRun {
 		opts.IsDryRun = true
 		return 0, true
 	}
-	if arg == "--no-replace" {
+	if arg == multiCloneFlagNoReplace {
 		opts.NoReplace = true
 		return 0, true
 	}
-	if arg == "--no-vscode-sync" {
+	if arg == multiCloneFlagNoVSCodeSync {
 		opts.NoVSCodeSync = true
 		return 0, true
 	}
-	if arg == "--github-desktop" || arg == "--desktop" {
+	if slices.Contains(multiCloneDesktopFlags, arg) {
 		opts.GHDesktop = true
 		return 0, true
 	}
@@ -51,15 +97,15 @@ func parseMultiCloneValueFlag(args []string, idx int, opts *MultiCloneOptions) (
 	arg := args[idx]
 	hasValue := idx+1 < len(args)
 
-	if (arg == "-d" || arg == "--dir" || arg == "--target") && hasValue {
+	if slices.Contains(multiCloneDirFlags, arg) && hasValue {
 		opts.TargetDir = args[idx+1]
 		return 1, true
 	}
-	if (arg == "-f" || arg == "--file") && hasValue {
+	if slices.Contains(multiCloneFileFlags, arg) && hasValue {
 		opts.FilePath = args[idx+1]
 		return 1, true
 	}
-	if (arg == "-j" || arg == "-p" || arg == "--concurrency" || arg == "--parallel") && hasValue {
+	if slices.Contains(multiCloneConcurrencyFlags, arg) && hasValue {
 		opts.Concurrency = parseConcurrencyValue(args[idx+1])
 		opts.IsConcurrent = opts.Concurrency > 1
 		return 1, true

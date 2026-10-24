@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // SearchScopeType defines the domain or boundary of search execution.
@@ -57,17 +59,17 @@ func (s SearchScopeType) IsRepo() bool {
 }
 
 // ParseSearchScope parses a string into a SearchScopeType enum.
-func ParseSearchScope(s string) (SearchScopeType, error) {
+func ParseSearchScope(s string) (SearchScopeType, *apperror.AppError) {
 	val := SearchScopeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid search scope: %q", s)
+	return "", apperror.NewValidation("ParseSearchScope", "E1000", fmt.Sprintf("invalid search scope: %q", s)).WithContext("value", s)
 }
 
 // ParseSearchScopeType is an alias for ParseSearchScope.
-func ParseSearchScopeType(s string) (SearchScopeType, error) {
+func ParseSearchScopeType(s string) (SearchScopeType, *apperror.AppError) {
 	return ParseSearchScope(s)
 }
 
@@ -133,17 +135,17 @@ func (m SearchMatchModeType) IsFuzzy() bool {
 }
 
 // ParseSearchMatchMode parses a string into a SearchMatchModeType enum.
-func ParseSearchMatchMode(s string) (SearchMatchModeType, error) {
+func ParseSearchMatchMode(s string) (SearchMatchModeType, *apperror.AppError) {
 	val := SearchMatchModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid search match mode: %q", s)
+	return "", apperror.NewValidation("ParseSearchMatchMode", "E1000", fmt.Sprintf("invalid search match mode: %q", s)).WithContext("value", s)
 }
 
 // ParseSearchMatchModeType is an alias for ParseSearchMatchMode.
-func ParseSearchMatchModeType(s string) (SearchMatchModeType, error) {
+func ParseSearchMatchModeType(s string) (SearchMatchModeType, *apperror.AppError) {
 	return ParseSearchMatchMode(s)
 }
 
@@ -208,17 +210,17 @@ func (o SearchOutputFormatType) IsCompact() bool {
 }
 
 // ParseSearchOutputFormat parses a string into a SearchOutputFormatType enum.
-func ParseSearchOutputFormat(s string) (SearchOutputFormatType, error) {
+func ParseSearchOutputFormat(s string) (SearchOutputFormatType, *apperror.AppError) {
 	val := SearchOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid search output format: %q", s)
+	return "", apperror.NewValidation("ParseSearchOutputFormat", "E1000", fmt.Sprintf("invalid search output format: %q", s)).WithContext("value", s)
 }
 
 // ParseSearchOutputFormatType is an alias for ParseSearchOutputFormat.
-func ParseSearchOutputFormatType(s string) (SearchOutputFormatType, error) {
+func ParseSearchOutputFormatType(s string) (SearchOutputFormatType, *apperror.AppError) {
 	return ParseSearchOutputFormat(s)
 }
 
@@ -271,17 +273,17 @@ func (c SearchCategoryType) IsAI() bool {
 }
 
 // ParseSearchCategory parses a string into a SearchCategoryType enum.
-func ParseSearchCategory(s string) (SearchCategoryType, error) {
+func ParseSearchCategory(s string) (SearchCategoryType, *apperror.AppError) {
 	val := SearchCategoryType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid search category: %q", s)
+	return "", apperror.NewValidation("ParseSearchCategory", "E1000", fmt.Sprintf("invalid search category: %q", s)).WithContext("value", s)
 }
 
 // ParseSearchCategoryType is an alias for ParseSearchCategory.
-func ParseSearchCategoryType(s string) (SearchCategoryType, error) {
+func ParseSearchCategoryType(s string) (SearchCategoryType, *apperror.AppError) {
 	return ParseSearchCategory(s)
 }
 
@@ -405,17 +407,17 @@ func (a SearchActionType) IsResetAction() bool {
 }
 
 // ParseSearchAction parses a string into a SearchActionType enum.
-func ParseSearchAction(s string) (SearchActionType, error) {
+func ParseSearchAction(s string) (SearchActionType, *apperror.AppError) {
 	val := SearchActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid search action: %q", s)
+	return "", apperror.NewValidation("ParseSearchAction", "E1000", fmt.Sprintf("invalid search action: %q", s)).WithContext("value", s)
 }
 
 // ParseSearchActionType is an alias for ParseSearchAction.
-func ParseSearchActionType(s string) (SearchActionType, error) {
+func ParseSearchActionType(s string) (SearchActionType, *apperror.AppError) {
 	return ParseSearchAction(s)
 }
 

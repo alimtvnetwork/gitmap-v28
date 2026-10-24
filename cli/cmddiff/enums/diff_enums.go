@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // DiffViewModeType represents visual presentation modes for diff rendering.
@@ -33,13 +35,13 @@ func (d DiffViewModeType) String() string {
 }
 
 // ParseDiffViewModeType parses a raw string into a DiffViewModeType.
-func ParseDiffViewModeType(s string) (DiffViewModeType, error) {
+func ParseDiffViewModeType(s string) (DiffViewModeType, *apperror.AppError) {
 	val := DiffViewModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid diff view mode: %q", s)
+	return "", apperror.NewValidation("ParseDiffViewModeType", "E1000", fmt.Sprintf("invalid diff view mode: %q", s)).WithContext("value", s)
 }
 
 // AllDiffViewModeTypes returns all supported DiffViewModeType values.
@@ -108,13 +110,13 @@ func (d DiffOutputFormatType) String() string {
 }
 
 // ParseDiffOutputFormatType parses a raw string into a DiffOutputFormatType.
-func ParseDiffOutputFormatType(s string) (DiffOutputFormatType, error) {
+func ParseDiffOutputFormatType(s string) (DiffOutputFormatType, *apperror.AppError) {
 	val := DiffOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid diff output format: %q", s)
+	return "", apperror.NewValidation("ParseDiffOutputFormatType", "E1000", fmt.Sprintf("invalid diff output format: %q", s)).WithContext("value", s)
 }
 
 // AllDiffOutputFormatTypes returns all supported DiffOutputFormatType values.
@@ -172,13 +174,13 @@ func (d DiffScopeType) String() string {
 }
 
 // ParseDiffScopeType parses a raw string into a DiffScopeType.
-func ParseDiffScopeType(s string) (DiffScopeType, error) {
+func ParseDiffScopeType(s string) (DiffScopeType, *apperror.AppError) {
 	val := DiffScopeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid diff scope: %q", s)
+	return "", apperror.NewValidation("ParseDiffScopeType", "E1000", fmt.Sprintf("invalid diff scope: %q", s)).WithContext("value", s)
 }
 
 // AllDiffScopeTypes returns all supported DiffScopeType values.
@@ -242,13 +244,13 @@ func (d DiffFilterType) String() string {
 }
 
 // ParseDiffFilterType parses a raw string into a DiffFilterType.
-func ParseDiffFilterType(s string) (DiffFilterType, error) {
+func ParseDiffFilterType(s string) (DiffFilterType, *apperror.AppError) {
 	val := DiffFilterType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid diff filter: %q", s)
+	return "", apperror.NewValidation("ParseDiffFilterType", "E1000", fmt.Sprintf("invalid diff filter: %q", s)).WithContext("value", s)
 }
 
 // AllDiffFilterTypes returns all supported DiffFilterType values.

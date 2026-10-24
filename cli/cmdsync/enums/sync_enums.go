@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // SyncTargetType represents the synchronization scope filter.
@@ -32,13 +34,13 @@ func (t SyncTargetType) String() string {
 }
 
 // ParseSyncTargetType parses a string into a validated SyncTargetType.
-func ParseSyncTargetType(s string) (SyncTargetType, error) {
+func ParseSyncTargetType(s string) (SyncTargetType, *apperror.AppError) {
 	val := SyncTargetType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid sync target: %q", s)
+	return "", apperror.NewValidation("ParseSyncTargetType", "E1000", fmt.Sprintf("invalid sync target: %q", s)).WithContext("value", s)
 }
 
 // AllSyncTargetTypes returns all valid SyncTargetType values.
@@ -110,13 +112,13 @@ func (s SyncRepoStatusType) String() string {
 }
 
 // ParseSyncRepoStatusType parses a string into a validated SyncRepoStatusType.
-func ParseSyncRepoStatusType(s string) (SyncRepoStatusType, error) {
+func ParseSyncRepoStatusType(s string) (SyncRepoStatusType, *apperror.AppError) {
 	val := SyncRepoStatusType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid sync repo status: %q", s)
+	return "", apperror.NewValidation("ParseSyncRepoStatusType", "E1000", fmt.Sprintf("invalid sync repo status: %q", s)).WithContext("value", s)
 }
 
 // AllSyncRepoStatusTypes returns all valid SyncRepoStatusType values.
@@ -192,13 +194,13 @@ func (a SyncActionType) String() string {
 }
 
 // ParseSyncActionType parses a string into a validated SyncActionType.
-func ParseSyncActionType(s string) (SyncActionType, error) {
+func ParseSyncActionType(s string) (SyncActionType, *apperror.AppError) {
 	val := SyncActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid sync action: %q", s)
+	return "", apperror.NewValidation("ParseSyncActionType", "E1000", fmt.Sprintf("invalid sync action: %q", s)).WithContext("value", s)
 }
 
 // AllSyncActionTypes returns all valid SyncActionType values.
@@ -267,13 +269,13 @@ func (m SyncModeType) String() string {
 }
 
 // ParseSyncModeType parses a string into a validated SyncModeType.
-func ParseSyncModeType(s string) (SyncModeType, error) {
+func ParseSyncModeType(s string) (SyncModeType, *apperror.AppError) {
 	val := SyncModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid sync mode: %q", s)
+	return "", apperror.NewValidation("ParseSyncModeType", "E1000", fmt.Sprintf("invalid sync mode: %q", s)).WithContext("value", s)
 }
 
 // AllSyncModeTypes returns all valid SyncModeType values.

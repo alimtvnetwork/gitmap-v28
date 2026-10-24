@@ -1,6 +1,8 @@
 package cmdcargo
 
 import (
+	"slices"
+
 	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
 )
 
@@ -20,5 +22,5 @@ func extractInstallFlag(args []string) ([]string, bool) {
 }
 
 func isInstallFlag(arg string) bool {
-	return arg == cargoconst.FlagLongInstall || arg == cargoconst.FlagShortInstall
+	return slices.Contains([]string{cargoconst.FlagLongInstall, cargoconst.FlagShortInstall}, arg)
 }

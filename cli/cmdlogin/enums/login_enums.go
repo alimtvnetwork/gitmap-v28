@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // LoginAuthMethodType represents supported authentication mechanisms.
@@ -62,17 +64,17 @@ func normalizeAuthMethod(s string) LoginAuthMethodType {
 }
 
 // ParseLoginAuthMethod parses a raw string into a LoginAuthMethodType.
-func ParseLoginAuthMethod(s string) (LoginAuthMethodType, error) {
+func ParseLoginAuthMethod(s string) (LoginAuthMethodType, *apperror.AppError) {
 	val := normalizeAuthMethod(s)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid login auth method: %q", s)
+	return "", apperror.NewValidation("ParseLoginAuthMethod", "E1000", fmt.Sprintf("invalid login auth method: %q", s)).WithContext("value", s)
 }
 
 // ParseLoginAuthMethodType is an alias for ParseLoginAuthMethod.
-func ParseLoginAuthMethodType(s string) (LoginAuthMethodType, error) {
+func ParseLoginAuthMethodType(s string) (LoginAuthMethodType, *apperror.AppError) {
 	return ParseLoginAuthMethod(s)
 }
 
@@ -137,17 +139,17 @@ func (c LoginInteractiveChoiceType) IsStatus() bool {
 }
 
 // ParseLoginInteractiveChoice parses an interactive menu choice input.
-func ParseLoginInteractiveChoice(s string) (LoginInteractiveChoiceType, error) {
+func ParseLoginInteractiveChoice(s string) (LoginInteractiveChoiceType, *apperror.AppError) {
 	val := LoginInteractiveChoiceType(strings.TrimSpace(s))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid login interactive choice: %q", s)
+	return "", apperror.NewValidation("ParseLoginInteractiveChoice", "E1000", fmt.Sprintf("invalid login interactive choice: %q", s)).WithContext("value", s)
 }
 
 // ParseLoginInteractiveChoiceType is an alias for ParseLoginInteractiveChoice.
-func ParseLoginInteractiveChoiceType(s string) (LoginInteractiveChoiceType, error) {
+func ParseLoginInteractiveChoiceType(s string) (LoginInteractiveChoiceType, *apperror.AppError) {
 	return ParseLoginInteractiveChoice(s)
 }
 
@@ -200,18 +202,18 @@ func (p GitAuthProviderType) IsGitLab() bool {
 }
 
 // ParseGitAuthProvider parses a git auth provider name.
-func ParseGitAuthProvider(s string) (GitAuthProviderType, error) {
+func ParseGitAuthProvider(s string) (GitAuthProviderType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	val := GitAuthProviderType(normalized)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid git auth provider: %q", s)
+	return "", apperror.NewValidation("ParseGitAuthProvider", "E1000", fmt.Sprintf("invalid git auth provider: %q", s)).WithContext("value", s)
 }
 
 // ParseGitAuthProviderType is an alias for ParseGitAuthProvider.
-func ParseGitAuthProviderType(s string) (GitAuthProviderType, error) {
+func ParseGitAuthProviderType(s string) (GitAuthProviderType, *apperror.AppError) {
 	return ParseGitAuthProvider(s)
 }
 
@@ -280,18 +282,18 @@ func (c ClipboardToolType) IsXsel() bool {
 }
 
 // ParseClipboardTool parses a clipboard tool name.
-func ParseClipboardTool(s string) (ClipboardToolType, error) {
+func ParseClipboardTool(s string) (ClipboardToolType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	val := ClipboardToolType(normalized)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid clipboard tool: %q", s)
+	return "", apperror.NewValidation("ParseClipboardTool", "E1000", fmt.Sprintf("invalid clipboard tool: %q", s)).WithContext("value", s)
 }
 
 // ParseClipboardToolType is an alias for ParseClipboardTool.
-func ParseClipboardToolType(s string) (ClipboardToolType, error) {
+func ParseClipboardToolType(s string) (ClipboardToolType, *apperror.AppError) {
 	return ParseClipboardTool(s)
 }
 

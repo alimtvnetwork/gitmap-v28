@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ConfigActionType represents supported configuration CLI actions.
@@ -77,13 +79,13 @@ func (a ConfigActionType) IsReset() bool {
 }
 
 // ParseConfigActionType parses a raw string into a validated ConfigActionType.
-func ParseConfigActionType(s string) (ConfigActionType, error) {
+func ParseConfigActionType(s string) (ConfigActionType, *apperror.AppError) {
 	val := ConfigActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid config action: %q", s)
+	return "", apperror.NewValidation("ParseConfigActionType", "E1000", fmt.Sprintf("invalid config action: %q", s)).WithContext("value", s)
 }
 
 // AllConfigActionTypes returns all valid ConfigActionType variants.
@@ -147,13 +149,13 @@ func (o ConfigOutputFormatType) IsCompact() bool {
 }
 
 // ParseConfigOutputFormatType parses a raw string into a validated ConfigOutputFormatType.
-func ParseConfigOutputFormatType(s string) (ConfigOutputFormatType, error) {
+func ParseConfigOutputFormatType(s string) (ConfigOutputFormatType, *apperror.AppError) {
 	val := ConfigOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid config output format: %q", s)
+	return "", apperror.NewValidation("ParseConfigOutputFormatType", "E1000", fmt.Sprintf("invalid config output format: %q", s)).WithContext("value", s)
 }
 
 // AllConfigOutputFormatTypes returns all valid ConfigOutputFormatType variants.
@@ -212,13 +214,13 @@ func (s ConfigScopeType) IsProject() bool {
 }
 
 // ParseConfigScopeType parses a raw string into a validated ConfigScopeType.
-func ParseConfigScopeType(s string) (ConfigScopeType, error) {
+func ParseConfigScopeType(s string) (ConfigScopeType, *apperror.AppError) {
 	val := ConfigScopeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid config scope: %q", s)
+	return "", apperror.NewValidation("ParseConfigScopeType", "E1000", fmt.Sprintf("invalid config scope: %q", s)).WithContext("value", s)
 }
 
 // AllConfigScopeTypes returns all valid ConfigScopeType variants.
@@ -290,13 +292,13 @@ func (k ConfigKeyType) IsAutoImport() bool {
 }
 
 // ParseConfigKeyType parses a raw string into a validated ConfigKeyType.
-func ParseConfigKeyType(s string) (ConfigKeyType, error) {
+func ParseConfigKeyType(s string) (ConfigKeyType, *apperror.AppError) {
 	val := ConfigKeyType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid config key: %q", s)
+	return "", apperror.NewValidation("ParseConfigKeyType", "E1000", fmt.Sprintf("invalid config key: %q", s)).WithContext("value", s)
 }
 
 // AllConfigKeyTypes returns all valid ConfigKeyType variants.
@@ -357,7 +359,7 @@ func (t ConfigToolType) IsAll() bool {
 }
 
 // ParseConfigToolType parses a raw string or alias into a canonical ConfigToolType.
-func ParseConfigToolType(s string) (ConfigToolType, error) {
+func ParseConfigToolType(s string) (ConfigToolType, *apperror.AppError) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "vscode", "code", "vcode":
 		return ConfigToolVSCode, nil
@@ -368,7 +370,7 @@ func ParseConfigToolType(s string) (ConfigToolType, error) {
 	case "all", "*":
 		return ConfigToolAll, nil
 	default:
-		return "", fmt.Errorf("invalid config tool: %q", s)
+		return "", apperror.NewValidation("ParseConfigToolType", "E1000", fmt.Sprintf("invalid config tool: %q", s)).WithContext("value", s)
 	}
 }
 
@@ -474,13 +476,13 @@ var configFileFormatMap = map[string]ConfigFileFormatType{
 }
 
 // ParseConfigFileFormatType parses a raw string or extension into a ConfigFileFormatType.
-func ParseConfigFileFormatType(s string) (ConfigFileFormatType, error) {
+func ParseConfigFileFormatType(s string) (ConfigFileFormatType, *apperror.AppError) {
 	lower := strings.TrimPrefix(strings.ToLower(strings.TrimSpace(s)), ".")
 	if val, ok := configFileFormatMap[lower]; ok {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid config file format: %q", s)
+	return "", apperror.NewValidation("ParseConfigFileFormatType", "E1000", fmt.Sprintf("invalid config file format: %q", s)).WithContext("value", s)
 }
 
 // AllConfigFileFormatTypes returns all valid ConfigFileFormatType variants.
@@ -532,14 +534,14 @@ func (e ConfigFileEncodingType) IsBase64() bool {
 }
 
 // ParseConfigFileEncodingType parses a raw string into a validated ConfigFileEncodingType.
-func ParseConfigFileEncodingType(s string) (ConfigFileEncodingType, error) {
+func ParseConfigFileEncodingType(s string) (ConfigFileEncodingType, *apperror.AppError) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "utf-8", "utf8":
 		return ConfigFileEncodingUTF8, nil
 	case "base64", "b64":
 		return ConfigFileEncodingBase64, nil
 	default:
-		return "", fmt.Errorf("invalid config file encoding: %q", s)
+		return "", apperror.NewValidation("ParseConfigFileEncodingType", "E1000", fmt.Sprintf("invalid config file encoding: %q", s)).WithContext("value", s)
 	}
 }
 

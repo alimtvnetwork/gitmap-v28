@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -81,7 +82,7 @@ func WriteLatest(v Version) error {
 	latest := LatestMeta{
 		Version: v.CoreString(),
 		Tag:     v.String(),
-		Branch:  constants.ReleaseBranchPrefix + v.String(),
+		Branch:  strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, ""),
 	}
 
 	return writeJSON(latestFilePath(), latest)

@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // PlanStatusType represents the lifecycle status of an architectural plan.
@@ -63,13 +65,13 @@ func AllPlanStatuses() []PlanStatusType {
 }
 
 // ParsePlanStatus parses a string into a PlanStatusType.
-func ParsePlanStatus(s string) (PlanStatusType, error) {
+func ParsePlanStatus(s string) (PlanStatusType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	if status, hasMatch := planStatusLookup[normalized]; hasMatch {
 		return status, nil
 	}
 
-	return "", fmt.Errorf("invalid plan status: %q", s)
+	return "", apperror.NewValidation("ParsePlanStatus", "E1000", fmt.Sprintf("invalid plan status: %q", s)).WithContext("value", s)
 }
 
 // IsPending reports whether the status is pending.
@@ -145,13 +147,13 @@ func AllPlansFilterModes() []PlansFilterModeType {
 }
 
 // ParsePlansFilterMode parses a string into a PlansFilterModeType.
-func ParsePlansFilterMode(s string) (PlansFilterModeType, error) {
+func ParsePlansFilterMode(s string) (PlansFilterModeType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	if mode, hasMatch := plansFilterModeLookup[normalized]; hasMatch {
 		return mode, nil
 	}
 
-	return "", fmt.Errorf("invalid plans filter mode: %q", s)
+	return "", apperror.NewValidation("ParsePlansFilterMode", "E1000", fmt.Sprintf("invalid plans filter mode: %q", s)).WithContext("value", s)
 }
 
 // IsAll reports whether the filter mode includes all plans.
@@ -223,13 +225,13 @@ func AllPlansOutputFormats() []PlansOutputFormatType {
 }
 
 // ParsePlansOutputFormat parses a string into a PlansOutputFormatType.
-func ParsePlansOutputFormat(s string) (PlansOutputFormatType, error) {
+func ParsePlansOutputFormat(s string) (PlansOutputFormatType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	if format, hasMatch := plansOutputFormatLookup[normalized]; hasMatch {
 		return format, nil
 	}
 
-	return "", fmt.Errorf("invalid plans output format: %q", s)
+	return "", apperror.NewValidation("ParsePlansOutputFormat", "E1000", fmt.Sprintf("invalid plans output format: %q", s)).WithContext("value", s)
 }
 
 // IsTable reports whether the format is table.
@@ -307,13 +309,13 @@ func AllPlanMetaFiles() []PlanMetaFileType {
 }
 
 // ParsePlanMetaFile parses a filename into a PlanMetaFileType.
-func ParsePlanMetaFile(s string) (PlanMetaFileType, error) {
+func ParsePlanMetaFile(s string) (PlanMetaFileType, *apperror.AppError) {
 	normalized := strings.ToLower(strings.TrimSpace(s))
 	if metaFile, hasMatch := planMetaFileLookup[normalized]; hasMatch {
 		return metaFile, nil
 	}
 
-	return "", fmt.Errorf("invalid plan meta file: %q", s)
+	return "", apperror.NewValidation("ParsePlanMetaFile", "E1000", fmt.Sprintf("invalid plan meta file: %q", s)).WithContext("value", s)
 }
 
 // IsReadme reports whether the file is readme.md.

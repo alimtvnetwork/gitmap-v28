@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -84,24 +85,18 @@ func matchSearchFlagOrPositional(args []string, i int) (string, string, int) {
 }
 
 func isSearchQueryArg(arg string) bool {
-	return arg == searchconstants.FlagArgQuery ||
-		arg == searchconstants.FlagArgQueryShort ||
-		arg == searchconstants.FlagArgPattern
+	return slices.Contains([]string{searchconstants.FlagArgQuery, searchconstants.FlagArgQueryShort, searchconstants.FlagArgPattern}, arg)
 }
 
 func isSearchDirArg(arg string) bool {
-	return arg == searchconstants.FlagArgRoot ||
-		arg == searchconstants.FlagArgDir ||
-		arg == searchconstants.FlagArgPath ||
-		arg == searchconstants.FlagArgDirShort ||
-		arg == searchconstants.FlagArgPathShort
+	return slices.Contains([]string{searchconstants.FlagArgRoot, searchconstants.FlagArgDir, searchconstants.FlagArgPath, searchconstants.FlagArgDirShort, searchconstants.FlagArgPathShort}, arg)
 }
 
 func parseSearchAiFlag(args []string) (bool, []string) {
 	var isAiCaller bool
 	var filtered []string
 	for _, arg := range args {
-		if arg == searchconstants.FlagArgAI || arg == searchconstants.FlagArgAIShort {
+		if slices.Contains([]string{searchconstants.FlagArgAI, searchconstants.FlagArgAIShort}, arg) {
 			isAiCaller = true
 			continue
 		}
@@ -276,9 +271,7 @@ func findMatchingReposInStore(query string, limit int) []string {
 
 func isIgnoredSearchDir(name string) bool {
 	return strings.HasPrefix(name, searchconstants.DirPrefixDot) ||
-		name == searchconstants.DirNodeModules ||
-		name == searchconstants.DirVendor ||
-		name == searchconstants.DirBin
+		slices.Contains([]string{searchconstants.DirNodeModules, searchconstants.DirVendor, searchconstants.DirBin}, name)
 }
 
 func formatRelOrAbsPath(root, path string) string {

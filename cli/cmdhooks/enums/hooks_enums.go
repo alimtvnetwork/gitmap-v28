@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // GitHookType represents a supported Git hook trigger name.
@@ -37,13 +39,13 @@ func (h GitHookType) String() string {
 }
 
 // ParseGitHookType parses a raw string into a GitHookType.
-func ParseGitHookType(s string) (GitHookType, error) {
+func ParseGitHookType(s string) (GitHookType, *apperror.AppError) {
 	val := GitHookType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid git hook type: %q", s)
+	return "", apperror.NewValidation("ParseGitHookType", "E1000", fmt.Sprintf("invalid git hook type: %q", s)).WithContext("value", s)
 }
 
 // AllGitHookTypes returns all supported GitHookType values.
@@ -138,13 +140,13 @@ func (a HookActionType) String() string {
 }
 
 // ParseHookActionType parses a raw string into a HookActionType.
-func ParseHookActionType(s string) (HookActionType, error) {
+func ParseHookActionType(s string) (HookActionType, *apperror.AppError) {
 	val := HookActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid hook action: %q", s)
+	return "", apperror.NewValidation("ParseHookActionType", "E1000", fmt.Sprintf("invalid hook action: %q", s)).WithContext("value", s)
 }
 
 // AllHookActionTypes returns all supported HookActionType values.
@@ -227,13 +229,13 @@ func (p HookPlanActionType) String() string {
 }
 
 // ParseHookPlanActionType parses a raw string into a HookPlanActionType.
-func ParseHookPlanActionType(s string) (HookPlanActionType, error) {
+func ParseHookPlanActionType(s string) (HookPlanActionType, *apperror.AppError) {
 	val := HookPlanActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid hook plan action: %q", s)
+	return "", apperror.NewValidation("ParseHookPlanActionType", "E1000", fmt.Sprintf("invalid hook plan action: %q", s)).WithContext("value", s)
 }
 
 // AllHookPlanActionTypes returns all supported HookPlanActionType values.
@@ -291,13 +293,13 @@ func (s HookScopeType) String() string {
 }
 
 // ParseHookScopeType parses a raw string into a HookScopeType.
-func ParseHookScopeType(raw string) (HookScopeType, error) {
+func ParseHookScopeType(raw string) (HookScopeType, *apperror.AppError) {
 	val := HookScopeType(strings.ToLower(strings.TrimSpace(raw)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid hook scope: %q", raw)
+	return "", apperror.NewValidation("ParseHookScopeType", "E1000", fmt.Sprintf("invalid hook scope: %q", raw)).WithContext("value", raw)
 }
 
 // AllHookScopeTypes returns all supported HookScopeType values.

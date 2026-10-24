@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RevertModeType specifies the execution sub-mode for cmdrevert.
@@ -37,13 +39,13 @@ func (m RevertModeType) String() string {
 }
 
 // ParseRevertModeType parses a string into a RevertModeType.
-func ParseRevertModeType(s string) (RevertModeType, error) {
+func ParseRevertModeType(s string) (RevertModeType, *apperror.AppError) {
 	val := RevertModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid revert mode: %q", s)
+	return "", apperror.NewValidation("ParseRevertModeType", "E1000", fmt.Sprintf("invalid revert mode: %q", s)).WithContext("value", s)
 }
 
 // AllRevertModeTypes returns all supported RevertModeType values.
@@ -129,13 +131,13 @@ func (r RevertPromptResponseType) String() string {
 }
 
 // ParseRevertPromptResponseType parses a string into a RevertPromptResponseType.
-func ParseRevertPromptResponseType(s string) (RevertPromptResponseType, error) {
+func ParseRevertPromptResponseType(s string) (RevertPromptResponseType, *apperror.AppError) {
 	val := RevertPromptResponseType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid prompt response: %q", s)
+	return "", apperror.NewValidation("ParseRevertPromptResponseType", "E1000", fmt.Sprintf("invalid prompt response: %q", s)).WithContext("value", s)
 }
 
 // AllRevertPromptResponseTypes returns all valid prompt responses.
@@ -195,7 +197,7 @@ func (c RevertExitCodeType) String() string {
 }
 
 // ParseRevertExitCodeType parses a string into a RevertExitCodeType.
-func ParseRevertExitCodeType(s string) (RevertExitCodeType, error) {
+func ParseRevertExitCodeType(s string) (RevertExitCodeType, *apperror.AppError) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "0", "success":
 		return ExitCodeSuccess, nil
@@ -204,7 +206,7 @@ func ParseRevertExitCodeType(s string) (RevertExitCodeType, error) {
 	case "2", "usage", "usage_error":
 		return ExitCodeUsageError, nil
 	default:
-		return ExitCodeGeneralError, fmt.Errorf("invalid revert exit code: %q", s)
+		return ExitCodeGeneralError, apperror.NewValidation("ParseRevertExitCodeType", "E1000", fmt.Sprintf("invalid revert exit code: %q", s)).WithContext("value", s)
 	}
 }
 

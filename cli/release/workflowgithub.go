@@ -3,6 +3,7 @@ package release
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -33,7 +34,7 @@ func uploadToGitHub(v Version, assets []string, opts Options) {
 		verbose.Get().Log("github: creating release %s on %s/%s (%d asset(s))", v.String(), owner, repo, len(assets))
 	}
 
-	name := constants.ReleaseTagPrefix + v.String()
+	name := strings.Join([]string{constants.ReleaseTagPrefix, v.String()}, "")
 	if len(opts.Notes) > 0 {
 		name = opts.Notes
 	}

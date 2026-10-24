@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -20,6 +21,90 @@ const (
 	CloneModeCFR      CloneDispatchModeType = "cfr"      // private clone-fix-repo
 	CloneModeCFRP     CloneDispatchModeType = "cfrp"     // public clone-fix-repo-pub
 )
+
+// String returns the string representation of the dispatch mode.
+func (m CloneDispatchModeType) String() string {
+	return string(m)
+}
+
+// IsValid reports whether the dispatch mode is a recognized enum value.
+func (m CloneDispatchModeType) IsValid() bool {
+	switch m {
+	case CloneModeStandard, CloneModeCFR, CloneModeCFRP:
+		return true
+	default:
+		return false
+	}
+}
+
+// ParseCloneDispatchModeType parses a raw string into a CloneDispatchModeType.
+func ParseCloneDispatchModeType(s string) (CloneDispatchModeType, *apperror.AppError) {
+	val := CloneDispatchModeType(strings.ToLower(strings.TrimSpace(s)))
+	if val.IsValid() {
+		return val, nil
+	}
+
+	return "", apperror.NewValidation("ParseCloneDispatchModeType", "E1000", fmt.Sprintf("invalid clone dispatch mode: %q", s)).WithContext("value", s)
+}
+
+// AllCloneDispatchModeTypes returns all supported CloneDispatchModeType values.
+func AllCloneDispatchModeTypes() []CloneDispatchModeType {
+	return []CloneDispatchModeType{
+		CloneModeStandard,
+		CloneModeCFR,
+		CloneModeCFRP,
+	}
+}
+
+// IsStandard reports whether the mode is standard git clone.
+func (m CloneDispatchModeType) IsStandard() bool {
+	return m == CloneModeStandard
+}
+
+// IsCFR reports whether the mode is private clone-fix-repo.
+func (m CloneDispatchModeType) IsCFR() bool {
+	return m == CloneModeCFR
+}
+
+// IsCFRP reports whether the mode is public clone-fix-repo-pub.
+func (m CloneDispatchModeType) IsCFRP() bool {
+	return m == CloneModeCFRP
+}
+
+// HasMode reports whether the dispatch mode is valid and recognized.
+func (m CloneDispatchModeType) HasMode() bool {
+	return m.IsValid()
+}
+
+// Repo-cache flag tokens accepted by the clone-rc argument parser.
+const (
+	cloneRCTokenPlain     = "rc"
+	cloneRCTokenLong      = "repo-cache"
+	cloneRCTokenFlag      = "--rc"
+	cloneRCTokenDash      = "-rc"
+	cloneRCTokenLongFlag  = "--repo-cache"
+	cloneRCAssumeYesShort = "-y"
+	cloneRCAssumeYes      = "--yes"
+	cloneRCAssumeYesDash  = "-yes"
+	cloneRCAssumeYesLong  = "--assume-yes"
+)
+
+// cloneRCTokens is the set of tokens that select the repo-cache pipeline.
+var cloneRCTokens = []string{
+	cloneRCTokenPlain,
+	cloneRCTokenLong,
+	cloneRCTokenFlag,
+	cloneRCTokenDash,
+	cloneRCTokenLongFlag,
+}
+
+// cloneRCAssumeYesTokens is the set of tokens that suppress the interactive menu.
+var cloneRCAssumeYesTokens = []string{
+	cloneRCAssumeYesShort,
+	cloneRCAssumeYes,
+	cloneRCAssumeYesDash,
+	cloneRCAssumeYesLong,
+}
 
 // ResolveRepoCacheRootFn is a test hook to override the repo-cache root directory.
 var ResolveRepoCacheRootFn func() string
@@ -109,9 +194,7 @@ func probeDBWorkDir() string {
 func hasRCFlagOrToken(args []string) bool {
 	for _, a := range args {
 		normalized := strings.ToLower(strings.TrimSpace(a))
-		if normalized == "rc" || normalized == "repo-cache" ||
-			normalized == "--rc" || normalized == "-rc" ||
-			normalized == "--repo-cache" {
+		if slices.Contains(cloneRCTokens, normalized) {
 			return true
 		}
 	}
@@ -128,10 +211,10 @@ func parseRCArgs(args []string) rcParsedFlags {
 	var pf rcParsedFlags
 	for _, a := range args {
 		low := strings.ToLower(strings.TrimSpace(a))
-		if low == "rc" || low == "repo-cache" || low == "--rc" || low == "-rc" || low == "--repo-cache" {
+		if slices.Contains(cloneRCTokens, low) {
 			continue
 		}
-		if low == "-y" || low == "--yes" || low == "-yes" || low == "--assume-yes" {
+		if slices.Contains(cloneRCAssumeYesTokens, low) {
 			pf.isAssumeYes = true
 			continue
 		}

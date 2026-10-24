@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -77,5 +78,5 @@ func parseLimit(args []string) (int, []string) {
 }
 
 func isLimitFlag(arg string) bool {
-	return arg == searchconstants.FlagArgLimit || arg == searchconstants.FlagArgLimitShort
+	return slices.Contains([]string{searchconstants.FlagArgLimit, searchconstants.FlagArgLimitShort}, arg)
 }

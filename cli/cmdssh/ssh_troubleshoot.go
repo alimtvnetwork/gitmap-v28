@@ -9,29 +9,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// SSHDiagnosisType classifies the root-cause diagnosis of SSH connectivity probes.
-type SSHDiagnosisType string
+// SSHDiagnosisType is the canonical diagnosis enum from the enums subpackage.
+type SSHDiagnosisType = enums.SSHDiagnosisType
 
 const (
-	DiagFirewallInboundDrop SSHDiagnosisType = "FIREWALL INBOUND DROP"
-	DiagDaemonNotRunning    SSHDiagnosisType = "SSH DAEMON NOT RUNNING"
-	DiagHostOffline         SSHDiagnosisType = "HOST UNREACHABLE / OFFLINE"
-	DiagSSHPortOpen         SSHDiagnosisType = "SSH PORT OPEN & ACCESSIBLE"
-	DiagUnknownError        SSHDiagnosisType = "NETWORK PROBE ERROR"
+	DiagFirewallInboundDrop = enums.DiagFirewallInboundDrop
+	DiagDaemonNotRunning    = enums.DiagDaemonNotRunning
+	DiagHostOffline         = enums.DiagHostOffline
+	DiagSSHPortOpen         = enums.DiagSSHPortOpen
+	DiagUnknownError        = enums.DiagUnknownError
 )
-
-// String returns the string representation.
-func (d SSHDiagnosisType) String() string {
-	return string(d)
-}
-
-// IsOpen reports whether SSH port is open and accessible.
-func (d SSHDiagnosisType) IsOpen() bool {
-	return d == DiagSSHPortOpen
-}
 
 type tcpProbeFunc func(ctx context.Context, ip string, port int, timeout time.Duration) (bool, error)
 type pingProbeFunc func(ctx context.Context, ip string, timeout time.Duration) bool

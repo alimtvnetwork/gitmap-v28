@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // AddTargetType specifies the target resource type for the add command.
@@ -38,13 +40,13 @@ func (t AddTargetType) String() string {
 }
 
 // ParseAddTargetType parses a raw string into an AddTargetType.
-func ParseAddTargetType(s string) (AddTargetType, error) {
+func ParseAddTargetType(s string) (AddTargetType, *apperror.AppError) {
 	val := AddTargetType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid add target: %q", s)
+	return "", apperror.NewValidation("ParseAddTargetType", "E1000", fmt.Sprintf("invalid add target: %q", s)).WithContext("value", s)
 }
 
 // AllAddTargetTypes returns all supported AddTargetType values.
@@ -140,13 +142,13 @@ func (a AddActionType) String() string {
 }
 
 // ParseAddActionType parses a raw string into an AddActionType.
-func ParseAddActionType(s string) (AddActionType, error) {
+func ParseAddActionType(s string) (AddActionType, *apperror.AppError) {
 	val := AddActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid add action: %q", s)
+	return "", apperror.NewValidation("ParseAddActionType", "E1000", fmt.Sprintf("invalid add action: %q", s)).WithContext("value", s)
 }
 
 // AllAddActionTypes returns all supported AddActionType values.
@@ -215,13 +217,13 @@ func (m AddModeType) String() string {
 }
 
 // ParseAddModeType parses a raw string into an AddModeType.
-func ParseAddModeType(s string) (AddModeType, error) {
+func ParseAddModeType(s string) (AddModeType, *apperror.AppError) {
 	val := AddModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid add mode: %q", s)
+	return "", apperror.NewValidation("ParseAddModeType", "E1000", fmt.Sprintf("invalid add mode: %q", s)).WithContext("value", s)
 }
 
 // AllAddModeTypes returns all supported AddModeType values.

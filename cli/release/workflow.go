@@ -96,7 +96,7 @@ func tryDelegateFromBranch(v Version, opts Options) (bool, error) {
 		return false, nil
 	}
 
-	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchName := strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, "")
 
 	// Check if we're on this release branch (or any release/* branch matching the version).
 	if currentBranch != branchName {
@@ -204,7 +204,7 @@ func resolveFileVersion() (Version, error) {
 
 // performRelease executes the branch/tag/push/release steps.
 func performRelease(v Version, sourceRef, sourceName string, opts Options) error {
-	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchName := strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, "")
 	tag := v.String()
 
 	originalBranch, branchErr := CurrentBranchName()
@@ -286,5 +286,5 @@ func resolveTagMessage(tag string, opts Options) string {
 		return opts.Notes
 	}
 
-	return constants.ReleaseTagPrefix + tag
+	return strings.Join([]string{constants.ReleaseTagPrefix, tag}, "")
 }

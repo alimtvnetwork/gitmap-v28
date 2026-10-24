@@ -3,6 +3,7 @@ package cmdsync
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -266,7 +267,7 @@ func unknownTargetError(sub string) error {
 }
 
 func isCommonHelp(arg string) bool {
-	return arg == constants.FlagHelp || arg == constants.FlagShortHelp || arg == constants.FlagLongHelp
+	return slices.Contains([]string{constants.FlagHelp, constants.FlagShortHelp, constants.FlagLongHelp}, arg)
 }
 
 func isSyncHelp(arg string) bool {

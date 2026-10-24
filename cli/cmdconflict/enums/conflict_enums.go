@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ConflictActionType specifies the resolution strategy or action to take.
@@ -32,13 +34,13 @@ func (a ConflictActionType) String() string {
 }
 
 // ParseConflictActionType parses a raw string or flag into a ConflictActionType.
-func ParseConflictActionType(s string) (ConflictActionType, error) {
+func ParseConflictActionType(s string) (ConflictActionType, *apperror.AppError) {
 	norm := strings.ToLower(strings.TrimSpace(s))
 	if act, hasMatch := matchActionAlias(norm); hasMatch {
 		return act, nil
 	}
 
-	return "", fmt.Errorf("invalid conflict action: %q", s)
+	return "", apperror.NewValidation("ParseConflictActionType", "E1000", fmt.Sprintf("invalid conflict action: %q", s)).WithContext("value", s)
 }
 
 func matchActionAlias(s string) (ConflictActionType, bool) {
@@ -161,14 +163,14 @@ func (t ConflictToolType) DisplayName() string {
 }
 
 // ParseConflictToolType parses a raw string into a ConflictToolType.
-func ParseConflictToolType(s string) (ConflictToolType, error) {
+func ParseConflictToolType(s string) (ConflictToolType, *apperror.AppError) {
 	norm := strings.ToLower(strings.TrimSpace(s))
 	val := ConflictToolType(norm)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid conflict tool: %q", s)
+	return "", apperror.NewValidation("ParseConflictToolType", "E1000", fmt.Sprintf("invalid conflict tool: %q", s)).WithContext("value", s)
 }
 
 // AllConflictToolTypes returns all supported ConflictToolType values.
@@ -280,14 +282,14 @@ func matchSecondaryDescription(c ConflictStatusCodeType) string {
 }
 
 // ParseConflictStatusCodeType parses a raw 2-character string into a ConflictStatusCodeType.
-func ParseConflictStatusCodeType(s string) (ConflictStatusCodeType, error) {
+func ParseConflictStatusCodeType(s string) (ConflictStatusCodeType, *apperror.AppError) {
 	norm := strings.ToUpper(strings.TrimSpace(s))
 	val := ConflictStatusCodeType(norm)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid conflict status code: %q", s)
+	return "", apperror.NewValidation("ParseConflictStatusCodeType", "E1000", fmt.Sprintf("invalid conflict status code: %q", s)).WithContext("value", s)
 }
 
 // AllConflictStatusCodeTypes returns all supported ConflictStatusCodeType values.
@@ -348,14 +350,14 @@ func (s ConflictScopeType) String() string {
 }
 
 // ParseConflictScopeType parses a raw string into a ConflictScopeType.
-func ParseConflictScopeType(s string) (ConflictScopeType, error) {
+func ParseConflictScopeType(s string) (ConflictScopeType, *apperror.AppError) {
 	norm := strings.ToLower(strings.TrimSpace(s))
 	val := ConflictScopeType(norm)
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid conflict scope: %q", s)
+	return "", apperror.NewValidation("ParseConflictScopeType", "E1000", fmt.Sprintf("invalid conflict scope: %q", s)).WithContext("value", s)
 }
 
 // AllConflictScopeTypes returns all supported ConflictScopeType values.

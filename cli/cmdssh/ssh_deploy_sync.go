@@ -10,45 +10,46 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
-// DeploySyncModeType defines bidirectional synchronization conflict behavior.
-type DeploySyncModeType string
+// DeploySyncModeType is the canonical sync-mode enum from the enums subpackage.
+type DeploySyncModeType = enums.DeploySyncModeType
 
 // DeploySyncMode is a type alias for DeploySyncModeType.
-type DeploySyncMode = DeploySyncModeType
+type DeploySyncMode = enums.DeploySyncModeType
 
 const (
 	// SyncModeNone prompts interactively on conflict.
-	SyncModeNone DeploySyncModeType = ""
+	SyncModeNone = enums.SyncModeNone
 	// SyncModeOverwrite forces overwriting the remote file unconditionally.
-	SyncModeOverwrite DeploySyncModeType = "overwrite"
+	SyncModeOverwrite = enums.SyncModeOverwrite
 	// SyncModeSkip skips transfer if remote file exists.
-	SyncModeSkip DeploySyncModeType = "skip"
+	SyncModeSkip = enums.SyncModeSkip
 	// SyncModeSync synchronizes bidirectionally based on latest mtime.
-	SyncModeSync DeploySyncModeType = "sync"
+	SyncModeSync = enums.SyncModeSync
 	// SyncModeSyncRight pushes local to remote only if local is newer.
-	SyncModeSyncRight DeploySyncModeType = "sync-right"
+	SyncModeSyncRight = enums.SyncModeSyncRight
 	// SyncModeSyncLeft pulls remote to local only if remote is newer.
-	SyncModeSyncLeft DeploySyncModeType = "sync-left"
+	SyncModeSyncLeft = enums.SyncModeSyncLeft
 )
 
-// DeployActionType represents the decided action for a specific file transfer.
-type DeployActionType string
+// DeployActionType is the canonical deploy-action enum from the enums subpackage.
+type DeployActionType = enums.DeployActionType
 
 // DeployAction is a type alias for DeployActionType.
-type DeployAction = DeployActionType
+type DeployAction = enums.DeployActionType
 
 const (
 	// ActionTransferToRemote copies local file to remote target.
-	ActionTransferToRemote DeployActionType = "transfer-to-remote"
+	ActionTransferToRemote = enums.ActionTransferToRemote
 	// ActionTransferToLocal copies remote file to local workspace.
-	ActionTransferToLocal DeployActionType = "transfer-to-local"
+	ActionTransferToLocal = enums.ActionTransferToLocal
 	// ActionSkip skips file without transfer.
-	ActionSkip DeployActionType = "skip"
+	ActionSkip = enums.ActionSkip
 	// ActionConflictPrompt requests user decision interactively.
-	ActionConflictPrompt DeployActionType = "conflict-prompt"
+	ActionConflictPrompt = enums.ActionConflictPrompt
 )
 
 // RemoteFileInfo contains metadata about a remote file or directory.
@@ -163,23 +164,23 @@ func evaluateFileConflict(local LocalFileInfo, remote RemoteFileInfo, mode Deplo
 	if !remote.Exists {
 		return ActionTransferToRemote, nil
 	}
-	if mode == SyncModeOverwrite {
+	if mode.IsOverwrite() {
 		return ActionTransferToRemote, nil
 	}
-	if mode == SyncModeSkip {
+	if mode.IsSkip() {
 		return ActionSkip, nil
 	}
 	return evaluateSyncModeAction(local.ModTime, remote.ModTime, mode), nil
 }
 
 func evaluateSyncModeAction(localMTime, remoteMTime time.Time, mode DeploySyncMode) DeployAction {
-	if mode == SyncModeSync {
+	if mode.IsSync() {
 		return evaluateSyncBidi(localMTime, remoteMTime)
 	}
-	if mode == SyncModeSyncRight {
+	if mode.IsSyncRight() {
 		return evaluateSyncRight(localMTime, remoteMTime)
 	}
-	if mode == SyncModeSyncLeft {
+	if mode.IsSyncLeft() {
 		return evaluateSyncLeft(localMTime, remoteMTime)
 	}
 	return ActionConflictPrompt

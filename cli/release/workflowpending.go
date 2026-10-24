@@ -2,6 +2,7 @@ package release
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -38,7 +39,7 @@ func isMetaPending(meta ReleaseMeta, branchSet map[string]bool) bool {
 		return false
 	}
 
-	branchName := constants.ReleaseBranchPrefix + meta.Tag
+	branchName := strings.Join([]string{constants.ReleaseBranchPrefix, meta.Tag}, "")
 	if branchSet[branchName] {
 		return false
 	}
@@ -94,15 +95,15 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 	fmt.Printf(constants.MsgPendingMetaRelease, meta.Tag, shortSHA)
 
 	if dryRun {
-		branchName := constants.ReleaseBranchPrefix + v.String()
-		fmt.Printf(constants.MsgReleaseDryRun, "Create branch "+branchName+" from commit "+shortSHA)
-		fmt.Printf(constants.MsgReleaseDryRun, "Create tag "+v.String())
+		branchName := strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, "")
+		fmt.Printf(constants.MsgReleaseDryRun, strings.Join([]string{"Create branch ", branchName, " from commit ", shortSHA}, ""))
+		fmt.Printf(constants.MsgReleaseDryRun, strings.Join([]string{"Create tag ", v.String()}, ""))
 		fmt.Printf(constants.MsgReleaseDryRun, "Push branch and tag to origin")
 
 		return nil
 	}
 
-	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchName := strings.Join([]string{constants.ReleaseBranchPrefix, v.String()}, "")
 
 	err = CreateBranch(branchName, meta.Commit)
 	if err != nil {
@@ -112,7 +113,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 	fmt.Printf(constants.MsgReleaseBranch, branchName)
 
 	tag := v.String()
-	err = CreateTag(tag, constants.ReleaseTagPrefix+tag)
+	err = CreateTag(tag, strings.Join([]string{constants.ReleaseTagPrefix, tag}, ""))
 	if err != nil {
 		return apperror.WrapSimple(err, "create tag from metadata")
 	}
@@ -121,7 +122,7 @@ func releaseFromMetadata(meta ReleaseMeta, assetsPath, notes string, isDraft, dr
 
 	opts := Options{Assets: assetsPath, Notes: notes, IsDraft: isDraft, SkipMeta: true}
 
-	return pushAndFinalize(v, branchName, tag, "metadata:"+meta.Commit, opts)
+	return pushAndFinalize(v, branchName, tag, strings.Join([]string{"metadata:", meta.Commit}, ""), opts)
 }
 
 // isPendingBranch returns true when the branch has no released tag.

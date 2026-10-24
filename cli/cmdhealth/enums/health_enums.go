@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // HealthCategoryType represents check domains evaluated by health checks.
@@ -69,17 +71,17 @@ func (c HealthCategoryType) HasCategory() bool {
 }
 
 // ParseHealthCategory parses a category string into a typed enum.
-func ParseHealthCategory(s string) (HealthCategoryType, error) {
+func ParseHealthCategory(s string) (HealthCategoryType, *apperror.AppError) {
 	val := HealthCategoryType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid health category: %q", s)
+	return "", apperror.NewValidation("ParseHealthCategory", "E1000", fmt.Sprintf("invalid health category: %q", s)).WithContext("value", s)
 }
 
 // ParseHealthCategoryType is an alias for ParseHealthCategory.
-func ParseHealthCategoryType(s string) (HealthCategoryType, error) {
+func ParseHealthCategoryType(s string) (HealthCategoryType, *apperror.AppError) {
 	return ParseHealthCategory(s)
 }
 
@@ -161,17 +163,17 @@ func (s HealthSeverityType) HasDegradation() bool {
 }
 
 // ParseHealthSeverity parses a severity string into a typed enum.
-func ParseHealthSeverity(s string) (HealthSeverityType, error) {
+func ParseHealthSeverity(s string) (HealthSeverityType, *apperror.AppError) {
 	val := HealthSeverityType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid health severity: %q", s)
+	return "", apperror.NewValidation("ParseHealthSeverity", "E1000", fmt.Sprintf("invalid health severity: %q", s)).WithContext("value", s)
 }
 
 // ParseHealthSeverityType is an alias for ParseHealthSeverity.
-func ParseHealthSeverityType(s string) (HealthSeverityType, error) {
+func ParseHealthSeverityType(s string) (HealthSeverityType, *apperror.AppError) {
 	return ParseHealthSeverity(s)
 }
 
@@ -242,17 +244,17 @@ func (f HealthOutputFormatType) HasFormat() bool {
 }
 
 // ParseHealthOutputFormat parses an output format string into a typed enum.
-func ParseHealthOutputFormat(s string) (HealthOutputFormatType, error) {
+func ParseHealthOutputFormat(s string) (HealthOutputFormatType, *apperror.AppError) {
 	val := HealthOutputFormatType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid health output format: %q", s)
+	return "", apperror.NewValidation("ParseHealthOutputFormat", "E1000", fmt.Sprintf("invalid health output format: %q", s)).WithContext("value", s)
 }
 
 // ParseHealthOutputFormatType is an alias for ParseHealthOutputFormat.
-func ParseHealthOutputFormatType(s string) (HealthOutputFormatType, error) {
+func ParseHealthOutputFormatType(s string) (HealthOutputFormatType, *apperror.AppError) {
 	return ParseHealthOutputFormat(s)
 }
 
@@ -333,17 +335,17 @@ func (s HealthCheckStatusType) HasStatus() bool {
 }
 
 // ParseHealthCheckStatus parses a check status string into a typed enum.
-func ParseHealthCheckStatus(s string) (HealthCheckStatusType, error) {
+func ParseHealthCheckStatus(s string) (HealthCheckStatusType, *apperror.AppError) {
 	val := HealthCheckStatusType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid health check status: %q", s)
+	return "", apperror.NewValidation("ParseHealthCheckStatus", "E1000", fmt.Sprintf("invalid health check status: %q", s)).WithContext("value", s)
 }
 
 // ParseHealthCheckStatusType is an alias for ParseHealthCheckStatus.
-func ParseHealthCheckStatusType(s string) (HealthCheckStatusType, error) {
+func ParseHealthCheckStatusType(s string) (HealthCheckStatusType, *apperror.AppError) {
 	return ParseHealthCheckStatus(s)
 }
 

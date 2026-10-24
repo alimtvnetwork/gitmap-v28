@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // CopyActionType specifies the copy action operation.
@@ -29,13 +31,13 @@ func (a CopyActionType) String() string {
 }
 
 // ParseCopyActionType parses a raw string into a CopyActionType.
-func ParseCopyActionType(s string) (CopyActionType, error) {
+func ParseCopyActionType(s string) (CopyActionType, *apperror.AppError) {
 	val := CopyActionType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid copy action: %q", s)
+	return "", apperror.NewValidation("ParseCopyActionType", "E1000", fmt.Sprintf("invalid copy action: %q", s)).WithContext("value", s)
 }
 
 // AllCopyActionTypes returns all supported CopyActionType values.
@@ -87,13 +89,13 @@ func (t CopyTargetType) String() string {
 }
 
 // ParseCopyTargetType parses a raw string into a CopyTargetType.
-func ParseCopyTargetType(s string) (CopyTargetType, error) {
+func ParseCopyTargetType(s string) (CopyTargetType, *apperror.AppError) {
 	val := CopyTargetType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid copy target: %q", s)
+	return "", apperror.NewValidation("ParseCopyTargetType", "E1000", fmt.Sprintf("invalid copy target: %q", s)).WithContext("value", s)
 }
 
 // AllCopyTargetTypes returns all supported CopyTargetType values.
@@ -156,13 +158,13 @@ func (m CopyModeType) String() string {
 }
 
 // ParseCopyModeType parses a raw string into a CopyModeType.
-func ParseCopyModeType(s string) (CopyModeType, error) {
+func ParseCopyModeType(s string) (CopyModeType, *apperror.AppError) {
 	val := CopyModeType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid copy mode: %q", s)
+	return "", apperror.NewValidation("ParseCopyModeType", "E1000", fmt.Sprintf("invalid copy mode: %q", s)).WithContext("value", s)
 }
 
 // AllCopyModeTypes returns all supported CopyModeType values.
@@ -221,13 +223,13 @@ func (s CopySourceType) String() string {
 }
 
 // ParseCopySourceType parses a raw string into a CopySourceType.
-func ParseCopySourceType(s string) (CopySourceType, error) {
+func ParseCopySourceType(s string) (CopySourceType, *apperror.AppError) {
 	val := CopySourceType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid copy source: %q", s)
+	return "", apperror.NewValidation("ParseCopySourceType", "E1000", fmt.Sprintf("invalid copy source: %q", s)).WithContext("value", s)
 }
 
 // AllCopySourceTypes returns all supported CopySourceType values.

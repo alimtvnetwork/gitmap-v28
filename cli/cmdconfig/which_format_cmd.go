@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -66,7 +67,7 @@ type whichFormatOptions struct {
 }
 
 func isYesFlag(arg string) bool {
-	return arg == cfgconst.FlagArgYesShort || arg == cfgconst.FlagArgYes
+	return slices.Contains([]string{cfgconst.FlagArgYesShort, cfgconst.FlagArgYes}, arg)
 }
 
 func appendNonFlagArg(arg string, opts *whichFormatOptions) {
@@ -109,7 +110,7 @@ func ParseWhichFormatArgs(args []string) whichFormatOptions {
 func isRoutingKeyword(arg string) bool {
 	low := strings.ToLower(arg)
 
-	return low == cfgconst.CmdWhich || low == cfgconst.CmdFormat || low == cfgconst.CmdInspect || low == cfgconst.CmdWhichFormat
+	return slices.Contains([]string{cfgconst.CmdWhich, cfgconst.CmdFormat, cfgconst.CmdInspect, cfgconst.CmdWhichFormat}, low)
 }
 
 // ResolveInspectionFiles resolves specific file args or discovers directory JSONs.
