@@ -54,9 +54,7 @@ func ReleaseExists(version Version) bool {
 
 // metaFilePath returns the path for a release metadata file.
 func metaFilePath(v Version) string {
-	filename := v.String() + constants.ExtJSON
-
-	return filepath.Join(constants.DefaultReleaseDir, filename)
+	return filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 }
 
 // WriteReleaseMeta writes release metadata to .gitmap/release/vX.Y.Z.json.

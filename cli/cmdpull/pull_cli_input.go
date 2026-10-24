@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -73,17 +74,35 @@ func appendValuedFlag(flags []string, args []string, idx *int) []string {
 	return flags
 }
 
+// pullValuedFlagTokens lists every flag token that consumes the next
+// argument as its value. FlagWorkerShort verification: the short flag is
+// registered as fs.Int(FlagWorkerShort) in registerPullWorkerFlags, and
+// Go's flag package accepts both "-w" and "--w" for a registered name, so
+// "--w" is the double-dash spelling of the short flag, not a typo for
+// "--worker" (which is listed separately). The same holds for "--h".
+// "-h" is intentionally absent: NormalizePullArgs rewrites "-h <n>" to
+// "--hand <n>" before reordering, via isHandShortFlagWithVal.
+var pullValuedFlagTokens = []string{
+	"-" + pullconstants.FlagGroupShort,
+	"--" + pullconstants.FlagGroup,
+	"-" + pullconstants.FlagParallelShort,
+	"--" + pullconstants.FlagParallel,
+	"-" + pullconstants.FlagWorkerShort,
+	"--" + pullconstants.FlagWorkerShort,
+	"--" + pullconstants.FlagWorker,
+	"--" + pullconstants.FlagWorkers,
+	"--" + pullconstants.FlagHand,
+	"--" + pullconstants.FlagHands,
+	"--" + pullconstants.FlagHandShort,
+	"--" + pullconstants.FlagConcurrency,
+}
+
 func isPullFlagTakingValue(arg string) bool {
 	if strings.Contains(arg, "=") {
 		return false
 	}
 
-	return arg == "-"+pullconstants.FlagGroupShort || arg == "--"+pullconstants.FlagGroup ||
-		arg == "-"+pullconstants.FlagParallelShort || arg == "--"+pullconstants.FlagParallel ||
-		arg == "-"+pullconstants.FlagWorkerShort || arg == "--"+pullconstants.FlagWorkerShort ||
-		arg == "--"+pullconstants.FlagWorker || arg == "--"+pullconstants.FlagWorkers ||
-		arg == "--"+pullconstants.FlagHand || arg == "--"+pullconstants.FlagHands ||
-		arg == "--"+pullconstants.FlagHandShort || arg == "--"+pullconstants.FlagConcurrency
+	return slices.Contains(pullValuedFlagTokens, arg)
 }
 
 func isPullAllTableSeq(args []string, i int) bool {

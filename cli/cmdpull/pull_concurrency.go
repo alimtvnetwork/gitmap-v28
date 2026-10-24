@@ -4,6 +4,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
@@ -33,8 +34,11 @@ func runThrottledIgnoreScanWorkflow(records []model.ScanRecord, ttl time.Duratio
 			handle.done <- nil
 		}
 	}()
-	coldRecords, err := filterColdIgnoreRecords(records, ttl)
-	if err != nil || len(coldRecords) == 0 {
+	// A filter failure is non-fatal: filterColdIgnoreRecords returns the
+	// full unique list as fallback, matching its previous nil-error
+	// fallback, so the list is scanned whenever it is non-empty.
+	coldRecords, _ := filterColdIgnoreRecords(records, ttl)
+	if len(coldRecords) == 0 {
 		handle.done <- nil
 		return
 	}
@@ -42,11 +46,11 @@ func runThrottledIgnoreScanWorkflow(records []model.ScanRecord, ttl time.Duratio
 	handle.done <- issues
 }
 
-func filterColdIgnoreRecords(records []model.ScanRecord, ttl time.Duration) ([]model.ScanRecord, error) {
+func filterColdIgnoreRecords(records []model.ScanRecord, ttl time.Duration) ([]model.ScanRecord, *apperror.AppError) {
 	uniqueRecords := deduplicateRecordsByPath(records)
 	cold, err := store.FilterReposNeedingIgnoreCheck(uniqueRecords, ttl)
 	if err != nil {
-		return uniqueRecords, nil
+		return uniqueRecords, apperror.Wrap(err, "filterColdIgnoreRecords", map[string]any{"records": len(uniqueRecords), "ttl": ttl.String()})
 	}
 	return deduplicateRecordsByPath(cold), nil
 }

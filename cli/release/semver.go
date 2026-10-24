@@ -104,6 +104,14 @@ func (v Version) String() string {
 	return base
 }
 
+// ReleaseFileName returns the release metadata filename for the version
+// (e.g. v1.2.3.json). It is the single place that joins the version
+// string to the JSON extension; all call sites use it instead of
+// concatenating v.String() and the extension themselves.
+func (v Version) ReleaseFileName() string {
+	return strings.Join([]string{v.String(), constants.ExtJSON}, "")
+}
+
 // CoreString returns the version without v prefix (e.g. 1.2.3).
 func (v Version) CoreString() string {
 	base := fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)

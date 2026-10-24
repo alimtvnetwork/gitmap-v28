@@ -11,7 +11,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/txn"
 )
@@ -152,4 +151,3 @@ func newRevertManyError(err error, id int64, kind string, isForce bool) *apperro
 		map[string]any{"id": id, "kind": kind, "force": isForce},
 	)
 }
-

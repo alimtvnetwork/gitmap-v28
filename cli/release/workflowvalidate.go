@@ -131,7 +131,7 @@ func handleOrphanedMeta(v Version) error {
 		return apperror.NewExecutionError(constants.ErrReleaseAborted)
 	}
 
-	filename := v.String() + constants.ExtJSON
+	filename := v.ReleaseFileName()
 	path := filepath.Join(constants.DefaultReleaseDir, filename)
 
 	err := os.Remove(path)

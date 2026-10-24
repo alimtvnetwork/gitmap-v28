@@ -182,7 +182,7 @@ func slugFromURL(url string) string {
 }
 
 // lookupPRCPath finds a registered repo by slug and returns its abs path.
-func lookupPRCPath(slug string) (string, error) {
+func lookupPRCPath(slug string) (string, *apperror.AppError) {
 	db, err := openDB()
 	if err != nil {
 		return "", apperror.WrapSimple(err, "open db")
@@ -190,9 +190,9 @@ func lookupPRCPath(slug string) (string, error) {
 
 	defer db.Close()
 
-	repos, err := db.FindBySlug(strings.ToLower(slug))
-	if err != nil {
-		return "", apperror.WrapSimple(err, "lookup "+slug)
+	repos, findErr := db.FindBySlug(strings.ToLower(slug))
+	if findErr != nil {
+		return "", apperror.WrapSimple(findErr, "lookup "+slug)
 	}
 
 	if len(repos) == 0 {

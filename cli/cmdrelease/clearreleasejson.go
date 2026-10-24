@@ -43,7 +43,7 @@ func RunClearReleaseJSON(args []string) error {
 		return apperror.WrapSimple(err, constants.ErrReleaseInvalidVersion)
 	}
 
-	filename := v.String() + constants.ExtJSON
+	filename := v.ReleaseFileName()
 	path := filepath.Join(constants.DefaultReleaseDir, filename)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {

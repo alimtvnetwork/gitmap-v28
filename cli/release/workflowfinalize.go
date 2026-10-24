@@ -94,7 +94,7 @@ func writeMetadata(
 
 	meta := buildReleaseMeta(v, branchName, tag, sourceName, commit, assets, opts)
 
-	metaPath := constants.DefaultReleaseDir + "/" + v.String() + constants.ExtJSON
+	metaPath := filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 
 	if verbose.IsEnabled() {
 		verbose.Get().Log("metadata: writing %s", metaPath)

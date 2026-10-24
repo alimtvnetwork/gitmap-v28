@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -40,9 +41,11 @@ var (
 	RunSpecialRepoProbeOnPullFn       func(workBaseDir string, isAutoAccept bool) error
 )
 
-func runStatus(args []string) error {
+func runStatus(args []string) *apperror.AppError {
 	if RunStatusFn != nil {
-		return RunStatusFn(args)
+		if err := RunStatusFn(args); err != nil {
+			return apperror.Wrap(err, "runStatus", map[string]any{"args": args})
+		}
 	}
 	return nil
 }
@@ -68,8 +71,13 @@ func GetAliasPath() string {
 	return ""
 }
 
-func openDB() (*store.DB, error) {
-	return store.OpenDefault()
+func openDB() (*store.DB, *apperror.AppError) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return nil, apperror.Wrap(err, "openDB", nil)
+	}
+
+	return db, nil
 }
 
 func loadAllRecordsDB() []model.ScanRecord {
@@ -137,9 +145,14 @@ func PrintRemediationSummary(items []RemediationItem) {
 	}
 }
 
-func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, error) {
+func ApplyTransportFlag(dir string, useSSH, useHTTPS bool) (bool, string, string, *apperror.AppError) {
 	if ApplyTransportFlagFn != nil {
-		return ApplyTransportFlagFn(dir, useSSH, useHTTPS)
+		changed, remote, transport, err := ApplyTransportFlagFn(dir, useSSH, useHTTPS)
+		if err != nil {
+			return false, "", "", apperror.Wrap(err, "ApplyTransportFlag", map[string]any{"dir": dir, "use_ssh": useSSH, "use_https": useHTTPS})
+		}
+
+		return changed, remote, transport, nil
 	}
 	return false, "", "", nil
 }
