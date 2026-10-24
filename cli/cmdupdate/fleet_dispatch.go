@@ -1,6 +1,7 @@
 package cmdupdate
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -166,7 +167,7 @@ func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateO
 		opts.IsDryRun = true
 		return
 	}
-	if arg == "-f" || arg == "--force" {
+	if slices.Contains([]string{"-f", "--force"}, arg) {
 		opts.IsForce = true
 		return
 	}
@@ -174,7 +175,7 @@ func processUpdateFlag(arg string, args []string, index *int, opts *FleetUpdateO
 }
 
 func processPositionalPkg(arg string, opts *FleetUpdateOptions) {
-	if strings.HasPrefix(arg, "-") || isFleetUpdateCmdToken(arg) || arg == "update" || arg == "zip" {
+	if strings.HasPrefix(arg, "-") || isFleetUpdateCmdToken(arg) || slices.Contains([]string{"update", "zip"}, arg) {
 		return
 	}
 	if opts.Pkg == "gitmap" || opts.Pkg == "all" {
@@ -193,12 +194,12 @@ func isIncludeOthersToken(arg string) bool {
 }
 
 func isExceptParam(arg string) bool {
-	return arg == "--except" || arg == "--excep" || arg == "--exclude" ||
+	return slices.Contains([]string{"--except", "--excep", "--exclude"}, arg) ||
 		strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--excep=") || strings.HasPrefix(arg, "--exclude=")
 }
 
 func isTargetParam(arg string) bool {
-	return arg == "-t" || arg == "--target" || strings.HasPrefix(arg, "--target=") || strings.HasPrefix(arg, "--node=") || strings.HasPrefix(arg, "--remote=")
+	return slices.Contains([]string{"-t", "--target"}, arg) || strings.HasPrefix(arg, "--target=") || strings.HasPrefix(arg, "--node=") || strings.HasPrefix(arg, "--remote=")
 }
 
 func consumeExceptFlagUpdate(args []string, index *int, opts *FleetUpdateOptions) {

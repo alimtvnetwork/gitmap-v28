@@ -11,46 +11,23 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate/enums"
 )
 
-// UpdateStageType represents a sequential execution phase in gitmap update.
-type UpdateStageType int
+// UpdateStageType is the canonical update stage type, defined in enums.
+type UpdateStageType = enums.UpdateStageType
 
 // UpdateStage is an alias for UpdateStageType.
 type UpdateStage = UpdateStageType
 
 const (
-	StageNone UpdateStageType = iota
-	StageResolving
-	StageDownloading
-	StageVerifying
-	StageSwapping
-	StageComplete
+	StageNone        = enums.StageNone
+	StageResolving   = enums.StageResolving
+	StageDownloading = enums.StageDownloading
+	StageVerifying   = enums.StageVerifying
+	StageSwapping    = enums.StageSwapping
+	StageComplete    = enums.StageComplete
 )
-
-var stageLabels = [...]string{"Preparing", "Resolving", "Downloading", "Verifying", "Swapping", "Complete"}
-
-// String returns human-readable stage label.
-func (s UpdateStageType) String() string {
-	if int(s) > 0 && int(s) < len(stageLabels) {
-
-		return stageLabels[s]
-	}
-
-	return stageLabels[0]
-}
-
-// StepNumber returns the 1-based step index.
-func (s UpdateStageType) StepNumber() int {
-
-	return int(s)
-}
-
-// TotalSteps returns total count of update stages.
-func (s UpdateStageType) TotalSteps() int {
-
-	return 5
-}
 
 // UpdateUIRenderer coordinates progress display and summary cards.
 type UpdateUIRenderer interface {

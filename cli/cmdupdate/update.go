@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -17,7 +18,7 @@ const FlagFromSource = "--from-source"
 
 func isSourceRebuildRequested() bool {
 	for _, arg := range os.Args[1:] {
-		if arg == constants.FlagSourceRebuild || arg == FlagFromSource {
+		if slices.Contains([]string{constants.FlagSourceRebuild, FlagFromSource}, arg) {
 			return true
 		}
 	}

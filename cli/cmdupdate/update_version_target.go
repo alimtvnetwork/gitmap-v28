@@ -1,6 +1,7 @@
 package cmdupdate
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -49,19 +50,19 @@ func ParseUpdateOptions(args []string) UpdateOptions {
 		arg := args[i]
 
 		switch {
-		case arg == "-f" || arg == "--force":
+		case slices.Contains([]string{"-f", "--force"}, arg):
 			opts.IsForce = true
 
-		case arg == "-n" || arg == "--dry-run":
+		case slices.Contains([]string{"-n", "--dry-run"}, arg):
 			opts.IsDryRun = true
 
-		case arg == "-j" || arg == "--json":
+		case slices.Contains([]string{"-j", "--json"}, arg):
 			opts.IsJSON = true
 
-		case arg == "-q" || arg == "--quiet":
+		case slices.Contains([]string{"-q", "--quiet"}, arg):
 			opts.IsQuiet = true
 
-		case (arg == "-v" || arg == "--version") && i+1 < len(args):
+		case slices.Contains([]string{"-v", "--version"}, arg) && i+1 < len(args):
 			opts.TargetVersion = args[i+1]
 			i++
 
