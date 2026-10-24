@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -113,8 +114,45 @@ func resolveSlugTarget(slug string) []model.ScanRecord {
 
 		return nil
 	}
+	if pathTarget := resolveDirectPathTarget(slug); len(pathTarget) > 0 {
+		return pathTarget
+	}
 
 	return lookupBySlugDBFirst(slug)
+}
+
+func resolveDirectPathTarget(slug string) []model.ScanRecord {
+	abs, err := filepath.Abs(slug)
+	if err != nil {
+		return nil
+	}
+	repoRoot := findGitRepoRoot(abs)
+	if repoRoot == "" {
+		return nil
+	}
+	name := filepath.Base(repoRoot)
+
+	return []model.ScanRecord{{
+		RepoName:     name,
+		Slug:         name,
+		AbsolutePath: repoRoot,
+	}}
+}
+
+func findGitRepoRoot(path string) string {
+	if !cloner.IsMissingRepo(path) {
+		return path
+	}
+	out, err := exec.Command("git", "-C", path, "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return ""
+	}
+	top := filepath.Clean(strings.TrimSpace(string(out)))
+	if !cloner.IsMissingRepo(top) {
+		return top
+	}
+
+	return ""
 }
 
 func lookupBySlugDBFirst(slug string) []model.ScanRecord {

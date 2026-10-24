@@ -46,7 +46,7 @@ func runPullStandardFlow(args []string, isPullAll bool) error {
 
 func printHeaderUnlessJSON(isPullAll bool, args []string) {
 	if !hasJSONArg(args) {
-		printPullInvocationHeader(isPullAll)
+		printPullInvocationHeader(isPullAll, args)
 	}
 }
 
@@ -60,77 +60,6 @@ func checkPullHelp(isPullAll bool, args []string) {
 		helpCmd = "pull-all"
 	}
 	checkHelp(helpCmd, args)
-}
-
-func handleSSHFleetPullAll(args []string) error {
-	if hasFleetRemediateFlag(args) && RunRemoteSSHPullFleetRemediateFn != nil {
-		return RunRemoteSSHPullFleetRemediateFn(args)
-	}
-	cleanArgs := stripSSHFleetFlags(args)
-	hasHook := RunRemoteSSHPullAllFleetFn != nil
-	if !hasHook {
-		return apperror.NewSimple("ssh fleet pull-all is not wired", "E_SSH_PULLALL")
-	}
-
-	return executeSSHFleetPullTask(cleanArgs)
-}
-
-func hasFleetRemediateFlag(args []string) bool {
-	for _, a := range args {
-		low := strings.ToLower(a)
-		if low == "--fix" || low == "-fix" || low == "--remediate" || low == "-remediate" || low == "--fleet-fix" {
-			return true
-		}
-	}
-
-	return false
-}
-
-func executeSSHFleetPullTask(cleanArgs []string) error {
-	queueId, tDB := enqueueTaskQueue("pull-all-ssh", "fleet")
-	defer closeTaskDB(tDB)
-	updateTaskQueue(tDB, queueId, "running")
-
-	errFleet := RunRemoteSSHPullAllFleetFn(cleanArgs)
-	hasErr := errFleet != nil
-	if hasErr {
-		return handleSSHFleetFailure(tDB, queueId, errFleet)
-	}
-
-	updateTaskQueue(tDB, queueId, "completed")
-	return nil
-}
-
-func handleSSHFleetFailure(tDB *store.TasksSplitDB, queueId string, errFleet error) error {
-	store.LogInternalError("PULL_ALL_SSH", "SSH_DELEGATION_ERROR", errFleet.Error(), "", "")
-	updateTaskQueue(tDB, queueId, "failed")
-
-	return apperror.WrapSimple(errFleet, "SSH fleet pull-all failed")
-}
-
-func hasSSHFleetFlag(args []string) bool {
-	for _, a := range args {
-		if isSSHFleetToken(a) {
-			return true
-		}
-	}
-	return false
-}
-
-func isSSHFleetToken(token string) bool {
-	low := strings.ToLower(token)
-	return low == "--ssh" || low == "-ssh" || low == "--sh" || low == "-sh" || low == "ssh" || low == "pas" || low == "pull-all-ssh"
-}
-
-func stripSSHFleetFlags(args []string) []string {
-	var clean []string
-	for _, a := range args {
-		if isSSHFleetToken(a) {
-			continue
-		}
-		clean = append(clean, a)
-	}
-	return clean
 }
 
 func executePullWithResolvedOptions(opts pullOptions) error {
@@ -168,13 +97,25 @@ func hasJSONArg(args []string) bool {
 func resolveParsedPullOptions(args []string, useSSH, useHTTPS bool) pullOptions {
 	opts := parsePullFlags(args)
 	opts = applyTransportOptions(opts, useSSH, useHTTPS)
-	if opts.slug == "" && opts.group == "" {
-		opts.all = true
+	if opts.slug == "" && opts.group == "" && !opts.all {
+		opts = resolveDefaultTarget(opts)
 	}
 	if isPullAllTableRootCmd() {
 		opts.all = true
 		opts.showStatus = true
 	}
+
+	return opts
+}
+
+func resolveDefaultTarget(opts pullOptions) pullOptions {
+	if isGitRepoCWD() {
+		opts.slug = "."
+
+		return opts
+	}
+
+	opts.all = true
 
 	return opts
 }

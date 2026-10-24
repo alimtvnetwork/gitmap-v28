@@ -3,6 +3,7 @@ package cmdpull
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -73,16 +74,46 @@ func isPullAllToken(token string) bool {
 	return token == "--all" || token == "-all" || token == "-a" || token == "all" || token == "pa" || token == "ta" || token == "pull-all" || token == "pat" || token == "pull-all-table" || token == "pas" || token == "pull-all-ssh"
 }
 
-func printPullInvocationHeader(isPullAll bool) {
-	cmdName := "pull"
-	scope := "(all workspaces)"
-	if isPullAll {
-		cmdName = "pull-all"
-	}
+func printPullInvocationHeader(isPullAll bool, args []string) {
+	cmdName, scope := resolvePullInvocationTarget(isPullAll, args)
 	fmt.Printf("\n  %s→%s %sgitmap %s%s %s%s%s\n",
 		constants.ColorCyan, constants.ColorReset,
 		constants.ColorBold, cmdName, constants.ColorReset,
 		constants.ColorDim, scope, constants.ColorReset)
+}
+
+func resolvePullInvocationTarget(isPullAll bool, args []string) (string, string) {
+	if isPullAll || hasPullAllArg(args) {
+		return "pull-all", "(all workspaces)"
+	}
+	targetArg := findFirstPositionalArg(args)
+	if targetArg != "" {
+		return "pull", fmt.Sprintf("(%s)", targetArg)
+	}
+	if isGitRepoCWD() {
+		return "pull", resolveCWDRepoScope()
+	}
+
+	return "pull", "(all workspaces)"
+}
+
+func findFirstPositionalArg(args []string) string {
+	for _, a := range args {
+		if !strings.HasPrefix(a, "-") && !isPullAllToken(strings.ToLower(a)) {
+			return a
+		}
+	}
+
+	return ""
+}
+
+func resolveCWDRepoScope() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "(cwd)"
+	}
+
+	return fmt.Sprintf("(%s)", filepath.Base(cwd))
 }
 
 func resolveSubArrow() string {
