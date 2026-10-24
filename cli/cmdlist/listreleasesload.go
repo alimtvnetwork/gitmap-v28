@@ -136,7 +136,7 @@ func buildTagSet(records []model.ReleaseRecord) map[string]bool {
 // tagToRecord creates a minimal ReleaseRecord from a git tag.
 func tagToRecord(t release.TagEntry) model.ReleaseRecord {
 	v, _ := release.Parse(t.Tag)
-	branchName := constants.ReleaseBranchPrefix + v.String()
+	branchName := fmt.Sprintf("%s%s", constants.ReleaseBranchPrefix, v.String())
 
 	return model.ReleaseRecord{
 		Version:   v.String(),
