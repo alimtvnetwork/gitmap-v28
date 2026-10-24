@@ -1,5 +1,14 @@
 # Changelog
 
+## [v6.606.0] - 2026-10-24
+
+### Fixed
+- **Single-Repo Pull Isolation (`gitmap pull`)**: Fixed `gitmap pull` without arguments inside a repository directory (`cwd`) to pull exclusively the active repository instead of defaulting to `pull-all` across all cataloged workspaces.
+- **Dynamic Invocation Target Scope**: Enhanced `printPullInvocationHeader` to dynamically resolve target scope `(repo-name)` from working directory or arguments, reserving `(all workspaces)` strictly for explicit `gitmap pull-all`, `pa`, or non-git fallback directory contexts.
+- **Direct Filesystem Path Resolution**: Enhanced target slug resolver to automatically detect and pull direct filesystem directory paths matching existing Git repositories without requiring prior SQLite catalog enrollment.
+
+---
+
 ## [v6.605.0] - 2026-10-24
 
 ### Added
