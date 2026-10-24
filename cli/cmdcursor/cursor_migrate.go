@@ -2,6 +2,7 @@ package cmdcursor
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -40,7 +41,7 @@ func renderCursorMigrateHelp() {
 func isMigrateHelpRequested(args []string) bool {
 	for _, arg := range args {
 		lower := strings.ToLower(arg)
-		if lower == "help" || lower == "--help" || lower == "-h" {
+		if slices.Contains(cursorHelpFlagTokens, lower) {
 			return true
 		}
 	}
@@ -54,21 +55,21 @@ func parseCursorMigrateArgs(args []string) (cursorMigrateOptions, error) {
 	for i := 0; i < len(args); i++ {
 		arg := strings.ToLower(args[i])
 		switch {
-		case (arg == "--node" || arg == "-n") && i+1 < len(args):
+		case slices.Contains(cursorNodeFlagTokens, arg) && i+1 < len(args):
 			opts.targetNode, i = args[i+1], i+1
 		case arg == "--exclude" && i+1 < len(args):
 			opts.exclude, i = args[i+1], i+1
-		case (arg == "--output" || arg == "-o") && i+1 < len(args):
+		case slices.Contains(cursorOutputFlagTokens, arg) && i+1 < len(args):
 			opts.outputPath, i = args[i+1], i+1
 		case arg == "--skip-settings":
 			opts.isSkipSettings = true
 		case arg == "--settings-only":
 			opts.isSettingsOnly = true
-		case arg == "--dry-run" || arg == "-d":
+		case slices.Contains(cursorDryRunFlagTokens, arg):
 			opts.isDryRun = true
 		case arg == "--no-backup":
 			opts.isNoBackup = true
-		case arg == "--force" || arg == "-f":
+		case slices.Contains(cursorForceFlagTokens, arg):
 			opts.isForce = true
 		}
 	}

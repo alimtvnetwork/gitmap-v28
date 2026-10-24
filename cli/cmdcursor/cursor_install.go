@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
@@ -16,16 +17,24 @@ type cursorInstallOptions struct {
 	isDryRun   bool
 }
 
+// Shared cursor flag token sets, also used by cursor migrate parsing.
+var (
+	cursorNodeFlagTokens   = []string{"--node", "-n"}
+	cursorForceFlagTokens  = []string{"--force", "-f"}
+	cursorDryRunFlagTokens = []string{"--dry-run", "-d"}
+	cursorOutputFlagTokens = []string{"--output", "-o"}
+)
+
 func parseCursorInstallArgs(args []string) cursorInstallOptions {
 	opts := cursorInstallOptions{}
 	for i := 0; i < len(args); i++ {
 		arg := strings.ToLower(args[i])
 		switch {
-		case (arg == "--node" || arg == "-n") && i+1 < len(args):
+		case slices.Contains(cursorNodeFlagTokens, arg) && i+1 < len(args):
 			opts.targetNode, i = args[i+1], i+1
-		case arg == "--force" || arg == "-f":
+		case slices.Contains(cursorForceFlagTokens, arg):
 			opts.isForce = true
-		case arg == "--dry-run" || arg == "-d":
+		case slices.Contains(cursorDryRunFlagTokens, arg):
 			opts.isDryRun = true
 		}
 	}

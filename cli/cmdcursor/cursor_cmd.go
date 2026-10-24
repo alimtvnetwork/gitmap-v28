@@ -3,18 +3,21 @@ package cmdcursor
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+var cursorHelpFlagTokens = []string{"help", "--help", "-h"}
+
 func isCursorHelpRequested(args []string) bool {
 	if len(args) == 0 {
 		return true
 	}
 	arg := strings.ToLower(args[0])
-	return arg == "help" || arg == "--help" || arg == "-h"
+	return slices.Contains(cursorHelpFlagTokens, arg)
 }
 
 // RenderCursorHelp prints the Cursor CLI reference.
