@@ -71,4 +71,3 @@ func ExtractGitSSHCommand(env []string) (string, bool) {
 
 	return "", false
 }
-

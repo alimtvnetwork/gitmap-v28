@@ -388,14 +388,14 @@ The embedded skill template in `cli/cmd/llm/llm_skill.go` and the persistent fil
 
 ### 6.3 Cross-Repository Skills Synchronization Protocol
 
-To ensure consistency across the developer's entire workspace fleet (e.g. `d:\work\gitmap`, `d:\work\gitmap-v28`, and connected client repositories):
+To ensure consistency across the developer's entire workspace fleet (e.g. `<workspace-root>/gitmap`, `<workspace-root>/gitmap-v28`, and connected client repositories):
 
 ```mermaid
 flowchart TD
-    Update["Update Antigravity Skill<br>d:/work/gitmap/.agents/skills/gitmap/skill.md<br>cli/cmd/llm/llm_skill.go"] --> Verify["Verify AST & Lint Checks<br>python go-format-check.py"]
+    Update["Update Antigravity Skill<br>.agents/skills/gitmap/skill.md<br>cli/cmd/llm/llm_skill.go"] --> Verify["Verify AST & Lint Checks<br>python go-format-check.py"]
     Verify --> Script["Execute Synchronization Script<br>python 03-ai-scripts/38-sync-prompts-skills-scripts.py"]
 
-    Script --> TargetDiscovery["Discover Target Repositories<br>Scan d:/work for Git Repos"]
+    Script --> TargetDiscovery["Discover Target Repositories<br>Scan workspace for Git Repos"]
     TargetDiscovery --> Filter{"Target is Valid Git Repo<br>& Clean Working Tree?"}
 
     Filter -- "No (Dirty)" --> Skip["Log Warning & Skip Repo<br>(Zero Accidental Overwrite)"]

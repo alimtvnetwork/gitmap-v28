@@ -221,37 +221,54 @@ func resolveAllIndexedRepositories(cwd string) []model.ScanRecord {
 	}
 
 	db, errDB := store.OpenDefault()
-	if errDB == nil {
-		defer db.Close()
-		records, errList := db.ListRepos()
-		hasRecords := errList == nil && len(records) > 0
-		if hasRecords {
-			seen := make(map[string]bool)
-			var deduplicated []model.ScanRecord
-			for _, r := range records {
-				cleanPath := filepath.Clean(r.AbsolutePath)
-				if cleanPath == "" || cleanPath == "." {
-					cleanPath = filepath.Clean(r.RelativePath)
-				}
-				if cleanPath == "" || cleanPath == "." {
-					continue
-				}
-				key := strings.ToLower(cleanPath)
-				if seen[key] {
-					continue
-				}
-				seen[key] = true
-				r.AbsolutePath = cleanPath
-				deduplicated = append(deduplicated, r)
-			}
-			hasDeduplicated := len(deduplicated) > 0
-			if hasDeduplicated {
-				return deduplicated
-			}
-		}
+	if errDB != nil {
+		return cmdpending.ResolveWorkspaceRepositories(cwd)
+	}
+	defer db.Close()
+
+	records, errList := db.ListRepos()
+	if errList != nil || len(records) == 0 {
+		return cmdpending.ResolveWorkspaceRepositories(cwd)
+	}
+
+	deduplicated := deduplicateScanRecords(records)
+	if len(deduplicated) > 0 {
+		return deduplicated
 	}
 
 	return cmdpending.ResolveWorkspaceRepositories(cwd)
+}
+
+func deduplicateScanRecords(records []model.ScanRecord) []model.ScanRecord {
+	seen := make(map[string]bool)
+	var deduplicated []model.ScanRecord
+
+	for _, r := range records {
+		cleanPath := resolveRecordCleanPath(r)
+		if cleanPath == "" || cleanPath == "." {
+			continue
+		}
+
+		key := strings.ToLower(cleanPath)
+		if seen[key] {
+			continue
+		}
+
+		seen[key] = true
+		r.AbsolutePath = cleanPath
+		deduplicated = append(deduplicated, r)
+	}
+
+	return deduplicated
+}
+
+func resolveRecordCleanPath(r model.ScanRecord) string {
+	cleanPath := filepath.Clean(r.AbsolutePath)
+	if cleanPath == "" || cleanPath == "." {
+		return filepath.Clean(r.RelativePath)
+	}
+
+	return cleanPath
 }
 
 func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, finalMsg string) cmdpending.RepoSendResultRecord {
@@ -301,13 +318,13 @@ func processSingleRepoSend(repo model.ScanRecord, opts cmdpending.SendsOptions, 
 }
 
 func resolveRepoCommitMessage(opts cmdpending.SendsOptions, finalMsg, porcelain string) string {
-	isEligible := isSemanticGroupingApplicable(opts)
-	if isEligible {
-		categories := cmdsends.CategorizeChangedFiles(porcelain)
-		hasCategories := len(categories) > 0
-		if hasCategories {
-			return cmdsends.FormatMarkdownCommitBody(finalMsg, categories)
-		}
+	if !isSemanticGroupingApplicable(opts) {
+		return finalMsg
+	}
+
+	categories := cmdsends.CategorizeChangedFiles(porcelain)
+	if len(categories) > 0 {
+		return cmdsends.FormatMarkdownCommitBody(finalMsg, categories)
 	}
 
 	return finalMsg

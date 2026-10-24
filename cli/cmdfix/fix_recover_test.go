@@ -79,29 +79,26 @@ func TestSanitizeRecipeForRepo_NoInitialCommit(t *testing.T) {
 	}
 }
 
+func configureTestGitUser(repoPath string) {
+	_ = exec.Command("git", "-C", repoPath, "config", "user.name", "Test User").Run()
+	_ = exec.Command("git", "-C", repoPath, "config", "user.email", "test@example.com").Run()
+}
+
 func TestRecoverNoInitialCommit_CreatesCommitWhenDirty(t *testing.T) {
 	tempDir := t.TempDir()
 	_ = exec.Command("git", "init", tempDir).Run()
+	configureTestGitUser(tempDir)
 
 	testFile := filepath.Join(tempDir, "test.txt")
 	if err := os.WriteFile(testFile, []byte("hello"), 0o644); err != nil {
 		t.Fatalf("failed to write test file: %v", err)
 	}
 
-	step := gitutil.RemediationStep{
-		Name: "git",
-		Args: []string{"-C", tempDir, "stash", "-u"},
+	step := gitutil.RemediationStep{Name: "git", Args: []string{"-C", tempDir, "stash", "-u"}}
+	recovered, msg := recoverNoInitialCommit(step, "You do not have the initial commit yet")
+	if !recovered || msg != "recovered (created initial commit)" {
+		t.Fatalf("expected recoverNoInitialCommit to succeed, got %v, %q", recovered, msg)
 	}
-	output := "You do not have the initial commit yet"
-
-	recovered, msg := recoverNoInitialCommit(step, output)
-	if !recovered {
-		t.Fatalf("expected recoverNoInitialCommit to succeed")
-	}
-	if msg != "recovered (created initial commit)" {
-		t.Errorf("expected 'recovered (created initial commit)', got %q", msg)
-	}
-
 	if !gitutil.HasInitialCommit(tempDir) {
 		t.Fatalf("expected repository to now have an initial commit")
 	}
@@ -110,18 +107,11 @@ func TestRecoverNoInitialCommit_CreatesCommitWhenDirty(t *testing.T) {
 func TestRecoverNoInitialCommit_CleanRepo(t *testing.T) {
 	tempDir := t.TempDir()
 	_ = exec.Command("git", "init", tempDir).Run()
+	configureTestGitUser(tempDir)
 
-	step := gitutil.RemediationStep{
-		Name: "git",
-		Args: []string{"-C", tempDir, "stash", "-u"},
-	}
-	output := "You do not have the initial commit yet"
-
-	recovered, msg := recoverNoInitialCommit(step, output)
-	if !recovered {
-		t.Fatalf("expected recoverNoInitialCommit to succeed for clean repo")
-	}
-	if msg != "clean (no commits yet, working tree clean)" {
-		t.Errorf("expected clean message, got %q", msg)
+	step := gitutil.RemediationStep{Name: "git", Args: []string{"-C", tempDir, "stash", "-u"}}
+	recovered, msg := recoverNoInitialCommit(step, "You do not have the initial commit yet")
+	if !recovered || msg != "clean (no commits yet, working tree clean)" {
+		t.Fatalf("expected recoverNoInitialCommit to succeed for clean repo, got %v, %q", recovered, msg)
 	}
 }

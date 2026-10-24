@@ -127,8 +127,8 @@ func buildCommitArgsWithIdentity(repoPath, message string) ([]string, bool) {
 	}, true
 }
 
-// hasConfiguredGitIdentity reports whether git resolves an author identity.
-func hasConfiguredGitIdentity(repoPath string) bool {
+// HasConfiguredGitIdentity reports whether git resolves an author identity.
+func HasConfiguredGitIdentity(repoPath string) bool {
 	ident := resolveSavedGitIdentity(repoPath)
 
 	return ident.IsConfigured

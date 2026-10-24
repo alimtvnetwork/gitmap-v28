@@ -83,14 +83,15 @@ func rewriteSubtaskJSONArgs(args []string) []string {
 	var out []string
 	for i := 0; i < len(args); i++ {
 		rewritten, consumedNext, hasMatch := tryRewriteJSONFlag(args, i)
-		if hasMatch {
-			out = append(out, rewritten...)
-			if consumedNext {
-				i++
-			}
+		if !hasMatch {
+			out = append(out, args[i])
 			continue
 		}
-		out = append(out, args[i])
+
+		out = append(out, rewritten...)
+		if consumedNext {
+			i++
+		}
 	}
 
 	return out
@@ -101,11 +102,11 @@ func tryRewriteJSONFlag(args []string, i int) ([]string, bool, bool) {
 	if (arg == "--json" || arg == "-j") && i+1 < len(args) && IsJSONPayloadToken(args[i+1]) {
 		return []string{"--data", args[i+1], "--json"}, true, true
 	}
-	if strings.HasPrefix(arg, "--json=") {
+
+	if strings.HasPrefix(arg, "--json=") && IsJSONPayloadToken(strings.TrimPrefix(arg, "--json=")) {
 		val := strings.TrimPrefix(arg, "--json=")
-		if IsJSONPayloadToken(val) {
-			return []string{"--data", val, "--json"}, false, true
-		}
+
+		return []string{"--data", val, "--json"}, false, true
 	}
 
 	return nil, false, false
