@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -28,8 +29,10 @@ func RunService(args []string) error {
 	return dispatchServiceSubcommand(sub, rest)
 }
 
+var serviceHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func isServiceHelp(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains(serviceHelpFlagTokens, arg)
 }
 
 func dispatchServiceSubcommand(sub string, rest []string) error {
