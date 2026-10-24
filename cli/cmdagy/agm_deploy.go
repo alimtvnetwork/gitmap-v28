@@ -179,26 +179,26 @@ func parseAgmDeployArgs(args []string) AgmDeployOptions {
 
 func parseAgmDeployFlag(opts *AgmDeployOptions, args []string, i int) (int, error) {
 	arg := args[i]
-	switch arg {
-	case "--purge-accounts":
+	switch {
+	case arg == "--purge-accounts":
 		opts.IsPurgeAccounts = true
 		return 1, nil
-	case "--shred":
+	case arg == "--shred":
 		opts.IsShred = true
 		return 1, nil
-	case "--encrypt":
+	case arg == "--encrypt":
 		opts.IsEncrypt = true
 		return 1, nil
-	case "--include-main":
+	case arg == "--include-main":
 		opts.IncludeMain = true
 		return 1, nil
-	case "--open-only":
+	case arg == "--open-only":
 		opts.OpenOnly = true
 		return 1, nil
-	case "--dry-run", "-n":
+	case arg == "--dry-run" || arg == "-n":
 		opts.IsDryRun = true
 		return 1, nil
-	case "--json", "-j":
+	case arg == "--json" || arg == "-j":
 		opts.IsJSON = true
 		return 1, nil
 	default:
@@ -212,21 +212,17 @@ func parseAgmDeployParamFlag(opts *AgmDeployOptions, args []string, i int) (int,
 		opts.Nodes = strings.TrimPrefix(arg, "--nodes=")
 		return 1, nil
 	}
+	if (arg == "--nodes") && i+1 < len(args) {
+		opts.Nodes = args[i+1]
+		return 2, nil
+	}
 	if strings.HasPrefix(arg, "--target=") {
 		opts.TargetNode = strings.TrimPrefix(arg, "--target=")
 		return 1, nil
 	}
-	switch arg {
-	case "--nodes":
-		if i+1 < len(args) {
-			opts.Nodes = args[i+1]
-			return 2, nil
-		}
-	case "--target", "-t":
-		if i+1 < len(args) {
-			opts.TargetNode = args[i+1]
-			return 2, nil
-		}
+	if (arg == "--target" || arg == "-t") && i+1 < len(args) {
+		opts.TargetNode = args[i+1]
+		return 2, nil
 	}
 	return parseAgmExceptParam(opts, args, i)
 }
@@ -237,12 +233,9 @@ func parseAgmExceptParam(opts *AgmDeployOptions, args []string, i int) (int, err
 		appendExceptList(opts, strings.TrimPrefix(arg, "--except="))
 		return 1, nil
 	}
-	switch arg {
-	case "--except":
-		if i+1 < len(args) {
-			appendExceptList(opts, args[i+1])
-			return 2, nil
-		}
+	if arg == "--except" && i+1 < len(args) {
+		appendExceptList(opts, args[i+1])
+		return 2, nil
 	}
 	return 0, nil
 }

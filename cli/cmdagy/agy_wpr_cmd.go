@@ -123,37 +123,29 @@ func applyWPRFlagOverrides(opts *WPROptions) {
 
 func parseSingleWPRArg(args []string, i int, opts *WPROptions, positional *[]string) int {
 	arg := args[i]
-	switch arg {
-	case "-t", "--time":
-		if i+1 < len(args) {
-			opts.IntervalStr = args[i+1]
-			opts.Interval, _ = time.ParseDuration(args[i+1])
-			return i + 1
-		}
-	case "-p", "--prefix":
-		if i+1 < len(args) {
-			opts.PrefixTemplate = args[i+1]
-			return i + 1
-		}
-	case "-s", "--suffix":
-		if i+1 < len(args) {
-			opts.SuffixTemplate = args[i+1]
-			return i + 1
-		}
-	case "--ssh":
+	switch {
+	case (arg == "-t" || arg == "--time") && i+1 < len(args):
+		opts.IntervalStr = args[i+1]
+		opts.Interval, _ = time.ParseDuration(args[i+1])
+		return i + 1
+	case (arg == "-p" || arg == "--prefix") && i+1 < len(args):
+		opts.PrefixTemplate = args[i+1]
+		return i + 1
+	case (arg == "-s" || arg == "--suffix") && i+1 < len(args):
+		opts.SuffixTemplate = args[i+1]
+		return i + 1
+	case arg == "--ssh":
 		opts.IsSSH = true
-	case "-j", "--json":
+	case arg == "-j" || arg == "--json":
 		opts.IsJSON = true
-	case "-n", "--dry-run":
+	case arg == "-n" || arg == "--dry-run":
 		opts.IsDryRun = true
-	case "--restart":
+	case arg == "--restart":
 		opts.IsRestart = true
-	case "--once", "-1":
+	case arg == "--once" || arg == "-1":
 		opts.IsOnce = true
-	default:
-		if !strings.HasPrefix(arg, "-") {
-			*positional = append(*positional, arg)
-		}
+	case !strings.HasPrefix(arg, "-"):
+		*positional = append(*positional, arg)
 	}
 
 	return i

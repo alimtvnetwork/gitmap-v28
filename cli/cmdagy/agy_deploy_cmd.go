@@ -375,60 +375,46 @@ func parseAgyDeployArgs(args []string) AgyDeployOptions {
 	opts := AgyDeployOptions{}
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if strings.HasPrefix(arg, "--preset=") {
-			opts.Preset = strings.TrimPrefix(arg, "--preset=")
-			continue
-		}
-		if strings.HasPrefix(arg, "--theme=") {
-			opts.Theme = strings.TrimPrefix(arg, "--theme=")
-			continue
-		}
-		if strings.HasPrefix(arg, "--target=") {
-			opts.TargetNode = strings.TrimPrefix(arg, "--target=")
-			continue
-		}
-		switch arg {
-		case "--all":
+		switch {
+		case arg == "--all":
 			opts.IsAll = true
-		case "--plugins":
+		case arg == "--plugins":
 			opts.HasPlugins = true
-		case "--skills":
+		case arg == "--skills":
 			opts.HasSkills = true
-		case "--binaries":
+		case arg == "--binaries":
 			opts.HasBinaries = true
-		case "--projects":
+		case arg == "--projects":
 			opts.HasProjects = true
-		case "--dry-run":
+		case arg == "--dry-run":
 			opts.IsDryRun = true
-		case "--json":
+		case arg == "--json":
 			opts.IsJSON = true
-		case "--force":
+		case arg == "--force":
 			opts.IsForce = true
-		case "--restart":
+		case arg == "--restart":
 			opts.IsRestart = true
-		case "--preset":
-			if i+1 < len(args) {
-				i++
-				opts.Preset = args[i]
-			} else {
-				opts.Preset = "eager"
-			}
-		case "--theme":
-			if i+1 < len(args) {
-				i++
-				opts.Theme = args[i]
-			} else {
-				opts.Theme = "dark"
-			}
-		case "--target":
-			if i+1 < len(args) {
-				i++
-				opts.TargetNode = args[i]
-			}
-		default:
-			if !strings.HasPrefix(arg, "-") && opts.TargetNode == "" {
-				opts.TargetNode = arg
-			}
+		case arg == "--preset" && i+1 < len(args):
+			i++
+			opts.Preset = args[i]
+		case strings.HasPrefix(arg, "--preset="):
+			opts.Preset = strings.TrimPrefix(arg, "--preset=")
+		case arg == "--preset":
+			opts.Preset = "eager"
+		case arg == "--theme" && i+1 < len(args):
+			i++
+			opts.Theme = args[i]
+		case strings.HasPrefix(arg, "--theme="):
+			opts.Theme = strings.TrimPrefix(arg, "--theme=")
+		case arg == "--theme":
+			opts.Theme = "dark"
+		case arg == "--target" && i+1 < len(args):
+			i++
+			opts.TargetNode = args[i]
+		case strings.HasPrefix(arg, "--target="):
+			opts.TargetNode = strings.TrimPrefix(arg, "--target=")
+		case !strings.HasPrefix(arg, "-") && opts.TargetNode == "":
+			opts.TargetNode = arg
 		}
 	}
 	return opts

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -64,11 +63,11 @@ func parseAgyUIOptions(args []string) agyUIOptions {
 	opts := agyUIOptions{port: 7430, noBrowser: false}
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if slices.Contains([]string{"--no-browser", "-n"}, arg) {
+		if arg == "--no-browser" || arg == "-n" {
 			opts.noBrowser = true
 			continue
 		}
-		if slices.Contains([]string{"--port", "-p"}, arg) && i+1 < len(args) {
+		if (arg == "--port" || arg == "-p") && i+1 < len(args) {
 			opts.port = parsePortQuiet(args[i+1], opts.port)
 			i++
 			continue

@@ -60,18 +60,17 @@ func parseBehaviorToggle(arg string, opts *AgyFixOptions) bool {
 }
 
 func parseOutputToggle(arg string, opts *AgyFixOptions) bool {
-	switch arg {
-	case "--no-release":
+	switch {
+	case arg == "--no-release":
 		opts.IsNoRelease = true
 		return true
-	case "--no-clipboard":
+	case arg == "--no-clipboard":
 		opts.IsNoClipboard = true
 		return true
+	case isAgyDryRunFlag(arg):
+		opts.IsDryRun = true
+		return true
 	default:
-		if isAgyDryRunFlag(arg) {
-			opts.IsDryRun = true
-			return true
-		}
 		return false
 	}
 }
@@ -97,12 +96,12 @@ func parseNumericParam(args []string, idx *int, target *int) bool {
 }
 
 func parseBatchParamFlag(args []string, idx *int, opts *AgyFixOptions, arg string) bool {
-	switch arg {
-	case "--projects":
+	if arg == "--projects" {
 		return parseNumericParam(args, idx, &opts.ProjectsCount)
-	case "--limit":
-		return parseNumericParam(args, idx, &opts.Limit)
-	default:
-		return false
 	}
+	if arg == "--limit" {
+		return parseNumericParam(args, idx, &opts.Limit)
+	}
+
+	return false
 }
