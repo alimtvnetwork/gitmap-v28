@@ -11,18 +11,20 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/uipref"
 )
 
-type InteractiveLoopActionType int
+// InteractiveLoopActionType is the canonical interactive loop action type, defined in enums.
+type InteractiveLoopActionType = enums.InteractiveLoopActionType
 
 type interactiveLoopAction = InteractiveLoopActionType
 
 const (
-	LoopActionTypeContinue InteractiveLoopActionType = iota
-	LoopActionTypeBreak
+	LoopActionTypeContinue = enums.LoopActionTypeContinue
+	LoopActionTypeBreak    = enums.LoopActionTypeBreak
 )
 
 const (

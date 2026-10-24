@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -24,7 +25,7 @@ type resolvedAlias struct {
 // name and the remaining args with the flag removed.
 func extractAliasFlag(args []string) (string, []string) {
 	for i, arg := range args {
-		if arg == "-A" || arg == "--alias" {
+		if slices.Contains([]string{"-A", "--alias"}, arg) {
 			return extractStandaloneAliasFlag(args, i)
 		}
 

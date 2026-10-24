@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// ConflictDecisionType is the action a higher-level replay loop takes for
-// a single conflicting source commit.
-type ConflictDecisionType int
+// ConflictDecisionType is the canonical replay-loop decision type, defined in enums.
+type ConflictDecisionType = enums.ConflictDecisionType
 
 const (
-	ConflictDecisionTakeTheirs ConflictDecisionType = iota
-	ConflictDecisionAbort
+	ConflictDecisionTakeTheirs = enums.ConflictDecisionTakeTheirs
+	ConflictDecisionAbort      = enums.ConflictDecisionAbort
 )
 
 // Resolve maps the resolved ConflictMode to a ConflictDecisionType.

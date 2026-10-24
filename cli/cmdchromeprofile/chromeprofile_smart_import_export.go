@@ -3,6 +3,7 @@ package cmdchromeprofile
 import (
 	"encoding/json"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -51,7 +52,7 @@ func parseOptionFile(arg string, args []string, i *int, opts *chromeTransferOpti
 }
 
 func isFileFlagToken(arg string) bool {
-	return arg == "--file" || arg == "-f" || arg == "-o" || arg == "--output" || arg == "--out"
+	return slices.Contains([]string{"--file", "-f", "-o", "--output", "--out"}, arg)
 }
 
 func parseOptionTempFile(arg string, args []string, i *int, opts *chromeTransferOptions) bool {
@@ -72,7 +73,7 @@ func parseOptionTempFile(arg string, args []string, i *int, opts *chromeTransfer
 }
 
 func isTempFlagToken(arg string) bool {
-	return arg == "--tempfile" || arg == "--temp"
+	return slices.Contains([]string{"--tempfile", "--temp"}, arg)
 }
 
 func parseOptionFnf(arg string, args []string, i *int, opts *chromeTransferOptions) bool {
@@ -101,7 +102,7 @@ func assignFnfFilePath(args []string, i *int, opts *chromeTransferOptions) {
 }
 
 func parseOptionJSON(arg string, opts *chromeTransferOptions) bool {
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJSON = true
 
 		return true

@@ -5,8 +5,12 @@
 // command files; argv preprocessing explicitly stays in package cmd.
 package cmd
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/constants"
+import (
+	"slices"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+)
 
 func isHelpFlag(arg string) bool {
-	return arg == constants.FlagHelpWord || arg == constants.FlagHelp || arg == constants.FlagHelpShort
+	return slices.Contains([]string{constants.FlagHelpWord, constants.FlagHelp, constants.FlagHelpShort}, arg)
 }

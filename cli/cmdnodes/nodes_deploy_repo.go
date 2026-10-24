@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -82,7 +83,7 @@ func parseDeployRepoOptions(args []string) (DeployRepoOptions, error) {
 }
 
 func isDeployRepoHelpFlag(arg string) bool {
-	return arg == "--help" || arg == "-h" || arg == "help"
+	return slices.Contains([]string{"--help", "-h", "help"}, arg)
 }
 
 func parsePositionalDeployRepoArg(opts *DeployRepoOptions, arg string) {
@@ -170,7 +171,7 @@ func parseTargetDeployRepoFlag(opts *DeployRepoOptions, args []string, i int) in
 		opts.Target = strings.TrimPrefix(arg, "-t=")
 		return 1
 	}
-	if (arg == "--target" || arg == "-t") && i+1 < len(args) {
+	if slices.Contains([]string{"--target", "-t"}, arg) && i+1 < len(args) {
 		opts.Target = args[i+1]
 		return 2
 	}
@@ -187,7 +188,7 @@ func parseDestDeployRepoFlag(opts *DeployRepoOptions, args []string, i int) int 
 		opts.Dest = strings.TrimPrefix(arg, "-d=")
 		return 1
 	}
-	if (arg == "--dest" || arg == "-d") && i+1 < len(args) {
+	if slices.Contains([]string{"--dest", "-d"}, arg) && i+1 < len(args) {
 		opts.Dest = args[i+1]
 		return 2
 	}
@@ -228,7 +229,7 @@ func parseExceptRepoFlag(opts *DeployRepoOptions, args []string, i int) int {
 		appendTokenList(&opts.Except, strings.TrimPrefix(arg, "--exclude="))
 		return 1
 	}
-	if (arg == "--except" || arg == "-e" || arg == "--exclude") && i+1 < len(args) {
+	if slices.Contains([]string{"--except", "-e", "--exclude"}, arg) && i+1 < len(args) {
 		appendTokenList(&opts.Except, args[i+1])
 		return 2
 	}
@@ -245,7 +246,7 @@ func parseIncludeRepoFlag(opts *DeployRepoOptions, args []string, i int) int {
 		appendTokenList(&opts.Include, strings.TrimPrefix(arg, "--accept="))
 		return 1
 	}
-	if (arg == "--include" || arg == "--accept") && i+1 < len(args) {
+	if slices.Contains([]string{"--include", "--accept"}, arg) && i+1 < len(args) {
 		appendTokenList(&opts.Include, args[i+1])
 		return 2
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -70,12 +71,12 @@ func parseNodesPendingCommitsOptions(args []string) NodesPendingCommitsOptions {
 
 func parseSinglePendingFlag(opts *NodesPendingCommitsOptions, args []string, i int) int {
 	arg := args[i]
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJSON = true
 		return 1
 	}
 
-	if arg == "--detail" || arg == "-d" {
+	if slices.Contains([]string{"--detail", "-d"}, arg) {
 		opts.IsDetail = true
 		return 1
 	}
@@ -100,7 +101,7 @@ func parsePendingSortFlag(opts *NodesPendingCommitsOptions, args []string, i int
 		return 1
 	}
 
-	if (arg == "--sort" || arg == "-s") && i+1 < len(args) {
+	if slices.Contains([]string{"--sort", "-s"}, arg) && i+1 < len(args) {
 		opts.SortMode = args[i+1]
 		return 2
 	}

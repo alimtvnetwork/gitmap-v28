@@ -4,6 +4,7 @@ package cmdnodes
 import (
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
@@ -50,15 +51,15 @@ type NodesPendingCommitsAggregated struct {
 	Results            []NodePendingCommitsResult `json:"results"`
 }
 
-// CommitActionKindType defines semantic action types.
-type CommitActionKindType string
+// CommitActionKindType is the canonical semantic action type, defined in enums.
+type CommitActionKindType = enums.CommitActionKindType
 
 const (
-	CommitActionStandard CommitActionKindType = "commits"
-	CommitActionFeature  CommitActionKindType = "cpf"
-	CommitActionBug      CommitActionKindType = "cpb"
-	CommitActionRelease  CommitActionKindType = "cpr"
-	CommitActionFix      CommitActionKindType = "commit-fix"
+	CommitActionStandard = enums.CommitActionStandard
+	CommitActionFeature  = enums.CommitActionFeature
+	CommitActionBug      = enums.CommitActionBug
+	CommitActionRelease  = enums.CommitActionRelease
+	CommitActionFix      = enums.CommitActionFix
 )
 
 // RemoteRepoCommitOutcome captures the commit result for an individual repository on a node.

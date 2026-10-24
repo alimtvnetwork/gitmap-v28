@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -89,7 +90,7 @@ func extractRemoteUpdateTarget(args []string) (string, []string) {
 
 func matchRemoteArg(args []string, i int) (string, []string, bool) {
 	arg := args[i]
-	if (arg == "--remote" || arg == "-r" || arg == "--node" || arg == "-n") && i+1 < len(args) {
+	if slices.Contains([]string{"--remote", "-r", "--node", "-n"}, arg) && i+1 < len(args) {
 		return args[i+1], append(append([]string{}, args[:i]...), args[i+2:]...), true
 	}
 	for _, pfx := range []string{"--remote=", "--node="} {

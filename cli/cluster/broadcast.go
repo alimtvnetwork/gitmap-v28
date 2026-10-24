@@ -1,11 +1,13 @@
 package cluster
 
-// CommandType represents the type of command broadcasted to clients.
-type CommandType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/cluster/enums"
+
+// CommandType is the canonical broadcast command type, defined in enums.
+type CommandType = enums.CommandType
 
 const (
 	// CommandPullAll is the command to tell clients to pull all local repositories.
-	CommandPullAll CommandType = "PullAll"
+	CommandPullAll = enums.CommandPullAll
 )
 
 // Event represents a broadcast event.

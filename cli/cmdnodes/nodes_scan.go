@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -173,7 +174,7 @@ func extractScanPassArgs(args []string, target string) []string {
 }
 
 func isScanIgnoredArg(arg, target string) bool {
-	if arg == "--json" || arg == "-j" || arg == "--help" || arg == "-h" || arg == "help" {
+	if slices.Contains([]string{"--json", "-j", "--help", "-h", "help"}, arg) {
 		return true
 	}
 	return target != "" && arg == target
@@ -181,7 +182,7 @@ func isScanIgnoredArg(arg, target string) bool {
 
 func isFilterFlagStep(args []string, i int) int {
 	a := args[i]
-	if a == "--include-main" || a == "--open-only" || a == "--running-only" || a == "-ro" {
+	if slices.Contains([]string{"--include-main", "--open-only", "--running-only", "-ro"}, a) {
 		return 1
 	}
 

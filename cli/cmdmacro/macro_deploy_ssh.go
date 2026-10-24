@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -179,19 +180,19 @@ func processDeployFlag(arg string, args []string, index *int, opts *MacroDeployO
 		opts.IsDryRun = true
 		return
 	}
-	if arg == "-f" || arg == "--force" {
+	if slices.Contains([]string{"-f", "--force"}, arg) {
 		opts.IsForce = true
 		return
 	}
 }
 
 func isExceptParam(arg string) bool {
-	return arg == "--except" || arg == "--excep" || arg == "--exclude" ||
+	return slices.Contains([]string{"--except", "--excep", "--exclude"}, arg) ||
 		strings.HasPrefix(arg, "--except=") || strings.HasPrefix(arg, "--excep=") || strings.HasPrefix(arg, "--exclude=")
 }
 
 func isTargetParam(arg string) bool {
-	return arg == "-t" || arg == "--target" || strings.HasPrefix(arg, "--target=")
+	return slices.Contains([]string{"-t", "--target"}, arg) || strings.HasPrefix(arg, "--target=")
 }
 
 func consumeExceptFlag(args []string, index *int, opts *MacroDeployOptions) {

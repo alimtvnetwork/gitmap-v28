@@ -3,16 +3,18 @@ package cluster
 import (
 	"sync"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cluster/enums"
 )
 
-// NodeStateType indicates the current connection status of a cluster node.
-type NodeStateType string
+// NodeStateType is the canonical cluster node state type, defined in enums.
+type NodeStateType = enums.NodeStateType
 
 const (
 	// StateConnected means the node has recently sent a heartbeat.
-	StateConnected NodeStateType = "Connected"
+	StateConnected = enums.StateConnected
 	// StateDisconnected means the node's heartbeat has timed out.
-	StateDisconnected NodeStateType = "Disconnected"
+	StateDisconnected = enums.StateDisconnected
 )
 
 // Node represents a connected VM in the cluster.

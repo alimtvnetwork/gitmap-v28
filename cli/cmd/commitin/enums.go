@@ -1,240 +1,121 @@
-// Package commitin contains the typed enums and shared types for the
+// Package commitin contains the shared types for the
 // `gitmap commit-in` (cin) command. See 02-spec/03-commit-in/.
 //
-// Enum design (per Core memory rules):
-//   - Each enum is its own named uint8 type with a String() returning
-//     the canonical PascalCase name from constants_commitin.go.
-//   - Each enum has a single AllX() slice so DB seed code, parity
-//     tests, and CLI validators iterate one source of truth.
-//   - No magic strings — every literal is a constant.
+// The typed enums themselves live in cli/cmd/commitin/enums; this file
+// only re-exports them so existing in-package and subpackage call sites
+// keep compiling unchanged.
 package commitin
 
-import "github.com/alimtvnetwork/gitmap-v28/cli/constants"
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/enums"
 
 // ---- ConflictMode -------------------------------------------------
-type ConflictModeType uint8
+type ConflictModeType = enums.ConflictModeType
 
 const (
-	ConflictModeForceMerge ConflictModeType = iota + 1
-	ConflictModePrompt
+	ConflictModeForceMerge = enums.ConflictModeForceMerge
+	ConflictModePrompt     = enums.ConflictModePrompt
 )
 
-func (m ConflictModeType) String() string {
-	switch m {
-	case ConflictModeForceMerge:
-		return constants.CommitInConflictModeForceMerge
-	case ConflictModePrompt:
-		return constants.CommitInConflictModePrompt
-	}
-
-	return ""
-}
-
 func AllConflictModes() []ConflictModeType {
-	return []ConflictModeType{ConflictModeForceMerge, ConflictModePrompt}
+	return enums.AllConflictModes()
 }
 
 // ---- InputKind ----------------------------------------------------
-type InputKindType uint8
+type InputKindType = enums.InputKindType
 
 const (
-	InputKindLocalFolder InputKindType = iota + 1
-	InputKindGitUrl
-	InputKindVersionedSibling
+	InputKindLocalFolder      = enums.InputKindLocalFolder
+	InputKindGitUrl           = enums.InputKindGitUrl
+	InputKindVersionedSibling = enums.InputKindVersionedSibling
 )
 
-func (k InputKindType) String() string {
-	switch k {
-	case InputKindLocalFolder:
-		return constants.CommitInInputKindLocalFolder
-	case InputKindGitUrl:
-		return constants.CommitInInputKindGitUrl
-	case InputKindVersionedSibling:
-		return constants.CommitInInputKindVersionedSibling
-	}
-
-	return ""
-}
-
 func AllInputKinds() []InputKindType {
-	return []InputKindType{InputKindLocalFolder, InputKindGitUrl, InputKindVersionedSibling}
+	return enums.AllInputKinds()
 }
 
 // ---- RunStatus ----------------------------------------------------
-type RunStatusType uint8
+type RunStatusType = enums.RunStatusType
 
 const (
-	RunStatusPending RunStatusType = iota + 1
-	RunStatusRunning
-	RunStatusCompleted
-	RunStatusFailed
-	RunStatusPartiallyFailed
+	RunStatusPending         = enums.RunStatusPending
+	RunStatusRunning         = enums.RunStatusRunning
+	RunStatusCompleted       = enums.RunStatusCompleted
+	RunStatusFailed          = enums.RunStatusFailed
+	RunStatusPartiallyFailed = enums.RunStatusPartiallyFailed
 )
 
-func (s RunStatusType) String() string {
-	switch s {
-	case RunStatusPending:
-		return constants.CommitInRunStatusPending
-	case RunStatusRunning:
-		return constants.CommitInRunStatusRunning
-	case RunStatusCompleted:
-		return constants.CommitInRunStatusCompleted
-	case RunStatusFailed:
-		return constants.CommitInRunStatusFailed
-	case RunStatusPartiallyFailed:
-		return constants.CommitInRunStatusPartiallyFailed
-	}
-
-	return ""
-}
-
 func AllRunStatuses() []RunStatusType {
-	return []RunStatusType{RunStatusPending, RunStatusRunning, RunStatusCompleted, RunStatusFailed, RunStatusPartiallyFailed}
+	return enums.AllRunStatuses()
 }
 
 // ---- CommitOutcome ------------------------------------------------
-type CommitOutcomeType uint8
+type CommitOutcomeType = enums.CommitOutcomeType
 
 const (
-	CommitOutcomeCreated CommitOutcomeType = iota + 1
-	CommitOutcomeSkipped
-	CommitOutcomeFailed
+	CommitOutcomeCreated = enums.CommitOutcomeCreated
+	CommitOutcomeSkipped = enums.CommitOutcomeSkipped
+	CommitOutcomeFailed  = enums.CommitOutcomeFailed
 )
 
-func (o CommitOutcomeType) String() string {
-	switch o {
-	case CommitOutcomeCreated:
-		return constants.CommitInOutcomeCreated
-	case CommitOutcomeSkipped:
-		return constants.CommitInOutcomeSkipped
-	case CommitOutcomeFailed:
-		return constants.CommitInOutcomeFailed
-	}
-
-	return ""
-}
-
 func AllCommitOutcomes() []CommitOutcomeType {
-	return []CommitOutcomeType{CommitOutcomeCreated, CommitOutcomeSkipped, CommitOutcomeFailed}
+	return enums.AllCommitOutcomes()
 }
 
 // ---- SkipReason ---------------------------------------------------
-type SkipReasonType uint8
+type SkipReasonType = enums.SkipReasonType
 
 const (
-	SkipReasonDuplicateSourceSha SkipReasonType = iota + 1
-	SkipReasonExcludedAllFiles
-	SkipReasonEmptyAfterMessageRules
-	SkipReasonDryRun
+	SkipReasonDuplicateSourceSha     = enums.SkipReasonDuplicateSourceSha
+	SkipReasonExcludedAllFiles       = enums.SkipReasonExcludedAllFiles
+	SkipReasonEmptyAfterMessageRules = enums.SkipReasonEmptyAfterMessageRules
+	SkipReasonDryRun                 = enums.SkipReasonDryRun
 )
 
-func (r SkipReasonType) String() string {
-	switch r {
-	case SkipReasonDuplicateSourceSha:
-		return constants.CommitInSkipReasonDuplicateSourceSha
-	case SkipReasonExcludedAllFiles:
-		return constants.CommitInSkipReasonExcludedAllFiles
-	case SkipReasonEmptyAfterMessageRules:
-		return constants.CommitInSkipReasonEmptyAfterMessageRules
-	case SkipReasonDryRun:
-		return constants.CommitInSkipReasonDryRun
-	}
-
-	return ""
-}
-
 func AllSkipReasons() []SkipReasonType {
-	return []SkipReasonType{SkipReasonDuplicateSourceSha, SkipReasonExcludedAllFiles, SkipReasonEmptyAfterMessageRules, SkipReasonDryRun}
+	return enums.AllSkipReasons()
 }
 
 // ---- ExclusionKind ------------------------------------------------
-type ExclusionKindType uint8
+type ExclusionKindType = enums.ExclusionKindType
 
 const (
-	ExclusionKindPathFolder ExclusionKindType = iota + 1
-	ExclusionKindPathFile
+	ExclusionKindPathFolder = enums.ExclusionKindPathFolder
+	ExclusionKindPathFile   = enums.ExclusionKindPathFile
 )
 
-func (k ExclusionKindType) String() string {
-	switch k {
-	case ExclusionKindPathFolder:
-		return constants.CommitInExclusionKindPathFolder
-	case ExclusionKindPathFile:
-		return constants.CommitInExclusionKindPathFile
-	}
-
-	return ""
-}
-
 func AllExclusionKinds() []ExclusionKindType {
-	return []ExclusionKindType{ExclusionKindPathFolder, ExclusionKindPathFile}
+	return enums.AllExclusionKinds()
 }
 
 // ---- MessageRuleKind ----------------------------------------------
-type MessageRuleKindType uint8
+type MessageRuleKindType = enums.MessageRuleKindType
 
 const (
-	MessageRuleKindStartsWith MessageRuleKindType = iota + 1
-	MessageRuleKindEndsWith
-	MessageRuleKindContains
+	MessageRuleKindStartsWith = enums.MessageRuleKindStartsWith
+	MessageRuleKindEndsWith   = enums.MessageRuleKindEndsWith
+	MessageRuleKindContains   = enums.MessageRuleKindContains
 )
 
-func (k MessageRuleKindType) String() string {
-	switch k {
-	case MessageRuleKindStartsWith:
-		return constants.CommitInMessageRuleKindStartsWith
-	case MessageRuleKindEndsWith:
-		return constants.CommitInMessageRuleKindEndsWith
-	case MessageRuleKindContains:
-		return constants.CommitInMessageRuleKindContains
-	}
-
-	return ""
-}
-
 func AllMessageRuleKinds() []MessageRuleKindType {
-	return []MessageRuleKindType{MessageRuleKindStartsWith, MessageRuleKindEndsWith, MessageRuleKindContains}
+	return enums.AllMessageRuleKinds()
 }
 
 // ---- FunctionIntelLanguage ----------------------------------------
-type FunctionIntelLanguageType uint8
+type FunctionIntelLanguageType = enums.FunctionIntelLanguageType
 
 const (
-	LanguageGo FunctionIntelLanguageType = iota + 1
-	LanguageJavaScript
-	LanguageTypeScript
-	LanguageRust
-	LanguagePython
-	LanguagePhp
-	LanguageJava
-	LanguageCSharp
+	LanguageGo         = enums.LanguageGo
+	LanguageJavaScript = enums.LanguageJavaScript
+	LanguageTypeScript = enums.LanguageTypeScript
+	LanguageRust       = enums.LanguageRust
+	LanguagePython     = enums.LanguagePython
+	LanguagePhp        = enums.LanguagePhp
+	LanguageJava       = enums.LanguageJava
+	LanguageCSharp     = enums.LanguageCSharp
 )
 
-func (l FunctionIntelLanguageType) String() string {
-	switch l {
-	case LanguageGo:
-		return constants.CommitInLanguageGo
-	case LanguageJavaScript:
-		return constants.CommitInLanguageJavaScript
-	case LanguageTypeScript:
-		return constants.CommitInLanguageTypeScript
-	case LanguageRust:
-		return constants.CommitInLanguageRust
-	case LanguagePython:
-		return constants.CommitInLanguagePython
-	case LanguagePhp:
-		return constants.CommitInLanguagePhp
-	case LanguageJava:
-		return constants.CommitInLanguageJava
-	case LanguageCSharp:
-		return constants.CommitInLanguageCSharp
-	}
-
-	return ""
-}
-
 func AllLanguages() []FunctionIntelLanguageType {
-	return []FunctionIntelLanguageType{LanguageGo, LanguageJavaScript, LanguageTypeScript, LanguageRust, LanguagePython, LanguagePhp, LanguageJava, LanguageCSharp}
+	return enums.AllLanguages()
 }
 
 // Backward-compatible type aliases.

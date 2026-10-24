@@ -1,6 +1,9 @@
 package cmdnodes
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 type nodesFilterOptions struct {
 	isJSON       bool
@@ -17,15 +20,15 @@ type nodesFilterOptions struct {
 func parseNodesFilterOptions(args []string) nodesFilterOptions {
 	var opts nodesFilterOptions
 	for _, arg := range args {
-		if arg == "--json" || arg == "-j" {
+		if slices.Contains([]string{"--json", "-j"}, arg) {
 			opts.isJSON = true
 			continue
 		}
-		if arg == "--fast" || arg == "--no-probe" || arg == "-f" {
+		if slices.Contains([]string{"--fast", "--no-probe", "-f"}, arg) {
 			opts.isFast = true
 			continue
 		}
-		if arg == "--open-only" || arg == "--running-only" || arg == "-ro" || arg == "--online-only" {
+		if slices.Contains([]string{"--open-only", "--running-only", "-ro", "--online-only"}, arg) {
 			opts.openOnly = true
 			continue
 		}
@@ -33,7 +36,7 @@ func parseNodesFilterOptions(args []string) nodesFilterOptions {
 			opts.isNoCache = true
 			continue
 		}
-		if arg == "--refresh" || arg == "-r" {
+		if slices.Contains([]string{"--refresh", "-r"}, arg) {
 			opts.isRefresh = true
 			InvalidateNodesLivenessCache()
 			continue
@@ -42,11 +45,11 @@ func parseNodesFilterOptions(args []string) nodesFilterOptions {
 			opts.filterSSH = true
 			continue
 		}
-		if arg == "--cluster" || arg == "--clst" {
+		if slices.Contains([]string{"--cluster", "--clst"}, arg) {
 			opts.filterClust = true
 			continue
 		}
-		if arg == "--sc" || arg == "--server-clients" || arg == "--servers-clients" {
+		if slices.Contains([]string{"--sc", "--server-clients", "--servers-clients"}, arg) {
 			opts.filterSC = true
 			continue
 		}

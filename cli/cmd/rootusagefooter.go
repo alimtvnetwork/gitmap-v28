@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -55,7 +56,7 @@ func printUsageFooter() {
 
 func isShortFooterRequested() bool {
 	for _, arg := range os.Args {
-		if arg == "--short-footer" || arg == "--short" {
+		if slices.Contains([]string{"--short-footer", "--short"}, arg) {
 			return true
 		}
 	}

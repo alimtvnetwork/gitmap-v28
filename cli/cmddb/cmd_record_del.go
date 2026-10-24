@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
@@ -92,7 +93,7 @@ func parseRecordDelFlag(args []string, idx int, p *recordDelParams) (int, bool) 
 		return 1, true
 	}
 
-	if arg == "-j" || arg == "--json" {
+	if slices.Contains([]string{"-j", "--json"}, arg) {
 		p.isJson = true
 		return 1, true
 	}
@@ -101,17 +102,17 @@ func parseRecordDelFlag(args []string, idx int, p *recordDelParams) (int, bool) 
 }
 
 func isConfirmFlag(arg string) bool {
-	return arg == "-y" || arg == "--yes" || arg == "--force"
+	return slices.Contains([]string{"-y", "--yes", "--force"}, arg)
 }
 
 func parseTargetRecordDelFlag(args []string, idx int, p *recordDelParams) (int, bool) {
 	arg := args[idx]
-	if (arg == "-table" || arg == "--table" || arg == "-t") && idx+1 < len(args) {
+	if slices.Contains([]string{"-table", "--table", "-t"}, arg) && idx+1 < len(args) {
 		p.table = args[idx+1]
 		return 2, true
 	}
 
-	if (arg == "-id" || arg == "--id") && idx+1 < len(args) {
+	if slices.Contains([]string{"-id", "--id"}, arg) && idx+1 < len(args) {
 		p.id = args[idx+1]
 		return 2, true
 	}

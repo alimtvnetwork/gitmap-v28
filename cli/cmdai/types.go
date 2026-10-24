@@ -2,39 +2,40 @@
 package cmdai
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdai/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
-// ScriptCategoryType defines taxonomy categories for repository automation fspath.
-type ScriptCategoryType string
+// ScriptCategoryType is the canonical script category type, defined in enums.
+type ScriptCategoryType = enums.ScriptCategoryType
 
 const (
-	CategoryCore        ScriptCategoryType = "core"
-	CategoryFormatting  ScriptCategoryType = "formatting"
-	CategoryGuideline   ScriptCategoryType = "guideline"
-	CategoryCicd        ScriptCategoryType = "cicd"
-	CategoryPaths       ScriptCategoryType = "paths"
-	CategoryAudit       ScriptCategoryType = "audit"
-	CategoryDiscovery   ScriptCategoryType = "discovery"
-	CategoryMaintenance ScriptCategoryType = "maintenance"
-	CategoryPlans       ScriptCategoryType = "plans"
-	CategoryRelease     ScriptCategoryType = "release"
-	CategoryDatabase    ScriptCategoryType = "database"
-	CategoryUnknown     ScriptCategoryType = "unknown"
+	CategoryCore        = enums.CategoryCore
+	CategoryFormatting  = enums.CategoryFormatting
+	CategoryGuideline   = enums.CategoryGuideline
+	CategoryCicd        = enums.CategoryCicd
+	CategoryPaths       = enums.CategoryPaths
+	CategoryAudit       = enums.CategoryAudit
+	CategoryDiscovery   = enums.CategoryDiscovery
+	CategoryMaintenance = enums.CategoryMaintenance
+	CategoryPlans       = enums.CategoryPlans
+	CategoryRelease     = enums.CategoryRelease
+	CategoryDatabase    = enums.CategoryDatabase
+	CategoryUnknown     = enums.CategoryUnknown
 )
 
-// FixTargetType defines standard auto-remediation targets across repository domains.
-type FixTargetType string
+// FixTargetType is the canonical fix target type, defined in enums.
+type FixTargetType = enums.FixTargetType
 
 const (
-	FixTargetGuidelines FixTargetType = "guidelines"
-	FixTargetNewlines   FixTargetType = "newlines"
-	FixTargetPaths      FixTargetType = "paths"
-	FixTargetNaming     FixTargetType = "naming"
-	FixTargetEncoding   FixTargetType = "encoding"
-	FixTargetSpelling   FixTargetType = "spelling"
-	FixTargetPlans      FixTargetType = "plans"
-	FixTargetAll        FixTargetType = "all"
+	FixTargetGuidelines = enums.FixTargetGuidelines
+	FixTargetNewlines   = enums.FixTargetNewlines
+	FixTargetPaths      = enums.FixTargetPaths
+	FixTargetNaming     = enums.FixTargetNaming
+	FixTargetEncoding   = enums.FixTargetEncoding
+	FixTargetSpelling   = enums.FixTargetSpelling
+	FixTargetPlans      = enums.FixTargetPlans
+	FixTargetAll        = enums.FixTargetAll
 )
 
 // ScriptMetadata holds descriptive metadata, routing tokens, and capabilities for an AI script.
@@ -78,16 +79,16 @@ type ScriptListOptions struct {
 	IsFrequentOnly  bool   `json:"isFrequentOnly"`
 }
 
-// ScriptTemplateType defines the archetype of script to scaffold.
-type ScriptTemplateType string
+// ScriptTemplateType is the canonical script template type, defined in enums.
+type ScriptTemplateType = enums.ScriptTemplateType
 
 const (
-	TemplateLinter    ScriptTemplateType = "linter"
-	TemplateFixer     ScriptTemplateType = "fixer"
-	TemplateAuditor   ScriptTemplateType = "auditor"
-	TemplateChecker   ScriptTemplateType = "checker"
-	TemplateGenerator ScriptTemplateType = "generator"
-	TemplateUtil      ScriptTemplateType = "util"
+	TemplateLinter    = enums.TemplateLinter
+	TemplateFixer     = enums.TemplateFixer
+	TemplateAuditor   = enums.TemplateAuditor
+	TemplateChecker   = enums.TemplateChecker
+	TemplateGenerator = enums.TemplateGenerator
+	TemplateUtil      = enums.TemplateUtil
 )
 
 // CreateScriptOptions configures the generation of a new AI script.

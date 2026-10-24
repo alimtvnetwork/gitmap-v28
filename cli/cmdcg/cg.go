@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -26,7 +27,7 @@ type cgOptions struct {
 }
 
 func isCGHelpArg(arg string) bool {
-	return arg == "help" || arg == "-h" || arg == "--help"
+	return slices.Contains([]string{"help", "-h", "--help"}, arg)
 }
 
 func hasCGHelpArg(args []string) bool {

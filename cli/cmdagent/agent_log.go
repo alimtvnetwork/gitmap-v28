@@ -9,22 +9,24 @@ import (
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent/enums"
 )
 
-type ActionType string
+// ActionType is the canonical agent action type, defined in enums.
+type ActionType = enums.ActionType
 
 const (
-	ActionTypeSearch   ActionType = "SEARCH"
-	ActionTypeRead     ActionType = "READ"
-	ActionTypeWrite    ActionType = "WRITE"
-	ActionTypeExec     ActionType = "EXEC"
-	ActionTypeLint     ActionType = "LINT"
-	ActionTypeCheck    ActionType = "CHECK"
-	ActionTypeClaim    ActionType = "CLAIM"
-	ActionTypeStart    ActionType = "START"
-	ActionTypeComplete ActionType = "COMPLETE"
-	ActionTypeFail     ActionType = "FAIL"
-	ActionTypeCrash    ActionType = "CRASH"
+	ActionTypeSearch   = enums.ActionTypeSearch
+	ActionTypeRead     = enums.ActionTypeRead
+	ActionTypeWrite    = enums.ActionTypeWrite
+	ActionTypeExec     = enums.ActionTypeExec
+	ActionTypeLint     = enums.ActionTypeLint
+	ActionTypeCheck    = enums.ActionTypeCheck
+	ActionTypeClaim    = enums.ActionTypeClaim
+	ActionTypeStart    = enums.ActionTypeStart
+	ActionTypeComplete = enums.ActionTypeComplete
+	ActionTypeFail     = enums.ActionTypeFail
+	ActionTypeCrash    = enums.ActionTypeCrash
 )
 
 // LogOptions encapsulates command line parameters for agent telemetry logging.

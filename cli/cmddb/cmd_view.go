@@ -3,6 +3,7 @@ package cmddb
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -133,7 +134,7 @@ func parseViewArgs(args []string) (viewParams, *appfault.AppError) {
 
 func parseViewFlagToken(args []string, idx int, p *viewParams) (int, bool) {
 	arg := args[idx]
-	if (arg == "-t" || arg == "--table" || arg == "-table") && idx+1 < len(args) {
+	if slices.Contains([]string{"-t", "--table", "-table"}, arg) && idx+1 < len(args) {
 		p.tableSpec = args[idx+1]
 		consumed := 2
 		for idx+consumed < len(args) && !strings.HasPrefix(args[idx+consumed], "-") {
@@ -142,22 +143,22 @@ func parseViewFlagToken(args []string, idx int, p *viewParams) (int, bool) {
 		}
 		return consumed, true
 	}
-	if (arg == "--viewname" || arg == "-v" || arg == "-viewname" || arg == "--name") && idx+1 < len(args) {
+	if slices.Contains([]string{"--viewname", "-v", "-viewname", "--name"}, arg) && idx+1 < len(args) {
 		p.viewName = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
-	if (arg == "--find" || arg == "-f" || arg == "-find") && idx+1 < len(args) {
+	if slices.Contains([]string{"--find", "-f", "-find"}, arg) && idx+1 < len(args) {
 		p.findCond = trimEnclosingQuotes(args[idx+1])
 		return 2, true
 	}
-	if (arg == "--limit" || arg == "-l" || arg == "-n" || arg == "--limit/l" || arg == "-l/--limit") && idx+1 < len(args) {
+	if slices.Contains([]string{"--limit", "-l", "-n", "--limit/l", "-l/--limit"}, arg) && idx+1 < len(args) {
 		lim, _ := strconv.Atoi(args[idx+1])
 		if lim > 0 {
 			p.limit = lim
 		}
 		return 2, true
 	}
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		p.isJson = true
 		return 1, true
 	}

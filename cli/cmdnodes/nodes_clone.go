@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -42,7 +43,7 @@ func isExceptSelfToken(arg string) bool {
 }
 
 func isExcludeAlias(arg string) bool {
-	return arg == "--exclude" || arg == "--except" || arg == "--excep" || arg == "--accept"
+	return slices.Contains([]string{"--exclude", "--except", "--excep", "--accept"}, arg)
 }
 
 func parseExcludeFlag(raw []string, idx int) (string, int, bool) {
@@ -63,14 +64,14 @@ func parseTargetFlag(raw []string, idx int) (string, int, bool) {
 	if strings.HasPrefix(arg, "--target=") {
 		return strings.TrimPrefix(arg, "--target="), idx, true
 	}
-	if (arg == "-t" || arg == "--target") && idx+1 < len(raw) {
+	if slices.Contains([]string{"-t", "--target"}, arg) && idx+1 < len(raw) {
 		return raw[idx+1], idx + 1, true
 	}
 	return "", idx, false
 }
 
 func isDestFlag(arg string) bool {
-	return arg == "-d" || arg == "--dest" || arg == "--dir" || arg == "--target-dir"
+	return slices.Contains([]string{"-d", "--dest", "--dir", "--target-dir"}, arg)
 }
 
 func cleanTargetDir(dir string) string {

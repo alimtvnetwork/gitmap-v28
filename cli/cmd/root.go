@@ -21,6 +21,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvariable"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -827,7 +828,7 @@ func dispatchSJ(ctx context.Context, args []string, root *cobra.Command) error {
 }
 
 func isSJCommand(arg string) bool {
-	return arg == "sj" || arg == "ssh-join" || arg == "ssh-joined" || arg == "ssh-joiner"
+	return slices.Contains([]string{"sj", "ssh-join", "ssh-joined", "ssh-joiner"}, arg)
 }
 
 func stripLeadingSJCommand(args []string) []string {
@@ -843,7 +844,7 @@ func stripLeadingSJCommand(args []string) []string {
 }
 
 func isSJCCommand(arg string) bool {
-	return arg == "sjc" || arg == "ssh-join-common" || arg == "ssh-join-c" || arg == "join-common"
+	return slices.Contains([]string{"sjc", "ssh-join-common", "ssh-join-c", "join-common"}, arg)
 }
 
 func stripLeadingSJCCommand(args []string) []string {

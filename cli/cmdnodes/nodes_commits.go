@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -138,11 +139,11 @@ func parseNodesCommitsOptions(action string, args []string) (NodesCommitsOptions
 }
 
 func isCommitsFlag(arg string) bool {
-	return arg == "--dry-run" || arg == "-n" || arg == "--no-push" || arg == "--json" || arg == "-j"
+	return slices.Contains([]string{"--dry-run", "-n", "--no-push", "--json", "-j"}, arg)
 }
 
 func handleCommitsFlag(opts *NodesCommitsOptions, arg string) {
-	if arg == "--dry-run" || arg == "-n" {
+	if slices.Contains([]string{"--dry-run", "-n"}, arg) {
 		opts.IsDryRun = true
 		return
 	}
@@ -152,7 +153,7 @@ func handleCommitsFlag(opts *NodesCommitsOptions, arg string) {
 		return
 	}
 
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJSON = true
 		return
 	}

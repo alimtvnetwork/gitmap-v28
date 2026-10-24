@@ -5,15 +5,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cluster/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-type TargetSelectorType int
+// TargetSelectorType is the canonical cluster target selector type, defined in enums.
+type TargetSelectorType = enums.TargetSelectorType
 
 const (
-	ServersClients TargetSelectorType = 1
-	ClientsOnly    TargetSelectorType = 2
-	ServersOnly    TargetSelectorType = 3
+	ServersClients = enums.ServersClients
+	ClientsOnly    = enums.ClientsOnly
+	ServersOnly    = enums.ServersOnly
 )
 
 // ClusterNode represents a cluster node for resolving purposes.

@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -87,7 +88,7 @@ func isPingRoutingWord(arg string) bool {
 
 func parsePingFlag(opts *nodesPingOptions, args []string, index *int) bool {
 	arg := args[*index]
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.isJSON = true
 		return true
 	}
@@ -103,11 +104,11 @@ func parsePingFlag(opts *nodesPingOptions, args []string, index *int) bool {
 		opts.filterSSH = true
 		return true
 	}
-	if arg == "--cluster" || arg == "--clst" {
+	if slices.Contains([]string{"--cluster", "--clst"}, arg) {
 		opts.filterClust = true
 		return true
 	}
-	if arg == "--sc" || arg == "--server-clients" {
+	if slices.Contains([]string{"--sc", "--server-clients"}, arg) {
 		opts.filterSC = true
 		return true
 	}
@@ -119,7 +120,7 @@ func parsePingFlag(opts *nodesPingOptions, args []string, index *int) bool {
 
 func parsePingCountFlag(opts *nodesPingOptions, args []string, index *int) bool {
 	arg := args[*index]
-	if (arg == "--count" || arg == "-c" || arg == "-n") && *index+1 < len(args) {
+	if slices.Contains([]string{"--count", "-c", "-n"}, arg) && *index+1 < len(args) {
 		*index++
 		applyPositiveCount(opts, args[*index])
 		return true
@@ -140,7 +141,7 @@ func applyPositiveCount(opts *nodesPingOptions, raw string) {
 
 func parsePingTimeoutFlag(opts *nodesPingOptions, args []string, index *int) bool {
 	arg := args[*index]
-	if (arg == "--timeout" || arg == "-t" || arg == "-w") && *index+1 < len(args) {
+	if slices.Contains([]string{"--timeout", "-t", "-w"}, arg) && *index+1 < len(args) {
 		*index++
 		opts.timeoutMs = parseTimeoutValue(args[*index])
 		return true
