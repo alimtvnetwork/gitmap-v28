@@ -61,13 +61,12 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 
 ## 2b. Recently Completed (awaiting milestone consolidation)
 
-*(All historical completed plans have been consolidated into Milestones 01–32 under `completed/`.)*
+- [319-package-constants-and-enums-dry-restructuring.md](completed/319-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring: Modular enum types (*Type suffix), centralized constants (pkg/constants/constants.go), and 5-package rollout (cmdpull, cloner, cmdclone, store, cmdcommit) (Spec: [319-package-constants-and-enums-dry-restructuring](../../02-spec/21-app/319-package-constants-and-enums-dry-restructuring/readme.md)) (Status: `completed`)
 
 ---
 
 ## 3. Pending Plans
 
-- [319-package-constants-and-enums-dry-restructuring.md](pending/319-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring: Modular enum types (*Type suffix), centralized constants (pkg/constants/constants.go), and 5-package rollout blueprint (cmdpull, cloner, cmdclone, store, cmdcommit) (Spec: [319-package-constants-and-enums-dry-restructuring](../../02-spec/21-app/319-package-constants-and-enums-dry-restructuring/readme.md)) (Status: `pending`)
 - [318-gitmap-command-and-coding-guideline-synchronization.md](pending/318-gitmap-command-and-coding-guideline-synchronization.md) — GitMap Command and Coding Guideline Synchronization: Alternative Commands in GitMap Skill, Third-Bracket Commit Elimination, Magic Strings Refactoring to Domain Enums, and V6 Execute Prompt Error Management Embedding (Spec: [318-gitmap-command-and-coding-guideline-synchronization](../../02-spec/21-app/318-gitmap-command-and-coding-guideline-synchronization/00-overview.md)) (Status: `pending`)
 
 ---

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -40,7 +41,7 @@ func handleCheckoutTheirs(item UnresolvedPullRepo) {
 		return
 	}
 
-	if err := gitutil.CheckoutConflictSide(item.RepoPath, "theirs", files); err != nil {
+	if err := gitutil.CheckoutConflictSide(item.RepoPath, enums.ConflictSideTheirs.String(), files); err != nil {
 		fmt.Printf("      %s✖ Accept Incoming failed: %v%s\n", constants.ColorRed, err, constants.ColorReset)
 		return
 	}
@@ -56,7 +57,7 @@ func handleCheckoutOurs(item UnresolvedPullRepo) {
 		return
 	}
 
-	if err := gitutil.CheckoutConflictSide(item.RepoPath, "ours", files); err != nil {
+	if err := gitutil.CheckoutConflictSide(item.RepoPath, enums.ConflictSideOurs.String(), files); err != nil {
 		fmt.Printf("      %s✖ Accept Current failed: %v%s\n", constants.ColorRed, err, constants.ColorReset)
 		return
 	}
@@ -144,9 +145,9 @@ func handleConflictInspectAction(ans string, item UnresolvedPullRepo) bool {
 
 func handleConflictCheckoutAction(ans string, item UnresolvedPullRepo) {
 	switch ans {
-	case "t", "theirs":
+	case "t", enums.ConflictSideTheirs.String():
 		handleCheckoutTheirs(item)
-	case "o", "ours":
+	case "o", enums.ConflictSideOurs.String():
 		handleCheckoutOurs(item)
 	case "a", "abort":
 		handleSafeAbort(item)

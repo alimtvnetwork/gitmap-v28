@@ -4,6 +4,7 @@ import (
 	"flag"
 	"strings"
 
+	cloneconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdclone/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -74,30 +75,30 @@ type cloneFlagPointers struct {
 }
 
 func registerCloneStringFlags(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
-	flagPtrs.targetFlag = fs.String("target-dir", constants.DefaultDir, constants.FlagDescTargetDir)
-	flagPtrs.sshKeyFlag = fs.String("ssh-key", "", "SSH key name for clone")
+	flagPtrs.targetFlag = fs.String(cloneconstants.FlagTargetDir, constants.DefaultDir, constants.FlagDescTargetDir)
+	flagPtrs.sshKeyFlag = fs.String(cloneconstants.FlagSSHKey, "", "SSH key name for clone")
 	fs.StringVar(flagPtrs.sshKeyFlag, "K", "", "SSH key name (short)")
 	flagPtrs.defaultBranchFlag = fs.String(constants.FlagScanDefaultBranch, "", constants.FlagDescScanDefaultBranch)
 	flagPtrs.outputFlag = fs.String(constants.FlagCloneTermOutput, "", constants.FlagDescCloneTermOutput)
-	flagPtrs.maxConcFlag = fs.Int(constants.CloneFlagMaxConcurrency,
+	flagPtrs.maxConcFlag = fs.Int(cloneconstants.FlagMaxConcurrency,
 		constants.CloneDefaultMaxConcurrency, constants.FlagDescCloneMaxConcurrency)
 	fs.IntVar(flagPtrs.maxConcFlag, "w", constants.CloneDefaultMaxConcurrency, "Short alias for --max-concurrency")
-	fs.IntVar(flagPtrs.maxConcFlag, "workers", constants.CloneDefaultMaxConcurrency, "Alias for --max-concurrency")
-	flagPtrs.onlyFlag = fs.String("only", "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
-	flagPtrs.excludeFlag = fs.String("exclude", "", "Exclude repositories matching comma-separated names, prefixes, or sequential IDs")
+	fs.IntVar(flagPtrs.maxConcFlag, cloneconstants.FlagWorkers, constants.CloneDefaultMaxConcurrency, "Alias for --max-concurrency")
+	flagPtrs.onlyFlag = fs.String(cloneconstants.FlagOnly, "", "Filter repositories to clone by 1-based sequential ID, slug, or prefix")
+	flagPtrs.excludeFlag = fs.String(cloneconstants.FlagExclude, "", "Exclude repositories matching comma-separated names, prefixes, or sequential IDs")
 	fs.StringVar(flagPtrs.excludeFlag, "E", "", "Short alias for --exclude")
-	flagPtrs.tokenFlag = fs.String("token", "", "GitHub personal access token for private repositories (non-interactive; also via GITHUB_TOKEN/GH_TOKEN env)")
+	flagPtrs.tokenFlag = fs.String(cloneconstants.FlagToken, "", "GitHub personal access token for private repositories (non-interactive; also via GITHUB_TOKEN/GH_TOKEN env)")
 }
 
 func registerCloneToggles(fs *flag.FlagSet, flagPtrs *cloneFlagPointers) {
-	flagPtrs.safePullFlag = fs.Bool("safe-pull", false, constants.FlagDescSafePull)
+	flagPtrs.safePullFlag = fs.Bool(cloneconstants.FlagSafePull, false, constants.FlagDescSafePull)
 	flagPtrs.ghDesktopFlag = fs.Bool("github-desktop", false, constants.FlagDescGHDesktop)
 	flagPtrs.verboseFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
 	flagPtrs.noReplaceFlag = fs.Bool("no-replace", false, constants.FlagDescCloneNoReplace)
-	flagPtrs.cleanFlag = fs.Bool("clean", false, "Forcefully delete the local folder and re-clone")
-	fs.BoolVar(flagPtrs.cleanFlag, "force", false, "Forcefully delete the local folder and re-clone")
+	flagPtrs.cleanFlag = fs.Bool(cloneconstants.FlagClean, false, "Forcefully delete the local folder and re-clone")
+	fs.BoolVar(flagPtrs.cleanFlag, cloneconstants.FlagForce, false, "Forcefully delete the local folder and re-clone")
 	fs.BoolVar(flagPtrs.cleanFlag, "f", false, "Short alias for --force")
-	fs.BoolVar(flagPtrs.cleanFlag, "reclone", false, "Alias for --clean / --force")
+	fs.BoolVar(flagPtrs.cleanFlag, cloneconstants.FlagReclone, false, "Alias for --clean / --force")
 	flagPtrs.missingOnlyFlag = fs.Bool("missing-only", false, "Skip existing directories entirely")
 	fs.BoolVar(flagPtrs.missingOnlyFlag, "only-missing", false, "Alias for --missing-only")
 	flagPtrs.auditFlag = fs.Bool(constants.CloneFlagAudit, false, constants.FlagDescCloneAudit)

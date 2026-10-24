@@ -22,20 +22,21 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloner/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
 // AuditActionType labels the planned action for a single record.
-type AuditActionType string
+type AuditActionType = enums.AuditActionType
 
 const (
-	AuditActionClone    AuditActionType = "clone"    // target missing — fresh clone
-	AuditActionPull     AuditActionType = "pull"     // target is a git repo — would safe-pull
-	AuditActionCached   AuditActionType = "cached"   // cache fingerprint matches dest
-	AuditActionInvalid  AuditActionType = "invalid"  // record has no clone URL
-	AuditActionConflict AuditActionType = "conflict" // target exists but is not a git repo
+	AuditActionClone    = enums.AuditActionClone
+	AuditActionPull     = enums.AuditActionPull
+	AuditActionCached   = enums.AuditActionCached
+	AuditActionInvalid  = enums.AuditActionInvalid
+	AuditActionConflict = enums.AuditActionConflict
 )
 
 // AuditEntry is one planned-vs-actual row in the audit report.
@@ -214,18 +215,5 @@ func printSummary(w io.Writer, counts map[AuditActionType]int) error {
 
 // actionMarker maps each action to its diff-style single-character marker.
 func actionMarker(a AuditActionType) string {
-	switch a {
-	case AuditActionClone:
-		return "+"
-	case AuditActionPull:
-		return "~"
-	case AuditActionCached:
-		return "="
-	case AuditActionInvalid:
-		return "!"
-	case AuditActionConflict:
-		return "?"
-	default:
-		return " "
-	}
+	return a.Marker()
 }

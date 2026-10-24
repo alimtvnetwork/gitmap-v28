@@ -3,12 +3,14 @@ package cmdpull
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cloneconcurrency"
+	pullconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
 // NormalizePullArgs converts positional pull-all and table arguments into flags.
@@ -76,9 +78,12 @@ func isPullFlagTakingValue(arg string) bool {
 		return false
 	}
 
-	return arg == "-g" || arg == "--group" || arg == "-p" || arg == "--parallel" ||
-		arg == "-w" || arg == "--w" || arg == "--worker" || arg == "--workers" ||
-		arg == "--hand" || arg == "--hands" || arg == "--h" || arg == "--concurrency"
+	return arg == "-"+pullconstants.FlagGroupShort || arg == "--"+pullconstants.FlagGroup ||
+		arg == "-"+pullconstants.FlagParallelShort || arg == "--"+pullconstants.FlagParallel ||
+		arg == "-"+pullconstants.FlagWorkerShort || arg == "--"+pullconstants.FlagWorkerShort ||
+		arg == "--"+pullconstants.FlagWorker || arg == "--"+pullconstants.FlagWorkers ||
+		arg == "--"+pullconstants.FlagHand || arg == "--"+pullconstants.FlagHands ||
+		arg == "--"+pullconstants.FlagHandShort || arg == "--"+pullconstants.FlagConcurrency
 }
 
 func isPullAllTableSeq(args []string, i int) bool {
@@ -128,53 +133,53 @@ func registerPullCoreFlags(fs *flag.FlagSet, h *pullFlagHolders) {
 }
 
 func registerPullBasicFlags(fs *flag.FlagSet, h *pullFlagHolders) {
-	h.vFlag = fs.Bool("verbose", false, constants.FlagDescVerbose)
-	h.gFlag = fs.String("group", "", constants.FlagDescGroup)
-	h.aFlag = fs.Bool("all", false, constants.FlagDescAll)
+	h.vFlag = fs.Bool(pullconstants.FlagVerbose, false, constants.FlagDescVerbose)
+	h.gFlag = fs.String(pullconstants.FlagGroup, "", constants.FlagDescGroup)
+	h.aFlag = fs.Bool(pullconstants.FlagAll, false, constants.FlagDescAll)
 	h.sFlag = fs.Bool(constants.FlagStopOnFail, false, constants.FlagDescStopOnFail)
-	h.pFlag = fs.Int("parallel", 0, constants.FlagDescPullParallel)
-	h.oFlag = fs.Bool("only-available", false, constants.FlagDescPullOnlyAvailable)
-	h.rawFlag = fs.Bool("raw", false, constants.FlagDescPullRaw)
-	h.sshFlag = fs.Bool("ssh", false, "Pull using SSH transport")
-	h.httpsFlag = fs.Bool("https", false, "Pull using HTTPS transport")
-	fs.StringVar(h.gFlag, "g", "", constants.FlagDescGroup)
-	fs.IntVar(h.pFlag, "p", 0, constants.FlagDescPullParallel)
-	fs.IntVar(h.pFlag, "concurrency", 0, constants.FlagDescPullParallel)
+	h.pFlag = fs.Int(pullconstants.FlagParallel, 0, constants.FlagDescPullParallel)
+	h.oFlag = fs.Bool(pullconstants.FlagOnlyAvailable, false, constants.FlagDescPullOnlyAvailable)
+	h.rawFlag = fs.Bool(pullconstants.FlagRaw, false, constants.FlagDescPullRaw)
+	h.sshFlag = fs.Bool(pullconstants.FlagSSH, false, "Pull using SSH transport")
+	h.httpsFlag = fs.Bool(pullconstants.FlagHTTPS, false, "Pull using HTTPS transport")
+	fs.StringVar(h.gFlag, pullconstants.FlagGroupShort, "", constants.FlagDescGroup)
+	fs.IntVar(h.pFlag, pullconstants.FlagParallelShort, 0, constants.FlagDescPullParallel)
+	fs.IntVar(h.pFlag, pullconstants.FlagConcurrency, 0, constants.FlagDescPullParallel)
 }
 
 func registerPullWorkerFlags(fs *flag.FlagSet, h *pullFlagHolders) {
-	h.wFlag = fs.Int("w", 0, "Worker pool size")
-	fs.IntVar(h.wFlag, "worker", 0, "Worker pool size")
-	fs.IntVar(h.wFlag, "workers", 0, "Worker pool size")
-	h.handFlag = fs.Int("hand", 0, "Hands per worker")
-	fs.IntVar(h.handFlag, "hands", 0, "Hands per worker")
-	fs.IntVar(h.handFlag, "h", 0, "Hands per worker")
-	h.wwohFlag = fs.Bool("wwoh", false, "Worker with one hand")
-	fs.BoolVar(h.wwohFlag, "worker-with-one-hand", false, "Worker with one hand")
+	h.wFlag = fs.Int(pullconstants.FlagWorkerShort, 0, "Worker pool size")
+	fs.IntVar(h.wFlag, pullconstants.FlagWorker, 0, "Worker pool size")
+	fs.IntVar(h.wFlag, pullconstants.FlagWorkers, 0, "Worker pool size")
+	h.handFlag = fs.Int(pullconstants.FlagHand, 0, "Hands per worker")
+	fs.IntVar(h.handFlag, pullconstants.FlagHands, 0, "Hands per worker")
+	fs.IntVar(h.handFlag, pullconstants.FlagHandShort, 0, "Hands per worker")
+	h.wwohFlag = fs.Bool(pullconstants.FlagWWOH, false, "Worker with one hand")
+	fs.BoolVar(h.wwohFlag, pullconstants.FlagWorkerWithOneHand, false, "Worker with one hand")
 }
 
 func registerPullConcurrencyPresetFlags(fs *flag.FlagSet, h *pullFlagHolders) {
-	h.autoScaleFlag = fs.Bool("auto-scale", false, "Auto-scale pull concurrency based on CPU availability")
-	h.highPerfFlag = fs.Bool("high-perf", false, "High-performance pull concurrency preset for low CPU pressure")
-	fs.BoolVar(h.highPerfFlag, "turbo", false, "High-performance pull concurrency preset for low CPU pressure")
-	h.lowCPUFlag = fs.Bool("low-cpu", false, "Conservative pull concurrency preset for high CPU pressure")
-	fs.BoolVar(h.lowCPUFlag, "conservative", false, "Conservative pull concurrency preset for high CPU pressure")
+	h.autoScaleFlag = fs.Bool(pullconstants.FlagAutoScale, false, "Auto-scale pull concurrency based on CPU availability")
+	h.highPerfFlag = fs.Bool(pullconstants.FlagHighPerf, false, "High-performance pull concurrency preset for low CPU pressure")
+	fs.BoolVar(h.highPerfFlag, pullconstants.FlagTurbo, false, "High-performance pull concurrency preset for low CPU pressure")
+	h.lowCPUFlag = fs.Bool(pullconstants.FlagLowCPU, false, "Conservative pull concurrency preset for high CPU pressure")
+	fs.BoolVar(h.lowCPUFlag, pullconstants.FlagConservative, false, "Conservative pull concurrency preset for high CPU pressure")
 }
 
 func registerPullRemediationFlags(fs *flag.FlagSet, h *pullFlagHolders) {
-	h.fixFlag = fs.Bool("fix", false, "Auto-remediate dirty repos")
-	h.yFlag = fs.Bool("yes", false, "Remediate without prompt")
-	h.noFixFlag = fs.Bool("no-fix", false, "Skip remediation prompt")
-	fs.BoolVar(h.yFlag, "y", false, "Remediate without prompt")
+	h.fixFlag = fs.Bool(pullconstants.FlagFix, false, "Auto-remediate dirty repos")
+	h.yFlag = fs.Bool(pullconstants.FlagYes, false, "Remediate without prompt")
+	h.noFixFlag = fs.Bool(pullconstants.FlagNoFix, false, "Skip remediation prompt")
+	fs.BoolVar(h.yFlag, pullconstants.FlagYesShort, false, "Remediate without prompt")
 }
 
 func registerPullOutputFlags(fs *flag.FlagSet, h *pullFlagHolders) {
-	h.statusFlag = fs.Bool("status", false, constants.FlagDescPullStatus)
-	fs.BoolVar(h.statusFlag, "table", false, constants.FlagDescPullStatus)
-	fs.BoolVar(h.statusFlag, "status-table", false, constants.FlagDescPullStatus)
-	h.jsonFlag = fs.Bool("json", false, constants.FlagDescPullJSON)
-	h.probeFlag = fs.Bool("probe", false, constants.FlagDescPullProbe)
-	fs.BoolVar(h.probeFlag, "probe-repos", false, constants.FlagDescPullProbe)
+	h.statusFlag = fs.Bool(pullconstants.FlagStatus, false, constants.FlagDescPullStatus)
+	fs.BoolVar(h.statusFlag, pullconstants.FlagTable, false, constants.FlagDescPullStatus)
+	fs.BoolVar(h.statusFlag, pullconstants.FlagStatusTable, false, constants.FlagDescPullStatus)
+	h.jsonFlag = fs.Bool(pullconstants.FlagJSON, false, constants.FlagDescPullJSON)
+	h.probeFlag = fs.Bool(pullconstants.FlagProbe, false, constants.FlagDescPullProbe)
+	fs.BoolVar(h.probeFlag, pullconstants.FlagProbeRepos, false, constants.FlagDescPullProbe)
 }
 
 func initBasePullOptions(h *pullFlagHolders) pullOptions {

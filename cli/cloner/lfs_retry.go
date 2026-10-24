@@ -21,10 +21,12 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	clonerconstants "github.com/alimtvnetwork/gitmap-v28/cli/cloner/constants"
 )
 
 // LFSSkipSmudgeEnv is the standard opt-out env var honored by git-lfs.
-const LFSSkipSmudgeEnv = "GIT_LFS_SKIP_SMUDGE=1"
+const LFSSkipSmudgeEnv = clonerconstants.EnvGitLFSNoSmudge
 
 // LFSRetryNote is appended to CloneResult.Notes when the retry fires,
 // so downstream reports show the recovery instead of silently masking

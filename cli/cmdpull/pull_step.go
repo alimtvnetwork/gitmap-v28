@@ -3,34 +3,37 @@ package cmdpull
 import (
 	"strings"
 	"time"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/enums"
 )
 
 // PullStepType represents the lifecycle step or final state of a pull operation.
-type PullStepType string
+type PullStepType = enums.PullStepType
 
 const (
-	PullStepTypePending     PullStepType = "PENDING"
-	PullStepTypeInspecting  PullStepType = "INSPECTING"
-	PullStepTypeFetching    PullStepType = "FETCHING"
-	PullStepTypeMerging     PullStepType = "MERGING"
-	PullStepTypeUpToDate    PullStepType = "UP_TO_DATE"
-	PullStepTypeFastForward PullStepType = "FAST_FORWARD"
-	PullStepTypeConflict    PullStepType = "CONFLICT"
-	PullStepTypeError       PullStepType = "ERROR"
-	PullStepTypeSkipped     PullStepType = "SKIPPED"
+	PullStepTypePending     = enums.PullStepPending
+	PullStepTypeInspecting  = enums.PullStepInspecting
+	PullStepTypeFetching    = enums.PullStepFetching
+	PullStepTypeMerging     = enums.PullStepMerging
+	PullStepTypeUpToDate    = enums.PullStepUpToDate
+	PullStepTypeFastForward = enums.PullStepFastForward
+	PullStepTypeConflict    = enums.PullStepConflict
+	PullStepTypeError       = enums.PullStepError
+	PullStepTypeSkipped     = enums.PullStepSkipped
 )
 
 // Backward compatibility aliases.
 const (
-	PullStepPending     = PullStepTypePending
-	PullStepInspecting  = PullStepTypeInspecting
-	PullStepFetching    = PullStepTypeFetching
-	PullStepMerging     = PullStepTypeMerging
-	PullStepUpToDate    = PullStepTypeUpToDate
-	PullStepFastForward = PullStepTypeFastForward
-	PullStepConflict    = PullStepTypeConflict
-	PullStepError       = PullStepTypeError
-	PullStepSkipped     = PullStepTypeSkipped
+	PullStepInvalid     = enums.PullStepInvalid
+	PullStepPending     = enums.PullStepPending
+	PullStepInspecting  = enums.PullStepInspecting
+	PullStepFetching    = enums.PullStepFetching
+	PullStepMerging     = enums.PullStepMerging
+	PullStepUpToDate    = enums.PullStepUpToDate
+	PullStepFastForward = enums.PullStepFastForward
+	PullStepConflict    = enums.PullStepConflict
+	PullStepError       = enums.PullStepError
+	PullStepSkipped     = enums.PullStepSkipped
 )
 
 // PullRepoState holds runtime execution and completion state for a single repository pull.
@@ -61,18 +64,6 @@ var safeBadges = map[PullStepType]string{
 	PullStepTypeSkipped:     "[-]",
 }
 
-var richBadges = map[PullStepType]string{
-	PullStepTypePending:     "·",
-	PullStepTypeInspecting:  "🔍",
-	PullStepTypeFetching:    "↓",
-	PullStepTypeMerging:     "🔀",
-	PullStepTypeUpToDate:    "✔",
-	PullStepTypeFastForward: "⚡",
-	PullStepTypeConflict:    "✖",
-	PullStepTypeError:       "✖",
-	PullStepTypeSkipped:     "↷",
-}
-
 // FormatStepBadge formats a step indicator badge adhering to safe or rich glyph mode.
 func FormatStepBadge(step PullStepType, isSafe bool) string {
 	if isSafe {
@@ -92,8 +83,8 @@ func formatStepBadgeSafe(step PullStepType) string {
 }
 
 func formatStepBadgeRich(step PullStepType) string {
-	badge, isFound := richBadges[step]
-	if isFound {
+	badge := step.Badge()
+	if badge != "" {
 		return badge
 	}
 

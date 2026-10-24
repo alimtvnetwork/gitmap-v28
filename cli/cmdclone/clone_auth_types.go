@@ -1,18 +1,22 @@
 // Package cmdclone — clone_auth_types.go defines types and errors for clone authentication.
 package cmdclone
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone/enums"
+)
 
 // ErrAuthSkipped is returned when the user chooses to skip authenticating a repository.
 var ErrAuthSkipped = errors.New("authentication skipped by user")
 
 // AuthMethod represents the user-selected authentication method.
-type AuthMethod int
+type AuthMethod = enums.AuthMethodType
 
 const (
-	AuthMethodToken   AuthMethod = 1
-	AuthMethodBrowser AuthMethod = 2
-	AuthMethodSkip    AuthMethod = 3
+	AuthMethodToken   = enums.AuthMethodToken
+	AuthMethodBrowser = enums.AuthMethodBrowser
+	AuthMethodSkip    = enums.AuthMethodSkip
 )
 
 // AuthPromptResult encapsulates the outcome of an interactive authentication prompt.

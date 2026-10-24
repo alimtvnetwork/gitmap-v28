@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	pullconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -152,7 +153,7 @@ func renderRepoTreeSnapshot(repos []PullTaskRepoRecord) {
 	reversed := reverseRepoRecords(repos)
 	for _, repo := range reversed {
 		line := formatRepoTreeLine(repo)
-		fmt.Printf("  ├── %s\n", line)
+		fmt.Printf("  %s%s\n", pullconstants.GlyphTreeBranch, line)
 	}
 }
 
@@ -213,8 +214,8 @@ func renderOverallSummaryLine(task *PullTaskRecord) {
 	elapsed := calculateElapsedSeconds(task.StartedAt)
 	etaFormatted := FormatEtaDuration(task.EtaSeconds)
 
-	fmt.Printf("  └── Overall: %d/%d completed · Elapsed: %ds · ETA: ~%s remaining (8-run rolling avg)\n",
-		task.PulledRepos, task.TotalRepos, elapsed, etaFormatted)
+	fmt.Printf("  %sOverall: %d/%d completed · Elapsed: %ds · ETA: ~%s remaining (8-run rolling avg)\n",
+		pullconstants.GlyphTreeTerminal, task.PulledRepos, task.TotalRepos, elapsed, etaFormatted)
 }
 
 func calculateElapsedSeconds(startedAtStr string) int {

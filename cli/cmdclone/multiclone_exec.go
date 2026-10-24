@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	cloneconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdclone/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
@@ -36,7 +37,7 @@ func resolveCloneDestination(baseDir, repoName string) string {
 
 // RenderMultiCloneDryRun outputs the preview table of repositories to clone.
 func RenderMultiCloneDryRun(items []MultiCloneItem, targetDir string) {
-	fmt.Printf("\n%s[GitMap MultiClone — Dry Run Preview]%s\n", constants.ColorBold, constants.ColorReset)
+	fmt.Printf(cloneconstants.MsgMultiCloneDryRunTitle, constants.ColorBold, constants.ColorReset)
 	fmt.Printf("  Target Directory: %s\n", resolveTargetDisplay(targetDir))
 	fmt.Printf("  Repositories to clone: %d\n\n", len(items))
 

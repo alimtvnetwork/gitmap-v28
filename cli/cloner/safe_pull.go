@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	clonerconstants "github.com/alimtvnetwork/gitmap-v28/cli/cloner/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -250,7 +251,8 @@ func runGitPullWithProgress(repoDir, branch string, onProgress SafePullProgressF
 }
 
 func execGitPullFF(repoDir string, onProgress SafePullProgressFunc) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, repoDir, constants.GitPull, "--progress", constants.GitFFOnlyFlag, "--autostash")
+	args := append([]string{constants.GitDirFlag, repoDir}, clonerconstants.GitPullFastForwardArgs...)
+	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(onProgress)
 	cmd.Stdout = stream
@@ -279,7 +281,8 @@ func isDivergedOutput(output string) bool {
 }
 
 func executeAutoMergeCmd(dir string, progress SafePullProgressFunc) (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitDirFlag, dir, constants.GitPull, "--progress", "--no-rebase", "--no-edit", "-X", "diff-algorithm=histogram", "--autostash")
+	args := append([]string{constants.GitDirFlag, dir}, clonerconstants.GitPullAutoMergeArgs...)
+	cmd := exec.Command(constants.GitBin, args...)
 	cmd.Env = buildSafePullEnv()
 	stream := newProgressStreamWriter(progress)
 	cmd.Stdout = stream

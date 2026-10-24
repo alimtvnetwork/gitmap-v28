@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	pullconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdpull/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -16,10 +17,10 @@ const (
 	minConciseRepoColWidth = 26
 	conciseReservedColGap  = 30
 
-	treeBranch       = "├── "
-	treeTerminal     = "└── "
-	treeContinuation = "│   "
-	treeIndent       = "    "
+	treeBranch       = pullconstants.GlyphTreeBranch
+	treeTerminal     = pullconstants.GlyphTreeTerminal
+	treeContinuation = pullconstants.GlyphTreeContinuation
+	treeIndent       = pullconstants.GlyphTreeIndent
 )
 
 // renderConciseActiveResults prints bullet list with aligned columns to stdout.

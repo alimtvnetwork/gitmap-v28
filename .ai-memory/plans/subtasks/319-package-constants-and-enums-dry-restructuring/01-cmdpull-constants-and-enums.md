@@ -1,8 +1,8 @@
 # Subtask 01: `cli/cmdpull` Constants & Enums Refactoring
 
-> **Parent Plan:** [.ai-memory/plans/pending/319-package-constants-and-enums-dry-restructuring.md](../../pending/319-package-constants-and-enums-dry-restructuring.md)  
+> **Parent Plan:** [.ai-memory/plans/completed/319-package-constants-and-enums-dry-restructuring.md](../../completed/319-package-constants-and-enums-dry-restructuring.md)  
 > **Target Package:** `cli/cmdpull`  
-> **Status:** Ready for Execution (Next Turn)  
+> **Status:** Complete (100% Verified)  
 
 ---
 
