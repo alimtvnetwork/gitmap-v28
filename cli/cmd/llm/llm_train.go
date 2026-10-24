@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -316,11 +317,16 @@ var trainValueFlags = map[string]bool{
 	"--heatmap-task": true,
 }
 
+var museTargetTokens = []string{"muse", "train-muse", "llm-train-muse", "train_muse", "llm_train_muse"}
+
 // isMuseTarget reports whether arg represents the muse sub-target or its hyphenated aliases.
 func isMuseTarget(arg string) bool {
 	low := strings.ToLower(arg)
-	return low == "muse" || low == "train-muse" || low == "llm-train-muse" || low == "train_muse" || low == "llm_train_muse"
+	return slices.Contains(museTargetTokens, low)
 }
+
+// trainAliasTokens lists the bare train subcommand spellings stripped before flag parsing.
+var trainAliasTokens = []string{"train", "llm-train"}
 
 // stripTrainTarget extracts the FIRST bare positional target ("muse", "train-muse", or "llm-train-muse")
 // from the args before flag parsing. Tokens that are flags or flag values are preserved.
@@ -335,7 +341,7 @@ func stripTrainTarget(args []string) (string, []string) {
 		case target == "" && isMuseTarget(arg):
 			target = museTrainTarget
 			continue
-		case target == "" && (arg == "train" || arg == "llm-train"):
+		case target == "" && slices.Contains(trainAliasTokens, arg):
 			continue
 		default:
 			expectValue = trainValueFlags[arg]

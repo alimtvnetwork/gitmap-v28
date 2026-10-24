@@ -3,6 +3,7 @@ package llm
 import (
 	"flag"
 	"fmt"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
@@ -211,8 +212,10 @@ func Run(args []string) *apperror.AppError {
 	return runDefaultLlm(args)
 }
 
+var trainCommandTokens = []string{"train", "chain", "llm-train", "llmtrain"}
+
 func isTrainCommand(arg string) bool {
-	return arg == "train" || arg == "chain" || arg == "llm-train" || arg == "llmtrain"
+	return slices.Contains(trainCommandTokens, arg)
 }
 
 func runDefaultLlm(args []string) *apperror.AppError {
