@@ -8,11 +8,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -73,7 +73,11 @@ const specClaimAttempts = 1000
 
 // specDirPrefixPattern matches the leading-number prefix of spec
 // directories, e.g. "252-spec-number-issuance".
-var specDirPrefixPattern = regexp.MustCompile(`^(\d+)-`)
+// specDirPrefixPatternText is the leading-number prefix pattern of spec
+// directories, compiled lazily on first use.
+const specDirPrefixPatternText = `^(\d+)-`
+
+var specDirPrefixPattern = lazyregex.New(specDirPrefixPatternText)
 
 // DispatchSpec routes `gitmap spec <subcommand>`; returns (false, nil)
 // for anything it does not own.

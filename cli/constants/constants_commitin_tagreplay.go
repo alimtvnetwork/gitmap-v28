@@ -44,7 +44,7 @@ var TagReplayOutcomeAll = []string{
 //
 // Centralized so the detector, the §08 release-branch step, and any
 // future tooling all agree on what a "version tag" is. Compiled lazily
-// by callers via regexp.MustCompile so this stays a pure string const.
+// by callers so this stays a pure string const.
 const VersionTagPattern = `^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)` +
 	`(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?` +
 	`(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$`

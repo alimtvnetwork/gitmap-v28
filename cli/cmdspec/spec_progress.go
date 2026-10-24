@@ -6,11 +6,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/appfault"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 const specProgressHelp = `spec progress — per-workstream completion overview for a spec.
@@ -31,7 +31,10 @@ Example:
   gitmap spec progress --spec 02-spec/21-app/gitmap-help-text-and-ui-enhancement
 `
 
-var checkboxPattern = regexp.MustCompile(`(?m)^\s*-\s*\[([ xX])\]\s*(.*)$`)
+// checkboxPatternText is the markdown checkbox pattern, compiled lazily on first use.
+const checkboxPatternText = `(?m)^\s*-\s*\[([ xX])\]\s*(.*)$`
+
+var checkboxPattern = lazyregex.New(checkboxPatternText)
 
 // specStream is one parsed markdown file's checkbox rollup.
 type specStream struct {
@@ -106,7 +109,7 @@ func parseSpecStreams(dir string) []specStream {
 			return nil
 		}
 		stream := specStream{name: streamName(path)}
-		for _, m := range checkboxPattern.FindAllStringSubmatch(string(data), -1) {
+		for _, m := range checkboxPattern.Re().FindAllStringSubmatch(string(data), -1) {
 			stream.total++
 			if m[1] == "x" || m[1] == "X" {
 				stream.done++

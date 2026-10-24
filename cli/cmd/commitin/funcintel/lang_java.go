@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var javaMethodRe = regexp.MustCompile(`^\s*(?:public|protected|private)?\s*(?:static\s+)?[A-Za-z_][A-Za-z0-9_<>\[\]]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*\([^)]*\)\s*\{`)
+var javaMethodRe = lazyregex.New(lazyregex.FuncIntelJava)
 
 type javaDetector struct{}
 

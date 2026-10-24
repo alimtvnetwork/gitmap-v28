@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
@@ -106,10 +106,10 @@ func parseRemoteURL(url string) (string, string, string, bool) {
 }
 
 var (
-	reSSHRemote      = regexp.MustCompile(`^[^@]+@([^:]+):([^/]+)/(.+)$`)
-	reHTTPSRemote    = regexp.MustCompile(`^https?://([^/]+)/([^/]+)/(.+)$`)
-	reSSHProtoRemote = regexp.MustCompile(`^ssh://[^@]+@([^/:]+)(?::\d+)?/([^/]+)/(.+)$`)
-	reRepoVersion    = regexp.MustCompile(`^(.+)-v(\d+)$`)
+	reSSHRemote      = lazyregex.New(lazyregex.RemoteUrlScp)
+	reHTTPSRemote    = lazyregex.New(lazyregex.RemoteUrlHttp)
+	reSSHProtoRemote = lazyregex.New(lazyregex.RemoteUrlSsh)
+	reRepoVersion    = lazyregex.New(lazyregex.RepoVersionSuffix)
 )
 
 // matchSSHRemote handles `git@host:owner/repo`.

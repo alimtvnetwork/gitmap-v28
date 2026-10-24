@@ -24,9 +24,10 @@ package helpdoc
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // MarkerPrefix is the canonical line-prefix every stamped fixture
@@ -66,11 +67,13 @@ func Marker(s Stamp) string {
 	return base + " sha=" + s.SHA
 }
 
-// markerLineRe matches the marker line anywhere in a body. We only
+// markerLinePattern is the marker-line pattern. We only
 // inspect the first ~512 bytes (see ParseMarker) so the regex stays
 // cheap regardless of fixture size.
-var markerLineRe = regexp.MustCompile(
-	`(?m)^// fixture-stamp:\s+(.+)$`)
+// markerLinePattern matches the marker line anywhere in a body.
+const markerLinePattern = `(?m)^// fixture-stamp:\s+(.+)$`
+
+var markerLineRe = lazyregex.New(markerLinePattern)
 
 // ParseMarker extracts the first stamp marker from body. Returns
 // (Stamp{}, false) if no marker is present or if the marker is

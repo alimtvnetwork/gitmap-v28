@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -14,13 +13,20 @@ import (
 	clonerconstants "github.com/alimtvnetwork/gitmap-v28/cli/cloner/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 )
 
+// Unlink-failure patterns, compiled lazily on first use.
+const (
+	unlinkOldPattern    = `(?i)unable to unlink old '([^']+)'`
+	unlinkPromptPattern = `(?i)unlink of file '([^']+)' failed`
+)
+
 var (
-	unlinkOldRegex    = regexp.MustCompile(`(?i)unable to unlink old '([^']+)'`)
-	unlinkPromptRegex = regexp.MustCompile(`(?i)unlink of file '([^']+)' failed`)
+	unlinkOldRegex    = lazyregex.New(unlinkOldPattern)
+	unlinkPromptRegex = lazyregex.New(unlinkPromptPattern)
 )
 
 func cloneOrPullOne(rec model.ScanRecord, targetDir string, opts CloneOptions) model.CloneResult {

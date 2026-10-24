@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var tsArrowRe = regexp.MustCompile(`^(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s*)?\(`)
+var tsArrowRe = lazyregex.New(lazyregex.FuncIntelTs)
 
 type tsDetector struct{}
 

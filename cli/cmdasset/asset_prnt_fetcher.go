@@ -3,20 +3,28 @@ package cmdasset
 import (
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
 
+// Screenshot-image patterns, compiled lazily on first use.
+const (
+	imgURLPattern      = `(?i)<img[^>]+(?:id="screenshot-image"|class="screenshot__image")[^>]+src="([^"]+)"`
+	ogImgPattern       = `(?i)property="og:image"\s+content="([^"]+)"`
+	directImagePattern = `(?i)https?://(?:image\.prntscr\.com|img\.lightshot\.app|api\.prntscr\.com|i\.imgur\.com)/[^\s"'<>]+`
+	fallbackImgPattern = `(?i)https?://(?:image\.prntscr\.com|api\.prntscr\.com|i\.imgur\.com)/[^\s"'<>]+\.(?:png|jpg|jpeg)`
+)
+
 var (
-	imgURLRegex      = regexp.MustCompile(`(?i)<img[^>]+(?:id="screenshot-image"|class="screenshot__image")[^>]+src="([^"]+)"`)
-	ogImgRegex       = regexp.MustCompile(`(?i)property="og:image"\s+content="([^"]+)"`)
-	directImageRegex = regexp.MustCompile(`(?i)https?://(?:image\.prntscr\.com|img\.lightshot\.app|api\.prntscr\.com|i\.imgur\.com)/[^\s"'<>]+`)
-	fallbackImgRegex = regexp.MustCompile(`(?i)https?://(?:image\.prntscr\.com|api\.prntscr\.com|i\.imgur\.com)/[^\s"'<>]+\.(?:png|jpg|jpeg)`)
+	imgURLRegex      = lazyregex.New(imgURLPattern)
+	ogImgRegex       = lazyregex.New(ogImgPattern)
+	directImageRegex = lazyregex.New(directImagePattern)
+	fallbackImgRegex = lazyregex.New(fallbackImgPattern)
 )
 
 func resolveImageURL(rawURL string) (string, error) {

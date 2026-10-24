@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var pyDefRe = regexp.MustCompile(`^def\s+([a-z_][A-Za-z0-9_]*)\s*\(`)
+var pyDefRe = lazyregex.New(lazyregex.FuncIntelPython)
 
 type pyDetector struct{}
 

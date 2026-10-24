@@ -148,13 +148,13 @@ func extractUnlinkPaths(output string) []string {
 
 func collectRegexMatches(output string) []string {
 	matches := make([]string, 0, 2)
-	for _, m := range unlinkOldRegex.FindAllStringSubmatch(output, -1) {
+	for _, m := range unlinkOldRegex.Re().FindAllStringSubmatch(output, -1) {
 		if len(m) > 1 {
 			matches = append(matches, m[1])
 		}
 	}
 
-	for _, m := range unlinkPromptRegex.FindAllStringSubmatch(output, -1) {
+	for _, m := range unlinkPromptRegex.Re().FindAllStringSubmatch(output, -1) {
 		if len(m) > 1 {
 			matches = append(matches, m[1])
 		}

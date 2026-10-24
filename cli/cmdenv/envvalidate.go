@@ -3,14 +3,14 @@ package cmdenv
 import (
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // envNamePattern validates environment variable names.
-var envNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+var envNamePattern = lazyregex.New(lazyregex.IdentifierExact)
 
 // validateEnvName checks variable name is valid.
 func validateEnvName(name string) *apperror.AppError {

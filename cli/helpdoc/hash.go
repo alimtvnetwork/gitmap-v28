@@ -19,7 +19,8 @@ package helpdoc
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"regexp"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // HashShortLen is the number of hex chars we keep in the marker.
@@ -27,11 +28,13 @@ import (
 // collision probability, plenty for this use case.
 const HashShortLen = 12
 
-// stampLineStripRe matches the entire fixture-stamp line plus its
+// stampLineStripPattern matches the entire fixture-stamp line plus its
 // trailing newline (if any). Stripping the line — not just blanking
 // it — keeps the hash stable when the marker is later widened or
 // reformatted, since byte length stops mattering.
-var stampLineStripRe = regexp.MustCompile(`(?m)^// fixture-stamp:[^\n]*\n?`)
+const stampLineStripPattern = `(?m)^// fixture-stamp:[^\n]*\n?`
+
+var stampLineStripRe = lazyregex.New(stampLineStripPattern)
 
 // BodyHashExcludingMarker returns the lowercase hex SHA-256 (full
 // 64 chars) of body with every fixture-stamp line removed. This is
@@ -68,16 +71,20 @@ func HashMatches(body, recordedShortHash string) bool {
 	return got == recordedShortHash
 }
 
-// shaFieldRe matches `sha=<hex>` up to the next whitespace. Lives
+// shaFieldPattern matches `sha=<hex>` up to the next whitespace. Lives
 // alongside its semantic peers (the other hash helpers) rather than
 // in bump.go so the rewrite logic stays cohesive with the field
 // definition.
-var shaFieldRe = regexp.MustCompile(`(sha=)\S+`)
+const shaFieldPattern = `(sha=)\S+`
 
-// markerLineEndRe matches the end of the fixture-stamp line so we
+var shaFieldRe = lazyregex.New(shaFieldPattern)
+
+// markerLineEndPattern matches the end of the fixture-stamp line so we
 // can append a new `sha=` field when the marker does not already
 // have one. Captures the trailing newline (if any) for re-insertion.
-var markerLineEndRe = regexp.MustCompile(`(?m)(^// fixture-stamp:[^\n]*?)(\r?\n|$)`)
+const markerLineEndPattern = `(?m)(^// fixture-stamp:[^\n]*?)(\r?\n|$)`
+
+var markerLineEndRe = lazyregex.New(markerLineEndPattern)
 
 // RewriteOrAppendSHA replaces the existing sha= field inside head,
 // or appends `sha=<newSHA>` to the marker line when the field is

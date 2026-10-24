@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var jsFuncRe = regexp.MustCompile(`^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(`)
+var jsFuncRe = lazyregex.New(lazyregex.FuncIntelJavascript)
 
 type jsDetector struct{}
 

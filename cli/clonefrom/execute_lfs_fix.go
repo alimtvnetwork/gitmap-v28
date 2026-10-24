@@ -4,16 +4,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	rxSmudgeFatal = regexp.MustCompile(constants.LFSSmudgeFatalPattern)
-	rxSmudgeError = regexp.MustCompile(constants.LFSSmudgeErrorPattern)
+	rxSmudgeFatal = lazyregex.New(constants.LFSSmudgeFatalPattern)
+	rxSmudgeError = lazyregex.New(constants.LFSSmudgeErrorPattern)
 )
 
 // detectLFSSmudgeError scans the git clone standard error for a known

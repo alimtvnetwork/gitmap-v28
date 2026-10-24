@@ -5,16 +5,20 @@
 package visibility
 
 import (
-	"regexp"
 	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
+// trailingDigitsPattern captures `<base>-<digits>` (no `v`).
+const trailingDigitsPattern = `^(.*)-(\d+)$`
+
 // versionSuffixRE captures the trailing `-v<digits>` segment.
-var versionSuffixRE = regexp.MustCompile(`(?i)^(.*)-v(\d+)$`)
+var versionSuffixRE = lazyregex.New(lazyregex.RepoVersionCi)
 
 // trailingDigitsRE captures `<base>-<digits>` (no `v`), used by the
 // fuzzy fallback to spot user typos like `macro-ahk-51`.
-var trailingDigitsRE = regexp.MustCompile(`^(.*)-(\d+)$`)
+var trailingDigitsRE = lazyregex.New(trailingDigitsPattern)
 
 // ParseRepoNameMeta returns (base, version, ok) when `name` ends in
 // `-v<digits>`, otherwise ("", 0, false). Case-insensitive on the v.

@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var goFuncRe = regexp.MustCompile(`^func\s+(?:\([^)]*\)\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*\(`)
+var goFuncRe = lazyregex.New(lazyregex.FuncIntelGo)
 
 type goDetector struct{}
 

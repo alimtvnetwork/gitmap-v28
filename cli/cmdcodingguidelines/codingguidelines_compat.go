@@ -7,11 +7,15 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var cgPostfixIncrementPattern = regexp.MustCompile(`\(\(([A-Za-z_][A-Za-z0-9_]*)\+\+\)\)`)
+// postfixIncrementPattern matches `((name++))` arithmetic increments.
+const postfixIncrementPattern = `\(\(([A-Za-z_][A-Za-z0-9_]*)\+\+\)\)`
+
+var cgPostfixIncrementPattern = lazyregex.New(postfixIncrementPattern)
 
 func writeCGCompatScript(url string) (string, func(), error) {
 	dir, err := os.MkdirTemp("", "gitmap-cg-*")

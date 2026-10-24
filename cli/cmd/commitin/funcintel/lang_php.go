@@ -1,12 +1,11 @@
 package funcintel
 
 import (
-	"regexp"
-
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var phpFnRe = regexp.MustCompile(`^(?:(?:public|protected|private)\s+)?function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(`)
+var phpFnRe = lazyregex.New(lazyregex.FuncIntelPhp)
 
 type phpDetector struct{}
 

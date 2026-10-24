@@ -1,9 +1,10 @@
 package cmdpull
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // PullProgressEvent encapsulates a parsed git progress milestone.
@@ -15,9 +16,15 @@ type PullProgressEvent struct {
 	CommitRange string
 }
 
+// Git progress patterns, compiled lazily on first use.
+const (
+	percentPattern  = `(\d+)%`
+	updatingPattern = `Updating\s+([0-9a-fA-F]+\.\.[0-9a-fA-F]+)`
+)
+
 var (
-	percentRegex  = regexp.MustCompile(`(\d+)%`)
-	updatingRegex = regexp.MustCompile(`Updating\s+([0-9a-fA-F]+\.\.[0-9a-fA-F]+)`)
+	percentRegex  = lazyregex.New(percentPattern)
+	updatingRegex = lazyregex.New(updatingPattern)
 )
 
 // ParseGitProgressLine parses a single progress line emitted by git.

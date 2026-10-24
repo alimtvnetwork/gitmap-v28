@@ -14,10 +14,10 @@ package helpdoc
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // FixtureAutoBumpEnv is the env-var name that opts MaybeAutoBumpFile
@@ -28,15 +28,20 @@ const FixtureAutoBumpEnv = "GITMAP_FIXTURE_AUTOBUMP"
 // files. 0o644 matches the project's source-file convention.
 const readWritePerm = 0o644
 
-// generationFieldRe matches `generation=<int>` inside a marker line,
-// capturing the prefix for ReplaceAllString-friendly substitution.
-var generationFieldRe = regexp.MustCompile(`(generation=)(\d+)`)
+// Fixture-stamp field patterns, compiled lazily on first use.
+const (
+	generationFieldPattern = `(generation=)(\d+)`
+	minCurrentFieldPattern = `(min-current=)(\d+)`
+	createdForFieldPattern = `(for=)\S+`
+)
+
+var generationFieldRe = lazyregex.New(generationFieldPattern)
 
 // minCurrentFieldRe matches `min-current=<int>` similarly.
-var minCurrentFieldRe = regexp.MustCompile(`(min-current=)(\d+)`)
+var minCurrentFieldRe = lazyregex.New(minCurrentFieldPattern)
 
 // createdForFieldRe matches `for=<token>` up to the next whitespace.
-var createdForFieldRe = regexp.MustCompile(`(for=)\S+`)
+var createdForFieldRe = lazyregex.New(createdForFieldPattern)
 
 // BumpRequest describes the in-place rewrite a caller wants. Zero
 // values are no-ops: pass NewMinCurrent=0 / NewCreatedFor="" to

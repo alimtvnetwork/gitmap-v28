@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdisplay"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // topic binds a helptext/*.md topic name to its HelpDisplay builder and
@@ -42,8 +42,11 @@ var (
 	errUnknownTopic  = errors.New("helptextemitter: unknown topic")
 )
 
+// ansiSequencePattern matches SGR color sequences so generated markdown stays plain.
+const ansiSequencePattern = "\x1b\\[[0-9;]*m"
+
 // ansiSequence matches SGR color sequences so generated markdown stays plain.
-var ansiSequence = regexp.MustCompile("\x1b\\[[0-9;]*m")
+var ansiSequence = lazyregex.New(ansiSequencePattern)
 
 // TopicNames returns the sorted names of all registered topics.
 func TopicNames() []string {

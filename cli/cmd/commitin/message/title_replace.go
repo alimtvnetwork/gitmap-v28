@@ -7,9 +7,13 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmd/commitin/profile"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var fileVarRegex = regexp.MustCompile(`\$files\.([0-9]+)\.names?`)
+// fileVarPattern matches `$files.<n>.name` / `$files.<n>.names` references.
+const fileVarPattern = `\$files\.([0-9]+)\.names?`
+
+var fileVarRegex = lazyregex.New(fileVarPattern)
 
 func applyTitleReplacements(msg string, files []string, rules []profile.TitleReplacementRule, seoTitle string) string {
 	if msg == "" {
@@ -67,7 +71,7 @@ func expandFileAndTemplateVars(text string, files []string, seoTitle string) str
 	if !strings.Contains(text, "$") {
 		return text
 	}
-	out := fileVarRegex.ReplaceAllStringFunc(text, func(m string) string {
+	out := fileVarRegex.Re().ReplaceAllStringFunc(text, func(m string) string {
 		return replaceFileVarMatch(m, files)
 	})
 	resolvedTitle := strings.TrimSpace(seoTitle)
