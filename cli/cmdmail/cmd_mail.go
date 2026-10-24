@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -37,7 +38,7 @@ func RunMail(args []string) *appfault.AppError {
 }
 
 func isHelpArg(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains([]string{"-h", "--help", "help"}, arg)
 }
 
 // RunMailUI boots the embedded mail composer web server.

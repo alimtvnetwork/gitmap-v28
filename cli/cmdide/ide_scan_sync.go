@@ -6,6 +6,7 @@ package cmdide
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -24,13 +25,13 @@ func SyncScanRecordsToIDEs(records []model.ScanRecord, args []string, isSkipVSCo
 	}
 
 	for i, arg := range args {
-		if arg == "--skip-sync" || arg == "--no-ide-sync" || arg == "--no-sync" {
+		if slices.Contains([]string{"--skip-sync", "--no-ide-sync", "--no-sync"}, arg) {
 			return
 		}
-		if (arg == "--sync-ide" || arg == "--ide") && i+1 < len(args) {
+		if slices.Contains([]string{"--sync-ide", "--ide"}, arg) && i+1 < len(args) {
 			applyIDEScanTargetFilter(&opts, args[i+1])
 		}
-		if (arg == "--exclude-sync" || arg == "--skip-ide") && i+1 < len(args) {
+		if slices.Contains([]string{"--exclude-sync", "--skip-ide"}, arg) && i+1 < len(args) {
 			applyIDEScanExcludeFilter(&opts, args[i+1])
 		}
 	}

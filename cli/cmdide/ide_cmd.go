@@ -1,6 +1,7 @@
 package cmdide
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -65,17 +66,17 @@ func checkValueFlags(opts *IDEOptions, args []string, idx int) (int, bool) {
 	if !hasNext {
 		return 0, false
 	}
-	if arg == "-t" || arg == "--target" || arg == "-i" || arg == "--ide" {
+	if slices.Contains([]string{"-t", "--target", "-i", "--ide"}, arg) {
 		applyTargetFilter(opts, args[idx+1])
 
 		return 1, true
 	}
-	if arg == "-e" || arg == "--exclude" || arg == "--skip-sync" || arg == "--exclude-sync" {
+	if slices.Contains([]string{"-e", "--exclude", "--skip-sync", "--exclude-sync"}, arg) {
 		applyExcludeFilter(opts, args[idx+1])
 
 		return 1, true
 	}
-	if arg == "-d" || arg == "--dir" {
+	if slices.Contains([]string{"-d", "--dir"}, arg) {
 		opts.TargetDirectory = args[idx+1]
 
 		return 1, true

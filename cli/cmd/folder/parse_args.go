@@ -2,6 +2,7 @@ package folder
 
 import (
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -20,40 +21,40 @@ func ParseArgs(args []string) (Options, error) {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		switch {
-		case arg == "--tree" || arg == "-tree":
+		case slices.Contains([]string{"--tree", "-tree"}, arg):
 			opts.Format = FormatTree
 			hasExplicitFormat = true
-		case arg == "--md" || arg == "-md" || arg == "--markdown":
+		case slices.Contains([]string{"--md", "-md", "--markdown"}, arg):
 			opts.Format = FormatMd
 			hasExplicitFormat = true
-		case arg == "--json" || arg == "-json":
+		case slices.Contains([]string{"--json", "-json"}, arg):
 			opts.Format = FormatJson
 			hasExplicitFormat = true
-		case arg == "--yaml" || arg == "-yaml" || arg == "--yml":
+		case slices.Contains([]string{"--yaml", "-yaml", "--yml"}, arg):
 			opts.Format = FormatYaml
 			hasExplicitFormat = true
-		case arg == "--flat" || arg == "-flat" || arg == "--list":
+		case slices.Contains([]string{"--flat", "-flat", "--list"}, arg):
 			opts.Format = FormatFlat
 			hasExplicitFormat = true
-		case arg == "--details" || arg == "-l" || arg == "-details":
+		case slices.Contains([]string{"--details", "-l", "-details"}, arg):
 			opts.IsDetailed = true
-		case arg == "--only-text" || arg == "-only-text":
+		case slices.Contains([]string{"--only-text", "-only-text"}, arg):
 			opts.Filter.OnlyText = true
-		case arg == "--only-binary" || arg == "-only-binary":
+		case slices.Contains([]string{"--only-binary", "-only-binary"}, arg):
 			opts.Filter.OnlyBinary = true
-		case (arg == "--except" || arg == "--exclude" || arg == "-exclude" || arg == "-except") && i+1 < len(args):
+		case slices.Contains([]string{"--except", "--exclude", "-exclude", "-except"}, arg) && i+1 < len(args):
 			opts.Filter.ExceptGlobs = append(opts.Filter.ExceptGlobs, ParseExceptGlobs(args[i+1])...)
 			i++
-		case (arg == "--ext" || arg == "-ext") && i+1 < len(args):
+		case slices.Contains([]string{"--ext", "-ext"}, arg) && i+1 < len(args):
 			opts.Filter.Extensions = append(opts.Filter.Extensions, strings.Split(args[i+1], ",")...)
 			i++
-		case (arg == "--max-depth" || arg == "-max-depth") && i+1 < len(args):
+		case slices.Contains([]string{"--max-depth", "-max-depth"}, arg) && i+1 < len(args):
 			if val, errParse := strconv.Atoi(args[i+1]); errParse == nil {
 				opts.Filter.MaxDepth = val
 			}
 
 			i++
-		case (arg == "-o" || arg == "--out" || arg == "--output" || arg == "--file" || arg == "-file" || arg == "-f") && i+1 < len(args):
+		case slices.Contains([]string{"-o", "--out", "--output", "--file", "-file", "-f"}, arg) && i+1 < len(args):
 			opts.OutFile = args[i+1]
 			if !hasExplicitFormat {
 				opts.Format = deduceFormatFromExt(opts.OutFile, opts.Format)

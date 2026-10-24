@@ -3,6 +3,7 @@ package cmdhistory
 import (
 	"encoding/json"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -128,13 +129,13 @@ func parsePurgeArgsLoop(args []string) *purgeFlagCollector {
 
 func consumePurgeFlag(arg string, args []string, idx int, col *purgeFlagCollector) int {
 	switch {
-	case (arg == "--folder" || arg == "-d") && idx+1 < len(args):
+	case slices.Contains([]string{"--folder", "-d"}, arg) && idx+1 < len(args):
 		idx++
 		col.folder = args[idx]
-	case (arg == "--file" || arg == "-f") && idx+1 < len(args):
+	case slices.Contains([]string{"--file", "-f"}, arg) && idx+1 < len(args):
 		idx++
 		col.file = args[idx]
-	case (arg == "--commit" || arg == "-c") && idx+1 < len(args):
+	case slices.Contains([]string{"--commit", "-c"}, arg) && idx+1 < len(args):
 		idx++
 		col.commit = args[idx]
 	case (arg == "--repo") && idx+1 < len(args):

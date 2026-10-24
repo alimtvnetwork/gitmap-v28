@@ -2,6 +2,7 @@ package cmdvhost
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -129,7 +130,7 @@ func runVHostDisable(args []string) error {
 }
 
 func isDryRunArg(arg string) bool {
-	return arg == "--dry-run" || arg == "-n"
+	return slices.Contains([]string{"--dry-run", "-n"}, arg)
 }
 
 func parseDryRunOption(args []string) bool {

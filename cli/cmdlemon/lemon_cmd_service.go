@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -57,7 +58,7 @@ func parseIntervalFlag(args []string) time.Duration {
 }
 
 func tryParseIntervalArg(args []string, i int, arg string) (time.Duration, bool) {
-	if (arg == "--interval" || arg == "-i") && i+1 < len(args) {
+	if slices.Contains([]string{"--interval", "-i"}, arg) && i+1 < len(args) {
 		return parseDurationOrFallback(args[i+1])
 	}
 	if strings.HasPrefix(arg, "--interval=") {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -303,12 +304,12 @@ func parseDownloadArgs(args []string) (DownloadOptions, error) {
 		arg := args[i]
 
 		switch {
-		case arg == "-h" || arg == "--help":
+		case slices.Contains([]string{"-h", "--help"}, arg):
 			printDownloadHelp()
 
 			return opts, nil
 
-		case arg == "-o" || arg == "--out":
+		case slices.Contains([]string{"-o", "--out"}, arg):
 			if i+1 < len(args) {
 				opts.OutputPath = args[i+1]
 				i++
@@ -320,16 +321,16 @@ func parseDownloadArgs(args []string) (DownloadOptions, error) {
 		case strings.HasPrefix(arg, "-o="):
 			opts.OutputPath = strings.TrimPrefix(arg, "-o=")
 
-		case arg == "-j" || arg == "--json":
+		case slices.Contains([]string{"-j", "--json"}, arg):
 			opts.IsJSON = true
 
-		case arg == "-q" || arg == "--quiet":
+		case slices.Contains([]string{"-q", "--quiet"}, arg):
 			opts.IsQuiet = true
 
-		case arg == "-f" || arg == "--force":
+		case slices.Contains([]string{"-f", "--force"}, arg):
 			opts.IsForceOverwrite = true
 
-		case arg == "-t" || arg == "--threads":
+		case slices.Contains([]string{"-t", "--threads"}, arg):
 			if n, ok := parseIntArg(args, i+1); ok {
 				opts.Threads = n
 				i++
@@ -340,7 +341,7 @@ func parseDownloadArgs(args []string) (DownloadOptions, error) {
 				opts.Threads = n
 			}
 
-		case arg == "-s" || arg == "--splits":
+		case slices.Contains([]string{"-s", "--splits"}, arg):
 			if n, ok := parseIntArg(args, i+1); ok {
 				opts.Splits = n
 				i++
