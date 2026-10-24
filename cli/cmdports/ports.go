@@ -3,6 +3,7 @@ package cmdports
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -124,22 +125,30 @@ func parsePortsFlags(args []string) (PortsOptions, bool, error) {
 	return opts, false, nil
 }
 
+var (
+	portsHelpFlagTokens     = []string{"-h", "--help", "help"}
+	portsCommonFlagTokens   = []string{"-c", "--common", "common"}
+	portsFirewallFlagTokens = []string{"firewall", "fw", "--firewall"}
+	portsJSONFlagTokens     = []string{"--json", "json"}
+	portsPortFlagTokens     = []string{"--port", "-p"}
+)
+
 func isHelpFlag(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains(portsHelpFlagTokens, arg)
 }
 
 func isCommonFlag(arg string) bool {
-	return arg == "-c" || arg == "--common" || arg == "common"
+	return slices.Contains(portsCommonFlagTokens, arg)
 }
 
 func isFirewallFlag(arg string) bool {
 	norm := strings.ToLower(strings.TrimSpace(arg))
 
-	return norm == "firewall" || norm == "fw" || norm == "--firewall"
+	return slices.Contains(portsFirewallFlagTokens, norm)
 }
 
 func isJSONFlag(arg string) bool {
-	return arg == "--json" || arg == "json"
+	return slices.Contains(portsJSONFlagTokens, arg)
 }
 
 func resolveServiceNamePort(name string) (int, bool) {
@@ -174,7 +183,7 @@ func handlePortFlag(arg string, args []string, index int, opts *PortsOptions) (i
 		return parseEqualPort(arg, "-p=", opts)
 	}
 
-	if arg == "--port" || arg == "-p" {
+	if slices.Contains(portsPortFlagTokens, arg) {
 		return parseNextArgPort(args, index, opts)
 	}
 
