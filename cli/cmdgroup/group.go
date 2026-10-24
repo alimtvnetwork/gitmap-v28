@@ -5,19 +5,40 @@ import (
 	"os"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdworkgroup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// runGroup handles the "group" subcommand and routes to sub-handlers.
+// RunGroup handles the "group" subcommand and routes to sub-handlers.
 func RunGroup(args []string) error {
 	checkHelp("group", args)
 	if len(args) == 0 {
 		return result.AsError(showActiveGroup())
 	}
+	if isWorkgroupDelegation(args) {
+		return cmdworkgroup.RunWorkgroup(args)
+	}
 
 	return result.AsError(dispatchGroup(args[0], args[1:]))
+}
+
+func isWorkgroupDelegation(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	sub := args[0]
+	if sub == "bind" || sub == "unbind" || sub == "test-ssh" {
+		return true
+	}
+	for _, arg := range args {
+		if arg == "--ssh-key" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func displayActiveGroup(value string) {

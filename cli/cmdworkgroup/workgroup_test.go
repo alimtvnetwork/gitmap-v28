@@ -215,3 +215,16 @@ func TestRunWorkgroupDispatch(t *testing.T) {
 		t.Fatalf("RunWorkgroup rm failed: %v", errRm)
 	}
 }
+
+func TestWorkgroupPositionalBind(t *testing.T) {
+	opts := ParseWorkgroupOptions([]string{"bind", "/tmp/client-a", "/tmp/id_rsa"})
+	if opts.Subcommand != "bind" {
+		t.Fatalf("expected subcommand bind, got %s", opts.Subcommand)
+	}
+	if opts.Name != "/tmp/client-a" {
+		t.Fatalf("expected name /tmp/client-a, got %s", opts.Name)
+	}
+	if opts.SSHKeyPath != "/tmp/id_rsa" {
+		t.Fatalf("expected SSHKeyPath /tmp/id_rsa, got %s", opts.SSHKeyPath)
+	}
+}

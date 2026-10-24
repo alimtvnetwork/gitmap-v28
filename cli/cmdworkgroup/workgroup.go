@@ -139,8 +139,17 @@ func assignPositionalWorkgroup(pos []string, opts *WorkgroupOptions) {
 		opts.Path = pos[1]
 	}
 	if len(pos) > 2 {
-		opts.Path = pos[2]
+		assignSecondPositional(pos[2], opts)
 	}
+}
+
+func assignSecondPositional(val string, opts *WorkgroupOptions) {
+	if opts.Subcommand == "bind" && opts.SSHKeyPath == "" {
+		opts.SSHKeyPath = val
+
+		return
+	}
+	opts.Path = val
 }
 
 // ParseWorkgroupOptions extracts flags and positional arguments.
