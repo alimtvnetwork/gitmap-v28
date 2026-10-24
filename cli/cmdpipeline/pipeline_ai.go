@@ -3,6 +3,7 @@ package cmdpipeline
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -154,7 +155,7 @@ func extractDelaySeconds(argVal string, defaultDelay int) int {
 }
 
 func isPipelineAIDelayFlag(arg string) bool {
-	return arg == "-t" || arg == "--time" || arg == "-d" || arg == "--delay"
+	return slices.Contains([]string{"-t", "--time", "-d", "--delay"}, arg)
 }
 
 func isSkipDelayRequested() bool {
