@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -324,11 +325,13 @@ func runPRClean(args []string) error {
 	return executePRClean(repoRoot, isYes)
 }
 
+var prCleanYesFlagTokens = []string{"-y", "--yes"}
+
 func parsePRCleanArgs(args []string) (bool, string) {
 	isYes := false
 	repoPath := ""
 	for _, arg := range args {
-		if arg == "-y" || arg == "--yes" {
+		if slices.Contains(prCleanYesFlagTokens, arg) {
 			isYes = true
 			continue
 		}
