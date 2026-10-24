@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.609.0] - 2026-10-24
+
+### Added
+- Plan 325 enum constants refactor and CI green release
+
+---
+
 ## [v6.608.0] - 2026-10-24
 
 ### Added
