@@ -3,6 +3,7 @@ package cmdwinutil
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -17,8 +18,10 @@ func RunWinUtil(args []string) error {
 	return dispatchWinUtilSubcommand(subCmd, args[1:])
 }
 
+var winUtilHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func isWinUtilHelp(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains(winUtilHelpFlagTokens, arg)
 }
 
 func dispatchWinUtilSubcommand(subCmd string, subArgs []string) error {
