@@ -50,6 +50,13 @@ Wave 0 decisions (coordinator):
 - (d) FlagWorkerShort long-prefix suspect: exemplar worker verifies against registration before copying the pattern.
 - Wave order: Wave 1 store/dbengine core (largest blast radius, 75+ OpenSQLiteDB call sites — never parallelize with other waves) → Wave 2 done-package cleanups (cmdcargo, cmdpull, cmdrelease/release, then remaining done packages' Parse conversions) → Wave 3 remaining small packages → Wave 4 remaining large packages → Wave 5 shared cli/constants + lazyregex sweep. Wave 1 is HELD until the gitmap-ci worker finishes, to avoid colliding on CI-blocking files.
 
+## Added phase: gitmap commit-suite --dry-run actually dry-runs (added 2026-10-25 ~03:15 +08)
+
+Incident (verified in ~/workspace/repos/img-pdf, the img-pdf-v2 clone): `gitmap cpf --dry-run` did NOT dry-run. It committed and pushed 67b7b21 "Feature: test dry run", sweeping unrelated uncommitted sync files and .gitmap/backup into main. Recovery was cleanup commit 9a7840b (no force-push). The flag was accepted/ignored and the command mutated anyway.
+Scope: gitmap-v28 commit-suite commands (cpf/cpb/cpc/cpr/pcp) + every other mutating command advertising dry-run (push, release, sync, anything with a dry-run flag). Work: root-cause how --dry-run is handled today (parsed but ignored, never threaded through, shadowed); implement a REAL dry-run that prints exactly what it would do (files it would stage, commit message, branch, remote/push target, tag/release actions) and exits WITHOUT mutating anything (no commit, no push, no staging changes left behind, no files swept in; the file list must make a sweep visible before a real run); add tests proving zero mutations (no commit, no push, clean tree after); keep files under the 300-line cap. Then update the gitmap SKILL in coding-guidelines-v24 (.agents/skills/gitmap + .cursor/skills/ mirror): document the flag, what it prints, and the standing rule — verify with --dry-run plus git status/diff before any gitmap commit — including the caution that pre-fix --dry-run did not actually dry-run. Commits via the gitmap suite as the user, incremental, CI verification per standing rules. Coordination: cli/cmdcommit is refactor territory — the dry-run worker owns commit-suite files for this phase; other refactor waves must not touch them concurrently (RC heatmap tracked). Task-09 in the table below.
+
+| Task-09 | gitmap --dry-run real dry-run (root cause, fix, tests, skill doc) | Worker dryrun | gitmap-v28 commit-suite files + coding-guidelines-v24 gitmap skill mirrors | QUEUED | — |
+
 ## Assumptions
 
 - The other session's releases (AGM 4.266.0, gitmap v6.608.0) are legitimate user-side work; this run builds on top of them.
