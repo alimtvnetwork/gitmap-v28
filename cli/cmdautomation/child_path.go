@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -124,7 +125,7 @@ func parseSingleAumArg(args []string, idx int, opts *aumChildOptions, nonFlags *
 		nextArg = args[idx+1]
 	}
 
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.isJson = true
 
 		return 0, nil
@@ -186,7 +187,7 @@ func isAumLimit(arg string) bool {
 }
 
 func extractAumDepthRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
-	if (arg == "--depth" || arg == "-d") && hasNext {
+	if slices.Contains([]string{"--depth", "-d"}, arg) && hasNext {
 		return nextArg, 1, true
 	}
 
@@ -216,7 +217,7 @@ func parseAumDepth(arg string, nextArg string, hasNext bool, opts *aumChildOptio
 }
 
 func parseAumExt(arg string, nextArg string, hasNext bool, opts *aumChildOptions) int {
-	if (arg == "--ext" || arg == "-e") && hasNext {
+	if slices.Contains([]string{"--ext", "-e"}, arg) && hasNext {
 		opts.extensions = append(opts.extensions, splitExtensionsAum(nextArg)...)
 
 		return 1
@@ -233,7 +234,7 @@ func parseAumExt(arg string, nextArg string, hasNext bool, opts *aumChildOptions
 }
 
 func parseAumType(arg string, nextArg string, hasNext bool, opts *aumChildOptions) int {
-	if (arg == "--type" || arg == "-t") && hasNext {
+	if slices.Contains([]string{"--type", "-t"}, arg) && hasNext {
 		opts.typeFilter = strings.ToLower(nextArg)
 
 		return 1
@@ -250,7 +251,7 @@ func parseAumType(arg string, nextArg string, hasNext bool, opts *aumChildOption
 }
 
 func extractAumLimitRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
-	if (arg == "--limit" || arg == "-l" || arg == "-n") && hasNext {
+	if slices.Contains([]string{"--limit", "-l", "-n"}, arg) && hasNext {
 		return nextArg, 1, true
 	}
 
