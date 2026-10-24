@@ -14,5 +14,1475 @@
     ],
     "result": "success",
     "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "ai-empathy-prompt-tuner",
+    "repoPath": "D:\\work\\02-prompts\\ai-empathy-prompt-tuner",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "alim-cv",
+    "repoPath": "D:\\work\\alim-cv",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "alim-seo-writing",
+    "repoPath": "D:\\work\\seo-writing\\alim-seo-writing",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "alim.karim.profile",
+    "repoPath": "D:\\work\\aukgit\\alim.karim.profile",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "bright-buddy-block",
+    "repoPath": "D:\\work\\presentations-repos\\bright-buddy-block",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "bsrm-presentation-hiltrax",
+    "repoPath": "D:\\work\\presentations-repos\\bsrm-presentation-hiltrax",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "cat-my",
+    "repoPath": "D:\\work\\cat-my",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv worker/fixtures/README.md worker/fixtures/README.md.tmp-lcf",
+      "git mv worker/fixtures/README.md.tmp-lcf worker\\fixtures\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "worker\\fixtures\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:32Z",
+    "recipeId": "rcp-case-readme-1792811012",
+    "repository": "cat-presentation",
+    "repoPath": "D:/work/presentations-repos/cat-presentation",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv presentation/README.md presentation/README.md.tmp-lcf",
+      "git mv presentation/README.md.tmp-lcf presentation\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "presentation\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "common-linux-installer",
+    "repoPath": "D:\\work\\aukgit\\common-linux-installer",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "core",
+    "repoPath": "D:\\work\\03-aukgo\\core",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv testconsts/README.md testconsts/README.md.tmp-lcf",
+      "git mv testconsts/README.md.tmp-lcf testconsts\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "testconsts\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "digital-name-card",
+    "repoPath": "D:\\work\\digital-name-card",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "enum",
+    "repoPath": "D:\\work\\03-aukgo\\enum",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/05-failing-tests/README.md spec/05-failing-tests/README.md.tmp-lcf",
+      "git mv spec/05-failing-tests/README.md.tmp-lcf spec\\05-failing-tests\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\05-failing-tests\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "errorwrapper",
+    "repoPath": "D:\\work\\03-aukgo\\errorwrapper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/main/README.md cmd/main/README.md.tmp-lcf",
+      "git mv cmd/main/README.md.tmp-lcf cmd\\main\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\main\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "extendcore",
+    "repoPath": "D:\\work\\03-aukgo\\extendcore",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/README.md cmd/README.md.tmp-lcf",
+      "git mv cmd/README.md.tmp-lcf cmd\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "flat-slide-show",
+    "repoPath": "D:\\work\\presentations-repos\\flat-slide-show",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "gitlogger-new",
+    "repoPath": "D:\\work\\gitlogger-new",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "global-ppt-v1",
+    "repoPath": "D:\\work\\presentations-repos\\global-ppt-v1",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:33Z",
+    "recipeId": "rcp-case-readme-1792811013",
+    "repository": "go-email-reader",
+    "repoPath": "D:/work/go-email-reader",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv 04-conversation/README.md 04-conversation/README.md.tmp-lcf",
+      "git mv 04-conversation/README.md.tmp-lcf 04-conversation\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "04-conversation\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "icon-coding-guidelines",
+    "repoPath": "D:\\work\\icon-coding-guidelines",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "icon-studio-2026",
+    "repoPath": "D:/work/presentations-repos/icon-studio-2026",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "image-generate",
+    "repoPath": "D:/work/presentations-repos/image-generate",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "img-pdf",
+    "repoPath": "D:\\work\\img-pdf",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv tools/jpg2pdf/README.md tools/jpg2pdf/README.md.tmp-lcf",
+      "git mv tools/jpg2pdf/README.md.tmp-lcf tools\\jpg2pdf\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "tools\\jpg2pdf\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "ki-health-ppt",
+    "repoPath": "D:\\work\\presentations-repos\\ki-health-ppt",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "kihealth-branding",
+    "repoPath": "D:/work/presentations-repos/kihealth-branding",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/ki-health-client-delivery/README.md spec/ki-health-client-delivery/README.md.tmp-lcf",
+      "git mv spec/ki-health-client-delivery/README.md.tmp-lcf spec\\ki-health-client-delivery\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\ki-health-client-delivery\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "kubernetes-training",
+    "repoPath": "D:\\work\\aukgit\\kubernetes-training",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "lara-publishing",
+    "repoPath": "D:\\work\\lara-publishing",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "laravel-automation",
+    "repoPath": "D:\\work\\laravel-automation",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "network-fixer-hub",
+    "repoPath": "D:\\work\\network-fixer-hub",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv pendrive-fix-router/README.md pendrive-fix-router/README.md.tmp-lcf",
+      "git mv pendrive-fix-router/README.md.tmp-lcf pendrive-fix-router\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "pendrive-fix-router\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:34Z",
+    "recipeId": "rcp-case-readme-1792811014",
+    "repository": "password-reset-helper-powershell",
+    "repoPath": "D:\\work\\password-reset-helper-powershell",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "pathhelper",
+    "repoPath": "D:\\work\\03-aukgo\\pathhelper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/main/README.md cmd/main/README.md.tmp-lcf",
+      "git mv cmd/main/README.md.tmp-lcf cmd\\main\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\main\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "presentation-aug-2026-plans-alim",
+    "repoPath": "D:\\work\\presentations-repos\\presentation-aug-2026-plans-alim",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/slides/README.md src/slides/README.md.tmp-lcf",
+      "git mv src/slides/README.md.tmp-lcf src\\slides\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\slides\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "prompt-architect-v3",
+    "repoPath": "D:\\work\\commit-fix\\prompt-architect-v3",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "prompts-connect",
+    "repoPath": "D:\\work\\02-prompts\\prompts-connect",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "remix-of-presentation-riseup-asia",
+    "repoPath": "D:\\work\\presentations-repos\\remix-of-presentation-riseup-asia",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "repo-cache",
+    "repoPath": "D:/work/repo-cache",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv 12-muse-ai/README.md 12-muse-ai/README.md.tmp-lcf",
+      "git mv 12-muse-ai/README.md.tmp-lcf 12-muse-ai\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "12-muse-ai\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "seo-packages",
+    "repoPath": "D:\\work\\seo-packages",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "seo-packages",
+    "repoPath": "D:/work/presentations-repos/seo-packages",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "slack-ai-agent",
+    "repoPath": "D:\\work\\slack-ai-agent",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "slides-spec",
+    "repoPath": "D:\\work\\presentations-repos\\slides-spec",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:35Z",
+    "recipeId": "rcp-case-readme-1792811015",
+    "repository": "story-telling",
+    "repoPath": "D:/work/story-telling",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv story/README.md story/README.md.tmp-lcf",
+      "git mv story/README.md.tmp-lcf story\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "story\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "strhelper",
+    "repoPath": "D:\\work\\03-aukgo\\strhelper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/README.md cmd/README.md.tmp-lcf",
+      "git mv cmd/README.md.tmp-lcf cmd\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "ui-prompts-cat",
+    "repoPath": "D:\\work\\ui-prompts-cat",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "workflowy-ui",
+    "repoPath": "D:\\work\\workflowy-ui",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf",
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "workflowy",
+    "repoPath": "D:\\work\\workflowy",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf",
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "wp-exam",
+    "repoPath": "D:\\work\\wp-exam",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "wp-git-log",
+    "repoPath": "D:\\work\\wp-git-log",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv linter-scripts/test/README.md linter-scripts/test/README.md.tmp-lcf",
+      "git mv linter-scripts/test/README.md.tmp-lcf linter-scripts\\test\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "linter-scripts\\test\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "wp-html-automate",
+    "repoPath": "D:\\work\\wp-html-automate",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-plugin/riseup-asia-uploader/README.md wp-plugin/riseup-asia-uploader/README.md.tmp-lcf",
+      "git mv wp-plugin/riseup-asia-uploader/README.md.tmp-lcf wp-plugin\\riseup-asia-uploader\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-plugin\\riseup-asia-uploader\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "wp-link-manager",
+    "repoPath": "D:\\work\\wp-link-manager",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-deploy/README.md wp-deploy/README.md.tmp-lcf",
+      "git mv wp-deploy/README.md.tmp-lcf wp-deploy\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-deploy\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:03:36Z",
+    "recipeId": "rcp-case-readme-1792811016",
+    "repository": "wp-onboarding",
+    "repoPath": "D:\\work\\wp-onboarding",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-plugins/scripts/README.md wp-plugins/scripts/README.md.tmp-lcf",
+      "git mv wp-plugins/scripts/README.md.tmp-lcf wp-plugins\\scripts\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-plugins\\scripts\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "ai-empathy-prompt-tuner",
+    "repoPath": "D:\\work\\02-prompts\\ai-empathy-prompt-tuner",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "alim-cv",
+    "repoPath": "D:\\work\\alim-cv",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "alim-seo-writing",
+    "repoPath": "D:\\work\\seo-writing\\alim-seo-writing",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "alim.karim.profile",
+    "repoPath": "D:\\work\\aukgit\\alim.karim.profile",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "bright-buddy-block",
+    "repoPath": "D:\\work\\presentations-repos\\bright-buddy-block",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "bsrm-presentation-hiltrax",
+    "repoPath": "D:\\work\\presentations-repos\\bsrm-presentation-hiltrax",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "cat-my",
+    "repoPath": "D:\\work\\cat-my",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv worker/fixtures/README.md worker/fixtures/README.md.tmp-lcf",
+      "git mv worker/fixtures/README.md.tmp-lcf worker\\fixtures\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "worker\\fixtures\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "cat-presentation",
+    "repoPath": "D:/work/presentations-repos/cat-presentation",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv presentation/README.md presentation/README.md.tmp-lcf",
+      "git mv presentation/README.md.tmp-lcf presentation\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "presentation\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "common-linux-installer",
+    "repoPath": "D:\\work\\aukgit\\common-linux-installer",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "core",
+    "repoPath": "D:\\work\\03-aukgo\\core",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv testconsts/README.md testconsts/README.md.tmp-lcf",
+      "git mv testconsts/README.md.tmp-lcf testconsts\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "testconsts\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "digital-name-card",
+    "repoPath": "D:\\work\\digital-name-card",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:48Z",
+    "recipeId": "rcp-case-readme-1792811208",
+    "repository": "enum",
+    "repoPath": "D:\\work\\03-aukgo\\enum",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/05-failing-tests/README.md spec/05-failing-tests/README.md.tmp-lcf",
+      "git mv spec/05-failing-tests/README.md.tmp-lcf spec\\05-failing-tests\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\05-failing-tests\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "errorwrapper",
+    "repoPath": "D:\\work\\03-aukgo\\errorwrapper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/main/README.md cmd/main/README.md.tmp-lcf",
+      "git mv cmd/main/README.md.tmp-lcf cmd\\main\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\main\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "extendcore",
+    "repoPath": "D:\\work\\03-aukgo\\extendcore",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/README.md cmd/README.md.tmp-lcf",
+      "git mv cmd/README.md.tmp-lcf cmd\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "flat-slide-show",
+    "repoPath": "D:\\work\\presentations-repos\\flat-slide-show",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "gitlogger-new",
+    "repoPath": "D:\\work\\gitlogger-new",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "global-ppt-v1",
+    "repoPath": "D:\\work\\presentations-repos\\global-ppt-v1",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "go-email-reader",
+    "repoPath": "D:/work/go-email-reader",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv 04-conversation/README.md 04-conversation/README.md.tmp-lcf",
+      "git mv 04-conversation/README.md.tmp-lcf 04-conversation\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "04-conversation\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "icon-coding-guidelines",
+    "repoPath": "D:\\work\\icon-coding-guidelines",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "icon-studio-2026",
+    "repoPath": "D:/work/presentations-repos/icon-studio-2026",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "image-generate",
+    "repoPath": "D:/work/presentations-repos/image-generate",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "img-pdf",
+    "repoPath": "D:\\work\\img-pdf",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv tools/jpg2pdf/README.md tools/jpg2pdf/README.md.tmp-lcf",
+      "git mv tools/jpg2pdf/README.md.tmp-lcf tools\\jpg2pdf\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "tools\\jpg2pdf\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "ki-health-ppt",
+    "repoPath": "D:\\work\\presentations-repos\\ki-health-ppt",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "kihealth-branding",
+    "repoPath": "D:/work/presentations-repos/kihealth-branding",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/ki-health-client-delivery/README.md spec/ki-health-client-delivery/README.md.tmp-lcf",
+      "git mv spec/ki-health-client-delivery/README.md.tmp-lcf spec\\ki-health-client-delivery\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\ki-health-client-delivery\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "kubernetes-training",
+    "repoPath": "D:\\work\\aukgit\\kubernetes-training",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:49Z",
+    "recipeId": "rcp-case-readme-1792811209",
+    "repository": "lara-publishing",
+    "repoPath": "D:\\work\\lara-publishing",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "laravel-automation",
+    "repoPath": "D:\\work\\laravel-automation",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "network-fixer-hub",
+    "repoPath": "D:\\work\\network-fixer-hub",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv pendrive-fix-router/README.md pendrive-fix-router/README.md.tmp-lcf",
+      "git mv pendrive-fix-router/README.md.tmp-lcf pendrive-fix-router\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "pendrive-fix-router\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "password-reset-helper-powershell",
+    "repoPath": "D:\\work\\password-reset-helper-powershell",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "pathhelper",
+    "repoPath": "D:\\work\\03-aukgo\\pathhelper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/main/README.md cmd/main/README.md.tmp-lcf",
+      "git mv cmd/main/README.md.tmp-lcf cmd\\main\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\main\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "presentation-aug-2026-plans-alim",
+    "repoPath": "D:\\work\\presentations-repos\\presentation-aug-2026-plans-alim",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/slides/README.md src/slides/README.md.tmp-lcf",
+      "git mv src/slides/README.md.tmp-lcf src\\slides\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\slides\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "prompt-architect-v3",
+    "repoPath": "D:\\work\\commit-fix\\prompt-architect-v3",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "prompts-connect",
+    "repoPath": "D:\\work\\02-prompts\\prompts-connect",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "remix-of-presentation-riseup-asia",
+    "repoPath": "D:\\work\\presentations-repos\\remix-of-presentation-riseup-asia",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "repo-cache",
+    "repoPath": "D:/work/repo-cache",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv 12-muse-ai/README.md 12-muse-ai/README.md.tmp-lcf",
+      "git mv 12-muse-ai/README.md.tmp-lcf 12-muse-ai\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "12-muse-ai\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "seo-packages",
+    "repoPath": "D:\\work\\seo-packages",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "seo-packages",
+    "repoPath": "D:/work/presentations-repos/seo-packages",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv README.md README.md.tmp-lcf",
+      "git mv README.md.tmp-lcf readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:50Z",
+    "recipeId": "rcp-case-readme-1792811210",
+    "repository": "slack-ai-agent",
+    "repoPath": "D:\\work\\slack-ai-agent",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "slides-spec",
+    "repoPath": "D:\\work\\presentations-repos\\slides-spec",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/README.md spec/README.md.tmp-lcf",
+      "git mv spec/README.md.tmp-lcf spec\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "story-telling",
+    "repoPath": "D:/work/story-telling",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv story/README.md story/README.md.tmp-lcf",
+      "git mv story/README.md.tmp-lcf story\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "story\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "strhelper",
+    "repoPath": "D:\\work\\03-aukgo\\strhelper",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv cmd/README.md cmd/README.md.tmp-lcf",
+      "git mv cmd/README.md.tmp-lcf cmd\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "cmd\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "ui-prompts-cat",
+    "repoPath": "D:\\work\\ui-prompts-cat",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "workflowy-ui",
+    "repoPath": "D:\\work\\workflowy-ui",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf",
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "workflowy",
+    "repoPath": "D:\\work\\workflowy",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf",
+      "git mv spec/32-ui-design/06-workflowy-ui/02-search/_archive-v1/README.md.tmp-lcf spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "spec\\32-ui-design\\06-workflowy-ui\\02-search\\_archive-v1\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "wp-exam",
+    "repoPath": "D:\\work\\wp-exam",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv src/routes/README.md src/routes/README.md.tmp-lcf",
+      "git mv src/routes/README.md.tmp-lcf src\\routes\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "src\\routes\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "wp-git-log",
+    "repoPath": "D:\\work\\wp-git-log",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv linter-scripts/test/README.md linter-scripts/test/README.md.tmp-lcf",
+      "git mv linter-scripts/test/README.md.tmp-lcf linter-scripts\\test\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "linter-scripts\\test\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "wp-html-automate",
+    "repoPath": "D:\\work\\wp-html-automate",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-plugin/riseup-asia-uploader/README.md wp-plugin/riseup-asia-uploader/README.md.tmp-lcf",
+      "git mv wp-plugin/riseup-asia-uploader/README.md.tmp-lcf wp-plugin\\riseup-asia-uploader\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-plugin\\riseup-asia-uploader\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "wp-link-manager",
+    "repoPath": "D:\\work\\wp-link-manager",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-deploy/README.md wp-deploy/README.md.tmp-lcf",
+      "git mv wp-deploy/README.md.tmp-lcf wp-deploy\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-deploy\\readme.md"
+  },
+  {
+    "timestamp": "2026-10-24T03:06:51Z",
+    "recipeId": "rcp-case-readme-1792811211",
+    "repository": "wp-onboarding",
+    "repoPath": "D:\\work\\wp-onboarding",
+    "issue": "NTFS core.ignorecase README.md vs readme.md collision",
+    "strategy": "two_step_git_mv",
+    "steps": [
+      "git mv wp-plugins/scripts/README.md wp-plugins/scripts/README.md.tmp-lcf",
+      "git mv wp-plugins/scripts/README.md.tmp-lcf wp-plugins\\scripts\\readme.md",
+      "git add -A"
+    ],
+    "result": "success",
+    "canonicalPath": "wp-plugins\\scripts\\readme.md"
   }
 ]
