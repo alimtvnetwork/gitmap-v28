@@ -198,7 +198,10 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 | Manual ` + "`.git/config`" + ` identity editing | ` + "`gitmap user switch <alias> --project`" + ` | Safe profile management and project-binding persistence |
 | Raw ` + "`$env:LIBCLANG_PATH`" + ` / manual Cargo scripts | ` + "`gitmap cargo [args...]`" + ` / ` + "`gitmap rust status`" + ` | Automated LLVM/libclang discovery across Windows/Linux |
 | Raw ` + "`taskkill /F /PID`" + ` / ` + "`kill -9`" + ` | ` + "`gitmap kill <pid|name|:port>`" + ` | Cross-platform termination with IDE & shell safety guards |
-| Third bracket / lower commits (` + "`feat([module]): ...`" + `) | ` + "`gitmap cpf \"(module): ...\"`" + ` / ` + "`gitmap cfr`" + ` | Enforces uppercase TYPE(MODULE): without square brackets |
+| Raw ` + "`git pull`" + ` / ` + "`git pull origin <branch>`" + ` | ` + "`gitmap pull`" + ` (fallback ` + "`git pull`" + `) | High-speed multi-phase pull with conflict detection and branch tracking |
+| Raw ` + "`git commit`" + ` / ` + "`git push`" + ` | Dedicated GitMap commit verbs (` + "`cpr`" + `, ` + "`cpc`" + `, ` + "`cbf`" + `, ` + "`cfr`" + `, ` + "`cpf`" + `) | Atomic staging, formatting, and pushing. TOTAL BAN on raw git commits |
+| Third bracket / lower commits (` + "`feat([module]): ...`" + `) | ` + "`gitmap cpf \"MODULE - summary\"`" + ` / ` + "`gitmap cpr`" + ` | Enforces uppercase TYPE(MODULE): without square brackets or colons |
+| Misusing ` + "`gitmap cpf`" + ` for releases/chores | ` + "`gitmap cpr`" + ` (releases) / ` + "`gitmap cpc`" + ` (chores) | Strict verb taxonomy: NEVER use 'cpf' for releases, chores, or bugs |
 | Manual ` + "`~/.ssh/config`" + ` per-folder host aliases | ` + "`gitmap wg add <name> <dir> --ssh-key <key>`" + ` | SQLite-backed folder and child-folder SSH inheritance |
 
 ## Authoritative Documentation Registry (For LLM Ingestion)
@@ -216,11 +219,12 @@ The slug is the task ID: Title Case slugs from prompts are sanitized on store
 ## Operational Guardrails & Recursive Learning Directives
 1. **Learning & Skill Acquisition:** Run ` + "`gitmap llm train`" + ` to initialize or update GitMap skills. Never run broad keyword searches like ` + "`gitmap aum search \"train\"`" + ` to discover how commands work.
 2. **Mandatory Self-Skill Creation:** Autonomous AI models must persist the emitted skill to ` + "`.agents/skills/gitmap/SKILL.md`" + ` before beginning development.
-3. **Mandatory Pre-Flight Pull:** Always run ` + "`git pull`" + ` before modifying code.
+3. **Mandatory Pre-Flight Pull via GitMap:** Always run ` + "`gitmap pull`" + ` (fallback ` + "`git pull`" + `) before modifying code.
 4. **Scoped Search:** Always provide target directories and extensions to ` + "`gitmap aum search`" + ` (e.g. ` + "`gitmap aum search \"target\" cli --ext .go`" + `).
 5. **Prior Mistake Prevention:** Query ` + "`gitmap pe history-ai [N]`" + ` before applying CI bug fixes to inspect previous failure patterns.
 6. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
 7. **Coding Guidelines:** Max 8–15 lines per function, single return types with ` + "`*appfault.AppError`" + `, affirmative booleans.
+8. **GitMap Commit Standards:** Use dedicated GitMap verbs ('gitmap cpr' for releases, 'gitmap cpc' for chores, 'gitmap cbf' for bug fixes, 'gitmap cfr' for refactors, 'gitmap cpf' for features). TOTAL BAN on using 'cpf' for releases or chores. TOTAL BAN on raw 'git commit', 'git add -A', square brackets '[...]', colons inside arguments, and nested conventional prefixes like 'chore(release):' in the commit argument.
 `
 
 // GenerateSkillFile writes or updates the Antigravity skill markdown file.

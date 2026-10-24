@@ -74,9 +74,10 @@ Before any target repository file is touched, copied, or deleted, every target r
 Identify the repository's base branch (`main` or `master`). If current HEAD is on an ephemeral branch (`release/*`, `backup/*`, `feat/*`), switch back to the base branch and pull the latest remote changes:
 
 ```bash
-# Detect base branch and pull latest changes cleanly
+# Detect base branch and pull latest changes cleanly via GitMap
 git checkout <base_branch>
-git pull origin <base_branch> --no-rebase
+gitmap pull
+# (fallback if gitmap is unavailable: git pull origin <base_branch> --no-rebase)
 ```
 
 ### Step 2: Timestamped Safety Backup Branch

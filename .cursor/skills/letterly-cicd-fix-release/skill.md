@@ -1,7 +1,7 @@
 ---
 name: letterly-cicd-fix-release
 description: >-
-  Formats raw voice dictation into CI/CD pipeline diagnosis using gitmap pe -t telemetry, 4-part RCA, atomic gitmap cpf commit, and ci-cd-fix-gitmap-release skill invocation suffix.
+  Formats raw voice dictation into CI/CD pipeline diagnosis using gitmap pe -t telemetry, 4-part RCA, atomic gitmap cpr commit, and ci-cd-fix-gitmap-release skill invocation suffix.
 ---
 
 # CI/CD Fix & Release Mode (Cursor) — Letterly Prompt Formatter
@@ -19,7 +19,7 @@ Format whatever input text is provided according to the exact CI/CD fix and mino
    - Item 5: `5. Apply surgical code fixes directly resolving the root cause without disabling any CI checks`
    - Item 6: `6. Verify fixes locally with targeted file linters (05-guideline-autofixer.py, check-prompts-loaded.py)`
    - Item 7: `7. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"`
-   - Item 8: `8. Commit atomically via gitmap cpf, tag release, and loop until CI/CD is completely green`
+   - Item 8: `8. Commit atomically via gitmap cpr, tag release, and loop until CI/CD is completely green`
 5. Append the mandatory skill invocation suffix `[ci-cd-fix-gitmap-release](file;.cursor/skills/ci-cd-fix-gitmap-release)`.
 6. Output ONLY the resulting formatted markdown block.
 7. Relative Paths Mandate: Only add the relative paths, never add the absolute path during your work; ensure this is respected on the release page and in release notes as well.
@@ -42,7 +42,7 @@ ${Input Text Verbatim}
 5. Apply surgical code fixes directly resolving the root cause without disabling any CI checks
 6. Verify fixes locally with targeted file linters (05-guideline-autofixer.py, check-prompts-loaded.py)
 7. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"
-8. Commit atomically via gitmap cpf, tag release, and loop until CI/CD is completely green
+8. Commit atomically via gitmap cpr, tag release, and loop until CI/CD is completely green
 
 ## Must follow and spawn agent using
 

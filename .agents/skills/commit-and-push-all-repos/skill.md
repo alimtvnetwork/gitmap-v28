@@ -19,7 +19,7 @@ Autonomously scans the entire workspace root directory (e.g. `D:\work` on Window
    - Non-destructive and safe: skips detached HEAD states to prevent orphan commit branches.
 
 3. **Pre-Commit Pooling / Pulling:**
-   - Non-destructively pulls latest remote changes (`git pull origin <branch> --no-rebase`) prior to committing dirty changes to incorporate upstream updates cleanly and eliminate merge conflicts.
+   - Non-destructively pulls latest remote changes (`gitmap pull`, fallback `gitmap pull` (fallback `git pull origin <branch> --no-rebase`)) prior to committing dirty changes to incorporate upstream updates cleanly and eliminate merge conflicts.
    - Configurable override via `--no-pull` for offline or isolated runs.
 
 4. **Atomic Conventional Commits:**

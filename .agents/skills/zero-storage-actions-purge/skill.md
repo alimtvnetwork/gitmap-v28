@@ -19,7 +19,7 @@ Autonomously inspects repositories, identifies bloated GitHub Actions storage (a
 
 ## Workflow Execution Steps
 
-1. **Defensive Git Pull:** Run `git pull` on the target repository before modifying any workflows or scripts.
+1. **Defensive Git Pull:** Run `gitmap pull` (fallback `git pull`) on the target repository before modifying any workflows or scripts.
 2. **Audit & Fix Workflows:**
    - Scan `.github/workflows/` for missing `retention-days: 1` on `actions/upload-artifact`.
    - Remove redundant or massive object caches.

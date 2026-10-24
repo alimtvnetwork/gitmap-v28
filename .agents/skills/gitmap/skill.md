@@ -30,7 +30,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
-| ❌ Third brackets or lower-case commits (`gitmap cpf "[module]: feat: ..."`, `gitmap cbf "[module]: ..."`) | ✅ `gitmap cpf "(module): <summary>"`, `gitmap cbf "(module): <summary>"`, `gitmap cfr "(module): <summary>"` | GitMap commit formatter strictly enforces uppercase `TYPE(MODULE): <summary>` with parentheses; square brackets `[...]` are strictly prohibited. |
+| ❌ Raw `git pull`, `git pull origin <branch>`, `git pull --rebase` | ✅ `gitmap pull [repo]` (or `gitmap pull` in current repo, alias `gitmap p`), `gitmap pull-all` (alias `gitmap pa`) | High-speed multi-phase pull with conflict detection, branch tracking, and auto-stash/rebase handling. TOTAL BAN on raw `git pull` without attempting `gitmap pull` first. |
+| ❌ Third brackets, lowercase conventional syntax, colons in arguments, or misusing commit verbs (`gitmap cpf "chore(release): ..."` or `gitmap cpf "[module]: feat: ..."` or `git commit -m "..."`) | ✅ `gitmap cpr "MODULE - <summary>"` (release), `gitmap cpc "MODULE - <summary>"` (chore), `gitmap cbf "MODULE - <summary>"` (bug fix), `gitmap cfr "MODULE - <summary>"` (refactor), `gitmap cpf "MODULE - <summary>"` (feature) | Strict verb taxonomy: NEVER use `cpf` for releases, chores, or bugs. GitMap automatically prepends the sovereign type. TOTAL BAN on square brackets `[...]`, colons in arguments, raw `git commit`, and conventional prefixes (`chore(...)`, `feat(...)`, `fix(...)`) inside arguments. |
 | ❌ Raw `$env:LIBCLANG_PATH` exports or manual Cargo wrapper scripts | ✅ `gitmap cargo [args...]` or `gitmap rust status` | Automated LLVM/libclang path discovery on Windows and Linux, injecting `LIBCLANG_PATH` and `PATH` transparently. |
 | ❌ Raw `taskkill /F /PID <pid>` or `kill -9 <pid>` | ✅ `gitmap kill <pid|name|:port> [--force] [--tree]` (alias: `gitmap terminate`) | Cross-platform process termination with safety guards protecting system-critical processes, IDEs, and shells. |
 | ❌ Saving temporary scratch or test scripts into repo git tree | ✅ `gitmap rc text "<content>" --slug <slug> --ext .ps1` | Centralized script storage in `repo-cache` (`repo-storage`) for permanent cross-repo reuse without polluting git worktrees. |
@@ -147,23 +148,25 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 #### Command Details & Behavioral Guidelines
 - `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap cpf "(module): <summary>"` — Stage, commit, and push feature branch (GitMap formats to `FEAT(MODULE): <summary>`).
-- `gitmap cbf "(module): <summary>"` (alias: `gitmap cpb`) — Stage, commit, and push bugfix branch (GitMap formats to `FIX(MODULE): <summary>`).
-- `gitmap cfr "(module): <summary>"` — Stage, commit, and push refactor branch (GitMap formats to `REFACTOR(MODULE): <summary>`).
-- `gitmap cpc "(module): <summary>"` — Stage, commit, and push chore branch (GitMap formats to `CHORE(MODULE): <summary>`).
-- `gitmap cpr "(module): <summary>"` — Stage, commit, and push release branch (GitMap formats to `RELEASE(MODULE): <summary>`).
-- `gitmap pcp "(module): <summary>"` — Pull latest, commit, and push with preflight verification.
+- `gitmap cpf "MODULE - <summary>"` (or `gitmap cpf "(MODULE): <summary>"`) — Features ONLY. Stages all, formats with `Feature: MODULE - <summary>`, and pushes. NEVER use for chores, releases, or bugs.
+- `gitmap cbf "MODULE - <summary>"` (alias: `gitmap cpb`) — Bug fixes ONLY. Stages all, formats with `Bug: MODULE - <summary>`, and pushes.
+- `gitmap cfr "MODULE - <summary>"` — Refactoring ONLY. Stages all, formats with `Refactor: MODULE - <summary>`, and pushes.
+- `gitmap cpc "MODULE - <summary>"` — Chores, docs, sync, and maintenance ONLY. Stages all, formats with `Chore: MODULE - <summary>`, and pushes.
+- `gitmap cpr "MODULE - <summary>"` — Releases ONLY. Stages all, formats with `Release: MODULE - <summary>`, and pushes. MANDATORY verb for version bumps and releases!
+- `gitmap pcp "MODULE - <summary>"` — Pull latest with rebase, commit, and push with preflight verification.
 - `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
 - `gitmap workgroup bind <dir> <key>` — Bind folder to dedicated SSH key.
 - `gitmap workgroup test-ssh [name|dir]` — Test remote SSH handshake authentication against GitHub/GitLab.
-- `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository.
+- `gitmap pull [repo]` (alias `gitmap p`) — Pull targeted repository. In current directory, simply run `gitmap pull`.
 - `gitmap pull-all` (alias `gitmap pa`) — Pull all repositories in workspace.
 - `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
-- **ZERO THIRD BRACKETS IN COMMITS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets"). Use standard round parentheses: `(module)`. If square brackets are passed, GitMap automatically sanitizes them to round parentheses.
-- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf "(module): <summary>"` or an explicit remote push.
+- **STRICT VERB TAXONOMY (NEVER MISUSE CPF):** Never use `gitmap cpf` for chore, release, or bug fix tasks. Use `cpr` for releases, `cpc` for chores, `cbf` for bug fixes, `cfr` for refactors, and `cpf` for features.
+- **ZERO NESTED CONVENTIONAL PREFIXES:** Never write redundant prefixes inside GitMap arguments (e.g. BANNED: `gitmap cpf "chore(release): bump version"`, `gitmap cpr "release: v1.0"`, `gitmap cpf "feat: ..."`). GitMap automatically adds the prefix!
+- **ZERO THIRD BRACKETS & COLONS IN ARGUMENTS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets") or colons `:` inside the argument. Use space-padded hyphen: `"MODULE - summary"`. If square brackets are passed, GitMap automatically sanitizes them to round parentheses.
+- **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf`, `cpc`, `cbf`, `cfr`, or `cpr`.
 
 ### 8. Native Toolchains & Process Termination (Rust, Cargo, Kill)
 - `gitmap cargo [args...]` (alias: `gitmap crg`) — Native Cargo runner with automatic LLVM/libclang path injection (`LIBCLANG_PATH` and `PATH`) and install suggestions.
@@ -714,20 +717,20 @@ Disciplined atomic commit workflow enforcing hyphen-separated messages and remot
 gitmap commit "wip - draft initial types and interfaces"
 gitmap cm "wip - draft initial types and interfaces"
 
-# Feature commit (auto-prefixes 'Feature: [skills]: ', stages all, and pushes to remote)
-gitmap cpf "[skills]: enrich gitmap skill with 12 real world categories"
+# Feature commit (auto-prefixes 'Feature: SKILLS - ...', stages all, and pushes to remote)
+gitmap cpf "SKILLS - enrich gitmap skill with 12 real world categories"
 
-# Bugfix commit (auto-prefixes 'Bug: [cloner]: ', stages all, and pushes to remote)
-gitmap cbf "[cloner]: correct concurrency flag parsing and worker limits"
+# Bugfix commit (auto-prefixes 'Bug: CLONER - ...', stages all, and pushes to remote)
+gitmap cbf "CLONER - correct concurrency flag parsing and worker limits"
 
-# Chore/Maintenance commit (auto-prefixes 'Chore: [docs]: ', stages all, and pushes)
-gitmap cpc "[docs]: realign companion skills and remove help flags"
+# Chore/Maintenance commit (auto-prefixes 'Chore: DOCS - ...', stages all, and pushes)
+gitmap cpc "DOCS - realign companion skills and remove help flags"
 
-# Release chore commit (auto-prefixes release chore, stages, and pushes)
-gitmap cpr "release - bump minor version and update changelog"
+# Release commit (auto-prefixes 'Release: RELEASE - ...', stages, and pushes)
+gitmap cpr "RELEASE - bump minor version and update changelog"
 
 # Pull latest with rebase, stage all, commit, and push in one verified flow
-gitmap pcp "skills - sync cross-platform runner templates"
+gitmap pcp "SKILLS - sync cross-platform runner templates"
 
 # Apply automated repository remediation (stash, discard, or auto-fix)
 gitmap fix all -y
@@ -1067,7 +1070,7 @@ gitmap os dev-clean
 ## Operational Guardrails & Non-Negotiable Invariants
 
 1. **Learning & Skill Acquisition:** Run `gitmap llm train` (or `gitmap train --loop`) to initialize or verify GitMap skills. Run `gitmap llm train muse --days 7` when performing Muse memory IO synchronization. Never run broad keyword searches like `gitmap aum search "train"` to discover how commands work.
-2. **Mandatory Pre-Flight Pull:** Always run `git pull` before modifying code.
+2. **Mandatory Pre-Flight Pull via GitMap:** Always run `gitmap pull` (fallback `git pull`) before modifying code.
 3. **Scoped Search:** Always provide target directories and extensions to `gitmap aum search` (e.g. `gitmap aum search "target" cli --ext .go`).
 4. **File Size & Binary Guard:** Respect 500 KB limit (Rule R19); never commit test binaries or temp artifacts.
 5. **Coding Guidelines:** Max 8–15 lines per function, single return types with `*appfault.AppError`, affirmative booleans (`isReady`, `hasCache`).
@@ -1082,3 +1085,4 @@ gitmap os dev-clean
 14. **Total Ban on Raw Process Termination:** NEVER execute raw `taskkill /F /PID <pid>`, `Stop-Process`, or `kill -9` directly. You MUST use `gitmap ports [port]`, `gitmap os user kill <user>`, `gitmap vscode repair --kill`, or managed wrapper `gitmap pwsh "Stop-Process -Id <pid> -Force"`.
 15. **Total Ban on Python Folder Sizing Scripts:** NEVER run `os.walk` or `sys.getsizeof` inline scripts to compute folder sizes. You MUST use native compiled `gitmap disk [--json]`, `gitmap os storage`, and `gitmap os dev-clean`.
 16. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
+17. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `MODULE - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument.

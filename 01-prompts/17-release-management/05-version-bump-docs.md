@@ -104,7 +104,7 @@ All documentation version bumps and releases MUST strictly follow this 5-step Gi
                    │
                    ▼
 [STEP 3] Stage & Commit on Release Branch:
-         git commit -m "docs(release): bump version in documentation to vX.Y.Z"
+         gitmap cpc "DOCS - bump version in documentation to vX.Y.Z"
                    │
                    ▼
 [STEP 4] Create Annotated Git Tag on Release Commit:
@@ -125,6 +125,13 @@ All documentation version bumps and releases MUST strictly follow this 5-step Gi
 
 ### Detailed Breakdown of the 5 Steps:
 
+> [!IMPORTANT]
+> **GitMap Semantic Release Directives:**
+> - **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "RELEASE - <version> <scope>"`.
+> - **TOTAL BAN ON CPF FOR RELEASES:** Never use `gitmap cpf` for releases (it stamps commits with `Feature:`).
+> - **TOTAL BAN ON NESTED PREFIXES:** Never write `chore(release):`, `release:`, or `feat:` inside the message argument. GitMap adds the prefix automatically!
+> - **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"RELEASE - <version> <scope>"` with hyphen and no square brackets `[...]`.
+
 1. **Step 1: Create & Switch to Release Branch:**
    Create and checkout the dedicated release branch first: `git checkout -b release/vX.Y.Z`. Releases MUST NOT be committed directly to `main` without a release branch.
 2. **Step 2: Bump Version on Release Branch via Python Script:**
@@ -132,7 +139,7 @@ All documentation version bumps and releases MUST strictly follow this 5-step Gi
    - The bump version script must be adapted based on the target repository architecture to update `version.json`, `package.json`, `readme.md`, `changelog.md`, and install snippets.
    - If the script needs changes for this repo, fix it before running.
 3. **Step 3: Commit in Release Branch:**
-   Stage and commit all version bump and generated release files on the release branch: `git commit -m "docs(release): bump version in documentation to vX.Y.Z"`.
+   Stage and commit all version bump and generated release files on the release branch: `gitmap cpc "DOCS - bump version in documentation to vX.Y.Z"`.
 4. **Step 4: Create Annotated Git Tag:**
    Create the annotated tag on that release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
 5. **Step 5: Put Commit Back to Main Branch & Push:**
@@ -142,7 +149,7 @@ All documentation version bumps and releases MUST strictly follow this 5-step Gi
 
 ## Pre-Flight Checks (Fail-Fast)
 
-- **Git Sync & Clean State:** Run `git status`. If there are pending uncommitted changes, resolve and commit them first. Then run `git pull` to fetch and merge upstream changes.
+- **Git Sync & Clean State:** Run `gitmap status` (or `gitmap st`). If there are pending uncommitted changes, resolve and commit them first. Then run `gitmap pull` (fallback `git pull`) to fetch and merge upstream changes.
 - **Force Override:** If user said `force`, ignore cached scripts and regenerate the Python bump script from scratch.
 - **Idempotency Guard:** If the canonical version file already equals the computed new version, STOP. Someone half-ran a release. Detect what is already done, resume from the first incomplete step, do NOT double-bump.
 - **Placeholder Guard:** If the previous version's changelog entry is empty or a placeholder (`TBD`, `WIP`, no bullets), refuse to release until it is filled or the user overrides.
@@ -256,7 +263,7 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 - [ ] Pin the latest version into root `readme.md` (badges, text, install snippets; FATAL IF MISSED).
 - [ ] Read `version.json` for Changelog formatting rules and prepend entry in `changelog.md`.
 - [ ] Run post-bump sync scripts (`npm run sync` or repository generator) to update spec trees and manifests.
-- [ ] Step 3: Stage and commit all release changes on release branch: `git commit -m "docs(release): bump version in documentation to vX.Y.Z"`.
+- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpc "DOCS - bump version in documentation to vX.Y.Z"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
 - [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Generate release notes file with Quick Install one-liners and changelog, and publish via `gh release create --notes-file` (NEVER bare `--generate-notes`).

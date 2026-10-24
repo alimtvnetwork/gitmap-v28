@@ -16,7 +16,7 @@ Format input text according to exact minor release template below without conver
    - Item 5: `5. Enforce zero-storage GitHub Actions rules (zero routine artifact uploads)`
    - Item 6: `6. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"`
    - Item 7: `7. Consolidate and update release notes in root changelog.md and manifests`
-   - Item 8: `8. Commit atomically via gitmap cpf "<module> - release minor version" and push release tag to remote tracking branch`
+   - Item 8: `8. Commit atomically via gitmap cpr "RELEASE - release minor version" and push release tag to remote tracking branch`
 6. Append mandatory release skill invocation suffix `[minor-bump](file;.agents/skills/minor-bump)`.
 7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
 8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
@@ -41,7 +41,7 @@ ${Input Text Verbatim}
 5. Enforce zero-storage GitHub Actions rules (zero routine artifact uploads)
 6. Execute minor version bump via python 03-ai-scripts/37-bump-version.py -t minor -s "<summary>"
 7. Consolidate and update release notes in root changelog.md and manifests
-8. Commit atomically via gitmap cpf "<module> - release minor version" and push release tag to remote tracking branch
+8. Commit atomically via gitmap cpr "RELEASE - release minor version" and push release tag to remote tracking branch
 
 ## Must follow and spawn agent using
 

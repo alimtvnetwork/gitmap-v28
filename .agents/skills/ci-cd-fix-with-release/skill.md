@@ -462,7 +462,7 @@ Update `.ai-memory/cicd-index.md` in the same operation. Never delete existing e
 ### Step R-1: Pre-Flight Checks
 
 1. Run `git status`. If uncommitted changes remain: commit them now with `fix(ci): pre-release cleanup`.
-2. Run `git pull` to merge any upstream changes.
+2. Run `gitmap pull` (fallback `git pull`) to merge any upstream changes.
 3. Read the current version from `version.json` (canonical source). Print it.
 4. Idempotency guard: if the canonical version already equals the computed new version, STOP. Someone half-ran a release. Detect what is done, resume from the first incomplete step. Do NOT double-bump.
 5. Placeholder guard: if the previous version's changelog entry is empty or contains `TBD`/`WIP`, refuse to release until it is filled (or the user overrides).
@@ -619,7 +619,7 @@ Include: previous version, new version, step number and name, command run, full 
 - [ ] Phase 3 (Final Verification) passed with exit code 0 legitimately (no CLI linters or tests bypassed).
 - [ ] Confirmed that NO CLI linting (`golangci-lint`, `eslint`, `markdownlint`, `tsc`, `pytest`), build steps, or test runs were skipped, commented out, or bypassed with `|| true`.
 - [ ] Git working tree was clean before release steps.
-- [ ] `git pull` completed with no conflicts.
+- [ ] `gitmap pull` completed with no conflicts.
 - [ ] Previous and new versions both stated explicitly.
 - [ ] Executed 5-step release branching lifecycle: `release/vX.Y.Z` created first, bumped via repository-aware Python bump script, committed on release branch, tagged `vX.Y.Z`, merged back into `main`, and pushed to remote.
 - [ ] `python 03-ai-scripts/29-release-orchestrator.py` or `.ai-memory/release/bump_versions.py` or `03-ai-scripts/37-bump-version.py` ran successfully.

@@ -1,3 +1,7 @@
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Source: 02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md -->
+<!-- Regenerate with: npm run sync:guidelines -->
+
 # 31. Compiled Simple Coding Guidelines (AI Blind-Follow)
 
 Version: 1.5.0
@@ -1759,3 +1763,18 @@ R21: pass
 
 <full corrected file or unified diff>
 ```
+
+---
+
+## 21. GitMap Command Discipline, Pre-Flight Pull & Semantic Commit Standards
+
+1. **Mandatory Pre-Flight Pull:** Always run `gitmap pull` (or `gitmap pull <repo>`, alias `gitmap p`) before modifying or creating code. TOTAL BAN on raw `git pull` without attempting `gitmap pull` first.
+2. **Dedicated Semantic Commit Verbs:** Choose the exact verb matching the task category:
+   - Features: `gitmap cpf "MODULE - <summary>"`
+   - Bug Fixes: `gitmap cbf "MODULE - <summary>"` (or `cpb`)
+   - Refactoring: `gitmap cfr "MODULE - <summary>"`
+   - Chores / Sync / Docs: `gitmap cpc "MODULE - <summary>"`
+   - Releases / Version Bumps: `gitmap cpr "MODULE - <summary>"`
+3. **Strict Verb Discipline (No CPF Misuse):** NEVER use `gitmap cpf` for chore, release, or bug fix tasks. Releases MUST use `gitmap cpr`. Chores MUST use `gitmap cpc`.
+4. **Commit Formatting Standard:** Format as `"MODULE - summary"`. TOTAL BAN on square brackets `[...]` (third brackets) and colons `:` inside arguments. TOTAL BAN on nested conventional prefixes like `chore(release):`, `feat(...)`, `fix(...)` inside arguments (GitMap adds the sovereign prefix automatically).
+5. **No Per-File Commits & No Raw Git Commits:** TOTAL BAN on raw `git commit`, `git add -A`, or per-file commits. Accumulate all changes across the turn and commit together in a single atomic GitMap command at the final step.
