@@ -1,15 +1,29 @@
 package cmdplans
 
-// PlanStatusType represents the lifecycle state of an architectural plan.
-type PlanStatusType string
+import "github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/enums"
+
+// PlanStatusType aliases the strongly-typed enum from the enums package.
+type PlanStatusType = enums.PlanStatusType
+
+// PlansFilterModeType aliases the filter mode enum.
+type PlansFilterModeType = enums.PlansFilterModeType
+
+// PlansOutputFormatType aliases the output format enum.
+type PlansOutputFormatType = enums.PlansOutputFormatType
 
 const (
 	// StatusCompleted indicates a plan whose tasks have been verified and finished.
-	StatusCompleted PlanStatusType = "Completed"
+	StatusCompleted = enums.PlanStatusCompleted
 	// StatusPending indicates a plan queued for future execution.
-	StatusPending PlanStatusType = "Pending"
+	StatusPending = enums.PlanStatusPending
 	// StatusInProgress indicates a plan currently under active execution.
-	StatusInProgress PlanStatusType = "In Progress"
+	StatusInProgress = enums.PlanStatusInProgress
+	// StatusActive indicates a plan active in execution.
+	StatusActive = enums.PlanStatusActive
+	// StatusArchived indicates an archived plan.
+	StatusArchived = enums.PlanStatusArchived
+	// StatusFailed indicates a failed plan.
+	StatusFailed = enums.PlanStatusFailed
 )
 
 // PlanItem represents a single discovered plan metadata record.
@@ -43,6 +57,8 @@ type PlansReport struct {
 // PlansOptions configures the execution parameters for the plans command.
 type PlansOptions struct {
 	Limit           int
+	Format          enums.PlansOutputFormatType
+	FilterMode      enums.PlansFilterModeType
 	IsJSON          bool
 	IsYAML          bool
 	IsAll           bool

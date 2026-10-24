@@ -4,6 +4,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/enums"
 )
 
 var (
@@ -19,7 +22,7 @@ func parseIDAndSlug(fileName string) (int, string) {
 		return id, matches[2]
 	}
 
-	slug := strings.TrimSuffix(fileName, ".md")
+	slug := strings.TrimSuffix(fileName, constants.ExtMarkdown)
 
 	return 0, slug
 }
@@ -34,27 +37,37 @@ func extractTitleFromLine(line string) (string, bool) {
 	return "", false
 }
 
-func parseStatusToken(token string) PlanStatusType {
-	upper := strings.ToUpper(strings.TrimSpace(token))
-	if strings.Contains(upper, "COMPLETE") || strings.Contains(upper, "DONE") {
-		return StatusCompleted
+func matchSecondaryStatus(upper string) enums.PlanStatusType {
+	if strings.Contains(upper, "ARCHIV") {
+		return enums.PlanStatusArchived
+	}
+	if strings.Contains(upper, "FAIL") {
+		return enums.PlanStatusFailed
 	}
 
-	if strings.Contains(upper, "PROGRESS") || strings.Contains(upper, "ACTIVE") {
-		return StatusInProgress
-	}
-
-	return StatusPending
+	return enums.PlanStatusPending
 }
 
-func extractStatusFromLine(line string) (PlanStatusType, bool) {
+func parseStatusToken(token string) enums.PlanStatusType {
+	upper := strings.ToUpper(strings.TrimSpace(token))
+	if strings.Contains(upper, "COMPLETE") || strings.Contains(upper, "DONE") {
+		return enums.PlanStatusCompleted
+	}
+	if strings.Contains(upper, "PROGRESS") || strings.Contains(upper, "ACTIVE") {
+		return enums.PlanStatusInProgress
+	}
+
+	return matchSecondaryStatus(upper)
+}
+
+func extractStatusFromLine(line string) (enums.PlanStatusType, bool) {
 	trimmed := strings.TrimSpace(line)
 	matches := statusLineRegex.FindStringSubmatch(trimmed)
 	if len(matches) >= 2 {
 		return parseStatusToken(matches[1]), true
 	}
 
-	return StatusPending, false
+	return enums.PlanStatusPending, false
 }
 
 func formatFallbackTitle(slug string) string {

@@ -1,6 +1,7 @@
 package cmdsync
 
 import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
@@ -11,7 +12,7 @@ func RenderSyncHelp() {
 
 func buildSyncHelpMenu() termout.HelpMenu {
 	return termout.HelpMenu{
-		Title: "Repository Baseline Sync (gitmap sync)",
+		Title: constants.MenuTitle,
 		UsageLines: []string{
 			"gitmap sync <target> [flags]",
 			"gitmap sy <target> [flags]",
@@ -37,14 +38,14 @@ func buildSyncFooterFlags() []termout.CommandEntry {
 
 func buildSyncTargetsSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Configuration Sync Targets",
+		Title: constants.MenuSection,
 		Entries: []termout.CommandEntry{
-			{Command: "all", Description: "Run every target below in sequence (full baseline)"},
-			{Command: "ignore", Description: "Union-merge curated defaults into .gitignore"},
-			{Command: "attributes", Description: "Union-merge curated defaults into .gitattributes"},
-			{Command: "lfs-install", Description: "Run git-lfs setup and configure large file filters"},
-			{Command: "prettier-ignore", Description: "Union-merge curated defaults into .prettierignore"},
-			{Command: "prettier-rc", Description: "Merge curated JSON formatting defaults into .prettierrc"},
+			{Command: constants.TargetAll, Description: "Run every target below in sequence (full baseline)"},
+			{Command: constants.TargetIgnore, Description: "Union-merge curated defaults into .gitignore"},
+			{Command: constants.TargetAttributes, Description: "Union-merge curated defaults into .gitattributes"},
+			{Command: constants.TargetLFSInstall, Description: "Run git-lfs setup and configure large file filters"},
+			{Command: constants.TargetPrettierIgnore, Description: "Union-merge curated defaults into .prettierignore"},
+			{Command: constants.TargetPrettierRC, Description: "Merge curated JSON formatting defaults into .prettierrc"},
 		},
 	}
 }

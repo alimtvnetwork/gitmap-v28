@@ -9,6 +9,8 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
+	statusconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus/constants"
+	statusenums "github.com/alimtvnetwork/gitmap-v28/cli/cmdstatus/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/glyphs"
@@ -125,14 +127,16 @@ type statusTableContext struct {
 }
 
 func newStatusTableContext() *statusTableContext {
+	cols := statusenums.AllStatusTableColumns()
+
 	return &statusTableContext{
 		Rows:      make([]statusRow, 0),
-		MaxRepo:   len(constants.StatusTableColumns[0]),
-		MaxBranch: len(constants.StatusTableColumns[1]),
-		MaxStatus: len(constants.StatusTableColumns[2]),
-		MaxSync:   len(constants.StatusTableColumns[3]),
-		MaxStash:  len(constants.StatusTableColumns[4]),
-		MaxFiles:  len(constants.StatusTableColumns[5]),
+		MaxRepo:   len(cols[0].String()),
+		MaxBranch: len(cols[1].String()),
+		MaxStatus: len(cols[2].String()),
+		MaxSync:   len(cols[3].String()),
+		MaxStash:  len(cols[4].String()),
+		MaxFiles:  len(cols[5].String()),
 	}
 }
 
@@ -194,17 +198,18 @@ func (c *statusTableContext) updateColumnWidths(r statusRow) {
 }
 
 func printStatusTableHeader(c *statusTableContext) {
-	const colGap = "   "
+	colGap := statusconstants.StatusTableColGap
 	dividerLen := calculateStatusDividerLen(c)
+	cols := statusenums.AllStatusTableColumns()
 
 	fmt.Printf("  %s%s%s%s%s%s%s%s%s%s%s%s%s\n",
 		constants.ColorWhite,
-		cmdpull.PadVisual(constants.StatusTableColumns[0], c.MaxRepo), colGap,
-		cmdpull.PadVisual(constants.StatusTableColumns[1], c.MaxBranch), colGap,
-		cmdpull.PadVisual(constants.StatusTableColumns[2], c.MaxStatus), colGap,
-		cmdpull.PadVisual(constants.StatusTableColumns[3], c.MaxSync), colGap,
-		cmdpull.PadVisual(constants.StatusTableColumns[4], c.MaxStash), colGap,
-		cmdpull.PadVisual(constants.StatusTableColumns[5], c.MaxFiles),
+		cmdpull.PadVisual(cols[0].String(), c.MaxRepo), colGap,
+		cmdpull.PadVisual(cols[1].String(), c.MaxBranch), colGap,
+		cmdpull.PadVisual(cols[2].String(), c.MaxStatus), colGap,
+		cmdpull.PadVisual(cols[3].String(), c.MaxSync), colGap,
+		cmdpull.PadVisual(cols[4].String(), c.MaxStash), colGap,
+		cmdpull.PadVisual(cols[5].String(), c.MaxFiles),
 		constants.ColorReset)
 
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, strings.Repeat("-", dividerLen), constants.ColorReset)
@@ -215,11 +220,12 @@ func calculateStatusDividerLen(c *statusTableContext) int {
 }
 
 func printStatusTableRow(c *statusTableContext, r statusRow, pastelColor string) {
-	const colGap = "   "
+	colGap := statusconstants.StatusTableColGap
 	if r.Missing {
-		fmt.Printf("  %s%s%s%s%s✖ not found%s\n",
+		missingText := fmt.Sprintf("%s%s%s", constants.ColorRed, statusconstants.StatusNotFoundText, constants.ColorReset)
+		fmt.Printf("  %s%s%s%s%s\n",
 			pastelColor, cmdpull.PadVisual(r.RepoName, c.MaxRepo), constants.ColorReset, colGap,
-			constants.ColorRed, constants.ColorReset)
+			missingText)
 
 		return
 	}
@@ -276,26 +282,26 @@ func collectMissingSlugs(c *statusTableContext) []string {
 
 func printMissingBanner(count int) {
 	fmt.Printf("  %s%s%s\n", constants.ColorDim, constants.TermTableRule, constants.ColorReset)
-	fmt.Printf("  %s▲ %d missing repository(ies) detected:%s\n",
-		constants.ColorYellow, count, constants.ColorReset)
+	bannerMsg := fmt.Sprintf(statusconstants.MissingRepoBannerFmt, count)
+	fmt.Printf("%s%s%s\n", constants.ColorYellow, bannerMsg, constants.ColorReset)
 }
 
 func printMissingItems(slugs []string) {
 	for _, slug := range slugs {
-		fmt.Printf("     • %s%s%s\n", constants.ColorRed, slug, constants.ColorReset)
+		fmt.Printf("%s%s%s%s\n", statusconstants.MissingRepoItemBullet, constants.ColorRed, slug, constants.ColorReset)
 	}
 
 	fmt.Println()
 }
 
 func printMissingRemediationSteps(slugs []string) {
-	fmt.Println("  To resolve missing repositories:")
-	fmt.Println("  1. Relocate to a new folder:")
-	fmt.Println("     $ gitmap scan-folder update <slug> <new-path>")
-	fmt.Println("  2. Untrack from database:")
-	fmt.Printf("     $ gitmap rm %s\n", slugList(slugs))
-	fmt.Println("  3. Clear or reset tracking database:")
-	fmt.Println("     $ gitmap db-reset  (or: $ gitmap storage reset-errors)")
+	fmt.Println(statusconstants.RemediationHeader)
+	fmt.Println(statusconstants.RemediationStep1)
+	fmt.Println(statusconstants.RemediationStep1Cmd)
+	fmt.Println(statusconstants.RemediationStep2)
+	fmt.Printf(statusconstants.RemediationStep2CmdFmt, slugList(slugs))
+	fmt.Println(statusconstants.RemediationStep3)
+	fmt.Println(statusconstants.RemediationStep3Cmd)
 	fmt.Println()
 }
 
@@ -312,8 +318,8 @@ func printDirtySummaryTip(dirtyCount int) {
 		return
 	}
 
-	fmt.Printf("  %sTip: %d repository(ies) dirty. Run 'gitmap fix' or 'gitmap pull --fix' to remediate.%s\n",
-		constants.ColorDim, dirtyCount, constants.ColorReset)
+	tipMsg := fmt.Sprintf(statusconstants.DirtySummaryTipFmt, dirtyCount)
+	fmt.Printf("%s%s%s\n", constants.ColorDim, tipMsg, constants.ColorReset)
 }
 
 // buildSummaryParts assembles summary line segments.

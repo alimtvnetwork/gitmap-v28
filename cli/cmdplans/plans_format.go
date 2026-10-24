@@ -8,11 +8,12 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/constants"
 )
 
 // RenderJSON serializes the plans report as pretty-printed JSON to standard output.
 func RenderJSON(report PlansReport) error {
-	data, err := json.MarshalIndent(report, "", "  ")
+	data, err := json.MarshalIndent(report, "", constants.DefaultJSONIndent)
 	if err != nil {
 		return apperror.WrapSimple(err, "json.MarshalIndent plans")
 	}

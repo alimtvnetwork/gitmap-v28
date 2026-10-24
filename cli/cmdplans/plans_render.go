@@ -4,31 +4,33 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
 )
 
-func renderStatusPill(status PlanStatusType) string {
-	if status == StatusCompleted {
-		return termout.TokyoOKPill(string(StatusCompleted))
+func renderStatusPill(status enums.PlanStatusType) string {
+	if status.IsCompleted() {
+		return termout.TokyoOKPill(constants.PillCompleted)
 	}
-	if status == StatusInProgress {
-		return termout.TokyoTag("ACTIVE", "IN PROGRESS")
+	if status.IsInProgress() || status.IsActive() {
+		return termout.TokyoTag(constants.TagActive, constants.TagInProgress)
 	}
 
-	return termout.TokyoWarnPill(string(StatusPending))
+	return termout.TokyoWarnPill(constants.PillPending)
 }
 
 func planColumnsConfig() []termout.ColumnConfig {
 	return []termout.ColumnConfig{
-		{Title: "ID", MinWidth: 5, Alignment: termout.AlignRight},
-		{Title: "Title", MinWidth: 26, MaxWidth: 52, WrapMode: termout.WrapEllipsis},
-		{Title: "Status", MinWidth: 14, Alignment: termout.AlignCenter},
-		{Title: "File Path", MinWidth: 24, WrapMode: termout.WrapClip},
+		{Title: constants.ColID, MinWidth: 5, Alignment: termout.AlignRight},
+		{Title: constants.ColTitle, MinWidth: 26, MaxWidth: 52, WrapMode: termout.WrapEllipsis},
+		{Title: constants.ColStatus, MinWidth: 14, Alignment: termout.AlignCenter},
+		{Title: constants.ColFilePath, MinWidth: 24, WrapMode: termout.WrapClip},
 	}
 }
 
 func buildPlanRow(item PlanItem) termout.Row {
-	idStr := "-"
+	idStr := constants.DashID
 	if item.ID > 0 {
 		idStr = strconv.Itoa(item.ID)
 	}
@@ -52,54 +54,56 @@ func buildPlanRows(items []PlanItem) []termout.Row {
 	return rows
 }
 
-func printPlansTable(title string, items []PlanItem) {
-	if len(items) == 0 {
-		return
-	}
-	fmt.Printf("\n  %s\n", title)
-	cfg := termout.TableConfig{
+func buildTableConfig(items []PlanItem) termout.TableConfig {
+	return termout.TableConfig{
 		Columns:     planColumnsConfig(),
 		Rows:        buildPlanRows(items),
 		HasBorders:  true,
 		BorderStyle: termout.BorderRounded,
 		RowStripe:   true,
-		HeaderColor: "#7aa2f7",
-		BorderColor: "#3b4261",
-		StripeColor: "#1f2335",
+		HeaderColor: constants.ColorHeader,
+		BorderColor: constants.ColorBorder,
+		StripeColor: constants.ColorStripe,
 	}
-	termout.PrintTable(cfg)
+}
+
+func printPlansTable(title string, items []PlanItem) {
+	if len(items) == 0 {
+		return
+	}
+	fmt.Printf("\n  %s\n", title)
+	termout.PrintTable(buildTableConfig(items))
 }
 
 func printOverflowGuidance(summary PlansSummary) {
 	if summary.HasMorePending {
 		fmt.Printf("\n  %s %s\n",
-			termout.TokyoTag("NOTICE", "OVERFLOW"),
+			termout.TokyoTag(constants.TagNotice, constants.TagOverflow),
 			fmt.Sprintf("Showing %d of %d pending plans. %s",
 				summary.DisplayedLimit, summary.PendingCount, summary.PendingOverflow))
 	}
 	if summary.HasMoreCompleted {
 		fmt.Printf("  %s %s\n",
-			termout.TokyoTag("INFO", "COMPLETED"),
-			fmt.Sprintf("Showing %d of %d completed plans. Use 'gitmap plans --all' or 'gitmap plans %d' to view all.",
-				summary.DisplayedLimit, summary.CompletedCount, summary.CompletedCount))
+			termout.TokyoTag(constants.TagInfo, constants.TagCompleted),
+			fmt.Sprintf("Showing %d of %d completed plans. Use 'gitmap %s %s' or 'gitmap %s %d' to view all.",
+				summary.DisplayedLimit, summary.CompletedCount, constants.CmdPlans, constants.FlagAll, constants.CmdPlans, summary.CompletedCount))
 	}
+}
+
+func formatPlanMetrics(summary PlansSummary) string {
+	return fmt.Sprintf("  %s   %s   %s",
+		termout.TokyoMetricPill(constants.PillCompleted, summary.CompletedCount),
+		termout.TokyoMetricPill(constants.PillPending, summary.PendingCount),
+		termout.TokyoMetricPill(constants.PillTotal, summary.TotalCount),
+	)
 }
 
 // RenderTTY prints an aesthetically formatted Tokyo Night overview of plans.
 func RenderTTY(report PlansReport) {
-	fmt.Println()
-	fmt.Println(termout.TokyoHeader("GitMap Plans — Repository Plan & Task Inventory"))
-	fmt.Println()
-
-	metrics := fmt.Sprintf("  %s   %s   %s",
-		termout.TokyoMetricPill("Completed", report.Summary.CompletedCount),
-		termout.TokyoMetricPill("Pending", report.Summary.PendingCount),
-		termout.TokyoMetricPill("Total", report.Summary.TotalCount),
-	)
-	fmt.Println(metrics)
-
-	printPlansTable("Completed Plans", report.Completed)
-	printPlansTable("Pending / Queued Plans", report.Pending)
+	fmt.Printf("\n%s\n\n", termout.TokyoHeader(constants.HeaderGitMapPlans))
+	fmt.Println(formatPlanMetrics(report.Summary))
+	printPlansTable(constants.TitleCompletedPlans, report.Completed)
+	printPlansTable(constants.TitlePendingPlans, report.Pending)
 	printOverflowGuidance(report.Summary)
 	fmt.Println()
 }

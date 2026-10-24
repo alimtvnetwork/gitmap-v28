@@ -62,6 +62,7 @@ All completed work has been merged into 32 dense, authoritative milestone summar
 ## 2b. Recently Completed (awaiting milestone consolidation)
 
 - [319-package-constants-and-enums-dry-restructuring.md](completed/319-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring: Modular enum types (*Type suffix), centralized constants (pkg/constants/constants.go), and 5-package rollout (cmdpull, cloner, cmdclone, store, cmdcommit) (Spec: [319-package-constants-and-enums-dry-restructuring](../../02-spec/21-app/319-package-constants-and-enums-dry-restructuring/readme.md)) (Status: `completed`)
+- [320-package-constants-and-enums-dry-restructuring.md](completed/320-package-constants-and-enums-dry-restructuring.md) — Package Constants & Enums DRY Restructuring Phase 2: Modular enum types (*Type suffix), leaf enums/constants packages, error return sovereignty, and 5-package rollout (cmdsync, cmdplans, cmdstatus, cmdlogin, cmdcargo) (Status: `completed`)
 
 ---
 

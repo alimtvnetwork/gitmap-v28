@@ -9,6 +9,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagent"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
 )
 
 // DefaultTargetRepos defines the 43 canonical fleet repositories.
@@ -62,29 +63,42 @@ var DefaultTargetRepos = []string{
 
 // ResolveSourceRoot detects the canonical coding-guidelines repository root.
 func ResolveSourceRoot() (string, error) {
-	cwd, err := os.Getwd()
-	if err == nil && isCanonicalSourceRepo(cwd) && strings.Contains(strings.ToLower(cwd), "coding-guidelines") {
-		return filepath.Clean(cwd), nil
+	if root, ok := checkCurrentAndRepoRoot(); ok {
+		return root, nil
 	}
-
-	repoRoot := cmdagent.FindRepoRoot()
-	if isCanonicalSourceRepo(repoRoot) && strings.Contains(strings.ToLower(repoRoot), "coding-guidelines") {
-		return filepath.Clean(repoRoot), nil
-	}
-
-	parent := filepath.Dir(repoRoot)
-	cgPath := filepath.Join(parent, "coding-guidelines")
-	if isCanonicalSourceRepo(cgPath) {
-		return filepath.Clean(cgPath), nil
-	}
-
-	// Sibling check from cwd
-	siblingCg := checkSiblingCodingGuidelines(cwd, err)
-	if siblingCg != "" {
-		return siblingCg, nil
+	if root, ok := checkParentAndSiblingCwd(); ok {
+		return root, nil
 	}
 
 	return "", apperror.NewNotFoundError("canonical source repository (coding-guidelines) not found")
+}
+
+func checkCurrentAndRepoRoot() (string, bool) {
+	cwd, err := os.Getwd()
+	if err == nil && isCanonicalSourceRepo(cwd) && strings.Contains(strings.ToLower(cwd), "coding-guidelines") {
+		return filepath.Clean(cwd), true
+	}
+	repoRoot := cmdagent.FindRepoRoot()
+	if isCanonicalSourceRepo(repoRoot) && strings.Contains(strings.ToLower(repoRoot), "coding-guidelines") {
+		return filepath.Clean(repoRoot), true
+	}
+
+	return "", false
+}
+
+func checkParentAndSiblingCwd() (string, bool) {
+	repoRoot := cmdagent.FindRepoRoot()
+	parent := filepath.Dir(repoRoot)
+	cgPath := filepath.Join(parent, "coding-guidelines")
+	if isCanonicalSourceRepo(cgPath) {
+		return filepath.Clean(cgPath), true
+	}
+	cwd, err := os.Getwd()
+	if siblingCg := checkSiblingCodingGuidelines(cwd, err); siblingCg != "" {
+		return siblingCg, true
+	}
+
+	return "", false
 }
 
 func checkSiblingCodingGuidelines(cwd string, err error) string {
@@ -95,14 +109,16 @@ func checkSiblingCodingGuidelines(cwd string, err error) string {
 	if isCanonicalSourceRepo(sibling) {
 		return filepath.Clean(sibling)
 	}
+
 	return ""
 }
 
 func isCanonicalSourceRepo(dir string) bool {
-	promptsDir := filepath.Join(dir, "01-prompts")
-	skillsDir := filepath.Join(dir, ".agents", "skills")
+	promptsDir := filepath.Join(dir, constants.DirPrompts)
+	skillsDir := filepath.Join(dir, filepath.FromSlash(constants.DirAgentsSkills))
 	pInfo, pErr := os.Stat(promptsDir)
 	sInfo, sErr := os.Stat(skillsDir)
+
 	return pErr == nil && pInfo.IsDir() && sErr == nil && sInfo.IsDir()
 }
 
@@ -114,29 +130,37 @@ func ResolveTargetProjects(opts SyncOptions, sourceRoot string) ([]ProjectConfig
 		return nil, err
 	}
 
+	return filterTargetProjects(targets, sourceRoot, opts.Repos), nil
+}
+
+func filterTargetProjects(targets []ProjectConfig, sourceRoot string, filters []string) []ProjectConfig {
 	var filtered []ProjectConfig
 	sourceClean := filepath.Clean(sourceRoot)
-
 	for _, t := range targets {
-		if filepath.Clean(t.Path) == sourceClean {
-			continue
+		if isTargetProjectIncluded(t, sourceClean, filters) {
+			filtered = append(filtered, t)
 		}
-		if IsNonOwnedRepo(t.Name) || IsNonOwnedRepo(t.Path) {
-			continue
-		}
-		if !matchesAnyRepoFilter(t, opts.Repos) {
-			continue
-		}
-		filtered = append(filtered, t)
 	}
 
-	return filtered, nil
+	return filtered
+}
+
+func isTargetProjectIncluded(t ProjectConfig, sourceClean string, filters []string) bool {
+	if filepath.Clean(t.Path) == sourceClean {
+		return false
+	}
+	if IsNonOwnedRepo(t.Name) || IsNonOwnedRepo(t.Path) {
+		return false
+	}
+
+	return matchesAnyRepoFilter(t, filters)
 }
 
 func resolveRawTargetProjects(opts SyncOptions, workRoot string) ([]ProjectConfig, error) {
 	if strings.TrimSpace(opts.Projects) != "" {
 		return parseProjectsInput(strings.TrimSpace(opts.Projects), workRoot)
 	}
+
 	return defaultTargetProjects(workRoot), nil
 }
 
@@ -144,14 +168,14 @@ func defaultTargetProjects(workRoot string) []ProjectConfig {
 	var targets []ProjectConfig
 	for _, rel := range DefaultTargetRepos {
 		fullPath := filepath.Join(workRoot, filepath.FromSlash(rel))
-		name := filepath.Base(rel)
 		targets = append(targets, ProjectConfig{
-			Name:   name,
+			Name:   filepath.Base(rel),
 			Path:   fullPath,
 			Folder: rel,
-			Mode:   "all",
+			Mode:   constants.TargetAll,
 		})
 	}
+
 	return targets
 }
 
@@ -167,6 +191,7 @@ func matchesAnyRepoFilter(t ProjectConfig, filters []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -176,8 +201,7 @@ func parseProjectsInput(input, workRoot string) ([]ProjectConfig, error) {
 		return nil, err
 	}
 
-	rawTrim := strings.TrimSpace(raw)
-	if jsonProjects, ok := tryParseJsonProjects(rawTrim, workRoot); ok {
+	if jsonProjects, ok := tryParseJsonProjects(strings.TrimSpace(raw), workRoot); ok {
 		return jsonProjects, nil
 	}
 
@@ -200,6 +224,7 @@ func readProjectsInputRaw(input string) (string, error) {
 	if readErr != nil {
 		return "", apperror.WrapSimple(readErr, fmt.Sprintf("failed to read projects file %s", input))
 	}
+
 	return string(bytes), nil
 }
 
@@ -211,6 +236,7 @@ func tryParseJsonProjects(rawTrim string, workRoot string) ([]ProjectConfig, boo
 	if isConfigList {
 		return list, true
 	}
+
 	return tryParseStringPathList(rawTrim, workRoot)
 }
 
@@ -222,6 +248,7 @@ func tryParseProjectConfigList(raw string, workRoot string) ([]ProjectConfig, bo
 	for i := range list {
 		normalizeProjectConfigEntry(&list[i], workRoot)
 	}
+
 	return list, true
 }
 
@@ -243,6 +270,7 @@ func tryParseStringPathList(raw string, workRoot string) ([]ProjectConfig, bool)
 	for _, s := range strList {
 		res = append(res, buildProjectConfigFromPath(s, workRoot))
 	}
+
 	return res, true
 }
 
@@ -251,11 +279,12 @@ func buildProjectConfigFromPath(pathOrRel string, workRoot string) ProjectConfig
 	if !filepath.IsAbs(p) {
 		p = filepath.Join(workRoot, filepath.FromSlash(pathOrRel))
 	}
+
 	return ProjectConfig{
 		Name:   filepath.Base(p),
 		Path:   p,
 		Folder: pathOrRel,
-		Mode:   "all",
+		Mode:   constants.TargetAll,
 	}
 }
 
@@ -264,14 +293,31 @@ func tryScanDirectoryForGitRepos(dirPath string) ([]ProjectConfig, bool) {
 	if err != nil || !info.IsDir() {
 		return nil, false
 	}
-	if _, statErr := os.Stat(filepath.Join(dirPath, ".git")); statErr == nil {
-		return []ProjectConfig{{
-			Name:   filepath.Base(dirPath),
-			Path:   dirPath,
-			Folder: filepath.Base(dirPath),
-			Mode:   "all",
-		}}, true
+	if isGitDirectory(dirPath) {
+		return []ProjectConfig{newSingleGitProjectConfig(dirPath)}, true
 	}
+
+	return scanChildGitRepos(dirPath)
+}
+
+func isGitDirectory(dirPath string) bool {
+	_, err := os.Stat(filepath.Join(dirPath, constants.DirGit))
+
+	return err == nil
+}
+
+func newSingleGitProjectConfig(dirPath string) ProjectConfig {
+	baseName := filepath.Base(dirPath)
+
+	return ProjectConfig{
+		Name:   baseName,
+		Path:   dirPath,
+		Folder: baseName,
+		Mode:   constants.TargetAll,
+	}
+}
+
+func scanChildGitRepos(dirPath string) ([]ProjectConfig, bool) {
 	entries, _ := os.ReadDir(dirPath)
 	var res []ProjectConfig
 	for _, e := range entries {
@@ -280,6 +326,7 @@ func tryScanDirectoryForGitRepos(dirPath string) ([]ProjectConfig, bool) {
 			res = append(res, cfg)
 		}
 	}
+
 	return res, len(res) > 0
 }
 
@@ -288,15 +335,14 @@ func inspectChildGitRepo(parentDir string, e os.DirEntry) (ProjectConfig, bool) 
 		return ProjectConfig{}, false
 	}
 	child := filepath.Join(parentDir, e.Name())
-	gitDir := filepath.Join(child, ".git")
-	_, err := os.Stat(gitDir)
-	if err != nil {
+	if !isGitDirectory(child) {
 		return ProjectConfig{}, false
 	}
+
 	return ProjectConfig{
 		Name:   e.Name(),
 		Path:   child,
 		Folder: e.Name(),
-		Mode:   "all",
+		Mode:   constants.TargetAll,
 	}, true
 }

@@ -8,18 +8,15 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/enums"
 )
 
 func isMetaFile(fileName string) bool {
-	lower := strings.ToLower(fileName)
-	if lower == "01-index.md" || lower == "ledger.md" || lower == "readme.md" {
-		return true
-	}
-
-	return lower == "what-to-read.md"
+	return enums.IsMetaFileName(fileName)
 }
 
-func scanFileLinesForMetadata(file *os.File, fallbackStatus PlanStatusType) (string, PlanStatusType) {
+func scanFileLinesForMetadata(file *os.File, fallbackStatus enums.PlanStatusType) (string, enums.PlanStatusType) {
 	scanner := bufio.NewScanner(file)
 	title := ""
 	status := fallbackStatus
@@ -45,7 +42,7 @@ func resolveLineTitle(currentTitle, line string) string {
 	return currentTitle
 }
 
-func resolveLineStatus(currentStatus PlanStatusType, line string, hasExplicit bool) (PlanStatusType, bool) {
+func resolveLineStatus(currentStatus enums.PlanStatusType, line string, hasExplicit bool) (enums.PlanStatusType, bool) {
 	if hasExplicit {
 		return currentStatus, true
 	}
@@ -56,7 +53,7 @@ func resolveLineStatus(currentStatus PlanStatusType, line string, hasExplicit bo
 	return currentStatus, false
 }
 
-func parsePlanFile(filePath, relPath string, fallbackStatus PlanStatusType) (*PlanItem, error) {
+func parsePlanFile(filePath, relPath string, fallbackStatus enums.PlanStatusType) (*PlanItem, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "os.Open plan file")
@@ -72,11 +69,11 @@ func parsePlanFile(filePath, relPath string, fallbackStatus PlanStatusType) (*Pl
 	return buildPlanItemRecord(id, slug, title, status, relPath, file), nil
 }
 
-func buildPlanItemRecord(id int, slug, title string, status PlanStatusType, relPath string, file *os.File) *PlanItem {
+func buildPlanItemRecord(id int, slug, title string, status enums.PlanStatusType, relPath string, file *os.File) *PlanItem {
 	info, _ := file.Stat()
 	updatedAt := ""
 	if info != nil {
-		updatedAt = info.ModTime().Format("2006-01-02")
+		updatedAt = info.ModTime().Format(constants.DefaultDateLayout)
 	}
 
 	return &PlanItem{
@@ -89,20 +86,20 @@ func buildPlanItemRecord(id int, slug, title string, status PlanStatusType, relP
 	}
 }
 
-func scanPlanDirectory(dirPath, baseRel string, fallbackStatus PlanStatusType) ([]PlanItem, error) {
+func scanPlanDirectory(dirPath, baseRel string, fallbackStatus enums.PlanStatusType) ([]PlanItem, error) {
 	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
 
+	if err != nil {
 		return nil, apperror.WrapSimple(err, "os.ReadDir")
 	}
 
 	return collectValidPlanEntries(entries, dirPath, baseRel, fallbackStatus), nil
 }
 
-func collectValidPlanEntries(entries []os.DirEntry, dirPath, baseRel string, fallbackStatus PlanStatusType) []PlanItem {
+func collectValidPlanEntries(entries []os.DirEntry, dirPath, baseRel string, fallbackStatus enums.PlanStatusType) []PlanItem {
 	items := make([]PlanItem, 0, len(entries))
 	for _, entry := range entries {
 		if item, hasItem := processDirEntry(entry, dirPath, baseRel, fallbackStatus); hasItem {
@@ -113,8 +110,8 @@ func collectValidPlanEntries(entries []os.DirEntry, dirPath, baseRel string, fal
 	return items
 }
 
-func processDirEntry(entry os.DirEntry, dirPath, baseRel string, fallbackStatus PlanStatusType) (*PlanItem, bool) {
-	if entry.IsDir() || isMetaFile(entry.Name()) || !strings.HasSuffix(entry.Name(), ".md") {
+func processDirEntry(entry os.DirEntry, dirPath, baseRel string, fallbackStatus enums.PlanStatusType) (*PlanItem, bool) {
+	if entry.IsDir() || isMetaFile(entry.Name()) || !strings.HasSuffix(entry.Name(), constants.ExtMarkdown) {
 		return nil, false
 	}
 	fullPath := filepath.Join(dirPath, entry.Name())
@@ -127,27 +124,34 @@ func processDirEntry(entry os.DirEntry, dirPath, baseRel string, fallbackStatus 
 	return item, true
 }
 
+func sortCompletedPlans(items []PlanItem) {
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].ID != items[j].ID {
+			return items[i].ID > items[j].ID
+		}
+
+		return items[i].Slug < items[j].Slug
+	})
+}
+
+func sortPendingPlans(items []PlanItem) {
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].ID != items[j].ID {
+			return items[i].ID < items[j].ID
+		}
+
+		return items[i].Slug < items[j].Slug
+	})
+}
+
 func sortPlanSlices(completed, pending []PlanItem) {
-	sort.Slice(completed, func(i, j int) bool {
-		if completed[i].ID != completed[j].ID {
-			return completed[i].ID > completed[j].ID
-		}
-
-		return completed[i].Slug < completed[j].Slug
-	})
-
-	sort.Slice(pending, func(i, j int) bool {
-		if pending[i].ID != pending[j].ID {
-			return pending[i].ID < pending[j].ID
-		}
-
-		return pending[i].Slug < pending[j].Slug
-	})
+	sortCompletedPlans(completed)
+	sortPendingPlans(pending)
 }
 
 func partitionDiscoveredItems(items []PlanItem, completed, pending *[]PlanItem) {
 	for _, item := range items {
-		if item.Status == StatusCompleted {
+		if item.Status.IsCompleted() {
 			*completed = append(*completed, item)
 		} else {
 			*pending = append(*pending, item)
@@ -155,24 +159,30 @@ func partitionDiscoveredItems(items []PlanItem, completed, pending *[]PlanItem) 
 	}
 }
 
+func scanPendingAndArchived(plansDir, rootRel string) ([]PlanItem, []PlanItem, error) {
+	pendingDir := filepath.Join(plansDir, constants.DirPending)
+	pendingRel := filepath.Join(rootRel, constants.DirPending)
+	pending, err := scanPlanDirectory(pendingDir, pendingRel, enums.PlanStatusPending)
+	if err != nil {
+		return nil, nil, err
+	}
+	completedDir := filepath.Join(plansDir, constants.DirCompleted)
+	completedRel := filepath.Join(rootRel, constants.DirCompleted)
+	archived, _ := scanPlanDirectory(completedDir, completedRel, enums.PlanStatusCompleted)
+
+	return pending, archived, nil
+}
+
 func loadPlanDirectories(repoPath string) ([]PlanItem, []PlanItem, []PlanItem, error) {
-	plansDir := filepath.Join(repoPath, ".ai-memory", "plans")
-	pendingDir := filepath.Join(plansDir, "pending")
-	completedDir := filepath.Join(plansDir, "completed")
-
-	root, err := scanPlanDirectory(plansDir, filepath.Join(".ai-memory", "plans"), StatusCompleted)
+	plansDir := filepath.Join(repoPath, constants.DirAiMemory, constants.DirPlans)
+	rootRel := filepath.Join(constants.DirAiMemory, constants.DirPlans)
+	root, err := scanPlanDirectory(plansDir, rootRel, enums.PlanStatusCompleted)
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	pending, archived, err := scanPendingAndArchived(plansDir, rootRel)
 
-	pending, err := scanPlanDirectory(pendingDir, filepath.Join(".ai-memory", "plans", "pending"), StatusPending)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	archived, _ := scanPlanDirectory(completedDir, filepath.Join(".ai-memory", "plans", "completed"), StatusCompleted)
-
-	return root, pending, archived, nil
+	return root, pending, archived, err
 }
 
 // DiscoverPlans scans the plans folders in repoPath and segregates items into completed and pending.

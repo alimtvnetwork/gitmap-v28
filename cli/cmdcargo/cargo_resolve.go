@@ -5,33 +5,37 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/enums"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 // ResolveCargoBinary locates cargo on the system.
 func ResolveCargoBinary() string {
-	if p, err := exec.LookPath("cargo"); err == nil {
+	if p, err := exec.LookPath(cargoconst.BinCargo); err == nil {
 		return p
 	}
 
-	return findCargoInFallbackPaths("cargo")
+	return findCargoInFallbackPaths(cargoconst.BinCargo)
 }
 
 // ResolveRustcBinary locates rustc on the system.
 func ResolveRustcBinary() string {
-	if p, err := exec.LookPath("rustc"); err == nil {
+	if p, err := exec.LookPath(cargoconst.BinRustc); err == nil {
 		return p
 	}
 
-	return findCargoInFallbackPaths("rustc")
+	return findCargoInFallbackPaths(cargoconst.BinRustc)
 }
 
 // ResolveRustupBinary locates rustup on the system.
 func ResolveRustupBinary() string {
-	if p, err := exec.LookPath("rustup"); err == nil {
+	if p, err := exec.LookPath(cargoconst.BinRustup); err == nil {
 		return p
 	}
 
-	return findCargoInFallbackPaths("rustup")
+	return findCargoInFallbackPaths(cargoconst.BinRustup)
 }
 
 func findCargoInFallbackPaths(bin string) string {
@@ -52,20 +56,20 @@ func findCargoInFallbackPaths(bin string) string {
 
 func buildCargoCandidates(home, bin string) []string {
 	var list []string
-	if cargoHome := os.Getenv("CARGO_HOME"); cargoHome != "" {
-		list = appendExeCandidate(list, filepath.Join(cargoHome, "bin"), bin)
+	if cargoHome := os.Getenv(string(enums.ToolchainEnvCargoHome)); cargoHome != "" {
+		list = appendExeCandidate(list, filepath.Join(cargoHome, cargoconst.DirBin), bin)
 	}
 
-	list = appendExeCandidate(list, filepath.Join(home, ".cargo", "bin"), bin)
-	list = append(list, filepath.Join("/usr", "bin", bin), filepath.Join("/usr", "local", "bin", bin))
+	list = appendExeCandidate(list, filepath.Join(home, cargoconst.DirCargo, cargoconst.DirBin), bin)
+	list = append(list, filepath.Join(cargoconst.PathUsrBin, bin), filepath.Join(cargoconst.PathUsrLocalBin, bin))
 
 	return list
 }
 
 func appendExeCandidate(list []string, dir, bin string) []string {
 	list = append(list, filepath.Join(dir, bin))
-	if runtime.GOOS == "windows" {
-		list = append(list, filepath.Join(dir, bin+".exe"))
+	if runtime.GOOS == constants.PlatformWindows {
+		list = append(list, filepath.Join(dir, bin+cargoconst.ExtExe))
 	}
 
 	return list
@@ -76,7 +80,7 @@ func isExecutableFile(p string) bool {
 	if err != nil || info.IsDir() {
 		return false
 	}
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == constants.PlatformWindows {
 		return true
 	}
 

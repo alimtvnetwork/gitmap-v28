@@ -3,66 +3,83 @@ package cmdsync
 import (
 	"flag"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
-	"github.com/alimtvnetwork/gitmap-v28/cli/templates"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
+	globalconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/templates"
 )
 
 // runAddLFSInstall is the entry point dispatched from rootadd.go.
 func runAddLFSInstall(args []string) *apperror.AppError {
-	checkHelp("add-lfs-install", args)
+	checkHelp(constants.CmdAddLFSInstall, args)
 
 	flags, err := parseAddLFSInstallFlags(args)
 	if err != nil {
 		return err
 	}
 
+	if envErr := validateGitLFSEnvironment(); envErr != nil {
+		return envErr
+	}
+
+	return executeLFSInstall(flags)
+}
+
+func validateGitLFSEnvironment() *apperror.AppError {
 	if !insideGitRepo() {
 		fmt.Fprintln(os.Stderr, "  ✗ Not inside a Git repository.")
 		fmt.Fprintln(os.Stderr, "    Run this command from the root of a repo (where .git/ lives).")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewValidationError("not inside a Git repository")
 	}
 
 	if !lfsAvailable() {
 		fmt.Fprintln(os.Stderr, "  ✗ Git LFS is not installed or not on PATH.")
 		fmt.Fprintln(os.Stderr, "    Install it from https://git-lfs.com and re-run.")
-		cliexit.HandleError(nil, 1)
+
+		return apperror.NewExecutionError("Git LFS is not installed or not on PATH")
 	}
 
-	resolved, err2 := templates.Resolve("lfs", "common")
+	return nil
+}
+
+func executeLFSInstall(flags addLFSInstallFlags) *apperror.AppError {
+	resolved, err := templates.Resolve("lfs", "common")
+	if err != nil {
+		return apperror.WrapSimple(err, "? Could not resolve lfs/common template")
+	}
+
+	target, err2 := gitattributesPath()
 	if err2 != nil {
-		return apperror.WrapSimple(err2, "? Could not resolve lfs/common template")
-	}
-
-	target, err3 := gitattributesPath()
-	if err3 != nil {
-		return apperror.WrapSimple(err3, "? Could not locate repo root")
+		return apperror.WrapSimple(err2, "? Could not locate repo root")
 	}
 
 	printAddLFSInstallBanner(flags.dryRun, resolved.Source, resolved.Path)
-
 	if flags.dryRun {
 		printAddLFSInstallDryRun(target, resolved.Content)
 
 		return nil
 	}
 
+	return applyLFSInstall(target, resolved.Content)
+}
+
+func applyLFSInstall(target string, content []byte) *apperror.AppError {
 	if err := runGitLFSInstall(); err != nil {
 		fmt.Fprintf(os.Stderr, "  ⚠ git lfs install failed: %v\n", err)
-		// Continue anyway — the template merge is independently useful.
 	} else {
 		fmt.Printf("  %s✓ git lfs install --local%s ran successfully\n",
-			constants.ColorGreen, constants.ColorReset)
+			globalconstants.ColorGreen, globalconstants.ColorReset)
 	}
 
-	res, err4 := templates.Merge(target, addLFSInstallTag, resolved.Content)
-	if err4 != nil {
-		return apperror.WrapSimple(err4, "? Could not merge template")
+	res, mergeErr := templates.Merge(target, constants.AddLFSInstallTag, content)
+	if mergeErr != nil {
+		return apperror.WrapSimple(mergeErr, "? Could not merge template")
 	}
 
 	printAddLFSInstallSummary(res)
@@ -70,20 +87,13 @@ func runAddLFSInstall(args []string) *apperror.AppError {
 	return nil
 }
 
-// addLFSInstallTag identifies the marker block written into
-// .gitattributes. Stable across runs — changing it would orphan blocks
-// already on disk.
-const addLFSInstallTag = "lfs/common"
-
-// addLFSInstallFlags holds parsed flags for `add lfs-install`.
 type addLFSInstallFlags struct {
 	dryRun bool
 }
 
-// parseAddLFSInstallFlags parses CLI flags. Currently only --dry-run.
 func parseAddLFSInstallFlags(args []string) (addLFSInstallFlags, *apperror.AppError) {
-	fs := flag.NewFlagSet("add lfs-install", flag.ExitOnError)
-	dryRun := fs.Bool("dry-run", false, "preview the merged .gitattributes without writing anything")
+	fs := flag.NewFlagSet(constants.CmdAddLFSInstall, flag.ExitOnError)
+	dryRun := fs.Bool(constants.FlagDryRun, false, "preview the merged .gitattributes without writing anything")
 	if err := fs.Parse(args); err != nil {
 		return addLFSInstallFlags{}, apperror.WrapSimple(err, "✗ Could not parse flags")
 	}
@@ -91,8 +101,6 @@ func parseAddLFSInstallFlags(args []string) (addLFSInstallFlags, *apperror.AppEr
 	return addLFSInstallFlags{dryRun: *dryRun}, nil
 }
 
-// insideGitRepo returns true when the current working directory is part
-// of a Git working tree.
 func insideGitRepo() bool {
 	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
 	out, err := cmd.Output()
@@ -103,16 +111,14 @@ func insideGitRepo() bool {
 	return strings.TrimSpace(string(out)) == "true"
 }
 
-// lfsAvailable returns true when `git lfs` is installed and runnable.
 func lfsAvailable() bool {
 	cmd := exec.Command("git", "lfs", "version")
 
 	return cmd.Run() == nil
 }
 
-// gitTopLevel returns the absolute path of the current repo's top-level dir.
 func gitTopLevel() (string, error) {
-	cmd := exec.Command(constants.GitBin, constants.GitRevParse, "--show-toplevel")
+	cmd := exec.Command(globalconstants.GitBin, globalconstants.GitRevParse, "--show-toplevel")
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -126,14 +132,10 @@ func gitTopLevel() (string, error) {
 	return filepath.Clean(root), nil
 }
 
-// gitattributesPath resolves the absolute path to .gitattributes at the
-// current repo's top level. Falls back to CWD when `git rev-parse` fails
-// for any reason — but the insideGitRepo check upstream already gates
-// that case, so this is defensive.
 func gitattributesPath() (string, error) {
 	root, err := gitTopLevel()
 	if err == nil && len(strings.TrimSpace(root)) > 0 {
-		return filepath.Join(root, ".gitattributes"), nil
+		return filepath.Join(root, constants.FileGitattributes), nil
 	}
 
 	cwd, cwdErr := os.Getwd()
@@ -141,50 +143,44 @@ func gitattributesPath() (string, error) {
 		return "", cwdErr
 	}
 
-	return filepath.Join(cwd, ".gitattributes"), nil
+	return filepath.Join(cwd, constants.FileGitattributes), nil
 }
 
-// printAddLFSInstallBanner mirrors the `lfs-common` banner so the two
-// commands feel like siblings.
 func printAddLFSInstallBanner(dryRun bool, source templates.SourceType, path string) {
 	fmt.Println()
 	fmt.Printf("  %s■ gitmap add lfs-install —%s LFS hooks + templated .gitattributes block\n",
-		constants.ColorCyan, constants.ColorReset)
+		globalconstants.ColorCyan, globalconstants.ColorReset)
 	src := "embed"
 	if source == templates.SourceUser {
 		src = "user"
 	}
 
 	fmt.Printf("  template source: %s%s%s (%s)\n",
-		constants.ColorDim, src, constants.ColorReset, path)
+		globalconstants.ColorDim, src, globalconstants.ColorReset, path)
 	if dryRun {
 		fmt.Printf("  %s[dry-run]%s no files will be modified\n",
-			constants.ColorYellow, constants.ColorReset)
+			globalconstants.ColorYellow, globalconstants.ColorReset)
 	}
 
 	fmt.Println()
 }
 
-// printAddLFSInstallDryRun shows the block that would be written, with
-// markers, but does not touch disk.
 func printAddLFSInstallDryRun(target string, body []byte) {
 	fmt.Printf("  %swould write block into:%s %s\n",
-		constants.ColorYellow, constants.ColorReset, target)
+		globalconstants.ColorYellow, globalconstants.ColorReset, target)
 	fmt.Println()
-	fmt.Printf("# >>> gitmap:%s >>>\n", addLFSInstallTag)
+	fmt.Printf("# >>> gitmap:%s >>>\n", constants.AddLFSInstallTag)
 	os.Stdout.Write(body)
 	if len(body) == 0 || body[len(body)-1] != '\n' {
 		fmt.Println()
 	}
 
-	fmt.Printf("# <<< gitmap:%s <<<\n", addLFSInstallTag)
+	fmt.Printf("# <<< gitmap:%s <<<\n", constants.AddLFSInstallTag)
 	fmt.Println()
 }
 
-// runGitLFSInstall runs `git lfs install` for the current repo. It is
-// safe to call repeatedly — Git LFS treats it as idempotent.
 func runGitLFSInstall() error {
-	cmd := exec.Command("git", "lfs", "install", "--local")
+	cmd := exec.Command("git", "lfs", "install", constants.FlagLocal)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return apperror.WrapSimple(err, "git lfs install").WithContext("output", strings.TrimSpace(string(out)))
@@ -193,31 +189,32 @@ func runGitLFSInstall() error {
 	return nil
 }
 
-// printAddLFSInstallSummary renders the merge outcome in the same visual
-// idiom as lfs-common's summary block.
 func printAddLFSInstallSummary(res templates.MergeResult) {
 	verb := outcomeVerb(res.Outcome)
-	color := constants.ColorGreen
+	color := globalconstants.ColorGreen
 	if !res.Changed {
 		verb = "unchanged"
-		color = constants.ColorDim
+		color = globalconstants.ColorDim
 	}
 
 	fmt.Printf("  %s%s%s %s (block: %s)\n",
-		color, verb, constants.ColorReset, res.Path, res.BlockTag)
+		color, verb, globalconstants.ColorReset, res.Path, res.BlockTag)
 
 	if res.Changed {
-		fmt.Println()
-		fmt.Printf("  %sNext step:%s commit the updated .gitattributes:\n",
-			constants.ColorYellow, constants.ColorReset)
-		fmt.Println("    git add .gitattributes")
-		fmt.Println("    git commit -m \"chore: install Git LFS + track common binaries via gitmap template\"")
+		printNextCommitStep()
 	}
 
 	fmt.Println()
 }
 
-// outcomeVerb maps the structural outcome to a one-word verb for output.
+func printNextCommitStep() {
+	fmt.Println()
+	fmt.Printf("  %sNext step:%s commit the updated .gitattributes:\n",
+		globalconstants.ColorYellow, globalconstants.ColorReset)
+	fmt.Println("    git add .gitattributes")
+	fmt.Println("    git commit -m \"chore: install Git LFS + track common binaries via gitmap template\"")
+}
+
 func outcomeVerb(o templates.MergeOutcomeType) string {
 	switch o {
 	case templates.MergeCreated:

@@ -6,16 +6,18 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin/enums"
+	appconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
 type loginOptions struct {
 	tokenValue string
 	hasToken   bool
-	useBrowser bool
-	showStatus bool
-	showHelp   bool
-	skipVerify bool
+	isBrowser  bool
+	isStatus   bool
+	isHelp     bool
+	isVerify   bool
 }
 
 func runLogin(args []string) error {
@@ -23,15 +25,20 @@ func runLogin(args []string) error {
 		return runInteractiveLogin()
 	}
 
-	handled, err := dispatchSubcommand(args)
-	if handled {
+	isHandled, err := dispatchSubcommand(args)
+	if isHandled {
 		return err
 	}
 
-	opts, rest, parseErr := parseLoginArgs(args)
-	if parseErr != nil {
-		return parseErr
+	return parseAndDispatchLogin(args)
+}
+
+func parseAndDispatchLogin(args []string) error {
+	opts, rest, err := parseLoginArgs(args)
+	if err != nil {
+		return err
 	}
+
 	if len(rest) > 0 {
 		return apperror.NewValidationError(fmt.Sprintf("unexpected argument %q (see `gitmap login --help`)", rest[0]))
 	}
@@ -40,15 +47,23 @@ func runLogin(args []string) error {
 }
 
 func dispatchSubcommand(args []string) (bool, error) {
-	sub := strings.ToLower(args[0])
-	switch sub {
-	case "ssh":
-		return true, RunLoginSSH(args[1:])
-	case "browser-flow", "browser":
+	method, err := enums.ParseLoginAuthMethod(args[0])
+	if err != nil {
+		return false, nil
+	}
+
+	return dispatchMethodAction(method, args[1:])
+}
+
+func dispatchMethodAction(method enums.LoginAuthMethodType, subArgs []string) (bool, error) {
+	switch method {
+	case enums.LoginAuthMethodSSH:
+		return true, RunLoginSSH(subArgs)
+	case enums.LoginAuthMethodBrowser:
 		return true, runBrowserLogin()
-	case "token", "pat":
-		return true, runTokenSubcommand(args[1:])
-	case "status":
+	case enums.LoginAuthMethodToken:
+		return true, runTokenSubcommand(subArgs)
+	case enums.LoginAuthMethodStatus:
 		return true, runLoginStatus()
 	default:
 		return false, nil
@@ -56,95 +71,135 @@ func dispatchSubcommand(args []string) (bool, error) {
 }
 
 func runTokenSubcommand(args []string) error {
-	skipVerify := false
-	token := ""
-	for _, a := range args {
-		if a == "--no-verify" {
-			skipVerify = true
-			continue
-		}
-		if !strings.HasPrefix(a, "-") && len(token) == 0 {
-			token = a
-		}
-	}
-
+	token, isVerify := parseTokenSubcommandArgs(args)
 	if len(token) > 0 {
-		return loginWithToken(token, skipVerify)
+		return loginWithToken(token, isVerify)
 	}
 
 	rawToken, err := readSecureToken()
 	if err != nil {
 		return err
 	}
-	return loginWithToken(rawToken, skipVerify)
+
+	return loginWithToken(rawToken, isVerify)
+}
+
+func parseTokenSubcommandArgs(args []string) (string, bool) {
+	isVerify := true
+	token := ""
+	for _, a := range args {
+		if a == constants.FlagNoVerifyArg {
+			isVerify = false
+			continue
+		}
+
+		if !strings.HasPrefix(a, "-") && len(token) == 0 {
+			token = a
+		}
+	}
+
+	return token, isVerify
 }
 
 func dispatchLoginOptions(opts loginOptions) error {
-	if opts.showHelp {
+	if opts.isHelp {
 		printLoginUsage()
 		return nil
 	}
-	if opts.showStatus {
+
+	if opts.isStatus {
 		return runLoginStatus()
 	}
-	if opts.useBrowser {
+
+	if opts.isBrowser {
 		return runBrowserLogin()
 	}
+
 	if opts.hasToken {
-		return loginWithToken(opts.tokenValue, opts.skipVerify)
+		return loginWithToken(opts.tokenValue, opts.isVerify)
 	}
+
 	return runInteractiveLogin()
 }
 
 func parseLoginArgs(args []string) (loginOptions, []string, error) {
-	opts := loginOptions{}
+	opts := loginOptions{isVerify: true}
 	rest := []string{}
-	i := 0
-	for i < len(args) {
-		arg := args[i]
-		if arg == "-h" || arg == "--help" {
-			opts.showHelp = true
-			i++
+	for i := 0; i < len(args); i++ {
+		step, isParsed, err := applyLoginArgFlag(args, i, &opts)
+		if err != nil {
+			return opts, rest, err
+		}
+
+		if isParsed {
+			i += step
 			continue
 		}
-		if arg == "--status" {
-			opts.showStatus = true
-			i++
-			continue
-		}
-		if arg == "--web" || arg == "--browser" {
-			opts.useBrowser = true
-			i++
-			continue
-		}
-		if arg == "--no-verify" {
-			opts.skipVerify = true
-			i++
-			continue
-		}
-		if arg == "--token" && i+1 >= len(args) {
-			return opts, rest, apperror.NewValidationError("missing value for --token (see `gitmap login --help`)")
-		}
-		if arg == "--token" {
-			opts.tokenValue = strings.TrimSpace(args[i+1])
-			opts.hasToken = true
-			i += 2
-			continue
-		}
-		if strings.HasPrefix(arg, "--token=") {
-			opts.tokenValue = strings.TrimSpace(strings.TrimPrefix(arg, "--token="))
-			opts.hasToken = true
-			i++
-			continue
-		}
-		rest = append(rest, arg)
-		i++
+
+		rest = append(rest, args[i])
 	}
+
 	return opts, rest, nil
 }
 
+func applyLoginArgFlag(args []string, i int, opts *loginOptions) (int, bool, error) {
+	arg := args[i]
+	if isSimpleFlag(arg, opts) {
+		return 0, true, nil
+	}
+
+	return parseTokenFlag(args, i, opts)
+}
+
+func isSimpleFlag(arg string, opts *loginOptions) bool {
+	switch arg {
+	case constants.FlagHelpShortArg, constants.FlagHelpArg:
+		opts.isHelp = true
+		return true
+	case constants.FlagStatusArg:
+		opts.isStatus = true
+		return true
+	case constants.FlagWebArg, constants.FlagBrowserArg:
+		opts.isBrowser = true
+		return true
+	case constants.FlagNoVerifyArg:
+		opts.isVerify = false
+		return true
+	default:
+		return false
+	}
+}
+
+func parseTokenFlag(args []string, i int, opts *loginOptions) (int, bool, error) {
+	arg := args[i]
+	if strings.HasPrefix(arg, constants.FlagTokenPrefix) {
+		opts.tokenValue = strings.TrimSpace(strings.TrimPrefix(arg, constants.FlagTokenPrefix))
+		opts.hasToken = true
+
+		return 0, true, nil
+	}
+
+	if arg != constants.FlagTokenArg {
+		return 0, false, nil
+	}
+
+	if i+1 >= len(args) {
+		return 0, false, apperror.NewValidationError("missing value for --token (see `gitmap login --help`)")
+	}
+
+	opts.tokenValue = strings.TrimSpace(args[i+1])
+	opts.hasToken = true
+
+	return 1, true, nil
+}
+
 func printLoginUsage() {
-	fmt.Println(constants.ColorCyan + "Usage:" + constants.ColorReset)
+	printUsageExamples()
+	printUsageNotes()
+}
+
+func printUsageExamples() {
+	fmt.Println(appconstants.ColorCyan + "Usage:" + appconstants.ColorReset)
 	fmt.Println("  gitmap login                  # Interactive: choose SSH, PAT, Browser, or Status")
 	fmt.Println("  gitmap login ssh [alias] [-y] # Generate or reuse SSH key and copy public key to clipboard")
 	fmt.Println("  gitmap login token [PAT]      # Log in with a personal access token")
@@ -152,7 +207,10 @@ func printLoginUsage() {
 	fmt.Println("  gitmap login --status         # Show current login state")
 	fmt.Println("  gitmap logout                 # Remove the stored GitHub credential")
 	fmt.Println("")
-	fmt.Println(constants.ColorCyan + "Notes:" + constants.ColorReset)
+}
+
+func printUsageNotes() {
+	fmt.Println(appconstants.ColorCyan + "Notes:" + appconstants.ColorReset)
 	fmt.Println("  --token validates the token against api.github.com before storing it.")
 	fmt.Println("  The token is stored in git global config (github.token) so clone/pull/push reuse it.")
 	fmt.Println("  Use --no-verify with --token to store without validation (offline use).")
