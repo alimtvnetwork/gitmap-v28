@@ -3,6 +3,7 @@ package cmdvariable
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -38,8 +39,10 @@ func RunVariableCmd(args []string) error {
 	}
 }
 
+var varHelpFlagTokens = []string{"-h", "--help", "help"}
+
 func isVarHelp(arg string) bool {
-	return arg == "-h" || arg == "--help" || arg == "help"
+	return slices.Contains(varHelpFlagTokens, arg)
 }
 
 func extractScopeFlag(args []string) (string, []string) {
