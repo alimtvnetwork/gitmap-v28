@@ -1,6 +1,7 @@
 package cmdgit
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -49,9 +50,11 @@ func hasLimitFlag(args []string) bool {
 	return false
 }
 
+var logFormatFlagTokens = []string{"--stat", "--shortstat", "-p", "--patch", "--oneline"}
+
 func hasFormatOrDetailFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "--stat" || arg == "--shortstat" || arg == "-p" || arg == "--patch" || arg == "--oneline" {
+		if slices.Contains(logFormatFlagTokens, arg) {
 			return true
 		}
 
