@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
@@ -53,7 +54,7 @@ func (db *DB) GetRepoPrimaryURLByStrategy(strategy constants.RepoTransportQueryT
 		return id, url, "", err
 	}
 
-	return 0, "", "", appfault.NewValidationError("unsupported transport query strategy: " + string(strategy))
+	return 0, "", "", appfault.NewValidationError(fmt.Sprintf("unsupported transport query strategy: %s", strategy))
 }
 
 func cleanTransportOrDefault(transport string) string {

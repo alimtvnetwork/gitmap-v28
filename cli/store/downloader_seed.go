@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -74,6 +75,12 @@ func (db *DB) SeedDownloaderConfig(seedPath string) {
 	fmt.Fprintf(os.Stdout, constants.MsgDownloaderConfigDBVersion+"\n", doc.DatabaseVersion.LastKnownVersion)
 }
 
+// seedBannerFlagTokens silences the seed banner for quiet or JSON output.
+var seedBannerFlagTokens = []string{constants.FlagNoBanner, "--json"}
+
+// seedSuppressCommandTokens silences the seed banner for non-interactive probes.
+var seedSuppressCommandTokens = []string{"version", "--version", "-v", "reset", "db-reset"}
+
 // isSeedBannerSuppressed mirrors cmd.isBannerSuppressed without importing
 // cmd (which would create a cycle). The seed banner is informational, not
 // an error, so it is silenced for `version`, `--no-banner`, GITMAP_QUIET=1,
@@ -84,11 +91,11 @@ func isSeedBannerSuppressed() bool {
 	}
 
 	for _, arg := range os.Args[1:] {
-		if arg == constants.FlagNoBanner || arg == "--json" || strings.HasSuffix(arg, "-json") {
+		if slices.Contains(seedBannerFlagTokens, arg) || strings.HasSuffix(arg, "-json") {
 			return true
 		}
 
-		if arg == "version" || arg == "--version" || arg == "-v" || arg == "reset" || arg == "db-reset" {
+		if slices.Contains(seedSuppressCommandTokens, arg) {
 			return true
 		}
 	}

@@ -1,14 +1,18 @@
 // Package store — backup_prompts_split_types.go defines domain models for running prompts backup & restore.
 package store
 
-// PromptStatusType defines running or enqueued prompt status.
-type PromptStatusType string
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/store/enums"
+)
+
+// PromptStatusType is the canonical prompt status enum, defined in the store enums package.
+type PromptStatusType = enums.PromptStatusType
 
 const (
 	// PromptStatusRunning indicates an active executing prompt.
-	PromptStatusRunning PromptStatusType = "running"
+	PromptStatusRunning = enums.PromptStatusRunning
 	// PromptStatusEnqueued indicates a pending queued prompt.
-	PromptStatusEnqueued PromptStatusType = "enqueued"
+	PromptStatusEnqueued = enums.PromptStatusEnqueued
 )
 
 // RunningPromptRecord models a single prompt from active execution or queue.

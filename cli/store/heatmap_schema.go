@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store/enums"
 )
 
 const (
@@ -155,24 +156,14 @@ type HeatmapTaskSummary struct {
 	OtherCount   int    `json:"otherCount"`
 }
 
-// FileTouchType represents the categorical operation applied to a touched file.
-type FileTouchType string
+// FileTouchType is the canonical file touch enum, defined in the store enums package.
+type FileTouchType = enums.FileTouchType
 
 const (
-	FileTouchRead    FileTouchType = "READ"
-	FileTouchEdit    FileTouchType = "EDIT"
-	FileTouchCreated FileTouchType = "CREATED"
+	FileTouchRead    = enums.FileTouchRead
+	FileTouchEdit    = enums.FileTouchEdit
+	FileTouchCreated = enums.FileTouchCreated
 )
-
-// IsValid reports whether the touch type is a recognized enumeration value.
-func (t FileTouchType) IsValid() bool {
-	switch t {
-	case FileTouchRead, FileTouchEdit, FileTouchCreated:
-		return true
-	default:
-		return false
-	}
-}
 
 // FileTouchCount represents file touch frequency with granular operation metrics.
 type FileTouchCount struct {
