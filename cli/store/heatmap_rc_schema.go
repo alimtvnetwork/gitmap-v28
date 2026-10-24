@@ -38,7 +38,8 @@ const (
     HeatmapActionLogId INTEGER PRIMARY KEY AUTOINCREMENT, ParentLogId INTEGER NULL, TaskSlug TEXT NOT NULL, RepoSlug TEXT NOT NULL DEFAULT '', ActionType TEXT NOT NULL,
     FilePath TEXT NOT NULL DEFAULT '', StartLine INTEGER NOT NULL DEFAULT 0, EndLine INTEGER NOT NULL DEFAULT 0, CodeSnippet TEXT NULL, CommandText TEXT NULL,
     ReasoningState TEXT NOT NULL DEFAULT 'EXPLORATION', ReasoningNotes TEXT NULL, ExpectedOutcome TEXT NULL, ActualOutcome TEXT NULL, IsExpectationMet INTEGER NOT NULL DEFAULT 1,
-    ExecutionDepth INTEGER NOT NULL DEFAULT 0, ExecutionOrder INTEGER NOT NULL DEFAULT 1, DurationMs INTEGER NOT NULL DEFAULT 0, Notes TEXT NULL, Comments TEXT NULL, CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ExecutionDepth INTEGER NOT NULL DEFAULT 0, ExecutionOrder INTEGER NOT NULL DEFAULT 1, DurationMs INTEGER NOT NULL DEFAULT 0,
+    ModelName TEXT NULL, ToolName TEXT NULL, Notes TEXT NULL, Comments TEXT NULL, CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 ); CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_TaskSlug ON HeatmapActionLog(TaskSlug); CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_FilePath ON HeatmapActionLog(FilePath); CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ParentId ON HeatmapActionLog(ParentLogId); CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ActionType ON HeatmapActionLog(ActionType); CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_CreatedAt ON HeatmapActionLog(CreatedAt);`
 
 	sqlCreateHeatmapExecutionTree = `CREATE TABLE IF NOT EXISTS HeatmapExecutionTree (
@@ -154,6 +155,21 @@ type RcHeatmapExecutionTreeNode struct {
 	Children []RcHeatmapExecutionTreeNode `json:"children,omitempty"`
 }
 
+func tryAttachRcNodeToParent(node *RcHeatmapExecutionTreeNode, parentID *int64, nodeMap map[int64]*RcHeatmapExecutionTreeNode) bool {
+	if parentID == nil || *parentID <= 0 {
+		return false
+	}
+
+	parent, hasParent := nodeMap[*parentID]
+	if !hasParent {
+		return false
+	}
+
+	parent.Children = append(parent.Children, *node)
+
+	return true
+}
+
 // AssembleRcTreeNodes builds tree nodes from flat action records.
 func AssembleRcTreeNodes(records []HeatmapActionLogRecord) []RcHeatmapExecutionTreeNode {
 	nodeMap := make(map[int64]*RcHeatmapExecutionTreeNode, len(records))
@@ -164,12 +180,10 @@ func AssembleRcTreeNodes(records []HeatmapActionLogRecord) []RcHeatmapExecutionT
 	}
 	for _, rec := range records {
 		node := nodeMap[rec.HeatmapActionLogId]
-		if rec.ParentLogId != nil && *rec.ParentLogId > 0 {
-			if parent, exists := nodeMap[*rec.ParentLogId]; exists {
-				parent.Children = append(parent.Children, *node)
-				continue
-			}
+		if tryAttachRcNodeToParent(node, rec.ParentLogId, nodeMap) {
+			continue
 		}
+
 		roots = append(roots, *node)
 	}
 	return roots
@@ -202,10 +216,14 @@ func EnsureRcHeatmapRootTables(conn *sql.DB) error {
 
 // EnsureRcHeatmapRepoTables creates all per-repo heatmap.db tables.
 func EnsureRcHeatmapRepoTables(conn *sql.DB) error {
-	return executeSchemaBatch(conn, []string{
+	if err := executeSchemaBatch(conn, []string{
 		sqlCreateHeatmapReasoningState, sqlSeedHeatmapReasoningStates,
 		sqlCreateRcHeatmapActionLog, sqlCreateHeatmapExecutionTree,
-	}, "heatmap_rc.ensureRepo")
+	}, "heatmap_rc.ensureRepo"); err != nil {
+		return err
+	}
+
+	return ensureHeatmapActionLogColumns(conn)
 }
 
 // EnsureRcHeatmapLocalTrackingTables creates the HeatmapLocalTracking table in local tracking DB.

@@ -1,10 +1,10 @@
 package cmdcommit
 
 import (
-	"regexp"
 	"strings"
 
 	commitconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // ParsedCommitMessage contains the decomposed components of a semantic commit message.
@@ -21,11 +21,11 @@ type ParsedCommitMessage struct {
 
 var (
 	// hyphenRegex matches "<module> - <summary>" or "<module>: <summary>"
-	hyphenRegex = regexp.MustCompile(commitconstants.PatternHyphen)
+	hyphenRegex = lazyregex.New(commitconstants.PatternHyphen)
 	// bracketedModuleRegex matches "(<module>): <summary>" or "(<module>) - <summary>"
-	bracketedModuleRegex = regexp.MustCompile(`^\(([A-Za-z0-9_\-\./]+)\)\s*[:-]\s*(.+)$`)
+	bracketedModuleRegex = lazyregex.New(commitconstants.PatternBracketedModule)
 	// conventionalRegex matches standard conventional commits: "<type>(<module>): <summary>"
-	conventionalRegex = regexp.MustCompile(commitconstants.PatternConventional)
+	conventionalRegex = lazyregex.New(commitconstants.PatternConventional)
 )
 
 func stripWrappingQuotes(s string) string {

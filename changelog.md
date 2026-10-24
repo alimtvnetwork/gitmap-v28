@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.608.0] - 2026-10-24
+
+### Added
+- fix heatmap ModelName and ToolName column migration
+
+---
+
 ## [v6.607.1] - 2026-10-24
 
 ### Added

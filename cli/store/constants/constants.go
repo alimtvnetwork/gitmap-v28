@@ -14,7 +14,7 @@ const DriverSQLite = "sqlite"
 var defaultPragmaList = enums.DefaultPragmas()
 
 // ApplyDefaultPragmas configures standard SQLite PRAGMAs on the provided connection.
-func ApplyDefaultPragmas(conn *sql.DB) error {
+func ApplyDefaultPragmas(conn *sql.DB) *apperror.AppError {
 	for _, pragma := range defaultPragmaList {
 		if _, err := conn.Exec(pragma.String()); err != nil {
 			return apperror.WrapSimple(err, fmt.Sprintf("apply sqlite pragma %q", pragma))

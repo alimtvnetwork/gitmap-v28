@@ -24,7 +24,7 @@ func OpenSQLiteDB(path string) (*sql.DB, *apperror.AppError) {
 }
 
 // ConfigureSQLiteConn sets connection limits and configures standard SQLite PRAGMAs.
-func ConfigureSQLiteConn(conn *sql.DB) error {
+func ConfigureSQLiteConn(conn *sql.DB) *apperror.AppError {
 	conn.SetMaxOpenConns(1)
 
 	return storeconstants.ApplyDefaultPragmas(conn)

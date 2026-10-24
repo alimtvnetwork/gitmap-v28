@@ -21,6 +21,7 @@ const (
 
 // Regular expression patterns for commit message parsing.
 const (
-	PatternHyphen       = `^([A-Za-z0-9_\-\./]+)\s*[:-]\s*(.+)$`
-	PatternConventional = `^([A-Za-z]+)\(([A-Za-z0-9_\-\./]+)\):\s*(.+)$`
+	PatternHyphen          = `^([A-Za-z0-9_\-\./]+)\s*[:-]\s*(.+)$`
+	PatternBracketedModule = `^\(([A-Za-z0-9_\-\./]+)\)\s*[:-]\s*(.+)$`
+	PatternConventional    = `^([A-Za-z]+)\(([A-Za-z0-9_\-\./]+)\):\s*(.+)$`
 )
