@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -80,7 +81,7 @@ func parseSimpleReadFlag(arg string, flags *readFlags) (int, bool) {
 
 func parseAliasReadFlag(args []string, idx int, flags *readFlags) (int, bool) {
 	arg := args[idx]
-	if (arg == "-as" || arg == "--alias") && idx+1 < len(args) {
+	if slices.Contains([]string{"-as", "--alias"}, arg) && idx+1 < len(args) {
 		flags.aliasName = args[idx+1]
 		return 2, true
 	}
@@ -100,7 +101,7 @@ func parseAliasReadFlag(args []string, idx int, flags *readFlags) (int, bool) {
 
 func parseLimitReadFlag(args []string, idx int, flags *readFlags) (int, bool) {
 	arg := args[idx]
-	if (arg == "-l" || arg == "--limit" || arg == "-n") && idx+1 < len(args) {
+	if slices.Contains([]string{"-l", "--limit", "-n"}, arg) && idx+1 < len(args) {
 		flags.limit, _ = strconv.Atoi(args[idx+1])
 		return 2, true
 	}

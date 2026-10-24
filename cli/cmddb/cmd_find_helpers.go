@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -70,7 +71,7 @@ func parseFindFlagToken(args []string, idx int, p *findParams) (int, bool) {
 		}
 		return 2, true
 	}
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		p.isJson = true
 		return 1, true
 	}
@@ -78,23 +79,23 @@ func parseFindFlagToken(args []string, idx int, p *findParams) (int, bool) {
 }
 
 func isTableFlag(arg string) bool {
-	return arg == "-table" || arg == "--table" || arg == "-t"
+	return slices.Contains([]string{"-table", "--table", "-t"}, arg)
 }
 
 func isFindFlag(arg string) bool {
-	return arg == "--find" || arg == "-f" || arg == "-find" || arg == "--find/f" || arg == "-f/--find"
+	return slices.Contains([]string{"--find", "-f", "-find", "--find/f", "-f/--find"}, arg)
 }
 
 func isGrepFlag(arg string) bool {
-	return arg == "--grep" || arg == "-r" || arg == "-grep" || arg == "--grep/r" || arg == "-r/--grep"
+	return slices.Contains([]string{"--grep", "-r", "-grep", "--grep/r", "-r/--grep"}, arg)
 }
 
 func isColumnsFlag(arg string) bool {
-	return arg == "--columns" || arg == "-c" || arg == "-columns" || arg == "--columns/c" || arg == "-c/--columns"
+	return slices.Contains([]string{"--columns", "-c", "-columns", "--columns/c", "-c/--columns"}, arg)
 }
 
 func isLimitFlag(arg string) bool {
-	return arg == "--limit" || arg == "-l" || arg == "-n" || arg == "--limit/l" || arg == "-l/--limit"
+	return slices.Contains([]string{"--limit", "-l", "-n", "--limit/l", "-l/--limit"}, arg)
 }
 
 func parseFindFlagInline(arg string, p *findParams) (int, bool) {

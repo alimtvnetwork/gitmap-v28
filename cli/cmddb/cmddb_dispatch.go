@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -150,12 +151,12 @@ func parseDbSubsystemArgs(args []string) (string, []string, CommonDbOptions) {
 
 func parseFlagToken(args []string, idx int, opts *CommonDbOptions) (int, bool) {
 	arg := args[idx]
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains([]string{"--json", "-j"}, arg) {
 		opts.IsJson = true
 		return 1, true
 	}
 
-	if (arg == "--db" || arg == "-d") && idx+1 < len(args) {
+	if slices.Contains([]string{"--db", "-d"}, arg) && idx+1 < len(args) {
 		opts.DbPath = args[idx+1]
 		return 2, true
 	}
@@ -165,7 +166,7 @@ func parseFlagToken(args []string, idx int, opts *CommonDbOptions) (int, bool) {
 		return 1, true
 	}
 
-	if (arg == "--limit" || arg == "-n" || arg == "-l") && idx+1 < len(args) {
+	if slices.Contains([]string{"--limit", "-n", "-l"}, arg) && idx+1 < len(args) {
 		opts.Limit, _ = strconv.Atoi(args[idx+1])
 		return 2, true
 	}

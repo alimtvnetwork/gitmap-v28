@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -103,7 +104,7 @@ func parseDbRmArgs(args []string) (dbRmParams, *appfault.AppError) {
 }
 
 func consumeDbRmArg(arg string, p *dbRmParams) {
-	if arg == "--purge" || arg == "--purge-file" {
+	if slices.Contains([]string{"--purge", "--purge-file"}, arg) {
 		p.isPurge = true
 		return
 	}

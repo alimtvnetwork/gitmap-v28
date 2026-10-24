@@ -3,6 +3,7 @@ package cmddb
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -137,7 +138,7 @@ func parseEditFlagToken(args []string, idx int, p *editParams) (int, bool) {
 
 func parseTableEditFlag(args []string, idx int, p *editParams) (int, bool) {
 	arg := args[idx]
-	if (arg == "-table" || arg == "--table" || arg == "-t") && idx+1 < len(args) {
+	if slices.Contains([]string{"-table", "--table", "-t"}, arg) && idx+1 < len(args) {
 		p.table = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
@@ -157,7 +158,7 @@ func parseTableEditFlag(args []string, idx int, p *editParams) (int, bool) {
 
 func parseIdEditFlag(args []string, idx int, p *editParams) (int, bool) {
 	arg := args[idx]
-	if (arg == "-id" || arg == "--id") && idx+1 < len(args) {
+	if slices.Contains([]string{"-id", "--id"}, arg) && idx+1 < len(args) {
 		p.id = strings.Trim(args[idx+1], `"'`)
 		return 2, true
 	}
