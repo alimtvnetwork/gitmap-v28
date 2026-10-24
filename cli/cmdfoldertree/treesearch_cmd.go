@@ -3,6 +3,7 @@ package cmdfoldertree
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -29,12 +30,12 @@ func parseTreeSearchArgs(args []string) parsedArgs {
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if arg == "-h" || arg == "--help" || arg == "help" {
+		if slices.Contains([]string{"-h", "--help", "help"}, arg) {
 			res.isHelp = true
 			return res
 		}
 
-		if arg == "-f" || arg == "--file" {
+		if slices.Contains([]string{"-f", "--file"}, arg) {
 			if i+1 < len(args) {
 				res.filePath = args[i+1]
 				i++
@@ -67,7 +68,7 @@ func parseTreeSearchArgs(args []string) parsedArgs {
 			continue
 		}
 
-		if arg == "-n" || arg == "--limit" {
+		if slices.Contains([]string{"-n", "--limit"}, arg) {
 			if i+1 < len(args) {
 				if n, err := strconv.Atoi(args[i+1]); err == nil && n > 0 {
 					res.limit = n
@@ -83,11 +84,11 @@ func parseTreeSearchArgs(args []string) parsedArgs {
 			continue
 		}
 
-		if arg == "--dirs" || arg == "--dirs-only" {
+		if slices.Contains([]string{"--dirs", "--dirs-only"}, arg) {
 			res.dirsOnly = true
 			continue
 		}
-		if arg == "--files" || arg == "--files-only" {
+		if slices.Contains([]string{"--files", "--files-only"}, arg) {
 			res.filesOnly = true
 			continue
 		}

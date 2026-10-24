@@ -7,20 +7,21 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfoldertree/enums"
 )
 
-// SearchModeType defines the pattern matching strategy for tree searching.
-type SearchModeType string
+// SearchModeType is the canonical tree search mode type, defined in enums.
+type SearchModeType = enums.SearchModeType
 
 // SearchMode is an alias for SearchModeType.
 type SearchMode = SearchModeType
 
 const (
-	ModeWildcard   SearchModeType = "wildcard"
-	ModeStartsWith SearchModeType = "startsWith"
-	ModeContains   SearchModeType = "contains"
-	ModeEndsWith   SearchModeType = "endsWith"
-	ModeGrep       SearchModeType = "grep"
+	ModeWildcard   = enums.ModeWildcard
+	ModeStartsWith = enums.ModeStartsWith
+	ModeContains   = enums.ModeContains
+	ModeEndsWith   = enums.ModeEndsWith
+	ModeGrep       = enums.ModeGrep
 )
 
 // TreeSearchFilter configures query parameters and search options.
