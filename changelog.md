@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.600.0] - 2026-10-24
+
+### Added
+- multi-machine gitmap pa interactive remediation and fleet command dispatch
+
+---
+
 ## [v6.599.0] - 2026-10-23
 
 ### Added
