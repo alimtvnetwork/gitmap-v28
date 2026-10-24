@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.603.0] - 2026-10-24
+
+### Added
+- feat([workgroup]): folder-specific workdirs and ssh automation
+
+---
+
 ## [v6.602.0] - 2026-10-24
 
 ### Added

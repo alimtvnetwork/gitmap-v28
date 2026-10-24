@@ -44,6 +44,7 @@ var generatedCommandsPart1 = []string{
 	"branch",
 	"c",
 	"ca",
+	"cbf",
 	"cc",
 	"cd",
 	"cf",
@@ -254,5 +255,4 @@ var generatedCommandsPart1 = []string{
 	"lb",
 	"lcf",
 	"ld",
-	"lemon",
 }
