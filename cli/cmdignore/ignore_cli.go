@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -37,8 +38,10 @@ func resolveSubcommandArgs(args []string) (string, []string) {
 	return subCmd, args[1:]
 }
 
+var ignoreFlagTokens = []string{"--force", "--interval", "-i"}
+
 func isIgnoreFlag(arg string) bool {
-	return arg == "--force" || arg == "--interval" || arg == "-i"
+	return slices.Contains(ignoreFlagTokens, arg)
 }
 
 func routeLeadingFlag(args []string) (string, []string) {

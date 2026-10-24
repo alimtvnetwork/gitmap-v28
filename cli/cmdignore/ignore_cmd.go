@@ -3,6 +3,7 @@ package cmdignore
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -366,6 +367,8 @@ func ParseIgnoreFlags(args []string) (time.Duration, bool, []string, error) {
 	return pf.Duration, pf.HasDuration, pf.Remaining, nil
 }
 
+var ignoreIntervalFlagTokens = []string{"--interval", "-i"}
+
 func processFlagArg(args []string, i int, pf *ParsedFlags) (int, error) {
 	arg := args[i]
 	if arg == "--force" {
@@ -373,7 +376,7 @@ func processFlagArg(args []string, i int, pf *ParsedFlags) (int, error) {
 		pf.HasDuration = true
 		return i, nil
 	}
-	if arg == "--interval" || arg == "-i" {
+	if slices.Contains(ignoreIntervalFlagTokens, arg) {
 		return parseIntervalFlag(args, i, pf)
 	}
 	pf.Remaining = append(pf.Remaining, arg)
