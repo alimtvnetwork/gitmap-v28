@@ -1,17 +1,20 @@
 package cmdagy
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 func parsePromptOrFileFlag(args []string, idx *int, opts *AgyFixOptions, arg string) bool {
 	if *idx+1 >= len(args) {
 		return false
 	}
-	if arg == "--prompt" || arg == "-p" {
+	switch arg {
+	case "--prompt", "-p":
 		opts.CustomPrompt = args[*idx+1]
 		*idx++
 		return true
-	}
-	if arg == "--file" {
+	case "--file":
 		opts.OutputFile = args[*idx+1]
 		*idx++
 		return true
@@ -55,20 +58,20 @@ func isSubcommandKeyword(word string) bool {
 }
 
 func isAgyForceFlag(arg string) bool {
-	return arg == "--force" || arg == "-f"
+	return slices.Contains([]string{"--force", "-f"}, arg)
 }
 
 func isAgyDetailedFlag(arg string) bool {
-	return arg == "--detailed" || arg == "-v"
+	return slices.Contains([]string{"--detailed", "-v"}, arg)
 }
 
 func isAgyDryRunFlag(arg string) bool {
-	return arg == "--dry-run" || arg == "-d"
+	return slices.Contains([]string{"--dry-run", "-d"}, arg)
 }
 
 func hasHelpFlag(args []string) bool {
 	for _, arg := range args {
-		if arg == "--help" || arg == "-h" || arg == "help" {
+		if slices.Contains([]string{"--help", "-h", "help"}, arg) {
 			return true
 		}
 	}

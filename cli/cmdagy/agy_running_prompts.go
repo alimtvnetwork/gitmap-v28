@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -75,11 +76,11 @@ func extractInstanceArgs(args []string) (string, bool) {
 	isAll := false
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		if arg == "-a" || arg == "--all-instances" {
+		if slices.Contains([]string{"-a", "--all-instances"}, arg) {
 			isAll = true
 			continue
 		}
-		if (arg == "-i" || arg == "--instance") && i+1 < len(args) {
+		if slices.Contains([]string{"-i", "--instance"}, arg) && i+1 < len(args) {
 			instID = args[i+1]
 			i++
 			continue

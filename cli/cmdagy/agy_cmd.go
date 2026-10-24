@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -136,7 +137,7 @@ func rewriteCompoundAgyFix(args []string) []string {
 }
 
 func isAgyOpenPathArg(arg string) bool {
-	if arg == "." || arg == ".." || strings.HasPrefix(arg, "./") || strings.HasPrefix(arg, ".\\") {
+	if slices.Contains([]string{".", ".."}, arg) || strings.HasPrefix(arg, "./") || strings.HasPrefix(arg, ".\\") {
 		return true
 	}
 	if strings.HasPrefix(arg, "/") || strings.HasPrefix(arg, "\\") || strings.Contains(arg, string(filepath.Separator)) {
