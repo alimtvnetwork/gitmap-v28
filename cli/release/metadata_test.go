@@ -41,7 +41,7 @@ func TestWriteAndReadReleaseMeta(t *testing.T) {
 	}
 
 	v, _ := Parse("v1.2.3")
-	path := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
+	path := filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		t.Fatalf("metadata file not created at %s", path)
 	}

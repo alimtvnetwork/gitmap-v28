@@ -45,7 +45,7 @@ func RunReleaseUndo(args []string) error {
 	}
 
 	tag := "v" + v.String()
-	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
+	jsonPath := filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 
 	fmt.Printf("\x1b[1;36m▶ release-undo\x1b[0m: %s\n", tag)
 	fmt.Printf("  local tag      : git tag -d %s\n", tag)

@@ -114,7 +114,7 @@ func applyBatchTagRemoval(tags []string, keepRemote bool) []string {
 	for _, t := range tags {
 		v, err := release.Parse(t)
 		if err == nil {
-			jsonPath := filepath.Join(constants.DefaultReleaseDir, v.String()+constants.ExtJSON)
+			jsonPath := filepath.Join(constants.DefaultReleaseDir, v.ReleaseFileName())
 			_ = os.Remove(jsonPath)
 		}
 	}

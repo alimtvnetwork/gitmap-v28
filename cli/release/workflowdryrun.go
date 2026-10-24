@@ -92,7 +92,7 @@ func printDryRunAssets(assetsPath string, compress, checksums bool) {
 
 // printDryRunMeta prints metadata and latest marker in dry-run mode.
 func printDryRunMeta(v Version) {
-	fmt.Printf(constants.MsgReleaseDryRun, "Write metadata to "+constants.DefaultReleaseDir+"/"+v.String()+constants.ExtJSON)
+	fmt.Printf(constants.MsgReleaseDryRun, "Write metadata to "+constants.DefaultReleaseDir+"/"+v.ReleaseFileName())
 
 	if len(v.PreRelease) == 0 {
 		fmt.Printf(constants.MsgReleaseDryRun, "Mark "+v.String()+" as latest")
