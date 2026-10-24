@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -88,6 +89,8 @@ func defaultChildPathOptions() ChildPathOptions {
 	}
 }
 
+var childPathJSONFlagTokens = []string{"--json", "-j"}
+
 func parseSingleChildPathArg(args []string, idx int, opts *ChildPathOptions, nonFlags *[]string) (int, error) {
 	arg := args[idx]
 	hasNext := idx+1 < len(args)
@@ -97,7 +100,7 @@ func parseSingleChildPathArg(args []string, idx int, opts *ChildPathOptions, non
 		nextArg = args[idx+1]
 	}
 
-	if arg == "--json" || arg == "-j" {
+	if slices.Contains(childPathJSONFlagTokens, arg) {
 		opts.IsJson = true
 
 		return 0, nil
@@ -158,8 +161,15 @@ func isChildPathLimitFlag(arg string) bool {
 	return strings.HasPrefix(arg, "--limit=") || strings.HasPrefix(arg, "-l=") || strings.HasPrefix(arg, "-n=")
 }
 
+var (
+	childPathDepthFlagTokens = []string{"--depth", "-d"}
+	childPathExtFlagTokens   = []string{"--ext", "-e"}
+	childPathTypeFlagTokens  = []string{"--type", "-t"}
+	childPathLimitFlagTokens = []string{"--limit", "-l", "-n"}
+)
+
 func extractChildPathDepthRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
-	if (arg == "--depth" || arg == "-d") && hasNext {
+	if slices.Contains(childPathDepthFlagTokens, arg) && hasNext {
 		return nextArg, 1, true
 	}
 
@@ -189,7 +199,7 @@ func parseChildPathDepthFlag(arg string, nextArg string, hasNext bool, opts *Chi
 }
 
 func parseChildPathExtFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) int {
-	if (arg == "--ext" || arg == "-e") && hasNext {
+	if slices.Contains(childPathExtFlagTokens, arg) && hasNext {
 		opts.Extensions = append(opts.Extensions, splitChildPathExtensions(nextArg)...)
 
 		return 1
@@ -206,7 +216,7 @@ func parseChildPathExtFlag(arg string, nextArg string, hasNext bool, opts *Child
 }
 
 func parseChildPathTypeFlag(arg string, nextArg string, hasNext bool, opts *ChildPathOptions) int {
-	if (arg == "--type" || arg == "-t") && hasNext {
+	if slices.Contains(childPathTypeFlagTokens, arg) && hasNext {
 		opts.TypeFilter = strings.ToLower(nextArg)
 
 		return 1
@@ -223,7 +233,7 @@ func parseChildPathTypeFlag(arg string, nextArg string, hasNext bool, opts *Chil
 }
 
 func extractChildPathLimitRaw(arg string, nextArg string, hasNext bool) (string, int, bool) {
-	if (arg == "--limit" || arg == "-l" || arg == "-n") && hasNext {
+	if slices.Contains(childPathLimitFlagTokens, arg) && hasNext {
 		return nextArg, 1, true
 	}
 
