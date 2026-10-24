@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -59,11 +60,11 @@ func detectDarwinManager() string {
 // detectLinuxManager checks for apt, dnf, then pacman.
 func detectLinuxManager() string {
 	osType := CurrentOS()
-	if osType == OSUbuntu || osType == OSDebian {
+	if osType == enums.OSUbuntu || osType == enums.OSDebian {
 		return constants.PkgMgrApt
 	}
 
-	if osType == OSFedora || osType == OSCentOS {
+	if osType == enums.OSFedora || osType == enums.OSCentOS {
 		return constants.PkgMgrDnf
 	}
 

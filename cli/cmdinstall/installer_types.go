@@ -6,29 +6,32 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
-// InstallerOSType defines supported operating systems for modular recipes.
-type InstallerOSType string
+// InstallerOSType is an alias for the canonical enum in the package's
+// enums subpackage, kept so existing callers keep compiling.
+type InstallerOSType = enums.InstallerOSType
 
+// Installer OS constants, aliased from the enums subpackage.
 const (
-	InstallerOSWindows InstallerOSType = "windows"
-	InstallerOSUnix    InstallerOSType = "unix"
-	InstallerOSUbuntu  InstallerOSType = "ubuntu"
-	InstallerOSCentOS  InstallerOSType = "centos"
-	InstallerOSAll     InstallerOSType = "all"
+	InstallerOSWindows = enums.InstallerOSWindows
+	InstallerOSUnix    = enums.InstallerOSUnix
+	InstallerOSUbuntu  = enums.InstallerOSUbuntu
+	InstallerOSCentOS  = enums.InstallerOSCentOS
+	InstallerOSAll     = enums.InstallerOSAll
 )
 
 // ChainedSubInstaller represents a downstream installer dependency executed sequentially.
 type ChainedSubInstaller struct {
-	SubInstallerId string          `json:"subInstallerId"`
-	ParentId       string          `json:"parentId"`
-	Name           string          `json:"name"`
-	TargetOS       InstallerOSType `json:"targetOS"`
-	Command        string          `json:"command"`
-	SequenceOrder  int             `json:"sequenceOrder"`
-	IsRequired     bool            `json:"isRequired"`
+	SubInstallerId string                `json:"subInstallerId"`
+	ParentId       string                `json:"parentId"`
+	Name           string                `json:"name"`
+	TargetOS       enums.InstallerOSType `json:"targetOS"`
+	Command        string                `json:"command"`
+	SequenceOrder  int                   `json:"sequenceOrder"`
+	IsRequired     bool                  `json:"isRequired"`
 }
 
 // ModularInstallerRecipe defines an installer package with target OS filtering and child sub-installers.
@@ -36,33 +39,33 @@ type ModularInstallerRecipe struct {
 	RecipeId      string                `json:"recipeId"`
 	Name          string                `json:"name"`
 	Description   string                `json:"description"`
-	TargetOS      InstallerOSType       `json:"targetOS"`
+	TargetOS      enums.InstallerOSType `json:"targetOS"`
 	MainCommand   string                `json:"mainCommand"`
 	SubInstallers []ChainedSubInstaller `json:"subInstallers"`
 }
 
 // MatchesTargetOS verifies if the recipe or sub-installer is applicable to the current host OS.
-func MatchesTargetOS(target InstallerOSType, currentOS string) bool {
-	lowTarget := strings.ToLower(string(target))
+func MatchesTargetOS(target enums.InstallerOSType, currentOS string) bool {
+	lowTarget := strings.ToLower(target.String())
 	lowCurrent := strings.ToLower(currentOS)
 
-	if lowTarget == "" || lowTarget == string(InstallerOSAll) {
+	if lowTarget == "" || lowTarget == enums.InstallerOSAll.String() {
 		return true
 	}
 
-	if lowTarget == string(InstallerOSWindows) && lowCurrent == constants.PlatformWindows {
+	if lowTarget == enums.InstallerOSWindows.String() && lowCurrent == constants.PlatformWindows {
 		return true
 	}
 
-	if lowTarget == string(InstallerOSUnix) && (lowCurrent == constants.PlatformLinux || lowCurrent == constants.PlatformDarwin) {
+	if lowTarget == enums.InstallerOSUnix.String() && (lowCurrent == constants.PlatformLinux || lowCurrent == constants.PlatformDarwin) {
 		return true
 	}
 
-	if lowTarget == string(InstallerOSUbuntu) && lowCurrent == constants.PlatformLinux {
+	if lowTarget == enums.InstallerOSUbuntu.String() && lowCurrent == constants.PlatformLinux {
 		return true
 	}
 
-	if lowTarget == string(InstallerOSCentOS) && lowCurrent == constants.PlatformLinux {
+	if lowTarget == enums.InstallerOSCentOS.String() && lowCurrent == constants.PlatformLinux {
 		return true
 	}
 

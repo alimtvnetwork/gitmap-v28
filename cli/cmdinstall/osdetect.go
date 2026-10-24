@@ -4,67 +4,71 @@ import (
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 )
 
-// OSType represents the specific operating system or distribution.
-type OSType string
+// OSType is an alias for the canonical enum in the package's enums
+// subpackage, kept so existing callers keep compiling.
+type OSType = enums.OSType
 
+// OS constants, aliased from the enums subpackage.
 const (
-	OSUnknown       OSType = "unknown"
-	OSWindows       OSType = "windows"
-	OSWindows11     OSType = "windows11"
-	OSWindows10     OSType = "windows10"
-	OSWindowsServer OSType = "windowsserver"
-	OSMacOS         OSType = "macos"
-	OSUbuntu        OSType = "ubuntu"
-	OSDebian        OSType = "debian"
-	OSFedora        OSType = "fedora"
-	OSCentOS        OSType = "centos"
+	OSUnknown       = enums.OSUnknown
+	OSWindows       = enums.OSWindows
+	OSWindows11     = enums.OSWindows11
+	OSWindows10     = enums.OSWindows10
+	OSWindowsServer = enums.OSWindowsServer
+	OSMacOS         = enums.OSMacOS
+	OSUbuntu        = enums.OSUbuntu
+	OSDebian        = enums.OSDebian
+	OSFedora        = enums.OSFedora
+	OSCentOS        = enums.OSCentOS
 )
 
 // CurrentOS detects and returns the specific operating system.
-func CurrentOS() OSType {
+func CurrentOS() enums.OSType {
 	switch runtime.GOOS {
 	case "windows":
 		return detectWindowsVersion()
 	case "darwin":
-		return OSMacOS
+		return enums.OSMacOS
 	case "linux":
 		return detectLinuxDistro()
 	default:
-		return OSUnknown
+		return enums.OSUnknown
 	}
 }
 
 // IsUbuntu returns true if the current OS is Ubuntu.
-func IsUbuntu() bool { return CurrentOS() == OSUbuntu }
+func IsUbuntu() bool { return CurrentOS() == enums.OSUbuntu }
 
 // IsDebian returns true if the current OS is Debian.
-func IsDebian() bool { return CurrentOS() == OSDebian }
+func IsDebian() bool { return CurrentOS() == enums.OSDebian }
 
 // IsFedora returns true if the current OS is Fedora.
-func IsFedora() bool { return CurrentOS() == OSFedora }
+func IsFedora() bool { return CurrentOS() == enums.OSFedora }
 
 // IsCentOS returns true if the current OS is CentOS.
-func IsCentOS() bool { return CurrentOS() == OSCentOS }
+func IsCentOS() bool { return CurrentOS() == enums.OSCentOS }
 
 // IsWindows returns true if the current OS is any Windows version.
 func IsWindows() bool {
 	osType := CurrentOS()
 
-	return osType == OSWindows || osType == OSWindows10 || osType == OSWindows11 || osType == OSWindowsServer
+	return osType == enums.OSWindows || osType == enums.OSWindows10 || osType == enums.OSWindows11 || osType == enums.OSWindowsServer
 }
 
 // IsWindows11 returns true if the current OS is Windows 11.
-func IsWindows11() bool { return CurrentOS() == OSWindows11 }
+func IsWindows11() bool { return CurrentOS() == enums.OSWindows11 }
 
 // IsWindowsServer returns true if the current OS is Windows Server.
-func IsWindowsServer() bool { return CurrentOS() == OSWindowsServer }
+func IsWindowsServer() bool { return CurrentOS() == enums.OSWindowsServer }
 
-func detectLinuxDistro() OSType {
+func detectLinuxDistro() enums.OSType {
 	data, err := os.ReadFile("/etc/os-release")
 	if err != nil {
-		return OSUnknown
+		return enums.OSUnknown
 	}
 
 	content := strings.ToLower(string(data))
@@ -73,16 +77,16 @@ func detectLinuxDistro() OSType {
 			id := strings.Trim(strings.TrimPrefix(line, "id="), "\"'")
 			switch id {
 			case "ubuntu":
-				return OSUbuntu
+				return enums.OSUbuntu
 			case "debian":
-				return OSDebian
+				return enums.OSDebian
 			case "fedora":
-				return OSFedora
+				return enums.OSFedora
 			case "centos":
-				return OSCentOS
+				return enums.OSCentOS
 			}
 		}
 	}
 
-	return OSUnknown
+	return enums.OSUnknown
 }

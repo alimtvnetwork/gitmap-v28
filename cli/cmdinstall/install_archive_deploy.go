@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 )
 
 func resolveLinuxAppDirs(appName string) (string, string, string) {
@@ -21,13 +22,13 @@ func resolveLinuxAppDirs(appName string) (string, string, string) {
 
 func deployArchiveApp(params ArchiveDeployParams) error {
 	switch params.Inspection.Strategy {
-	case StrategyBinaryApp, StrategySingleGz:
+	case enums.StrategyBinaryApp, enums.StrategySingleGz:
 		return deployBinaryApplication(params)
-	case StrategyScript:
+	case enums.StrategyScript:
 		return deployViaInstallScript(params)
-	case StrategySource:
+	case enums.StrategySource:
 		return deployViaSourceBuild(params)
-	case StrategyUnknown:
+	case enums.StrategyUnknown:
 		return apperror.NewSimple("unrecognized archive package structure; no binary or install script found", "E9000")
 	default:
 		return apperror.NewSimple("unrecognized archive package structure; no binary or install script found", "E9000")

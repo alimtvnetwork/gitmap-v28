@@ -9,34 +9,38 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
-// MusePlatformType represents the target operating system platform.
-type MusePlatformType string
+// MusePlatformType is an alias for the canonical enum in the package's
+// enums subpackage, kept so existing callers keep compiling.
+type MusePlatformType = enums.MusePlatformType
 
+// Muse platform constants, aliased from the enums subpackage.
 const (
-	MusePlatformWindows MusePlatformType = "windows"
-	MusePlatformLinux   MusePlatformType = "linux"
-	MusePlatformDarwin  MusePlatformType = "darwin"
+	MusePlatformWindows = enums.MusePlatformWindows
+	MusePlatformLinux   = enums.MusePlatformLinux
+	MusePlatformDarwin  = enums.MusePlatformDarwin
 )
 
 // InstallMuseOptions configures the installation process for Meta Muse.
 type InstallMuseOptions struct {
-	Platform   MusePlatformType `json:"platform,omitempty"`
-	Version    string           `json:"version,omitempty"`
-	Force      bool             `json:"force,omitempty"`
-	DryRun     bool             `json:"dryRun,omitempty"`
-	VerifyOnly bool             `json:"verifyOnly,omitempty"`
-	Verify     bool             `json:"verify,omitempty"`
-	IsJSON     bool             `json:"isJson,omitempty"`
-	InstallDir string           `json:"installDir,omitempty"`
-	Timeout    time.Duration    `json:"timeout,omitempty"`
+	Platform   enums.MusePlatformType `json:"platform,omitempty"`
+	Version    string                 `json:"version,omitempty"`
+	Force      bool                   `json:"force,omitempty"`
+	DryRun     bool                   `json:"dryRun,omitempty"`
+	VerifyOnly bool                   `json:"verifyOnly,omitempty"`
+	Verify     bool                   `json:"verify,omitempty"`
+	IsJSON     bool                   `json:"isJson,omitempty"`
+	InstallDir string                 `json:"installDir,omitempty"`
+	Timeout    time.Duration          `json:"timeout,omitempty"`
 }
 
 // MuseInstallOptions is an alias for InstallMuseOptions for backward compatibility.
@@ -44,57 +48,57 @@ type MuseInstallOptions = InstallMuseOptions
 
 // MuseInstallResult captures execution telemetry and post-install status.
 type MuseInstallResult struct {
-	IsSuccess       bool             `json:"isSuccess"`
-	Success         bool             `json:"success"`
-	Platform        MusePlatformType `json:"platform"`
-	Version         string           `json:"version,omitempty"`
-	VersionDetected string           `json:"versionDetected,omitempty"`
-	BinaryPath      string           `json:"binaryPath,omitempty"`
-	InstalledPath   string           `json:"installedPath,omitempty"`
-	CommandExecuted string           `json:"commandExecuted"`
-	ExitCode        int              `json:"exitCode"`
-	DurationMs      int64            `json:"durationMs"`
-	ErrorMessage    string           `json:"errorMessage,omitempty"`
+	IsSuccess       bool                   `json:"isSuccess"`
+	Success         bool                   `json:"success"`
+	Platform        enums.MusePlatformType `json:"platform"`
+	Version         string                 `json:"version,omitempty"`
+	VersionDetected string                 `json:"versionDetected,omitempty"`
+	BinaryPath      string                 `json:"binaryPath,omitempty"`
+	InstalledPath   string                 `json:"installedPath,omitempty"`
+	CommandExecuted string                 `json:"commandExecuted"`
+	ExitCode        int                    `json:"exitCode"`
+	DurationMs      int64                  `json:"durationMs"`
+	ErrorMessage    string                 `json:"errorMessage,omitempty"`
 }
 
 // ResolveMusePlatform normalizes platform string or defaults to host runtime.GOOS.
-func ResolveMusePlatform(override string) MusePlatformType {
+func ResolveMusePlatform(override string) enums.MusePlatformType {
 	clean := strings.ToLower(strings.TrimSpace(override))
 	switch clean {
 	case "windows", "win", "win32", "win64":
-		return MusePlatformWindows
+		return enums.MusePlatformWindows
 	case "linux", "ubuntu", "debian":
-		return MusePlatformLinux
+		return enums.MusePlatformLinux
 	case "darwin", "mac", "macos", "osx":
-		return MusePlatformDarwin
+		return enums.MusePlatformDarwin
 	}
 
 	switch runtime.GOOS {
 	case "windows":
-		return MusePlatformWindows
+		return enums.MusePlatformWindows
 	case "darwin":
-		return MusePlatformDarwin
+		return enums.MusePlatformDarwin
 	default:
-		return MusePlatformLinux
+		return enums.MusePlatformLinux
 	}
 }
 
 // ResolveMuseInstallCommand returns the command runner and arguments for the platform.
-func ResolveMuseInstallCommand(platform MusePlatformType) (string, []string, error) {
+func ResolveMuseInstallCommand(platform enums.MusePlatformType) (string, []string, error) {
 	return ResolveMuseInstallCommandWithVersion(platform, "")
 }
 
 // ResolveMuseInstallCommandWithVersion returns command runner and arguments with version support.
-func ResolveMuseInstallCommandWithVersion(platform MusePlatformType, version string) (string, []string, error) {
+func ResolveMuseInstallCommandWithVersion(platform enums.MusePlatformType, version string) (string, []string, error) {
 	switch platform {
-	case MusePlatformWindows:
+	case enums.MusePlatformWindows:
 		return resolveWindowsInstallCommand(version)
-	case MusePlatformLinux:
+	case enums.MusePlatformLinux:
 		return resolveLinuxInstallCommand(version)
-	case MusePlatformDarwin:
+	case enums.MusePlatformDarwin:
 		return resolveDarwinInstallCommand(version)
 	default:
-		return "", nil, apperror.NewValidationError("unsupported platform for Muse installer: " + string(platform))
+		return "", nil, apperror.NewValidationError("unsupported platform for Muse installer: " + platform.String())
 	}
 }
 
@@ -296,7 +300,7 @@ func RunMuseInstaller(opts InstallMuseOptions) (*MuseInstallResult, error) {
 	return executeMuseInstallPipeline(opts, bin, args, result)
 }
 
-func handleVerifyOnly(opts InstallMuseOptions, platform MusePlatformType) (*MuseInstallResult, error) {
+func handleVerifyOnly(opts InstallMuseOptions, platform enums.MusePlatformType) (*MuseInstallResult, error) {
 	existingPath, existingVer, isInstalled := CheckExistingMuseWithDir(opts.InstallDir)
 	res := &MuseInstallResult{
 		IsSuccess:       isInstalled,
@@ -334,7 +338,7 @@ func reportNotInstalled(res *MuseInstallResult, isJSON bool) {
 	fmt.Printf("%s○ Meta Muse is not installed.%s\n", constants.ColorYellow, constants.ColorReset)
 }
 
-func buildExistingMuseResult(opts InstallMuseOptions, platform MusePlatformType, path, ver string) (*MuseInstallResult, error) {
+func buildExistingMuseResult(opts InstallMuseOptions, platform enums.MusePlatformType, path, ver string) (*MuseInstallResult, error) {
 	res := &MuseInstallResult{
 		IsSuccess:       true,
 		Success:         true,
@@ -400,8 +404,8 @@ func executeMuseInstallPipeline(opts InstallMuseOptions, bin string, args []stri
 	return handleInstallSuccess(opts, result)
 }
 
-func resolvePlatformExecutor(platform MusePlatformType, defaultBin string) string {
-	if platform != MusePlatformWindows {
+func resolvePlatformExecutor(platform enums.MusePlatformType, defaultBin string) string {
+	if platform != enums.MusePlatformWindows {
 		return defaultBin
 	}
 
@@ -413,7 +417,7 @@ func resolvePlatformExecutor(platform MusePlatformType, defaultBin string) strin
 }
 
 func handleInstallFailure(opts InstallMuseOptions, runErr error, result *MuseInstallResult) (*MuseInstallResult, error) {
-	if result.Platform == MusePlatformDarwin && executeDarwinFallback(result) == nil {
+	if result.Platform == enums.MusePlatformDarwin && executeDarwinFallback(result) == nil {
 		return handleInstallSuccess(opts, result)
 	}
 
@@ -473,14 +477,14 @@ func handleInstallSuccess(opts InstallMuseOptions, result *MuseInstallResult) (*
 	return result, nil
 }
 
-func recordMuseInstallation(version string, platform MusePlatformType, isJSON bool) {
+func recordMuseInstallation(version string, platform enums.MusePlatformType, isJSON bool) {
 	splitDB, err := store.OpenInstallationSplitDB()
 	if err != nil {
 		return
 	}
 	defer splitDB.Close()
 
-	source := string(platform)
+	source := platform.String()
 	if source == "" {
 		source = runtime.GOOS
 	}
@@ -541,7 +545,7 @@ func applyPostInstallVerification(shouldVerify bool, customDir string, result *M
 }
 
 func extractVersionArgVal(arg, nextArg string, hasNext bool) (string, bool) {
-	isVersionFlag := (arg == "--version" || arg == "-v") && hasNext
+	isVersionFlag := slices.Contains([]string{"--version", "-v"}, arg) && hasNext
 	val := strings.TrimSpace(nextArg)
 	if isVersionFlag && !strings.HasPrefix(val, "-") {
 		return val, true
@@ -579,7 +583,7 @@ func resolveEffectiveJSON(optsJSON bool) bool {
 	}
 
 	for _, arg := range os.Args {
-		if arg == "--json" || arg == "-j" {
+		if slices.Contains([]string{"--json", "-j"}, arg) {
 			return true
 		}
 	}

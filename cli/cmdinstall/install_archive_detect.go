@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
 )
 
 var archiveExts = []string{
@@ -135,15 +137,15 @@ func inspectExtractedPackage(extractDir, baseName string) ArchiveInspectionResul
 	return res
 }
 
-func resolvePackageStrategy(res ArchiveInspectionResult) ArchiveInstallStrategyType {
+func resolvePackageStrategy(res ArchiveInspectionResult) enums.ArchiveInstallStrategyType {
 	if res.BinaryPath != "" {
-		return StrategyBinaryApp
+		return enums.StrategyBinaryApp
 	}
 	if res.ScriptPath != "" {
-		return StrategyScript
+		return enums.StrategyScript
 	}
 	if res.HasMakefile || res.HasConfigure {
-		return StrategySource
+		return enums.StrategySource
 	}
-	return StrategyUnknown
+	return enums.StrategyUnknown
 }

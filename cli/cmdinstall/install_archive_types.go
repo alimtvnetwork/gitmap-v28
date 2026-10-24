@@ -1,16 +1,22 @@
 package cmdinstall
 
-import "context"
+import (
+	"context"
 
-// ArchiveInstallStrategyType represents detected deployment mechanism.
-type ArchiveInstallStrategyType string
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall/enums"
+)
 
+// ArchiveInstallStrategyType is an alias for the canonical enum in the
+// package's enums subpackage, kept so existing callers keep compiling.
+type ArchiveInstallStrategyType = enums.ArchiveInstallStrategyType
+
+// Archive install strategy constants, aliased from the enums subpackage.
 const (
-	StrategyBinaryApp ArchiveInstallStrategyType = "binary_app"
-	StrategyScript    ArchiveInstallStrategyType = "install_script"
-	StrategySource    ArchiveInstallStrategyType = "source_build"
-	StrategySingleGz  ArchiveInstallStrategyType = "single_gzip"
-	StrategyUnknown   ArchiveInstallStrategyType = "unknown"
+	StrategyBinaryApp = enums.StrategyBinaryApp
+	StrategyScript    = enums.StrategyScript
+	StrategySource    = enums.StrategySource
+	StrategySingleGz  = enums.StrategySingleGz
+	StrategyUnknown   = enums.StrategyUnknown
 )
 
 // ArchiveInstallOptions holds options for archive installation.
@@ -43,7 +49,7 @@ type ArchiveCacheValidationResult struct {
 
 // ArchiveInspectionResult holds details discovered during archive analysis.
 type ArchiveInspectionResult struct {
-	Strategy       ArchiveInstallStrategyType
+	Strategy       enums.ArchiveInstallStrategyType
 	BinaryPath     string
 	ScriptPath     string
 	DesktopPath    string

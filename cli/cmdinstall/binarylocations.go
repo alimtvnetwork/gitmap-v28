@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -41,7 +42,7 @@ func isBannerSuppressed() bool {
 	}
 
 	for _, arg := range os.Args[1:] {
-		if arg == constants.FlagNoBanner {
+		if slices.Contains([]string{constants.FlagNoBanner}, arg) {
 			return true
 		}
 	}
