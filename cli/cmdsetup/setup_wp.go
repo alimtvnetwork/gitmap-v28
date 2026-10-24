@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 const defaultWpConfigTemplate = `<?php
@@ -129,15 +130,15 @@ func replaceConfigDefine(content, key, val string) string {
 }
 
 var (
-	wpTablePrefixRe = regexp.MustCompile(`(?m)\$table_prefix\s*=\s*['"].*?['"]\s*;`)
-	wpDebugRe       = regexp.MustCompile(`(?m)define\s*\(\s*['"]WP_DEBUG['"]\s*,\s*.*?\s*\);`)
+	wpTablePrefixRe = lazyregex.New(`(?m)\$table_prefix\s*=\s*['"].*?['"]\s*;`)
+	wpDebugRe       = lazyregex.New(`(?m)define\s*\(\s*['"]WP_DEBUG['"]\s*,\s*.*?\s*\);`)
 )
 
 func replaceTablePrefix(content, prefix string) string {
 	replacement := fmt.Sprintf("$table_prefix = '%s';", prefix)
 	hasMatch := wpTablePrefixRe.MatchString(content)
 	if hasMatch {
-		return wpTablePrefixRe.ReplaceAllLiteralString(content, replacement)
+		return wpTablePrefixRe.Compiled().ReplaceAllLiteralString(content, replacement)
 	}
 
 	return content
@@ -152,7 +153,7 @@ func replaceWpDebug(content string, isDebug bool) string {
 	replacement := fmt.Sprintf("define( 'WP_DEBUG', %s );", debugStr)
 	hasMatch := wpDebugRe.MatchString(content)
 	if hasMatch {
-		return wpDebugRe.ReplaceAllLiteralString(content, replacement)
+		return wpDebugRe.Compiled().ReplaceAllLiteralString(content, replacement)
 	}
 
 	return content

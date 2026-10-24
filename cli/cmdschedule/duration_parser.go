@@ -2,12 +2,12 @@ package cmdschedule
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/result"
 )
 
@@ -15,11 +15,11 @@ import (
 type DurationResult = result.Wrap[time.Duration]
 
 var (
-	colonPattern  = regexp.MustCompile(`^(\d+):(\d+)(?::(\d+))?\s*(hr|h|m|s)?$`)
-	dayPattern    = regexp.MustCompile(`^(\d+(?:\.\d+)?)\s*(?:days|day|d)$`)
-	hourPattern   = regexp.MustCompile(`^(\d+(?:\.\d+)?)\s*(?:hours|hour|hrs|hr|h)$`)
-	minutePattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)\s*(?:minutes|minute|mins|min|m)$`)
-	secondPattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)\s*(?:seconds|second|secs|sec|s)$`)
+	colonPattern  = lazyregex.New(`^(\d+):(\d+)(?::(\d+))?\s*(hr|h|m|s)?$`)
+	dayPattern    = lazyregex.New(`^(\d+(?:\.\d+)?)\s*(?:days|day|d)$`)
+	hourPattern   = lazyregex.New(`^(\d+(?:\.\d+)?)\s*(?:hours|hour|hrs|hr|h)$`)
+	minutePattern = lazyregex.New(`^(\d+(?:\.\d+)?)\s*(?:minutes|minute|mins|min|m)$`)
+	secondPattern = lazyregex.New(`^(\d+(?:\.\d+)?)\s*(?:seconds|second|secs|sec|s)$`)
 )
 
 // ParseScheduleDuration parses flexible duration strings into a DurationResult.
@@ -91,7 +91,7 @@ func tryParseUnitDuration(s string) (DurationResult, bool) {
 	return matchRegexMultiplier(s, secondPattern, time.Second)
 }
 
-func matchRegexMultiplier(s string, re *regexp.Regexp, unit time.Duration) (DurationResult, bool) {
+func matchRegexMultiplier(s string, re *lazyregex.LazyRegexp, unit time.Duration) (DurationResult, bool) {
 	m := re.FindStringSubmatch(s)
 	if len(m) == 0 {
 		return DurationResult{}, false

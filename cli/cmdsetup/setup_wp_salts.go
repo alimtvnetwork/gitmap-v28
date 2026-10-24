@@ -4,11 +4,11 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // WpSaltLength defines the standard 64-character length for WordPress salts.
@@ -30,8 +30,8 @@ type WpSalts struct {
 }
 
 var (
-	wpSaltsMarkerRegex  = regexp.MustCompile(`(?s)// >>> gitmap:wp-salts >>>.*?// <<< gitmap:wp-salts <<<`)
-	wpSaltsDefaultRegex = regexp.MustCompile(`(?m)(^define\s*\(\s*['"](?:AUTH|SECURE_AUTH|LOGGED_IN|NONCE)_(?:KEY|SALT)['"].*?\n)+`)
+	wpSaltsMarkerRegex  = lazyregex.New(`(?s)// >>> gitmap:wp-salts >>>.*?// <<< gitmap:wp-salts <<<`)
+	wpSaltsDefaultRegex = lazyregex.New(`(?m)(^define\s*\(\s*['"](?:AUTH|SECURE_AUTH|LOGGED_IN|NONCE)_(?:KEY|SALT)['"].*?\n)+`)
 )
 
 func fillRandomChars(buf []byte) *apperror.AppError {
@@ -136,7 +136,7 @@ func appendWpSalts(originalContent string, newBlock string) string {
 func injectFreshSalts(originalContent string, newBlock string) string {
 	hasDefaultSalts := wpSaltsDefaultRegex.MatchString(originalContent)
 	if hasDefaultSalts {
-		return wpSaltsDefaultRegex.ReplaceAllLiteralString(originalContent, strings.TrimSpace(newBlock)+constants.NewLineUnix)
+		return wpSaltsDefaultRegex.Compiled().ReplaceAllLiteralString(originalContent, strings.TrimSpace(newBlock)+constants.NewLineUnix)
 	}
 
 	return appendWpSalts(originalContent, newBlock)
@@ -147,7 +147,7 @@ func InjectWpSalts(originalContent string, salts *WpSalts) string {
 	newBlock := WrapWpSaltsMarker(FormatWpSaltsPHP(salts))
 	hasMarker := wpSaltsMarkerRegex.MatchString(originalContent)
 	if hasMarker {
-		return wpSaltsMarkerRegex.ReplaceAllLiteralString(originalContent, strings.TrimSpace(newBlock))
+		return wpSaltsMarkerRegex.Compiled().ReplaceAllLiteralString(originalContent, strings.TrimSpace(newBlock))
 	}
 
 	return injectFreshSalts(originalContent, newBlock)

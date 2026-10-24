@@ -5,15 +5,15 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var commitDirRegex = regexp.MustCompile(`^[0-9a-f]{10}$`)
+var commitDirRegex = lazyregex.New(`^[0-9a-f]{10}$`)
 
 func discoverInstallationCandidates() []string {
 	var candidates []string

@@ -2,12 +2,12 @@
 package cmdsetup
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvhost"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 type VHostConfig = cmdvhost.VHostConfig
@@ -19,7 +19,7 @@ const (
 
 var RenderVHostConfig = cmdvhost.RenderVHostConfig
 
-var versionRegex = regexp.MustCompile(`v?(\d+\.\d+(?:\.\d+)?)`)
+var versionRegex = lazyregex.New(`v?(\d+\.\d+(?:\.\d+)?)`)
 
 func reorderFlagsBeforeArgs(args []string) []string {
 	flags := make([]string, 0, len(args))

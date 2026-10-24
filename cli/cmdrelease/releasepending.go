@@ -5,12 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
@@ -18,7 +18,7 @@ import (
 // as a version (`v1`, `v3.1`, `v2.233.0`, `1.4.0`). Used by
 // runReleasePending to detect the classic `rp` (release-pending) vs `pr`
 // (pull-release) confusion — see v5.19.0 changelog.
-var versionLikeArgPattern = regexp.MustCompile(`^v?\d+(\.\d+){0,2}(-[A-Za-z0-9.]+)?$`)
+var versionLikeArgPattern = lazyregex.New(`^v?\d+(\.\d+){0,2}(-[A-Za-z0-9.]+)?$`)
 
 // RunReleasePending handles the 'release-pending' command.
 func RunReleasePending(args []string) error {

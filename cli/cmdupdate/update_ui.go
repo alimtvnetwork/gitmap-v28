@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pterm/pterm"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var ansiPattern = regexp.MustCompile("\x1b\\[[0-9;?]*[a-zA-Z]|\x1b[()][0-9A-Z]")
+var ansiPattern = lazyregex.New("\x1b\\[[0-9;?]*[a-zA-Z]|\x1b[()][0-9A-Z]")
 
 func stripAnsiEscapes(raw string) string {
 	return ansiPattern.ReplaceAllString(raw, "")

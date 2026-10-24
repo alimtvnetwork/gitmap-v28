@@ -2,7 +2,6 @@ package cmdsync
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -10,9 +9,10 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var leadingDigitsRe = regexp.MustCompile(`^(\d+)`)
+var leadingDigitsRe = lazyregex.New(`^(\d+)`)
 
 // SyncSingleRepo executes the safe 6-stage synchronization ceremony on a single target repo.
 func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) RepoSyncResult {

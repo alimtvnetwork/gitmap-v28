@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var offendingLineRegex = regexp.MustCompile(`(?i)Offending\s+(?:\S+\s+)?key\s+in\s+((?:[a-zA-Z]:)?[^:\r\n]+):(\d+)`)
+var offendingLineRegex = lazyregex.New(`(?i)Offending\s+(?:\S+\s+)?key\s+in\s+((?:[a-zA-Z]:)?[^:\r\n]+):(\d+)`)
 
 // ParseOffendingKnownHostsLine extracts file path and line number from OpenSSH error output.
 func ParseOffendingKnownHostsLine(output string) (string, int, bool) {

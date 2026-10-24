@@ -3,11 +3,12 @@ package cmdssh
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var winEnvRegex = regexp.MustCompile(`%([A-Za-z0-9_ -]+)%`)
+var winEnvRegex = lazyregex.New(`%([A-Za-z0-9_ -]+)%`)
 
 // ExpandUniversalPath resolves ~, Windows macros (%win%, %win-drive%, %temp%, %appdata%),
 // and OS environment variables.
@@ -75,7 +76,7 @@ func resolveAppDataDir() string {
 func expandAllEnvVariables(p string) string {
 	expanded := os.ExpandEnv(p)
 
-	return winEnvRegex.ReplaceAllStringFunc(expanded, func(m string) string {
+	return winEnvRegex.Compiled().ReplaceAllStringFunc(expanded, func(m string) string {
 		varName := m[1 : len(m)-1]
 		if val := os.Getenv(varName); val != "" {
 			return val

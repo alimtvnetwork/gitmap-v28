@@ -12,11 +12,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // versionPattern matches the three version-shaped tokens any cross-dir
@@ -33,7 +33,7 @@ import (
 //
 // Letters after `+` (e.g. "v+abc") deliberately do NOT match — those
 // fall through to the alias path.
-var versionPattern = regexp.MustCompile(`^(v?\d+\.\d+\.\d+([.\-+].+)?|v\+\+|v\+\d+)$`)
+var versionPattern = lazyregex.New(lazyregex.SemverVersion)
 
 // looksLikeVersion returns true if s is a version-shaped token, false if it's
 // more likely a repo alias (e.g. "gitmap", "my-app") or a folder path.

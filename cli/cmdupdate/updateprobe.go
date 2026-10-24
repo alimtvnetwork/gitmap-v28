@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -96,7 +96,7 @@ func checkProbeThrottle(base string, current int) (string, bool) {
 }
 
 // repoSlugRe matches "<base>-v<N>" e.g. "gitmap-v28".
-var repoSlugRe = regexp.MustCompile(`^([a-z][a-z0-9_-]*?)-v(\d+)$`)
+var repoSlugRe = lazyregex.New(`^([a-z][a-z0-9_-]*?)-v(\d+)$`)
 
 // probeResult records a single sibling HEAD response.
 type probeResult struct {

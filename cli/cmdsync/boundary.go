@@ -2,16 +2,16 @@ package cmdsync
 
 import (
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	spec21Regex   = regexp.MustCompile(`^02-spec/2[1-5]-`)
-	bumpRegex     = regexp.MustCompile(`(?i)^bump|^version\.json$`)
-	nonOwnedRegex = regexp.MustCompile(`(?i)(?:^|[\\/])(oh-my-zsh|ohmyzsh|zsh|omis|oh-my-posh|dotfiles|homebrew|\.cargo|\.rustup|\.nvm|\.asdf|\.pyenv)(?:[\\/]|$)`)
+	spec21Regex   = lazyregex.New(`^02-spec/2[1-5]-`)
+	bumpRegex     = lazyregex.New(`(?i)^bump|^version\.json$`)
+	nonOwnedRegex = lazyregex.New(`(?i)(?:^|[\\/])(oh-my-zsh|ohmyzsh|zsh|omis|oh-my-posh|dotfiles|homebrew|\.cargo|\.rustup|\.nvm|\.asdf|\.pyenv)(?:[\\/]|$)`)
 )
 
 // IsSpec21OrHigher checks if a path belongs to private application specs (02-spec/21-* to 25-*).

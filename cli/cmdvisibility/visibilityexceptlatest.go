@@ -16,15 +16,15 @@ package cmdvisibility
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/visibility"
 )
 
 // versionSuffixRE captures the trailing `-v<digits>` segment.
-var versionSuffixRE = regexp.MustCompile(`(?i)^(.*)-v(\d+)$`)
+var versionSuffixRE = lazyregex.New(lazyregex.RepoVersionCi)
 
 // splitExceptLatest separates `in` into (rest, latest). `latest` holds
 // the highest -vN entry per base group (groups with a single versioned

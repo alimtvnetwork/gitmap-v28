@@ -15,12 +15,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // winscanPattern is one Defender heuristic trigger pattern (RCA 273 §3).
@@ -29,34 +29,34 @@ import (
 type winscanPattern struct {
 	id      string
 	name    string
-	needles []*regexp.Regexp
+	needles []*lazyregex.LazyRegexp
 }
 
 var (
-	winscanWordReg    = regexp.MustCompile(`(?i)(^|[^A-Za-z])reg(\.exe)?([^A-Za-z]|$)`)
-	winscanWordAdd    = regexp.MustCompile(`(?i)(^|[^A-Za-z])add([^A-Za-z]|$)`)
-	winscanWordDelete = regexp.MustCompile(`(?i)(^|[^A-Za-z])delete([^A-Za-z]|$)`)
-	winscanWordCmd    = regexp.MustCompile(`(?i)(^|[^A-Za-z])cmd(\.exe)?([^A-Za-z]|$)`)
-	winscanRunKeyPath = regexp.MustCompile(`Software\\Microsoft\\Windows\\CurrentVersion\\Run`)
+	winscanWordReg    = lazyregex.New(`(?i)(^|[^A-Za-z])reg(\.exe)?([^A-Za-z]|$)`)
+	winscanWordAdd    = lazyregex.New(`(?i)(^|[^A-Za-z])add([^A-Za-z]|$)`)
+	winscanWordDelete = lazyregex.New(`(?i)(^|[^A-Za-z])delete([^A-Za-z]|$)`)
+	winscanWordCmd    = lazyregex.New(`(?i)(^|[^A-Za-z])cmd(\.exe)?([^A-Za-z]|$)`)
+	winscanRunKeyPath = lazyregex.New(`Software\\Microsoft\\Windows\\CurrentVersion\\Run`)
 )
 
 // winscanPatterns — the 7 trigger patterns confirmed in the 385aba38e diff
 // (.ai-memory/plans/273-windows-virus-rca.md §3).
 var winscanPatterns = []winscanPattern{
-	{id: "P1", name: "reg.exe Run-key persistence write", needles: []*regexp.Regexp{
+	{id: "P1", name: "reg.exe Run-key persistence write", needles: []*lazyregex.LazyRegexp{
 		winscanWordReg, winscanWordAdd, winscanRunKeyPath}},
-	{id: "P2", name: "vssadmin shadow-copy create/delete", needles: []*regexp.Regexp{
-		regexp.MustCompile(`(?i)vssadmin`), regexp.MustCompile(`(?i)shadow`)}},
-	{id: "P3", name: "Winlogon auto-login credential write", needles: []*regexp.Regexp{
-		regexp.MustCompile(`Winlogon`), regexp.MustCompile(`DefaultPassword`)}},
-	{id: "P4", name: "hidden PowerShell WMI process enumeration", needles: []*regexp.Regexp{
-		regexp.MustCompile(`(?i)powershell`), regexp.MustCompile(`Win32_Process`)}},
-	{id: "P5", name: "spawned taskkill process kill", needles: []*regexp.Regexp{
-		regexp.MustCompile(`(?i)taskkill`)}},
-	{id: "P6", name: "delayed self-deletion via cmd.exe", needles: []*regexp.Regexp{
-		winscanWordCmd, regexp.MustCompile(`(?i)del /F`)}},
-	{id: "P7", name: "reg.exe Run-key deletion loop", needles: []*regexp.Regexp{
-		winscanWordReg, winscanWordDelete, regexp.MustCompile(`\\Run`)}},
+	{id: "P2", name: "vssadmin shadow-copy create/delete", needles: []*lazyregex.LazyRegexp{
+		lazyregex.New(`(?i)vssadmin`), lazyregex.New(`(?i)shadow`)}},
+	{id: "P3", name: "Winlogon auto-login credential write", needles: []*lazyregex.LazyRegexp{
+		lazyregex.New(`Winlogon`), lazyregex.New(`DefaultPassword`)}},
+	{id: "P4", name: "hidden PowerShell WMI process enumeration", needles: []*lazyregex.LazyRegexp{
+		lazyregex.New(`(?i)powershell`), lazyregex.New(`Win32_Process`)}},
+	{id: "P5", name: "spawned taskkill process kill", needles: []*lazyregex.LazyRegexp{
+		lazyregex.New(`(?i)taskkill`)}},
+	{id: "P6", name: "delayed self-deletion via cmd.exe", needles: []*lazyregex.LazyRegexp{
+		winscanWordCmd, lazyregex.New(`(?i)del /F`)}},
+	{id: "P7", name: "reg.exe Run-key deletion loop", needles: []*lazyregex.LazyRegexp{
+		winscanWordReg, winscanWordDelete, lazyregex.New(`\\Run`)}},
 }
 
 // winscanMatch is one pattern hit with its byte offset.
@@ -201,7 +201,7 @@ func scanBinary(data []byte) []winscanMatch {
 func matchWinscanPattern(data []byte, pattern winscanPattern) (int, bool) {
 	earliest := -1
 	for _, needle := range pattern.needles {
-		loc := needle.FindIndex(data)
+		loc := needle.Compiled().FindIndex(data)
 		if loc == nil {
 			return 0, false
 		}

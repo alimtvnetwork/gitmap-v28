@@ -3,17 +3,17 @@ package cmdreplace
 import (
 	"fmt"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 // remoteSlugRe matches the trailing `<base>-vN` segment of a git remote
 // URL. The base may contain dashes; only the last `-vN` counts.
-var remoteSlugRe = regexp.MustCompile(`^(?P<base>.+)-v(?P<num>\d+)$`)
+var remoteSlugRe = lazyregex.New(`^(?P<base>.+)-v(?P<num>\d+)$`)
 
 // detectVersion returns (base, K) parsed from `git remote get-url
 // origin`. Exits 1 with a descriptive error on any failure mode.

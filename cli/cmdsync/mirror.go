@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var specDirNumRe = regexp.MustCompile(`^(\d+)-`)
+var specDirNumRe = lazyregex.New(`^(\d+)-`)
 
 // MirrorStats records added, updated, and removed file counts during asset mirroring.
 type MirrorStats struct {
