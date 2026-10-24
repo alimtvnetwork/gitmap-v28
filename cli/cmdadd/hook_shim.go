@@ -4,7 +4,9 @@ package cmdadd
 var CheckHelpFn func(command string, args []string)
 
 func checkHelp(command string, args []string) {
-	if CheckHelpFn != nil {
-		CheckHelpFn(command, args)
+	if CheckHelpFn == nil {
+		return
 	}
+
+	CheckHelpFn(command, args)
 }

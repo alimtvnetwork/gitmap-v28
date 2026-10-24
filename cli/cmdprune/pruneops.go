@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprune/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/release"
 )
 
@@ -15,11 +15,18 @@ type staleBranch struct {
 	tag  string
 }
 
+var (
+	listBranchesFn       = listReleaseBranches
+	tagExistsFn          = release.TagExistsLocally
+	deleteLocalBranchFn  = deleteLocalBranch
+	deleteRemoteBranchFn = deleteRemoteBranch
+)
+
 // listReleaseBranches returns all local branches matching release/*.
 func listReleaseBranches() []string {
+	pattern := constants.ReleaseBranchPrefix + constants.GitWildcard
 	cmd := exec.Command(constants.GitBin,
-		constants.GitBranch, constants.GitBranchListFlag,
-		constants.ReleaseBranchPrefix+"*")
+		constants.GitBranch, constants.GitBranchListFlag, pattern)
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Printf(constants.ErrPruneListBranches, err)
@@ -32,9 +39,16 @@ func listReleaseBranches() []string {
 
 // parseGitBranchOutput splits and trims git branch output lines.
 func parseGitBranchOutput(out []byte) []string {
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var branches []string
+	raw := strings.TrimSpace(string(out))
+	if len(raw) == 0 {
+		return nil
+	}
 
+	return extractNonEmptyBranches(strings.Split(raw, constants.Newline))
+}
+
+func extractNonEmptyBranches(lines []string) []string {
+	var branches []string
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if len(trimmed) > 0 {
@@ -48,10 +62,9 @@ func parseGitBranchOutput(out []byte) []string {
 // filterStaleBranches returns branches whose corresponding tag exists.
 func filterStaleBranches(branches []string) []staleBranch {
 	var stale []staleBranch
-
 	for _, branch := range branches {
 		tag := branchToTag(branch)
-		if release.TagExistsLocally(tag) {
+		if tagExistsFn(tag) {
 			stale = append(stale, staleBranch{name: branch, tag: tag})
 		}
 	}
@@ -67,7 +80,6 @@ func branchToTag(branch string) string {
 // printStaleBranches displays the stale branch list.
 func printStaleBranches(stale []staleBranch) {
 	fmt.Printf(constants.MsgPruneStaleHeader, len(stale))
-
 	for _, sb := range stale {
 		fmt.Printf(constants.MsgPruneStaleItem, sb.name, sb.tag)
 	}
@@ -86,8 +98,7 @@ func deleteRemoteBranch(name string) {
 	cmd := exec.Command(constants.GitBin,
 		constants.GitPush, constants.GitOrigin,
 		constants.GitPushDeleteFlag, name)
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		fmt.Printf(constants.MsgPruneRemoteWarn, name, err)
 
 		return

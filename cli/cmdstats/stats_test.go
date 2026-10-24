@@ -3,6 +3,7 @@ package cmdstats
 import (
 	"testing"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -16,10 +17,7 @@ func verifyCandidateMatch(t *testing.T, args []string, isExpected bool) {
 }
 
 func TestIsSSHForwardCandidate_ValidCommands(t *testing.T) {
-	candidates := []string{
-		"fix-auth", "login", "host", "hosts", "nodes",
-		"enable", "port", "troubleshoot", "key", "copy-id", "auth-key",
-	}
+	candidates := constants.AllSSHForwardCandidates()
 
 	for _, cmd := range candidates {
 		verifyCandidateMatch(t, []string{cmd}, true)
@@ -39,8 +37,8 @@ func TestIsSSHForwardCandidate_NonMatching(t *testing.T) {
 	verifyCandidateMatch(t, nil, false)
 	verifyCandidateMatch(t, []string{}, false)
 	verifyCandidateMatch(t, []string{""}, false)
-	verifyCandidateMatch(t, []string{"stats"}, false)
-	verifyCandidateMatch(t, []string{"--json"}, false)
+	verifyCandidateMatch(t, []string{constants.CmdStats}, false)
+	verifyCandidateMatch(t, []string{constants.FlagArgJSON}, false)
 	verifyCandidateMatch(t, []string{"status"}, false)
 }
 
