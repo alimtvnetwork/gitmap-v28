@@ -31,6 +31,9 @@ func classifyPullErrorString(msg string) string {
 	if isWincredmanFailure(msg) {
 		return "Windows Credential Manager (wincredman) failed to persist credentials"
 	}
+	if isPromptDisabledFailure(msg) {
+		return "Git credentials unavailable - credential prompt is disabled in this non-interactive session"
+	}
 	if summary := classifyStandardError(msg); summary != "" {
 		return summary
 	}
@@ -114,6 +117,9 @@ func buildActionableRemediation(repoName, repoPath, msg string) string {
 	if isWincredmanFailure(msg) {
 		return "Run 'gitmap fix-credential' (alias: fc) or check Windows Credential Manager service"
 	}
+	if isPromptDisabledFailure(msg) {
+		return fmt.Sprintf("Run 'gitmap fix %s' (auto-fix auth & convert remote to SSH) or sign in on this node via 'gitmap fix-credential' (alias: fc)", effectiveName)
+	}
 	if hint := buildSpecificRemediation(effectiveName, msg); hint != "" {
 		return hint
 	}
@@ -137,6 +143,18 @@ func buildSpecificRemediation(repoName, msg string) string {
 		return "Run 'gitmap fix-credential' (alias: fc) to repair Windows git credential store"
 	}
 	return ""
+}
+
+// isPromptDisabledFailure reports whether Git needed HTTPS credentials but
+// could not prompt for them: Git Credential Manager's "user interactivity has
+// been disabled" refusal in headless/SSH sessions, or Git's own terminal-prompt
+// failure when GIT_TERMINAL_PROMPT=0. The credential is missing or expired on
+// this node; no prompt can ever succeed in a non-interactive session.
+func isPromptDisabledFailure(msg string) bool {
+	return strings.Contains(msg, "Cannot prompt because user interactivity has been disabled") ||
+		strings.Contains(msg, "terminal prompts disabled") ||
+		strings.Contains(msg, "could not read Username") ||
+		strings.Contains(msg, "could not read Password")
 }
 
 func isWincredmanFailure(msg string) bool {
@@ -227,7 +245,7 @@ func resolveStructuredOptionsList(s *PullRepoState, l1, c1, l2, c2 string) []Rem
 			OptionNumber: len(opts) + 1, Title: "Fleet Multi-Repo Control",
 			Command: `gitmap sends cp all "wip: save changes"`,
 		})
-	} else if isWincredmanFailure(s.ErrorMsg) || isCacheFailure(s.ErrorMsg) || isAuthFailure(s.ErrorMsg) {
+	} else if isWincredmanFailure(s.ErrorMsg) || isCacheFailure(s.ErrorMsg) || isAuthFailure(s.ErrorMsg) || isPromptDisabledFailure(s.ErrorMsg) {
 		target := quoteRemediationTarget(resolveEffectiveRepoName(s.RepoName, s.RepoPath))
 		opts = append(opts, RemediationOption{
 			OptionNumber: len(opts) + 1, Title: "Switch Remote to SSH",
