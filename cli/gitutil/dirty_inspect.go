@@ -158,10 +158,10 @@ func InspectDirtyState(repoPath string) DirtyDiagnosis {
 		return DirtyDiagnosis{IsDirty: false}
 	}
 
-	trimmedOutput := strings.TrimSpace(string(outputBytes))
-	if len(trimmedOutput) == 0 {
+	outputStr := strings.TrimRight(string(outputBytes), "\r\n")
+	if len(outputStr) == 0 {
 		return DirtyDiagnosis{IsDirty: false}
 	}
 
-	return populateDirtyDiagnosis(trimmedOutput)
+	return populateDirtyDiagnosis(outputStr)
 }

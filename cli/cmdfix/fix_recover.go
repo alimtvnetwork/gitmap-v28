@@ -37,6 +37,9 @@ func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gi
 	if repoPath == "" {
 		return recipe
 	}
+	if r, ok := conflictStateReplacement(repoPath, recipe); ok {
+		return r
+	}
 	if r, ok := noInitialCommitReplacement(repoPath, recipe); ok {
 		return r
 	}
