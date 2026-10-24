@@ -3,6 +3,7 @@ package cmdcargo
 import (
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
@@ -12,7 +13,7 @@ import (
 var CheckHelpFn func(command string, args []string)
 
 // RunCargo is the main entry point for the gitmap cargo / crg command.
-func RunCargo(args []string) error {
+func RunCargo(args []string) *apperror.AppError {
 	checkHelp(cargoconst.CmdCargo, args)
 	if len(args) == 0 {
 		return runCargoDefault()
@@ -47,7 +48,7 @@ func isInstallSubcommand(sub string) bool {
 	return sc.IsInstall()
 }
 
-func runCargoDefault() error {
+func runCargoDefault() *apperror.AppError {
 	cargoBin := ResolveCargoBinary()
 	if cargoBin == "" {
 		PrintCargoInstallSuggestions()
@@ -58,7 +59,7 @@ func runCargoDefault() error {
 	return execCargo(cargoBin, []string{cargoconst.FlagLongHelp})
 }
 
-func dispatchCargoExecution(args []string) error {
+func dispatchCargoExecution(args []string) *apperror.AppError {
 	cleanArgs, hasInstall := extractInstallFlag(args)
 	cargoBin := ResolveCargoBinary()
 	if cargoBin == "" && hasInstall {
@@ -75,8 +76,12 @@ func dispatchCargoExecution(args []string) error {
 	return execCargo(cargoBin, cleanArgs)
 }
 
-func runCargoInstall(rest []string) error {
-	return cmdinstall.RunInstall(append([]string{cargoconst.BinCargo}, rest...))
+func runCargoInstall(rest []string) *apperror.AppError {
+	if err := cmdinstall.RunInstall(append([]string{cargoconst.BinCargo}, rest...)); err != nil {
+		return apperror.Wrap(err, "runCargoInstall", map[string]any{"tool": cargoconst.BinCargo})
+	}
+
+	return nil
 }
 
 func checkHelp(cmd string, args []string) {

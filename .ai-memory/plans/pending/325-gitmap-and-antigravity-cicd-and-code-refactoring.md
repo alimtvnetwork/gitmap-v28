@@ -23,7 +23,7 @@ Coordinator decisions: see 01-architecture-spec.md (ambiguity decisions 1–9)
 | Task-03 | gitmap CI-green on latest tip | Worker gitmap-ci | gitmap-v28 CI-blocking files only | QUEUED | — |
 | Task-04 | Enum/constants audit (whole repo, grouped by package) | Worker audit | read-only, gitmap-v28 cli/ | QUEUED | — |
 | Task-05 | Enum/constants refactor waves (per audit groups) | Workers refactor (waves) | gitmap-v28 cli/ package groups, disjoint per wave | QUEUED | — |
-| Task-06 | Prompt update: enum-per-package rule + cargo_exe example | Worker prompt | coding-guidelines-v24 enum CG execute prompt + mirrors | QUEUED | — |
+| Task-06 | Prompt update: enum-per-package rule + cargo_exe example | Worker prompt | coding-guidelines-v24 enum CG execute prompt + mirrors | DONE | commit 709c1722: 01-prompts/15-cg-execute/06-constants-and-enums.md new §4.3 (hard rule) + .agents/.cursor cg-enum-standards mirrors (byte-identical); constants-and-enums pointer skills deliberately untouched (they point at prompt 06) |
 | Task-07 | gitmap minor-bump release | Coordinator + worker | gitmap-v28 | QUEUED | — |
 | Task-08 | Morning report | Coordinator | — | QUEUED | — |
 

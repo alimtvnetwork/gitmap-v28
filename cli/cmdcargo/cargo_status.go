@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	cargoconst "github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo/constants"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -17,7 +18,7 @@ var (
 	dimStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color(cargoconst.ColorDraculaGray))
 )
 
-func runCargoStatus() error {
+func runCargoStatus() *apperror.AppError {
 	fmt.Println(headerStyle.Render(cargoconst.StatusHeaderTitle))
 	fmt.Println()
 

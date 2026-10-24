@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // CargoSubcommandType represents recognized GitMap cargo subcommands.
@@ -33,13 +35,13 @@ func (c CargoSubcommandType) String() string {
 }
 
 // ParseCargoSubcommandType parses a raw string into a validated CargoSubcommandType.
-func ParseCargoSubcommandType(s string) (CargoSubcommandType, error) {
+func ParseCargoSubcommandType(s string) (CargoSubcommandType, *apperror.AppError) {
 	val := CargoSubcommandType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid cargo subcommand: %q", s)
+	return "", apperror.NewValidation("ParseCargoSubcommandType", "E1000", fmt.Sprintf("invalid cargo subcommand: %q", s)).WithContext("value", s)
 }
 
 // AllCargoSubcommandTypes returns all valid CargoSubcommandType variants.

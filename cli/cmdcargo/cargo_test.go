@@ -91,14 +91,21 @@ func TestSubcommandMatchers(t *testing.T) {
 func TestHandleCargoExitError(t *testing.T) {
 	genericErr := errors.New("command not found")
 	returned := handleCargoExitError(genericErr)
-	if returned != genericErr {
-		t.Errorf("expected %v, got %v", genericErr, returned)
+	if returned == nil || returned.Cause != genericErr {
+		t.Errorf("expected wrapped cause %v, got %v", genericErr, returned)
 	}
 
 	exitErr := &exec.ExitError{}
 	returnedExit := handleCargoExitError(exitErr)
-	if returnedExit != exitErr {
-		t.Errorf("expected exitErr to be returned directly without exiting, got %v", returnedExit)
+	if returnedExit == nil || returnedExit.Cause != exitErr {
+		t.Errorf("expected wrapped exitErr cause, got %v", returnedExit)
+	}
+	var asExit *exec.ExitError
+	if !errors.As(returnedExit, &asExit) || asExit != exitErr {
+		t.Errorf("expected errors.As to recover exitErr, got %v", asExit)
+	}
+	if returnedExit.Ctx["exit_code"] != exitErr.ExitCode() {
+		t.Errorf("expected exit_code context %d, got %v", exitErr.ExitCode(), returnedExit.Ctx["exit_code"])
 	}
 }
 

@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // RustToolchainBinaryType represents standard Rust toolchain executable binaries.
@@ -31,13 +33,13 @@ func (r RustToolchainBinaryType) String() string {
 }
 
 // ParseRustToolchainBinaryType parses a raw string into a validated RustToolchainBinaryType.
-func ParseRustToolchainBinaryType(s string) (RustToolchainBinaryType, error) {
+func ParseRustToolchainBinaryType(s string) (RustToolchainBinaryType, *apperror.AppError) {
 	val := RustToolchainBinaryType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid rust toolchain binary: %q", s)
+	return "", apperror.NewValidation("ParseRustToolchainBinaryType", "E1000", fmt.Sprintf("invalid rust toolchain binary: %q", s)).WithContext("value", s)
 }
 
 // AllRustToolchainBinaryTypes returns all valid RustToolchainBinaryType variants.

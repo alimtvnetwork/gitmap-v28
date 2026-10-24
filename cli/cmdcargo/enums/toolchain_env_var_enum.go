@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // ToolchainEnvVarType represents environment variable names used by toolchains.
@@ -38,13 +40,25 @@ func (t ToolchainEnvVarType) String() string {
 }
 
 // ParseToolchainEnvVarType parses a raw string into a validated ToolchainEnvVarType.
-func ParseToolchainEnvVarType(s string) (ToolchainEnvVarType, error) {
+func ParseToolchainEnvVarType(s string) (ToolchainEnvVarType, *apperror.AppError) {
 	val := ToolchainEnvVarType(strings.ToUpper(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid toolchain env var: %q", s)
+	return "", apperror.NewValidation("ParseToolchainEnvVarType", "E1000", fmt.Sprintf("invalid toolchain env var: %q", s)).WithContext("value", s)
+}
+
+// WithValue returns the "NAME=value" assignment form of the variable,
+// without string concatenation at the call site.
+func (t ToolchainEnvVarType) WithValue(value string) string {
+	return strings.Join([]string{t.String(), value}, "=")
+}
+
+// AssignmentPrefix returns the "NAME=" prefix used to match an existing
+// entry in an environment list.
+func (t ToolchainEnvVarType) AssignmentPrefix() string {
+	return t.WithValue("")
 }
 
 // AllToolchainEnvVarTypes returns all valid ToolchainEnvVarType variants.

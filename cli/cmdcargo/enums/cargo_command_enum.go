@@ -3,6 +3,8 @@ package enums
 import (
 	"fmt"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 // CargoCommandType represents standard upstream Cargo tool commands.
@@ -43,13 +45,13 @@ func (c CargoCommandType) String() string {
 }
 
 // ParseCargoCommandType parses a raw string into a validated CargoCommandType.
-func ParseCargoCommandType(s string) (CargoCommandType, error) {
+func ParseCargoCommandType(s string) (CargoCommandType, *apperror.AppError) {
 	val := CargoCommandType(strings.ToLower(strings.TrimSpace(s)))
 	if val.IsValid() {
 		return val, nil
 	}
 
-	return "", fmt.Errorf("invalid cargo command: %q", s)
+	return "", apperror.NewValidation("ParseCargoCommandType", "E1000", fmt.Sprintf("invalid cargo command: %q", s)).WithContext("value", s)
 }
 
 // AllCargoCommandTypes returns all valid CargoCommandType variants.
