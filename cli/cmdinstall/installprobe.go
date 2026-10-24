@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 type toolProbeConfig struct {
@@ -16,7 +16,7 @@ type toolProbeConfig struct {
 	args []string
 }
 
-var versionRegex = regexp.MustCompile(`v?(\d+\.\d+(?:\.\d+)*)`)
+var versionRegex = lazyregex.New(`v?(\d+\.\d+(?:\.\d+)*)`)
 
 var toolProbeMap = map[string]toolProbeConfig{
 	constants.ToolVSCode:         {bins: []string{"code", "code.cmd", "vscode"}, args: []string{"--version"}},

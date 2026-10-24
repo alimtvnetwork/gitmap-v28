@@ -4,13 +4,13 @@ package cmdos
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
-var ubuntuMirrorRe = regexp.MustCompile(`https?://[a-zA-Z0-9.-]+\.archive\.ubuntu\.com`)
+var ubuntuMirrorRe = lazyregex.New(`https?://[a-zA-Z0-9.-]+\.archive\.ubuntu\.com`)
 
 // FixRegionalMirrors backs up the given sources list and rewrites country mirrors to official US mirrors.
 func FixRegionalMirrors(sourcesPath string) error {

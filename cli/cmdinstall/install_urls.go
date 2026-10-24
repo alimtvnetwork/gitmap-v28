@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -22,6 +21,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/appfault"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/strutil"
 )
 
@@ -31,7 +31,7 @@ func isInstallURLsCommand(args []string) bool {
 }
 
 // installURLPattern matches http(s) URLs in installer script bodies.
-var installURLPattern = regexp.MustCompile(`https?://[^\s"'()<>\\]+`)
+var installURLPattern = lazyregex.New(`https?://[^\s"'()<>\\]+`)
 
 // installScriptSource is one installer script body plus where it came from.
 type installScriptSource struct {

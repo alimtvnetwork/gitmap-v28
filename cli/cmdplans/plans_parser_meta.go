@@ -1,18 +1,18 @@
 package cmdplans
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans/enums"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	idSlugRegex     = regexp.MustCompile(`^(\d+)-(.*)\.md$`)
-	statusLineRegex = regexp.MustCompile(`(?i)(?:##\s*|>\s*\*\*)?Status:\s*\*?\*?\s*([a-zA-Z\s_-]+)`)
-	headingRegex    = regexp.MustCompile(`^#\s+(.*)`)
+	idSlugRegex     = lazyregex.New(`^(\d+)-(.*)\.md$`)
+	statusLineRegex = lazyregex.New(`(?i)(?:##\s*|>\s*\*\*)?Status:\s*\*?\*?\s*([a-zA-Z\s_-]+)`)
+	headingRegex    = lazyregex.New(`^#\s+(.*)`)
 )
 
 func parseIDAndSlug(fileName string) (int, string) {

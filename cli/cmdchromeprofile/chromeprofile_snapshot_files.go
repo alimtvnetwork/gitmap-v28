@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -157,10 +157,10 @@ func extractEmailIfMissing(exp *chromeExport, raw []byte) {
 	}
 }
 
-var rawEmailRegex = regexp.MustCompile(`"(?:email|user_name|username)"\s*:\s*"([^"\\]+@[^"\\]+\.[a-zA-Z]{2,})"`)
+var rawEmailRegex = lazyregex.New(`"(?:email|user_name|username)"\s*:\s*"([^"\\]+@[^"\\]+\.[a-zA-Z]{2,})"`)
 
 func extractEmailFromRawString(raw []byte) string {
-	matches := rawEmailRegex.FindSubmatch(raw)
+	matches := rawEmailRegex.Compiled().FindSubmatch(raw)
 	if len(matches) > 1 {
 		return string(matches[1])
 	}

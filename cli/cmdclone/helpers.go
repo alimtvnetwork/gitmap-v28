@@ -3,7 +3,6 @@ package cmdclone
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
@@ -12,11 +11,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
 
-var versionPattern = regexp.MustCompile(`^(v?\d+\.\d+\.\d+([.\-+].+)?|v\+\+|v\+\d+)$`)
+var versionPattern = lazyregex.New(lazyregex.SemverVersion)
 
 // Delegate hooks
 var (

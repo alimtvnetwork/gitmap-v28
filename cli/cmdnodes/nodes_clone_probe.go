@@ -4,7 +4,6 @@ package cmdnodes
 import (
 	"context"
 	"encoding/json"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 )
 
@@ -24,7 +24,7 @@ type gitmapVersionPayload struct {
 	BuildDate string `json:"buildDate,omitempty"`
 }
 
-var semverRegex = regexp.MustCompile(`v?[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:-[a-zA-Z0-9.]+)?`)
+var semverRegex = lazyregex.New(`v?[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:-[a-zA-Z0-9.]+)?`)
 
 // probeFleetNodesPreFlight probes all remote candidate nodes concurrently.
 func probeFleetNodesPreFlight(ctx context.Context, conns []db.SSHConnection, opts NodesCloneOptions) FleetPreFlightReport {

@@ -1,14 +1,15 @@
 package cmdclone
 
 import (
-	"regexp"
 	"strings"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var (
-	rxMarkdownLink = regexp.MustCompile(`\[.*?\]\((https?://[^\s\)]+)\)`)
-	rxDirectURL    = regexp.MustCompile(`(https?://[^\s]+|git@[a-zA-Z0-9_.-]+:[^\s]+)`)
-	rxOwnerRepo    = regexp.MustCompile(`^([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)`)
+	rxMarkdownLink = lazyregex.New(`\[.*?\]\((https?://[^\s\)]+)\)`)
+	rxDirectURL    = lazyregex.New(`(https?://[^\s]+|git@[a-zA-Z0-9_.-]+:[^\s]+)`)
+	rxOwnerRepo    = lazyregex.New(`^([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)`)
 )
 
 // ParseMultiCloneText parses raw text, markdown blocks, and URL lists into unique git URLs.

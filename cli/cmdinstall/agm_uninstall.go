@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -25,7 +25,7 @@ var (
 	isAgmUninstallForce  bool
 )
 
-var agmTargetProcRegex = regexp.MustCompile(`(?i)^(antigravity-manager|agm)(\.exe)?$`)
+var agmTargetProcRegex = lazyregex.New(`(?i)^(antigravity-manager|agm)(\.exe)?$`)
 
 // AgmUninstallCmd uninstalls Antigravity Manager.
 var AgmUninstallCmd = &cobra.Command{

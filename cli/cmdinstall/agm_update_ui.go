@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/pterm/pterm"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 const (
@@ -29,7 +29,7 @@ const (
 
 // agmAnsiEscape strips ANSI escapes from captured installer output before
 // re-rendering; re-printing raw escapes uncoordinated is what corrupted the screen.
-var agmAnsiEscape = regexp.MustCompile("\x1b\\[[0-9;?]*[a-zA-Z]|\x1b[()][0-9A-Z]")
+var agmAnsiEscape = lazyregex.New("\x1b\\[[0-9;?]*[a-zA-Z]|\x1b[()][0-9A-Z]")
 
 // agmUpdateRenderer is the single coordinated writer for AGM install/update runs.
 // Child stdio is captured through pipes and re-rendered here.
