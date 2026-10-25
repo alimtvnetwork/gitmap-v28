@@ -24,10 +24,16 @@ func isNeedsMergeError(output string) bool {
 func isConflictError(output string) bool {
 	lower := strings.ToLower(output)
 
-	return strings.Contains(lower, "conflict (content)") ||
-		strings.Contains(lower, "failed to merge in the changes") ||
+	return strings.Contains(lower, "conflict") ||
+		strings.Contains(lower, "failed to merge") ||
 		strings.Contains(lower, "automatic merge failed") ||
-		strings.Contains(lower, "fix conflicts and then commit")
+		strings.Contains(lower, "fix conflicts") ||
+		strings.Contains(lower, "could not restore untracked") ||
+		strings.Contains(lower, "overwritten by merge") ||
+		strings.Contains(lower, "already exists, no checkout") ||
+		strings.Contains(lower, "cannot merge") ||
+		strings.Contains(lower, "cannot apply") ||
+		strings.Contains(lower, "unmerged")
 }
 
 func hasMergeHead(repoPath string) bool {

@@ -107,9 +107,21 @@ func reportPostCloneStatus(repoPath, remoteURL string) {
 		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 }
 
+func purgeInvalidRepoEntry(repoPath string) {
+	db, err := store.OpenDefault()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_, _ = db.DeleteByPath(repoPath)
+}
+
 func execCloneAndRecord(repoPath, remoteURL string) bool {
 	if err := ExecCloneRepo(remoteURL, repoPath); err != nil {
 		printCloneFailure(err)
+		if strings.Contains(remoteURL, " ") || !strings.Contains(remoteURL, "/") {
+			purgeInvalidRepoEntry(repoPath)
+		}
 
 		return false
 	}
@@ -124,8 +136,9 @@ func RemediateMissingRepo(f PullFailureSummary) bool {
 	printMissingRepoNotice(f)
 
 	remoteURL := resolveMissingRemoteURL(f)
-	if remoteURL == "" {
+	if remoteURL == "" || strings.Contains(remoteURL, " ") {
 		printMissingRemoteURLError()
+		purgeInvalidRepoEntry(f.RepoPath)
 
 		return false
 	}
