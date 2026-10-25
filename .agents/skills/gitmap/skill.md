@@ -469,7 +469,50 @@ gitmap heatmap query "SELECT HeatmapActionLogId, TaskSlug, FilePath, ExpectedOut
 gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoRegistry ORDER BY TotalActionsRecorded DESC" --tier root
 ```
 
-### 15. Native SQLite Database Exploration, REST API Server & Lifecycle Suite
+### 15. Autonomous AI Confusion Database Subsystem (gitmap rc ai-confusion)
+
+When autonomous AI agents or human developers encounter blocking ambiguities, conflicting specifications, or code confusion, GitMap provides the dedicated **AI Confusion Subsystem** powered by normalized SQLite databases stored in `repo-cache`:
+
+- `gitmap rc ai-confusion status` (or `gitmap rc ai-confusion`) — Automatically pulls `repo-cache`, executes non-destructive 6-stage safe SQLite pull/rebase/replay synchronization, and renders the active AI confusion status dashboard with pending counts, touched files, line numbers, and questions.
+- `gitmap rc ai-confusion view <filepath>` — Relative file path context querying. Automatically discovers the owning repository's sequence folder (`XX-<repo>`) via the root SQLite sequence cache (`RepoCacheSequenceIndex`), queries the normalized 1-to-N `AiConfusionFile` table, and renders the full context card (agent slug, task, subtask, spec links, reasoning thinking, line numbers, code snippets, and why modified).
+- `gitmap rc ai-confusion view [--id <uuid|id>] [--task <task>] [--agent <agent>] [--all] [--json]` — Forensic querying of stored confusion episodes.
+- `gitmap rc ai-confusion add --file <instruction.json>` — Ingests a structured JSON confusion episode created by an AI agent into the database.
+- `gitmap rc ai-confusion add [flags]` — CLI insertion (`--files`, `--lines`, `--code`, `--question`, `--thinking`, `--intention`, `--spec`, `--task`, `--subtask`).
+- `gitmap rc ai-confusion complete <uuid|id> [--reason <notes>]` — Marks an AI confusion episode as resolved in the database (`IsCompleted = 1`).
+- `gitmap rc ai-confusion sync` — Explicitly triggers the 6-stage pull, export, rebase, and merge replay protocol on `repo-cache`.
+
+#### Canonical AI Confusion JSON Instruction Format (`instruction.json`)
+Autonomous AI agents are strongly recommended to author a structured JSON payload in the filesystem and ingest it via `gitmap rc ai-confusion add --file instruction.json`:
+
+```json
+{
+  "agentSlug": "subagent-worker-01",
+  "task": "327-heatmap-status-improvement-and-ai-confusion-handling",
+  "subtask": "02-subtask-sequence-folder-caching-and-1-to-n-schema",
+  "spec": "02-spec/21-app/327-heatmap-status-improvement-and-ai-confusion-handling/01-architecture-spec.md",
+  "reason": "Conflicting specification regarding root DB sequence folder caching table name",
+  "initialIntention": "Cache sequence folder to avoid traversing repo-cache each time",
+  "reasoningThinking": "Analyzed repo-cache structure and found numbered folders. Need root DB table RepoCacheSequenceIndex.",
+  "confusionQuestion": "Should sequence index reside in gitmap.db or gitmap-special-repos.db?",
+  "referencedFiles": [
+    {
+      "filePath": "cli/store/repo_cache_sequence_store.go",
+      "fileType": "SOURCE",
+      "lineNumbers": "25-45",
+      "codeSnippet": "CREATE TABLE IF NOT EXISTS RepoCacheSequenceIndex...",
+      "whyModified": "Implements root SQLite sequence caching"
+    },
+    {
+      "filePath": "02-spec/21-app/327-heatmap-status-improvement-and-ai-confusion-handling/01-architecture-spec.md",
+      "fileType": "SPEC",
+      "lineNumbers": "1-50",
+      "whyModified": "Architectural spec defining table schema"
+    }
+  ]
+}
+```
+
+### 16. Native SQLite Database Exploration, REST API Server & Lifecycle Suite
 - `gitmap db-read "<path-or-alias>" "<sql>"` — Executes read-only SQL query with request timing.
 - `gitmap db-read "<path-or-alias>" ls` — Lists all tables and views with row/column counts.
 - `gitmap db-read "<path>" -as <alias>` — Registers database file into persistent alias registry.
