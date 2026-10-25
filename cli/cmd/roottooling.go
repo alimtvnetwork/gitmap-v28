@@ -9,6 +9,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcg"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcompletion"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdconfig"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcontextmenu"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddesktopsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddoctor"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdenv"
@@ -237,6 +238,7 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdRust, constants.CmdRustAlias, constants.CmdRustAlias2}, func() error { return cmdtoolchain.RunRust(argsTail()) }},
 		{[]string{constants.CmdInstall, constants.CmdInstallAlias}, func() error { return cmdinstall.RunInstall(argsTail()) }},
 		{[]string{constants.CmdUninstall, constants.CmdUninstallAlias}, func() error { return runUninstall(argsTail()) }},
+		{[]string{constants.CmdContextMenu, constants.CmdContextMenuAlias, "ctx-menu"}, func() error { return cmdcontextmenu.RunContextMenu(argsTail()) }},
 		{[]string{"apps", "app"}, func() error { return cmdapps.RunAppsDispatch(argsTail()) }},
 		{[]string{"uninstall-agy"}, func() error { return runUninstall(append([]string{"agy"}, argsTail()...)) }},
 		{[]string{"uninstall-agy-all"}, func() error { return runUninstall(append([]string{"agy-all"}, argsTail()...)) }},

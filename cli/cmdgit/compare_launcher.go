@@ -16,7 +16,8 @@ type CompareTool struct {
 	Path string
 }
 
-func findCompareTool() (CompareTool, error) {
+// FindCompareTool discovers an available external compare tool.
+func FindCompareTool() (CompareTool, error) {
 	if tool, isFound := findBeyondCompare(); isFound {
 		return tool, nil
 	}
@@ -30,6 +31,10 @@ func findCompareTool() (CompareTool, error) {
 	}
 
 	return findWinMerge()
+}
+
+func findCompareTool() (CompareTool, error) {
+	return FindCompareTool()
 }
 
 func findBeyondCompare() (CompareTool, bool) {
@@ -128,7 +133,8 @@ func isFileExist(path string) bool {
 	return err == nil && !info.IsDir()
 }
 
-func launchToolWithPaths(tool CompareTool, dirs []string) error {
+// LaunchToolWithPaths launches the compare tool synchronously.
+func LaunchToolWithPaths(tool CompareTool, dirs []string) error {
 	args := buildToolArguments(tool.Name, dirs)
 	cmd := exec.Command(tool.Path, args...)
 	cmd.Stdout = os.Stdout
@@ -138,6 +144,24 @@ func launchToolWithPaths(tool CompareTool, dirs []string) error {
 	err := cmd.Run()
 	if err != nil {
 		return apperror.WrapSimple(err, "launch compare tool: "+tool.Name)
+	}
+
+	return nil
+}
+
+func launchToolWithPaths(tool CompareTool, dirs []string) error {
+	return LaunchToolWithPaths(tool, dirs)
+}
+
+// LaunchToolWithPathsAsync launches the compare tool in the background.
+func LaunchToolWithPathsAsync(tool CompareTool, dirs []string) error {
+	args := buildToolArguments(tool.Name, dirs)
+	cmd := exec.Command(tool.Path, args...)
+
+	fmt.Printf("Launching %s (async) to compare: %v\n", tool.Name, dirs)
+	err := cmd.Start()
+	if err != nil {
+		return apperror.WrapSimple(err, "launch async compare tool: "+tool.Name)
 	}
 
 	return nil

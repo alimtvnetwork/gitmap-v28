@@ -38,7 +38,17 @@ func handleRootGitOps(cmd string) bool {
 		return true
 	}
 
+	if isShowLogCommand(cmd) {
+		executeShowLogAndExit(os.Args[2:])
+
+		return true
+	}
+
 	return false
+}
+
+func isShowLogCommand(cmd string) bool {
+	return cmd == "show-log" || cmd == "showlog" || cmd == "log-ui"
 }
 
 func handleGitSubcommandOps(cmd string) {
@@ -53,6 +63,10 @@ func handleGitSubcommandOps(cmd string) {
 
 	if sub == "log" {
 		executeLogAndExit(os.Args[3:])
+	}
+
+	if isShowLogCommand(sub) {
+		executeShowLogAndExit(os.Args[3:])
 	}
 }
 
@@ -72,6 +86,14 @@ func executeLogAndExit(args []string) {
 	cliexit.Exit(0)
 }
 
+func executeShowLogAndExit(args []string) {
+	if err := cmdgit.RunShowLog(args); err != nil {
+		cliexit.HandleError(err, 1)
+	}
+
+	cliexit.Exit(0)
+}
+
 // DispatchGitOps handles programmatic invocation of git inspection operations.
 func DispatchGitOps(command string, args []string) (bool, error) {
 	clean := strings.ToLower(strings.TrimSpace(command))
@@ -81,6 +103,8 @@ func DispatchGitOps(command string, args []string) (bool, error) {
 		return true, cmdgit.RunShow(args)
 	case "log":
 		return true, cmdgit.RunLog(args)
+	case "show-log", "showlog", "log-ui":
+		return true, cmdgit.RunShowLog(args)
 	default:
 		return false, nil
 	}

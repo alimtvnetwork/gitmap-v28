@@ -63,7 +63,8 @@ func isSelfUninstallTool(tool string) bool {
 }
 
 func isCtxTool(tool, canonical string) bool {
-	return tool == constants.ToolCtx || canonical == constants.ToolCtx
+	isCtx := tool == constants.ToolCtx || canonical == constants.ToolCtx
+	return isCtx || strutil.EqualFoldAny(tool, constants.ToolContextMenu, constants.ToolContextMenuAlt)
 }
 
 // runUninstall handles the "uninstall" command.

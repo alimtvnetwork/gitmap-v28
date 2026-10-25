@@ -28,6 +28,8 @@ func bindInstallFlags(fs *flag.FlagSet, opts *installOptions, list *bool) {
 	fs.StringVar(&opts.Tools, "tools", "", "Comma-separated list of developer tools to install")
 	fs.BoolVar(&opts.IsJson, "json", false, "Output installation progress and summary in structured JSON")
 	fs.BoolVar(&opts.HasIgnoreErrors, "ignore-errors", false, "Continue batch install even if an individual tool fails")
+	fs.BoolVar(&opts.IsWizard, "wizard", false, "Launch the GitMap Install Wizard")
+	fs.BoolVar(&opts.IsWizard, "w", false, "Launch the GitMap Install Wizard alias")
 	bindInstallAdvancedFlags(fs, opts)
 }
 
@@ -57,6 +59,16 @@ func parseInstallFlags(args []string) (installOptions, bool) {
 	return opts, list
 }
 
+func isInstallWizardRequested(args []string) bool {
+	for _, a := range args {
+		if a == "--wizard" || a == "-w" || a == "wizard" {
+			return true
+		}
+	}
+
+	return false
+}
+
 func isInstallHelpRequested(args []string) bool {
 	for _, a := range args {
 		if a == "--help" || a == "-h" || a == "help" {
@@ -68,6 +80,10 @@ func isInstallHelpRequested(args []string) bool {
 }
 
 func runInstall(args []string) error {
+	if isInstallWizardRequested(args) {
+		return runInstallWizard()
+	}
+
 	if isInstallHelpRequested(args) {
 		RenderInstallHelp()
 
@@ -76,19 +92,11 @@ func runInstall(args []string) error {
 
 	// Program 275: `install verify` / `install urls` subcommands.
 	if isInstallVerifyCommand(args) {
-		if appErr := RunInstallVerify(args[1:]); appErr != nil {
-			return appErr
-		}
-
-		return nil
+		return handleInstallVerify(args)
 	}
 
 	if isInstallURLsCommand(args) {
-		if appErr := RunInstallURLs(args[1:]); appErr != nil {
-			return appErr
-		}
-
-		return nil
+		return handleInstallURLs(args)
 	}
 
 	if isInstallLogsCommand(args) {
@@ -117,6 +125,10 @@ func runInstall(args []string) error {
 
 	checkHelp("install", args)
 	opts, list := parseInstallFlags(args)
+	if opts.IsWizard {
+		return runInstallWizard()
+	}
+
 	if list || opts.Tool == "ls" || opts.Tool == "list" {
 		printInstallListGrouped()
 
@@ -144,6 +156,22 @@ func runInstall(args []string) error {
 	opts.Tool = resolveToolAlias(opts.Tool)
 	validateToolName(opts.Tool)
 	executeInstall(opts)
+
+	return nil
+}
+
+func handleInstallVerify(args []string) error {
+	if appErr := RunInstallVerify(args[1:]); appErr != nil {
+		return appErr
+	}
+
+	return nil
+}
+
+func handleInstallURLs(args []string) error {
+	if appErr := RunInstallURLs(args[1:]); appErr != nil {
+		return appErr
+	}
 
 	return nil
 }
@@ -179,6 +207,7 @@ type installOptions struct {
 	IsDownloadMust  bool
 	IsJson          bool
 	HasIgnoreErrors bool
+	IsWizard        bool
 }
 
 func isRemoteArchiveURL(raw string) bool {

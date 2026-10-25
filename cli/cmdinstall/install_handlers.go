@@ -25,6 +25,8 @@ func resolveSpecialToolsMap() map[string]func(installOptions) {
 		constants.ToolVSCodeCtx:        func(installOptions) { runVSCodeContextMenu() },
 		constants.ToolPwshCtx:          func(installOptions) { runPwshContextMenu() },
 		constants.ToolCtx:              func(opts installOptions) { runInstallCtx(opts.Explain) },
+		constants.ToolContextMenu:      func(opts installOptions) { runInstallCtx(opts.Explain) },
+		constants.ToolContextMenuAlt:   func(opts installOptions) { runInstallCtx(opts.Explain) },
 		constants.ToolAllDevTools:      func(opts installOptions) { runAllDevTools(opts) },
 		constants.ToolGitmapOneliner:   func(installOptions) { runInstallGitmapOneliner() },
 		constants.ToolScriptsFixer:     func(installOptions) { handleCustomToolInstall("scripts-fixer") },

@@ -102,6 +102,21 @@ func RunUninstallCtx() {
 	runUninstallCtx()
 }
 
+// RunInstallCtx installs desktop context menu entries.
+func RunInstallCtx(explain bool) error {
+	return runInstallCtx(explain)
+}
+
+// IsContextMenuActive reports whether the context menu integration is active.
+func IsContextMenuActive() bool {
+	return isContextMenuActive()
+}
+
+// RunInstallWizard launches the install wizard overview.
+func RunInstallWizard() error {
+	return runInstallWizard()
+}
+
 // ResolvePackageManager detects the system package manager.
 func ResolvePackageManager(override, tool string) string {
 	return resolvePackageManager(override, tool)

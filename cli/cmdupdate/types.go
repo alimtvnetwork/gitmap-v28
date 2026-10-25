@@ -7,12 +7,13 @@ import (
 
 // UpdateOptions specifies parameters for self/fleet updates.
 type UpdateOptions struct {
-	TargetVersion   string `json:"targetVersion"`
-	IsForce         bool   `json:"isForce"`
-	IsDryRun        bool   `json:"isDryRun"`
-	IsJSON          bool   `json:"isJSON"`
-	IsQuiet         bool   `json:"isQuiet"`
-	MaxFallbackTags int    `json:"maxFallbackTags"`
+	TargetVersion    string `json:"targetVersion"`
+	IsForce          bool   `json:"isForce"`
+	IsDryRun         bool   `json:"isDryRun"`
+	IsJSON           bool   `json:"isJSON"`
+	IsQuiet          bool   `json:"isQuiet"`
+	IsAllowDowngrade bool   `json:"isAllowDowngrade"`
+	MaxFallbackTags  int    `json:"maxFallbackTags"`
 }
 
 // ReleaseCacheRecord mirrors the Split SQLite ReleaseCache table.

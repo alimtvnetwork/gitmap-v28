@@ -81,18 +81,23 @@ func checkProbeThrottle(base string, current int) (string, bool) {
 	if !probeThrottleForceEnabled && isTestEnv() {
 		return "", false
 	}
+
 	wm := loadProbeWatermark()
 	if wm == nil {
 		return "", false
 	}
-	if time.Since(wm.LastProbeTime) < probeThrottleDuration {
-		if wm.HasHit && wm.CachedSlug != "" {
-			return wm.CachedSlug, true
-		}
-		currentSlug := fmt.Sprintf("%s-v%d", base, current)
-		return currentSlug, true
+
+	if time.Since(wm.LastProbeTime) >= probeThrottleDuration {
+		return "", false
 	}
-	return "", false
+
+	if wm.HasHit && wm.CachedSlug != "" {
+		return wm.CachedSlug, true
+	}
+
+	currentSlug := fmt.Sprintf("%s-v%d", base, current)
+
+	return currentSlug, true
 }
 
 // repoSlugRe matches "<base>-v<N>" e.g. "gitmap-v28".
@@ -115,12 +120,86 @@ func resolveLatestRepoSlug(httpClient *http.Client) (string, string, error) {
 		return "", "", err
 	}
 
-	if slug, ok := probeSiblings(httpClient, base, currentN, constants.UpdateProbeMaxSiblings); ok {
+	if slug, hasSibling := checkSiblingCandidate(httpClient, base, currentN); hasSibling {
 		fmt.Printf(constants.MsgUpdateProbeResolve, slug, constants.UpdateProbeSourceSibling)
 
 		return slug, constants.UpdateProbeSourceSibling, nil
 	}
 
+	return resolveFallbackSlug(httpClient)
+}
+
+func checkSiblingCandidate(httpClient *http.Client, base string, currentN int) (string, bool) {
+	slug, hasSibling := probeSiblings(httpClient, base, currentN, constants.UpdateProbeMaxSiblings)
+	if !hasSibling {
+		return "", false
+	}
+
+	if !hasNewerSiblingRelease(httpClient, slug, constants.Version) {
+		return "", false
+	}
+
+	return slug, true
+}
+
+func hasNewerSiblingRelease(httpClient *http.Client, slug, currentVersion string) bool {
+	tag, err := fetchRepoLatestReleaseTag(httpClient, slug)
+	if err != nil || tag == "" {
+		return false
+	}
+
+	return CompareSemVer(tag, currentVersion) > 0
+}
+
+func fetchRepoLatestReleaseTag(httpClient *http.Client, slug string) (string, error) {
+	resp, err := getRepoReleaseResponse(httpClient, slug)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	tag := decodeReleaseTagName(resp.Body)
+	if tag == "" {
+		return "", apperror.NewValidationError("empty release tag")
+	}
+
+	return tag, nil
+}
+
+func newReleaseGetRequest(ctx context.Context, slug string) (*http.Request, error) {
+	url := fmt.Sprintf(constants.UpdateReleasesAPITmpl, constants.UpdateRepoOwner, slug)
+
+	return http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+}
+
+func getRepoReleaseResponse(httpClient *http.Client, slug string) (*http.Response, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(constants.UpdateProbeTimeoutSec)*time.Second)
+	defer cancel()
+
+	req, errReq := newReleaseGetRequest(ctx, slug)
+	if errReq != nil {
+		return nil, errReq
+	}
+
+	resp, errResp := httpClient.Do(req)
+	if errResp != nil {
+		return nil, errResp
+	}
+
+	return validateReleaseResponse(resp)
+}
+
+func validateReleaseResponse(resp *http.Response) (*http.Response, error) {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		resp.Body.Close()
+
+		return nil, apperror.NewExecutionError(fmt.Sprintf("status %d", resp.StatusCode))
+	}
+
+	return resp, nil
+}
+
+func resolveFallbackSlug(httpClient *http.Client) (string, string, error) {
 	currentSlug := constants.UpdateCurrentRepoSlug
 	if releaseFallbackOK(httpClient, currentSlug) {
 		fmt.Printf(constants.MsgUpdateProbeResolve, currentSlug, constants.UpdateProbeSourceRelease)
@@ -177,16 +256,24 @@ func probeSiblings(httpClient *http.Client, base string, current, maxN int) (str
 
 	wg.Wait()
 
-	slug, ok := pickMaxHit(results, base)
-	if !isTestEnv() || probeThrottleForceEnabled {
-		if ok {
-			saveProbeWatermark(slug, true)
-		} else {
-			saveProbeWatermark(fmt.Sprintf("%s-v%d", base, current), false)
-		}
+	slug, isHit := pickMaxHit(results, base)
+	recordProbeWatermark(slug, base, current, isHit)
+
+	return slug, isHit
+}
+
+func recordProbeWatermark(slug, base string, current int, hasHit bool) {
+	if isTestEnv() && !probeThrottleForceEnabled {
+		return
 	}
 
-	return slug, ok
+	if hasHit {
+		saveProbeWatermark(slug, true)
+
+		return
+	}
+
+	saveProbeWatermark(fmt.Sprintf("%s-v%d", base, current), false)
 }
 
 // probeOne runs a single HEAD request and returns the result.

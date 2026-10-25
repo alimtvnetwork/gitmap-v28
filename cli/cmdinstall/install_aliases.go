@@ -11,6 +11,9 @@ var desktopToolAliases = map[string]string{
 	"github-desktop": constants.ToolGitHubDesktop,
 	"gh-desktop":     constants.ToolGitHubDesktop,
 	"gd":             constants.ToolGitHubDesktop,
+	"context-menu":   constants.ToolCtx,
+	"contextmenu":    constants.ToolCtx,
+	"ctx":            constants.ToolCtx,
 }
 
 // GenerateAutoAliasFn generates an auto alias from a repository name or slug.

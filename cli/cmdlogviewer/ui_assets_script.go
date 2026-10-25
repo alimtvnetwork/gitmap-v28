@@ -1,0 +1,192 @@
+package cmdlogviewer
+
+// showLogMarkupScript contains client-side application logic.
+const showLogMarkupScript = `<script>
+let allCommits = [];
+let activeHash = '';
+let activePath = '';
+
+const params = new URLSearchParams(window.location.search);
+activePath = params.get('path') || '.';
+document.getElementById('path-indicator').textContent = activePath === '.' ? '[All repository files]' : activePath;
+document.getElementById('modal-compare-path').value = activePath === '.' ? '' : activePath;
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 5000);
+}
+
+async function loadBranches() {
+  try {
+    const res = await fetch('/api/log/branches');
+    const data = await res.json();
+    const sel = document.getElementById('branch-select');
+    const modalA = document.getElementById('modal-branch-a');
+    const modalB = document.getElementById('modal-branch-b');
+    sel.innerHTML = ''; modalA.innerHTML = ''; modalB.innerHTML = '';
+    (data.branches || []).forEach(b => {
+      const opt = new Option(b, b);
+      if (b === data.activeBranch) opt.selected = true;
+      sel.add(opt);
+      modalA.add(new Option(b, b));
+      modalB.add(new Option(b, b));
+    });
+    if (modalB.options.length > 1) modalB.selectedIndex = 1;
+  } catch (e) {
+    console.error('Failed to load branches', e);
+  }
+}
+
+async function loadCommits() {
+  try {
+    const res = await fetch('/api/log/commits?path=' + encodeURIComponent(activePath) + '&limit=150');
+    allCommits = await res.json();
+    renderCommits(allCommits);
+    if (allCommits.length > 0) {
+      selectCommit(allCommits[0].hash);
+    }
+  } catch (e) {
+    document.getElementById('commits-body').innerHTML = '<tr><td colspan="5" style="color:var(--red);text-align:center;">Failed to load commits</td></tr>';
+  }
+}
+
+function renderCommits(commits) {
+  const tbody = document.getElementById('commits-body');
+  if (!commits || commits.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No commits found for path</td></tr>';
+    return;
+  }
+  tbody.innerHTML = commits.map(c => ` + "`" + `
+    <tr data-hash="${c.hash}" class="${c.hash === activeHash ? 'selected' : ''}" onclick="selectCommit('${c.hash}')">
+      <td style="color:var(--accent);">●</td>
+      <td class="mono hash-cell">${c.shortHash}</td>
+      <td class="date-cell">${c.date}</td>
+      <td class="author-cell" title="${c.author}">${c.author}</td>
+      <td title="${c.subject}">${c.subject}</td>
+    </tr>
+  ` + "`" + `).join('');
+}
+
+async function selectCommit(hash) {
+  activeHash = hash;
+  document.querySelectorAll('#commits-body tr').forEach(tr => {
+    tr.classList.toggle('selected', tr.getAttribute('data-hash') === hash);
+  });
+  try {
+    const res = await fetch('/api/log/commit?hash=' + hash);
+    const detail = await res.json();
+    renderCommitDetail(detail);
+    renderModifiedFiles(detail.files || []);
+  } catch (e) {
+    showToast('Failed to load commit details');
+  }
+}
+
+function renderCommitDetail(detail) {
+  const header = document.getElementById('detail-header');
+  const body = document.getElementById('detail-body');
+  const parents = (detail.parents || []).join(' ') || 'none (root)';
+  header.innerHTML = ` + "`" + `
+    <div><b>Commit:</b> <span class="mono">${detail.hash}</span></div>
+    <div><b>Author:</b> ${detail.author} &lt;${detail.authorEmail}&gt;</div>
+    <div><b>Date:</b> ${detail.date}</div>
+    <div><b>Parents:</b> <span class="mono">${parents}</span></div>
+  ` + "`" + `;
+  body.textContent = (detail.subject || '') + '\n\n' + (detail.body || '');
+}
+
+function renderModifiedFiles(files) {
+  const tbody = document.getElementById('files-body');
+  document.getElementById('files-summary').textContent = 'Modified Files (' + files.length + ')';
+  if (!files || files.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">No files changed</td></tr>';
+    return;
+  }
+  tbody.innerHTML = files.map(f => {
+    const badgeCls = 'badge-' + (f.action || 'modified').toLowerCase();
+    const stats = f.stats || '';
+    return ` + "`" + `
+      <tr ondblclick="triggerDiff('${f.path}')" title="Double click to diff">
+        <td><span class="badge-action ${badgeCls}">${f.action}</span></td>
+        <td class="mono" style="color:var(--text);">${f.path}</td>
+        <td class="mono" style="color:var(--yellow);">${stats}</td>
+        <td style="text-align:right;"><button onclick="triggerDiff('${f.path}')">Diff</button></td>
+      </tr>
+    ` + "`" + `;
+  }).join('');
+}
+
+async function triggerDiff(filePath) {
+  if (!activeHash) return;
+  showToast('Launching external compare tool for ' + filePath + '...');
+  try {
+    const res = await fetch('/api/log/diff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commit: activeHash, path: filePath })
+    });
+    const data = await res.json();
+    if (data.isSuccess) {
+      showToast('🚀 ' + (data.tool || 'Compare tool') + ' launched for ' + filePath);
+    } else {
+      showToast('Error: ' + (data.error || 'Failed to launch diff'));
+    }
+  } catch (e) {
+    showToast('Failed to trigger diff: ' + e.message);
+  }
+}
+
+document.getElementById('commit-search').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  if (!query) {
+    renderCommits(allCommits);
+    return;
+  }
+  const filtered = allCommits.filter(c =>
+    c.hash.toLowerCase().includes(query) ||
+    c.author.toLowerCase().includes(query) ||
+    c.subject.toLowerCase().includes(query)
+  );
+  renderCommits(filtered);
+});
+
+document.getElementById('btn-refresh').addEventListener('click', () => {
+  showToast('Reloading commits...');
+  loadCommits();
+});
+
+const modal = document.getElementById('compare-modal');
+document.getElementById('btn-compare-branches').addEventListener('click', () => modal.classList.add('open'));
+document.getElementById('modal-cancel').addEventListener('click', () => modal.classList.remove('open'));
+document.getElementById('modal-submit').addEventListener('click', async () => {
+  const bA = document.getElementById('modal-branch-a').value;
+  const bB = document.getElementById('modal-branch-b').value;
+  const p = document.getElementById('modal-compare-path').value.trim();
+  modal.classList.remove('open');
+  showToast('Launching comparison between ' + bA + ' and ' + bB + '...');
+  try {
+    const res = await fetch('/api/log/branch-compare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branchA: bA, branchB: bB, path: p })
+    });
+    const data = await res.json();
+    if (data.isSuccess) {
+      showToast('🚀 ' + (data.message || 'Comparison launched!'));
+    } else {
+      showToast('Error: ' + (data.error || 'Failed to compare branches'));
+    }
+  } catch (e) {
+    showToast('Comparison failed: ' + e.message);
+  }
+});
+
+loadBranches();
+loadCommits();
+if (params.get('compare') === '1') {
+  modal.classList.add('open');
+}
+</script>
+</body>
+</html>`

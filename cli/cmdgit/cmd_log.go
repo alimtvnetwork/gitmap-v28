@@ -5,13 +5,37 @@ import (
 	"strings"
 )
 
+// RunLogUIFn is injected by cmdlogviewer to launch interactive log UI.
+var RunLogUIFn func(args []string) error
+
+// RunShowLog launches the interactive log UI.
+func RunShowLog(args []string) error {
+	if RunLogUIFn != nil {
+		return RunLogUIFn(args)
+	}
+
+	return nil
+}
+
 // RunLog handles native git log execution with clean, modern output.
 func RunLog(args []string) error {
+	if isLogUIRequest(args) && RunLogUIFn != nil {
+		return RunLogUIFn(args[1:])
+	}
+
 	targetDir, remaining := ParseGitDirAndArgs(args)
 
 	gitArgs := buildLogArgs(remaining)
 
 	return ExecGitInspection(targetDir, gitArgs...)
+}
+
+func isLogUIRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	return strings.ToLower(strings.TrimSpace(args[0])) == "ui"
 }
 
 func buildLogArgs(args []string) []string {

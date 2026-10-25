@@ -39,6 +39,7 @@ func ctxMenu() []ctxEntry {
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
 		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Silent},
 		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},
+		{KeyName: "95_install_wizard", MUIVerb: "Install Wizard (GitMap Tools & Profiles)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 	}
 }
 
@@ -98,15 +99,14 @@ func toolsChildren() []ctxEntry {
 	}
 }
 
-// gitChildren returns the raw-git submenu. These entries shell out to
-// `git` directly (Exe override) so users can inspect repository state
-// in a terminal viewer without launching gitmap. All are Terminal mode
-// because the output is multi-line and worth reading.
+// gitChildren returns the Git submenu with TortoiseGit-like features.
 func gitChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_history", MUIVerb: constants.CtxGitHistoryLabel, Args: constants.CtxGitHistoryArgs, Exe: constants.CtxExeGit, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_diff", MUIVerb: constants.CtxGitDiffLabel, Args: constants.CtxGitDiffArgs, Exe: constants.CtxExeGit, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_log", MUIVerb: constants.CtxGitLogLabel, Args: constants.CtxGitLogArgs, Exe: constants.CtxExeGit, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_status", MUIVerb: constants.CtxGitStatusLabel, Args: constants.CtxGitStatusArgs, Exe: constants.CtxExeGit, Mode: ctxmodetype.Silent},
+		{KeyName: "10_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "20_diff", MUIVerb: "Diff", Args: []string{"diff"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "30_diff_later", MUIVerb: "Diff later", Args: []string{"diff", "--stash-path"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "40_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "50_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "60_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal},
 	}
 }

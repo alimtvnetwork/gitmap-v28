@@ -5,8 +5,16 @@ package constants
 
 // Tool name for the install dispatcher.
 const (
-	ToolCtx     = "ctx"
-	ToolCtxDesc = "Add gitmap to the OS right-click context menu (Windows / macOS / Linux)"
+	ToolCtx            = "ctx"
+	ToolContextMenu    = "context-menu"
+	ToolContextMenuAlt = "contextmenu"
+	ToolCtxDesc        = "Add gitmap to the OS right-click context menu (Windows / macOS / Linux)"
+)
+
+// gitmap:cmd top-level
+const (
+	CmdContextMenu      = "context-menu" // gitmap:cmd skip
+	CmdContextMenuAlias = "contextmenu"  // gitmap:cmd skip
 )
 
 // Top-level cascade label and registry root key names. The two roots

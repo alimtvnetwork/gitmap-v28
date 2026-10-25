@@ -50,16 +50,19 @@ var expectedCtxArgv = map[string]struct {
 	"60_tools/20_diff":     {"", []string{"diff"}},
 	"60_tools/30_history":  {"", []string{"history"}},
 	"60_tools/40_update":   {"", []string{"update"}},
-	// Raw git — Exe override, argv pulled from constants for stability.
-	"70_git/10_history": {constants.CtxExeGit, constants.CtxGitHistoryArgs},
-	"70_git/20_diff":    {constants.CtxExeGit, constants.CtxGitDiffArgs},
-	"70_git/30_log":     {constants.CtxExeGit, constants.CtxGitLogArgs},
-	"70_git/40_status":  {constants.CtxExeGit, constants.CtxGitStatusArgs},
+	// Git — TortoiseGit-like features
+	"70_git/10_commit":         {"", []string{"commit", "-b", "main"}},
+	"70_git/20_diff":           {"", []string{"diff"}},
+	"70_git/30_diff_later":     {"", []string{"diff", "--stash-path"}},
+	"70_git/40_diff_prev":      {"", []string{"diff", "HEAD~1"}},
+	"70_git/50_show_log":       {"", []string{"show-log"}},
+	"70_git/60_branch_compare": {"", []string{"show-log", "--branch-compare"}},
 	// Top-level standalone entries
-	"80_antigravity": {"", []string{"ag"}},
-	"90_terminal":    {"", nil}, // Prefill mode; no argv
-	"91_docs":        {"", []string{"docs"}},
-	"92_help":        {"", []string{constants.CmdHelp}},
+	"80_antigravity":    {"", []string{"ag"}},
+	"90_terminal":       {"", nil}, // Prefill mode; no argv
+	"91_docs":           {"", []string{"docs"}},
+	"92_help":           {"", []string{constants.CmdHelp}},
+	"95_install_wizard": {"", []string{"install", "--wizard"}},
 }
 
 // flattenCtxMenu walks ctxMenu() and returns a path→entry map keyed by the

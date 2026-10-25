@@ -51,6 +51,7 @@ var toolAliasMap = map[string]string{
 	"clean-code": constants.ToolCodingGuidelines, "code-guide": constants.ToolCodingGuidelines, "cg": constants.ToolCodingGuidelines, "cc": constants.ToolCodingGuidelines,
 	"ubuntu-common": constants.ToolBuildEssential, "ub-common": constants.ToolBuildEssential,
 	"vscode-ctx": constants.ToolVSCodeCtx, "pwsh-ctx": constants.ToolPwshCtx, "ag-ctx": constants.ToolAgCtx, "scripts": constants.ToolScripts,
+	"context-menu": constants.ToolCtx, "contextmenu": constants.ToolCtx, "ctx": constants.ToolCtx,
 	"git-compact": constants.ToolGitCompact, "gitcompact": constants.ToolGitCompact, "git-c": constants.ToolGitCompact,
 	"bc": constants.ToolBeyondCompare, "bcompare": constants.ToolBeyondCompare, "beyond-compare": constants.ToolBeyondCompare,
 	"bc4": constants.ToolBeyondCompare4, "bcompare4": constants.ToolBeyondCompare4, "beyond-compare-4": constants.ToolBeyondCompare4, "beyondcompare-4": constants.ToolBeyondCompare4,
