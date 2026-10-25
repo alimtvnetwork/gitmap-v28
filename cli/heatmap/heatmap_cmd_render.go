@@ -3,6 +3,8 @@ package heatmap
 import (
 	"fmt"
 	"io"
+	"sort"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/termout"
@@ -108,22 +110,183 @@ func renderRcTreeText(out io.Writer, nodes []store.RcHeatmapExecutionTreeNode, i
 	}
 }
 
-func renderStatusText(out io.Writer, s store.HeatmapStatusSummary) {
-	fmt.Fprintf(out, "Heatmap Status Summary (Task: %s)\n--------------------------------------------------\n", s.TaskSlug)
-	fmt.Fprintf(out, "Total Actions:    %d\nExpectations Met: %d (%.1f%%)\n\nReasoning States:\n",
-		s.TotalActions, s.ExpectationsMetCount, s.ExpectationsMetPct)
-	for state, count := range s.ReasoningStateCounts {
-		fmt.Fprintf(out, "  %-18s: %d\n", state, count)
-	}
-	printTopTouchedFiles(out, s.TopTouchedFiles)
+func renderStatusDashboard(out io.Writer, s store.HeatmapStatusSummary, inv TaskInventory, alerts []HeatmapAiConfusion, cmds SuggestedCommandsPayload) {
+	wsSlug := ResolveWorkspaceSlug(".")
+	activeSlug := ResolveActiveTaskSlug(s.TaskSlug, inv)
+
+	renderStatusHeaderCard(out, wsSlug, activeSlug)
+	renderTelemetrySummarySection(out, s)
+	renderTopTouchedFilesSection(out, s.TopTouchedFiles)
+	renderCompletedTasksSection(out, inv.Completed)
+	renderPendingTasksSection(out, inv.Pending)
+	renderAlertsSection(out, alerts)
+	renderDrillDownSection(out, cmds)
 }
 
-func printTopTouchedFiles(out io.Writer, files []store.FileTouchCount) {
+func renderStatusHeaderCard(out io.Writer, wsSlug, activeSlug string) {
+	title := termout.TokyoBannerStyle("GITMAP HEATMAP TELEMETRY STATUS")
+	activeDisplay := activeSlug
+	if activeDisplay == "" {
+		activeDisplay = "(none)"
+	}
+
+	meta := fmt.Sprintf("  Workspace: %s  •  AI: 01-antigravity  •  Active Task: %s", wsSlug, activeDisplay)
+	card := termout.TokyoBoxStyle(title + "\n" + meta)
+
+	fmt.Fprintln(out, card)
+	fmt.Fprintln(out)
+}
+
+func renderTelemetrySummarySection(out io.Writer, s store.HeatmapStatusSummary) {
+	fmt.Fprintln(out, "  "+termout.TokyoHeader("Telemetry Summary"))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
+	fmt.Fprintf(out, "  Total Actions Recorded : %s\n", formatActionsCount(s.TotalActions))
+	fmt.Fprintf(out, "  Expectation Pass Rate  : %.1f%% [%d / %d]\n", s.ExpectationsMetPct, s.ExpectationsMetCount, s.TotalActions)
+	fmt.Fprintf(out, "  Active Reasoning State : %s\n\n", formatReasoningStatesLine(s.ReasoningStateCounts))
+}
+
+func renderSectionDivider() string {
+	return termout.SafeTokyoStyle(termout.TokyoMuted).Render(strings.Repeat("─", 75))
+}
+
+func formatActionsCount(total int) string {
+	return fmt.Sprintf("%d actions", total)
+}
+
+func extractSortedStateKeys(counts map[string]int) []string {
+	keys := make([]string, 0, len(counts))
+	for k := range counts {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	return keys
+}
+
+func formatSingleStateBadge(state string, count int) string {
+	styledState := formatReasoningState(state)
+
+	return fmt.Sprintf("%s (%d)", styledState, count)
+}
+
+func formatReasoningStatesLine(counts map[string]int) string {
+	if len(counts) == 0 {
+		return termout.SafeTokyoStyle(termout.TokyoMuted).Render("None recorded")
+	}
+
+	keys := extractSortedStateKeys(counts)
+	var parts []string
+	for _, k := range keys {
+		parts = append(parts, formatSingleStateBadge(k, counts[k]))
+	}
+
+	return strings.Join(parts, "  •  ")
+}
+
+func renderTopTouchedFilesSection(out io.Writer, files []store.FileTouchCount) {
 	if len(files) == 0 {
 		return
 	}
-	fmt.Fprintln(out, "\nTop Touched Files:")
+
+	fmt.Fprintln(out, "  "+termout.TokyoHeader("Top Touched Files"))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
 	for _, f := range files {
-		fmt.Fprintf(out, "  %-40s (%d touches)\n", f.FilePath, f.Count)
+		touchStr := termout.SafeTokyoStyle(termout.TokyoMuted).Render(fmt.Sprintf("(%d touches)", f.Count))
+		fmt.Fprintf(out, "    %-45s %s\n", f.FilePath, touchStr)
 	}
+
+	fmt.Fprintln(out)
+}
+
+func renderCompletedTasksSection(out io.Writer, tasks []TaskItem) {
+	if len(tasks) == 0 {
+		return
+	}
+
+	header := fmt.Sprintf("Completed Tasks (Last %d)", len(tasks))
+	fmt.Fprintln(out, "  "+termout.TokyoHeader(header))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
+	for _, t := range tasks {
+		badge := termout.SafeTokyoStyle(termout.TokyoOK).Bold(true).Render("[✓]")
+		actionStr := termout.SafeTokyoStyle(termout.TokyoMuted).Render(fmt.Sprintf("(%d actions)", t.TotalActions))
+		fmt.Fprintf(out, "  %s %-56s %s\n", badge, t.TaskSlug, actionStr)
+	}
+
+	fmt.Fprintln(out)
+}
+
+func formatPendingTaskLine(t TaskItem) string {
+	if t.IsActive {
+		badge := termout.SafeTokyoStyle(termout.TokyoWarn).Bold(true).Render("[⏳]")
+		tag := termout.SafeTokyoStyle(termout.TokyoWarn).Render("(Active)")
+
+		return fmt.Sprintf("  %s %-56s %s", badge, t.TaskSlug, tag)
+	}
+
+	badge := termout.SafeTokyoStyle(termout.TokyoMuted).Render("[ ]")
+	tag := termout.SafeTokyoStyle(termout.TokyoMuted).Render("(Queued)")
+
+	return fmt.Sprintf("  %s %-56s %s", badge, t.TaskSlug, tag)
+}
+
+func renderPendingTasksSection(out io.Writer, tasks []TaskItem) {
+	if len(tasks) == 0 {
+		return
+	}
+
+	header := fmt.Sprintf("Pending Tasks Queue (Top %d)", len(tasks))
+	fmt.Fprintln(out, "  "+termout.TokyoHeader(header))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
+	for _, t := range tasks {
+		fmt.Fprintln(out, formatPendingTaskLine(t))
+	}
+
+	fmt.Fprintln(out)
+}
+
+func formatAlertLine(a HeatmapAiConfusion) string {
+	badge := termout.SafeTokyoStyle(termout.TokyoError).Bold(true).Render("[!]")
+	loc := a.FilePath
+	if a.StartLine > 0 {
+		loc = fmt.Sprintf("%s:%d", a.FilePath, a.StartLine)
+	}
+
+	return fmt.Sprintf("  %s #%d %s: %s", badge, a.ConfusionId, loc, a.ReasoningNote)
+}
+
+func renderAlertsSection(out io.Writer, alerts []HeatmapAiConfusion) {
+	if len(alerts) == 0 {
+		return
+	}
+
+	fmt.Fprintln(out, "  "+termout.TokyoHeader("Active AI Confusions & Unmet Expectations"))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
+	for _, a := range alerts {
+		fmt.Fprintln(out, formatAlertLine(a))
+	}
+
+	fmt.Fprintln(out)
+}
+
+func renderDrillDownSection(out io.Writer, cmds SuggestedCommandsPayload) {
+	fmt.Fprintln(out, "  "+termout.TokyoHeader("Drill-Down Inspection Commands"))
+	fmt.Fprintln(out, "  "+renderSectionDivider())
+
+	lblTree := termout.SafeTokyoStyle(termout.TokyoAccent).Render("• Tree View   : ")
+	lblSearch := termout.SafeTokyoStyle(termout.TokyoAccent).Render("• Search Logs : ")
+	lblConf := termout.SafeTokyoStyle(termout.TokyoAccent).Render("• Confusions  : ")
+
+	fmt.Fprintf(out, "  %s%s\n", lblTree, cmds.TreeViewCommand)
+	fmt.Fprintf(out, "  %s%s\n", lblSearch, cmds.SearchErrorCommand)
+	fmt.Fprintf(out, "  %s%s\n", lblConf, cmds.AiConfusionSyncCommand)
+}
+
+func renderStatusText(out io.Writer, s store.HeatmapStatusSummary) {
+	inv, _ := DiscoverHeatmapTasks(".", 5)
+	activeSlug := ResolveActiveTaskSlug(s.TaskSlug, inv)
+	cmds := BuildSuggestedCommands(activeSlug)
+	alerts := CollectConfusionAlerts(nil, activeSlug)
+
+	renderStatusDashboard(out, s, inv, alerts, cmds)
 }

@@ -276,12 +276,52 @@ func runHeatmapTree(flags map[string]string, out io.Writer) error {
 	return renderTreeResults(tree, flags, out)
 }
 
-func renderStatusResults(status store.HeatmapStatusSummary, flags map[string]string, out io.Writer) error {
-	if flags["json"] == "true" || isJsonRequested(flags) {
-		return writeIndentedJSON(out, status)
+type statusContext struct {
+	inv        TaskInventory
+	activeSlug string
+	alerts     []HeatmapAiConfusion
+	cmds       SuggestedCommandsPayload
+}
+
+func resolveStatusLimit(flags map[string]string) int {
+	if l, err := strconv.Atoi(flags["limit"]); err == nil && l > 0 {
+		return l
 	}
 
-	renderStatusText(out, status)
+	return 5
+}
+
+func loadEnrichedTaskInventory(db *store.HeatmapDB, flags map[string]string) TaskInventory {
+	limit := resolveStatusLimit(flags)
+	inv, _ := DiscoverHeatmapTasks(".", limit)
+	inv.Completed = enrichTasksWithDbMetrics(db, inv.Completed)
+	inv.Pending = enrichTasksWithDbMetrics(db, inv.Pending)
+
+	return inv
+}
+
+func buildStatusContext(status store.HeatmapStatusSummary, db *store.HeatmapDB, flags map[string]string) statusContext {
+	inv := loadEnrichedTaskInventory(db, flags)
+	activeSlug := ResolveActiveTaskSlug(status.TaskSlug, inv)
+
+	return statusContext{
+		inv:        inv,
+		activeSlug: activeSlug,
+		alerts:     CollectConfusionAlerts(db, activeSlug),
+		cmds:       BuildSuggestedCommands(activeSlug),
+	}
+}
+
+func renderStatusResults(status store.HeatmapStatusSummary, db *store.HeatmapDB, flags map[string]string, out io.Writer) error {
+	ctx := buildStatusContext(status, db, flags)
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		wsSlug := ResolveWorkspaceSlug(".")
+		payload := BuildHeatmapStatusPayload(status, wsSlug, ctx.activeSlug, ctx.inv, ctx.alerts, ctx.cmds)
+
+		return writeIndentedJSON(out, payload)
+	}
+
+	renderStatusDashboard(out, status, ctx.inv, ctx.alerts, ctx.cmds)
 
 	return nil
 }
@@ -299,5 +339,5 @@ func runHeatmapStatus(flags map[string]string, out io.Writer) error {
 		return err
 	}
 
-	return renderStatusResults(status, flags, out)
+	return renderStatusResults(status, db, flags, out)
 }

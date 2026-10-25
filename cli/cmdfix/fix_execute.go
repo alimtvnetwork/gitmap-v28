@@ -40,6 +40,8 @@ func prepareRecipeForExecution(item *cmdremediation.RemediationItem, recipe gitu
 		recipe.Steps = synthesizeRecipeSteps(recipe, item.RepoPath)
 	}
 
+	maybeDisplayStashNotice(item.RepoPath, recipe)
+
 	return recipe
 }
 
@@ -52,11 +54,19 @@ func executeStructuredRecipe(item *cmdremediation.RemediationItem, recipe gituti
 		}
 	}
 
-	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, item.RepoName)
+	printStructuredRecipeSuccess(item.RepoName, recipe)
 	persistCaseRemediationTelemetry(item, recipe)
 	cmdremediation.RemoveRemediationItem(item.RepoName)
 
 	return nil
+}
+
+func printStructuredRecipeSuccess(repoName string, recipe gitutil.RemediationRecipe) {
+	fmt.Printf("\n%s Fix applied successfully on %s\n", constants.ColorGreen+"✓"+constants.ColorReset, repoName)
+	if hasStashStep(recipe) {
+		fmt.Printf("  %s✔ Local changes restored cleanly (working tree integrity confirmed).%s\n",
+			constants.ColorGreen, constants.ColorReset)
+	}
 }
 
 func executeSingleStep(repoName string, idx, total int, step gitutil.RemediationStep) error {

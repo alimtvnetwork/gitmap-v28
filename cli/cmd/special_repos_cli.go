@@ -26,6 +26,7 @@ type specialCLIOptions struct {
 	isNoPush     bool
 	isJSON       bool
 	isAutoAccept bool
+	extraArgs    []string
 }
 
 func isSpecialPathMode(args []string) bool {
@@ -130,10 +131,24 @@ func isSpecialHelpArg(arg string) bool {
 }
 
 func dispatchSpecialRepoSubcmd(shortKey string, opts specialCLIOptions) error {
+	if shortKey == "rc" && isAiConfusionSubcmd(opts.subcmd) {
+		return RunRCAiConfusion(opts.extraArgs)
+	}
+
 	if isPutSubcmd(opts.subcmd) {
 		return dispatchSpecialPutSubcmd(shortKey, opts)
 	}
+
 	return dispatchSpecialAdminSubcmd(shortKey, opts)
+}
+
+func isAiConfusionSubcmd(subcmd string) bool {
+	switch subcmd {
+	case "ai-confusion", "confusion", "aic":
+		return true
+	default:
+		return false
+	}
 }
 
 func isPutSubcmd(subcmd string) bool {
@@ -192,11 +207,15 @@ func resolveAutoPutActionFunc(target string) specialPutFunc {
 }
 
 func parseSpecialCLIOptions(args []string) specialCLIOptions {
-	opts := specialCLIOptions{subcmd: strings.ToLower(strings.TrimSpace(args[0]))}
+	opts := specialCLIOptions{
+		subcmd:    strings.ToLower(strings.TrimSpace(args[0])),
+		extraArgs: args[1:],
+	}
 	rest := args[1:]
 	for i := 0; i < len(rest); i++ {
 		i = consumeSpecialOptionToken(&opts, rest, i)
 	}
+
 	return opts
 }
 
@@ -559,6 +578,7 @@ func runSpecialRepoScanCheck(opts specialCLIOptions) error {
 // RenderSpecialRepoHelp returns a boxed terminal help card for 'gitmap rs' or 'gitmap rc'.
 func RenderSpecialRepoHelp(shortKey string) string {
 	repoKey, normShort := store.NormalizeSpecialRepoKey(shortKey)
+
 	return fmt.Sprintf(`╭── GitMap Special Repository (%s / %s) ──────────────────────────────────────╮
 │ Navigation : gitmap cd %s [<repo>]                                          │
 │ Auto-Put   : gitmap %s put <path|text> [--repo <name>] [--no-push] [--json] │
@@ -566,7 +586,8 @@ func RenderSpecialRepoHelp(shortKey string) string {
 │ Store Dir  : gitmap %s folder <folder> [--repo <name>] [--name <s>] [--msg] │
 │ Store Note : gitmap %s text "<text>" [--name <s>] [--ext .ps1] [--msg <m>]  │
 │ List Tree  : gitmap %s ls [--repo <name>] [--json]                          │
+│ Confusion  : gitmap %s ai-confusion [add|view|complete|sync]                │
 │ Initialize : gitmap %s init | scan-check [--auto-accept]                    │
 ╰────────────────────────────────────────────────────────────────────────────╯
-`, normShort, repoKey, normShort, normShort, normShort, normShort, normShort, normShort, normShort)
+`, normShort, repoKey, normShort, normShort, normShort, normShort, normShort, normShort, normShort, normShort)
 }

@@ -26,7 +26,7 @@ WAVES = ceil(subtasks / (A x H))
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt/skill (in the user preamble or header blocks) are HIGHEST PRIORITY and strictly NON-NEGOTIABLE. Inspect and follow the instructions above with absolute precedence.
 
-[/goal](slashCommand;goal) Autonomously boot the session through the 9-step onboarding ritual, reporting back after every single step with action taken and verification output, authenticate with GitHub/GitMap (SSH preferred, with instant fast-path bypass if already logged in), verify/install GitMap across platforms (`curl` / `irm`), update GitMap first, clone the 8 default repositories (`coding-guidelines-v24` starting point, stale repo banned), seed the 5 side chats from `chat-seeds/`, discover secondary repos from `02-repos.md` with user approval, pull all handpicked repos using `gitmap pa`, ingest master prompt and custom skills, sync memory via `gitmap llm train muse --days 7`, connect email via `go-email-reader` under standing SMTP pre-approval, scan everything into gitmap (`gitmap scan`), emit the 9-item final report block, showcase confirmed task breakdown during Turn 1, declare RUNNING state with ETA, spawn autonomous subagents via `invoke_subagent` (A = 3, H = 2; solo execution of multi-part work is an auto-reject failure) in disjoint file boxes using GitMap commands as primary, enforce coding guidelines to 100%, split files >15 MB into 7-Zip volumes, and finish each task with one atomic GitMap commit (`gitmap cpf "<module> - <summary>"` / `gitmap cpb "<module> - <summary>"`) using hyphen format pushed immediately.
+[/goal](slashCommand;goal) Autonomously boot the session through the 9-step onboarding ritual, reporting back after every single step with action taken and verification output, authenticate with GitHub/GitMap (SSH preferred, with instant fast-path bypass if already logged in), verify/install GitMap across platforms (`curl` / `irm`), update GitMap first, clone the 8 default repositories (`coding-guidelines-v24` starting point, stale repo banned), seed the 5 side chats from `chat-seeds/`, discover secondary repos from `02-repos.md` with user approval, pull all handpicked repos using `gitmap pa`, ingest master prompt and custom skills, sync memory via `gitmap llm train muse --days 7`, connect email via `go-email-reader` under standing SMTP pre-approval, scan everything into gitmap (`gitmap scan`), emit the 9-item final report block, showcase confirmed task breakdown during Turn 1, declare RUNNING state with ETA, spawn autonomous subagents via `invoke_subagent` (A = 3, H = 2; solo execution of multi-part work is an auto-reject failure) in disjoint file boxes using GitMap commands as primary, enforce coding guidelines to 100%, split files >15 MB into 7-Zip volumes, and finish each task with one atomic GitMap commit (`gitmap cpf "MODULE - <summary>"` / `gitmap cbf "MODULE - <summary>"` / `gitmap cfr "MODULE - <summary>"` / `gitmap cpc "MODULE - <summary>"` / `gitmap cpr "MODULE - <summary>"`) using space-padded hyphen format pushed immediately.
 
 [/learn](slashCommand;learn) Enforce the Top-Instruction Priority Mandate: whatever directives are provided ABOVE this prompt outrank everything below. During onboarding, NEVER silently advance: report back after every single step with actions and verification output. During task execution, Turn 1 MUST showcase the confirmed task breakdown in visible chat before any background execution. Listing without starting is a named protocol violation (`LISTING-WITHOUT-STARTING`). Operating contract lives in memory checklist; active tasks live in the SQLite task manager (`gitmap agent task`) and ledger. Repositories are sacred: NEVER delete a repo. Never run test suites locally: verify via CI (`gitmap pe -t`).
 
@@ -153,10 +153,17 @@ WAVES = ceil(subtasks / (A x H))
    - Targeted checks only; zero full test suites or heavy builds during routine execution (R1).
    - Pre-commit secrets gate: `check-forbidden-strings.py` and `gitmap aum search` regex. Offload via `gitmap rs`.
    - Large-file 15 MB split gate: 7-Zip multi-volume split (`7z a -v3m -mx=0 <folder>/<name>.7z <file>` → `.7z.001`, `.7z.002`, …).
-   - Commit and push atomically via GitMap using hyphen format (no colons in arguments):
-     - Feature: `gitmap cpf "<module> - <summary>"`
-     - Bug Fix: `gitmap cpb "<module> - <summary>"`
-   - Verify with `gitmap pe -t` (CI telemetry).
+   - Commit and push atomically via GitMap using space-padded hyphen format (`"MODULE - <summary>"`):
+     - Release: `gitmap cpr "MODULE - <summary>"` (version bumps & releases ONLY; auto-prefixes `Release: `)
+     - Chore: `gitmap cpc "MODULE - <summary>"` (chores, docs, memory, sync, hygiene ONLY; auto-prefixes `Chore: `)
+     - Bug Fix: `gitmap cbf "MODULE - <summary>"` (bug fixes ONLY; auto-prefixes `Bug: `)
+     - Refactor: `gitmap cfr "MODULE - <summary>"` (refactorings ONLY; auto-prefixes `Refactor: `)
+     - Feature: `gitmap cpf "MODULE - <summary>"` (features ONLY; auto-prefixes `Feature: `)
+     - **MODULE Definition & Total Ban on Type Modules:**
+       > MODULE is strictly the codebase subsystem or package modified (e.g. `CLI`, `HEATMAP`, `STORE`, `FIX`, `RC`, `PULL`, `CLONE`, `SCANNER`, `NODES`, `AUM`, `SYNC`, `DOCS`, `ROUTER`, `CONFIG`, `VERSION`, `PLAN`).
+       > TOTAL BAN ON COMMIT TYPES AS MODULE: Never use commit types as the module! BANNED: `RELEASE - ...`, `FEATURE - ...`, `FIX - ...`, `DOCS - ...`, `CHORE - ...`, `SPEC - ...`.
+       > TOTAL BAN on colons `:` inside arguments, parentheses `(MODULE)`, square brackets `[...]`, or conventional prefixes (`feat(...)`, `fix(...)`).
+   - Verify with `gitmap pe -t` (CI telemetry, ONLY if asked).
    - Report briefly and ask for the next task.
 
 ### 3. Muse Memory IO (Memory Re-sync Protocol)

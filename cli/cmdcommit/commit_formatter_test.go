@@ -305,3 +305,161 @@ func TestTryParseLegacyHyphenSyntax(t *testing.T) {
 		t.Fatalf("expected HasHyphenSeparator=true")
 	}
 }
+
+func TestParseAndFormatCommitMessage_RedundantPrefixes(t *testing.T) {
+	tests := []struct {
+		name     string
+		verb     string
+		args     []string
+		expected string
+		module   string
+	}{
+		{
+			name:     "cpf Feature prefix",
+			verb:     "cpf",
+			args:     []string{"Feature:", "CLI", "-", "add", "flag"},
+			expected: "Feature: CLI - add flag",
+			module:   "CLI",
+		},
+		{
+			name:     "cpf FEAT prefix",
+			verb:     "cpf",
+			args:     []string{"FEAT:", "CLI", "-", "add", "flag"},
+			expected: "Feature: CLI - add flag",
+			module:   "CLI",
+		},
+		{
+			name:     "cpr Release prefix",
+			verb:     "cpr",
+			args:     []string{"Release:", "V6.605.0", "-", "release", "notes"},
+			expected: "Release: V6.605.0 - release notes",
+			module:   "V6.605.0",
+		},
+		{
+			name:     "cbf Fix prefix mapped to Bug",
+			verb:     "cbf",
+			args:     []string{"Fix:", "STORE", "-", "handle", "nil", "db"},
+			expected: "Bug: STORE - handle nil db",
+			module:   "STORE",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ParseAndFormatCommitMessage(tc.verb, tc.args)
+			if res.FormattedMessage != tc.expected {
+				t.Fatalf("expected '%s', got '%s'", tc.expected, res.FormattedMessage)
+			}
+			if !res.HasModule || res.Module != tc.module {
+				t.Fatalf("expected module '%s', got '%s'", tc.module, res.Module)
+			}
+		})
+	}
+}
+
+func TestParseAndFormatCommitMessage_PseudoModuleStripping(t *testing.T) {
+	tests := []struct {
+		name     string
+		verb     string
+		args     []string
+		expected string
+		module   string
+		hasMod   bool
+	}{
+		{
+			name:     "cpf FEATURE stripped without nested module",
+			verb:     "cpf",
+			args:     []string{"FEATURE", "-", "add", "flag"},
+			expected: "Feature: add flag",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "cpf FEATURE stripped with nested CLI module promoted",
+			verb:     "cpf",
+			args:     []string{"FEATURE", "-", "CLI", "-", "add", "flag"},
+			expected: "Feature: CLI - add flag",
+			module:   "CLI",
+			hasMod:   true,
+		},
+		{
+			name:     "cpr RELEASE stripped without nested module",
+			verb:     "cpr",
+			args:     []string{"RELEASE", "-", "v6.605.0"},
+			expected: "Release: v6.605.0",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "cpf SPEC stripped without nested module",
+			verb:     "cpf",
+			args:     []string{"SPEC", "-", "author", "specs"},
+			expected: "Feature: author specs",
+			module:   "",
+			hasMod:   false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ParseAndFormatCommitMessage(tc.verb, tc.args)
+			if res.FormattedMessage != tc.expected {
+				t.Fatalf("expected '%s', got '%s'", tc.expected, res.FormattedMessage)
+			}
+			if res.HasModule != tc.hasMod || res.Module != tc.module {
+				t.Fatalf("expected hasMod=%v, module '%s', got hasMod=%v, module '%s'", tc.hasMod, tc.module, res.HasModule, res.Module)
+			}
+		})
+	}
+}
+
+func TestParseAndFormatCommitMessage_CanonicalBehavior(t *testing.T) {
+	tests := []struct {
+		name     string
+		verb     string
+		args     []string
+		expected string
+		module   string
+	}{
+		{
+			name:     "cpf HEATMAP visual overhaul",
+			verb:     "cpf",
+			args:     []string{"HEATMAP", "-", "visual", "overhaul"},
+			expected: "Feature: HEATMAP - visual overhaul",
+			module:   "HEATMAP",
+		},
+		{
+			name:     "cbf FIX prevent non-git commit",
+			verb:     "cbf",
+			args:     []string{"FIX", "-", "prevent", "non-git", "commit"},
+			expected: "Bug: FIX - prevent non-git commit",
+			module:   "FIX",
+		},
+		{
+			name:     "cfr STORE optimize query",
+			verb:     "cfr",
+			args:     []string{"STORE", "-", "optimize", "query"},
+			expected: "Refactor: STORE - optimize query",
+			module:   "STORE",
+		},
+		{
+			name:     "cpc DOCS update readme",
+			verb:     "cpc",
+			args:     []string{"DOCS", "-", "update", "readme"},
+			expected: "Chore: DOCS - update readme",
+			module:   "DOCS",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ParseAndFormatCommitMessage(tc.verb, tc.args)
+			if res.FormattedMessage != tc.expected {
+				t.Fatalf("expected '%s', got '%s'", tc.expected, res.FormattedMessage)
+			}
+			if !res.HasModule || res.Module != tc.module {
+				t.Fatalf("expected module '%s', got '%s'", tc.module, res.Module)
+			}
+		})
+	}
+}

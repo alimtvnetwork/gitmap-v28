@@ -37,10 +37,15 @@ type RemediationRecipeRecord struct {
 
 // DetectCasingDiscrepancies inspects the repository Git index and disk for readme casing collisions.
 func DetectCasingDiscrepancies(repoPath string) ([]CasingDiscrepancy, error) {
+	if !isGitDirectory(repoPath) {
+		return nil, nil
+	}
+
 	trackedFiles, err := listTrackedFiles(repoPath)
 	if err != nil {
 		return detectCasingFromDisk(repoPath), nil
 	}
+
 	discrepancies := inspectCasingDiscrepancies(repoPath, trackedFiles)
 	if len(discrepancies) > 0 {
 		return discrepancies, nil
@@ -139,6 +144,10 @@ func detectCasingFromDisk(repoPath string) []CasingDiscrepancy {
 
 // ExecuteCasingNormalization resolves casing collisions via 2-step rename or index purge.
 func ExecuteCasingNormalization(repoPath string, item CasingDiscrepancy) error {
+	if !isGitDirectory(repoPath) {
+		return apperror.NewValidationError("cannot normalize casing: directory is not a Git repository")
+	}
+
 	if item.IsDualTracked {
 		return executeDualTrackedPurge(repoPath, item)
 	}

@@ -42,7 +42,7 @@ func resolveVerbPrefix(verb string) string {
 	switch strings.ToLower(verb) {
 	case "cpf", "feature", "commit-push-feature":
 		return "Feature: "
-	case "cpb", "cbf", "bug", "commit-push-bug":
+	case "cpb", "cbf", "bug", "fix", "commit-push-bug":
 		return "Bug: "
 	case "cfr", "refactor", "commit-push-refactor":
 		return "Refactor: "
@@ -50,9 +50,9 @@ func resolveVerbPrefix(verb string) string {
 		return "Chore: "
 	case "cpr", "release", "commit-push-release":
 		return "Release: "
-	default:
-		return ""
 	}
+
+	return ""
 }
 
 func resolveUppercaseType(verb string) string {
@@ -71,18 +71,45 @@ func resolveUppercaseType(verb string) string {
 	return strings.ToUpper(verb)
 }
 
+func isKnownCommitTag(tag string) bool {
+	switch tag {
+	case "feature", "feat", "release", "rel", "bug", "fix", "refactor", "refact", "chore", "docs", "spec", "test", "perf":
+		return true
+	default:
+		return false
+	}
+}
+
+func stripSinglePrefix(s string) (string, bool) {
+	colonIdx := strings.Index(s, ":")
+	if colonIdx == -1 {
+		return s, false
+	}
+
+	tag := strings.ToLower(strings.TrimSpace(s[:colonIdx]))
+	if !isKnownCommitTag(tag) {
+		return s, false
+	}
+
+	return strings.TrimSpace(s[colonIdx+1:]), true
+}
+
+func stripRedundantCommitPrefixes(s string) string {
+	curr := s
+	for {
+		stripped, hasPrefix := stripSinglePrefix(curr)
+		if !hasPrefix {
+			return curr
+		}
+
+		curr = stripped
+	}
+}
+
 func trimDuplicatePrefix(verb, s string) string {
 	prefix := resolveVerbPrefix(verb)
 	if prefix != "" && strings.HasPrefix(strings.ToLower(s), strings.ToLower(prefix)) {
 		return strings.TrimSpace(s[len(prefix):])
-	}
-
-	if prefix == "Bug: " && strings.HasPrefix(strings.ToLower(s), "fix: ") {
-		return strings.TrimSpace(s[5:])
-	}
-
-	if prefix == "Refactor: " && strings.HasPrefix(strings.ToLower(s), "refactor: ") {
-		return strings.TrimSpace(s[10:])
 	}
 
 	return s
@@ -105,24 +132,88 @@ func cleanseBracketArtifacts(s string) string {
 
 func sanitizeInput(verb string, rawArgs []string) string {
 	raw := stripWrappingQuotes(strings.Join(rawArgs, " "))
-	normalized := trimDuplicatePrefix(verb, raw)
+	stripped := stripRedundantCommitPrefixes(raw)
+	normalized := trimDuplicatePrefix(verb, stripped)
 
 	return cleanseBracketArtifacts(normalized)
 }
 
-func buildHyphenRecord(raw, prefix, mod, item string) ParsedCommitMessage {
+func isCommitTypeToken(mod string) bool {
+	switch strings.ToUpper(strings.TrimSpace(mod)) {
+	case "FEATURE", "FEAT", "RELEASE", "REL", "BUG", "CHORE", "REFACTOR", "REFACT", "SPEC":
+		return true
+	default:
+		return false
+	}
+}
+
+func isRedundantModule(prefix, mod string) bool {
+	upperMod := strings.ToUpper(strings.Trim(mod, "[] "))
+	if isCommitTypeToken(upperMod) {
+		return true
+	}
+
+	prefixType := strings.ToUpper(strings.TrimSuffix(strings.TrimSpace(prefix), ":"))
+	if prefixType != "" && prefixType == upperMod {
+		return true
+	}
+
+	return false
+}
+
+func splitNestedHyphen(item string) (string, string, bool) {
+	idx := strings.Index(item, " - ")
+	if idx == -1 {
+		return "", item, false
+	}
+
+	nestedMod := strings.TrimSpace(item[:idx])
+	nestedItem := strings.TrimSpace(item[idx+3:])
+	if nestedMod == "" || nestedItem == "" {
+		return "", item, false
+	}
+
+	return nestedMod, nestedItem, true
+}
+
+func resolveHyphenModuleAndItem(prefix, mod, item string) (string, string, bool) {
 	upperMod := strings.ToUpper(strings.Trim(mod, "[] "))
 	cleanItem := strings.TrimSpace(item)
 
+	for isRedundantModule(prefix, upperMod) {
+		nestedMod, nestedItem, hasNested := splitNestedHyphen(cleanItem)
+		if !hasNested {
+			return "", cleanItem, false
+		}
+
+		upperMod = strings.ToUpper(strings.Trim(nestedMod, "[] "))
+		cleanItem = strings.TrimSpace(nestedItem)
+	}
+
+	return upperMod, cleanItem, true
+}
+
+func makeHyphenRecord(raw, prefix, mod, item string, hasMod bool) ParsedCommitMessage {
+	msg := prefix + mod + " - " + item
+	if !hasMod {
+		msg = prefix + item
+	}
+
 	return ParsedCommitMessage{
 		RawInput:           raw,
-		FormattedMessage:   prefix + upperMod + " - " + cleanItem,
+		FormattedMessage:   msg,
 		CommitType:         strings.TrimSuffix(prefix, ": "),
-		Module:             upperMod,
-		ItemDescription:    cleanItem,
-		HasModule:          true,
+		Module:             mod,
+		ItemDescription:    item,
+		HasModule:          hasMod,
 		HasHyphenSeparator: true,
 	}
+}
+
+func buildHyphenRecord(raw, prefix, mod, item string) ParsedCommitMessage {
+	finalMod, cleanItem, hasMod := resolveHyphenModuleAndItem(prefix, mod, item)
+
+	return makeHyphenRecord(raw, prefix, finalMod, cleanItem, hasMod)
 }
 
 func tryParseHyphenSyntax(verb, s string) (ParsedCommitMessage, bool) {

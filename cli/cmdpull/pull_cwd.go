@@ -31,6 +31,11 @@ func isPullCWDEnabled(opts pullOptions) bool {
 }
 
 func isGitRepoCWD() bool {
+	cwd, err := os.Getwd()
+	if err != nil || gitutil.IsWorkspaceContainerDirectory(cwd) || !gitutil.IsValidGitRepository(cwd) {
+		return false
+	}
+
 	out, err := exec.Command("git", "rev-parse", "--is-inside-work-tree").Output()
 	if err != nil {
 		return false
@@ -41,6 +46,15 @@ func isGitRepoCWD() bool {
 
 // runPullCWD streams pull in CWD, using progress bar unless isRaw is true.
 func runPullCWD(isRaw ...bool) error {
+	cwd, _ := os.Getwd()
+	if gitutil.IsWorkspaceContainerDirectory(cwd) {
+		return handleWorkspaceContainerPull(cwd)
+	}
+
+	if !gitutil.IsValidGitRepository(cwd) {
+		return handleNonGitPull(cwd, nil)
+	}
+
 	raw := len(isRaw) > 0 && isRaw[0]
 	served, err := checkCWDCacheOrProceed(raw)
 	if served {
@@ -56,6 +70,15 @@ func runPullCWD(isRaw ...bool) error {
 	handleCWDIgnoreChecks()
 
 	return pullErr
+}
+
+func handleWorkspaceContainerPull(cwd string) error {
+	base := filepath.Base(cwd)
+	fmt.Fprintf(os.Stderr, "  %s[!] Cannot pull current directory: '%s' is a workspace container, not a Git repository.%s\n",
+		constants.ColorYellow, base, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "      Run 'gitmap pull' to pull all child repositories, or 'cd <repo>' first.\n\n")
+
+	return apperror.NewValidationError("cannot pull workspace container directory: " + base)
 }
 
 func handleCWDIgnoreChecks() {
@@ -100,36 +123,59 @@ func runPullCWDTracked() error {
 	}
 
 	state := executeCWDTrackedPull(cwd)
-	_ = RecordSinglePullSession(cwd, state, "pull")
+	if state != nil {
+		_ = RecordSinglePullSession(cwd, state, "pull")
+	}
 
 	return nil
 }
 
 func executeCWDTrackedPull(cwd string) *PullRepoState {
 	targetDir := resolveCWDRepoDir(cwd)
+	if targetDir == "" {
+		_ = handleNonGitPull(cwd, nil)
+		return nil
+	}
+
 	rec := model.ScanRecord{RepoName: filepath.Base(targetDir), AbsolutePath: targetDir}
-	isTTY := resolveTerminalMode()
-	if isTTY {
-		fmt.Print("  ↓ pulling remote changes...")
-	} else {
-		fmt.Println("  ↓ pulling remote changes...")
-	}
+	printPullProgressNotice()
 	state := ExecuteTrackedPull(rec, nil)
-	if isTTY {
-		fmt.Print("\r\033[K")
-	}
+	clearPullProgressNotice()
 	RenderSingleRepoPullSummary(state, targetDir)
 
 	return state
 }
 
+func printPullProgressNotice() {
+	if resolveTerminalMode() {
+		fmt.Print("  ↓ pulling remote changes...")
+		return
+	}
+
+	fmt.Println("  ↓ pulling remote changes...")
+}
+
+func clearPullProgressNotice() {
+	if resolveTerminalMode() {
+		fmt.Print("\r\033[K")
+	}
+}
+
 func resolveCWDRepoDir(cwd string) string {
+	if gitutil.IsWorkspaceContainerDirectory(cwd) {
+		return ""
+	}
+
 	top := getGitRepoCWDTopLevel()
-	if top != "" {
+	if top != "" && gitutil.IsValidGitRepository(top) && !gitutil.IsWorkspaceContainerDirectory(top) {
 		return top
 	}
 
-	return cwd
+	if gitutil.IsValidGitRepository(cwd) {
+		return cwd
+	}
+
+	return ""
 }
 
 func getGitRepoCWDTopLevel() string {

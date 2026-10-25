@@ -4,12 +4,13 @@ package cmdfix
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
 
@@ -58,17 +59,35 @@ func resolveLocalOnlySteps(repoPath string) []gitutil.RemediationStep {
 }
 
 func synthesizeActionSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
+	steps := synthesizeCaseOrCommitSteps(recipe, repoPath)
+	if len(steps) > 0 {
+		return steps
+	}
+
+	return synthesizeDiscardOrStashSteps(recipe, repoPath)
+}
+
+func synthesizeCaseOrCommitSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
 	titleLower := strings.ToLower(recipe.Title)
 	cmdLower := strings.ToLower(recipe.Command)
 	if strings.Contains(titleLower, "case collision") || strings.Contains(titleLower, "normalize case") {
 		return synthesizeCaseCollisionSteps(repoPath)
 	}
+
 	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") || strings.Contains(cmdLower, "commit") {
 		return gitutil.GenerateCommitRecipe(repoPath).Steps
 	}
+
+	return nil
+}
+
+func synthesizeDiscardOrStashSteps(recipe gitutil.RemediationRecipe, repoPath string) []gitutil.RemediationStep {
+	titleLower := strings.ToLower(recipe.Title)
+	cmdLower := strings.ToLower(recipe.Command)
 	if strings.Contains(titleLower, "discard") || strings.Contains(titleLower, "clean") || strings.Contains(cmdLower, "reset --hard") {
 		return gitutil.GenerateDiscardRecipe(repoPath).Steps
 	}
+
 	if strings.Contains(titleLower, "stash") || strings.Contains(cmdLower, "stash") {
 		return gitutil.GenerateStashRecipe(repoPath).Steps
 	}
@@ -105,10 +124,12 @@ func persistCaseRemediationTelemetry(item *cmdremediation.RemediationItem, recip
 	if item == nil || !hasCaseCollisionRecipe(recipe) {
 		return
 	}
+
 	var actions []string
 	for _, s := range recipe.Steps {
 		actions = append(actions, s.Name+" "+strings.Join(s.Args, " "))
 	}
+
 	entry := lastRemediationAction{Type: "case_normalization", Actions: actions}
 	data := lastRemediationData{
 		RepoPath:      item.RepoPath,
@@ -124,6 +145,7 @@ func writeLastRemediationJSON(data lastRemediationData) error {
 	if err != nil {
 		return err
 	}
+
 	home, _ := os.UserHomeDir()
 	outDir := filepath.Join(home, ".gitmap", "output")
 	_ = os.MkdirAll(outDir, 0755)
@@ -131,7 +153,59 @@ func writeLastRemediationJSON(data lastRemediationData) error {
 	return os.WriteFile(filepath.Join(outDir, "last_remediation.json"), b, 0644)
 }
 
+func isStashStep(step gitutil.RemediationStep) bool {
+	for _, arg := range step.Args {
+		if arg == "stash" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasStashStep(recipe gitutil.RemediationRecipe) bool {
+	for _, s := range recipe.Steps {
+		if isStashStep(s) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func maybeDisplayStashNotice(repoPath string, recipe gitutil.RemediationRecipe) {
+	if !hasStashStep(recipe) || repoPath == "" {
+		return
+	}
+
+	manifest, err := gitutil.InspectDirtyManifest(repoPath)
+	if err == nil && manifest.HasDirtyWork {
+		fmt.Print(RenderHumanizedStashCard(manifest))
+	}
+}
+
+func humanizeStashStep(step gitutil.RemediationStep) string {
+	cmdStr := strings.Join(step.Args, " ")
+	if strings.Contains(cmdStr, "stash -u") || strings.Contains(cmdStr, "stash push") {
+		return "shelving local modifications (git stash -u)"
+	}
+
+	if strings.Contains(cmdStr, "stash pop") {
+		return "restoring local modifications (git stash pop)"
+	}
+
+	if strings.Contains(cmdStr, "pull") {
+		return "pulling upstream changes (git pull)"
+	}
+
+	return ""
+}
+
 func formatStepCommand(step gitutil.RemediationStep) string {
+	if humanized := humanizeStashStep(step); humanized != "" {
+		return humanized
+	}
+
 	if len(step.Args) >= 2 && step.Args[0] == "-C" {
 		return step.Name + " " + strings.Join(step.Args[2:], " ")
 	}
@@ -147,6 +221,7 @@ func isBenignStashClean(step gitutil.RemediationStep, output string) bool {
 			break
 		}
 	}
+
 	if !hasPop {
 		return false
 	}
@@ -213,26 +288,34 @@ func dropStashCollision(args []string) bool {
 		return false
 	}
 
-	err := exec.Command("git", "-C", args[1], "stash", "drop").Run()
-	isSuccess := err == nil
+	fmt.Fprintf(os.Stderr, "  %sℹ Stash preserved in 'git stash list' to prevent data loss.%s\n",
+		constants.ColorYellow, constants.ColorReset)
 
-	return isSuccess
+	return true
 }
 
 func summarizeRecipeAction(recipe gitutil.RemediationRecipe) string {
 	titleLower := strings.ToLower(recipe.Title)
 	if strings.Contains(titleLower, "stash") {
-		return "stashed -> pulled -> re-applied"
+		return "shelved -> pulled -> restored local modifications cleanly"
 	}
+
 	if strings.Contains(titleLower, "wip") || strings.Contains(titleLower, "commit") {
 		return "committed WIP changes -> pulled"
 	}
+
 	if strings.Contains(titleLower, "discard") || strings.Contains(titleLower, "clean") {
 		return "discarded changes"
 	}
-	if strings.Contains(titleLower, "case") {
+
+	return summarizeOtherRecipeAction(recipe)
+}
+
+func summarizeOtherRecipeAction(recipe gitutil.RemediationRecipe) string {
+	if strings.Contains(strings.ToLower(recipe.Title), "case") {
 		return "normalized casing"
 	}
+
 	if recipe.Title != "" {
 		return recipe.Title
 	}

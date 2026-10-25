@@ -139,16 +139,40 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
-| `gitmap cpf "(module): <summary>"` | - | Remote | `FEAT(MODULE): ` | Yes | Stage all, commit feature with uppercase `FEAT(MODULE): `, and push to remote. |
-| `gitmap cbf "(module): <summary>"` | `gitmap cpb` | Remote | `FIX(MODULE): ` | Yes | Stage all, commit bugfix with uppercase `FIX(MODULE): `, and push to remote. |
-| `gitmap cfr "(module): <summary>"` | - | Remote | `REFACTOR(MODULE): ` | Yes | Stage all, commit refactor with uppercase `REFACTOR(MODULE): `, and push to remote. |
-| `gitmap cpc "(module): <summary>"` | - | Remote | `CHORE(MODULE): ` | Yes | Stage all, commit chore with uppercase `CHORE(MODULE): `, and push to remote. |
-| `gitmap cpr "(module): <summary>"` | - | Remote | `RELEASE(MODULE): ` | Yes | Stage all, commit release chore, and push directly to remote. |
-| `gitmap pcp "<module> - <summary>"` | - | Remote | Normalized | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+| `gitmap cpf "MODULE - <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature with title-case `Feature: MODULE - <summary>`, and push to remote. |
+| `gitmap cbf "MODULE - <summary>"` | `gitmap cpb` | Remote | `Bug: ` | Yes | Stage all, commit bugfix with title-case `Bug: MODULE - <summary>`, and push to remote. |
+| `gitmap cfr "MODULE - <summary>"` | - | Remote | `Refactor: ` | Yes | Stage all, commit refactor with title-case `Refactor: MODULE - <summary>`, and push to remote. |
+| `gitmap cpc "MODULE - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore with title-case `Chore: MODULE - <summary>`, and push to remote. |
+| `gitmap cpr "MODULE - <summary>"` | - | Remote | `Release: ` | Yes | Stage all, commit release with title-case `Release: MODULE - <summary>`, and push directly to remote. |
+| `gitmap pcp "MODULE - <summary>"` | - | Remote | Normalized | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+
+#### Approved Subsystem Module Taxonomy
+Every commit argument passed to GitMap semantic commit verbs (`cpf`, `cbf`, `cfr`, `cpc`, `cpr`) must specify an approved subsystem module in uppercase:
+
+| Subsystem Module | Architectural Scope | Primary Code Locations |
+| :--- | :--- | :--- |
+| `CLI` | Root command dispatch, flag parsing, Cobra routing, terminal help cards | `cli/cmd/`, `cli/root.go`, `cli/cmdcommit/` |
+| `HEATMAP` | Activity tracking, telemetry renderers, status matrices, Lipgloss cards | `cli/heatmap/` |
+| `STORE` | SQLite Split-DB engine, schemas, tables, migrations, query helpers | `cli/store/`, `cli/sqlutil/` |
+| `FIX` | Non-git boundary checks, auto-stashing, case normalization, branch repair | `cli/cmdfix/` |
+| `RC` | Repo-cache infrastructure, AI confusion SQLite database, sync replay | `cli/cmd/rc_ai_confusion.go`, `cli/store/` |
+| `PULL` | Concurrent fetch/pull engine, change summaries, repository pruning | `cli/cmdpull/` |
+| `CLONE` | High-speed parallel cloning, protocol fallback, workspace checkout | `cli/cloner/`, `cli/cmdclone/` |
+| `SCANNER` | Filesystem project discovery, heuristic classification, ignore engine | `cli/scanner/`, `cli/indexer/` |
+| `NODES` | Fleet SSH management, dual-stack ping probing, RSA credential vault | `cli/cmdnodes/`, `cli/sshclient/` |
+| `AUM` | Autonomous Utility Modules, regex search benchmarks, text transforms | `cli/aum/`, `cli/lazyregex/` |
+| `SYNC` | Multi-repository skill, prompt, and specification synchronization | `cli/cmdsync/`, `03-ai-scripts/` |
+| `DOCS` | Documentation, repository README files, conventions, guides | `02-spec/`, `readme.md`, `docs/` |
+| `VERSION` | Version bumps, release tags, and version metadata updates | `version.json`, `cli/version/` |
+
+> [!CAUTION]
+> **TOTAL BAN ON COMMIT TYPES AS MODULE:**
+> Never use commit types as the module! BANNED: `RELEASE - ...`, `FEATURE - ...`, `FIX - ...`, `DOCS - ...` (when misused as commit type), `CHORE - ...`, `SPEC - ...`.
+> Commits MUST use space-padded hyphen format: `"MODULE - <summary>"`. TOTAL BAN on square brackets `[...]`, round parentheses `(MODULE)`, or colons `:` inside the argument.
 
 #### Command Details & Behavioral Guidelines
 - `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap cpf "MODULE - <summary>"` (or `gitmap cpf "(MODULE): <summary>"`) — Features ONLY. Stages all, formats with `Feature: MODULE - <summary>`, and pushes. NEVER use for chores, releases, or bugs.
+- `gitmap cpf "MODULE - <summary>"` — Features ONLY. Stages all, formats with `Feature: MODULE - <summary>`, and pushes. NEVER use for chores, releases, or bugs.
 - `gitmap cbf "MODULE - <summary>"` (alias: `gitmap cpb`) — Bug fixes ONLY. Stages all, formats with `Bug: MODULE - <summary>`, and pushes.
 - `gitmap cfr "MODULE - <summary>"` — Refactoring ONLY. Stages all, formats with `Refactor: MODULE - <summary>`, and pushes.
 - `gitmap cpc "MODULE - <summary>"` — Chores, docs, sync, and maintenance ONLY. Stages all, formats with `Chore: MODULE - <summary>`, and pushes.
@@ -165,7 +189,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
 - **STRICT VERB TAXONOMY (NEVER MISUSE CPF):** Never use `gitmap cpf` for chore, release, or bug fix tasks. Use `cpr` for releases, `cpc` for chores, `cbf` for bug fixes, `cfr` for refactors, and `cpf` for features.
 - **ZERO NESTED CONVENTIONAL PREFIXES:** Never write redundant prefixes inside GitMap arguments (e.g. BANNED: `gitmap cpf "chore(release): bump version"`, `gitmap cpr "release: v1.0"`, `gitmap cpf "feat: ..."`). GitMap automatically adds the prefix!
-- **ZERO THIRD BRACKETS & COLONS IN ARGUMENTS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets") or colons `:` inside the argument. Use space-padded hyphen: `"MODULE - summary"`. If square brackets are passed, GitMap automatically sanitizes them to round parentheses.
+- **ZERO THIRD BRACKETS & COLONS IN ARGUMENTS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets"), round parentheses `(MODULE)`, or colons `:` inside the argument. Use space-padded hyphen: `"MODULE - summary"`.
 - **MANDATORY COMPLETION INVARIANT ('No Push = Not Done'):** Flat commits (`gitmap commit`, `gitmap cm`) are local checkpoints only. For task completion, AGENTS.md §13 strictly mandates that work must be pushed to the remote tracking branch via `gitmap cpf`, `cpc`, `cbf`, `cfr`, or `cpr`.
 
 ### 8. Native Toolchains & Process Termination (Rust, Cargo, Kill)
@@ -726,8 +750,8 @@ gitmap cbf "CLONER - correct concurrency flag parsing and worker limits"
 # Chore/Maintenance commit (auto-prefixes 'Chore: DOCS - ...', stages all, and pushes)
 gitmap cpc "DOCS - realign companion skills and remove help flags"
 
-# Release commit (auto-prefixes 'Release: RELEASE - ...', stages, and pushes)
-gitmap cpr "RELEASE - bump minor version and update changelog"
+# Release commit (auto-prefixes 'Release: VERSION - ...', stages, and pushes)
+gitmap cpr "VERSION - bump minor version and update changelog"
 
 # Pull latest with rebase, stage all, commit, and push in one verified flow
 gitmap pcp "SKILLS - sync cross-platform runner templates"

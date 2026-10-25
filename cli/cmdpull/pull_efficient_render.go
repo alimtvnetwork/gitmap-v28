@@ -73,30 +73,72 @@ func renderCategorizedGroups(w io.Writer, colWidth int, cat categorizedStates, c
 	if len(cat.updated) > 0 {
 		renderUpdatedGroup(w, colWidth, cat.updated, collisions)
 	}
+
 	if len(cat.upToDate) > 0 {
 		renderUpToDateGroup(w, cat.upToDate, collisions)
 	}
+
 	if len(cat.dirty) > 0 {
 		renderDirtyGroup(w, colWidth, cat.dirty, collisions)
 	}
+
 	if len(cat.failed) > 0 {
 		renderFailedGroup(w, colWidth, cat.failed, collisions)
 	}
+
+	if len(cat.upToDate) <= 3 {
+		maybeRenderSuggestedTip(w, cat)
+	}
+}
+
+func maybeRenderSuggestedTip(w io.Writer, cat categorizedStates) {
+	hasActivity := len(cat.updated) > 0 || len(cat.dirty) > 0 || len(cat.failed) > 0
+	if !hasActivity {
+		return
+	}
+
+	fmt.Fprintf(w, "\n  %s💡 %s%s\n", constants.ColorDim, FormatSuggestedInspectionCmd(), constants.ColorReset)
+}
+
+// FormatSuggestedInspectionCmd returns the recommended copy-pasteable inspection command.
+func FormatSuggestedInspectionCmd() string {
+	return "Tip: Run 'gitmap status --dirty' to inspect changed repositories, or 'gitmap pull --status' for full breakdown."
+}
+
+// RenderCollapsedUpToDateSummary renders the collapsed single-line message and inspection tip.
+func RenderCollapsedUpToDateSummary(w io.Writer, upToDateCount int, totalCount int) {
+	fmt.Fprintf(w, "\n  %s✓ Updated all other %d repositories (no changes).%s\n",
+		constants.ColorGreen, upToDateCount, constants.ColorReset)
+	fmt.Fprintf(w, "\n  %s💡 %s%s\n",
+		constants.ColorDim, FormatSuggestedInspectionCmd(), constants.ColorReset)
 }
 
 func renderUpToDateGroup(w io.Writer, upToDate []*PullRepoState, collisions map[string]bool) {
-	fmt.Fprintf(w, "\n  %s%s✓ Up-to-Date Repositories (%d):%s\n", constants.ColorGreen, constants.ColorBold, len(upToDate), constants.ColorReset)
-	names := make([]string, 0, len(upToDate))
-	for _, s := range upToDate {
-		if s == nil {
-			continue
-		}
-		displayName := resolveRepoDisplayName(s, collisions)
-		names = append(names, displayName)
+	if len(upToDate) > 3 {
+		RenderCollapsedUpToDateSummary(w, len(upToDate), len(upToDate))
+		return
 	}
+
+	renderVerboseUpToDateList(w, upToDate, collisions)
+}
+
+func renderVerboseUpToDateList(w io.Writer, upToDate []*PullRepoState, collisions map[string]bool) {
+	fmt.Fprintf(w, "\n  %s%s✓ Up-to-Date Repositories (%d):%s\n", constants.ColorGreen, constants.ColorBold, len(upToDate), constants.ColorReset)
+	names := collectUpToDateNames(upToDate, collisions)
 	termWidth := detectTerminalWidth()
 	wrapped := FormatWrappedInactiveList(names, "    ", termWidth-2)
 	fmt.Fprintf(w, "%s%s%s\n", constants.ColorDim, wrapped, constants.ColorReset)
+}
+
+func collectUpToDateNames(upToDate []*PullRepoState, collisions map[string]bool) []string {
+	names := make([]string, 0, len(upToDate))
+	for _, s := range upToDate {
+		if s != nil {
+			names = append(names, resolveRepoDisplayName(s, collisions))
+		}
+	}
+
+	return names
 }
 
 func isFailedRepoState(s *PullRepoState) bool {

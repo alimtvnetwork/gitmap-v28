@@ -6,44 +6,82 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
+	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// IsValidGitRepository verifies that the target path contains a verified .git directory or worktree.
+func IsValidGitRepository(targetPath string) bool {
+	return gitutil.IsValidGitRepository(targetPath)
+}
+
+// IsWorkspaceContainerDirectory checks whether a path represents a parent workspace folder rather than a leaf repository.
+func IsWorkspaceContainerDirectory(targetPath string) bool {
+	return gitutil.IsWorkspaceContainerDirectory(targetPath)
+}
+
+// GuardRepoExecution verifies repo validity; returns an AppError if targetPath is invalid or a container directory.
+func GuardRepoExecution(targetPath string, opName string) *apperror.AppError {
+	if IsWorkspaceContainerDirectory(targetPath) {
+		return apperror.NewValidationError("cannot execute " + opName + ": directory is a workspace container, not a Git repository")
+	}
+
+	if !isGitDirectory(targetPath) {
+		return apperror.NewValidationError("cannot execute " + opName + ": directory is not a Git repository")
+	}
+
+	return nil
+}
+
 func resolveRepoPathForFix(repoQuery string) string {
 	cleanQuery := strings.TrimSpace(repoQuery)
-	if cleanQuery == "" {
+	if cleanQuery == "" || IsWorkspaceContainerDirectory(cleanQuery) {
 		return ""
 	}
-	if info, err := os.Stat(cleanQuery); err == nil && info.IsDir() {
+
+	if isGitDirectory(cleanQuery) {
 		return cleanQuery
 	}
-	if special := querySpecialRepoDirFix(cleanQuery); special != "" {
+
+	return queryDBRepoDirFix(cleanQuery)
+}
+
+func queryDBRepoDirFix(clean string) string {
+	if special := querySpecialRepoDirFix(clean); special != "" {
 		return special
 	}
-	if standard := queryStandardRepoDirFix(cleanQuery); standard != "" {
-		return standard
-	}
-	return cleanQuery
+
+	return queryStandardRepoDirFix(clean)
 }
 
 func querySpecialRepoDirFix(clean string) string {
-	db, err := store.OpenSpecialReposSplitDB()
-	if err != nil {
+	rec := fetchSpecialRepoRecord(clean)
+	if rec == nil || rec.LocalPath == "" || IsWorkspaceContainerDirectory(rec.LocalPath) {
 		return ""
 	}
-	defer db.Close()
-	rec, err := db.GetSpecialRepo(clean)
-	if err != nil || rec == nil || rec.LocalPath == "" {
-		return ""
-	}
+
 	info, statErr := os.Stat(rec.LocalPath)
 	if statErr == nil && info.IsDir() {
 		return rec.LocalPath
 	}
+
 	return ""
+}
+
+func fetchSpecialRepoRecord(clean string) *store.SpecialRepoRecord {
+	db, err := store.OpenSpecialReposSplitDB()
+	if err != nil {
+		return nil
+	}
+
+	defer db.Close()
+	rec, _ := db.GetSpecialRepo(clean)
+
+	return rec
 }
 
 func queryStandardRepoDirFix(clean string) string {
@@ -51,20 +89,28 @@ func queryStandardRepoDirFix(clean string) string {
 	if err != nil {
 		return ""
 	}
+
 	defer db.Close()
 	recs, err := db.FindBySlug(clean)
 	if err != nil || len(recs) == 0 {
 		return ""
 	}
+
+	return findFirstValidDir(recs)
+}
+
+func findFirstValidDir(recs []model.ScanRecord) string {
 	for _, r := range recs {
-		if r.AbsolutePath == "" {
+		if r.AbsolutePath == "" || IsWorkspaceContainerDirectory(r.AbsolutePath) {
 			continue
 		}
+
 		info, statErr := os.Stat(r.AbsolutePath)
 		if statErr == nil && info.IsDir() {
 			return r.AbsolutePath
 		}
 	}
+
 	return ""
 }
 
@@ -101,27 +147,8 @@ func buildNonRepoRemediationItem(diag cloner.NonRepoDiagnosis, action string) (*
 }
 
 func buildRemoteRecipes(diag cloner.NonRepoDiagnosis, cleanPath string) []gitutil.RemediationRecipe {
-	entries, readErr := os.ReadDir(diag.Path)
-	isEmpty := readErr == nil && len(entries) == 0
-
-	var cloneSteps []gitutil.RemediationStep
-	if isEmpty {
-		cloneSteps = []gitutil.RemediationStep{
-			{Name: "git", Args: []string{"clone", diag.RemoteURL, cleanPath}},
-		}
-	} else {
-		cloneSteps = []gitutil.RemediationStep{
-			{Name: "git", Args: []string{"-C", cleanPath, "init"}},
-			{Name: "git", Args: []string{"-C", cleanPath, "remote", "add", "origin", diag.RemoteURL}},
-			{Name: "git", Args: []string{"-C", cleanPath, "fetch", "origin"}},
-		}
-	}
-
-	linkSteps := []gitutil.RemediationStep{
-		{Name: "git", Args: []string{"-C", cleanPath, "init"}},
-		{Name: "git", Args: []string{"-C", cleanPath, "remote", "add", "origin", diag.RemoteURL}},
-		{Name: "git", Args: []string{"-C", cleanPath, "fetch", "origin"}},
-	}
+	cloneSteps := resolveCloneOrInitSteps(diag, cleanPath)
+	linkSteps := buildLinkRemoteSteps(cleanPath, diag.RemoteURL)
 
 	return []gitutil.RemediationRecipe{
 		{
@@ -139,6 +166,25 @@ func buildRemoteRecipes(diag cloner.NonRepoDiagnosis, cleanPath string) []gituti
 	}
 }
 
+func resolveCloneOrInitSteps(diag cloner.NonRepoDiagnosis, cleanPath string) []gitutil.RemediationStep {
+	entries, readErr := os.ReadDir(diag.Path)
+	if readErr == nil && len(entries) == 0 {
+		return []gitutil.RemediationStep{
+			{Name: "git", Args: []string{"clone", diag.RemoteURL, cleanPath}},
+		}
+	}
+
+	return buildLinkRemoteSteps(cleanPath, diag.RemoteURL)
+}
+
+func buildLinkRemoteSteps(cleanPath, remoteURL string) []gitutil.RemediationStep {
+	return []gitutil.RemediationStep{
+		{Name: "git", Args: []string{"-C", cleanPath, "init"}},
+		{Name: "git", Args: []string{"-C", cleanPath, "remote", "add", "origin", remoteURL}},
+		{Name: "git", Args: []string{"-C", cleanPath, "fetch", "origin"}},
+	}
+}
+
 func buildLocalOnlyRecipes(diag cloner.NonRepoDiagnosis, cleanPath string) []gitutil.RemediationRecipe {
 	initSteps := []gitutil.RemediationStep{
 		{Name: "git", Args: []string{"-C", cleanPath, "init"}},
@@ -146,6 +192,7 @@ func buildLocalOnlyRecipes(diag cloner.NonRepoDiagnosis, cleanPath string) []git
 	removeSteps := []gitutil.RemediationStep{
 		{Name: "gitmap", Args: []string{"rm", diag.RepoName, "--db-only"}},
 	}
+
 	return []gitutil.RemediationRecipe{
 		{
 			Title:       "Initialize Local Repo",
@@ -165,26 +212,34 @@ func buildLocalOnlyRecipes(diag cloner.NonRepoDiagnosis, cleanPath string) []git
 func collectAllRemediationItems(existing []cmdremediation.RemediationItem) []cmdremediation.RemediationItem {
 	seen := make(map[string]bool)
 	var all []cmdremediation.RemediationItem
-	for _, item := range existing {
-		cleanPath := filepath.Clean(item.RepoPath)
-		if !seen[cleanPath] {
-			seen[cleanPath] = true
-			all = append(all, item)
-		}
-	}
-
+	all = appendValidRemediationItems(all, existing, seen)
 	liveItems := scanTrackedReposForIssues()
-	for _, item := range liveItems {
+	all = appendValidRemediationItems(all, liveItems, seen)
+	all = appendSpecialRepoItems(all, seen)
+
+	return all
+}
+
+func appendValidRemediationItems(all, items []cmdremediation.RemediationItem, seen map[string]bool) []cmdremediation.RemediationItem {
+	for _, item := range items {
 		cleanPath := filepath.Clean(item.RepoPath)
+		if !isGitDirectory(cleanPath) || IsWorkspaceContainerDirectory(cleanPath) {
+			continue
+		}
+
 		if !seen[cleanPath] {
 			seen[cleanPath] = true
 			all = append(all, item)
 		}
 	}
 
+	return all
+}
+
+func appendSpecialRepoItems(all []cmdremediation.RemediationItem, seen map[string]bool) []cmdremediation.RemediationItem {
 	for _, key := range []string{"repo-cache", "repo-secrets"} {
 		item, path := collectSpecialRepoItem(key, seen)
-		if item != nil {
+		if item != nil && isGitDirectory(path) && !IsWorkspaceContainerDirectory(path) {
 			seen[path] = true
 			all = append(all, *item)
 		}
@@ -198,17 +253,21 @@ func collectSpecialRepoItem(key string, seen map[string]bool) (*cmdremediation.R
 	if path == "" {
 		return nil, ""
 	}
+
 	cleanPath := filepath.Clean(path)
 	if seen[cleanPath] {
 		return nil, ""
 	}
+
 	diag := cloner.ClassifyNonRepoFolder(path, key)
 	if !diag.IsNonRepoFolder {
 		return nil, ""
 	}
+
 	item, err := buildNonRepoRemediationItem(diag, "")
 	if err != nil || item == nil {
 		return nil, ""
 	}
+
 	return item, cleanPath
 }

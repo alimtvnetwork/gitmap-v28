@@ -1,5 +1,9 @@
 package heatmap
 
+import (
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
+)
+
 // HeatmapLogPayload represents the JSON payload ingested by gitmap heatmap log --json.
 type HeatmapLogPayload struct {
 	Task             string `json:"task,omitempty"`
@@ -191,4 +195,116 @@ func (p HeatmapLogPayload) HasMetExpectation() bool {
 	}
 
 	return true
+}
+
+// TaskItem represents an architectural plan or telemetry parent task.
+type TaskItem struct {
+	TaskSequence int    `json:"taskSequence"`
+	TaskSlug     string `json:"taskSlug"`
+	Title        string `json:"title"`
+	TotalActions int    `json:"totalActions"`
+	IsActive     bool   `json:"isActive"`
+	IsCompleted  bool   `json:"isCompleted"`
+}
+
+// TaskInventory holds categorized tasks for status reporting.
+type TaskInventory struct {
+	Completed []TaskItem `json:"completed"`
+	Pending   []TaskItem `json:"pending"`
+}
+
+// HeatmapAiConfusion represents an unresolved AI confusion or telemetry alert.
+type HeatmapAiConfusion struct {
+	ConfusionId   int    `json:"confusionId"`
+	TaskSlug      string `json:"taskSlug"`
+	FilePath      string `json:"filePath"`
+	StartLine     int    `json:"startLine"`
+	EndLine       int    `json:"endLine"`
+	ReasoningNote string `json:"reasoningNote"`
+	IsResolved    bool   `json:"isResolved"`
+}
+
+// ConfusionAlertItem is an alias for HeatmapAiConfusion.
+type ConfusionAlertItem = HeatmapAiConfusion
+
+// SuggestedCommandsPayload contains actionable one-liner CLI commands.
+type SuggestedCommandsPayload struct {
+	TreeViewCommand        string `json:"treeViewCommand"`
+	SearchErrorCommand     string `json:"searchErrorCommand"`
+	AiConfusionSyncCommand string `json:"aiConfusionSyncCommand"`
+}
+
+// HeatmapTelemetryPayload contains action metrics and reasoning state breakdown.
+type HeatmapTelemetryPayload struct {
+	TotalActions         int            `json:"totalActions"`
+	ExpectationsMetCount int            `json:"expectationsMetCount"`
+	ExpectationsMetPct   float64        `json:"expectationsMetPct"`
+	ReasoningStates      map[string]int `json:"reasoningStates"`
+}
+
+// HeatmapStatusJSONPayload is emitted when gitmap heatmap status --json is requested.
+type HeatmapStatusJSONPayload struct {
+	IsSuccess         bool                     `json:"isSuccess"`
+	WorkspaceSlug     string                   `json:"workspaceSlug"`
+	ActiveTaskSlug    string                   `json:"activeTaskSlug"`
+	Telemetry         HeatmapTelemetryPayload  `json:"telemetry"`
+	CompletedTasks    []TaskItem               `json:"completedTasks"`
+	PendingTasks      []TaskItem               `json:"pendingTasks"`
+	ConfusionAlerts   []HeatmapAiConfusion     `json:"confusionAlerts"`
+	SuggestedCommands SuggestedCommandsPayload `json:"suggestedCommands"`
+}
+
+func sanitizeTaskSlices(inv TaskInventory) ([]TaskItem, []TaskItem) {
+	completed := inv.Completed
+	if completed == nil {
+		completed = []TaskItem{}
+	}
+
+	pending := inv.Pending
+	if pending == nil {
+		pending = []TaskItem{}
+	}
+
+	return completed, pending
+}
+
+func sanitizeAlerts(alerts []HeatmapAiConfusion) []HeatmapAiConfusion {
+	if alerts == nil {
+		return []HeatmapAiConfusion{}
+	}
+
+	return alerts
+}
+
+func sanitizeReasoningStates(states map[string]int) map[string]int {
+	if states == nil {
+		return make(map[string]int)
+	}
+
+	return states
+}
+
+func buildTelemetryPayload(status store.HeatmapStatusSummary) HeatmapTelemetryPayload {
+	return HeatmapTelemetryPayload{
+		TotalActions:         status.TotalActions,
+		ExpectationsMetCount: status.ExpectationsMetCount,
+		ExpectationsMetPct:   status.ExpectationsMetPct,
+		ReasoningStates:      sanitizeReasoningStates(status.ReasoningStateCounts),
+	}
+}
+
+// BuildHeatmapStatusPayload constructs a validated HeatmapStatusJSONPayload.
+func BuildHeatmapStatusPayload(status store.HeatmapStatusSummary, wsSlug, activeSlug string, inv TaskInventory, alerts []HeatmapAiConfusion, cmds SuggestedCommandsPayload) HeatmapStatusJSONPayload {
+	completed, pending := sanitizeTaskSlices(inv)
+
+	return HeatmapStatusJSONPayload{
+		IsSuccess:         true,
+		WorkspaceSlug:     wsSlug,
+		ActiveTaskSlug:    activeSlug,
+		Telemetry:         buildTelemetryPayload(status),
+		CompletedTasks:    completed,
+		PendingTasks:      pending,
+		ConfusionAlerts:   sanitizeAlerts(alerts),
+		SuggestedCommands: cmds,
+	}
 }
