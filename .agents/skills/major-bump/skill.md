@@ -16,10 +16,10 @@ Source prompt: `01-prompts/17-release-management/01-major-bump.md`
 
 ## GitMap Release Non-Negotiables
 - **Pre-Flight Pull:** Always run `gitmap pull` (fallback `git pull`) before touching any files.
-- **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "RELEASE - vX.0.0 <scope>"`.
+- **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "vX.0.0 <scope>"`.
 - **TOTAL BAN ON CPF FOR RELEASES:** Never use `gitmap cpf` for releases (it adds a conflicting `Feature:` prefix).
-- **TOTAL BAN ON NESTED PREFIXES:** Never write `chore(release):` or `release:` inside the message argument.
-- **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"RELEASE - vX.0.0 <scope>"` with hyphen and no square brackets.
+- **TOTAL BAN ON NESTED & REDUNDANT PREFIXES:** Never write `chore(release):`, `release:`, `RELEASE - `, or `VERSION - ` inside the message argument for `gitmap cpr`. Format directly as `"vX.0.0 <scope>"`.
+- **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"vX.0.0 <scope>"` with no square brackets or colons.
 
 ## Goal
 

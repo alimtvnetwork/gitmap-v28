@@ -418,6 +418,7 @@ def execute_bump(tier="minor", explicit_version=None, scope=None, dry_run=False)
     run_repo_sync_if_available(dry_run=dry_run)
 
     print(f"[OK] Successfully bumped version to {next_ver}")
+    print(f"[*] Suggested commit: gitmap cpr \"v{next_ver} {bump_scope}\"")
     return next_ver
 
 

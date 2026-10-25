@@ -18,8 +18,8 @@ gitmap cbf "SQLITE - handle connection pool lock"
 gitmap cpc "SKILLS - sync gitmap skill across repositories"
 # Formatted: Chore: SKILLS - sync gitmap skill across repositories
 
-gitmap cpr "V6.600.0 - folder-specific workdirs & ssh automation"
-# Formatted: Release: V6.600.0 - folder-specific workdirs & ssh automation
+gitmap cpr "v6.600.0 folder-specific workdirs & ssh automation"
+# Formatted: Release: v6.600.0 folder-specific workdirs & ssh automation
 ```
 
 ### 2. Conventional Commit Syntax (`type(module): <item>`)
@@ -58,8 +58,8 @@ gitmap cbf "SQLITE - handle connection pool lock"
 # Chore commit with uppercase module
 gitmap cpc "SKILLS - sync gitmap skill across repositories"
 
-# Release commit with uppercase module
-gitmap cpr "V6.600.0 - folder-specific workdirs & ssh automation"
+# Release commit directly with version
+gitmap cpr "v6.600.0 folder-specific workdirs & ssh automation"
 
 # Conventional syntax with plain scope
 gitmap cpf "feat(workgroup): add folder ssh key binding"

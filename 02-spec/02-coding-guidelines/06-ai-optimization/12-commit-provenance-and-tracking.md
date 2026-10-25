@@ -125,11 +125,11 @@ Feature: MODULE - summary of changes
 | **Bug Fix** | `fix([ci]): resolve gofmt` | Square brackets in scope | `gitmap cpb "CI - resolve gofmt"` | `Bug: CI - resolve gofmt` |
 | **Bug Fix** | `Bug: [db]: fix deadlock` | Bracketed module and double colon | `gitmap cbf "DB - fix deadlock"` | `Bug: DB - fix deadlock` |
 | **Chore** | `chore([skills]): update skill` | Bracket nesting breaks parsers | `gitmap cpc "SKILLS - update skill"` | `Chore: SKILLS - update skill` |
-| **Release Misuse** | `gitmap cpf "chore(release): bump version to v4.259.0"` | Misuses cpf (Feature) for release, nested chore(release) prefix, lowercase, colon | `gitmap cpr "RELEASE - bump version to v4.259.0"` | `Release: RELEASE - bump version to v4.259.0` |
+| **Release Misuse** | `gitmap cpf "chore(release): bump version to v4.259.0"` | Misuses cpf (Feature) for release, nested chore(release) prefix, lowercase, colon | `gitmap cpr "v4.259.0 bump version"` | `Release: v4.259.0 bump version` |
 | **Chore Misuse** | `gitmap cpf "chore: sync prompts and skills"` | Misuses cpf (Feature) for chore, nested conventional prefix, colon | `gitmap cpc "SYNC - update prompts and skills"` | `Chore: SYNC - update prompts and skills` |
 | **Raw Git Commit** | `git commit -m "feat(auth): add jwt"` | Raw git commit bypasses GitMap atomic staging, split-db tracking, and push | `gitmap cpf "AUTH - add jwt"` | `Feature: AUTH - add jwt` |
 | **Raw Git Pull** | `git pull origin main` | Raw git pull bypasses GitMap multi-phase conflict detection and telemetry | `gitmap pull` (fallback `git pull`) | Pulls latest remote updates cleanly |
-| **Release** | `chore(release): [v6.600.0]: cut` | Markdown link collision hazard | `gitmap cpr "V6.600.0 - cut release"` | `Release: V6.600.0 - cut release` |
+| **Release** | `chore(release): [v6.600.0]: cut` | Markdown link collision hazard | `gitmap cpr "v6.600.0 cut release"` | `Release: v6.600.0 cut release` |
 | **Docs Spec** | `docs([spec]): add bracketed rules` | Square brackets in scope | `gitmap cpc "SPEC - update commit rules"` | `Chore: SPEC - update commit rules` |
 | **Docs Plan** | `docs([plan]): update master plan` | Square brackets in scope | `gitmap cpc "PLAN - update master plan"` | `Chore: PLAN - update master plan` |
 | **Mixed Case**| `gitmap cpf "workgroup - fix bind"` | Lowercase module tag | `gitmap cpf "WORKGROUP - fix bind"` | `Feature: WORKGROUP - fix bind` |

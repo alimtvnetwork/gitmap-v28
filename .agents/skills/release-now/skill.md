@@ -20,7 +20,7 @@ description: >-
 3. **Mandatory 5-Step Release Branching Lifecycle:**
    - **Step 1:** Create and switch to a dedicated release branch: `git checkout -b release/vX.Y.Z`.
    - **Step 2:** Bump the version using the dedicated Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) on the release branch. Update `version.json`, `package.json`, `readme.md`, `changelog.md`, and run sync.
-   - **Step 3:** Commit version bump changes on the release branch via GitMap: `gitmap cpr "RELEASE - vX.Y.Z <scope>"` (TOTAL BAN on `gitmap cpf` for releases; TOTAL BAN on nested `chore(release):` or `release:` prefixes in argument; format with uppercase module and hyphen).
+   - **Step 3:** Commit version bump changes on the release branch via GitMap: `gitmap cpr "vX.Y.Z <scope>"` (TOTAL BAN on `gitmap cpf` for releases; TOTAL BAN on nested `chore(release):`, `release:`, `RELEASE - `, or `VERSION - ` prefixes in argument; format directly as `"vX.Y.Z <scope>"`).
    - **Step 4:** Create annotated git tag on the release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5:** Put the release commit back to `main` (`git checkout main && git merge release/vX.Y.Z`), push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore the starting branch.
 4. **Execute Automated Release (2-Tier Toolchain):**

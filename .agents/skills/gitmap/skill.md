@@ -184,7 +184,7 @@ Every commit argument passed to GitMap semantic commit verbs (`cpf`, `cbf`, `cfr
 - `gitmap cbf "MODULE - <summary>"` (alias: `gitmap cpb`) — Bug fixes ONLY. Stages all, formats with `Bug: MODULE - <summary>`, and pushes.
 - `gitmap cfr "MODULE - <summary>"` — Refactoring ONLY. Stages all, formats with `Refactor: MODULE - <summary>`, and pushes.
 - `gitmap cpc "MODULE - <summary>"` — Chores, docs, sync, and maintenance ONLY. Stages all, formats with `Chore: MODULE - <summary>`, and pushes.
-- `gitmap cpr "MODULE - <summary>"` — Releases ONLY. Stages all, formats with `Release: MODULE - <summary>`, and pushes. MANDATORY verb for version bumps and releases!
+- `gitmap cpr "v<version> <summary>"` — Releases ONLY. Stages all, formats with `Release: v<version> <summary>`, and pushes. (TOTAL BAN on redundant `VERSION - ` or `RELEASE - ` in `cpr`; write directly `gitmap cpr "vX.Y.Z <summary>"`). MANDATORY verb for version bumps and releases!
 - `gitmap pcp "MODULE - <summary>"` — Pull latest with rebase, commit, and push with preflight verification.
 - `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
@@ -811,8 +811,8 @@ gitmap cbf "CLONER - correct concurrency flag parsing and worker limits"
 # Chore/Maintenance commit (auto-prefixes 'Chore: DOCS - ...', stages all, and pushes)
 gitmap cpc "DOCS - realign companion skills and remove help flags"
 
-# Release commit (auto-prefixes 'Release: VERSION - ...', stages, and pushes)
-gitmap cpr "VERSION - bump minor version and update changelog"
+# Release commit (auto-prefixes 'Release: v...', stages all, and pushes)
+gitmap cpr "v6.613.0 hardened flexible path parsing and universal CLI expansion"
 
 # Pull latest with rebase, stage all, commit, and push in one verified flow
 gitmap pcp "SKILLS - sync cross-platform runner templates"

@@ -860,11 +860,12 @@ GitMap automatically stages, formats with the appropriate sovereign type prefix,
 | **Bug Fixes** | `gitmap cbf "MODULE - <summary>"` (or `cpb`) | `Bug: MODULE - <summary>` | Defect repairs, regression fixes, error resolutions. |
 | **Refactoring** | `gitmap cfr "MODULE - <summary>"` | `Refactor: MODULE - <summary>` | Code restructuring, DRY extraction, type reorganization. |
 | **Chores / Sync / Docs** | `gitmap cpc "MODULE - <summary>"` | `Chore: MODULE - <summary>` | Guideline updates, prompts sync, dependencies, documentation. |
-| **Releases / Version Bumps** | `gitmap cpr "MODULE - <summary>"` | `Release: MODULE - <summary>` | Version increments, release tags, release branch ceremonies. |
+| **Releases / Version Bumps** | `gitmap cpr "v<version> <summary>"` | `Release: v<version> <summary>` | Version increments, release tags, release branch ceremonies. |
 | **Local Checkpoint (No Push)** | `gitmap commit "wip - <msg>"` (or `cm`) | Verbatim `<msg>` | Local WIP checkpoints only. No remote push. |
 
 ### 3. Commit Argument Formatting Standards
-- **Hyphen-Separated Standard:** Always format the commit argument as `"MODULE - summary of changes"` or `"(MODULE): summary of changes"`.
+- **Release Commit Formatting (TOTAL BAN on "VERSION - " or "RELEASE - " in CPR):** For releases (`gitmap cpr`), format directly as `"v<version> <summary>"` (e.g. `gitmap cpr "v6.613.0 hardened flexible path parsing and universal CLI expansion"`). Do NOT write `gitmap cpr "VERSION - ..."` or `gitmap cpr "RELEASE - ..."`. GitMap automatically prefixes `Release: `, so `gitmap cpr "vX.Y.Z <summary>"` produces the clean sovereign commit header `Release: vX.Y.Z <summary>` without redundant noise.
+- **Feature, Fix, Refactor, and Chore Formatting:** Always format feature (`cpf`), bugfix (`cbf`), refactor (`cfr`), and chore (`cpc`) arguments as `"MODULE - summary of changes"` (e.g. `gitmap cpf "CLI - implement user profile dashboard"`).
 - **TOTAL BAN on Third Brackets `[...]`:** Never use square brackets (`[...]`) in commit messages or module tags (e.g. BANNED: `gitmap cpf "[module]: ..."`, `gitmap cpr "[v1.0]: ..."`).
 - **TOTAL BAN on Colons Inside Arguments:** Do not pass colons `:` inside the message argument (e.g. BANNED: `gitmap cpf "module: feature description"`). Use space-padded hyphen: `"MODULE - feature description"`.
 - **TOTAL BAN on Nested Conventional Prefixes:** Never pass redundant type prefixes like `chore(release):`, `feat(...)`, `fix(...)`, or `chore:` inside the argument (e.g. BANNED: `gitmap cpf "chore(release): bump version"`, `gitmap cpr "release: v1.0"`). GitMap adds the sovereign prefix automatically!
@@ -876,7 +877,7 @@ GitMap automatically stages, formats with the appropriate sovereign type prefix,
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
 - [ ] **MANDATORY PRE-FLIGHT PULL VIA GITMAP:** Executed `gitmap pull` (fallback `git pull`) prior to touching files.
-- [ ] **MANDATORY FINAL COMMIT & PUSH VIA GITMAP:** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST commit and push using the dedicated GitMap semantic verb (`gitmap cpr` for releases, `gitmap cpc` for chores/guidelines, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, `gitmap cpf` for features). Format with uppercase module and hyphen: `gitmap <verb> "MODULE - summary"`.
+- [ ] **MANDATORY FINAL COMMIT & PUSH VIA GITMAP:** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST commit and push using the dedicated GitMap semantic verb (`gitmap cpr "v<version> <summary>"` for releases, `gitmap cpc "MODULE - summary"` for chores/guidelines, `gitmap cbf "MODULE - summary"` for bug fixes, `gitmap cfr "MODULE - summary"` for refactors, `gitmap cpf "MODULE - summary"` for features). Format features/fixes/chores/refactors with uppercase module and hyphen (`"MODULE - summary"`), and releases directly with version (`"v<version> <summary>"`).
 - [ ] **STRICT VERB TAXONOMY VERIFIED:** Did NOT use `gitmap cpf` for chores, bug fixes, or releases. Used `cpr` for release bumps, `cpc` for chores/syncs, `cbf` for bug fixes.
 - [ ] **ZERO NESTED CONVENTIONAL PREFIXES & ZERO THIRD BRACKETS:** No `chore(release):`, no `feat(...)`, no `fix(...)`, no `[...]` square brackets, no colons `:` inside the argument.
 - [ ] **TOTAL BAN ON PER-FILE COMMITS:** Staged and pushed all files across the turn together in a single atomic GitMap command at the final step. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
