@@ -1,5 +1,15 @@
 # Changelog
 
+## [v6.612.0] - 2026-10-25
+
+### Added
+- Flexible path parser `CleanFlexiblePath` supporting bracketed Windows paths, markdown embeds with file URIs, numbered list prefixes, and trailing shell/code comments.
+- Safe terminal image cat in `gitmap cat` rendering structured TokyoNight metadata cards (format, dimensions, size, disk verification status) instead of binary noise.
+- Automated resolution for repository-relative paths and parent `../repo-cache/` cache trees.
+- Documentation and concrete CLI runbooks in `.agents/skills/gitmap/skill.md`, `.agents/skills/execute-parent-task-with-n-steps-v6/skill.md`, and coding guidelines.
+
+---
+
 ## [v6.611.0] - 2026-10-25
 
 ### Added

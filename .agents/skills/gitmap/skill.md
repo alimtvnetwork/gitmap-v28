@@ -24,7 +24,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `Get-ChildItem` (all variants: bare `Get-ChildItem`, `-Path`, `-Filter`, `-Recurse`, etc.), `dir`, `ls` (in shell), `find . -name "..."`, `dir /s /b` | ✅ `gitmap lf <dir>` or `gitmap list-files [dir]` or `gitmap find "<pattern>" [dir]` | Sub-millisecond directory listing and file glob discovery without shell traversal overhead. TOTAL BAN on PowerShell Get-ChildItem. |
 | ❌ Inspecting plans manually via `Get-ChildItem -Path ".ai-memory/plans"` or `dir` | ✅ `gitmap plans [--json\|--yaml] [N]` (alias: `gitmap plan`) | Instant Tokyo Night styled inventory of completed and pending plans with sequence IDs, status pills, and backlog overflow navigation. |
 | ❌ Directory File Inventory: `Get-ChildItem -Path <dir>`, `dir <dir>`, `ls <dir>` | ✅ `gitmap lf <dir>` (e.g. `gitmap lf src-tauri/src/modules/repo_db`) or `gitmap find "*.*" <dir>` | Instant directory file listing and inventory without PowerShell object pipeline or shell traversal latency. TOTAL BAN on PowerShell Get-ChildItem. |
-| ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents directly into process stdout for resource-constrained CLI sessions. |
+| ❌ Raw unbuffered `cat`, `type`, `Get-Content` on source files | ✅ `gitmap cat <filepath>` | Direct zero-disk stream of file contents or structured image asset metadata card into process stdout; natively supports flexible paths (`@[...]`, markdown embeds, file URIs). |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
 | ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
@@ -112,6 +112,14 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap find-files-endswith <suffix>` (alias: `gitmap ffe <suffix>`) — Find by filename suffix (e.g. `_test.go`).
 - `gitmap list-files [dir]` (alias: `gitmap lf [dir]`) — List relative file paths matching pattern or directory.
 - `gitmap cat <filepath>` — Direct zero-disk stream of file content into process stdout. Inspect file content immediately in resource-constrained CLI sessions without buffer bloat.
+  * **Flexible Path Support:** Natively parses, resolves, and strips:
+    - Absolute paths wrapped in bracket notation: `gitmap cat @[<drive>:\path\to\media_1792894009084_45b4893f.png]`
+    - Markdown image embed tags: `gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)"`
+    - Relative repo paths: `gitmap cat "1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo"`
+    - Cross-repo relative paths: `gitmap cat "1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo"`
+    - File URI format: `gitmap cat file:///<path>`
+    - Automated stripping of list numbers (`1. `, `2. `) and comment prefixes (`# ...`).
+  * **Structured Image Inspection:** Automatically detects image extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`, `.ico`, `.bmp`, `.tiff`) and renders a structured TokyoNight card via Lipgloss/termout showing dimensions (`<width> x <height> px`), format, file size, and disk verification status instead of dumping raw binary noise to stdout (for SVG files, renders the metadata card followed by clean SVG text).
 - `gitmap replace <old> <new>` — Exact literal string replacement with audit trail.
 - `gitmap replace-regex <pat> <subst>` — Regex replacement across repository.
 
@@ -735,6 +743,16 @@ gitmap find-files-endswith "_test.go"
 
 # Direct zero-disk file content streaming into stdout
 gitmap cat "version.json"
+
+# Flexible path parsing & image asset inspection (natively strips @[...] wrappers, file:/// URIs, markdown embeds, and list prefixes):
+gitmap cat @[<drive>:\path\to\media_01.png]
+gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_01.png)"
+gitmap cat @[assets/media_01.png]
+gitmap cat @[../repo-cache/assets/media_01.png]
+gitmap cat file:///<path>/media_01.png
+
+# Image asset inspection: displays structured TokyoNight card (dimensions, size, format) instead of binary noise:
+gitmap cat assets/screenshots/dashboard.png
 
 # Markdown sequence gap detector and header autofixer
 gitmap aum sequence 02-spec/21-app --fix

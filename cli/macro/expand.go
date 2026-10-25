@@ -21,6 +21,10 @@ func ExpandPathAndEnv(input string) string {
 		return input
 	}
 
+	if hasFlexibleFormat(input) {
+		return CleanFlexiblePath(input)
+	}
+
 	expanded := expandWindowsEnv(input)
 	expanded = expandUnixEnv(expanded)
 	expanded = expandTilde(expanded)

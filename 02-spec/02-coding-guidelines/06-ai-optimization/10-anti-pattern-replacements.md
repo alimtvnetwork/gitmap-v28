@@ -195,6 +195,15 @@ gitmap find "*heatmap*.go" cli
 
 # Zero-disk direct stream of file content into process stdout
 gitmap cat cli/cmdurl/cmd_url.go
+
+# Flexible path parsing: handles bracket notation, markdown embeds, repo-cache paths, bullets, and comments
+gitmap cat @[<drive>:\path\to\media_1792894009084_45b4893f.png]
+gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)"
+gitmap cat "1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo"
+gitmap cat "1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo"
+
+# Safe image asset inspection: renders structured TokyoNight cards (dimensions, size, status) instead of binary noise
+gitmap cat assets/screenshots/media_1792894009084_45b4893f.png
 ```
 
 ---

@@ -21,21 +21,44 @@ func runCatCmd(args []string) error {
 		return apperror.NewValidationError("missing filepath for cat")
 	}
 
-	target := macro.ExpandPathAndEnv(args[0])
+	target := macro.ExpandPathAndEnv(resolveCatArg(args))
+
+	return executeCatTarget(target)
+}
+
+func resolveCatArg(args []string) string {
+	if len(args) == 1 {
+		return args[0]
+	}
+
+	return strings.Join(args, " ")
+}
+
+func executeCatTarget(target string) error {
 	data, err := os.ReadFile(target)
 	if err != nil {
 		return apperror.WrapSimple(err, fmt.Sprintf("read file %q", target))
 	}
 
-	printCatContent(target, data)
+	displayCatPayload(target, data)
 
 	return nil
+}
+
+func displayCatPayload(target string, data []byte) {
+	if isImageExtension(target) {
+		printCatImageSummary(target, data)
+
+		return
+	}
+
+	printCatContent(target, data)
 }
 
 func printCatUsage() {
 	fmt.Println("Usage: gitmap cat <filepath>")
 	fmt.Println()
-	fmt.Println("Displays file contents cleanly in the terminal across all operating systems.")
+	fmt.Println("Displays file contents or image asset summaries cleanly in the terminal across all operating systems.")
 	fmt.Println()
 }
 

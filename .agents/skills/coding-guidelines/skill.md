@@ -556,7 +556,13 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 13. **GitMap Search Primacy & Fast Tooling:** TOTAL BAN on `rg`, `ripgrep`, `grep`, `git grep`, PowerShell `Select-String`, `findstr`, or recursive `Get-ChildItem`. All symbol searches, directory inventories, and file reads MUST use GitMap high-speed commands:
     - **Code & Symbol Search:** `gitmap aum search "<pattern>" [dir]` or named-flag syntax `gitmap aum search --query "<pattern>" --root "<dir>"` (supports `--pattern`, `--dir`, `--path`, `-q`, `-p`, `-d`).
     - **Instant Directory Listing:** `gitmap lf <dir>` or `gitmap find "*.*" <dir>`.
-    - **Zero-Disk File Streaming:** `gitmap cat <filepath>`.
+    - **Zero-Disk File Streaming & Safe Asset Inspection:** `gitmap cat <filepath>`.
+      Natively parses, strips, and resolves conversational and flexible path formats:
+      1. Windows absolute inside brackets: `gitmap cat @[<drive>:\path\to\media_1792894009084_45b4893f.png]`
+      2. Markdown embeds with file URI: `gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)"`
+      3. Numbered list with repo-relative path and comment: `gitmap cat "1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo"`
+      4. Numbered list with parent repo-cache path and comment: `gitmap cat "1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo"`
+      Automatically detects image extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`, `.ico`, `.bmp`, `.tiff`) and renders a TokyoNight card displaying image dimensions, byte size, format, and verification status instead of dumping raw binary noise to stdout (for SVG files, renders the metadata card followed by clean SVG text).
 13. **Asset Naming:** Assets go to `assets/<NN-folder>/<NN-file>.<ext>` with two-digit sequence prefixes (e.g., `assets/01-icons/03-logo.svg`).
 14. **No Inverted Complex Conditions:** Never use `!` on complex conditions containing AND/OR. Simplify or extract into named booleans.
 15. **Boolean Return Wrapper:** Functions returning multiple values including a boolean must return a named struct/object (e.g. `{ data, isSuccess }`), never bare tuples `(int, bool)`.
@@ -827,7 +833,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
 - **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
-- **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
+- **Stream File Content & Inspect Media Assets:** `gitmap cat <filepath>` (streams text to stdout with zero disk writes; auto-parses flexible paths like `@[...]`, markdown embeds, repo-cache paths, and renders TokyoNight metadata cards for binary image files)
 - **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
 
 ### Tier 2: Fast Cached Python Toolchain (FALLBACK)
