@@ -155,6 +155,7 @@ func resolveClusterEntriesSystem() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "os", Description: "Cross-platform OS desktop and taskbar integrations"},
 		{Command: "apps", Description: "Discover, inventory, and cleanly uninstall desktop applications"},
+		{Command: "context-menu (ctx)", Description: "OS right-click context menu (install, uninstall, clean-powershell)"},
 		{Command: "install", Description: "Install CLI companion tools and agents"},
 		{Command: "uninstall", Description: "Uninstall CLI companion tools and agents"},
 		{Command: "storage", Description: "Inspect disk usage, large repo locator, and volume cleanup"},

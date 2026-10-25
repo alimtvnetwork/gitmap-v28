@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -43,5 +44,21 @@ func TestIsSemanticClusterName_Valid(t *testing.T) {
 func TestIsSemanticClusterName_Invalid(t *testing.T) {
 	if IsSemanticClusterName("foobar") {
 		t.Errorf("expected 'foobar' not to be recognized as semantic cluster")
+	}
+}
+
+func TestResolveClusterEntriesSystem_ContainsContextMenu(t *testing.T) {
+	entries := resolveClusterEntriesSystem()
+	hasContextMenu := false
+
+	for _, e := range entries {
+		if strings.Contains(e.Command, "context-menu") {
+			hasContextMenu = true
+			break
+		}
+	}
+
+	if !hasContextMenu {
+		t.Errorf("expected resolveClusterEntriesSystem to contain 'context-menu', got %+v", entries)
 	}
 }

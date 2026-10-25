@@ -17,12 +17,14 @@ const (
 	CmdContextMenuAlias = "contextmenu"  // gitmap:cmd skip
 )
 
-// Top-level cascade label and registry root key names. The two roots
-// give us the menu both on folder backgrounds (clicking inside a
-// folder) and on folder items (right-clicking the folder itself).
+// Top-level cascade label and registry root key names. The three roots
+// give us the menu on files (right-clicking any file item), on folder
+// backgrounds (clicking inside a folder) and on folder items (right-clicking
+// the folder itself).
 const (
 	CtxRootKeyBackground = `HKCU\Software\Classes\Directory\Background\shell\gitmap`
 	CtxRootKeyDirectory  = `HKCU\Software\Classes\Directory\shell\gitmap`
+	CtxRootKeyFile       = `HKCU\Software\Classes\*\shell\gitmap`
 	CtxRootMUIVerb       = "gitmap"
 )
 

@@ -54,7 +54,7 @@ func TestCtxWindowsNoIconWhenUnset(t *testing.T) {
 
 		// The root cascade keys legitimately carry an Icon; every other
 		// Icon write must correspond to an entry that opted in.
-		if c[2] == constants.CtxRootKeyBackground || c[2] == constants.CtxRootKeyDirectory {
+		if c[2] == constants.CtxRootKeyBackground || c[2] == constants.CtxRootKeyDirectory || c[2] == constants.CtxRootKeyFile {
 			continue
 		}
 
@@ -72,7 +72,8 @@ func ctxKeyHasOptedInIcon(key string) bool {
 		seg = key[i+1:]
 	}
 
-	for _, e := range ctxMenu() {
+	allEntries := append(ctxMenu(), ctxFileMenu()...)
+	for _, e := range allEntries {
 		if e.KeyName == seg && e.Icon != "" {
 			return true
 		}

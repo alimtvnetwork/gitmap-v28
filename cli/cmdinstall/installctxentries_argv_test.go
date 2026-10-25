@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/enums/ctxmodetype"
 )
 
 // expectedCtxArgv is the authoritative KeyName → argv mapping for every
@@ -21,6 +22,13 @@ var expectedCtxArgv = map[string]struct {
 	exe  string // "" => gitmap binary
 	argv []string
 }{
+	// Direct top-level actions
+	"01_show_log":       {"", []string{"show-log"}},
+	"02_diff":           {"", []string{"diff"}},
+	"03_branch_compare": {"", []string{"show-log", "--branch-compare"}},
+	"04_commit":         {"", []string{"commit", "-b", "main"}},
+	"05_pull":           {"", []string{"pull"}},
+	"06_push":           {"", []string{"push"}},
 	// Scan
 	"10_scan/10_scan_here": {"", []string{"scan"}},
 	"10_scan/20_rescan":    {"", []string{"rescan"}},
@@ -37,32 +45,17 @@ var expectedCtxArgv = map[string]struct {
 	"30_release/50_list_releases":   {"", []string{"list-releases"}},
 	"30_release/60_list_versions":   {"", []string{"list-versions"}},
 	// Repos
-	"40_repos/10_go":     {"", []string{"go-repos"}},
-	"40_repos/20_node":   {"", []string{"node-repos"}},
-	"40_repos/30_react":  {"", []string{"react-repos"}},
-	"40_repos/40_cpp":    {"", []string{"cpp-repos"}},
-	"40_repos/50_csharp": {"", []string{"csharp-repos"}},
+	"40_repos": {"", []string{"ui"}},
 	// Visibility
 	"50_visibility/10_public":  {"", []string{"make-public"}},
 	"50_visibility/20_private": {"", []string{"make-private"}},
-	// Tools
-	"60_tools/10_fix_repo": {"", []string{"fix-repo"}},
-	"60_tools/20_diff":     {"", []string{"diff"}},
-	"60_tools/30_history":  {"", []string{"history"}},
-	"60_tools/40_update":   {"", []string{"update"}},
-	// Git — TortoiseGit-like features
-	"70_git/10_commit":         {"", []string{"commit", "-b", "main"}},
-	"70_git/20_diff":           {"", []string{"diff"}},
-	"70_git/30_diff_later":     {"", []string{"diff", "--stash-path"}},
-	"70_git/40_diff_prev":      {"", []string{"diff", "HEAD~1"}},
-	"70_git/50_show_log":       {"", []string{"show-log"}},
-	"70_git/60_branch_compare": {"", []string{"show-log", "--branch-compare"}},
 	// Top-level standalone entries
-	"80_antigravity":    {"", []string{"ag"}},
-	"90_terminal":       {"", nil}, // Prefill mode; no argv
-	"91_docs":           {"", []string{"docs"}},
-	"92_help":           {"", []string{constants.CmdHelp}},
-	"95_install_wizard": {"", []string{"install", "--wizard"}},
+	"80_antigravity":      {"", []string{"ag"}},
+	"90_terminal":         {"", nil}, // Prefill mode; no argv
+	"91_docs":             {"", []string{"docs"}},
+	"92_help":             {"", []string{constants.CmdHelp}},
+	"95_install_wizard":   {"", []string{"install", "--wizard"}},
+	"96_clean_powershell": {"", []string{"context-menu", "clean-powershell"}},
 }
 
 // flattenCtxMenu walks ctxMenu() and returns a path→entry map keyed by the
@@ -153,5 +146,38 @@ func TestCtxReleaseNextUsesBumpConstants(t *testing.T) {
 	// 02-spec/04-generic-cli/30-install-ctx.md §3.
 	if got := strings.Join(entry.Args, " "); got != "release --bump minor" {
 		t.Fatalf("release-next composed argv = %q, want %q", got, "release --bump minor")
+	}
+}
+
+var expectedCtxFileArgv = map[string][]string{
+	"10_diff":       {"diff", `"%1"`},
+	"20_diff_later": {"diff", "--stash-path", `"%1"`},
+	"30_diff_prev":  {"diff", "HEAD~1", `"%1"`},
+	"40_show_log":   {"show-log", `"%1"`},
+	"50_blame":      {"blame", `"%1"`},
+	"60_commit":     {"commit", "-b", "main"},
+}
+
+func TestCtxFileMenuArgvMapping(t *testing.T) {
+	entries := ctxFileMenu()
+	if len(entries) != len(expectedCtxFileArgv) {
+		t.Fatalf("ctxFileMenu count = %d, want %d", len(entries), len(expectedCtxFileArgv))
+	}
+
+	for _, e := range entries {
+		want, hasEntry := expectedCtxFileArgv[e.KeyName]
+		if !hasEntry {
+			t.Errorf("unexpected file menu KeyName %q", e.KeyName)
+
+			continue
+		}
+
+		if !reflect.DeepEqual(e.Args, want) {
+			t.Errorf("%s: Args = %v, want %v", e.KeyName, e.Args, want)
+		}
+
+		if e.Mode != ctxmodetype.Terminal {
+			t.Errorf("%s: Mode = %v, want %v", e.KeyName, e.Mode, ctxmodetype.Terminal)
+		}
 	}
 }

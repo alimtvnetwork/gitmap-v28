@@ -17,20 +17,29 @@ func buildInstallHelpMenu() termout.HelpMenu {
 			"gitmap in <tool|profile> [flags]",
 			"gitmap in profile [name] [--tree]",
 		},
-		Sections: []termout.HelpSection{
-			buildInstallCoreSection(),
-			buildInstallDatabaseSection(),
-			buildInstallAISection(),
-			buildInstallProfileSection(),
-			buildInstallCustomSection(),
-			buildInstallMgmtSection(),
-		},
+		Sections:    resolveInstallHelpSections(),
 		FooterFlags: buildInstallFooterFlags(),
-		Tips: []string{
-			"Run 'gitmap in profile dev --tree' to preview the complete tool tree.",
-			"Use 'gitmap in <tool> --check' to verify if a tool is installed.",
-			"Run 'gitmap in ls' to list all supported tools with installed status.",
-		},
+		Tips:        resolveInstallHelpTips(),
+	}
+}
+
+func resolveInstallHelpSections() []termout.HelpSection {
+	return []termout.HelpSection{
+		buildInstallCoreSection(),
+		buildInstallDatabaseSection(),
+		buildInstallAISection(),
+		buildInstallProfileSection(),
+		buildInstallCustomSection(),
+		buildInstallOSIntegrationsSection(),
+		buildInstallMgmtSection(),
+	}
+}
+
+func resolveInstallHelpTips() []string {
+	return []string{
+		"Run 'gitmap in profile dev --tree' to preview the complete tool tree.",
+		"Use 'gitmap in <tool> --check' to verify if a tool is installed.",
+		"Run 'gitmap in ls' to list all supported tools with installed status.",
 	}
 }
 

@@ -60,6 +60,15 @@ func buildInstallCustomSection() termout.HelpSection {
 	}
 }
 
+func buildInstallOSIntegrationsSection() termout.HelpSection {
+	return termout.HelpSection{
+		Title: "OS & Desktop Integrations",
+		Entries: []termout.CommandEntry{
+			{Command: "context-menu (ctx)", Description: "Register Explorer, Nautilus & Finder context menus"},
+		},
+	}
+}
+
 func buildInstallMgmtSection() termout.HelpSection {
 	return termout.HelpSection{
 		Title: "Management, Logs & Config",

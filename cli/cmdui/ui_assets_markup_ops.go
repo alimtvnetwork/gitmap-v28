@@ -59,6 +59,10 @@ const uiAssetsMarkupOps = `    <div id="tab-commitin" class="content-area">
         <div style="margin-top: var(--sp-4); padding: var(--sp-4); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);">
           <h4 style="margin-bottom: var(--sp-2); color: var(--primary); font-size: var(--fs-sm);"><span data-icon="info"></span> Fleet CLI Commands &amp; Cross-Machine Sharing</h4>
           <p style="font-size: var(--fs-sm); color: var(--muted); line-height: 1.6; margin-bottom: var(--sp-2);">
+            • <b>Fleet Pull All:</b> <code>gitmap pa --ssh</code> (Enqueue pull-all across SSH fleet)<br>
+            • <b>Inspect Cluster Nodes:</b> <code>gitmap nodes</code> (Fleet node discovery, status &amp; latency)<br>
+            • <b>Cluster Ping Test:</b> <code>gitmap nodes ping</code> (Dual-stack ICMP/TCP ping probe)<br>
+            • <b>Pipeline Diagnostics:</b> <code>gitmap pe</code> (Pipeline error analyzer &amp; runner log extraction)<br>
             • <b>Deploy Keys Across Fleet:</b> <code>gitmap deploy keys all</code> or <code>gitmap deploy-keys-all</code> (alias: <code>gitmap ssh deploy keys all</code>)<br>
             • <b>Export Nodes to JSON:</b> <code>gitmap ssh export-json [file]</code> or <code>gitmap export-ssh</code><br>
             • <b>Import Nodes from JSON:</b> <code>gitmap ssh import-json [file]</code> or <code>gitmap deploy import [file]</code><br>

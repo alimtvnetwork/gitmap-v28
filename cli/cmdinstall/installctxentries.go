@@ -21,25 +21,60 @@ type ctxEntry struct {
 	Children []ctxEntry // non-nil => this is a submenu
 }
 
-// ctxMenu returns the full menu tree. Single source of truth for both
-// install and uninstall — uninstall walks the same tree and deletes
-// each generated key.
+// ctxMenu returns the full menu tree for directory and background contexts.
+// Single source of truth for both install and uninstall.
 func ctxMenu() []ctxEntry {
+	entries := ctxDirectEntries()
+	entries = append(entries, ctxCategoryEntries()...)
+	entries = append(entries, ctxTailEntries()...)
+
+	return entries
+}
+
+func ctxDirectEntries() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push"}, Mode: ctxmodetype.Terminal},
+	}
+}
+
+func ctxCategoryEntries() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "10_scan", MUIVerb: "Scan", Children: scanChildren()},
 		{KeyName: "20_clone", MUIVerb: "Clone", Children: cloneChildren()},
 		{KeyName: "30_release", MUIVerb: "Release", Children: releaseChildren()},
-		{KeyName: "40_repos", MUIVerb: "Repos", Children: repoChildren()},
+		{KeyName: "40_repos", MUIVerb: "Repositories (Web UI)", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
-		{KeyName: "60_tools", MUIVerb: "Tools", Children: toolsChildren()},
-		{KeyName: "70_git", MUIVerb: "Git", Children: gitChildren()},
+	}
+}
+
+func ctxTailEntries() []ctxEntry {
+	return []ctxEntry{
 		{KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{constants.CmdAg}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
-		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Silent},
+		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
-		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Silent},
+		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},
 		{KeyName: "95_install_wizard", MUIVerb: "Install Wizard (GitMap Tools & Profiles)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "96_clean_powershell", MUIVerb: "Clean Duplicate PowerShell", Args: []string{"context-menu", "clean-powershell"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+	}
+}
+
+// ctxFileMenu returns the context menu entries registered under
+// HKCU\Software\Classes\*\shell\gitmap for right-clicking any file.
+func ctxFileMenu() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "10_diff", MUIVerb: "Diff", Args: []string{"diff", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "20_diff_later", MUIVerb: "Diff later", Args: []string{"diff", "--stash-path", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "30_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "40_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "50_blame", MUIVerb: "Blame", Args: []string{"blame", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "60_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 	}
 }
 
@@ -47,7 +82,7 @@ func scanChildren() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "10_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal},
 		{KeyName: "20_rescan", MUIVerb: "Rescan", Args: []string{constants.CmdRescan}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_find_next", MUIVerb: "Find next", Args: []string{constants.CmdFindNext}, Mode: ctxmodetype.Silent},
+		{KeyName: "30_find_next", MUIVerb: "Find next", Args: []string{constants.CmdFindNext}, Mode: ctxmodetype.Terminal},
 	}
 }
 
@@ -55,9 +90,6 @@ func cloneChildren() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "10_clone_next", MUIVerb: "Clone-next here", Args: []string{constants.CmdCloneNext}, Mode: ctxmodetype.Terminal},
 		{KeyName: "20_pull", MUIVerb: "Pull", Args: []string{constants.CmdPull}, Mode: ctxmodetype.Terminal},
-		// Pull-all is a multi-repo batch op. Hidden behind Shift+right-click on Windows
-		// (Extended verb); on macOS/Linux it surfaces with a "(all repos)" label so the
-		// fan-out is obvious. Implemented as runPullAll => `gitmap pull --all`.
 		{KeyName: "30_pull_all", MUIVerb: "Pull all (every tracked repo)", Args: []string{constants.CmdPullAll}, Mode: ctxmodetype.Terminal, Extended: true},
 	}
 }
@@ -67,19 +99,9 @@ func releaseChildren() []ctxEntry {
 		{KeyName: "10_release", MUIVerb: "Release current", Args: []string{constants.CmdRelease}, Mode: ctxmodetype.Terminal},
 		{KeyName: "20_release_next", MUIVerb: "Release next (bump minor)", Args: []string{constants.CmdRelease, constants.FlagBumpDash, constants.BumpMinor}, Mode: ctxmodetype.Terminal},
 		{KeyName: "30_release_pull", MUIVerb: "Pull then release", Args: []string{constants.CmdReleasePull}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_release_pending", MUIVerb: "Release pending", Args: []string{constants.CmdReleasePending}, Mode: ctxmodetype.Silent},
-		{KeyName: "50_list_releases", MUIVerb: "List releases", Args: []string{constants.CmdListReleases}, Mode: ctxmodetype.Silent},
-		{KeyName: "60_list_versions", MUIVerb: "List versions", Args: []string{constants.CmdListVersions}, Mode: ctxmodetype.Silent},
-	}
-}
-
-func repoChildren() []ctxEntry {
-	return []ctxEntry{
-		{KeyName: "10_go", MUIVerb: "Go projects", Args: []string{constants.CmdGoRepos}, Mode: ctxmodetype.Silent},
-		{KeyName: "20_node", MUIVerb: "Node projects", Args: []string{constants.CmdNodeRepos}, Mode: ctxmodetype.Silent},
-		{KeyName: "30_react", MUIVerb: "React projects", Args: []string{constants.CmdReactRepos}, Mode: ctxmodetype.Silent},
-		{KeyName: "40_cpp", MUIVerb: "C++ projects", Args: []string{constants.CmdCppRepos}, Mode: ctxmodetype.Silent},
-		{KeyName: "50_csharp", MUIVerb: "C# projects", Args: []string{constants.CmdCsharpRepos}, Mode: ctxmodetype.Silent},
+		{KeyName: "40_release_pending", MUIVerb: "Release pending", Args: []string{constants.CmdReleasePending}, Mode: ctxmodetype.Terminal},
+		{KeyName: "50_list_releases", MUIVerb: "List releases", Args: []string{constants.CmdListReleases}, Mode: ctxmodetype.Terminal},
+		{KeyName: "60_list_versions", MUIVerb: "List versions", Args: []string{constants.CmdListVersions}, Mode: ctxmodetype.Terminal},
 	}
 }
 
@@ -87,26 +109,5 @@ func visibilityChildren() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "10_public", MUIVerb: "Make public", Args: []string{constants.CmdMakePublic}, Mode: ctxmodetype.Terminal},
 		{KeyName: "20_private", MUIVerb: "Make private", Args: []string{constants.CmdMakePrivate}, Mode: ctxmodetype.Terminal},
-	}
-}
-
-func toolsChildren() []ctxEntry {
-	return []ctxEntry{
-		{KeyName: "10_fix_repo", MUIVerb: "Fix repo", Args: []string{constants.CmdFixRepo}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_diff", MUIVerb: "Diff", Args: []string{constants.CmdDiff}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_history", MUIVerb: "History", Args: []string{constants.CmdHistory}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_update", MUIVerb: "Update", Args: []string{constants.CmdUpdate}, Mode: ctxmodetype.Terminal},
-	}
-}
-
-// gitChildren returns the Git submenu with TortoiseGit-like features.
-func gitChildren() []ctxEntry {
-	return []ctxEntry{
-		{KeyName: "10_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_diff", MUIVerb: "Diff", Args: []string{"diff"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_diff_later", MUIVerb: "Diff later", Args: []string{"diff", "--stash-path"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "50_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "60_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal},
 	}
 }

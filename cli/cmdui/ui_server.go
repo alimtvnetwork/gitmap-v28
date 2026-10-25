@@ -67,6 +67,12 @@ func mountSPARoutes(mux *http.ServeMux) {
 }
 
 func mountAPIRoutes(mux *http.ServeMux) {
+	mountSSHAndEditorRoutes(mux)
+	mountToolAndScanRoutes(mux)
+	mountContextMenuRoutes(mux)
+}
+
+func mountSSHAndEditorRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ssh/nodes", handleAPISSHNodes)
 	mux.HandleFunc("/api/ssh/export", handleAPISSHExport)
 	mux.HandleFunc("/api/ssh/import", handleAPISSHImport)
@@ -75,6 +81,9 @@ func mountAPIRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/editor/save", handleAPIEditorSave)
 	mux.HandleFunc("/api/commitin/exec", handleAPICommitinExec)
 	mux.HandleFunc("/api/terminal/exec", handleAPITerminalExec)
+}
+
+func mountToolAndScanRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/command/exec", handleAPITerminalExec)
 	mux.HandleFunc("/api/help/topics", handleAPIHelpTopics)
 	mux.HandleFunc("/api/help/doc", handleAPIHelpDoc)

@@ -83,11 +83,12 @@ func runInstallCtxWindows() error {
 	return nil
 }
 
-// runUninstallCtxWindows removes the gitmap subtree from both HKCU roots.
+// runUninstallCtxWindows removes the gitmap subtree from all HKCU roots.
 func runUninstallCtxWindows() error {
 	fmt.Print(constants.MsgCtxUninstallStart)
 
 	cmds := [][]string{
+		{"reg", "delete", constants.CtxRootKeyFile, "/f"},
 		{"reg", "delete", constants.CtxRootKeyBackground, "/f"},
 		{"reg", "delete", constants.CtxRootKeyDirectory, "/f"},
 	}
@@ -109,18 +110,34 @@ func resolveCtxExe() string {
 }
 
 // buildCtxInstallCommands generates the full registry-write command set
-// for both root keys (Background and Directory).
+// for file, directory, and background roots.
 func buildCtxInstallCommands(exe string) [][]string {
 	var out [][]string
 
-	for _, root := range []string{constants.CtxRootKeyBackground, constants.CtxRootKeyDirectory} {
+	for _, root := range ctxRoots() {
 		out = append(out, rootCascadeCommands(root, exe)...)
-		for _, e := range ctxMenu() {
+		for _, e := range ctxEntriesForRoot(root) {
 			out = append(out, entryCommands(root, e, exe)...)
 		}
 	}
 
 	return out
+}
+
+func ctxRoots() []string {
+	return []string{
+		constants.CtxRootKeyFile,
+		constants.CtxRootKeyDirectory,
+		constants.CtxRootKeyBackground,
+	}
+}
+
+func ctxEntriesForRoot(root string) []ctxEntry {
+	if root == constants.CtxRootKeyFile {
+		return ctxFileMenu()
+	}
+
+	return ctxMenu()
 }
 
 // rootCascadeCommands writes the top-level "gitmap ▸" cascade key.
@@ -206,16 +223,20 @@ func commandTemplate(e ctxEntry, exe string) string {
 		return `pwsh -NoExit -NoProfile -Command "Set-Location '%V'; Write-Host -NoNewline 'gitmap '"`
 	}
 
-	target := exe
-	if e.Exe != "" {
-		target = e.Exe // resolved from PATH at runtime (e.g. "git")
-	}
-
+	target := resolveCtxTarget(e, exe)
 	args := strings.Join(e.Args, " ")
 	prefix := ctxExplainPrefixPwsh(target, e.Args)
 	if e.Mode == ctxmodetype.Silent {
-		return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "Set-Location '%%V'; %s& '%s' %s 2>&1 | Out-String | %% { msg.exe * $_ }"`, prefix, target, args)
+		return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "if (Test-Path -LiteralPath '%%V') { Set-Location -LiteralPath '%%V' }; %s& '%s' %s 2>&1 | Out-String | %% { msg.exe * $_ }"`, prefix, target, args)
 	}
 
-	return fmt.Sprintf(`pwsh -NoExit -NoProfile -Command "Set-Location '%%V'; %s& '%s' %s"`, prefix, target, args)
+	return fmt.Sprintf(`pwsh -NoExit -NoProfile -Command "if (Test-Path -LiteralPath '%%V') { Set-Location -LiteralPath '%%V' }; %s& '%s' %s"`, prefix, target, args)
+}
+
+func resolveCtxTarget(e ctxEntry, exe string) string {
+	if e.Exe != "" {
+		return e.Exe
+	}
+
+	return exe
 }

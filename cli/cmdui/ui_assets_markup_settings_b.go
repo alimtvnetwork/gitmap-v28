@@ -144,7 +144,40 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         </div>
       </div>
 
-      <!-- 7. INTERACTIVE EMBEDDED TERMINAL -->
+      <!-- 7. CONTEXT MENU & SHELL INTEGRATIONS -->
+      <div class="card settings-subtab-pane" id="settings-pane-shell">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-3); flex-wrap:wrap; gap:var(--sp-2);">
+          <h3><span data-icon="settings"></span> Context Menu &amp; Shell Integrations</h3>
+          <div style="display:flex; align-items:center; gap:var(--sp-2);">
+            <span id="ctx-status-badge" class="badge" style="background:var(--raised); color:var(--text); font-weight:600;">Checking...</span>
+            <button class="btn btn-secondary" type="button" onclick="refreshContextMenuStatus()"><span data-icon="check"></span>Refresh</button>
+          </div>
+        </div>
+        <p style="font-size:var(--fs-sm); color:var(--muted); margin-bottom:var(--sp-4);">
+          Register GitMap in OS right-click menus (Explorer, Finder, Nautilus), clean redundant PowerShell entries, and access fleet tools.
+        </p>
+        <div style="display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-4);">
+          <button class="btn" type="button" id="btn-ctx-install" onclick="installContextMenuUI()"><span data-icon="check"></span>Install Context Menu</button>
+          <button class="btn btn-secondary" type="button" id="btn-ctx-uninstall" onclick="uninstallContextMenuUI()"><span data-icon="x"></span>Uninstall Context Menu</button>
+          <button class="btn btn-secondary" type="button" id="btn-ctx-clean-ps" onclick="cleanDuplicatePowerShellUI()"><span data-icon="check"></span>Clean Duplicate PowerShell Menu</button>
+          <button class="btn btn-secondary" type="button" id="btn-open-log-viewer" onclick="openLogViewerUI()"><span data-icon="scroll-text"></span>Git Log &amp; Diff Viewer</button>
+        </div>
+        <div style="background:var(--code-bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--sp-3); margin-top:var(--sp-3);">
+          <h4 style="font-size:var(--fs-sm); color:var(--primary); margin-bottom:var(--sp-2);"><span data-icon="server"></span> SSH Fleet Operations &amp; Quick Launchers</h4>
+          <p style="font-size:var(--fs-xs); color:var(--muted); margin-bottom:var(--sp-2);">
+            Execute multi-node cluster synchronization, probe latencies, or inspect git commit diffs:
+          </p>
+          <div class="chip-container" style="display:flex; gap:var(--sp-2); flex-wrap:wrap; align-items:center;">
+            <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes')">gitmap nodes (Inspect Fleet)</button>
+            <button type="button" class="chip" onclick="runTerminalCommand('gitmap pa --ssh')">gitmap pa --ssh (Fleet Pull All)</button>
+            <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ping')">gitmap nodes ping (Cluster Health)</button>
+            <button type="button" class="chip" onclick="runTerminalCommand('gitmap pe')">gitmap pe (Pipeline Diagnostics)</button>
+            <button type="button" class="chip" onclick="runTerminalCommand('gitmap show-log')">gitmap show-log (Interactive Log Viewer)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. INTERACTIVE EMBEDDED TERMINAL -->
       <div class="card settings-subtab-pane" id="settings-pane-terminal">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-3); flex-wrap:wrap; gap:var(--sp-2);">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -169,6 +202,9 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap status')">gitmap status</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap pe')">gitmap pe</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ls')">gitmap nodes ls</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap pa --ssh')">gitmap pa --ssh</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap nodes ping')">gitmap nodes ping</button>
+          <button type="button" class="chip" onclick="runTerminalCommand('gitmap show-log')">gitmap show-log</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap cursor settings view')">gitmap cursor settings view</button>
           <button type="button" class="chip" onclick="runTerminalCommand('gitmap lap 24')">gitmap lap 24</button>
           <button type="button" class="chip" onclick="clearTerminalOutput()" style="margin-left:auto; background:var(--raised); color:var(--muted);"><span data-icon="x"></span>Clear</button>
@@ -191,6 +227,52 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         <button class="btn" type="button" onclick="saveSettings()"><span data-icon="check"></span>Save All Settings</button>
       </div>
     </div>
+
+    <script>
+      async function refreshContextMenuStatus() {
+        const badge = document.getElementById('ctx-status-badge');
+        try {
+          const res = await fetch('/api/context-menu/status');
+          const data = await res.json();
+          if (badge) {
+            badge.className = data.isActive ? 'badge badge-online' : 'badge badge-offline';
+            badge.textContent = data.isActive ? 'Active' : 'Inactive';
+          }
+        } catch (e) {
+          if (badge) { badge.className = 'badge'; badge.textContent = 'Unknown'; }
+        }
+      }
+      async function installContextMenuUI() {
+        try {
+          const res = await fetch('/api/context-menu/install', { method: 'POST' });
+          const data = await res.json();
+          showToast(data.success ? 'Context menu installed successfully' : ('Install failed: ' + (data.error || 'error')), data.success ? 'success' : 'error');
+          refreshContextMenuStatus();
+        } catch (e) { showToast('Install error: ' + e.message, 'error'); }
+      }
+      async function uninstallContextMenuUI() {
+        try {
+          const res = await fetch('/api/context-menu/uninstall', { method: 'POST' });
+          const data = await res.json();
+          showToast(data.success ? 'Context menu uninstalled' : ('Uninstall failed: ' + (data.error || 'error')), data.success ? 'info' : 'error');
+          refreshContextMenuStatus();
+        } catch (e) { showToast('Uninstall error: ' + e.message, 'error'); }
+      }
+      async function cleanDuplicatePowerShellUI() {
+        try {
+          const res = await fetch('/api/context-menu/clean-powershell', { method: 'POST' });
+          const data = await res.json();
+          showToast(data.success ? (data.message || 'Duplicate PowerShell hidden') : ('Clean failed: ' + (data.error || 'error')), data.success ? 'success' : 'error');
+          refreshContextMenuStatus();
+        } catch (e) { showToast('Clean error: ' + e.message, 'error'); }
+      }
+      function openLogViewerUI() {
+        runTerminalCommand('gitmap show-log');
+      }
+      if (typeof document !== 'undefined') {
+        setTimeout(refreshContextMenuStatus, 400);
+      }
+    </script>
 
     <!-- COMMITIN TAB -->
 `

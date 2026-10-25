@@ -10,14 +10,18 @@ import (
 )
 
 // TestCtxWindowsBuildHasBothRoots asserts that the install command set
-// covers both Background and Directory HKCU subtrees — the two cover
-// "right-click empty space inside a folder" and "right-click a folder
-// item" respectively. Missing one halves the menu's reach.
+// covers File, Background, and Directory HKCU subtrees — the three cover
+// "right-click any file", "right-click empty space inside a folder", and
+// "right-click a folder item" respectively.
 func TestCtxWindowsBuildHasBothRoots(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	cmds := buildCtxInstallCommands(exe)
 
-	wantRoots := []string{constants.CtxRootKeyBackground, constants.CtxRootKeyDirectory}
+	wantRoots := []string{
+		constants.CtxRootKeyFile,
+		constants.CtxRootKeyBackground,
+		constants.CtxRootKeyDirectory,
+	}
 	for _, root := range wantRoots {
 		if !winHasRootCascade(cmds, root, exe) {
 			t.Errorf("missing root cascade for %q", root)
@@ -55,9 +59,9 @@ func winContainsCmd(cmds [][]string, want []string) bool {
 }
 
 // TestCtxWindowsEveryLeafHasCommandKey is the contract that every
-// menu leaf in ctxMenu() ends up with a \command (Default) value
-// holding the expected pwsh template. We assert one command per leaf,
-// per root — so 2× the leaf count of \command writes must exist.
+// menu leaf ends up with a \command (Default) value holding the
+// expected pwsh template. File root has its own file-level leaves,
+// while Background and Directory roots share the directory tree.
 func TestCtxWindowsEveryLeafHasCommandKey(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	cmds := buildCtxInstallCommands(exe)
@@ -69,10 +73,11 @@ func TestCtxWindowsEveryLeafHasCommandKey(t *testing.T) {
 		}
 	}
 
-	leafCount := countCtxLeaves()
-	want := leafCount * 2 // Background + Directory roots
+	fileLeafCount := len(ctxFileMenu())
+	dirLeafCount := countCtxLeaves()
+	want := fileLeafCount + (dirLeafCount * 2) // File (1 root) + Background & Directory (2 roots)
 	if commandKeyWrites != want {
-		t.Errorf("got %d \\command writes, want %d (leaves=%d × 2 roots)", commandKeyWrites, want, leafCount)
+		t.Errorf("got %d \\command writes, want %d (file=%d + dir=%d × 2 roots)", commandKeyWrites, want, fileLeafCount, dirLeafCount)
 	}
 }
 
@@ -245,19 +250,17 @@ func flattenCmdsForSearch(cmds [][]string) []string {
 }
 
 // TestCtxWindowsUninstallTargetsBothRoots pins the uninstall behavior:
-// removing the two root keys (with /f) is sufficient because every
-// gitmap key lives under one of them. A regression here would either
-// orphan keys (forgotten /f) or hit unrelated keys.
+// removing the three root keys (with /f) is sufficient because every
+// gitmap key lives under one of them.
 func TestCtxWindowsUninstallTargetsBothRoots(t *testing.T) {
 	want := [][]string{
+		{"reg", "delete", constants.CtxRootKeyFile, "/f"},
 		{"reg", "delete", constants.CtxRootKeyBackground, "/f"},
 		{"reg", "delete", constants.CtxRootKeyDirectory, "/f"},
 	}
 
-	// The uninstall command set is constructed inline in
-	// runUninstallCtxWindows; mirror it here so a refactor that drops a
-	// root or forgets /f is caught.
 	got := [][]string{
+		{"reg", "delete", constants.CtxRootKeyFile, "/f"},
 		{"reg", "delete", constants.CtxRootKeyBackground, "/f"},
 		{"reg", "delete", constants.CtxRootKeyDirectory, "/f"},
 	}
@@ -271,4 +274,28 @@ func TestCtxWindowsUninstallTargetsBothRoots(t *testing.T) {
 			t.Errorf("uninstall missing /f: %v", c)
 		}
 	}
+}
+
+// TestCtxWindowsFileMenuLeaves verifies that all file-level commands are
+// properly registered under HKCU\Software\Classes\*\shell\gitmap\shell.
+func TestCtxWindowsFileMenuLeaves(t *testing.T) {
+	exe := fakeGitmapExe(t)
+	cmds := buildCtxInstallCommands(exe)
+
+	for _, e := range ctxFileMenu() {
+		commandKey := constants.CtxRootKeyFile + `\shell\` + e.KeyName + `\command`
+		if !winHasCommandKey(cmds, commandKey) {
+			t.Errorf("missing command key for file entry %q (%s)", e.KeyName, commandKey)
+		}
+	}
+}
+
+func winHasCommandKey(cmds [][]string, wantKey string) bool {
+	for _, c := range cmds {
+		if len(c) >= 3 && c[0] == "reg" && c[1] == "add" && c[2] == wantKey {
+			return true
+		}
+	}
+
+	return false
 }
