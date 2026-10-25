@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.613.0] - 2026-10-25
+
+### Added
+- Hardened flexible path parsing, URL decoding, and universal CLI path expansion
+
+---
+
 ## [v6.612.0] - 2026-10-25
 
 ### Added

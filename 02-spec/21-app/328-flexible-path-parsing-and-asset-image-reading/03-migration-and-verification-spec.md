@@ -28,8 +28,8 @@ Each of the four primary formats, plus critical edge cases, is evaluated against
 | :--- | :--- | :--- | :--- | :--- |
 | **TC-F1-01** | `@[C:\Users\Admin\img.png]` | Format 1 (Windows Absolute) | `C:/Users/Admin/img.png` | `hasBracketWrapper: true`, `isAbsolute: true` |
 | **TC-F1-02** | `@[D:/work/repo/assets/logo.png]` | Format 1 (Forward Slash Absolute) | `D:/work/repo/assets/logo.png` | `hasBracketWrapper: true`, `isAbsolute: true` |
-| **TC-F2-01** | `![Alt](file:///C:/Users/Admin/img.png)` | Format 2 (Markdown File URI) | `C:/Users/Admin/img.png` | `hasMarkdownWrapper: true`, `isAbsolute: true` |
-| **TC-F2-02** | `![Screenshot](file:///D:/work/my%20assets/test.jpg)` | Format 2 (URI with `%20` space) | `D:/work/my assets/test.jpg` | `hasMarkdownWrapper: true`, `isAbsolute: true` |
+| **TC-F2-01** | `![Alt](file:///<drive>:/path/to/img.png)` | Format 2 (Markdown File URI) | `<drive>:/path/to/img.png` | `hasMarkdownWrapper: true`, `isAbsolute: true` |
+| **TC-F2-02** | `![Screenshot](file:///<drive>:/work/my%20assets/test.jpg)` | Format 2 (URI with `%20` space) | `<drive>:/work/my assets/test.jpg` | `hasMarkdownWrapper: true`, `isAbsolute: true` |
 | **TC-F3-01** | `1. @[assets/media_01.png] # relative from repo` | Format 3 (Numbered List + Repo Rel) | `assets/media_01.png` | `hasListPrefix: true`, `hasTrailingComment: true`, `isInsideRepo: true` |
 | **TC-F3-02** | `04) @[src/components/button.tsx] // react component` | Format 3 (Paren list + `//` comment) | `src/components/button.tsx` | `hasListPrefix: true`, `hasTrailingComment: true`, `isInsideRepo: true` |
 | **TC-F4-01** | `1. @[../repo-cache/assets/media_01.png] # outside repo` | Format 4 (Numbered List + Parent Rel) | `../repo-cache/assets/media_01.png` | `hasListPrefix: true`, `isParentRelative: true`, `isInsideRepo: false` |

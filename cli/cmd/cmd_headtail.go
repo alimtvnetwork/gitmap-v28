@@ -3,9 +3,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"strconv"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
 func RunHead(args []string) error {
@@ -13,7 +15,7 @@ func RunHead(args []string) error {
 		return apperror.NewSimple("Usage: gitmap head <file> [lines]", "E9000")
 	}
 
-	filePath := args[0]
+	filePath := macro.ExpandPathAndEnv(args[0])
 	lines := parseLineCount(args, 10)
 
 	file, err := os.Open(filePath)
@@ -45,7 +47,7 @@ func RunTail(args []string) error {
 		return apperror.NewSimple("Usage: gitmap tail <file> [lines]", "E9000")
 	}
 
-	filePath := args[0]
+	filePath := macro.ExpandPathAndEnv(args[0])
 	lines := parseLineCount(args, 10)
 
 	file, err := os.Open(filePath)

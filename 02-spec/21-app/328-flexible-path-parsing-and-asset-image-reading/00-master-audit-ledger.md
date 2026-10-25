@@ -27,7 +27,7 @@ The parser and file inspection subsystem must natively recognize, strip, normali
    - *Resolution:* Strip bracket prefix/suffix, clean backslashes, convert to canonical forward slashes, and resolve to absolute disk location.
 
 2. **Format 2 — Markdown Image Syntax with URI Scheme:**
-   - *Example:* `![Attached Image 1](file:///C:/Users/Administrator/.../media_1792894009084_45b4893f.png)`
+   - *Example:* `![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)`
    - *Characteristics:* Standard Markdown image embedding syntax `![<alt>](<uri>)` containing `file:///` URI scheme.
    - *Resolution:* Extract the URI target from inside parentheses, strip `file:///` prefix, unescape URL-encoded characters (e.g., `%20`), normalize leading drive slash, and resolve to absolute disk location.
 

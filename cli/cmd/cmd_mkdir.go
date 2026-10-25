@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
 func RunMkdir(args []string) error {
@@ -32,7 +33,7 @@ func RunMkdir(args []string) error {
 }
 
 func resolveMkdirAbsPath(pathArg string) (string, error) {
-	expanded := cmdupdate.ExpandTilde(pathArg)
+	expanded := macro.ExpandPathAndEnv(pathArg)
 
 	return filepath.Abs(expanded)
 }

@@ -24,7 +24,7 @@ This subtask establishes the complete specification suite, architectural contrac
 
 In multi-agent collaborative engineering, automated agents and users paste file references across chat transcripts, markdown documents, and task lists. These inputs commonly take complex forms:
 1. `@[C:\Users\Administrator\...\media_1792894009084_45b4893f.png]` (Windows absolute inside bracket wrapper)
-2. `![Attached Image 1](file:///C:/Users/Administrator/.../media_1792894009084_45b4893f.png)` (Markdown image with `file:///`)
+2. `![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)` (Markdown image with `file:///`)
 3. `1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo` (numbered list, repo-relative path, trailing comment)
 4. `1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo` (parent directory relative path)
 

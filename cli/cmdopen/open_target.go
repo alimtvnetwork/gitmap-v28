@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
 func isEditorTarget(arg string) bool {
@@ -63,7 +63,7 @@ func normalizeWebUrl(target string) string {
 func launchEditor(args []string) error {
 	targetPath := "."
 	if len(args) > 1 && args[1] != "" {
-		targetPath = cmdupdate.ExpandTilde(args[1])
+		targetPath = macro.ExpandPathAndEnv(args[1])
 	}
 
 	bin := findEditorBinary()

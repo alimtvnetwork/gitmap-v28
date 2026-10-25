@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"os"
 	"path/filepath"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
 
 func RunAppend(args []string) error {
@@ -14,7 +16,7 @@ func RunAppend(args []string) error {
 		return nil
 	}
 
-	filePath := args[0]
+	filePath := macro.ExpandPathAndEnv(args[0])
 	content := args[1]
 
 	err := doAppendFile(filePath, content)
@@ -34,7 +36,7 @@ func RunWrite(args []string) error {
 		return nil
 	}
 
-	filePath := args[0]
+	filePath := macro.ExpandPathAndEnv(args[0])
 	content := args[1]
 
 	err := doWriteFile(filePath, content)

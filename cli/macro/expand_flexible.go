@@ -1,6 +1,7 @@
 package macro
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,6 +22,7 @@ func CleanFlexiblePath(input string) string {
 	cleaned = stripAtBrackets(cleaned)
 	cleaned = extractMarkdownURL(cleaned)
 	cleaned = stripFileScheme(cleaned)
+	cleaned = unescapeURLPath(cleaned)
 	cleaned = expandAllTokens(cleaned)
 
 	return resolveFlexiblePath(cleaned)
@@ -90,10 +92,13 @@ func stripTrailingComment(s string) string {
 }
 
 func findCommentHashIndex(s string) int {
+	depthBracket, depthParen := 0, 0
 	for i := 0; i < len(s); i++ {
+		depthBracket, depthParen = updateNestingDepth(s[i], depthBracket, depthParen)
+		isZeroDepth := depthBracket == 0 && depthParen == 0
 		isHash := s[i] == '#'
 		isDelim := i == 0 || isCommentDelim(s[i-1])
-		if isHash && isDelim {
+		if isZeroDepth && isHash && isDelim {
 			return i
 		}
 	}
@@ -106,16 +111,36 @@ func isCommentDelim(b byte) bool {
 }
 
 func findCommentSlashIndex(s string) int {
+	depthBracket, depthParen := 0, 0
 	for i := 0; i < len(s)-1; i++ {
+		depthBracket, depthParen = updateNestingDepth(s[i], depthBracket, depthParen)
+		isZeroDepth := depthBracket == 0 && depthParen == 0
 		isSlashSlash := s[i] == '/' && s[i+1] == '/'
 		isSpecial := isURIPrefix(s, i) || isTempPrefix(s, i)
 		isDelim := i == 0 || isCommentDelim(s[i-1])
-		if isSlashSlash && !isSpecial && isDelim {
+		if isZeroDepth && isSlashSlash && !isSpecial && isDelim {
 			return i
 		}
 	}
 
 	return -1
+}
+
+func updateNestingDepth(b byte, depthBracket, depthParen int) (int, int) {
+	if b == '[' {
+		return depthBracket + 1, depthParen
+	}
+	if b == ']' && depthBracket > 0 {
+		return depthBracket - 1, depthParen
+	}
+	if b == '(' {
+		return depthBracket, depthParen + 1
+	}
+	if b == ')' && depthParen > 0 {
+		return depthBracket, depthParen - 1
+	}
+
+	return depthBracket, depthParen
 }
 
 func isURIPrefix(s string, i int) bool {
@@ -182,16 +207,39 @@ func hasMarkdownLinkPattern(s string) bool {
 }
 
 func extractTargetBetweenParens(s string) string {
-	idxOpenParen := strings.LastIndex(s, "(")
-	idxCloseBracket := strings.LastIndex(s, "]")
-	hasValidBounds := idxOpenParen > idxCloseBracket && idxCloseBracket > 0
+	idxOpenParen := findMarkdownURLOpenParen(s)
+	idxCloseParen := strings.LastIndex(s, ")")
+	hasValidBounds := idxOpenParen >= 0 && idxCloseParen > idxOpenParen
 	if !hasValidBounds {
 		return s
 	}
 
-	target := s[idxOpenParen+1 : len(s)-1]
+	target := s[idxOpenParen+1 : idxCloseParen]
 
 	return strings.Trim(strings.TrimSpace(target), "<>")
+}
+
+func findMarkdownURLOpenParen(s string) int {
+	idx := strings.Index(s, "](")
+	if idx >= 0 {
+		return idx + 1
+	}
+
+	idxSpace := strings.Index(s, "] (")
+	if idxSpace >= 0 {
+		return idxSpace + 2
+	}
+
+	return -1
+}
+
+func unescapeURLPath(s string) string {
+	unescaped, err := url.PathUnescape(s)
+	if err == nil {
+		return unescaped
+	}
+
+	return s
 }
 
 func stripFileScheme(s string) string {
@@ -307,11 +355,9 @@ func resolveRelativePath(s string) string {
 }
 
 func tryResolveLocations(s, cwd string) (string, bool) {
-	if isRepoCacheRelative(s) {
-		rcResolved, hasRC := resolveRepoCacheCandidates(s, cwd)
-		if hasRC {
-			return rcResolved, true
-		}
+	rcResolved, hasRC := checkRepoCacheCandidate(s, cwd)
+	if hasRC {
+		return rcResolved, true
 	}
 
 	cwdResolved, hasCWD := resolveFromCWD(s, cwd)
@@ -320,6 +366,14 @@ func tryResolveLocations(s, cwd string) (string, bool) {
 	}
 
 	return resolveFromRepoRoot(s, cwd)
+}
+
+func checkRepoCacheCandidate(s, cwd string) (string, bool) {
+	if !isRepoCacheRelative(s) {
+		return "", false
+	}
+
+	return resolveRepoCacheCandidates(s, cwd)
 }
 
 func isRepoCacheRelative(s string) bool {
@@ -356,9 +410,9 @@ func buildRepoCacheCandidates(cwd, sub string) []string {
 	return []string{
 		filepath.Join(cwdParent, "repo-cache", sub),
 		filepath.Join(cwd, "..", "repo-cache", sub),
-		filepath.Join(`D:\work\repo-cache`, sub),
-		filepath.Join(`C:\work\repo-cache`, sub),
+		filepath.Join(repoRoot, "..", "repo-cache", sub),
 		filepath.Join(repoRootParent, "repo-cache", sub),
+		filepath.Join(filepath.Dir(cwdParent), "repo-cache", sub),
 	}
 }
 

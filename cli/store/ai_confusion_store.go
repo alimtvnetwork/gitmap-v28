@@ -273,10 +273,6 @@ func (s *AiConfusionStore) buildGetQuery(identifier string) (string, []any) {
 	return sqlSelectConfusionBase + "WHERE ConfusionUuid = ? LIMIT 1;", []any{identifier}
 }
 
-type rowScanner interface {
-	Scan(dest ...any) error
-}
-
 func (s *AiConfusionStore) scanSingleRecord(scanner rowScanner) (*AiConfusionRecord, error) {
 	var rec AiConfusionRecord
 	var completedInt int

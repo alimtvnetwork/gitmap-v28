@@ -22,7 +22,7 @@ Subtask 02 implements the new standalone Go package `cli/pathparse` to determini
 1. **Format 1 (Bracketed Absolute):**
    `@[C:\Users\Administrator\...\media_1792894009084_45b4893f.png]`
 2. **Format 2 (Markdown Image with File URI):**
-   `![Attached Image 1](file:///C:/Users/Administrator/.../media_1792894009084_45b4893f.png)`
+   `![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)`
 3. **Format 3 (Numbered List + Repo Relative + Trailing Comment):**
    `1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo`
 4. **Format 4 (Numbered List + Parent Relative Traversal + Trailing Comment):**

@@ -16,7 +16,7 @@ This plan orchestrates the design and implementation of flexible path parsing an
    - Normalizes conversational, markdown, and list-formatted file references into clean, canonical relative or absolute paths.
    - Fully covers the four required path formats:
      - **Format 1:** Bracketed Windows absolute paths (`@[C:\Users\Administrator\...\media_1792894009084_45b4893f.png]`).
-     - **Format 2:** Markdown image syntax with URI schemes (`![Attached Image 1](file:///C:/Users/Administrator/.../media_1792894009084_45b4893f.png)`).
+     - **Format 2:** Markdown image syntax with URI schemes (`![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)`).
      - **Format 3:** Numbered list, repo-relative paths with trailing comments (`1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo`).
      - **Format 4:** Numbered list, parent-relative paths with trailing comments (`1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo`).
 2. **Safe Image Asset Cat Subsystem (`cli/cmdmacro`):**

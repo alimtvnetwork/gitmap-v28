@@ -99,6 +99,34 @@ func TestCleanFlexiblePath_NumberedRepoCacheRelative(t *testing.T) {
 	assertCleanAndExpand(t, raw, want)
 }
 
+func TestCleanFlexiblePath_MarkdownWithHashInAlt(t *testing.T) {
+	raw := `![Image #1](assets/media_01.png)`
+	want := filepath.Clean(`assets/media_01.png`)
+
+	assertCleanAndExpand(t, raw, want)
+}
+
+func TestCleanFlexiblePath_MarkdownUrlEncodedSpace(t *testing.T) {
+	raw := `![Screenshot](assets/my%20folder/image.png)`
+	want := filepath.Clean(`assets/my folder/image.png`)
+
+	assertCleanAndExpand(t, raw, want)
+}
+
+func TestCleanFlexiblePath_MarkdownParensInFilename(t *testing.T) {
+	raw := `![Screenshot](assets/screenshot (1).png)`
+	want := filepath.Clean(`assets/screenshot (1).png`)
+
+	assertCleanAndExpand(t, raw, want)
+}
+
+func TestCleanFlexiblePath_MarkdownFileUriEncodedSpace(t *testing.T) {
+	raw := `![Screenshot](` + `file:/` + `//C:/Users/Admin/my%20assets/test.png)`
+	want := filepath.Clean(`C:/Users/Admin/my assets/test.png`)
+
+	assertCleanAndExpand(t, raw, want)
+}
+
 func assertCleanAndExpand(t *testing.T, raw, want string) {
 	t.Helper()
 	gotClean := CleanFlexiblePath(raw)

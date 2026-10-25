@@ -224,7 +224,7 @@ gitmap cat "@[C:\Users\Administrator\.antigravity_tools\instances\v2-3127\home\.
 ### 4.2 Format 2: Markdown Image Syntax with URI Scheme
 **Command:**
 ```powershell
-gitmap cat "![Attached Image 1](file:///C:/Users/Administrator/.antigravity_tools/instances/v2-3127/home/.gemini/antigravity/brain/1ae0f958/media_1792894009084_45b4893f.png)"
+gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)"
 ```
 **Parser Behavior:**
 - Extracts URL target from `(...)`
@@ -241,7 +241,7 @@ gitmap cat "1. @[assets/media_1792894009084_45b4893f.png] # consider the file is
 - Strips `1. ` list prefix
 - Strips ` # consider the file is relative from the repo` comment
 - Extracts `assets/media_1792894009084_45b4893f.png`
-- Resolves against repo root: `D:/work/gitmap/assets/media_1792894009084_45b4893f.png`
+- Resolves against repo root: `<repo-root>/assets/media_1792894009084_45b4893f.png`
 - Sets `HasListPrefix = true`, `HasTrailingComment = true`, `IsInsideRepo = true`
 
 ### 4.4 Format 4: Numbered List, Parent-Relative Path with Trailing Comment
