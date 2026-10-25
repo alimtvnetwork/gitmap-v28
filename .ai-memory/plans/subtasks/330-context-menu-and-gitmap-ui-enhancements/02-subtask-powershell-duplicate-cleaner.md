@@ -1,6 +1,6 @@
 # Subtask 330.2 — PowerShell Duplicate Context Menu Cleaner
 
-> **Parent Plan:** `.ai-memory/plans/pending/330-context-menu-and-gitmap-ui-enhancements.md`  
+> **Parent Plan:** `.ai-memory/plans/completed/330-context-menu-and-gitmap-ui-enhancements.md`  
 > **Target Packages:** `cli/cmdcontextmenu/`  
 > **Status:** Completed
 
