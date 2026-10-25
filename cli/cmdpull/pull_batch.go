@@ -117,13 +117,58 @@ func finalizePullBatchStandard(taskDB *store.DB, taskID int64, tDB *store.TasksS
 	collectAndRemediateIgnoreIssues(ignoreHandle, opts)
 	finalizePullTaskQueueOutput(isAll, tDB, queueId, failedCount)
 
-	unresolved := ExtractUnresolvedRepos(states)
+	unresolved := filterValidUnresolvedRepos(ExtractUnresolvedRepos(states))
 	hasUnresolved := len(unresolved) > 0
 	if hasUnresolved && !opts.isJSON {
 		_ = PromptPostPullRemediation(unresolved)
 	}
 
-	return finalizePullBatchTask(taskDB, taskID, failedCount, ExtractPullFailures(states))
+	validFailures := filterValidPullFailures(ExtractPullFailures(states))
+
+	return finalizePullBatchTask(taskDB, taskID, failedCount, validFailures)
+}
+
+func filterValidPullFailures(failures []PullFailureSummary) []PullFailureSummary {
+	var valid []PullFailureSummary
+	for _, f := range failures {
+		if isValidRepoNameCandidate(f.RepoName) {
+			valid = append(valid, f)
+		}
+	}
+
+	return valid
+}
+
+func filterValidUnresolvedRepos(repos []UnresolvedPullRepo) []UnresolvedPullRepo {
+	var valid []UnresolvedPullRepo
+	for _, r := range repos {
+		if isValidRepoNameCandidate(r.RepoName) {
+			valid = append(valid, r)
+		}
+	}
+
+	return valid
+}
+
+// AppendPullErrorIfValid records a pull failure to split DB only if repoSlug is valid.
+func AppendPullErrorIfValid(db *store.PullSplitDB, rec store.PullErrorRecord) error {
+	if !isValidRepoNameCandidate(rec.RepoSlug) {
+		return nil
+	}
+	if db == nil {
+		return nil
+	}
+
+	return db.InsertPullError(rec)
+}
+
+// AppendFailureIfValid appends a failure record only if the repo slug is a valid candidate.
+func AppendFailureIfValid(failures []PullFailureSummary, f PullFailureSummary) []PullFailureSummary {
+	if !isValidRepoNameCandidate(f.RepoName) {
+		return failures
+	}
+
+	return append(failures, f)
 }
 
 func finalizePullTaskQueueJSON(isAll bool, tDB *store.TasksSplitDB, queueId string) {
@@ -144,14 +189,32 @@ func finalizePullTaskQueueOutput(isAll bool, tDB *store.TasksSplitDB, queueId st
 }
 
 func handlePullRemediationForRecords(records []model.ScanRecord, opts pullOptions) {
-	var remItems []RemediationItem
+	remItems := collectRemediationItems(records)
+	handlePullRemediation(remItems, opts)
+}
+
+func collectRemediationItems(records []model.ScanRecord) []RemediationItem {
+	var items []RemediationItem
 	for _, rec := range records {
-		diag := gitutil.InspectDirtyState(rec.AbsolutePath)
-		if diag.IsDirty {
-			remItems = append(remItems, buildRemediationItem(rec, diag))
+		item, hasItem := evaluateRemediationRecord(rec)
+		if hasItem {
+			items = append(items, item)
 		}
 	}
-	handlePullRemediation(remItems, opts)
+
+	return items
+}
+
+func evaluateRemediationRecord(rec model.ScanRecord) (RemediationItem, bool) {
+	if !isValidRepoNameCandidate(rec.RepoName) {
+		return RemediationItem{}, false
+	}
+	diag := gitutil.InspectDirtyState(rec.AbsolutePath)
+	if !diag.IsDirty {
+		return RemediationItem{}, false
+	}
+
+	return buildRemediationItem(rec, diag), true
 }
 
 func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) RemediationItem {
@@ -168,22 +231,27 @@ func buildRemediationItem(rec model.ScanRecord, diag gitutil.DirtyDiagnosis) Rem
 
 func finalizePullBatchTask(taskDB *store.DB, taskID int64, failCount int, failures []PullFailureSummary) error {
 	if failCount > 0 {
-		errMsg := fmt.Sprintf("pull batch finished with %d failure(s)", failCount)
-		failPendingTask(taskDB, taskID, errMsg)
-		fmt.Fprintf(os.Stderr, "\n  %s%s%s\n\n", constants.ColorRed, errMsg, constants.ColorReset)
-		handleBatchFailuresRemediation(failures)
-		cliexit.Exit(1)
-
-		return nil
+		return handleFailedBatchTask(taskDB, taskID, failCount, failures)
 	}
 	completePendingTask(taskDB, taskID)
 
 	return nil
 }
 
+func handleFailedBatchTask(taskDB *store.DB, taskID int64, failCount int, failures []PullFailureSummary) error {
+	errMsg := fmt.Sprintf("pull batch finished with %d failure(s)", failCount)
+	failPendingTask(taskDB, taskID, errMsg)
+	fmt.Fprintf(os.Stderr, "\n  %s%s%s\n\n", constants.ColorRed, errMsg, constants.ColorReset)
+	handleBatchFailuresRemediation(failures)
+	cliexit.Exit(1)
+
+	return nil
+}
+
 func handleBatchFailuresRemediation(failures []PullFailureSummary) {
-	hasFailures := len(failures) > 0
+	valid := filterValidPullFailures(failures)
+	hasFailures := len(valid) > 0
 	if hasFailures {
-		_ = PromptInteractiveBatchFix(failures)
+		_ = PromptInteractiveBatchFix(valid)
 	}
 }

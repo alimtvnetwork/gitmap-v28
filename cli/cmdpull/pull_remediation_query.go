@@ -2,6 +2,7 @@ package cmdpull
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -9,6 +10,57 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
+
+// IsValidRepoNameCandidate checks whether name is a plausible repository name.
+func IsValidRepoNameCandidate(name string) bool {
+	return isValidRepoNameCandidate(name)
+}
+
+func isValidRepoNameCandidate(name string) bool {
+	trimmed := strings.TrimSpace(name)
+	if trimmed == "" || len(trimmed) > 64 {
+		return false
+	}
+	if hasDisallowedRepoSubstring(trimmed) {
+		return false
+	}
+
+	return !hasDisallowedRepoPrefix(trimmed)
+}
+
+func hasDisallowedRepoSubstring(name string) bool {
+	if strings.Contains(name, "\n") || strings.Contains(name, "\r") {
+		return true
+	}
+
+	return strings.Contains(name, " - ")
+}
+
+func hasDisallowedRepoPrefix(name string) bool {
+	prefixes := []string{
+		"COMMIT ", "FEAT ", "FIX ",
+		"Feature: ", "Bug: ", "Release: ", "Chore: ",
+	}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(name, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isDirExisting(path string) bool {
+	if path == "" {
+		return false
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return info.IsDir()
+}
 
 // RunBatchPullFix loads last recorded pull failures from SQLite and runs remediation.
 func RunBatchPullFix(args []string) error {
@@ -46,22 +98,37 @@ func convertRecordsToFailures(records []store.PullErrorRecord) []PullFailureSumm
 	var failures []PullFailureSummary
 	seen := make(map[string]bool, len(records))
 	for _, r := range records {
-		hasPath := r.RepoPath != ""
-		if hasPath && !seen[r.RepoPath] {
-			seen[r.RepoPath] = true
-			repoID, remoteURL, _ := LookupRepoRemoteAndID(r.RepoPath)
-			failures = append(failures, PullFailureSummary{
-				RepoID:    repoID,
-				RepoName:  r.RepoSlug,
-				RepoPath:  r.RepoPath,
-				RemoteURL: remoteURL,
-				ErrorText: r.ErrorText,
-				ErrorType: r.ErrorType,
-			})
+		failure, hasFailure := evaluateFailureRecord(r, seen)
+		if hasFailure {
+			failures = append(failures, failure)
 		}
 	}
 
 	return failures
+}
+
+func evaluateFailureRecord(r store.PullErrorRecord, seen map[string]bool) (PullFailureSummary, bool) {
+	if !isValidRepoNameCandidate(r.RepoSlug) || r.RepoPath == "" || seen[r.RepoPath] {
+		return PullFailureSummary{}, false
+	}
+	repoID, remoteURL, _ := LookupRepoRemoteAndID(r.RepoPath)
+	if !isDirExisting(r.RepoPath) && remoteURL == "" {
+		return PullFailureSummary{}, false
+	}
+	seen[r.RepoPath] = true
+
+	return buildPullFailureSummary(r, repoID, remoteURL), true
+}
+
+func buildPullFailureSummary(r store.PullErrorRecord, repoID int64, remoteURL string) PullFailureSummary {
+	return PullFailureSummary{
+		RepoID:    repoID,
+		RepoName:  r.RepoSlug,
+		RepoPath:  r.RepoPath,
+		RemoteURL: remoteURL,
+		ErrorText: r.ErrorText,
+		ErrorType: r.ErrorType,
+	}
 }
 
 func dispatchBatchFixArgs(args []string, failures []PullFailureSummary) error {
@@ -146,18 +213,30 @@ func HasPendingPullFailures() bool {
 func ExtractPullFailures(states []*PullRepoState) []PullFailureSummary {
 	var failures []PullFailureSummary
 	for _, s := range states {
-		if s.ErrorMsg != "" || s.Step == PullStepTypeError {
-			repoID, remoteURL, _ := LookupRepoRemoteAndID(s.RepoPath)
-			failures = append(failures, PullFailureSummary{
-				RepoID:    repoID,
-				RepoName:  s.RepoName,
-				RepoPath:  s.RepoPath,
-				RemoteURL: remoteURL,
-				ErrorText: s.ErrorMsg,
-				ErrorType: string(s.Step),
-			})
+		failure, hasFailure := evaluateStateFailure(s)
+		if hasFailure {
+			failures = append(failures, failure)
 		}
 	}
 
 	return failures
+}
+
+func evaluateStateFailure(s *PullRepoState) (PullFailureSummary, bool) {
+	if s == nil || !isValidRepoNameCandidate(s.RepoName) {
+		return PullFailureSummary{}, false
+	}
+	if s.ErrorMsg == "" && s.Step != PullStepTypeError {
+		return PullFailureSummary{}, false
+	}
+	repoID, remoteURL, _ := LookupRepoRemoteAndID(s.RepoPath)
+
+	return PullFailureSummary{
+		RepoID:    repoID,
+		RepoName:  s.RepoName,
+		RepoPath:  s.RepoPath,
+		RemoteURL: remoteURL,
+		ErrorText: s.ErrorMsg,
+		ErrorType: string(s.Step),
+	}, true
 }

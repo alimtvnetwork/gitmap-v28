@@ -205,93 +205,152 @@ type NonRepoDiagnosis struct {
 	Option2Cmd      string `json:"option_2_cmd,omitempty"`
 }
 
+// IsValidRepoNameCandidate checks whether name is a plausible repository name.
+func IsValidRepoNameCandidate(name string) bool {
+	return isValidRepoNameCandidate(name)
+}
+
+func isValidRepoNameCandidate(name string) bool {
+	trimmed := strings.TrimSpace(name)
+	if trimmed == "" || len(trimmed) > 64 {
+		return false
+	}
+	if hasDisallowedRepoSubstring(trimmed) {
+		return false
+	}
+
+	return !hasDisallowedRepoPrefix(trimmed)
+}
+
+func hasDisallowedRepoSubstring(name string) bool {
+	if strings.Contains(name, "\n") || strings.Contains(name, "\r") {
+		return true
+	}
+
+	return strings.Contains(name, " - ")
+}
+
+func hasDisallowedRepoPrefix(name string) bool {
+	prefixes := []string{
+		"COMMIT ", "FEAT ", "FIX ",
+		"Feature: ", "Bug: ", "Release: ", "Chore: ",
+	}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(name, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ClassifyNonRepoFolder inspects a path and classifies non-repo folder diagnosis and remediation.
 func ClassifyNonRepoFolder(path string, repoName string) NonRepoDiagnosis {
-	if path == "" {
+	cleanPath, name, isValid := resolveValidNonRepoFolder(path, repoName)
+	if !isValid {
 		return NonRepoDiagnosis{}
+	}
+	if isSpecialInfrastructureRepo(name) {
+		return buildSpecialRepoDiagnosis(name, cleanPath)
+	}
+
+	return buildStandardRepoDiagnosis(name, cleanPath)
+}
+
+func resolveValidNonRepoFolder(path, repoName string) (string, string, bool) {
+	if !isNonRepoDirectory(path) {
+		return "", "", false
+	}
+	cleanPath := filepath.ToSlash(filepath.Clean(path))
+	name := resolveRepoCandidateName(cleanPath, repoName)
+	if !isValidRepoNameCandidate(name) {
+		return "", "", false
+	}
+
+	return cleanPath, name, true
+}
+
+func isNonRepoDirectory(path string) bool {
+	if path == "" {
+		return false
 	}
 	stat, err := os.Stat(path)
 	if err != nil || !stat.IsDir() {
-		return NonRepoDiagnosis{}
-	}
-	if IsGitRepo(path) {
-		return NonRepoDiagnosis{}
+		return false
 	}
 
-	cleanPath := filepath.ToSlash(filepath.Clean(path))
-	name := repoName
-	if name == "" {
-		name = filepath.Base(cleanPath)
+	return !IsGitRepo(path)
+}
+
+func resolveRepoCandidateName(cleanPath, repoName string) string {
+	if repoName != "" {
+		return repoName
 	}
 
-	if isSpecialInfrastructureRepo(name) {
-		canonicalName, _ := canonicalizeSpecialRepoKey(name)
-		remoteURL := resolveSpecialRepoRemoteURL(canonicalName)
-		hasRemote := remoteURL != ""
+	return filepath.Base(cleanPath)
+}
 
-		reason := fmt.Sprintf("directory exists but is not a Git repository (known infrastructure repository: %s)", name)
-		opt1Cmd := fmt.Sprintf("gitmap clone %s", canonicalName)
-		opt2Cmd := fmt.Sprintf("git -C \"%s\" init", cleanPath)
+func buildSpecialRepoDiagnosis(name, cleanPath string) NonRepoDiagnosis {
+	canonicalName, _ := canonicalizeSpecialRepoKey(name)
+	remoteURL := resolveSpecialRepoRemoteURL(canonicalName)
+	reason := fmt.Sprintf("directory exists but is not a Git repository (known infrastructure repository: %s)", name)
+	opt1 := fmt.Sprintf("gitmap clone %s", canonicalName)
+	opt2 := fmt.Sprintf("git -C \"%s\" init", cleanPath)
+	diag := buildDiagnosisRecord(name, cleanPath, remoteURL, reason, opt1, opt2, true)
 
-		return NonRepoDiagnosis{
-			IsNonRepoFolder: true,
-			IsSpecialRepo:   true,
-			RepoName:        name,
-			Path:            cleanPath,
-			RemoteURL:       remoteURL,
-			HasRemote:       hasRemote,
-			Reason:          reason,
-			Option1:         opt1Cmd,
-			Option1Title:    "Clone from Remote",
-			Option1Cmd:      opt1Cmd,
-			Option2:         opt2Cmd,
-			Option2Title:    "Initialize Local Repo",
-			Option2Cmd:      opt2Cmd,
-		}
-	}
+	return newNonRepoDiagnosis(diag, "Clone from Remote", "Initialize Local Repo")
+}
 
-	// Standard repository
+func buildStandardRepoDiagnosis(name, cleanPath string) NonRepoDiagnosis {
 	remoteURL, hasRemote := resolveStandardRepoRemoteURL(name, cleanPath)
-	reason := "directory exists but is not a Git repository (missing .git)"
 	if hasRemote {
-		opt1Cmd := fmt.Sprintf("gitmap clone %s", name)
-		opt2Cmd := fmt.Sprintf("cd \"%s\" && git init && git remote add origin %s && git fetch", cleanPath, remoteURL)
-
-		return NonRepoDiagnosis{
-			IsNonRepoFolder: true,
-			IsSpecialRepo:   false,
-			RepoName:        name,
-			Path:            cleanPath,
-			RemoteURL:       remoteURL,
-			HasRemote:       true,
-			Reason:          reason,
-			Option1:         opt1Cmd,
-			Option1Title:    "Clone from Remote",
-			Option1Cmd:      opt1Cmd,
-			Option2:         opt2Cmd,
-			Option2Title:    "Init & Link Remote",
-			Option2Cmd:      opt2Cmd,
-		}
+		return buildLinkedStandardDiagnosis(name, cleanPath, remoteURL)
 	}
 
-	opt1Cmd := fmt.Sprintf("git -C \"%s\" init", cleanPath)
-	opt2Cmd := fmt.Sprintf("gitmap rm \"%s\" --db-only", name)
+	return buildUnlinkedStandardDiagnosis(name, cleanPath)
+}
+
+func buildLinkedStandardDiagnosis(name, cleanPath, remoteURL string) NonRepoDiagnosis {
+	reason := "directory exists but is not a Git repository (missing .git)"
+	opt1 := fmt.Sprintf("gitmap clone %s", name)
+	opt2 := fmt.Sprintf("cd \"%s\" && git init && git remote add origin %s && git fetch", cleanPath, remoteURL)
+	diag := buildDiagnosisRecord(name, cleanPath, remoteURL, reason, opt1, opt2, false)
+
+	return newNonRepoDiagnosis(diag, "Clone from Remote", "Init & Link Remote")
+}
+
+func buildUnlinkedStandardDiagnosis(name, cleanPath string) NonRepoDiagnosis {
+	reason := "directory exists but is not a Git repository (missing .git)"
+	opt1 := fmt.Sprintf("git -C \"%s\" init", cleanPath)
+	opt2 := fmt.Sprintf("gitmap rm \"%s\" --db-only", name)
+	diag := buildDiagnosisRecord(name, cleanPath, "", reason, opt1, opt2, false)
+
+	return newNonRepoDiagnosis(diag, "Initialize Local Repo", "Remove from Registry")
+}
+
+func buildDiagnosisRecord(name, path, remoteURL, reason, opt1, opt2 string, isSpecial bool) NonRepoDiagnosis {
+	hasRemote := remoteURL != ""
 
 	return NonRepoDiagnosis{
 		IsNonRepoFolder: true,
-		IsSpecialRepo:   false,
+		IsSpecialRepo:   isSpecial,
 		RepoName:        name,
-		Path:            cleanPath,
-		RemoteURL:       "",
-		HasRemote:       false,
+		Path:            path,
+		RemoteURL:       remoteURL,
+		HasRemote:       hasRemote,
 		Reason:          reason,
-		Option1:         opt1Cmd,
-		Option1Title:    "Initialize Local Repo",
-		Option1Cmd:      opt1Cmd,
-		Option2:         opt2Cmd,
-		Option2Title:    "Remove from Registry",
-		Option2Cmd:      opt2Cmd,
+		Option1:         opt1,
+		Option1Cmd:      opt1,
+		Option2:         opt2,
+		Option2Cmd:      opt2,
 	}
+}
+
+func newNonRepoDiagnosis(diag NonRepoDiagnosis, title1, title2 string) NonRepoDiagnosis {
+	diag.Option1Title = title1
+	diag.Option2Title = title2
+
+	return diag
 }
 
 // IsSpecialInfrastructureRepo reports whether name is a companion infrastructure repository.

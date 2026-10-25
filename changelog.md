@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.611.0] - 2026-10-25
+
+### Added
+- Heatmap status overhaul, safe stashing, and AI confusion database
+
+---
+
 ## [v6.610.0] - 2026-10-25
 
 ### Added

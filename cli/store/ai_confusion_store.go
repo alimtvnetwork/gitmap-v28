@@ -79,6 +79,11 @@ INSERT INTO AiConfusion (
     ReasoningThinking, ConfusionQuestion, IsCompleted, CreatedAt, UpdatedAt
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
+const sqlInsertAiConfusionFile = `
+INSERT INTO AiConfusionFile (
+    AiConfusionId, ConfusionUuid, FilePath, FileType, LineNumbers, CodeSnippet, WhyModified, CreatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+
 // InsertAiConfusion inserts a new AI confusion episode into the database.
 func (s *AiConfusionStore) InsertAiConfusion(rec *AiConfusionRecord) error {
 	hasNilRec := rec == nil
@@ -87,13 +92,42 @@ func (s *AiConfusionStore) InsertAiConfusion(rec *AiConfusionRecord) error {
 	}
 
 	s.normalizeTimestampsAndUuid(rec)
-	args := s.buildInsertArgs(rec)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return apperror.WrapSimple(err, "begin ai confusion insert tx")
+	}
 
-	return s.executeInsert(rec, args)
+	return s.commitInsertTransaction(tx, rec)
 }
 
-func (s *AiConfusionStore) executeInsert(rec *AiConfusionRecord, args []any) error {
-	res, err := s.db.Exec(sqlInsertAiConfusion, args...)
+func (s *AiConfusionStore) commitInsertTransaction(tx *sql.Tx, rec *AiConfusionRecord) error {
+	insErr := s.insertPayloadInTx(tx, rec)
+	if insErr != nil {
+		_ = tx.Rollback()
+
+		return insErr
+	}
+
+	commitErr := tx.Commit()
+	if commitErr != nil {
+		return apperror.WrapSimple(commitErr, "commit ai confusion tx")
+	}
+
+	return nil
+}
+
+func (s *AiConfusionStore) insertPayloadInTx(tx *sql.Tx, rec *AiConfusionRecord) error {
+	insErr := s.executeInsertInTx(tx, rec)
+	if insErr != nil {
+		return insErr
+	}
+
+	return s.insertReferencedFilesInTx(tx, rec)
+}
+
+func (s *AiConfusionStore) executeInsertInTx(tx *sql.Tx, rec *AiConfusionRecord) error {
+	args := s.buildInsertArgs(rec)
+	res, err := tx.Exec(sqlInsertAiConfusion, args...)
 	if err != nil {
 		return apperror.WrapSimple(err, "insert ai confusion record")
 	}
@@ -102,6 +136,62 @@ func (s *AiConfusionStore) executeInsert(rec *AiConfusionRecord, args []any) err
 	hasId := idErr == nil
 	if hasId {
 		rec.AiConfusionId = lastId
+	}
+
+	return nil
+}
+
+func (s *AiConfusionStore) insertReferencedFilesInTx(tx *sql.Tx, rec *AiConfusionRecord) error {
+	files := s.resolveFilesForInsert(rec)
+	createdStr := rec.CreatedAt.Format(time.RFC3339)
+	for _, f := range files {
+		fErr := s.executeInsertFile(tx, rec.AiConfusionId, rec.ConfusionUuid, f, createdStr)
+		if fErr != nil {
+			return fErr
+		}
+	}
+
+	return nil
+}
+
+func (s *AiConfusionStore) resolveFilesForInsert(rec *AiConfusionRecord) []AiConfusionFileRecord {
+	hasFiles := len(rec.ReferencedFiles) > 0
+	if hasFiles {
+		return rec.ReferencedFiles
+	}
+
+	return s.synthesizeSingleFileFromRecord(rec)
+}
+
+func (s *AiConfusionStore) synthesizeSingleFileFromRecord(rec *AiConfusionRecord) []AiConfusionFileRecord {
+	hasFileName := len(strings.TrimSpace(rec.FileNames)) > 0
+	if !hasFileName {
+		return nil
+	}
+
+	return []AiConfusionFileRecord{
+		{
+			ConfusionUuid: rec.ConfusionUuid,
+			FilePath:      rec.FileNames,
+			FileType:      "SOURCE",
+			LineNumbers:   rec.LineNumbers,
+			CodeSnippet:   rec.CodeSnippet,
+			WhyModified:   rec.Reason,
+		},
+	}
+}
+
+func (s *AiConfusionStore) executeInsertFile(tx *sql.Tx, confId int64, uuid string, f AiConfusionFileRecord, created string) error {
+	fileType := f.FileType
+	hasEmptyType := len(strings.TrimSpace(fileType)) == 0
+	if hasEmptyType {
+		fileType = "SOURCE"
+	}
+
+	args := []any{confId, uuid, f.FilePath, fileType, f.LineNumbers, f.CodeSnippet, f.WhyModified, created}
+	_, err := tx.Exec(sqlInsertAiConfusionFile, args...)
+	if err != nil {
+		return apperror.WrapSimple(err, "insert ai confusion file")
 	}
 
 	return nil
@@ -146,6 +236,13 @@ SELECT AiConfusionId, ConfusionUuid, AgentSlug, FileNames, MdFiles, Spec, Task, 
        ReasoningThinking, ConfusionQuestion, IsCompleted, CreatedAt, UpdatedAt
 FROM AiConfusion `
 
+const sqlSelectConfusionFiles = `
+SELECT AiConfusionFileId, AiConfusionId, ConfusionUuid, FilePath, FileType, LineNumbers,
+       COALESCE(CodeSnippet, ''), WhyModified, CreatedAt
+FROM AiConfusionFile
+WHERE AiConfusionId = ?
+ORDER BY AiConfusionFileId ASC;`
+
 // GetAiConfusionByUuidOrId retrieves a single confusion record by integer ID or UUID string.
 func (s *AiConfusionStore) GetAiConfusionByUuidOrId(identifier string) (*AiConfusionRecord, error) {
 	cleanId := strings.TrimSpace(identifier)
@@ -156,8 +253,14 @@ func (s *AiConfusionStore) GetAiConfusionByUuidOrId(identifier string) (*AiConfu
 
 	query, args := s.buildGetQuery(cleanId)
 	row := s.db.QueryRow(query, args...)
+	rec, err := s.scanSingleRecord(row)
+	if err != nil || rec == nil {
+		return rec, err
+	}
 
-	return s.scanSingleRecord(row)
+	s.populateReferencedFiles(rec)
+
+	return rec, nil
 }
 
 func (s *AiConfusionStore) buildGetQuery(identifier string) (string, []any) {
@@ -194,13 +297,7 @@ func (s *AiConfusionStore) scanSingleRecord(scanner rowScanner) (*AiConfusionRec
 }
 
 func (s *AiConfusionStore) executeScan(sc rowScanner, r *AiConfusionRecord, comp *int, cStr, uStr *string) (bool, error) {
-	err := sc.Scan(
-		&r.AiConfusionId, &r.ConfusionUuid, &r.AgentSlug, &r.FileNames,
-		&r.MdFiles, &r.Spec, &r.Task, &r.Subtask,
-		&r.HeatmapInfo, &r.LineNumbers, &r.CodeSnippet, &r.Reason,
-		&r.InitialIntention, &r.ReasoningThinking, &r.ConfusionQuestion,
-		comp, cStr, uStr,
-	)
+	err := s.scanRecordRow(sc, r, comp, cStr, uStr)
 	isNoRows := err == sql.ErrNoRows
 	if isNoRows {
 		return false, nil
@@ -213,10 +310,143 @@ func (s *AiConfusionStore) executeScan(sc rowScanner, r *AiConfusionRecord, comp
 	return true, nil
 }
 
+func (s *AiConfusionStore) scanRecordRow(sc rowScanner, r *AiConfusionRecord, comp *int, cStr, uStr *string) error {
+	return sc.Scan(
+		&r.AiConfusionId, &r.ConfusionUuid, &r.AgentSlug, &r.FileNames,
+		&r.MdFiles, &r.Spec, &r.Task, &r.Subtask,
+		&r.HeatmapInfo, &r.LineNumbers, &r.CodeSnippet, &r.Reason,
+		&r.InitialIntention, &r.ReasoningThinking, &r.ConfusionQuestion,
+		comp, cStr, uStr,
+	)
+}
+
 func (s *AiConfusionStore) populateScannedMetadata(rec *AiConfusionRecord, comp int, cStr, uStr string) {
 	rec.IsCompleted = comp == 1
 	rec.CreatedAt, _ = time.Parse(time.RFC3339, cStr)
 	rec.UpdatedAt, _ = time.Parse(time.RFC3339, uStr)
+}
+
+func (s *AiConfusionStore) populateReferencedFiles(rec *AiConfusionRecord) {
+	hasNilRec := rec == nil || rec.AiConfusionId <= 0
+	if hasNilRec {
+		return
+	}
+
+	files, err := s.queryReferencedFiles(rec.AiConfusionId)
+	hasErr := err != nil
+	if hasErr {
+		return
+	}
+
+	rec.ReferencedFiles = files
+}
+
+func (s *AiConfusionStore) populateAllReferencedFiles(records []AiConfusionRecord) {
+	for i := range records {
+		s.populateReferencedFiles(&records[i])
+	}
+}
+
+func (s *AiConfusionStore) queryReferencedFiles(confusionId int64) ([]AiConfusionFileRecord, error) {
+	rows, err := s.db.Query(sqlSelectConfusionFiles, confusionId)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "query ai confusion files")
+	}
+	defer rows.Close()
+
+	return s.scanFileRows(rows)
+}
+
+func (s *AiConfusionStore) scanFileRows(rows *sql.Rows) ([]AiConfusionFileRecord, error) {
+	var files []AiConfusionFileRecord
+	for rows.Next() {
+		f, scanErr := s.scanSingleFileRow(rows)
+		if scanErr != nil {
+			return nil, scanErr
+		}
+
+		files = append(files, f)
+	}
+
+	return files, rows.Err()
+}
+
+func (s *AiConfusionStore) scanSingleFileRow(scanner rowScanner) (AiConfusionFileRecord, error) {
+	var f AiConfusionFileRecord
+	scanErr := scanner.Scan(
+		&f.AiConfusionFileId, &f.AiConfusionId, &f.ConfusionUuid,
+		&f.FilePath, &f.FileType, &f.LineNumbers,
+		&f.CodeSnippet, &f.WhyModified, &f.CreatedAt,
+	)
+	if scanErr != nil {
+		return f, apperror.WrapSimple(scanErr, "scan ai confusion file row")
+	}
+
+	return f, nil
+}
+
+// FindAiConfusionByFilePath searches for an active or recorded confusion associated with the given file path.
+func (s *AiConfusionStore) FindAiConfusionByFilePath(filePath string) (*AiConfusionRecord, error) {
+	cleanPath := normalizeFilePathForLookup(filePath)
+	hasEmptyPath := len(cleanPath) == 0
+	if hasEmptyPath {
+		return nil, apperror.NewValidationError("file path is empty")
+	}
+
+	confId, hasMatch := s.lookupConfusionIdByPath(cleanPath)
+	if hasMatch {
+		return s.GetAiConfusionByUuidOrId(strconv.FormatInt(confId, 10))
+	}
+
+	return s.fallbackLookupByFileName(cleanPath)
+}
+
+func normalizeFilePathForLookup(filePath string) string {
+	clean := filepath.ToSlash(strings.TrimSpace(filePath))
+	clean = strings.TrimPrefix(clean, "./")
+
+	return clean
+}
+
+func (s *AiConfusionStore) lookupConfusionIdByPath(cleanPath string) (int64, bool) {
+	id, hasExact := s.queryFileMatchId("SELECT AiConfusionId FROM AiConfusionFile WHERE FilePath = ? ORDER BY AiConfusionFileId DESC LIMIT 1;", cleanPath)
+	if hasExact {
+		return id, true
+	}
+
+	baseName := filepath.Base(cleanPath)
+	suffixPattern := "%/" + baseName
+	id, hasSuffix := s.queryFileMatchId("SELECT AiConfusionId FROM AiConfusionFile WHERE FilePath LIKE ? ORDER BY AiConfusionFileId DESC LIMIT 1;", suffixPattern)
+	if hasSuffix {
+		return id, true
+	}
+
+	return s.queryFileMatchId("SELECT AiConfusionId FROM AiConfusionFile WHERE ? LIKE ('%' || FilePath) ORDER BY AiConfusionFileId DESC LIMIT 1;", cleanPath)
+}
+
+func (s *AiConfusionStore) queryFileMatchId(query, param string) (int64, bool) {
+	var id int64
+	err := s.db.QueryRow(query, param).Scan(&id)
+	hasRow := err == nil && id > 0
+	if hasRow {
+		return id, true
+	}
+
+	return 0, false
+}
+
+func (s *AiConfusionStore) fallbackLookupByFileName(cleanPath string) (*AiConfusionRecord, error) {
+	baseName := filepath.Base(cleanPath)
+	pattern := "%" + baseName + "%"
+	row := s.db.QueryRow(sqlSelectConfusionBase+"WHERE FileNames LIKE ? ORDER BY AiConfusionId DESC LIMIT 1;", pattern)
+	rec, err := s.scanSingleRecord(row)
+	if err != nil || rec == nil {
+		return rec, err
+	}
+
+	s.populateReferencedFiles(rec)
+
+	return rec, nil
 }
 
 // ListAiConfusions lists confusion episodes filtered by task, agent, status, or id.
@@ -228,7 +458,14 @@ func (s *AiConfusionStore) ListAiConfusions(filter AiConfusionFilter) ([]AiConfu
 	}
 	defer rows.Close()
 
-	return s.scanConfusionRows(rows)
+	records, scanErr := s.scanConfusionRows(rows)
+	if scanErr != nil {
+		return nil, scanErr
+	}
+
+	s.populateAllReferencedFiles(records)
+
+	return records, nil
 }
 
 func (s *AiConfusionStore) buildListQuery(filter AiConfusionFilter) (string, []any) {
@@ -255,6 +492,10 @@ func (s *AiConfusionStore) appendIdFilter(sb *strings.Builder, args *[]any, id s
 		return
 	}
 
+	s.formatIdCondition(sb, args, id)
+}
+
+func (s *AiConfusionStore) formatIdCondition(sb *strings.Builder, args *[]any, id string) {
 	idNum, numErr := strconv.ParseInt(id, 10, 64)
 	isNumeric := numErr == nil
 	if isNumeric {

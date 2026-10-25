@@ -47,18 +47,45 @@ CREATE INDEX IF NOT EXISTS IdxAiConfusion_Task ON AiConfusion(Task);`
 const SQLCreateIdxAiConfusionIsCompleted = `
 CREATE INDEX IF NOT EXISTS IdxAiConfusion_IsCompleted ON AiConfusion(IsCompleted);`
 
+// SQLCreateAiConfusionFileTable defines the SQLite DDL for the AiConfusionFile entity.
+const SQLCreateAiConfusionFileTable = `
+CREATE TABLE IF NOT EXISTS AiConfusionFile (
+    AiConfusionFileId INTEGER PRIMARY KEY AUTOINCREMENT,
+    AiConfusionId     INTEGER NOT NULL,
+    ConfusionUuid     TEXT NOT NULL,
+    FilePath          TEXT NOT NULL,
+    FileType          TEXT NOT NULL DEFAULT 'SOURCE',
+    LineNumbers       TEXT NOT NULL DEFAULT '',
+    CodeSnippet       TEXT NULL,
+    WhyModified       TEXT NOT NULL DEFAULT '',
+    CreatedAt         TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (AiConfusionId) REFERENCES AiConfusion(AiConfusionId) ON DELETE CASCADE
+);`
+
+// SQLCreateIdxAiConfusionFileConfusionId creates the index on AiConfusionId.
+const SQLCreateIdxAiConfusionFileConfusionId = `
+CREATE INDEX IF NOT EXISTS IdxAiConfusionFile_ConfusionId ON AiConfusionFile(AiConfusionId);`
+
+// SQLCreateIdxAiConfusionFileFilePath creates the index on FilePath.
+const SQLCreateIdxAiConfusionFileFilePath = `
+CREATE INDEX IF NOT EXISTS IdxAiConfusionFile_FilePath ON AiConfusionFile(FilePath);`
+
 var aiConfusionSchemaStatements = []string{
 	SQLCreateAiConfusionTable,
 	SQLCreateIdxAiConfusionUuid,
 	SQLCreateIdxAiConfusionAgentSlug,
 	SQLCreateIdxAiConfusionTask,
 	SQLCreateIdxAiConfusionIsCompleted,
+	SQLCreateAiConfusionFileTable,
+	SQLCreateIdxAiConfusionFileConfusionId,
+	SQLCreateIdxAiConfusionFileFilePath,
 }
 
 // InitAiConfusionSchema initializes the AiConfusion table and all performance indexes.
 func InitAiConfusionSchema(db *sql.DB) *apperror.AppError {
 	for _, stmt := range aiConfusionSchemaStatements {
 		res := ExecWrapper(db, stmt)
+
 		if res.IsFailure {
 			return apperror.WrapSimple(res.Error, "init ai confusion schema")
 		}
@@ -71,11 +98,13 @@ func InitAiConfusionSchema(db *sql.DB) *apperror.AppError {
 func ResolveAiConfusionDbPath(repoCacheDir string) string {
 	baseDir := repoCacheDir
 	hasEmptyBase := len(strings.TrimSpace(baseDir)) == 0
+
 	if hasEmptyBase {
 		baseDir = ResolveRepoCacheRoot()
 	}
 
 	isDbFile := strings.HasSuffix(strings.ToLower(baseDir), ".db")
+
 	if isDbFile {
 		return filepath.ToSlash(baseDir)
 	}

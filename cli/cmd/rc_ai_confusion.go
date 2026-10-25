@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -14,9 +15,7 @@ import (
 func RunRCAiConfusion(args []string) error {
 	hasEmptyArgs := len(args) == 0
 	if hasEmptyArgs {
-		fmt.Print(RenderAiConfusionHelp())
-
-		return nil
+		return runAiConfusionStatus(nil)
 	}
 
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
@@ -38,19 +37,129 @@ func isConfusionHelpSubcmd(sub string) bool {
 	return sub == "help" || sub == "-h" || sub == "--help"
 }
 
+var confusionSubcmdMap = map[string]func([]string) error{
+	"status":   runAiConfusionStatus,
+	"add":      runAiConfusionAdd,
+	"view":     runAiConfusionView,
+	"ls":       runAiConfusionView,
+	"list":     runAiConfusionView,
+	"show":     runAiConfusionView,
+	"complete": runAiConfusionComplete,
+	"resolve":  runAiConfusionComplete,
+	"done":     runAiConfusionComplete,
+	"sync":     runAiConfusionSync,
+}
+
 func executeConfusionSubcmd(sub string, rest []string) error {
-	switch sub {
-	case "add":
-		return runAiConfusionAdd(rest)
-	case "view", "ls", "list", "show":
-		return runAiConfusionView(rest)
-	case "complete", "resolve", "done":
-		return runAiConfusionComplete(rest)
-	case "sync":
-		return runAiConfusionSync(rest)
-	default:
-		return apperror.NewValidationError("unknown ai-confusion subcommand: " + sub)
+	fn, hasSub := confusionSubcmdMap[sub]
+	if hasSub {
+		return fn(rest)
 	}
+
+	return apperror.NewValidationError("unknown ai-confusion subcommand: " + sub)
+}
+
+func runAiConfusionStatus(args []string) error {
+	syncConfusionQuietly()
+	st, err := store.OpenAiConfusionStore("")
+	if err != nil {
+		return err
+	}
+	defer st.Close()
+
+	return queryAndRenderStatus(st)
+}
+
+func syncConfusionQuietly() {
+	fmt.Println("  Synchronizing AI confusion database with repo-cache...")
+	_, syncErr := store.SyncAiConfusion("")
+	if syncErr != nil {
+		fmt.Printf("  ⚠ Sync notice: %v\n", syncErr)
+	}
+}
+
+func queryAndRenderStatus(st *store.AiConfusionStore) error {
+	isPending := false
+	filter := store.AiConfusionFilter{IsCompleted: &isPending}
+	records, listErr := st.ListAiConfusions(filter)
+	if listErr != nil {
+		return listErr
+	}
+
+	renderConfusionStatusDashboard(records, st.DBPath())
+
+	return nil
+}
+
+func renderConfusionStatusDashboard(records []store.AiConfusionRecord, dbPath string) {
+	hasNoRecords := len(records) == 0
+	if hasNoRecords {
+		renderCleanStatusDashboard(dbPath)
+
+		return
+	}
+
+	renderActiveStatusDashboard(records, dbPath)
+}
+
+func renderCleanStatusDashboard(dbPath string) {
+	fmt.Printf("\n┌── AI Confusion Status ──────────────────────────────────────────────┐\n")
+	fmt.Printf("│ Database : %s\n", dbPath)
+	fmt.Printf("│ Status   : 0 ACTIVE CONFUSIONS (All clear)\n")
+	fmt.Printf("└─────────────────────────────────────────────────────────────────────┘\n")
+	fmt.Printf("  ✔ No active AI confusions in repo-cache. All agent workflows healthy.\n\n")
+}
+
+func renderActiveStatusDashboard(records []store.AiConfusionRecord, dbPath string) {
+	fmt.Printf("\n┌── Active AI Confusions (%d Pending) ──────────────────────────────────┐\n", len(records))
+	fmt.Printf("│ Database : %s\n", dbPath)
+	fmt.Printf("└─────────────────────────────────────────────────────────────────────┘\n")
+	for _, rec := range records {
+		renderStatusEpisodeItem(rec)
+	}
+
+	renderStatusCommandTips()
+}
+
+func renderStatusEpisodeItem(rec store.AiConfusionRecord) {
+	fmt.Printf("\n  • [ID: %d | %s] Agent: %s\n", rec.AiConfusionId, rec.ConfusionUuid, rec.AgentSlug)
+	fmt.Printf("    Task / Subtask : %s / %s\n", rec.Task, rec.Subtask)
+	renderStatusFilesSummary(rec)
+	renderStatusQuestion(rec.ConfusionQuestion)
+	renderStatusIntention(rec.InitialIntention)
+}
+
+func renderStatusQuestion(q string) {
+	hasQ := len(q) > 0
+	if hasQ {
+		fmt.Printf("    Question       : %s\n", q)
+	}
+}
+
+func renderStatusIntention(intent string) {
+	hasInt := len(intent) > 0
+	if hasInt {
+		fmt.Printf("    Intention      : %s\n", intent)
+	}
+}
+
+func renderStatusFilesSummary(rec store.AiConfusionRecord) {
+	hasRefFiles := len(rec.ReferencedFiles) > 0
+	if hasRefFiles {
+		for _, f := range rec.ReferencedFiles {
+			fmt.Printf("    File           : %s (Lines: %s) [%s]\n", f.FilePath, f.LineNumbers, f.FileType)
+		}
+
+		return
+	}
+
+	fmt.Printf("    File           : %s (Lines: %s)\n", rec.FileNames, rec.LineNumbers)
+}
+
+func renderStatusCommandTips() {
+	fmt.Printf("\n  Inspect full context : gitmap rc ai-confusion view --id <id>\n")
+	fmt.Printf("  Inspect by file path : gitmap rc ai-confusion view <filepath>\n")
+	fmt.Printf("  Resolve episode      : gitmap rc ai-confusion complete <id> --reason <notes>\n\n")
 }
 
 type addCmdOptions struct {
@@ -120,23 +229,23 @@ func consumeAddToken(opts *addCmdOptions, args []string, idx int) int {
 }
 
 func applyAddParamToken(opts *addCmdOptions, flag, val string) bool {
-	if applyFileOrAgentToken(opts, flag, val) {
+	if applyIdentityOrPathToken(opts, flag, val) {
 		return true
 	}
 
-	if applyPathOrSpecToken(opts, flag, val) {
-		return true
-	}
-
-	if applyTaskToken(opts, flag, val) {
-		return true
-	}
-
-	if applyContextToken(opts, flag, val) {
+	if applyTaskOrContextToken(opts, flag, val) {
 		return true
 	}
 
 	return applyNarrativeToken(opts, flag, val)
+}
+
+func applyIdentityOrPathToken(opts *addCmdOptions, flag, val string) bool {
+	return applyFileOrAgentToken(opts, flag, val) || applyPathOrSpecToken(opts, flag, val)
+}
+
+func applyTaskOrContextToken(opts *addCmdOptions, flag, val string) bool {
+	return applyTaskToken(opts, flag, val) || applyContextToken(opts, flag, val)
 }
 
 func applyFileOrAgentToken(opts *addCmdOptions, flag, val string) bool {
@@ -306,6 +415,7 @@ func renderAddConfirmation(rec store.AiConfusionRecord, dbPath string) {
 
 type viewCmdOptions struct {
 	id        string
+	filePath  string
 	task      string
 	agent     string
 	isAll     bool
@@ -315,12 +425,21 @@ type viewCmdOptions struct {
 
 func runAiConfusionView(args []string) error {
 	opts := parseViewOptions(args)
+	hasFilePath := len(opts.filePath) > 0
+	if hasFilePath {
+		return runAiConfusionFileView(opts.filePath, opts.isJSON)
+	}
+
 	st, err := store.OpenAiConfusionStore("")
 	if err != nil {
 		return err
 	}
 	defer st.Close()
 
+	return queryAndRenderViewFilter(st, opts)
+}
+
+func queryAndRenderViewFilter(st *store.AiConfusionStore, opts viewCmdOptions) error {
 	filter := buildStoreFilter(opts)
 	records, listErr := st.ListAiConfusions(filter)
 	if listErr != nil {
@@ -328,6 +447,124 @@ func runAiConfusionView(args []string) error {
 	}
 
 	return renderViewOutput(records, opts.isJSON)
+}
+
+func runAiConfusionFileView(filePath string, isJSON bool) error {
+	st, err := store.OpenAiConfusionStore("")
+	if err != nil {
+		return err
+	}
+	defer st.Close()
+
+	rec, findErr := st.FindAiConfusionByFilePath(filePath)
+	if findErr != nil {
+		return findErr
+	}
+
+	hasRec := rec != nil
+	if hasRec {
+		return renderSingleRecordOutput(rec, isJSON)
+	}
+
+	return searchRepoConfusionStoreForFile(filePath, isJSON)
+}
+
+func searchRepoConfusionStoreForFile(filePath string, isJSON bool) error {
+	repoSlug := detectOwningRepoSlug(filePath)
+	hasEmptySlug := len(repoSlug) == 0
+	if hasEmptySlug {
+		fmt.Printf("  No AI confusion recorded for file: %s\n", filePath)
+
+		return nil
+	}
+
+	return searchSpecificRepoStore(repoSlug, filePath, isJSON)
+}
+
+func searchSpecificRepoStore(repoSlug, filePath string, isJSON bool) error {
+	repoDbPath, dbErr := store.ResolveRepoConfusionDbPath(repoSlug)
+	if dbErr != nil {
+		fmt.Printf("  No AI confusion recorded for file: %s\n", filePath)
+
+		return nil
+	}
+
+	return queryRepoStoreAndRender(repoDbPath, repoSlug, filePath, isJSON)
+}
+
+func queryRepoStoreAndRender(repoDbPath, repoSlug, filePath string, isJSON bool) error {
+	hasDb := fileExists(repoDbPath)
+	if !hasDb {
+		fmt.Printf("  No AI confusion recorded for file: %s (Repo: %s)\n", filePath, repoSlug)
+
+		return nil
+	}
+
+	return executeRepoStoreQuery(repoDbPath, repoSlug, filePath, isJSON)
+}
+
+func executeRepoStoreQuery(repoDbPath, repoSlug, filePath string, isJSON bool) error {
+	st, err := store.OpenAiConfusionStore(repoDbPath)
+	if err != nil {
+		return err
+	}
+	defer st.Close()
+
+	rec, findErr := st.FindAiConfusionByFilePath(filePath)
+	if findErr != nil {
+		return findErr
+	}
+
+	return displayFoundOrMissing(rec, repoSlug, filePath, isJSON)
+}
+
+func displayFoundOrMissing(rec *store.AiConfusionRecord, repoSlug, filePath string, isJSON bool) error {
+	hasRec := rec != nil
+	if hasRec {
+		return renderSingleRecordOutput(rec, isJSON)
+	}
+
+	fmt.Printf("  No AI confusion recorded for file: %s (Repo: %s)\n", filePath, repoSlug)
+
+	return nil
+}
+
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+
+	return err == nil && !info.IsDir()
+}
+
+func detectOwningRepoSlug(filePath string) string {
+	clean := filepath.ToSlash(filepath.Clean(filePath))
+	parts := strings.Split(clean, "/")
+	hasParts := len(parts) > 1
+	if hasParts && !strings.HasPrefix(parts[0], ".") {
+		return parts[0]
+	}
+
+	cwd, err := os.Getwd()
+	hasCwd := err == nil && len(cwd) > 0
+	if hasCwd {
+		return filepath.Base(filepath.ToSlash(cwd))
+	}
+
+	return ""
+}
+
+func renderSingleRecordOutput(rec *store.AiConfusionRecord, isJSON bool) error {
+	hasNilRec := rec == nil
+	if hasNilRec {
+		return nil
+	}
+
+	if isJSON {
+		return renderRecordsJSON([]store.AiConfusionRecord{*rec})
+	}
+
+	renderSingleConfusionCard(*rec)
+
+	return nil
 }
 
 func buildStoreFilter(opts viewCmdOptions) store.AiConfusionFilter {
@@ -382,18 +619,42 @@ func consumeViewParamOrPositional(opts *viewCmdOptions, args []string, idx int) 
 	}
 
 	isOptionFlag := strings.HasPrefix(tok, "-")
-	hasEmptyId := len(opts.id) == 0
-	if isOptionFlag == false && hasEmptyId {
-		opts.id = tok
+	if isOptionFlag {
+		return idx
 	}
 
+	applyPositionalViewToken(opts, tok)
+
 	return idx
+}
+
+func applyPositionalViewToken(opts *viewCmdOptions, tok string) {
+	if looksLikeFilePath(tok) {
+		opts.filePath = tok
+
+		return
+	}
+
+	hasEmptyId := len(opts.id) == 0
+	if hasEmptyId {
+		opts.id = tok
+	}
+}
+
+func looksLikeFilePath(tok string) bool {
+	hasSlash := strings.Contains(tok, "/") || strings.Contains(tok, "\\")
+	hasDot := strings.Contains(tok, ".")
+
+	return hasSlash || hasDot
 }
 
 func applyViewParamToken(opts *viewCmdOptions, flag, val string) bool {
 	switch flag {
 	case "--id":
 		opts.id = val
+		return true
+	case "--file", "-f":
+		opts.filePath = val
 		return true
 	case "--task", "-t":
 		opts.task = val
@@ -446,11 +707,32 @@ func renderSingleConfusionCard(rec store.AiConfusionRecord) {
 	fmt.Printf("│ Agent       : %s\n", rec.AgentSlug)
 	fmt.Printf("│ Task/Subtask: %s / %s\n", rec.Task, rec.Subtask)
 	fmt.Printf("│ Spec        : %s\n", rec.Spec)
-	fmt.Printf("│ Files/Lines : %s (Lines: %s)\n", rec.FileNames, rec.LineNumbers)
+	renderCardFilesSection(rec)
 	fmt.Printf("│ Status      : %s\n", statusStr)
 	renderCardNarrativeSection(rec)
 	renderCardCodeSection(rec)
 	fmt.Printf("└────────────────────────────────────────────────────────────────────\n")
+}
+
+func renderCardFilesSection(rec store.AiConfusionRecord) {
+	hasRefFiles := len(rec.ReferencedFiles) > 0
+	if hasRefFiles {
+		renderReferencedFilesList(rec.ReferencedFiles)
+
+		return
+	}
+
+	fmt.Printf("│ Files/Lines : %s (Lines: %s)\n", rec.FileNames, rec.LineNumbers)
+}
+
+func renderReferencedFilesList(files []store.AiConfusionFileRecord) {
+	for idx, f := range files {
+		fmt.Printf("│ File #%d     : %s (Lines: %s) [%s]\n", idx+1, f.FilePath, f.LineNumbers, f.FileType)
+		hasWhy := len(f.WhyModified) > 0
+		if hasWhy {
+			fmt.Printf("│   Why Mod   : %s\n", f.WhyModified)
+		}
+	}
 }
 
 func renderCardNarrativeSection(rec store.AiConfusionRecord) {
@@ -484,9 +766,25 @@ func renderCardQuestionAndReason(rec store.AiConfusionRecord) {
 }
 
 func renderCardCodeSection(rec store.AiConfusionRecord) {
+	hasRefFiles := len(rec.ReferencedFiles) > 0
+	if hasRefFiles {
+		renderReferencedFilesSnippets(rec.ReferencedFiles)
+
+		return
+	}
+
 	hasCode := len(strings.TrimSpace(rec.CodeSnippet)) > 0
 	if hasCode {
 		fmt.Printf("│ Code Snippet:\n│   %s\n", strings.ReplaceAll(rec.CodeSnippet, "\n", "\n│   "))
+	}
+}
+
+func renderReferencedFilesSnippets(files []store.AiConfusionFileRecord) {
+	for _, f := range files {
+		hasSnippet := len(strings.TrimSpace(f.CodeSnippet)) > 0
+		if hasSnippet {
+			fmt.Printf("│ Snippet [%s]:\n│   %s\n", f.FilePath, strings.ReplaceAll(f.CodeSnippet, "\n", "\n│   "))
+		}
 	}
 }
 
@@ -524,24 +822,34 @@ func parseCompleteArgs(args []string) (string, string) {
 func consumeCompleteToken(args []string, idx int, id, notes *string) int {
 	tok := args[idx]
 	hasNext := idx+1 < len(args)
-	if hasNext && isCompleteNotesFlag(tok) {
-		*notes = args[idx+1]
-
+	if hasNext && applyCompleteFlag(tok, args[idx+1], id, notes) {
 		return idx + 1
 	}
 
-	if hasNext && tok == "--id" {
-		*id = args[idx+1]
+	applyCompletePositional(tok, id)
 
-		return idx + 1
+	return idx
+}
+
+func applyCompleteFlag(tok, val string, id, notes *string) bool {
+	if isCompleteNotesFlag(tok) {
+		*notes = val
+		return true
 	}
 
+	if tok == "--id" {
+		*id = val
+		return true
+	}
+
+	return false
+}
+
+func applyCompletePositional(tok string, id *string) {
 	isPositional := strings.HasPrefix(tok, "-") == false && len(*id) == 0
 	if isPositional {
 		*id = tok
 	}
-
-	return idx
 }
 
 func isCompleteNotesFlag(tok string) bool {
@@ -572,12 +880,15 @@ func renderSyncResults(res *store.AiConfusionSyncResult) {
 // RenderAiConfusionHelp returns the help documentation card for AI confusion commands.
 func RenderAiConfusionHelp() string {
 	return `╭── GitMap AI Confusion Engine (gitmap rc ai-confusion) ─────────────────────╮
+│ Status     : gitmap rc ai-confusion status (or gitmap rc ai-confusion)     │
+│              Syncs repo-cache and displays active confusion cards          │
+│ Inspect    : gitmap rc ai-confusion view <filepath>                        │
+│              gitmap rc ai-confusion view [--id <id>] [--task <t>]         │
+│              [--agent <a>] [--all] [--json]                                │
 │ Record     : gitmap rc ai-confusion add [--file <path>] [--agent <a>]      │
 │              [--task <t>] [--subtask <s>] [--spec <p>] [--files <f>]       │
 │              [--lines <l>] [--code <c>] [--intention <i>] [--thinking <t>]│
 │              [--question <q>] [--reason <r>]                               │
-│ Inspect    : gitmap rc ai-confusion view [--id <id>] [--task <t>]         │
-│              [--agent <a>] [--all] [--json]                                │
 │ Resolve    : gitmap rc ai-confusion complete <id|uuid> [--reason <notes>] │
 │ Sync       : gitmap rc ai-confusion sync                                  │
 ╰────────────────────────────────────────────────────────────────────────────╯
