@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.614.0] - 2026-10-25
+
+### Added
+- context menu show log ui and update downgrade guard
+
+---
+
 ## [v6.613.0] - 2026-10-25
 
 ### Added
