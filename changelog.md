@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.615.0] - 2026-10-25
+
+### Added
+- file context menu powershell cleaner cascade flattening and ui help
+
+---
+
 ## [v6.614.0] - 2026-10-25
 
 ### Added
