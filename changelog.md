@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.610.0] - 2026-10-25
+
+### Added
+- enhance stash pop recovery and purge invalid clone fallback entries
+
+---
+
 ## [v6.609.0] - 2026-10-24
 
 ### Added
