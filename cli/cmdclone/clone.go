@@ -92,6 +92,7 @@ func resolveCloneManifest(source string) (string, error) {
 
 	fmt.Fprintln(os.Stderr, "Error: no clone manifest found (searched *.json, gitmap.json, .gitmap/gitmap.json)")
 	fmt.Fprintln(os.Stderr, constants.ErrCloneUsage)
+	printRepoSlugSuggestions("available")
 
 	return "", apperror.NewValidationError(constants.ErrCloneUsage)
 }

@@ -74,12 +74,12 @@ func isFullURLOrPath(target string) bool {
 
 func isLocalPath(target string) bool {
 	if isRelativeOrHomePath(target) || isDriveLetterPath(target) {
-		return true
+		info, err := os.Stat(target)
+
+		return err == nil && info.IsDir()
 	}
 
-	info, err := os.Stat(target)
-
-	return err == nil && info.IsDir()
+	return false
 }
 
 func isRelativeOrHomePath(target string) bool {
@@ -475,10 +475,36 @@ func printRepoSlugSuggestions(target string) {
 		suggs = findClosestRepoSuggestions(mainDB, cleanTarget)
 	}
 
+	if len(suggs) == 0 {
+		suggs = listTopCatalogSuggestions(mainDB)
+	}
+
 	filtered := filterRedundantSuggestions(suggs, cleanTarget, target)
+	if len(filtered) == 0 && len(suggs) > 0 {
+		filtered = suggs
+	}
+
 	if len(filtered) > 0 {
 		renderCatppuccinRepoSuggestions(cleanTarget, filtered)
 	}
+}
+
+func listTopCatalogSuggestions(db *store.DB) []string {
+	repos, err := db.ListRepos()
+	if err != nil || len(repos) == 0 {
+		return nil
+	}
+
+	var results []string
+	for i, r := range repos {
+		if i >= 5 {
+			break
+		}
+
+		results = append(results, r.RepoName)
+	}
+
+	return results
 }
 
 func renderCatppuccinRepoSuggestions(target string, suggestions []string) {

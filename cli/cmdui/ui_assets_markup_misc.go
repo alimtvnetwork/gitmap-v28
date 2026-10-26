@@ -31,7 +31,11 @@ const uiAssetsMarkupShell = `<body>
         <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
         <h2 id="header-title">Settings</h2>
       </div>
-      <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
+      <div style="display:flex;align-items:center;gap:var(--sp-2);">
+        <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
+        <button id="btn-fullscreen" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--raised);border:1px solid var(--border);" title="Toggle Fullscreen (F11)">⛶ Fullscreen</button>
+        <button id="btn-exit" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--error);color:#fff;" title="Close application window and stop server">✕ Close Window</button>
+      </div>
     </header>
 
     <!-- SETTINGS TAB -->

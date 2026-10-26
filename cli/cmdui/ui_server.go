@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -19,6 +20,8 @@ import (
 
 const maxPortScanAttempts = 50
 
+var activeUIServer *http.Server
+
 // RunUI launches the embedded web server and opens the browser.
 // The bind host and auto-open behavior come from the parsed `gitmap ui` flags
 // (uiListenHost/uiNoBrowser in ui_cmd.go); programmatic callers such as
@@ -29,14 +32,15 @@ func RunUI(page string, preferredPort int) error {
 		return apperror.WrapSimple(err, "ui_bind_port")
 	}
 
+	server := &http.Server{
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	activeUIServer = server
+
 	mux := http.NewServeMux()
 	mountAPIRoutes(mux)
 	mountSPARoutes(mux)
-
-	server := &http.Server{
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
+	server.Handler = mux
 
 	targetURL := fmt.Sprintf("http://localhost:%d/%s", port, strings.TrimPrefix(page, "/"))
 	fmt.Printf("⚡ GitMap Fleet Web UI running at: %s\n", targetURL)
@@ -93,6 +97,26 @@ func mountToolAndScanRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/scan/repos", handleAPIScanRepos)
 	mux.HandleFunc("/api/scan/disable", handleAPIScanDisable)
 	mux.HandleFunc("/api/scan/enable", handleAPIScanEnable)
+	mux.HandleFunc("/api/ui/exit", handleAPIUIExit(activeUIServer))
+}
+
+func handleAPIUIExit(server *http.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "shutting_down"})
+
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			target := server
+			if target == nil {
+				target = activeUIServer
+			}
+			if target != nil {
+				_ = target.Close()
+			}
+			os.Exit(0)
+		}()
+	}
 }
 
 func handleAPIEditorRead(w http.ResponseWriter, r *http.Request) {
