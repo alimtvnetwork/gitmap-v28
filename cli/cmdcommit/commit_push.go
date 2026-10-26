@@ -2,6 +2,7 @@ package cmdcommit
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -186,7 +187,7 @@ func executeCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppE
 
 func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	printPaddedInfo("Committing: %s", commitMessage)
-	if errCommit := performCommitStep(commitMessage); errCommit != nil {
+	if errCommit := performCommitStep(commitMessage, meta.Author); errCommit != nil {
 		return errCommit
 	}
 
@@ -196,25 +197,34 @@ func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppE
 	if errPush := performPushStep(); errPush != nil {
 		return errPush
 	}
-	renderSuccessSummary(commitMessage)
+	renderSuccessSummary(commitMessage, meta.Author)
 
 	return nil
 }
 
-func performCommitStep(commitMessage string) *apperror.AppError {
+func performCommitStep(commitMessage, author string) *apperror.AppError {
 	if idErr := ensureGitIdentity(); idErr != nil {
 		return idErr
 	}
 
+	commitArgs := buildCommitArgs(commitMessage, author)
 	startTime := time.Now()
-	out, err := execGitPaddedFilteredCapture("commit", "-m", commitMessage)
+	out, err := execGitPaddedFilteredCapture(commitArgs...)
 	durMs := time.Since(startTime).Milliseconds()
-	recordGitCommandDirect("git commit", "git commit -m "+commitMessage, ExtractGitExitCode(err), durMs)
+	recordGitCommandDirect("git commit", "git "+strings.Join(commitArgs, " "), ExtractGitExitCode(err), durMs)
 	if err != nil {
 		return apperror.WrapSimple(gitErrorWithOutput(err, out), "git commit failed:")
 	}
 
 	return nil
+}
+
+func buildCommitArgs(commitMessage, author string) []string {
+	if strings.TrimSpace(author) != "" {
+		return []string{"commit", "--author=" + author, "-m", commitMessage}
+	}
+
+	return []string{"commit", "-m", commitMessage}
 }
 
 func performPushStep() *apperror.AppError {
@@ -229,11 +239,11 @@ func performPushStep() *apperror.AppError {
 	return nil
 }
 
-func renderSuccessSummary(commitMessage string) {
+func renderSuccessSummary(commitMessage, author string) {
 	branch := resolveCurrentBranchOrHead()
 	sha := resolveShortHeadSha()
 
-	renderCommitPushSummaryCard(branch, sha, commitMessage, "pushed")
+	renderCommitPushSummaryCard(branch, sha, commitMessage, "pushed", author)
 }
 
 func resolveCurrentBranchOrHead() string {

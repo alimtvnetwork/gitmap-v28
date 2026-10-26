@@ -105,6 +105,7 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       'pen-line': '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
       'book-open': '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
       check: '<path d="M20 6 9 17l-5-5"/>',
+      search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
       'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
       info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
       x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
@@ -214,6 +215,7 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       { id: 'prompts', label: 'Prompts & AI', icon: 'message-square' },
       { id: 'import-export', label: 'Import / Export', icon: 'arrow-left-right' },
       { id: 'schedules', label: 'Schedules', icon: 'clock' },
+      { id: 'search', label: 'Repo Search', icon: 'search' },
       { id: 'editor', label: 'Remote Editor', icon: 'pen-line' },
       { id: 'terminal', label: 'Terminal', icon: 'scroll-text' },
       { id: 'help', label: 'CLI & AGY Help', icon: 'book-open' }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsearch"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
@@ -17,6 +18,7 @@ var uiNoBrowser = false
 
 func init() {
 	cmdssh.RunSSHUIFn = RunUI
+	cmdsearch.RunSearchUIFn = RunUI
 }
 
 // RunUICmd dispatches gitmap ui and gitmap <module> ui.

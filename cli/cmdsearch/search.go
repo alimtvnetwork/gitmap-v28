@@ -19,10 +19,18 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
+// RunSearchUIFn is the pluggable callback provided by cmdui package.
+var RunSearchUIFn func(page string, preferredPort int) error
+
 // RunSearch executes indexed keyword and symbol search across repositories.
 func RunSearch(args []string) error {
 	checkHelp(searchconstants.CmdSearch, args)
-	query, limit, isAiCaller, hasQuery := parseSearchInvocation(args)
+	isUI, cleanArgs := parseSearchUIFlag(args)
+	if isUI {
+		return launchSearchUI()
+	}
+
+	query, limit, isAiCaller, hasQuery := parseSearchInvocation(cleanArgs)
 	if !hasQuery {
 		printSearchUsage()
 
@@ -30,6 +38,31 @@ func RunSearch(args []string) error {
 	}
 
 	return executeSearchCommand(query, limit, isAiCaller)
+}
+
+func parseSearchUIFlag(args []string) (bool, []string) {
+	var isUI bool
+	var filtered []string
+	for _, arg := range args {
+		if arg == "--ui" || arg == "-u" {
+			isUI = true
+			continue
+		}
+		filtered = append(filtered, arg)
+	}
+
+	return isUI, filtered
+}
+
+func launchSearchUI() error {
+	if RunSearchUIFn != nil {
+		return RunSearchUIFn("search", 8080)
+	}
+
+	targetURL := "http://localhost:8080/search"
+	fmt.Printf("%s⚡ Launching GitMap Repository Search Web UI at %s%s\n", constants.ColorGreen, targetURL, constants.ColorReset)
+
+	return nil
 }
 
 func parseSearchInvocation(args []string) (string, int, bool, bool) {

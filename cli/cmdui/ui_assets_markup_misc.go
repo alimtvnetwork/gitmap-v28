@@ -41,7 +41,52 @@ const uiAssetsMarkupShell = `<body>
     <!-- SETTINGS TAB -->
 `
 
-const uiAssetsMarkupMisc = `    <div id="tab-editor" class="content-area">
+const uiAssetsMarkupMisc = `    <!-- REPOSITORY SEARCH TAB -->
+    <div id="tab-search" class="content-area">
+      <div class="card card-hero">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-2); flex-wrap:wrap; gap:var(--sp-2);">
+          <h3 style="margin-bottom:0;"><span data-icon="search"></span> Repository Code &amp; Content Search</h3>
+          <span class="badge badge-online" id="search-status-badge">AUM Multi-Core</span>
+        </div>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3);">
+          Blazing-fast parallel search across repository files with live previews, regex support, and direct IDE integration.
+        </p>
+        <div style="display:flex; gap:var(--sp-2); margin-bottom:var(--sp-3); flex-wrap:wrap;">
+          <input type="text" id="repo-search-input" placeholder="Search patterns, symbols, function names..." style="flex:3; min-width:240px;" onkeydown="handleSearchInputKey(event)">
+          <input type="text" id="repo-search-dir" placeholder="Subdirectory (optional, e.g. cli/cmd)" style="flex:1; min-width:160px;" onkeydown="handleSearchInputKey(event)">
+          <button class="btn btn-primary" id="btn-trigger-search" onclick="triggerRepoSearch()"><span data-icon="search"></span> Search</button>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--sp-2); margin-bottom:var(--sp-2);">
+          <div style="display:flex; align-items:center; gap:var(--sp-3); flex-wrap:wrap; font-size:var(--fs-xs);">
+            <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; color:var(--text); user-select:none;">
+              <input type="checkbox" id="search-flag-regex" onchange="triggerRepoSearch()"> Regex
+            </label>
+            <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; color:var(--text); user-select:none;">
+              <input type="checkbox" id="search-flag-case" checked onchange="triggerRepoSearch()"> Case Insensitive
+            </label>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;" id="search-ext-pills">
+            <span style="font-size:var(--fs-xs); color:var(--muted);">Extensions:</span>
+            <button class="btn btn-xs ext-pill active" data-ext="" onclick="toggleSearchExtPill(this)">All</button>
+            <button class="btn btn-xs ext-pill" data-ext=".go" onclick="toggleSearchExtPill(this)">.go</button>
+            <button class="btn btn-xs ext-pill" data-ext=".ts,.js" onclick="toggleSearchExtPill(this)">.ts/.js</button>
+            <button class="btn btn-xs ext-pill" data-ext=".md" onclick="toggleSearchExtPill(this)">.md</button>
+            <button class="btn btn-xs ext-pill" data-ext=".json" onclick="toggleSearchExtPill(this)">.json</button>
+            <button class="btn btn-xs ext-pill" data-ext=".py" onclick="toggleSearchExtPill(this)">.py</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="search-results-card" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-3); border-bottom:1px solid var(--border); padding-bottom:var(--sp-2);">
+          <h4 style="margin:0; font-size:var(--fs-sm); color:var(--primary); font-weight:600;" id="search-results-summary">Results</h4>
+          <span style="font-size:var(--fs-xs); color:var(--muted);" id="search-duration-info"></span>
+        </div>
+        <div id="search-results-container" style="display:flex; flex-direction:column; gap:var(--sp-2);"></div>
+      </div>
+    </div>
+
+    <div id="tab-editor" class="content-area">
       <div class="card" style="margin-bottom: 0.5rem;">
         <div style="display: flex; gap: 10px; align-items: flex-end;">
           <div style="flex: 1;"><label for="editor-node" style="font-size:0.8rem;color:var(--muted)">Target Node</label><select id="editor-node"><option value="local">local (current machine)</option></select></div>

@@ -71,6 +71,9 @@ func hasValuePrefix(arg string, meta *CommitMetadata) bool {
 	if matchPrefixTarget(arg, []string{FlagSpec + "="}, &meta.SpecPath) {
 		return true
 	}
+	if matchPrefixTarget(arg, []string{FlagAuthor + "=", FlagAuthorShort + "="}, &meta.Author) {
+		return true
+	}
 
 	return matchPrefixTarget(arg, []string{FlagTask + "=", "-t="}, &meta.TaskSlug)
 }
@@ -91,6 +94,9 @@ func isValuedFlag(arg, val string, meta *CommitMetadata) bool {
 		return true
 	}
 	if isAIFlag(arg, val, meta) || isSpecFlag(arg, val, meta) {
+		return true
+	}
+	if isAuthorFlag(arg, val, meta) {
 		return true
 	}
 
@@ -144,12 +150,47 @@ func isTaskFlag(arg, val string, meta *CommitMetadata) bool {
 	return true
 }
 
+func isAuthorFlag(arg, val string, meta *CommitMetadata) bool {
+	if arg != FlagAuthor && arg != FlagAuthorShort {
+		return false
+	}
+	meta.Author = strings.TrimSpace(val)
+
+	return true
+}
+
 func applyAmbientFallbacks(meta *CommitMetadata) {
 	fallbackString(&meta.AgentID, EnvGitmapAgentID, EnvAntigravityAgentID, EnvAgentID)
 	fallbackString(&meta.HeatmapID, EnvGitmapHeatmapID, EnvGitmapHeatmapSessionID)
 	fallbackString(&meta.TaskSlug, EnvGitmapTaskSlug, EnvGitmapTask)
 	fallbackString(&meta.SpecPath, EnvGitmapSpecPath)
+	resolveAuthorFallback(meta)
 	resolveAIFallbacks(meta)
+}
+
+func resolveAuthorFallback(meta *CommitMetadata) {
+	if meta.Author != "" {
+		return
+	}
+	name, _ := execGitOutputCP("config", "user.name")
+	email, _ := execGitOutputCP("config", "user.email")
+	name = strings.TrimSpace(name)
+	email = strings.TrimSpace(email)
+	if name == "" && email == "" {
+		return
+	}
+	meta.Author = formatAuthorIdentity(name, email)
+}
+
+func formatAuthorIdentity(name, email string) string {
+	if name != "" && email != "" {
+		return name + " <" + email + ">"
+	}
+	if name != "" {
+		return name
+	}
+
+	return "<" + email + ">"
 }
 
 func resolveAIFallbacks(meta *CommitMetadata) {

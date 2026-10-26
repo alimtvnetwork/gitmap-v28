@@ -125,7 +125,18 @@ func TestNewNonGitRepoAbortError(t *testing.T) {
 
 func TestRenderCommitPushSummaryCard(t *testing.T) {
 	// Smoke test to ensure rendering doesn't panic
-	renderCommitPushSummaryCard("main", "abc1234", "feat: test card", "pushed")
+	renderCommitPushSummaryCard("main", "abc1234", "feat: test card", "pushed", "Alice <alice@example.com>")
+	renderCommitPushSummaryCard("main", "abc1234", "feat: test card", "pushed", "")
+}
+
+func TestBuildCommitArgs(t *testing.T) {
+	argsWithAuthor := buildCommitArgs("feat: new feature", "Jane Doe <jane@example.com>")
+	expectedWithAuthor := []string{"commit", "--author=Jane Doe <jane@example.com>", "-m", "feat: new feature"}
+	assertCleanMessage(t, argsWithAuthor, expectedWithAuthor)
+
+	argsWithoutAuthor := buildCommitArgs("chore: cleanup", "")
+	expectedWithoutAuthor := []string{"commit", "-m", "chore: cleanup"}
+	assertCleanMessage(t, argsWithoutAuthor, expectedWithoutAuthor)
 }
 
 func TestHasStagedChangesCP_SafeExecution(t *testing.T) {

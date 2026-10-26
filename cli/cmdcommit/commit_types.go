@@ -11,6 +11,7 @@ type CommitMetadata struct {
 	HeatmapID string
 	AIName    string
 	SpecPath  string
+	Author    string
 	IsAIMode  bool
 	HasPush   bool
 	IsDryRun  bool
@@ -25,6 +26,8 @@ const (
 	FlagSpec        = commitconstants.FlagSpec
 	FlagTask        = commitconstants.FlagTask
 	FlagTaskShort   = "-t"
+	FlagAuthor      = commitconstants.FlagAuthor
+	FlagAuthorShort = "-a"
 	FlagPushLong    = commitconstants.FlagPush
 	FlagPushShort   = "-p"
 	FlagDryRunLong  = commitconstants.FlagDryRun

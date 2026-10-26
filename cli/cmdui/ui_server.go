@@ -89,6 +89,8 @@ func mountSSHAndEditorRoutes(mux *http.ServeMux) {
 }
 
 func mountToolAndScanRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/search/repo", handleAPISearchRepo)
+	mux.HandleFunc("/api/project/open-antigravity", handleAPIOpenAntigravity)
 	mux.HandleFunc("/api/command/exec", handleAPITerminalExec)
 	mux.HandleFunc("/api/help/topics", handleAPIHelpTopics)
 	mux.HandleFunc("/api/help/doc", handleAPIHelpDoc)

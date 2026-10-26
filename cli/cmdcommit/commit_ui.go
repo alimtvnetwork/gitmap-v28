@@ -120,14 +120,22 @@ func scanPaddedFilteredCollect(r io.Reader) string {
 }
 
 // renderCommitPushSummaryCard renders a boxed completion summary card in the terminal.
-func renderCommitPushSummaryCard(branch, sha, message, status string) {
+func renderCommitPushSummaryCard(branch, sha, message, status, author string) {
 	fmt.Println()
 	fmt.Printf("  %s┌── Commit & Push Summary ──────────────────────────────────────────┐%s\n", constants.ColorCyan, constants.ColorReset)
 	fmt.Printf("  %s│%s  Branch  : %s%s%s\n", constants.ColorCyan, constants.ColorReset, constants.ColorWhite, branch, constants.ColorReset)
 	fmt.Printf("  %s│%s  Commit  : %s%s%s\n", constants.ColorCyan, constants.ColorReset, constants.ColorYellow, sha, constants.ColorReset)
+	renderSummaryAuthorRow(author)
 	fmt.Printf("  %s│%s  Message : %s\n", constants.ColorCyan, constants.ColorReset, message)
 	fmt.Printf("  %s│%s  Status  : %s%s%s\n", constants.ColorCyan, constants.ColorReset, constants.ColorGreen, status, constants.ColorReset)
 	fmt.Printf("  %s└─────────────────────────────────────────────────────────────────────┘%s\n", constants.ColorCyan, constants.ColorReset)
+}
+
+func renderSummaryAuthorRow(author string) {
+	if strings.TrimSpace(author) == "" {
+		return
+	}
+	fmt.Printf("  %s│%s  Author  : %s%s%s\n", constants.ColorCyan, constants.ColorReset, constants.ColorWhite, author, constants.ColorReset)
 }
 
 // newNonGitRepoAbortError creates an AppError that cleanly aborts without dumping a stack trace.

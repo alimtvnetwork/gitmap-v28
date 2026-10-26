@@ -40,7 +40,12 @@ func printReplaceRegexUsage() {
 // RunRepoSearch searches indexed repositories by keyword.
 func RunRepoSearch(args []string) error {
 	checkHelp(searchconstants.CmdRepoSearch, args)
-	limit, cleanArgs := parseLimit(args)
+	isUI, nonUIArgs := parseSearchUIFlag(args)
+	if isUI {
+		return launchSearchUI()
+	}
+
+	limit, cleanArgs := parseLimit(nonUIArgs)
 	if len(cleanArgs) == 0 {
 		printRepoSearchUsage()
 

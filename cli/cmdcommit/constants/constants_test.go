@@ -12,6 +12,7 @@ func TestCommitFlagsConstants(t *testing.T) {
 		FlagAI,
 		FlagSpec,
 		FlagTask,
+		FlagAuthor,
 		FlagPush,
 		FlagDryRun,
 	}

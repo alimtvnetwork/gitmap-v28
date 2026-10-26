@@ -7,6 +7,7 @@ const (
 	FlagAI        = "--ai"
 	FlagSpec      = "--spec"
 	FlagTask      = "--task"
+	FlagAuthor    = "--author"
 	FlagPush      = "--push"
 	FlagDryRun    = "--dry-run"
 )

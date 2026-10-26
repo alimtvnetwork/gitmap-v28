@@ -12,6 +12,7 @@ func TestExtractCommitFlags_SpaceDelimited(t *testing.T) {
 		"--ai", "gemini-pro",
 		"--spec", "02-spec/test.md",
 		"--task", "my-task",
+		"--author", "Jane Doe <jane@example.com>",
 		"-p", "-n",
 		"feat: new feature",
 	}
@@ -27,6 +28,9 @@ func assertSpaceMetaFields(t *testing.T, meta CommitMetadata) {
 	}
 	if meta.AIName != "gemini-pro" || meta.SpecPath != "02-spec/test.md" {
 		t.Errorf("unexpected ai/spec: %+v", meta)
+	}
+	if meta.Author != "Jane Doe <jane@example.com>" {
+		t.Errorf("unexpected author: %+v", meta)
 	}
 	if meta.TaskSlug != "my-task" || !meta.HasPush || !meta.IsDryRun || !meta.IsAIMode {
 		t.Errorf("unexpected flags state: %+v", meta)
@@ -46,6 +50,7 @@ func TestExtractCommitFlags_EqualsDelimited(t *testing.T) {
 		"--ai=claude-3",
 		"--spec=02-spec/equals.md",
 		"--task=task-abc",
+		"--author=John Smith <john@example.com>",
 		"fix: bug",
 	}
 
@@ -61,17 +66,23 @@ func assertEqualsMetaFields(t *testing.T, meta CommitMetadata) {
 	if meta.AIName != "claude-3" || meta.SpecPath != "02-spec/equals.md" {
 		t.Errorf("unexpected ai/spec: %+v", meta)
 	}
+	if meta.Author != "John Smith <john@example.com>" {
+		t.Errorf("unexpected author: %+v", meta)
+	}
 	if meta.TaskSlug != "task-abc" || !meta.IsAIMode {
 		t.Errorf("unexpected task/ai state: %+v", meta)
 	}
 }
 
 func TestExtractCommitFlags_ShortFlags(t *testing.T) {
-	args := []string{"-t", "short-task", "-p", "-n", "chore: tidy up"}
+	args := []string{"-t", "short-task", "-a", "Dev User <dev@example.com>", "-p", "-n", "chore: tidy up"}
 	clean, meta := ExtractCommitFlags(args)
 
 	if meta.TaskSlug != "short-task" || !meta.HasPush || !meta.IsDryRun {
 		t.Errorf("short flags extraction failed: %+v", meta)
+	}
+	if meta.Author != "Dev User <dev@example.com>" {
+		t.Errorf("short author flag failed: %+v", meta)
 	}
 	assertCleanMessage(t, clean, []string{"chore: tidy up"})
 }
@@ -132,5 +143,17 @@ func TestExtractCommitFlags_NoFlagLeakage(t *testing.T) {
 	assertCleanMessage(t, clean, []string{"word1", "word2", "word3", "word4"})
 	if !meta.HasPush || !meta.IsDryRun || meta.TaskSlug != "t1" {
 		t.Errorf("flags did not parse cleanly: %+v", meta)
+	}
+}
+
+func TestFormatAuthorIdentity(t *testing.T) {
+	if got := formatAuthorIdentity("Alice", "alice@example.com"); got != "Alice <alice@example.com>" {
+		t.Errorf("expected formatted full author, got %q", got)
+	}
+	if got := formatAuthorIdentity("Bob", ""); got != "Bob" {
+		t.Errorf("expected name only author, got %q", got)
+	}
+	if got := formatAuthorIdentity("", "carol@example.com"); got != "<carol@example.com>" {
+		t.Errorf("expected email only author, got %q", got)
 	}
 }
