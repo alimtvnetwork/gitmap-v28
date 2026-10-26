@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -23,6 +24,10 @@ func runSSHUI(args []string) error {
 }
 
 func openBrowserFallbackURL(url string) error {
+	if cmdbrowse.LaunchBrowserAppWindow(url) {
+		return nil
+	}
+
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":

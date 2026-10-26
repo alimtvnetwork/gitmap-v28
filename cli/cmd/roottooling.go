@@ -156,6 +156,7 @@ func toolingAuditEntries() []dispatchEntry {
 func toolingOpsEntries() []dispatchEntry {
 	entries := []dispatchEntry{
 		{[]string{constants.CmdOpen, constants.CmdOpenAlias}, func() error { return cmdopen.RunOpen(argsTail()) }},
+		{[]string{"open-agy", "open-antigravity"}, func() error { return runOpenAgy(argsTail()) }},
 		{[]string{constants.CmdPR, constants.CmdPRAlias}, func() error { return runPR(argsTail()) }},
 		{[]string{constants.CmdBlameStats}, func() error { return runBlameStats(argsTail()) }},
 		{[]string{constants.CmdSnapshot}, func() error { return RunSnapshot(argsTail()) }},
@@ -264,3 +265,13 @@ func toolingInstallEntries() []dispatchEntry {
 		{[]string{constants.CmdNginx, constants.CmdNginxAlias}, func() error { return cmdvhost.RunNginx(argsTail()) }},
 	}
 }
+
+func runOpenAgy(args []string) error {
+	target := "."
+	if len(args) > 0 && args[0] != "" {
+		target = args[0]
+	}
+
+	return cmdagy.RunAgyOpen(target)
+}
+

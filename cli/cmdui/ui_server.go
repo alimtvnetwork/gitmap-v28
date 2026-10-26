@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexclude"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
@@ -182,6 +183,10 @@ func handleAPICommitinExec(w http.ResponseWriter, r *http.Request) {
 }
 
 func openBrowserURL(targetURL string) {
+	if cmdbrowse.LaunchBrowserAppWindow(targetURL) {
+		return
+	}
+
 	switch runtime.GOOS {
 	case "windows":
 		_ = exec.Command("cmd.exe", "/c", "start", "", targetURL).Start()

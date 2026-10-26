@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbrowse"
 )
 
 // RunShowLog starts the interactive log viewer server and opens the UI.
@@ -175,6 +176,10 @@ func bindFreePort(startPort int) (net.Listener, int, error) {
 }
 
 func openBrowser(targetURL string) {
+	if cmdbrowse.LaunchBrowserAppWindow(targetURL) {
+		return
+	}
+
 	switch runtime.GOOS {
 	case "windows":
 		_ = exec.Command("cmd.exe", "/c", "start", "", targetURL).Start()
