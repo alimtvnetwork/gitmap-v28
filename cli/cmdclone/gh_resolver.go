@@ -1,11 +1,13 @@
 package cmdclone
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
@@ -313,17 +315,55 @@ func findURLForAlimtvnetwork(db *store.DB, cleanSlug string) string {
 	cleanTarget := extractRepoNameFromTarget(cleanSlug)
 	candidates := buildBareSlugCandidates(cleanTarget)
 	for _, c := range candidates {
-		scoped := "alimtvnetwork/" + c
-		if url := findURLInRepoTable(db, scoped); len(url) > 0 {
-			return url
-		}
-
-		if url := queryOwnerIndexForOwner(db, "alimtvnetwork", c); len(url) > 0 {
+		if url := matchAlimCandidateWithCache(db, c); len(url) > 0 {
 			return url
 		}
 	}
 
 	return ""
+}
+
+func matchAlimCandidateWithCache(db *store.DB, c string) string {
+	scoped := "alimtvnetwork/" + c
+	if url := findURLInRepoTable(db, scoped); len(url) > 0 {
+		return url
+	}
+
+	if url := queryOwnerIndexForOwner(db, "alimtvnetwork", c); len(url) > 0 {
+		return url
+	}
+
+	return probeAndCacheRemoteCandidate(db, "alimtvnetwork", c)
+}
+
+func probeAndCacheRemoteCandidate(db *store.DB, owner, candidate string) string {
+	url := fmt.Sprintf("https://github.com/%s/%s", owner, candidate)
+	if !probeRemoteGitURL(url) {
+		return ""
+	}
+
+	cacheDiscoveredRepo(db, owner, candidate)
+
+	return url
+}
+
+func probeRemoteGitURL(url string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "git", "ls-remote", "--heads", url)
+	err := cmd.Run()
+
+	return err == nil
+}
+
+func cacheDiscoveredRepo(db *store.DB, owner, repo string) {
+	if db == nil {
+		return
+	}
+
+	_ = db.EnsureOwnerRepoNameIndex()
+	_ = db.UpsertOwnerRepoNameIndex("github", owner, []string{repo}, time.Now())
 }
 
 func queryOwnerIndexForOwner(db *store.DB, owner, candidate string) string {
