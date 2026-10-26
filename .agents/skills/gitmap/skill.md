@@ -151,7 +151,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | `gitmap cbf "MODULE - <summary>"` | `gitmap cpb` | Remote | `Bug: ` | Yes | Stage all, commit bugfix with title-case `Bug: MODULE - <summary>`, and push to remote. |
 | `gitmap cfr "MODULE - <summary>"` | - | Remote | `Refactor: ` | Yes | Stage all, commit refactor with title-case `Refactor: MODULE - <summary>`, and push to remote. |
 | `gitmap cpc "MODULE - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore with title-case `Chore: MODULE - <summary>`, and push to remote. |
-| `gitmap cpr "MODULE - <summary>"` | - | Remote | `Release: ` | Yes | Stage all, commit release with title-case `Release: MODULE - <summary>`, and push directly to remote. |
+| `gitmap cpr "v<version> <summary>"` | - | Remote | `Release: ` | Yes | Stage all, commit release with title-case `Release: v<version> <summary>`, and push directly to remote. (TOTAL BAN on `VERSION - ` or `RELEASE - ` prefix in `cpr` argument.) |
 | `gitmap pcp "MODULE - <summary>"` | - | Remote | Normalized | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
 
 #### Approved Subsystem Module Taxonomy
