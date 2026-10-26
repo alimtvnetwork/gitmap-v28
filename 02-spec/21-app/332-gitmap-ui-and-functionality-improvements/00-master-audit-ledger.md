@@ -17,7 +17,7 @@
 ## 2. Forensic Analysis & Root Cause Findings
 
 ### 2.1 Problem 1: Show Log on Folder Does Not Work Properly
-- **Mechanism:** When launched on a folder (e.g. `d:\work\gitmap\cli`), `git log` executed without path normalization or trailing separator hygiene, and if sub-commits only touched subfolders without clean relative normalization from the repository root, `git log -- <targetPath>` returned 0 or truncated commits.
+- **Mechanism:** When launched on a folder (e.g. `cli/cmd`), `git log` executed without path normalization or trailing separator hygiene, and if sub-commits only touched subfolders without clean relative normalization from the repository root, `git log -- <targetPath>` returned 0 or truncated commits.
 - **Root Cause:** Path resolution in `ResolveTargetRepoAndPath()` and `QueryCommits()` passed unnormalized paths to `git log`. If a folder has subpaths or backslashes on Windows, `git log` fails to match tree entries.
 
 ### 2.2 Problem 2: UI Lacks Scrolling, Not Modern, and Not Responsive

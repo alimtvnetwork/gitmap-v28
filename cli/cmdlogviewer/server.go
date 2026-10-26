@@ -38,10 +38,7 @@ func RunShowLog(args []string) error {
 
 // ResolveTargetRepoAndPath resolves repository root and relative file/dir path.
 func ResolveTargetRepoAndPath(args []string) (string, string, error) {
-	target := "."
-	if len(args) > 0 && strings.TrimSpace(args[0]) != "" {
-		target = args[0]
-	}
+	target := sanitizeTargetArg(args)
 
 	absPath, err := filepath.Abs(target)
 	if err != nil {
@@ -57,6 +54,19 @@ func ResolveTargetRepoAndPath(args []string) (string, string, error) {
 	relPath := computeRelativePath(repoRoot, absPath)
 
 	return repoRoot, relPath, nil
+}
+
+func sanitizeTargetArg(args []string) string {
+	if len(args) == 0 {
+		return "."
+	}
+
+	clean := strings.TrimRight(strings.TrimSpace(args[0]), `/\`)
+	if clean == "" {
+		return "."
+	}
+
+	return clean
 }
 
 func resolveProbeDirectory(absPath string) string {
@@ -92,8 +102,9 @@ func startLogServer(repoRoot, relPath string, preferredPort int, isAutoOpen, isB
 		return err
 	}
 
-	mux := buildServerMux(repoRoot, relPath)
-	server := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
+	mux := buildServerMux(repoRoot, relPath, server)
+	server.Handler = mux
 	targetURL := formatTargetURL(port, relPath, isBranchCompare)
 
 	fmt.Printf("⚡ GitMap Show Log running at: %s\n", targetURL)
@@ -113,7 +124,7 @@ func formatTargetURL(port int, relPath string, isBranchCompare bool) string {
 	return base
 }
 
-func buildServerMux(repoRoot, initialPath string) *http.ServeMux {
+func buildServerMux(repoRoot, initialPath string, server *http.Server) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", serveIndexHTML)
 	mux.HandleFunc("/show-log", serveIndexHTML)
@@ -123,8 +134,22 @@ func buildServerMux(repoRoot, initialPath string) *http.ServeMux {
 	mux.HandleFunc("/api/log/branches", handleAPIBranches(repoRoot))
 	mux.HandleFunc("/api/log/branch-compare", handleAPIBranchCompare(repoRoot))
 	mux.HandleFunc("/api/log/ping", handleAPIPing)
+	mux.HandleFunc("/api/log/exit", handleAPIExit(server))
 
 	return mux
+}
+
+func handleAPIExit(server *http.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "shutting_down"})
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			if server != nil {
+				_ = server.Close()
+			}
+			os.Exit(0)
+		}()
+	}
 }
 
 func serveIndexHTML(w http.ResponseWriter, r *http.Request) {

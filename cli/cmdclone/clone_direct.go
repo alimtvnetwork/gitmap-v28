@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/usercontext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/workspacesync"
 )
 
 // isDirectURL returns true when source is a git URL (not a file path).
@@ -54,6 +55,7 @@ func cleanDirectCloneTarget(absPath string, isClean bool) {
 	if !isClean || absPath == "" {
 		return
 	}
+
 	if _, err := os.Stat(absPath); err == nil {
 		fmt.Printf("  • Force/clean removing existing directory: %s\n", absPath)
 		_ = os.RemoveAll(absPath)
@@ -64,6 +66,7 @@ func maybeCleanMultiFolder(url string, isClean bool) {
 	if !isClean {
 		return
 	}
+
 	multiFolder := resolveCloneFolder(repoNameFromURL(url), "")
 	absFolder, errFolder := filepath.Abs(multiFolder)
 	if errFolder == nil {
@@ -96,17 +99,21 @@ func printCloneStartup(params DirectCloneParams, url, absPath, repoName, folderN
 	fmt.Printf(constants.MsgCloneURLCloning, repoName, folderName)
 }
 
+func emitDirectCloneFailureJSON(repoName, absPath string, cloneErr error) {
+	emitDirectCloneJSON(DirectCloneJSONResponse{
+		Success:  false,
+		RepoName: repoName,
+		Status:   "failed",
+		Message:  cloneErr.Error(),
+		Path:     absPath,
+	})
+}
+
 func handleDirectCloneFailure(params DirectCloneParams, taskDB *store.DB, taskID int64, url, repoName, absPath string, cloneErr error) error {
 	failPendingTask(taskDB, taskID, fmt.Sprintf(constants.ErrCloneURLFailed, url, cloneErr))
 	closeTaskDB(taskDB)
 	if params.IsJSON {
-		emitDirectCloneJSON(DirectCloneJSONResponse{
-			Success:  false,
-			RepoName: repoName,
-			Status:   "failed",
-			Message:  cloneErr.Error(),
-			Path:     absPath,
-		})
+		emitDirectCloneFailureJSON(repoName, absPath, cloneErr)
 
 		return cloneErr
 	}
@@ -209,6 +216,7 @@ func postCloneRegistration(params DirectCloneParams, url, repoName, folderName, 
 	handleDirectCloneSuccess(params, repoName, absPath)
 	upsertDirectClone(url, repoName, folderName, absPath)
 	registerSingleDesktop(repoName, absPath)
+	_ = workspacesync.SyncAntigravity(absPath, repoName)
 	WriteShellHandoff(absPath)
 }
 

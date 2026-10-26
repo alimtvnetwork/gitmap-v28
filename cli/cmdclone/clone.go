@@ -11,6 +11,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/verbose"
 	"github.com/alimtvnetwork/gitmap-v28/cli/vscodepm"
 )
@@ -25,6 +26,10 @@ func lookupSSHKeyPath(name string) (string, error) {
 
 	defer db.Close()
 
+	return findKeyPrivatePath(db, name)
+}
+
+func findKeyPrivatePath(db *store.DB, name string) (string, error) {
 	key, err := db.FindSSHKeyByName(name)
 	if err != nil {
 		return "", err
@@ -185,6 +190,10 @@ func executeParsedClone(cf CloneFlags) error {
 		return runCloneListTable(cf.Source, cf.TargetDir, cf.UseSSH, cf.OnlyFilter, cf.ExcludeFilter)
 	}
 
+	return executeClonePipeline(cf)
+}
+
+func executeClonePipeline(cf CloneFlags) error {
 	prepareCloneEnv(cf)
 	if cf.Audit {
 		runCloneAudit(cf)
@@ -193,7 +202,7 @@ func executeParsedClone(cf CloneFlags) error {
 		return nil
 	}
 
-	cf, err = prepareCloneTransport(cf)
+	cf, err := prepareCloneTransport(cf)
 	if err != nil {
 		return err
 	}
@@ -242,13 +251,40 @@ func dispatchCloneExecution(cf CloneFlags) error {
 	}
 
 	if isDirectURL(cf.Source) {
-		err := executeDirectClone(buildDirectCloneParams(cf))
-		maybeExitOnCmdFaithfulMismatch()
-
-		return err
+		return runDirectClone(cf)
 	}
 
-	return executeManifestCloneFlow(cf)
+	if fsutil.FileExists(cf.Source) || isRecognizedCloneShorthand(cf.Source) {
+		return executeManifestCloneFlow(cf)
+	}
+
+	return handleBareSlugClone(cf)
+}
+
+func runDirectClone(cf CloneFlags) error {
+	err := executeDirectClone(buildDirectCloneParams(cf))
+	maybeExitOnCmdFaithfulMismatch()
+
+	return err
+}
+
+func handleBareSlugClone(cf CloneFlags) error {
+	resolved := ResolveRepoSlug(cf.Source)
+	if isDirectURL(resolved) {
+		cf.Source = resolved
+
+		return runDirectClone(cf)
+	}
+
+	printRepoSlugSuggestions(cf.Source)
+
+	return apperror.NewExecutionError(fmt.Sprintf("repository %q not found or resolved to a valid git url", cf.Source))
+}
+
+func isRecognizedCloneShorthand(source string) bool {
+	low := strings.ToLower(strings.TrimSpace(source))
+
+	return low == constants.ShorthandJSON || low == constants.ShorthandCSV || low == constants.ShorthandText
 }
 
 func buildDirectCloneParams(cf CloneFlags) DirectCloneParams {

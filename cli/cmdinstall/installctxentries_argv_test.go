@@ -45,17 +45,24 @@ var expectedCtxArgv = map[string]struct {
 	"30_release/50_list_releases":   {"", []string{"list-releases"}},
 	"30_release/60_list_versions":   {"", []string{"list-versions"}},
 	// Repos
-	"40_repos": {"", []string{"ui"}},
+	"40_repos/10_web_ui": {"", []string{"ui"}},
+	"40_repos/20_list":   {"", []string{"list"}},
+	"40_repos/30_status": {"", []string{"status-all"}},
+	"40_repos/40_pull_all": {"", []string{"pull-all"}},
 	// Visibility
 	"50_visibility/10_public":  {"", []string{"make-public"}},
 	"50_visibility/20_private": {"", []string{"make-private"}},
+	// Install
+	"60_install/10_wizard":     {"", []string{"install", "--wizard"}},
+	"60_install/20_dev":        {"", []string{"install", "profile", "dev"}},
+	"60_install/30_tools":      {"", []string{"install", "list"}},
+	"60_install/40_agy":        {"", []string{"install", "antigravity"}},
+	"60_install/50_clean_pwsh": {"", []string{"context-menu", "clean-powershell"}},
 	// Top-level standalone entries
-	"80_antigravity":      {"", []string{"ag"}},
-	"90_terminal":         {"", nil}, // Prefill mode; no argv
-	"91_docs":             {"", []string{"docs"}},
-	"92_help":             {"", []string{constants.CmdHelp}},
-	"95_install_wizard":   {"", []string{"install", "--wizard"}},
-	"96_clean_powershell": {"", []string{"context-menu", "clean-powershell"}},
+	"80_antigravity": {"", []string{"ag"}},
+	"90_terminal":    {"", nil}, // Prefill mode; no argv
+	"91_docs":        {"", []string{"docs"}},
+	"92_help":        {"", []string{constants.CmdHelp}},
 }
 
 // flattenCtxMenu walks ctxMenu() and returns a path→entry map keyed by the

@@ -25,6 +25,10 @@ const showLogMarkupHead = `<!DOCTYPE html>
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
     --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--pane-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
@@ -152,6 +156,42 @@ const showLogMarkupHead = `<!DOCTYPE html>
   .form-row label { display: block; margin-bottom: 4px; color: var(--text-muted); font-size: 11px; }
   .form-row select, .form-row input { width: 100%; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .btn-danger { background: var(--red); color: #11111b; font-weight: 600; }
+  .btn-danger:hover { background: #eba0ac; }
+  .context-menu {
+    background: var(--pane-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    min-width: 180px;
+    padding: 4px 0;
+    z-index: 2000;
+  }
+  .context-menu-item {
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+  .context-menu-item:hover {
+    background: var(--sel-bg);
+    color: var(--accent);
+  }
+  .context-menu-separator {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+  @media (max-width: 900px) {
+    body { height: auto; min-height: 100vh; overflow-y: auto; }
+    main.workspace { overflow-y: auto; }
+    header.toolbar { flex-wrap: wrap; }
+    .pane-upper, .pane-middle, .pane-lower { min-height: 200px; flex: none; }
+  }
 </style>
 </head>
 <body>
@@ -162,6 +202,7 @@ const showLogMarkupHead = `<!DOCTYPE html>
   <input type="text" id="commit-search" class="search-box" placeholder="Filter commits (hash, author, message)...">
   <button id="btn-refresh" title="Refresh commit list">↻ Refresh</button>
   <button id="btn-compare-branches" title="Compare two branches via Beyond Compare">Branch Comparison...</button>
+  <button id="btn-exit" class="btn-danger" title="Stop local server and close window">✕ Exit</button>
 </header>
 <main class="workspace">
   <section class="pane-upper">
@@ -235,4 +276,5 @@ const showLogMarkupHead = `<!DOCTYPE html>
     </div>
   </div>
 </div>
+<div id="context-menu" class="context-menu" style="display:none; position:fixed; z-index:2000;"></div>
 `

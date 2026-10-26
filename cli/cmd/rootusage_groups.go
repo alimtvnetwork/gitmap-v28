@@ -44,6 +44,15 @@ func printGroupGitOps() {
 	renderLine(constants.MsgHelpLFSCommon)
 }
 
+func printGroupMergeCompare() {
+	renderHeader("  Merge & Compare:")
+	renderLine("  merge-right, mr <left> <right>     One-way file-level merge that writes changes into RIGHT")
+	renderLine("  merge-left, ml <left> <right>      One-way file-level merge that writes changes into LEFT")
+	renderLine("  merge-both, mb <left> <right>      Two-way bidirectional merge synchronizing both directories")
+	renderLine("  compare, cmp <b1> <b2> [b3...]     Compare branches via Beyond Compare or external diff tool")
+	renderLine("  show-log, showlog [path]           Interactive dual-pane Git log viewer and branch comparison UI")
+}
+
 func printGroupNavigation() {
 	renderHeader(constants.HelpGroupNavigation)
 	renderLine(constants.HelpCD)

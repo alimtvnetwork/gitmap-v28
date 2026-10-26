@@ -51,6 +51,7 @@ func printUsageCoreCategories() {
 	printSuperCategory("WORK WITH REPOS", func() {
 		printGroupCloning()
 		printGroupGitOps()
+		printGroupMergeCompare()
 		printGroupSSH()
 	})
 }

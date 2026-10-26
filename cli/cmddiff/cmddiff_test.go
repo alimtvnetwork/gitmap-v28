@@ -57,3 +57,27 @@ func TestGuardDiffPaths(t *testing.T) {
 		t.Errorf("expected guardDiffPaths to pass for different directories, got: %v", err)
 	}
 }
+
+func TestDetectTargetGitRepo(t *testing.T) {
+	repoRoot, isGitRepo := detectTargetGitRepo(".")
+	if !isGitRepo || repoRoot == "" {
+		t.Errorf("expected current workspace to be recognized as git repo, got isGitRepo=%v, repoRoot=%s", isGitRepo, repoRoot)
+	}
+
+	_, isNonRepo := detectTargetGitRepo(os.TempDir())
+	if isNonRepo {
+		// os.TempDir is typically not a git repo, but even if it was, won't panic
+	}
+}
+
+func TestParseDiffArgsSinglePath(t *testing.T) {
+	left, right, _, _, err := parseDiffArgs([]string{"."})
+	if err != nil {
+		t.Fatalf("unexpected error parsing single path: %v", err)
+	}
+
+	if left != "" || right != "" {
+		t.Errorf("expected empty left and right for single path, got left=%s right=%s", left, right)
+	}
+}
+

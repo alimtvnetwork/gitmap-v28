@@ -39,10 +39,11 @@ type DiffRequest struct {
 
 // DiffResponse carries the result of a diff invocation.
 type DiffResponse struct {
-	IsSuccess bool   `json:"isSuccess"`
-	Tool      string `json:"tool,omitempty"`
-	Message   string `json:"message,omitempty"`
-	Error     string `json:"error,omitempty"`
+	IsSuccess  bool   `json:"isSuccess"`
+	Tool       string `json:"tool,omitempty"`
+	Message    string `json:"message,omitempty"`
+	Error      string `json:"error,omitempty"`
+	StackTrace string `json:"stackTrace,omitempty"`
 }
 
 // BranchCompareRequest defines parameters to compare two git branches.

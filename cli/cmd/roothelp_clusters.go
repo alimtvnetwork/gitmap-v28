@@ -65,6 +65,13 @@ func clusterCoreRepoOperations() termout.HelpSection {
 }
 
 func resolveClusterEntriesCore() []termout.CommandEntry {
+	entries := resolveClusterEntriesBasic()
+	entries = append(entries, resolveClusterEntriesMergeCompare()...)
+
+	return entries
+}
+
+func resolveClusterEntriesBasic() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "scan", Description: "Fast repository scanner with parallel filesystem discovery"},
 		{Command: "list, ls", Description: "List recorded repositories with multi-format output"},
@@ -76,6 +83,15 @@ func resolveClusterEntriesCore() []termout.CommandEntry {
 		{Command: "wip", Description: "Save temporary work-in-progress checkpoint"},
 		{Command: "group", Description: "Organize repositories into workspaces"},
 		{Command: "cd", Description: "Fast interactive directory jumper to repository paths"},
+	}
+}
+
+func resolveClusterEntriesMergeCompare() []termout.CommandEntry {
+	return []termout.CommandEntry{
+		{Command: "merge-right (mr)", Description: "One-way file-level merge that writes changes into RIGHT"},
+		{Command: "merge-left (ml)", Description: "One-way file-level merge that writes changes into LEFT"},
+		{Command: "compare (cmp)", Description: "Compare branches via Beyond Compare or external diff tool"},
+		{Command: "show-log", Description: "Interactive dual-pane Git log viewer and branch comparison UI"},
 	}
 }
 

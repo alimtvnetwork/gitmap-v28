@@ -58,7 +58,7 @@ function renderCommits(commits) {
     return;
   }
   tbody.innerHTML = commits.map(c => ` + "`" + `
-    <tr data-hash="${c.hash}" class="${c.hash === activeHash ? 'selected' : ''}" onclick="selectCommit('${c.hash}')">
+    <tr data-hash="${c.hash}" class="${c.hash === activeHash ? 'selected' : ''}" onclick="selectCommit('${c.hash}')" oncontextmenu="showCommitContextMenu(event, '${c.hash}', '${escapeQuotes(c.subject)}')">
       <td style="color:var(--accent);">●</td>
       <td class="mono hash-cell">${c.shortHash}</td>
       <td class="date-cell">${c.date}</td>
@@ -107,7 +107,7 @@ function renderModifiedFiles(files) {
     const badgeCls = 'badge-' + (f.action || 'modified').toLowerCase();
     const stats = f.stats || '';
     return ` + "`" + `
-      <tr ondblclick="triggerDiff('${f.path}')" title="Double click to diff">
+      <tr ondblclick="triggerDiff('${f.path}')" oncontextmenu="showFileContextMenu(event, '${f.path}')" title="Double click or right click to diff">
         <td><span class="badge-action ${badgeCls}">${f.action}</span></td>
         <td class="mono" style="color:var(--text);">${f.path}</td>
         <td class="mono" style="color:var(--yellow);">${stats}</td>
@@ -179,6 +179,63 @@ document.getElementById('modal-submit').addEventListener('click', async () => {
     }
   } catch (e) {
     showToast('Comparison failed: ' + e.message);
+  }
+});
+
+function escapeQuotes(str) {
+  return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+const contextMenu = document.getElementById('context-menu');
+document.addEventListener('click', () => { contextMenu.style.display = 'none'; });
+
+function positionContextMenu(e) {
+  e.preventDefault();
+  contextMenu.style.display = 'block';
+  contextMenu.style.left = Math.min(e.pageX, window.innerWidth - 200) + 'px';
+  contextMenu.style.top = Math.min(e.pageY, window.innerHeight - 150) + 'px';
+}
+
+function showCommitContextMenu(e, hash, subject) {
+  positionContextMenu(e);
+  contextMenu.innerHTML = ` + "`" + `
+    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${hash}'); showToast('Copied hash: ${hash.substring(0, 8)}');">📋 Copy Commit Hash</div>
+    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${subject}'); showToast('Copied subject line');">📋 Copy Subject Line</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" onclick="triggerDiff(activePath)">🔍 Compare with Previous</div>
+  ` + "`" + `;
+}
+
+function showFileContextMenu(e, filePath) {
+  positionContextMenu(e);
+  contextMenu.innerHTML = ` + "`" + `
+    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${filePath}'); showToast('Copied path: ${filePath}');">📋 Copy File Path</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" onclick="triggerDiff('${filePath}')">🔍 Diff with Previous (Beyond Compare)</div>
+  ` + "`" + `;
+}
+
+document.getElementById('btn-exit').addEventListener('click', async () => {
+  showToast('Stopping server...');
+  try {
+    await fetch('/api/log/exit', { method: 'POST' });
+  } catch (e) {
+    // server shutdown terminates connection immediately
+  }
+  window.close();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  if (!allCommits || allCommits.length === 0) return;
+  const currentIndex = allCommits.findIndex(c => c.hash === activeHash);
+  if (currentIndex === -1) return;
+  const nextIndex = e.key === 'ArrowDown' ? Math.min(currentIndex + 1, allCommits.length - 1) : Math.max(currentIndex - 1, 0);
+  if (nextIndex !== currentIndex) {
+    e.preventDefault();
+    selectCommit(allCommits[nextIndex].hash);
+    const targetTr = document.querySelector('#commits-body tr[data-hash="' + allCommits[nextIndex].hash + '"]');
+    if (targetTr) targetTr.scrollIntoView({ block: 'nearest' });
   }
 });
 

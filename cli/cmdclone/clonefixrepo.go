@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cloner"
@@ -39,9 +40,8 @@ func runCloneFixRepo(args []string) error {
 	if hasRCFlagOrToken(args) {
 		return RunCloneRC(args, CloneModeCFR)
 	}
-	runCloneFixRepoPipeline(args, false)
 
-	return nil
+	return runCloneFixRepoPipeline(args, false)
 }
 
 // runCloneFixRepoPub implements `gitmap clone-fix-repo-pub` (alias cfrp).
@@ -50,9 +50,8 @@ func runCloneFixRepoPub(args []string) error {
 	if hasRCFlagOrToken(args) {
 		return RunCloneRC(args, CloneModeCFRP)
 	}
-	runCloneFixRepoPipeline(args, true)
 
-	return nil
+	return runCloneFixRepoPipeline(args, true)
 }
 
 // runCloneFixRepoPipeline is the shared core. `makePublic` controls
@@ -111,7 +110,11 @@ func dispatchCFRMultiURL(
 }
 
 func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrModifierFlags) error {
-	folderName, absPath := validateAndPrepareCFR(&f)
+	folderName, absPath, err := validateAndPrepareCFR(&f)
+	if err != nil {
+		return err
+	}
+
 	executeCFRClone(f.url, folderName, absPath, f)
 	if f.dryRun {
 		printDryRunMessage(makePublic, absPath)
@@ -124,22 +127,43 @@ func runSingleCloneFixRepo(f cloneFixRepoFlags, makePublic bool, modifiers CfrMo
 	return nil
 }
 
-func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string) {
-	SetCloneDryRun(f.dryRun)
-	SetCloneAssumeYes(f.autoYes)
-	applyCloneAssumeYesEnv(f.autoYes)
-	if len(f.url) == 0 {
-		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
-		cliexit.HandleError(nil, constants.ExitCloneFixRepoBadFlag)
+func validateAndPrepareCFR(f *cloneFixRepoFlags) (string, string, error) {
+	initCFREnv(f)
+	resolved, err := validateCFRTarget(f.url)
+	if err != nil {
+		return "", "", err
 	}
 
-	f.url = ResolveRepoSlug(f.url)
-	f.url = applyCloneFixRepoScheme(f.url, f.useSSH, f.useHTTPS)
+	f.url = applyCloneFixRepoScheme(resolved, f.useSSH, f.useHTTPS)
 	escapeNestedGitRepo()
 	folderName := deriveFolderNameForCFR(f.url, f.folder)
 	absPath := resolveCloneTargetFolder(f.url, folderName)
 
-	return folderName, absPath
+	return folderName, absPath, nil
+}
+
+func initCFREnv(f *cloneFixRepoFlags) {
+	SetCloneDryRun(f.dryRun)
+	SetCloneAssumeYes(f.autoYes)
+	applyCloneAssumeYesEnv(f.autoYes)
+}
+
+func validateCFRTarget(url string) (string, error) {
+	if len(url) == 0 {
+		fmt.Fprint(os.Stderr, constants.ErrCloneFixRepoUsage)
+		printRepoSlugSuggestions("")
+
+		return "", apperror.NewValidationError(constants.ErrCloneFixRepoUsage)
+	}
+
+	resolved := ResolveRepoSlug(url)
+	if !isDirectURL(resolved) && !isLocalPath(resolved) {
+		printRepoSlugSuggestions(url)
+
+		return "", apperror.NewNotFoundError(fmt.Sprintf("repository %q not found", url))
+	}
+
+	return resolved, nil
 }
 
 func executeCFRClone(url, folderName, absPath string, f cloneFixRepoFlags) {
@@ -543,7 +567,8 @@ func runCFRManifestPipeline(f cloneFixRepoFlags, makePublic bool, modifiers CfrM
 	records, err := cloner.LoadRecords(manifestPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading manifest %q: %v\n", manifestPath, err)
-		cliexit.HandleError(err, 1)
+
+		return apperror.WrapSimple(err, fmt.Sprintf("Error loading manifest %q", manifestPath))
 	}
 
 	targetDir := f.folder

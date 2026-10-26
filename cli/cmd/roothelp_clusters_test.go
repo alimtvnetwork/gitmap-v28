@@ -62,3 +62,22 @@ func TestResolveClusterEntriesSystem_ContainsContextMenu(t *testing.T) {
 		t.Errorf("expected resolveClusterEntriesSystem to contain 'context-menu', got %+v", entries)
 	}
 }
+
+func TestResolveClusterEntriesCore_ContainsMergeCompare(t *testing.T) {
+	entries := resolveClusterEntriesCore()
+	expectedCmds := []string{"merge-right (mr)", "merge-left (ml)", "compare (cmp)", "show-log"}
+
+	for _, expected := range expectedCmds {
+		hasCmd := false
+		for _, e := range entries {
+			if strings.Contains(e.Command, expected) {
+				hasCmd = true
+				break
+			}
+		}
+
+		if !hasCmd {
+			t.Errorf("expected resolveClusterEntriesCore to contain %q, got %+v", expected, entries)
+		}
+	}
+}

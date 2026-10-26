@@ -11,9 +11,9 @@ import (
 // Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func DispatchDiff(command string) (bool, error) {
 	if command == constants.CmdDiff || command == constants.CmdDiffAlias {
-		runDiff(os.Args[constants.ArgsSubcommandOffset:])
+		err := runDiff(os.Args[constants.ArgsSubcommandOffset:])
 
-		return true, nil
+		return true, err
 	}
 
 	return false, nil

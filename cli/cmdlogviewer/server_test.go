@@ -72,3 +72,11 @@ func TestFormatTargetURL(t *testing.T) {
 		t.Errorf("unexpected compare url: %s", urlCompare)
 	}
 }
+
+func TestBuildServerMuxWithExit(t *testing.T) {
+	mux := buildServerMux(".", ".", nil)
+	if mux == nil {
+		t.Fatal("expected non-nil server mux")
+	}
+}
+

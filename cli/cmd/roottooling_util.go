@@ -41,7 +41,7 @@ import (
 )
 
 func toolingUtilEntries() []dispatchEntry {
-	entries := make([]dispatchEntry, 0, 56)
+	entries := make([]dispatchEntry, 0, 58)
 	entries = append(entries, toolingUtilSearchEntries()...)
 	return append(entries, toolingUtilFileEntries()...)
 }
@@ -83,6 +83,8 @@ func toolingUtilSearchEntries() []dispatchEntry {
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return cmdcommit.RunCommitPushFeature(argsTail()) }},
 		{[]string{constants.CmdCommitPushRefactor}, func() error { return cmdcommit.RunCommitPushRefactor(argsTail()) }},
 		{[]string{"cfr"}, func() error { return runCfrDisambiguated(argsTail()) }},
+		{[]string{"crf"}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},
+		{[]string{"crfb"}, func() error { return cmdclone.RunCloneFixRepoPub(argsTail()) }},
 		{[]string{constants.CmdCommitPushChore}, func() error { return cmdcommit.RunCommitPushChore(argsTail()) }},
 		{[]string{"cpc"}, func() error { return runCpcDisambiguated(argsTail()) }},
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return cmdcommit.RunCommitPushRelease(argsTail()) }},
@@ -175,6 +177,10 @@ func runCpcDisambiguated(args []string) error {
 }
 
 func runCfrDisambiguated(args []string) error {
+	if !cmdpull.IsGitRepoCWD() {
+		return cmdclone.RunCloneFixRepo(args)
+	}
+
 	if isCfrCloneRequest(args) {
 		return cmdclone.RunCloneFixRepo(args)
 	}
@@ -186,12 +192,41 @@ func isCfrCloneRequest(args []string) bool {
 	if len(args) == 0 {
 		return false
 	}
+
 	first := args[0]
+	if isExplicitCloneTarget(first) || isLikelyRepoSlug(first) {
+		return true
+	}
+
+	return !hasCommitFormat(args)
+}
+
+func isExplicitCloneTarget(first string) bool {
 	if cmdclone.IsLikelyURL(first) || strings.HasPrefix(first, "git@") || strings.HasSuffix(first, ".git") {
 		return true
 	}
 
 	return first == "cg" || first == "p" || strings.HasPrefix(first, "--rc") || strings.HasPrefix(first, "--parallel")
+}
+
+func isLikelyRepoSlug(s string) bool {
+	if s == "" || strings.HasPrefix(s, "-") || strings.Contains(s, " ") {
+		return false
+	}
+
+	return !strings.Contains(s, " - ")
+}
+
+func hasCommitFormat(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	if strings.Contains(args[0], " - ") {
+		return true
+	}
+
+	return strings.Contains(strings.Join(args, " "), " - ")
 }
 
 func toolingNetworkEntries() []dispatchEntry {

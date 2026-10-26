@@ -7,19 +7,26 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddiff/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/diff"
 	"github.com/alimtvnetwork/gitmap-v28/cli/flagutil"
 )
 
 // runDiff implements `gitmap diff LEFT RIGHT`: a read-only preview
-// of what `gitmap merge-*` would change between two folders.
+// of what `gitmap merge-*` would change between two folders,
+// or single-target diff against HEAD in a git repository.
 //
 // Spec: companion to 02-spec/01-app/97-move-and-merge.md
 func runDiff(args []string) error {
 	checkHelp(constants.CmdDiff, args)
-	left, right, walkOpts, printOpts := parseDiffArgs(args)
+	left, right, walkOpts, printOpts, err := parseDiffArgs(args)
+	if err != nil {
+		return err
+	}
+
+	if left == "" && right == "" {
+		return nil
+	}
 
 	leftEP, rightEP, err := resolveAndGuardEndpoints(left, right)
 	if err != nil {
@@ -90,32 +97,40 @@ func initDiffFlags(fs *flag.FlagSet) diffFlagBindings {
 }
 
 // parseDiffArgs parses positional + flag arguments.
-func parseDiffArgs(args []string) (string, string, diff.WalkOptions, diff.PrintOptions) {
-	fs := flag.NewFlagSet(constants.CmdDiff, flag.ExitOnError)
+func parseDiffArgs(args []string) (string, string, diff.WalkOptions, diff.PrintOptions, error) {
+	fs := flag.NewFlagSet(constants.CmdDiff, flag.ContinueOnError)
 	flags := initDiffFlags(fs)
 	positional := flagutil.ReorderFlagsBeforeArgs(args)
 	if err := fs.Parse(positional); err != nil {
-		cliexit.HandleError(err, constants.ExitUsageError)
+		return "", "", diff.WalkOptions{}, diff.PrintOptions{}, apperror.WrapSimple(err, "parse flags")
 	}
 
-	left, right := extractDiffPositional(fs.Args())
+	left, right, err := extractDiffPositional(fs.Args())
+	if err != nil {
+		return "", "", diff.WalkOptions{}, diff.PrintOptions{}, err
+	}
+
 	walk := diff.WalkOptions{IncludeVCS: *flags.includeVCS, IncludeNodeModules: *flags.includeNM}
 	print := diff.PrintOptions{
 		OnlyConflicts: *flags.onlyConf, OnlyMissing: *flags.onlyMiss,
 		IncludeIdentical: *flags.includeIdent, JSON: *flags.jsonOut,
 	}
 
-	return left, right, walk, print
+	return left, right, walk, print, nil
 }
 
 // extractDiffPositional pulls LEFT and RIGHT from the parsed args.
-func extractDiffPositional(rest []string) (string, string) {
-	if len(rest) != constants.ExpectedDiffPositionalArgs {
-		fmt.Fprintf(os.Stderr, constants.ErrDiffUsageFmt)
-		cliexit.HandleUsageError(nil)
+func extractDiffPositional(rest []string) (string, string, error) {
+	if len(rest) >= constants.ExpectedDiffPositionalArgs {
+		return rest[constants.IndexDiffLeft], rest[constants.IndexDiffRight], nil
 	}
 
-	return rest[constants.IndexDiffLeft], rest[constants.IndexDiffRight]
+	target := "."
+	if len(rest) == 1 {
+		target = rest[0]
+	}
+
+	return "", "", runSinglePathDiff(target)
 }
 
 // guardDiffPaths blocks LEFT==RIGHT (nested folders are still useful for

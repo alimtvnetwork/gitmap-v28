@@ -11,8 +11,10 @@ package constants
 const (
 	CmdCloneFixRepo         = "clone-fix-repo"
 	CmdCloneFixRepoAlias    = "cfr"
+	CmdCloneFixRepoShort    = "crf"
 	CmdCloneFixRepoPub      = "clone-fix-repo-pub"
 	CmdCloneFixRepoPubAlias = "cfrp"
+	CmdCloneFixRepoPubShort = "crfb"
 )
 
 // Clone-fix-repo help-line entries surfaced by `gitmap help`.

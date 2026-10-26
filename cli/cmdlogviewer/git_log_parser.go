@@ -23,8 +23,9 @@ func QueryCommits(repoRoot, targetPath string, limit int) ([]CommitItem, error) 
 func buildLogArgs(limit int, targetPath string) []string {
 	safeLimit := normalizeLogLimit(limit)
 	args := []string{"log", fmt.Sprintf("-n%d", safeLimit), "--date=short", "--pretty=format:%H|%h|%an|%ad|%s"}
-	if targetPath != "" && targetPath != "." {
-		args = append(args, "--", targetPath)
+	cleanPath := strings.TrimRight(strings.TrimSpace(targetPath), `/\`)
+	if cleanPath != "" && cleanPath != "." {
+		args = append(args, "--", cleanPath)
 	}
 
 	return args

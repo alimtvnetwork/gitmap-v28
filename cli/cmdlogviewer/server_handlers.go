@@ -2,9 +2,11 @@ package cmdlogviewer
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -73,8 +75,7 @@ func handleAPIDiff(repoRoot string) http.HandlerFunc {
 func executeDiffRequest(w http.ResponseWriter, repoRoot string, req DiffRequest) {
 	tool, err := TriggerExternalDiff(repoRoot, req.Commit, req.Path)
 	if err != nil {
-		resp := DiffResponse{IsSuccess: false, Error: err.Error()}
-		writeJSON(w, http.StatusInternalServerError, resp)
+		writeJSON(w, http.StatusInternalServerError, buildDiffErrorResponse(err))
 		return
 	}
 
@@ -84,6 +85,19 @@ func executeDiffRequest(w http.ResponseWriter, repoRoot string, req DiffRequest)
 		Message:   "Compare tool launched: " + tool,
 	}
 	writeJSON(w, http.StatusOK, resp)
+}
+
+func buildDiffErrorResponse(err error) DiffResponse {
+	resp := DiffResponse{IsSuccess: false, Error: err.Error()}
+	var appErr *apperror.AppError
+	if errors.As(err, &appErr) && appErr.Stack != "" {
+		resp.StackTrace = appErr.Stack
+		return resp
+	}
+
+	resp.StackTrace = apperror.CaptureStackTrace(3)
+
+	return resp
 }
 
 func handleAPIBranches(repoRoot string) http.HandlerFunc {

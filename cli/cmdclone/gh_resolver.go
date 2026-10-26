@@ -7,7 +7,10 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/clonenext"
+	"github.com/alimtvnetwork/gitmap-v28/cli/diag"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
+	"github.com/alimtvnetwork/gitmap-v28/cli/secrets"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -22,11 +25,13 @@ func ResolveRepoSlugForProfile(target, profileName string) string {
 	if isFullURLOrPath(target) {
 		return target
 	}
+
 	cleanTarget := strings.TrimSpace(target)
 	hasSlash := strings.Contains(cleanTarget, "/")
 	if len(profileName) > 0 && !hasSlash {
 		return fmt.Sprintf("https://github.com/%s/%s", profileName, cleanTarget)
 	}
+
 	return ResolveRepoSlug(cleanTarget)
 }
 
@@ -37,23 +42,20 @@ func ResolveRepoSlug(target string) string {
 		return target
 	}
 
-	cachedURL := resolveFromStore(target)
-	if len(cachedURL) > 0 {
+	cleanTarget := strings.TrimSpace(target)
+	if cachedURL := resolveFromStore(cleanTarget); len(cachedURL) > 0 {
 		return cachedURL
 	}
 
-	ghURL := resolveFromGitHubCLI(target)
-	if len(ghURL) > 0 {
+	if ghURL := resolveFromGitHubCLI(cleanTarget); len(ghURL) > 0 {
 		return ghURL
 	}
 
-	if isGitHubOwnerRepo(target) {
-		return "https://github.com/" + strings.TrimSpace(target)
+	if isGitHubOwnerRepo(cleanTarget) {
+		return "https://github.com/" + cleanTarget
 	}
 
-	printRepoSlugSuggestions(target)
-
-	return target
+	return cleanTarget
 }
 
 func isFullURLOrPath(target string) bool {
@@ -69,22 +71,24 @@ func isFullURLOrPath(target string) bool {
 }
 
 func isLocalPath(target string) bool {
-	if strings.HasPrefix(target, "./") || strings.HasPrefix(target, ".\\") ||
+	if isRelativeOrHomePath(target) || isDriveLetterPath(target) {
+		return true
+	}
+
+	info, err := os.Stat(target)
+
+	return err == nil && info.IsDir()
+}
+
+func isRelativeOrHomePath(target string) bool {
+	return strings.HasPrefix(target, "./") || strings.HasPrefix(target, ".\\") ||
 		strings.HasPrefix(target, "../") || strings.HasPrefix(target, "..\\") ||
 		strings.HasPrefix(target, "/") || strings.HasPrefix(target, "\\") ||
-		strings.HasPrefix(target, "~") {
-		return true
-	}
+		strings.HasPrefix(target, "~")
+}
 
-	if len(target) >= 3 && target[1] == ':' && (target[2] == '/' || target[2] == '\\') {
-		return true
-	}
-
-	if info, err := os.Stat(target); err == nil && info.IsDir() {
-		return true
-	}
-
-	return false
+func isDriveLetterPath(target string) bool {
+	return len(target) >= 3 && target[1] == ':' && (target[2] == '/' || target[2] == '\\')
 }
 
 func isGitHubOwnerRepo(target string) bool {
@@ -93,6 +97,7 @@ func isGitHubOwnerRepo(target string) bool {
 	if len(parts) != 2 {
 		return false
 	}
+
 	owner, repo := parts[0], parts[1]
 	if len(owner) == 0 || len(repo) == 0 {
 		return false
@@ -103,11 +108,47 @@ func isGitHubOwnerRepo(target string) bool {
 
 func isValidSlugPart(s string) bool {
 	for _, r := range s {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.') {
+		if !isSlugChar(r) {
 			return false
 		}
 	}
+
 	return true
+}
+
+func isSlugChar(r rune) bool {
+	isLetter := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
+	isDigit := r >= '0' && r <= '9'
+	isSpecial := r == '-' || r == '_' || r == '.'
+
+	return isLetter || isDigit || isSpecial
+}
+
+func buildSlugCandidates(slug string) []string {
+	clean := strings.TrimSpace(slug)
+	if slashIdx := strings.Index(clean, "/"); slashIdx > 0 {
+		return buildScopedSlugCandidates(clean[:slashIdx], clean[slashIdx+1:])
+	}
+
+	return buildBareSlugCandidates(clean)
+}
+
+func buildScopedSlugCandidates(owner, repo string) []string {
+	parsed := clonenext.ParseRepoName(repo)
+	if parsed.HasVersion {
+		return []string{owner + "/" + repo, owner + "/" + parsed.BaseName}
+	}
+
+	return []string{owner + "/" + repo, owner + "/" + parsed.BaseName + "-v1", owner + "/" + parsed.BaseName}
+}
+
+func buildBareSlugCandidates(repo string) []string {
+	parsed := clonenext.ParseRepoName(repo)
+	if parsed.HasVersion {
+		return []string{repo, parsed.BaseName}
+	}
+
+	return []string{repo, parsed.BaseName + "-v1", parsed.BaseName}
 }
 
 func resolveFromStore(slug string) string {
@@ -115,44 +156,105 @@ func resolveFromStore(slug string) string {
 	if err != nil {
 		return ""
 	}
+
 	defer mainDB.Close()
 
+	return resolveFromStoreWithDB(mainDB, slug)
+}
+
+func resolveFromStoreWithDB(db *store.DB, slug string) string {
 	cleanSlug := strings.ToLower(slug)
-	repos, err := mainDB.ListRepos()
+	if url := findURLInRepoTable(db, cleanSlug); len(url) > 0 {
+		return url
+	}
+
+	if url := findURLInOwnerRepoIndex(db, cleanSlug); len(url) > 0 {
+		return url
+	}
+
+	if isAlimtvnetworkUser() || hasGitHubCredentials() {
+		return findURLForAlimtvnetwork(db, cleanSlug)
+	}
+
+	return ""
+}
+
+func findURLInRepoTable(db *store.DB, cleanSlug string) string {
+	repos, err := db.ListRepos()
 	if err != nil {
 		return ""
 	}
 
+	candidates := buildSlugCandidates(cleanSlug)
+	for _, c := range candidates {
+		if url := matchReposExactOrSuffix(repos, c); len(url) > 0 {
+			return url
+		}
+	}
+
+	if url := matchReposFuzzy(repos, cleanSlug); len(url) > 0 {
+		return url
+	}
+
+	return matchAliasURL(db, repos, cleanSlug)
+}
+
+func matchReposExactOrSuffix(repos []model.ScanRecord, slug string) string {
 	for _, r := range repos {
-		if strings.EqualFold(r.RepoName, cleanSlug) || strings.EqualFold(r.Slug, cleanSlug) {
+		if strings.EqualFold(r.RepoName, slug) || strings.EqualFold(r.Slug, slug) {
 			return pickRepoURL(r)
 		}
 	}
 
 	for _, r := range repos {
-		httpLower := strings.ToLower(r.HTTPSUrl)
-		sshLower := strings.ToLower(r.SSHUrl)
-		if strings.HasSuffix(httpLower, "/"+cleanSlug) || strings.HasSuffix(httpLower, "/"+cleanSlug+".git") ||
-			strings.HasSuffix(sshLower, ":"+cleanSlug) || strings.HasSuffix(sshLower, ":"+cleanSlug+".git") ||
-			strings.HasSuffix(sshLower, "/"+cleanSlug) || strings.HasSuffix(sshLower, "/"+cleanSlug+".git") {
+		if isRepoURLSuffixMatch(r, slug) {
+			return pickRepoURL(r)
+		}
+	}
+
+	return matchRepoByBaseName(repos, slug)
+}
+
+func matchRepoByBaseName(repos []model.ScanRecord, slug string) string {
+	base := clonenext.ParseRepoName(slug).BaseName
+	for _, r := range repos {
+		if strings.EqualFold(clonenext.ParseRepoName(r.RepoName).BaseName, base) {
+			return pickRepoURL(r)
+		}
+	}
+
+	return ""
+}
+
+func isRepoURLSuffixMatch(r model.ScanRecord, slug string) bool {
+	httpLower := strings.ToLower(r.HTTPSUrl)
+	sshLower := strings.ToLower(r.SSHUrl)
+	hasHTTPSuffix := strings.HasSuffix(httpLower, "/"+slug) || strings.HasSuffix(httpLower, "/"+slug+".git")
+	hasSSHSuffix := strings.HasSuffix(sshLower, ":"+slug) || strings.HasSuffix(sshLower, ":"+slug+".git") ||
+		strings.HasSuffix(sshLower, "/"+slug) || strings.HasSuffix(sshLower, "/"+slug+".git")
+
+	return hasHTTPSuffix || hasSSHSuffix
+}
+
+func matchReposFuzzy(repos []model.ScanRecord, slug string) string {
+	for _, r := range repos {
+		if strings.HasPrefix(strings.ToLower(r.RepoName), slug) || strings.HasPrefix(strings.ToLower(r.Slug), slug) {
 			return pickRepoURL(r)
 		}
 	}
 
 	for _, r := range repos {
-		if strings.HasPrefix(strings.ToLower(r.RepoName), cleanSlug) || strings.HasPrefix(strings.ToLower(r.Slug), cleanSlug) {
+		if strings.Contains(strings.ToLower(r.RepoName), slug) || strings.Contains(strings.ToLower(r.Slug), slug) {
 			return pickRepoURL(r)
 		}
 	}
 
-	for _, r := range repos {
-		if strings.Contains(strings.ToLower(r.RepoName), cleanSlug) || strings.Contains(strings.ToLower(r.Slug), cleanSlug) {
-			return pickRepoURL(r)
-		}
-	}
+	return ""
+}
 
-	resolved, err := mainDB.ResolveAlias(slug)
-	if err == nil && resolved.Slug != "" {
+func matchAliasURL(db *store.DB, repos []model.ScanRecord, slug string) string {
+	resolved, err := db.ResolveAlias(slug)
+	if err == nil && len(resolved.Slug) > 0 {
 		return matchRepoURLBySlug(repos, resolved.Slug)
 	}
 
@@ -165,6 +267,7 @@ func matchRepoURLBySlug(repos []model.ScanRecord, slug string) string {
 			return pickRepoURL(r)
 		}
 	}
+
 	return ""
 }
 
@@ -172,7 +275,150 @@ func pickRepoURL(r model.ScanRecord) string {
 	if len(r.HTTPSUrl) > 0 {
 		return r.HTTPSUrl
 	}
+
 	return r.SSHUrl
+}
+
+func findURLInOwnerRepoIndex(db *store.DB, cleanSlug string) string {
+	if db == nil || db.Conn() == nil {
+		return ""
+	}
+
+	cleanTarget := extractRepoNameFromTarget(cleanSlug)
+	candidates := buildBareSlugCandidates(cleanTarget)
+	for _, c := range candidates {
+		if url := queryOwnerIndexRow(db, c); len(url) > 0 {
+			return url
+		}
+	}
+
+	return ""
+}
+
+func queryOwnerIndexRow(db *store.DB, candidate string) string {
+	const query = `SELECT Owner, RepoName FROM OwnerRepoNameIndex 
+		WHERE RepoName = ? OR BaseName = ? 
+		ORDER BY VersionNumber DESC LIMIT 1`
+
+	var owner, repoName string
+	err := db.Conn().QueryRow(query, candidate, candidate).Scan(&owner, &repoName)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("https://github.com/%s/%s", owner, repoName)
+}
+
+func findURLForAlimtvnetwork(db *store.DB, cleanSlug string) string {
+	cleanTarget := extractRepoNameFromTarget(cleanSlug)
+	candidates := buildBareSlugCandidates(cleanTarget)
+	for _, c := range candidates {
+		scoped := "alimtvnetwork/" + c
+		if url := findURLInRepoTable(db, scoped); len(url) > 0 {
+			return url
+		}
+
+		if url := queryOwnerIndexForOwner(db, "alimtvnetwork", c); len(url) > 0 {
+			return url
+		}
+	}
+
+	return ""
+}
+
+func queryOwnerIndexForOwner(db *store.DB, owner, candidate string) string {
+	const query = `SELECT Owner, RepoName FROM OwnerRepoNameIndex 
+		WHERE Owner = ? AND (RepoName = ? OR BaseName = ?) 
+		ORDER BY VersionNumber DESC LIMIT 1`
+
+	var rowOwner, repoName string
+	err := db.Conn().QueryRow(query, owner, candidate, candidate).Scan(&rowOwner, &repoName)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("https://github.com/%s/%s", rowOwner, repoName)
+}
+
+func isAlimtvnetworkUser() bool {
+	cfg, err := store.LoadGitProfiles()
+	if err != nil {
+		return false
+	}
+
+	if strings.EqualFold(cfg.Active, "alimtvnetwork") || strings.EqualFold(cfg.Default, "alimtvnetwork") {
+		return true
+	}
+
+	return hasProfileNamed(cfg.Profiles, "alimtvnetwork")
+}
+
+func hasProfileNamed(profiles []model.GitProfile, name string) bool {
+	for _, p := range profiles {
+		if strings.EqualFold(p.Name, name) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func hasGitHubCredentials() bool {
+	if _, hasToken := GetGlobalAccessToken(); hasToken {
+		return true
+	}
+
+	_, _, err := secrets.Resolve()
+
+	return err == nil
+}
+
+func resolveFromGitHubCLI(slug string) string {
+	repos, err := fetchGitHubCLIRepos()
+	if err != nil || len(repos) == 0 {
+		return ""
+	}
+
+	candidates := buildBareSlugCandidates(extractRepoNameFromTarget(slug))
+	for _, c := range candidates {
+		if url := matchGitHubCLIRepo(repos, c); len(url) > 0 {
+			return url
+		}
+	}
+
+	return ""
+}
+
+func fetchGitHubCLIRepos() ([]ghRepoListing, error) {
+	cmd := exec.Command("gh", "repo", "list", "--limit", "200", "--json", "name,url,nameWithOwner")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	var repos []ghRepoListing
+	if err := json.Unmarshal(out, &repos); err != nil {
+		return nil, err
+	}
+
+	return repos, nil
+}
+
+func matchGitHubCLIRepo(repos []ghRepoListing, candidate string) string {
+	clean := strings.ToLower(candidate)
+	for _, r := range repos {
+		if strings.EqualFold(r.Name, clean) {
+			return r.URL
+		}
+	}
+
+	for _, r := range repos {
+		if strings.HasPrefix(strings.ToLower(r.Name), clean) {
+			return r.URL
+		}
+	}
+
+	return ""
 }
 
 func printRepoSlugSuggestions(target string) {
@@ -180,6 +426,7 @@ func printRepoSlugSuggestions(target string) {
 	if err != nil {
 		return
 	}
+
 	defer mainDB.Close()
 
 	cleanTarget := extractRepoNameFromTarget(target)
@@ -187,24 +434,75 @@ func printRepoSlugSuggestions(target string) {
 	if len(suggs) == 0 {
 		suggs = findClosestRepoSuggestions(mainDB, cleanTarget)
 	}
+
 	filtered := filterRedundantSuggestions(suggs, cleanTarget, target)
 	if len(filtered) > 0 {
-		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", cleanTarget)
-		for _, s := range filtered {
-			fmt.Fprintf(os.Stderr, "  %s\n", s)
-		}
+		renderCatppuccinRepoSuggestions(cleanTarget, filtered)
+	}
+}
+
+func renderCatppuccinRepoSuggestions(target string, suggestions []string) {
+	group := diag.SuggestionGroup{
+		Title:       "Repository Suggestions",
+		Reason:      formatSuggestionReason(target),
+		InputToken:  target,
+		Suggestions: buildDiagSuggestions(suggestions),
+	}
+	if err := diag.RenderBox(os.Stderr, group); err != nil {
+		printPlainRepoSuggestions(target, suggestions)
+	}
+}
+
+func formatSuggestionReason(target string) string {
+	if len(target) == 0 || target == "available" {
+		return "Available repositories in local catalog:"
+	}
+
+	return fmt.Sprintf("Repository %q not found. Did you mean:", target)
+}
+
+func buildDiagSuggestions(suggestions []string) []diag.Suggestion {
+	items := make([]diag.Suggestion, 0, len(suggestions))
+	for _, s := range suggestions {
+		items = append(items, diag.Suggestion{
+			Command:     fmt.Sprintf("gitmap clone %s", s),
+			Description: fmt.Sprintf("Clone %s", s),
+			Confidence:  0.8,
+		})
+	}
+
+	return items
+}
+
+func printPlainRepoSuggestions(target string, suggestions []string) {
+	if len(target) > 0 && target != "available" {
+		fmt.Fprintf(os.Stderr, "Repository %q not found. Did you mean:\n", target)
+	} else {
+		fmt.Fprintln(os.Stderr, "Available repositories:")
+	}
+
+	for _, s := range suggestions {
+		fmt.Fprintf(os.Stderr, "  %s\n", s)
 	}
 }
 
 func filterRedundantSuggestions(suggs []string, cleanTarget, target string) []string {
 	var filtered []string
 	for _, s := range suggs {
-		if strings.EqualFold(s, cleanTarget) || strings.EqualFold(s, target) || strings.EqualFold(extractRepoNameFromTarget(s), cleanTarget) {
+		if isRedundantSuggestion(s, cleanTarget, target) {
 			continue
 		}
+
 		filtered = append(filtered, s)
 	}
+
 	return filtered
+}
+
+func isRedundantSuggestion(s, cleanTarget, target string) bool {
+	return strings.EqualFold(s, cleanTarget) ||
+		strings.EqualFold(s, target) ||
+		strings.EqualFold(extractRepoNameFromTarget(s), cleanTarget)
 }
 
 func extractRepoNameFromTarget(target string) string {
@@ -214,36 +512,6 @@ func extractRepoNameFromTarget(target string) string {
 	if idx := strings.LastIndexAny(clean, "/:"); idx != -1 {
 		clean = clean[idx+1:]
 	}
+
 	return clean
-}
-
-func resolveFromGitHubCLI(slug string) string {
-	cmd := exec.Command("gh", "repo", "list", "--limit", "200", "--json", "name,url,nameWithOwner")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-
-	var repos []ghRepoListing
-	unmarshalErr := json.Unmarshal(out, &repos)
-	if unmarshalErr != nil {
-		return ""
-	}
-
-	cleanSlug := strings.ToLower(extractRepoNameFromTarget(slug))
-	for _, r := range repos {
-		isExactMatch := strings.EqualFold(r.Name, cleanSlug)
-		if isExactMatch {
-			return r.URL
-		}
-	}
-
-	for _, r := range repos {
-		isPrefixMatch := strings.HasPrefix(strings.ToLower(r.Name), cleanSlug)
-		if isPrefixMatch {
-			return r.URL
-		}
-	}
-
-	return ""
 }

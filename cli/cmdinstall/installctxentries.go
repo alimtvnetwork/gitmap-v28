@@ -47,8 +47,9 @@ func ctxCategoryEntries() []ctxEntry {
 		{KeyName: "10_scan", MUIVerb: "Scan", Children: scanChildren()},
 		{KeyName: "20_clone", MUIVerb: "Clone", Children: cloneChildren()},
 		{KeyName: "30_release", MUIVerb: "Release", Children: releaseChildren()},
-		{KeyName: "40_repos", MUIVerb: "Repositories (Web UI)", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "40_repos", MUIVerb: "Repositories", Children: repoChildren()},
 		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
+		{KeyName: "60_install", MUIVerb: "Install", Children: installChildren()},
 	}
 }
 
@@ -60,8 +61,6 @@ func ctxTailEntries() []ctxEntry {
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
 		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},
-		{KeyName: "95_install_wizard", MUIVerb: "Install Wizard (GitMap Tools & Profiles)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "96_clean_powershell", MUIVerb: "Clean Duplicate PowerShell", Args: []string{"context-menu", "clean-powershell"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 	}
 }
 
@@ -109,5 +108,24 @@ func visibilityChildren() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "10_public", MUIVerb: "Make public", Args: []string{constants.CmdMakePublic}, Mode: ctxmodetype.Terminal},
 		{KeyName: "20_private", MUIVerb: "Make private", Args: []string{constants.CmdMakePrivate}, Mode: ctxmodetype.Terminal},
+	}
+}
+
+func repoChildren() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "10_web_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "20_list", MUIVerb: "List Tracked Repositories", Args: []string{"list"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "30_status", MUIVerb: "Status All Repositories", Args: []string{"status-all"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "40_pull_all", MUIVerb: "Pull All Repositories", Args: []string{"pull-all"}, Mode: ctxmodetype.Terminal},
+	}
+}
+
+func installChildren() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "10_wizard", MUIVerb: "Install Wizard (Interactive)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "20_dev", MUIVerb: "Install Dev Workstation Profile", Args: []string{"install", "profile", "dev"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "30_tools", MUIVerb: "Install Development Tools (ls)", Args: []string{"install", "list"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "40_agy", MUIVerb: "Install Antigravity (AGY)", Args: []string{"install", "antigravity"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "50_clean_pwsh", MUIVerb: "Clean Duplicate PowerShell", Args: []string{"context-menu", "clean-powershell"}, Mode: ctxmodetype.Terminal},
 	}
 }
