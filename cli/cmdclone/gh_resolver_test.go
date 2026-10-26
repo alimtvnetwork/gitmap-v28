@@ -1,6 +1,7 @@
 package cmdclone
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -76,5 +77,68 @@ func TestFilterRedundantSuggestions(t *testing.T) {
 	}
 	if len(filtered) != 2 {
 		t.Errorf("expected 2 filtered suggestions, got %d (%v)", len(filtered), filtered)
+	}
+}
+
+func TestBuildSlugCandidates(t *testing.T) {
+	candidatesVersioned := buildSlugCandidates("macro-ahk-v1")
+	if len(candidatesVersioned) != 2 || candidatesVersioned[1] != "macro-ahk" {
+		t.Errorf("unexpected candidates for versioned slug: %v", candidatesVersioned)
+	}
+
+	candidatesUnversioned := buildSlugCandidates("macro-ahk")
+	if len(candidatesUnversioned) != 3 || candidatesUnversioned[1] != "macro-ahk-v1" {
+		t.Errorf("unexpected candidates for unversioned slug: %v", candidatesUnversioned)
+	}
+
+	candidatesScoped := buildSlugCandidates("alimtvnetwork/macro-ahk-v2")
+	if len(candidatesScoped) != 2 || candidatesScoped[1] != "alimtvnetwork/macro-ahk" {
+		t.Errorf("unexpected candidates for scoped slug: %v", candidatesScoped)
+	}
+}
+
+func TestIsRecognizedCloneShorthand(t *testing.T) {
+	if !isRecognizedCloneShorthand("json") {
+		t.Errorf("expected 'json' to be recognized shorthand")
+	}
+
+	if !isRecognizedCloneShorthand("csv") {
+		t.Errorf("expected 'csv' to be recognized shorthand")
+	}
+
+	if !isRecognizedCloneShorthand("text") {
+		t.Errorf("expected 'text' to be recognized shorthand")
+	}
+
+	if isRecognizedCloneShorthand("my-repo") {
+		t.Errorf("did not expect 'my-repo' to be recognized shorthand")
+	}
+}
+
+func TestDispatchCloneExecution_BareSlugNotFound(t *testing.T) {
+	cf := CloneFlags{
+		Source: "non-existent-test-repo-slug-xyz987",
+	}
+	err := dispatchCloneExecution(cf)
+	if err == nil {
+		t.Fatalf("expected error for non-existent bare slug, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "not found or resolved") {
+		t.Errorf("expected error message to mention not found or resolved, got %v", err)
+	}
+}
+
+func TestValidateCFRTarget_Empty(t *testing.T) {
+	_, err := validateCFRTarget("")
+	if err == nil {
+		t.Fatalf("expected error for empty CFR target, got nil")
+	}
+}
+
+func TestValidateCFRTarget_NotFound(t *testing.T) {
+	_, err := validateCFRTarget("non-existent-cfr-repo-slug-xyz987")
+	if err == nil {
+		t.Fatalf("expected error for non-existent CFR target, got nil")
 	}
 }

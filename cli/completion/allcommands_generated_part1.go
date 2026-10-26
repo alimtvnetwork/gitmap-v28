@@ -139,6 +139,8 @@ var generatedCommandsPart1 = []string{
 	"create-repo",
 	"create-repo-local",
 	"crepo",
+	"crf",
+	"crfb",
 	"crj",
 	"crt",
 	"cs",
@@ -253,6 +255,4 @@ var generatedCommandsPart1 = []string{
 	"jn",
 	"join",
 	"latest-branch",
-	"lb",
-	"lcf",
 }

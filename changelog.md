@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.616.0] - 2026-10-26
+
+### Added
+- modern responsive show log single diff exit button context submenus and help
+
+---
+
 ## [v6.615.0] - 2026-10-25
 
 ### Added
