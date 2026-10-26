@@ -782,3 +782,23 @@ Allowed work:
 - Never prompt the operator for confirmation in destructive or developer cache clean commands (`gitmap os dev-clean`) without first computing and displaying an upfront ANSI dry-run preview with item counts and total reclaimable metrics.
 
 - Never rely solely on pre-existing records in `devtools_cache_paths` without actively detecting and probing missing ecosystem discovery rules (such as `cargo`) across dev drives and toolchain directories.
+
+---
+
+## Redundant Release Module Prefixes in CPR (`RELEASE - ` or `VERSION - `) — TOTAL BAN
+
+🔴 **NEVER pass `RELEASE - ` or `VERSION - ` inside `gitmap cpr` commit message arguments (e.g. `gitmap cpr "RELEASE - v6.615.0 ..."` or `gitmap cpr "VERSION - v6.615.0 ..."`). ALWAYS pass the version directly: `gitmap cpr "v<version> <summary>"` (e.g. `gitmap cpr "v6.615.0 file context menu powershell cleaner"`).**
+
+Forbidden:
+- ❌ `gitmap cpr "RELEASE - v6.615.0 <scope>"` (results in redundant `Release: RELEASE - ...` or dropped module scope).
+- ❌ `gitmap cpr "VERSION - v6.615.0 <scope>"` (results in inconsistent `Release: VERSION - ...`).
+- ❌ `gitmap cpf` for releases or version bumps (it stamps the commit with `Feature:`).
+- ❌ Raw `git commit -m "fix: auto-resolve merge conflicts"` (bypasses GitMap semantic commit verbs).
+
+Allowed work:
+- ✅ `gitmap cpr "v<version> <summary>"` for all release ceremony commits.
+- ✅ `gitmap cbf "GIT - auto-resolve merge conflicts"` for mechanical conflict merges.
+- ✅ `gitmap cpf "MODULE - summary"`, `gitmap cbf "MODULE - summary"`, `gitmap cfr "MODULE - summary"`, and `gitmap cpc "MODULE - summary"` for all other atomic commits.
+
+**Why:** User explicitly mandated clean, consistent Git history across all AI agents and tools. Redundant prefixes in `cpr` caused inconsistent commit headers in Git history (`Release: RELEASE - ...` vs `Release: VERSION - ...` vs `Release: vX.Y.Z ...`). GitMap already prefixes `Release: `, so passing `v<version> <summary>` directly produces the clean sovereign commit header `Release: v<version> <summary>`.
+

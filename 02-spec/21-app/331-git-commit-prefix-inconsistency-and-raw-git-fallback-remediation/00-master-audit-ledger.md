@@ -73,4 +73,4 @@ flowchart TD
 3. **Pillar 3 — Release Automation Alignment:**
    - Update `03-ai-scripts/37-bump-version.py` and `01-prompts/17-release-management/` prompts to use the unified semantic commit standard.
 4. **Pillar 4 — Guidelines & Skill Enforcement:**
-   - Update `d:\work\gitmap\.agents\rules\gitmap_guidelines.md` and `.agents/skills/gitmap/skill.md` with explicit release and chore commit examples.
+   - Update `.agents/rules/gitmap_guidelines.md` and `.agents/skills/gitmap/skill.md` with explicit release and chore commit examples.

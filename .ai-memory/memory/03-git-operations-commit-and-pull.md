@@ -26,7 +26,21 @@ GitMap streamlines Git workflows through high-level semantic commit commands:
 
 ---
 
-## 3. PAS Worker Concurrency & Pull Pool Architecture
+## 3. Dedicated Semantic Commit Verbs & Formatting Standards
+
+GitMap strictly enforces dedicated semantic commit verbs to ensure atomic Git history without conflicting conventional prefixes:
+
+- **Features:** `gitmap cpf "MODULE - summary"` $\rightarrow$ produces `Feature: MODULE - summary`
+- **Bug Fixes:** `gitmap cbf "MODULE - summary"` $\rightarrow$ produces `Bug: MODULE - summary` (or alias `cpb`)
+- **Refactoring:** `gitmap cfr "MODULE - summary"` $\rightarrow$ produces `Refactor: MODULE - summary`
+- **Chores / Sync / Docs:** `gitmap cpc "MODULE - summary"` $\rightarrow$ produces `Chore: MODULE - summary`
+- **Releases / Version Bumps:** `gitmap cpr "v<version> <summary>"` $\rightarrow$ produces `Release: v<version> <summary>` (e.g. `gitmap cpr "v6.615.0 context menu enhancement"`)
+- **Banned Release Syntax:** Redundant `VERSION - ` or `RELEASE - ` inside `cpr` is strictly banned. GitMap adds the sovereign prefix automatically.
+- **Banned Generic & Nested Syntax:** Total ban on raw `git commit`, square brackets `[...]`, colons inside arguments, or nested prefixes like `chore(release):`.
+
+---
+
+## 4. PAS Worker Concurrency & Pull Pool Architecture
 
 For multi-repository operations (e.g., `gitmap pull-all`, `gitmap status-all`), GitMap employs the Parallel Async Scheduler (PAS):
 
@@ -38,7 +52,7 @@ For multi-repository operations (e.g., `gitmap pull-all`, `gitmap status-all`), 
 
 ---
 
-## 4. Pull-All Self-Healing & OMZ Ignore Strategy
+## 5. Pull-All Self-Healing & OMZ Ignore Strategy
 
 - **Oh My Zsh (OMZ) Ignore Rule:** Automated pull scripts explicitly bypass third-party framework repositories like `.oh-my-zsh` and custom plugins unless targeted directly, preventing upstream update conflicts.
 - **Push Self-Healing:** When remote reject errors occur due to non-fast-forward state, GitMap inspects commit ancestry, fetches remote tags, and offers safe rebase or fast-forward solutions.
