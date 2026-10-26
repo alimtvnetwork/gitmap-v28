@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.618.0] - 2026-10-26
+
+### Added
+- commit author information and interactive repository aum search ui
+
+---
+
 ## [v6.617.0] - 2026-10-26
 
 ### Added
