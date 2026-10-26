@@ -215,6 +215,17 @@ function showFileContextMenu(e, filePath) {
   ` + "`" + `;
 }
 
+const btnFs = document.getElementById('btn-fullscreen');
+if (btnFs) {
+  btnFs.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    }
+  });
+}
+
 document.getElementById('btn-exit').addEventListener('click', async () => {
   showToast('Stopping server...');
   try {

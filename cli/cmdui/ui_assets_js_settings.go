@@ -279,4 +279,28 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
       const sel = document.getElementById('setting-theme');
       if (sel && !sel.dataset.themeWired) { sel.dataset.themeWired = '1'; sel.addEventListener('change', onThemeChange); }
     }
+    function wireHeaderControls() {
+      const btnFs = document.getElementById('btn-fullscreen');
+      if (btnFs && !btnFs.dataset.fsWired) {
+        btnFs.dataset.fsWired = '1';
+        btnFs.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+          }
+        });
+      }
+      const btnEx = document.getElementById('btn-exit');
+      if (btnEx && !btnEx.dataset.exitWired) {
+        btnEx.dataset.exitWired = '1';
+        btnEx.addEventListener('click', async () => {
+          try {
+            await fetch('/api/ui/exit', { method: 'POST' });
+          } catch (e) {}
+          window.close();
+          setTimeout(() => { window.location.href = 'about:blank'; }, 300);
+        });
+      }
+    }
 `

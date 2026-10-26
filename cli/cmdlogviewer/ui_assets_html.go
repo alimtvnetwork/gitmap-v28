@@ -202,6 +202,7 @@ const showLogMarkupHead = `<!DOCTYPE html>
   <input type="text" id="commit-search" class="search-box" placeholder="Filter commits (hash, author, message)...">
   <button id="btn-refresh" title="Refresh commit list">↻ Refresh</button>
   <button id="btn-compare-branches" title="Compare two branches via Beyond Compare">Branch Comparison...</button>
+  <button id="btn-fullscreen" title="Toggle Fullscreen (F11)">⛶ Fullscreen</button>
   <button id="btn-exit" class="btn-danger" title="Stop local server and close window">✕ Exit</button>
 </header>
 <main class="workspace">

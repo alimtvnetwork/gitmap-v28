@@ -283,6 +283,7 @@ const uiAssetsJSFleet = `    async function deployKeysFleetUI() {
     window.addEventListener('load', () => {
       hydrateIcons();
       loadSettings();
+      wireHeaderControls();
       loadAgyInstances();
       initTerminalListeners();
       populateEditorNodes();
