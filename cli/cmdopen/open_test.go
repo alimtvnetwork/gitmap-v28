@@ -7,6 +7,24 @@ import (
 	"testing"
 )
 
+func TestIsAntigravityTarget(t *testing.T) {
+	if !isAntigravityTarget("agy") {
+		t.Errorf("expected isAntigravityTarget(agy) = true")
+	}
+
+	if !isAntigravityTarget("antigravity") {
+		t.Errorf("expected isAntigravityTarget(antigravity) = true")
+	}
+
+	if !isAntigravityTarget("ag") {
+		t.Errorf("expected isAntigravityTarget(ag) = true")
+	}
+
+	if isAntigravityTarget("notepad") {
+		t.Errorf("expected isAntigravityTarget(notepad) = false")
+	}
+}
+
 func TestIsEditorTarget(t *testing.T) {
 	if !isEditorTarget("code") {
 		t.Errorf("expected isEditorTarget(code) = true")

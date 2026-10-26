@@ -79,20 +79,24 @@ const showLogMarkupHead = `<!DOCTYPE html>
     border-radius: 4px;
     font-size: 12px;
     outline: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  input:focus, select:focus { border-color: var(--accent); }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(137, 180, 250, 0.25); }
   button {
     cursor: pointer;
     background: #313244;
-    transition: background 0.15s, border-color 0.15s;
   }
-  button:hover { background: var(--accent); color: #11111b; }
+  button:hover { background: var(--accent); color: #11111b; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(137, 180, 250, 0.25); }
+  button:active { transform: translateY(0); filter: brightness(0.95); }
   .btn-primary { background: var(--accent); color: #11111b; font-weight: 600; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  main.workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 3px 10px rgba(180, 190, 254, 0.3); }
+  .btn-danger { background: #451a1a; color: #f38ba8; border-color: #f38ba8; }
+  .btn-danger:hover { background: #f38ba8; color: #11111b; box-shadow: 0 3px 10px rgba(243, 139, 168, 0.3); }
+  main.workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; animation: appEntrance 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
   .pane-upper {
     flex: 4; min-height: 140px; display: flex; flex-direction: column;
     background: var(--pane-bg); border-bottom: 1px solid var(--border); overflow: hidden;
+    transition: background 0.2s ease;
   }
   .table-scroll { flex: 1; overflow-y: auto; }
   table.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -104,9 +108,9 @@ const showLogMarkupHead = `<!DOCTYPE html>
     padding: 5px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  table.data-table tr { cursor: pointer; user-select: none; }
-  table.data-table tr:hover { background: rgba(255, 255, 255, 0.04); }
-  table.data-table tr.selected { background: var(--sel-bg); color: #fff; }
+  table.data-table tr { cursor: pointer; user-select: none; transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1); }
+  table.data-table tr:hover { background: rgba(137, 180, 250, 0.08); }
+  table.data-table tr.selected { background: var(--sel-bg); color: #fff; box-shadow: inset 3px 0 0 var(--accent); }
   .mono { font-family: var(--font-mono); }
   .hash-cell { color: var(--yellow); width: 90px; }
   .date-cell { color: var(--text-muted); width: 100px; }
@@ -114,6 +118,7 @@ const showLogMarkupHead = `<!DOCTYPE html>
   .pane-middle {
     flex: 3; min-height: 110px; background: var(--card-bg);
     border-bottom: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+    transition: background 0.2s ease;
   }
   .commit-header {
     padding: 8px 14px; background: rgba(0, 0, 0, 0.2); display: flex;
@@ -127,7 +132,9 @@ const showLogMarkupHead = `<!DOCTYPE html>
   .pane-lower {
     flex: 3; min-height: 110px; background: var(--pane-bg);
     display: flex; flex-direction: column; overflow: hidden;
+    transition: background 0.2s ease;
   }
+  @keyframes appEntrance { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .lower-header {
     padding: 6px 14px; background: #252538; border-bottom: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 11px;

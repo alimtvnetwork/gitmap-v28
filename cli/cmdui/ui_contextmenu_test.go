@@ -73,6 +73,8 @@ func TestUIAssetsMarkupContextMenuElements(t *testing.T) {
 	assertMarkupContains(t, IndexHTML, "gitmap pa --ssh")
 	assertMarkupContains(t, IndexHTML, "gitmap nodes ping")
 	assertMarkupContains(t, IndexHTML, "gitmap show-log")
+	assertMarkupContains(t, IndexHTML, "btn-fullscreen")
+	assertMarkupContains(t, IndexHTML, "btn-exit")
 }
 
 func assertMarkupContains(t *testing.T, html, substr string) {

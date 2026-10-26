@@ -9,8 +9,24 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
 )
+
+func isAntigravityTarget(arg string) bool {
+	low := strings.ToLower(strings.TrimSpace(arg))
+
+	return low == "agy" || low == "antigravity" || low == "ag"
+}
+
+func launchAntigravityEditor(args []string) error {
+	targetPath := "."
+	if len(args) > 1 && args[1] != "" {
+		targetPath = macro.ExpandPathAndEnv(args[1])
+	}
+
+	return cmdagy.RunAgyOpen(targetPath)
+}
 
 func isEditorTarget(arg string) bool {
 	low := strings.ToLower(strings.TrimSpace(arg))

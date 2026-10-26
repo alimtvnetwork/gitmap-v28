@@ -14,6 +14,10 @@ import (
 func RunOpen(args []string) error {
 	checkHelp(constants.CmdOpen, args)
 
+	if len(args) > 0 && isAntigravityTarget(args[0]) {
+		return launchAntigravityEditor(args)
+	}
+
 	if len(args) > 0 && isEditorTarget(args[0]) {
 		return launchEditor(args)
 	}
