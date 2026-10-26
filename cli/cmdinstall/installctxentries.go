@@ -122,6 +122,7 @@ func repoChildren() []ctxEntry {
 
 func installChildren() []ctxEntry {
 	return []ctxEntry{
+		{KeyName: "05_install_ctx", MUIVerb: "Install Context Menu", Args: []string{"install", "context-menu"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "10_wizard", MUIVerb: "Install Wizard (Interactive)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "20_dev", MUIVerb: "Install Dev Workstation Profile", Args: []string{"install", "profile", "dev"}, Mode: ctxmodetype.Terminal},
 		{KeyName: "30_tools", MUIVerb: "Install Development Tools (ls)", Args: []string{"install", "list"}, Mode: ctxmodetype.Terminal},

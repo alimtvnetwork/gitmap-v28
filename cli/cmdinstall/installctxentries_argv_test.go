@@ -53,6 +53,7 @@ var expectedCtxArgv = map[string]struct {
 	"50_visibility/10_public":  {"", []string{"make-public"}},
 	"50_visibility/20_private": {"", []string{"make-private"}},
 	// Install
+	"60_install/05_install_ctx": {"", []string{"install", "context-menu"}},
 	"60_install/10_wizard":     {"", []string{"install", "--wizard"}},
 	"60_install/20_dev":        {"", []string{"install", "profile", "dev"}},
 	"60_install/30_tools":      {"", []string{"install", "list"}},
