@@ -23,7 +23,7 @@ This plan details all surgical changes required across the Go CLI formatter, AI 
 
 | Subtask ID | File | Description | Target | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Subtask-01** | `01-subtask-commit-formatter-engine.md` | Standardize `cli/cmdcommit/commit_formatter.go` to preserve canonical `Release: RELEASE - vX.Y.Z <scope>` and auto-inject `RELEASE` module if omitted. | `cli/cmdcommit/` | Pending |
+| **Subtask-01** | `01-subtask-commit-formatter-engine.md` | Standardize `cli/cmdcommit/commit_formatter.go` to enforce lowercase module names (`Feature: commit - ...`, `Chore: docs - ...`) and lowercase conventional commits (`feat(module): ...`), eliminating all uppercase commit text. | `cli/cmdcommit/` | Completed |
 | **Subtask-02** | `02-subtask-auto-reconcile-script-fix.md` | Update `03-ai-scripts/47-git-reconcile-and-resolve-conflict.py` to use `gitmap cbf` or standardized commit messages. | `03-ai-scripts/` | Pending |
 | **Subtask-03** | `03-subtask-rules-and-skills-sync.md` | Update `.agents/rules/gitmap_guidelines.md` and `.agents/skills/` to strictly forbid raw `git commit` and document canonical release examples. | `.agents/`, `01-prompts/` | Pending |
 

@@ -17,57 +17,57 @@ func TestParseAndFormatCommitMessage_HyphenSyntax(t *testing.T) {
 			name:     "cpf hyphen auth",
 			verb:     "cpf",
 			args:     []string{"auth", "-", "support", "jwt", "refresh", "tokens"},
-			expected: "Feature: AUTH - support jwt refresh tokens",
-			module:   "AUTH",
+			expected: "Feature: auth - support jwt refresh tokens",
+			module:   "auth",
 		},
 		{
 			name:     "cbf hyphen sqlite",
 			verb:     "cbf",
 			args:     []string{"sqlite", "-", "handle", "connection", "pool", "lock"},
-			expected: "Bug: SQLITE - handle connection pool lock",
-			module:   "SQLITE",
+			expected: "Bug: sqlite - handle connection pool lock",
+			module:   "sqlite",
 		},
 		{
 			name:     "cpb hyphen db",
 			verb:     "cpb",
 			args:     []string{"db", "-", "fix", "deadlock"},
-			expected: "Bug: DB - fix deadlock",
-			module:   "DB",
+			expected: "Bug: db - fix deadlock",
+			module:   "db",
 		},
 		{
 			name:     "cpc hyphen skills",
 			verb:     "cpc",
 			args:     []string{"skills", "-", "sync", "gitmap", "skill"},
-			expected: "Chore: SKILLS - sync gitmap skill",
-			module:   "SKILLS",
+			expected: "Chore: skills - sync gitmap skill",
+			module:   "skills",
 		},
 		{
 			name:     "cpr hyphen version",
 			verb:     "cpr",
 			args:     []string{"v6.600.0", "-", "release", "notes"},
-			expected: "Release: V6.600.0 - release notes",
-			module:   "V6.600.0",
+			expected: "Release: v6.600.0 - release notes",
+			module:   "v6.600.0",
 		},
 		{
 			name:     "cfr hyphen refactor",
 			verb:     "cfr",
 			args:     []string{"toolchain", "-", "extract", "llvm", "resolver"},
-			expected: "Refactor: TOOLCHAIN - extract llvm resolver",
-			module:   "TOOLCHAIN",
+			expected: "Refactor: toolchain - extract llvm resolver",
+			module:   "toolchain",
 		},
 		{
 			name:     "module with path slashes",
 			verb:     "cpf",
 			args:     []string{"cli/cmdworkgroup", "-", "add", "resolver"},
-			expected: "Feature: CLI/CMDWORKGROUP - add resolver",
-			module:   "CLI/CMDWORKGROUP",
+			expected: "Feature: cli/cmdworkgroup - add resolver",
+			module:   "cli/cmdworkgroup",
 		},
 		{
 			name:     "colon separator without brackets",
 			verb:     "cpf",
 			args:     []string{"auth:", "add", "jwt"},
-			expected: "Feature: AUTH - add jwt",
-			module:   "AUTH",
+			expected: "Feature: auth - add jwt",
+			module:   "auth",
 		},
 	}
 
@@ -102,36 +102,36 @@ func TestParseAndFormatCommitMessage_BracketSanitization(t *testing.T) {
 			name:     "cpf bracket auth sanitization",
 			verb:     "cpf",
 			args:     []string{"[auth]:", "support", "jwt", "refresh", "tokens"},
-			expected: "Feature: AUTH - support jwt refresh tokens",
-			module:   "AUTH",
+			expected: "Feature: auth - support jwt refresh tokens",
+			module:   "auth",
 		},
 		{
 			name:     "cbf bracket sqlite sanitization",
 			verb:     "cbf",
 			args:     []string{"[sqlite]:", "handle", "connection", "pool", "lock"},
-			expected: "Bug: SQLITE - handle connection pool lock",
-			module:   "SQLITE",
+			expected: "Bug: sqlite - handle connection pool lock",
+			module:   "sqlite",
 		},
 		{
 			name:     "cpc bracket skills sanitization",
 			verb:     "cpc",
 			args:     []string{"[skills]:", "sync", "gitmap", "skill"},
-			expected: "Chore: SKILLS - sync gitmap skill",
-			module:   "SKILLS",
+			expected: "Chore: skills - sync gitmap skill",
+			module:   "skills",
 		},
 		{
 			name:     "cpr bracket version sanitization",
 			verb:     "cpr",
 			args:     []string{"[v6.600.0]:", "release", "notes"},
-			expected: "Release: V6.600.0 - release notes",
-			module:   "V6.600.0",
+			expected: "Release: v6.600.0 - release notes",
+			module:   "v6.600.0",
 		},
 		{
 			name:     "bracket module with slashes",
 			verb:     "cpf",
 			args:     []string{"[cli/cmdworkgroup]:", "add", "resolver"},
-			expected: "Feature: CLI/CMDWORKGROUP - add resolver",
-			module:   "CLI/CMDWORKGROUP",
+			expected: "Feature: cli/cmdworkgroup - add resolver",
+			module:   "cli/cmdworkgroup",
 		},
 	}
 
@@ -166,36 +166,36 @@ func TestParseAndFormatCommitMessage_ConventionalSyntax(t *testing.T) {
 			name:     "feat with bracketed scope sanitized",
 			verb:     "cpf",
 			args:     []string{"feat([workgroup]):", "add", "folder", "ssh", "key", "binding"},
-			expected: "FEAT(WORKGROUP): add folder ssh key binding",
-			module:   "WORKGROUP",
+			expected: "feat(workgroup): add folder ssh key binding",
+			module:   "workgroup",
 		},
 		{
 			name:     "fix with plain scope",
 			verb:     "cbf",
 			args:     []string{"fix(ssh):", "handle", "missing", "private", "key"},
-			expected: "FIX(SSH): handle missing private key",
-			module:   "SSH",
+			expected: "fix(ssh): handle missing private key",
+			module:   "ssh",
 		},
 		{
 			name:     "chore with plain scope",
 			verb:     "cpc",
 			args:     []string{"chore(skills):", "cleanup", "unused", "files"},
-			expected: "CHORE(SKILLS): cleanup unused files",
-			module:   "SKILLS",
+			expected: "chore(skills): cleanup unused files",
+			module:   "skills",
 		},
 		{
 			name:     "cbf with bracketed module syntax",
 			verb:     "cbf",
 			args:     []string{"(constants):", "restore", "untyped", "OrderMode", "aliases"},
-			expected: "FIX(CONSTANTS): restore untyped OrderMode aliases",
-			module:   "CONSTANTS",
+			expected: "fix(constants): restore untyped OrderMode aliases",
+			module:   "constants",
 		},
 		{
 			name:     "cfr with bracketed module syntax",
 			verb:     "cfr",
 			args:     []string{"(guidelines):", "update", "v6", "execute", "prompt"},
-			expected: "REFACTOR(GUIDELINES): update v6 execute prompt",
-			module:   "GUIDELINES",
+			expected: "refactor(guidelines): update v6 execute prompt",
+			module:   "guidelines",
 		},
 	}
 
@@ -226,31 +226,31 @@ func TestParseAndFormatCommitMessage_TrimmingAndQuotes(t *testing.T) {
 			name:     "double quotes wrapping",
 			verb:     "cpf",
 			args:     []string{`"[auth]: add jwt"`},
-			expected: "Feature: AUTH - add jwt",
+			expected: "Feature: auth - add jwt",
 		},
 		{
 			name:     "single quotes wrapping",
 			verb:     "cbf",
 			args:     []string{`'[db]: fix lock'`},
-			expected: "Bug: DB - fix lock",
+			expected: "Bug: db - fix lock",
 		},
 		{
 			name:     "duplicate Feature prefix stripping",
 			verb:     "cpf",
 			args:     []string{"Feature:", "[auth]:", "add", "jwt"},
-			expected: "Feature: AUTH - add jwt",
+			expected: "Feature: auth - add jwt",
 		},
 		{
 			name:     "duplicate Bug prefix stripping",
 			verb:     "cbf",
 			args:     []string{"Bug:", "[db]:", "fix", "lock"},
-			expected: "Bug: DB - fix lock",
+			expected: "Bug: db - fix lock",
 		},
 		{
 			name:     "legacy hyphen syntax conversion",
 			verb:     "cpf",
 			args:     []string{"auth", "-", "add", "jwt", "validation"},
-			expected: "Feature: AUTH - add jwt validation",
+			expected: "Feature: auth - add jwt validation",
 		},
 	}
 
@@ -273,10 +273,10 @@ func TestFormatCommitMessage(t *testing.T) {
 		args     []string
 		expected string
 	}{
-		{"cpf", []string{"auth - add jwt"}, "Feature: AUTH - add jwt"},
-		{"cbf", []string{"db - fix deadlock"}, "Bug: DB - fix deadlock"},
-		{"cpc", []string{"[skills]: cleanup"}, "Chore: SKILLS - cleanup"},
-		{"cpr", []string{"v6.605.0 - release"}, "Release: V6.605.0 - release"},
+		{"cpf", []string{"auth - add jwt"}, "Feature: auth - add jwt"},
+		{"cbf", []string{"db - fix deadlock"}, "Bug: db - fix deadlock"},
+		{"cpc", []string{"[skills]: cleanup"}, "Chore: skills - cleanup"},
+		{"cpr", []string{"v6.605.0 - release"}, "Release: v6.605.0 - release"},
 	}
 
 	for _, tc := range tests {
@@ -293,11 +293,11 @@ func TestTryParseLegacyHyphenSyntax(t *testing.T) {
 		t.Fatalf("expected tryParseHyphenSyntax ok=true")
 	}
 
-	if res.FormattedMessage != "Feature: AUTH - add jwt validation" {
+	if res.FormattedMessage != "Feature: auth - add jwt validation" {
 		t.Fatalf("unexpected formatted message: %s", res.FormattedMessage)
 	}
 
-	if res.Module != "AUTH" {
+	if res.Module != "auth" {
 		t.Fatalf("unexpected module: %s", res.Module)
 	}
 
@@ -318,29 +318,29 @@ func TestParseAndFormatCommitMessage_RedundantPrefixes(t *testing.T) {
 			name:     "cpf Feature prefix",
 			verb:     "cpf",
 			args:     []string{"Feature:", "CLI", "-", "add", "flag"},
-			expected: "Feature: CLI - add flag",
-			module:   "CLI",
+			expected: "Feature: cli - add flag",
+			module:   "cli",
 		},
 		{
 			name:     "cpf FEAT prefix",
 			verb:     "cpf",
 			args:     []string{"FEAT:", "CLI", "-", "add", "flag"},
-			expected: "Feature: CLI - add flag",
-			module:   "CLI",
+			expected: "Feature: cli - add flag",
+			module:   "cli",
 		},
 		{
 			name:     "cpr Release prefix",
 			verb:     "cpr",
 			args:     []string{"Release:", "V6.605.0", "-", "release", "notes"},
-			expected: "Release: V6.605.0 - release notes",
-			module:   "V6.605.0",
+			expected: "Release: v6.605.0 - release notes",
+			module:   "v6.605.0",
 		},
 		{
 			name:     "cbf Fix prefix mapped to Bug",
 			verb:     "cbf",
 			args:     []string{"Fix:", "STORE", "-", "handle", "nil", "db"},
-			expected: "Bug: STORE - handle nil db",
-			module:   "STORE",
+			expected: "Bug: store - handle nil db",
+			module:   "store",
 		},
 	}
 
@@ -378,8 +378,8 @@ func TestParseAndFormatCommitMessage_PseudoModuleStripping(t *testing.T) {
 			name:     "cpf FEATURE stripped with nested CLI module promoted",
 			verb:     "cpf",
 			args:     []string{"FEATURE", "-", "CLI", "-", "add", "flag"},
-			expected: "Feature: CLI - add flag",
-			module:   "CLI",
+			expected: "Feature: cli - add flag",
+			module:   "cli",
 			hasMod:   true,
 		},
 		{
@@ -425,29 +425,29 @@ func TestParseAndFormatCommitMessage_CanonicalBehavior(t *testing.T) {
 			name:     "cpf HEATMAP visual overhaul",
 			verb:     "cpf",
 			args:     []string{"HEATMAP", "-", "visual", "overhaul"},
-			expected: "Feature: HEATMAP - visual overhaul",
-			module:   "HEATMAP",
+			expected: "Feature: heatmap - visual overhaul",
+			module:   "heatmap",
 		},
 		{
 			name:     "cbf FIX prevent non-git commit",
 			verb:     "cbf",
 			args:     []string{"FIX", "-", "prevent", "non-git", "commit"},
-			expected: "Bug: FIX - prevent non-git commit",
-			module:   "FIX",
+			expected: "Bug: fix - prevent non-git commit",
+			module:   "fix",
 		},
 		{
 			name:     "cfr STORE optimize query",
 			verb:     "cfr",
 			args:     []string{"STORE", "-", "optimize", "query"},
-			expected: "Refactor: STORE - optimize query",
-			module:   "STORE",
+			expected: "Refactor: store - optimize query",
+			module:   "store",
 		},
 		{
 			name:     "cpc DOCS update readme",
 			verb:     "cpc",
 			args:     []string{"DOCS", "-", "update", "readme"},
-			expected: "Chore: DOCS - update readme",
-			module:   "DOCS",
+			expected: "Chore: docs - update readme",
+			module:   "docs",
 		},
 	}
 

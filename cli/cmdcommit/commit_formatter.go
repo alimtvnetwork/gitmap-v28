@@ -55,20 +55,20 @@ func resolveVerbPrefix(verb string) string {
 	return ""
 }
 
-func resolveUppercaseType(verb string) string {
+func resolveConventionalType(verb string) string {
 	mapping := map[string]string{
-		"cpf": "FEAT", "feature": "FEAT", "commit-push-feature": "FEAT", "feat": "FEAT",
-		"cpb": "FIX", "cbf": "FIX", "bug": "FIX", "commit-push-bug": "FIX", "fix": "FIX",
-		"cpc": "CHORE", "chore": "CHORE", "commit-push-chore": "CHORE",
-		"cfr": "REFACTOR", "refactor": "REFACTOR", "commit-push-refactor": "REFACTOR",
-		"cpr": "RELEASE", "release": "RELEASE", "commit-push-release": "RELEASE",
-		"test": "TEST", "docs": "DOCS", "perf": "PERF",
+		"cpf": "feat", "feature": "feat", "commit-push-feature": "feat", "feat": "feat",
+		"cpb": "fix", "cbf": "fix", "bug": "fix", "commit-push-bug": "fix", "fix": "fix",
+		"cpc": "chore", "chore": "chore", "commit-push-chore": "chore",
+		"cfr": "refactor", "refactor": "refactor", "commit-push-refactor": "refactor",
+		"cpr": "release", "release": "release", "commit-push-release": "release",
+		"test": "test", "docs": "docs", "perf": "perf",
 	}
 	if val, hasVal := mapping[strings.ToLower(verb)]; hasVal {
 		return val
 	}
 
-	return strings.ToUpper(verb)
+	return strings.ToLower(verb)
 }
 
 func isKnownCommitTag(tag string) bool {
@@ -140,7 +140,7 @@ func sanitizeInput(verb string, rawArgs []string) string {
 
 func isCommitTypeToken(mod string) bool {
 	switch strings.ToUpper(strings.TrimSpace(mod)) {
-	case "FEATURE", "FEAT", "RELEASE", "REL", "BUG", "CHORE", "REFACTOR", "REFACT", "SPEC":
+	case "FEATURE", "FEAT", "RELEASE", "REL", "VERSION", "BUG", "CHORE", "REFACTOR", "REFACT", "SPEC":
 		return true
 	default:
 		return false
@@ -177,7 +177,8 @@ func splitNestedHyphen(item string) (string, string, bool) {
 }
 
 func resolveHyphenModuleAndItem(prefix, mod, item string) (string, string, bool) {
-	upperMod := strings.ToUpper(strings.Trim(mod, "[] "))
+	candidateMod := strings.Trim(mod, "[] ")
+	upperMod := strings.ToUpper(candidateMod)
 	cleanItem := strings.TrimSpace(item)
 
 	for isRedundantModule(prefix, upperMod) {
@@ -186,11 +187,12 @@ func resolveHyphenModuleAndItem(prefix, mod, item string) (string, string, bool)
 			return "", cleanItem, false
 		}
 
-		upperMod = strings.ToUpper(strings.Trim(nestedMod, "[] "))
+		candidateMod = strings.Trim(nestedMod, "[] ")
+		upperMod = strings.ToUpper(candidateMod)
 		cleanItem = strings.TrimSpace(nestedItem)
 	}
 
-	return upperMod, cleanItem, true
+	return strings.ToLower(candidateMod), cleanItem, true
 }
 
 func makeHyphenRecord(raw, prefix, mod, item string, hasMod bool) ParsedCommitMessage {
@@ -237,18 +239,18 @@ func isKnownConventionalType(t string) bool {
 }
 
 func buildConventionalRecord(raw, ctype, mod, item string) ParsedCommitMessage {
-	uType := resolveUppercaseType(ctype)
-	uMod := strings.ToUpper(strings.Trim(mod, "() "))
+	cType := resolveConventionalType(ctype)
+	cMod := strings.ToLower(strings.Trim(mod, "() "))
 	cleanItem := strings.TrimSpace(item)
-	formatted := uType + "(" + uMod + "): " + cleanItem
+	formatted := cType + "(" + cMod + "): " + cleanItem
 
 	return ParsedCommitMessage{
 		RawInput:           raw,
 		FormattedMessage:   formatted,
-		CommitType:         uType,
-		Module:             uMod,
+		CommitType:         cType,
+		Module:             cMod,
 		ItemDescription:    cleanItem,
-		HasModule:          uMod != "",
+		HasModule:          cMod != "",
 		HasHyphenSeparator: false,
 		IsConventional:     true,
 	}
