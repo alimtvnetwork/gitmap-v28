@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.617.0] - 2026-10-26
+
+### Added
+- installation right-click command open antigravity app-window browser and ui animations
+
+---
+
 ## [v6.616.0] - 2026-10-26
 
 ### Added
