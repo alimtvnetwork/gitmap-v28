@@ -57,6 +57,7 @@ func printHelpAndExit(command string, args []string) {
 	if RenderDynamicCommandHelp(command) {
 		cliexit.Exit(0)
 	}
+	fmt.Printf("\n  No dedicated help document found for '%s'.\n  Run 'gitmap help' to browse all available commands or 'gitmap help --search %s'.\n\n", command, command)
 	cliexit.Exit(0)
 }
 

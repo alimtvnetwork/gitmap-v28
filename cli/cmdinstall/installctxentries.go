@@ -21,24 +21,38 @@ type ctxEntry struct {
 	Children []ctxEntry // non-nil => this is a submenu
 }
 
-// ctxMenu returns the full menu tree for directory and background contexts.
-// Single source of truth for both install and uninstall.
+// ctxMenu returns the full menu tree for directory context.
 func ctxMenu() []ctxEntry {
-	entries := ctxDirectEntries()
+	entries := ctxDirectoryEntries()
 	entries = append(entries, ctxCategoryEntries()...)
 	entries = append(entries, ctxTailEntries()...)
 
 	return entries
 }
 
-func ctxDirectEntries() []ctxEntry {
+// ctxBackgroundMenu returns the menu tree for right-clicking in folder background.
+// Omits Show log which requires an active repository target.
+func ctxBackgroundMenu() []ctxEntry {
+	entries := []ctxEntry{
+		{KeyName: "01_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "02_repos_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "03_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "04_settings_ui", MUIVerb: "GitMap Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+	}
+	entries = append(entries, ctxCategoryEntries()...)
+	entries = append(entries, ctxTailEntries()...)
+
+	return entries
+}
+
+func ctxDirectoryEntries() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull", `"%1"`}, Mode: ctxmodetype.Terminal},
+		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push", `"%1"`}, Mode: ctxmodetype.Terminal},
 	}
 }
 
@@ -50,14 +64,13 @@ func ctxCategoryEntries() []ctxEntry {
 		{KeyName: "40_repos", MUIVerb: "Repositories", Children: repoChildren()},
 		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
 		{KeyName: "60_install", MUIVerb: "Install", Children: installChildren()},
+		{KeyName: "70_settings", MUIVerb: "Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 	}
 }
 
 func ctxTailEntries() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{constants.CmdAg}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
-		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
 		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},
@@ -122,6 +135,7 @@ func repoChildren() []ctxEntry {
 
 func installChildren() []ctxEntry {
 	return []ctxEntry{
+		{KeyName: "01_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "05_install_ctx", MUIVerb: "Install Context Menu", Args: []string{"install", "context-menu"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "10_wizard", MUIVerb: "Install Wizard (Interactive)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
 		{KeyName: "20_dev", MUIVerb: "Install Dev Workstation Profile", Args: []string{"install", "profile", "dev"}, Mode: ctxmodetype.Terminal},

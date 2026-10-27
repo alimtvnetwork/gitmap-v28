@@ -58,11 +58,15 @@ function global:gcd {
 }
 
 function global:gitmap {
-  Invoke-GitmapAndSetLocation $args
+  if ($args.Count -gt 0 -and ($args[0] -eq '__complete' -or $args[0] -eq '__completeNoDesc')) {
+    $real = Get-GitmapCommand
+    if ($real) { & $real @args; return }
+  }
+  Invoke-GitmapAndSetLocation @args
 }
 
 function global:Invoke-GitmapAndSetLocation {
-  param([string[]]$GitMapArgs)
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitMapArgs)
   $real = Get-GitmapCommand
   if (-not $real) { Write-Error "gitmap executable not found"; return }
   $handoff = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "gitmap-handoff-$([System.Guid]::NewGuid().ToString('N')).txt")

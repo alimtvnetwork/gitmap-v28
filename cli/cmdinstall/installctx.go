@@ -136,6 +136,9 @@ func ctxEntriesForRoot(root string) []ctxEntry {
 	if root == constants.CtxRootKeyFile {
 		return ctxFileMenu()
 	}
+	if root == constants.CtxRootKeyBackground {
+		return ctxBackgroundMenu()
+	}
 
 	return ctxMenu()
 }

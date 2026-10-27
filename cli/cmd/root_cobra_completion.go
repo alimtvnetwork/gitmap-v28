@@ -126,21 +126,30 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		if err := rootCmd.GenPowerShellCompletionWithDesc(&buf); err != nil {
 			return "", err
 		}
-		buf.WriteString("\n# GitMap Command History & PSReadLine Predictive IntelliSense\n")
-		buf.WriteString("Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue\n")
-		buf.WriteString("if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {\n")
-		buf.WriteString("    try {\n")
-		buf.WriteString("        Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue\n")
-		buf.WriteString("    } catch {\n")
-		buf.WriteString("        try {\n")
-		buf.WriteString("            Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n")
-		buf.WriteString("        } catch {}\n")
-		buf.WriteString("    }\n")
-		buf.WriteString("    try {\n")
-		buf.WriteString("        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n")
-		buf.WriteString("    } catch {}\n")
-		buf.WriteString("}\n")
-		return buf.String(), nil
+		rawScript := buf.String()
+		// Harden directive parsing against non-directive error output
+		rawScript = strings.Replace(rawScript,
+			`[int]$Directive = $Out[-1].TrimStart(':')`,
+			`$Directive = 0; if ($Out -and $Out.Count -gt 0 -and $Out[-1].StartsWith(':')) { [int]::TryParse($Out[-1].TrimStart(':'), [ref]$Directive) | Out-Null }`,
+			1)
+
+		var hardened strings.Builder
+		hardened.WriteString(rawScript)
+		hardened.WriteString("\n# GitMap Command History & PSReadLine Predictive IntelliSense\n")
+		hardened.WriteString("Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue\n")
+		hardened.WriteString("if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {\n")
+		hardened.WriteString("    try {\n")
+		hardened.WriteString("        Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue\n")
+		hardened.WriteString("    } catch {\n")
+		hardened.WriteString("        try {\n")
+		hardened.WriteString("            Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue\n")
+		hardened.WriteString("        } catch {}\n")
+		hardened.WriteString("    }\n")
+		hardened.WriteString("    try {\n")
+		hardened.WriteString("        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n")
+		hardened.WriteString("    } catch {}\n")
+		hardened.WriteString("}\n")
+		return hardened.String(), nil
 	case constants.ShellBash:
 		if err := rootCmd.GenBashCompletionV2(&buf, true); err != nil {
 			return "", err
