@@ -49,7 +49,7 @@ func printTaskSQLiteHelp() error {
 	fmt.Println("GitMap Native SQLite Agent Task Engine")
 	fmt.Println()
 	fmt.Println("Usage:")
-	fmt.Println("  gitmap task init --name <title> [--budget <N>] [--db <path>]")
+	fmt.Println("  gitmap task init --name <title> [--budget <N>] [--db <path>] [--spec-file <path>] [--spec-folder <dir>]")
 	fmt.Println("  gitmap task add --db <path> --tasks-json '<json>'")
 	fmt.Println("  gitmap task claim --db <path> --agent <agent-role> [--subtask-id <id>]")
 	fmt.Println("  gitmap task complete --db <path> --subtask-id <id> [--evidence <summary>]")
@@ -66,6 +66,9 @@ func runTaskSQLiteInit(args []string) error {
 	name := fs.String("name", "", "Task name or prompt description")
 	budget := fs.Int("budget", 300, "Total steps budget")
 	dbFlag := fs.String("db", "", "Path to SQLite database")
+	specFile := fs.String("spec-file", "", "Relative path to root spec file")
+	fs.StringVar(specFile, "s", "", "Relative path to root spec file (shorthand)")
+	specFolder := fs.String("spec-folder", "", "Relative path to spec directory")
 
 	err := fs.Parse(args)
 	if err != nil {
@@ -114,18 +117,18 @@ func runTaskSQLiteInit(args []string) error {
 	now := NowISO()
 	insertQuery := `
 		INSERT INTO ParentTask (
-			TaskName, TaskSlug, RunDirectory, Status, IsActive, HasCompleted,
+			TaskName, TaskSlug, RunDirectory, SpecFile, SpecFolder, Status, IsActive, HasCompleted,
 			TotalStepsBudget, CurrentStep, CreatedAt, UpdatedAt
-		) VALUES (?, ?, ?, 'ACTIVE', 1, 0, ?, 1, ?, ?);
+		) VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1, 0, ?, 1, ?, ?);
 	`
 	relRunDir := toRelativePath(repoRoot, runDir)
-	res, execErr := db.Exec(insertQuery, *name, slug, relRunDir, *budget, now, now)
+	res, execErr := db.Exec(insertQuery, *name, slug, relRunDir, *specFile, *specFolder, *budget, now, now)
 	if execErr != nil {
 		return appfault.WrapExecution(execErr, "failed to insert parent task")
 	}
 
 	parentId, _ := res.LastInsertId()
-	out := buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug, parentId, *budget)
+	out := buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug, *specFile, *specFolder, parentId, *budget)
 	return printJson(out)
 }
 

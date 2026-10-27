@@ -225,6 +225,8 @@ func InitTier2Schema(db *sql.DB) *appfault.AppError {
 		TaskName TEXT NOT NULL,
 		TaskSlug TEXT NOT NULL,
 		RunDirectory TEXT NOT NULL,
+		SpecFile TEXT NOT NULL DEFAULT '',
+		SpecFolder TEXT NOT NULL DEFAULT '',
 		Status TEXT NOT NULL DEFAULT 'ACTIVE',
 		IsActive INTEGER NOT NULL DEFAULT 1,
 		HasCompleted INTEGER NOT NULL DEFAULT 0,

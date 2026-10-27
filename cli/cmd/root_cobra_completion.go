@@ -127,11 +127,15 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 			return "", err
 		}
 		rawScript := buf.String()
-		// Harden directive parsing against non-directive error output
+		// Harden directive parsing and completion output against informational lines and null parameters
 		rawScript = strings.Replace(rawScript,
-			`[int]$Directive = $Out[-1].TrimStart(':')`,
-			`$Directive = 0; if ($Out -and $Out.Count -gt 0 -and $Out[-1].StartsWith(':')) { [int]::TryParse($Out[-1].TrimStart(':'), [ref]$Directive) | Out-Null }`,
+			"[int]$Directive = $Out[-1].TrimStart(':')\n    if ($Directive -eq \"\") {\n        # There is no directive specified\n        $Directive = 0\n    }\n    __gitmap_debug \"The completion directive is: $Directive\"\n\n    # remove directive (last element) from out\n    $Out = $Out | Where-Object { $_ -ne $Out[-1] }",
+			"$Directive = 0\n    $CleanOut = @()\n    if ($Out) {\n        foreach ($line in $Out) {\n            if (-not $line) { continue }\n            if ($line -like 'Completion ended with*') { continue }\n            if ($line -match '^:(\\d+)$') {\n                $Directive = [int]$matches[1]\n                continue\n            }\n            $CleanOut += $line\n        }\n    }\n    $Out = $CleanOut\n    __gitmap_debug \"The completion directive is: $Directive\"",
 			1)
+		rawScript = strings.Replace(rawScript,
+			"$CompletionText = $($comp.Name | __gitmap_escapeStringWithSpecialChars)",
+			"$CompletionText = [string]($comp.Name | __gitmap_escapeStringWithSpecialChars); if (-not $CompletionText) { $CompletionText = [string]$comp.Name }; if (-not $CompletionText) { continue }",
+			-1)
 
 		var hardened strings.Builder
 		hardened.WriteString(rawScript)

@@ -30,8 +30,19 @@ func ResolveRepoSlugForProfile(target, profileName string) string {
 
 	cleanTarget := strings.TrimSpace(target)
 	hasSlash := strings.Contains(cleanTarget, "/")
-	if len(profileName) > 0 && !hasSlash {
-		return fmt.Sprintf("https://github.com/%s/%s", profileName, cleanTarget)
+	if len(profileName) > 0 && !hasSlash && isValidSlugPart(profileName) {
+		mainDB, err := store.OpenDefault()
+		if err == nil {
+			defer mainDB.Close()
+			if u := findURLForOwner(mainDB, profileName, cleanTarget); len(u) > 0 {
+				return u
+			}
+		} else {
+			candidateURL := fmt.Sprintf("https://github.com/%s/%s", profileName, cleanTarget)
+			if probeRemoteGitURL(candidateURL) {
+				return candidateURL
+			}
+		}
 	}
 
 	return ResolveRepoSlug(cleanTarget)
@@ -58,6 +69,31 @@ func ResolveRepoSlug(target string) string {
 	}
 
 	return cleanTarget
+}
+
+func resolveActiveOrProfileOwner() string {
+	cfg, err := store.LoadGitProfiles()
+	if err == nil {
+		if len(cfg.Active) > 0 && isValidSlugPart(cfg.Active) {
+			return cfg.Active
+		}
+		if len(cfg.Default) > 0 && isValidSlugPart(cfg.Default) {
+			return cfg.Default
+		}
+		for _, p := range cfg.Profiles {
+			if len(p.Name) > 0 && isValidSlugPart(p.Name) {
+				return p.Name
+			}
+		}
+	}
+
+	if out, err := exec.Command("git", "config", "github.user").Output(); err == nil {
+		if u := strings.TrimSpace(string(out)); len(u) > 0 && isValidSlugPart(u) {
+			return u
+		}
+	}
+
+	return "alimtvnetwork"
 }
 
 func isFullURLOrPath(target string) bool {

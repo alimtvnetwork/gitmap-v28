@@ -21,13 +21,15 @@ import (
 
 var runPrefixRe = lazyregex.New(`^(\d+)-`)
 
-func buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug string, parentId int64, budget int) map[string]any {
+func buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug, specFile, specFolder string, parentId int64, budget int) map[string]any {
 	absDbPath, _ := filepath.Abs(dbPath)
 	relDbPath := toRelativePath(repoRoot, dbPath)
 	return map[string]any{
 		"action":           "INITIALIZED",
 		"parentTaskId":     parentId,
 		"slug":             slug,
+		"specFile":         specFile,
+		"specFolder":       specFolder,
 		"runDirectory":     relRunDir,
 		"database":         relDbPath,
 		"databasePath":     relDbPath,
