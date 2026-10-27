@@ -7,8 +7,10 @@ const showLogMarkupHead = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GitMap — Show Log</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="alternate icon" href="/favicon.ico">
+<meta name="theme-color" content="#181825">
 <style>
   :root {
     --bg: #181825;

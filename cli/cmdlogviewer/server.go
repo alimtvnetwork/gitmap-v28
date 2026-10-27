@@ -31,10 +31,49 @@ func RunShowLog(args []string) error {
 
 	repoRoot, relPath, err := ResolveTargetRepoAndPath(fs.Args())
 	if err != nil {
-		return err
+		cleanTarget := sanitizeTargetArg(fs.Args())
+		fmt.Fprintf(os.Stderr, "  ✗ '%s' is not a Git repository.\n", cleanTarget)
+		childRepos := findChildRepos(cleanTarget)
+		if len(childRepos) > 0 {
+			fmt.Fprintln(os.Stderr, "  📁 Detected Git repositories in this directory:")
+			for _, cr := range childRepos {
+				rel, _ := filepath.Rel(cleanTarget, cr)
+				if rel == "" {
+					rel = filepath.Base(cr)
+				}
+				fmt.Fprintf(os.Stderr, "    • %s  (run: gitmap show-log %s)\n", filepath.Base(cr), rel)
+			}
+		} else {
+			fmt.Fprintln(os.Stderr, "  💡 Tip: Run 'gitmap show-log' inside a Git repository or specify target: gitmap show-log <path>")
+		}
+		return nil
 	}
 
 	return startLogServer(repoRoot, relPath, *port, !*noBrowser, *branchCompare)
+}
+
+func findChildRepos(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var found []string
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		candidate := filepath.Join(dir, e.Name())
+		gitDir := filepath.Join(candidate, ".git")
+		if info, err := os.Stat(gitDir); err == nil && (info.IsDir() || !info.IsDir()) {
+			found = append(found, candidate)
+			if len(found) >= 10 {
+				break
+			}
+		}
+	}
+
+	return found
 }
 
 // ResolveTargetRepoAndPath resolves repository root and relative file/dir path.
@@ -89,9 +128,6 @@ func findRepoRoot(dir string) (string, error) {
 }
 
 func newNonGitRepoShowLogError(dir string) *apperror.AppError {
-	fmt.Fprintf(os.Stderr, "✗ Not a git repository: %s\n", dir)
-	fmt.Fprintln(os.Stderr, "💡 Run 'gitmap show-log' inside a Git repository, or specify target: gitmap show-log <path>")
-
 	return apperror.NewWithDetails(
 		"show-log",
 		"E9001",
@@ -147,6 +183,7 @@ func buildServerMux(repoRoot, initialPath string, server *http.Server) *http.Ser
 	mux.HandleFunc("/favicon.ico", serveFaviconICO)
 	mux.HandleFunc("/favicon.svg", serveFaviconSVG)
 	mux.HandleFunc("/favicon.png", serveFaviconICO)
+	mux.HandleFunc("/manifest.json", serveManifestJSON)
 	mux.HandleFunc("/api/log/commits", handleAPICommits(repoRoot))
 	mux.HandleFunc("/api/log/commit", handleAPICommitDetail(repoRoot))
 	mux.HandleFunc("/api/log/diff", handleAPIDiff(repoRoot))

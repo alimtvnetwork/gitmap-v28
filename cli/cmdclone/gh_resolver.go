@@ -68,6 +68,17 @@ func ResolveRepoSlug(target string) string {
 		return "https://github.com/" + cleanTarget
 	}
 
+	bare := strings.TrimSuffix(cleanTarget, ".git")
+	if len(bare) > 0 && isValidSlugPart(bare) && !strings.Contains(cleanTarget, "/") && !strings.Contains(cleanTarget, `\`) {
+		owner := resolveActiveOrProfileOwner()
+		if len(owner) > 0 && isValidSlugPart(owner) {
+			candidateURL := fmt.Sprintf("https://github.com/%s/%s", owner, cleanTarget)
+			if probeRemoteGitURL(candidateURL) {
+				return candidateURL
+			}
+		}
+	}
+
 	return cleanTarget
 }
 

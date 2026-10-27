@@ -45,3 +45,32 @@ func serveFaviconSVG(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(GitMapLogoSVG))
 }
+
+// WebAppManifestJSON provides PWA application metadata for Chrome/Edge app windows.
+const WebAppManifestJSON = `{
+  "name": "GitMap — Show Log",
+  "short_name": "Show Log",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#181825",
+  "theme_color": "#181825",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 24x24 32x32 48x48 64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}`
+
+func serveManifestJSON(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/manifest+json")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(WebAppManifestJSON))
+}

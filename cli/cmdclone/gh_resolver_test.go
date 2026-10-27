@@ -67,6 +67,14 @@ func TestResolveRepoSlug_OwnerRepoFallback(t *testing.T) {
 	}
 }
 
+func TestResolveRepoSlug_BareSlugFallback(t *testing.T) {
+	input := "coding-guidelines"
+	got := ResolveRepoSlug(input)
+	if !strings.HasPrefix(got, "https://github.com/") || !strings.Contains(got, "coding-guidelines") {
+		t.Errorf("ResolveRepoSlug(%q) = %q; expected GitHub URL containing coding-guidelines", input, got)
+	}
+}
+
 func TestFilterRedundantSuggestions(t *testing.T) {
 	suggs := []string{"seo-packages-v2", "seo-packages-v1", "seo-other"}
 	filtered := filterRedundantSuggestions(suggs, "seo-packages-v2", "alimtvnetwork/seo-packages-v2")
