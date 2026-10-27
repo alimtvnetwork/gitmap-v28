@@ -53,6 +53,7 @@ var expectedCtxArgv = map[string]struct {
 	"50_visibility/10_public":  {"", []string{"make-public"}},
 	"50_visibility/20_private": {"", []string{"make-private"}},
 	// Install
+	"60_install/01_installer_ui": {"", []string{"ui", "installer"}},
 	"60_install/05_install_ctx": {"", []string{"install", "context-menu"}},
 	"60_install/10_wizard":     {"", []string{"install", "--wizard"}},
 	"60_install/20_dev":        {"", []string{"install", "profile", "dev"}},
@@ -60,6 +61,7 @@ var expectedCtxArgv = map[string]struct {
 	"60_install/40_agy":        {"", []string{"install", "antigravity"}},
 	"60_install/50_clean_pwsh": {"", []string{"context-menu", "clean-powershell"}},
 	// Top-level standalone entries
+	"70_settings":    {"", []string{"ui", "settings"}},
 	"80_antigravity": {"", []string{"ag"}},
 	"90_terminal":    {"", nil}, // Prefill mode; no argv
 	"91_docs":        {"", []string{"docs"}},

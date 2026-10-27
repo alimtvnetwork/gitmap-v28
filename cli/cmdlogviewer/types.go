@@ -60,6 +60,21 @@ type BranchCompareResponse struct {
 	Error     string `json:"error,omitempty"`
 }
 
+// CommitsCompareRequest defines parameters to compare two commits.
+type CommitsCompareRequest struct {
+	HashA string `json:"hashA"`
+	HashB string `json:"hashB"`
+	Path  string `json:"path,omitempty"`
+	Tool  string `json:"tool,omitempty"`
+}
+
+// CommitsCompareResponse returns the changed files between two commits.
+type CommitsCompareResponse struct {
+	HashA string       `json:"hashA"`
+	HashB string       `json:"hashB"`
+	Files []FileChange `json:"files"`
+}
+
 // BranchesResponse lists local branches and the active checkout.
 type BranchesResponse struct {
 	Branches     []string `json:"branches"`

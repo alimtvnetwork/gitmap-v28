@@ -230,6 +230,23 @@ func formatAction(code string) string {
 	}
 }
 
+// QueryTwoCommitsFiles diffs two commits and returns the changed files.
+func QueryTwoCommitsFiles(repoRoot, hashA, hashB string) ([]FileChange, error) {
+	nameOut, err := runGitInDir(repoRoot, "diff", "--name-status", hashA, hashB)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "git diff --name-status")
+	}
+
+	numOut, err := runGitInDir(repoRoot, "diff", "--numstat", hashA, hashB)
+	if err != nil {
+		return nil, apperror.WrapSimple(err, "git diff --numstat")
+	}
+
+	numMap := parseNumstatMap(numOut)
+
+	return parseNameStatusLines(nameOut, numMap), nil
+}
+
 func runGitInDir(dir string, args ...string) (string, error) {
 	cmd := exec.Command(constants.GitBin, args...)
 	if dir != "" {

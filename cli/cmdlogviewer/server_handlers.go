@@ -100,6 +100,58 @@ func buildDiffErrorResponse(err error) DiffResponse {
 	return resp
 }
 
+func handleAPICompareCommits(repoRoot string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		hashA := r.URL.Query().Get("a")
+		hashB := r.URL.Query().Get("b")
+		if hashA == "" || hashB == "" {
+			writeJSONError(w, http.StatusBadRequest, "a and b commit hashes are required")
+			return
+		}
+
+		files, err := QueryTwoCommitsFiles(repoRoot, hashA, hashB)
+		if err != nil {
+			writeJSONError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		resp := CommitsCompareResponse{
+			HashA: hashA,
+			HashB: hashB,
+			Files: files,
+		}
+		writeJSON(w, http.StatusOK, resp)
+	}
+}
+
+func handleAPIDiffCommits(repoRoot string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req CommitsCompareRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeJSONError(w, http.StatusBadRequest, "invalid commit diff request body")
+			return
+		}
+
+		if req.HashA == "" || req.HashB == "" {
+			writeJSONError(w, http.StatusBadRequest, "hashA and hashB are required")
+			return
+		}
+
+		tool, err := TriggerTwoCommitDiff(repoRoot, req.HashA, req.HashB, req.Path, req.Tool)
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, buildDiffErrorResponse(err))
+			return
+		}
+
+		resp := DiffResponse{
+			IsSuccess: true,
+			Tool:      tool,
+			Message:   "Compare tool launched: " + tool,
+		}
+		writeJSON(w, http.StatusOK, resp)
+	}
+}
+
 func handleAPIBranches(repoRoot string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		branches, err := QueryBranches(repoRoot)

@@ -23,7 +23,7 @@ type ctxEntry struct {
 
 // ctxMenu returns the full menu tree for directory context.
 func ctxMenu() []ctxEntry {
-	entries := ctxDirectoryEntries()
+	entries := ctxDirectEntries()
 	entries = append(entries, ctxCategoryEntries()...)
 	entries = append(entries, ctxTailEntries()...)
 
@@ -45,14 +45,14 @@ func ctxBackgroundMenu() []ctxEntry {
 	return entries
 }
 
-func ctxDirectoryEntries() []ctxEntry {
+func ctxDirectEntries() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull", `"%1"`}, Mode: ctxmodetype.Terminal},
-		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push", `"%1"`}, Mode: ctxmodetype.Terminal},
+		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push"}, Mode: ctxmodetype.Terminal},
 	}
 }
 
@@ -71,6 +71,8 @@ func ctxCategoryEntries() []ctxEntry {
 func ctxTailEntries() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{constants.CmdAg}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
+		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
 		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
 		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},

@@ -7,7 +7,8 @@ const showLogMarkupHead = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GitMap — Show Log</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2389b4fa'%3E%3Cpath d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" href="/favicon.ico">
 <style>
   :root {
     --bg: #181825;
@@ -242,9 +243,32 @@ const showLogMarkupHead = `<!DOCTYPE html>
 </head>
 <body>
 <header class="toolbar">
-  <div class="brand">⚡ GitMap Show Log</div>
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="20" height="20" style="vertical-align:middle; border-radius:5px; flex-shrink:0;">
+      <defs>
+        <linearGradient id="gmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#89b4fa"/>
+          <stop offset="100%" stop-color="#b4befe"/>
+        </linearGradient>
+        <linearGradient id="gmBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#313244"/>
+          <stop offset="100%" stop-color="#181825"/>
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="7" fill="url(#gmBg)" stroke="#89b4fa" stroke-width="1.5"/>
+      <path d="M10 8v16M10 14c3 0 7 2 7 6v4" fill="none" stroke="url(#gmGrad)" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="10" cy="9" r="2.8" fill="#89b4fa"/>
+      <circle cx="10" cy="23" r="2.8" fill="#89b4fa"/>
+      <circle cx="17" cy="23" r="2.8" fill="#a6e3a1"/>
+    </svg>
+    <span>GitMap Show Log</span>
+  </div>
   <div class="path-badge" id="path-indicator" title="Active Path">Loading path...</div>
-  <select id="branch-select" title="Active Branch"></select>
+  <div class="branch-combo" style="display:flex; align-items:center;">
+    <input type="text" id="branch-search" list="branch-list" placeholder="Filter branch..." style="width:130px; font-family:var(--font-mono); font-size:11px;" title="Filter or switch branch">
+    <datalist id="branch-list"></datalist>
+    <select id="branch-select" title="Active Branch" style="max-width:140px; margin-left:4px;"></select>
+  </div>
   <input type="text" id="commit-search" class="search-box" placeholder="Filter commits (hash, author, message)...">
   <button id="btn-refresh" class="btn-icon" data-tooltip="Refresh commit list">
     <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>

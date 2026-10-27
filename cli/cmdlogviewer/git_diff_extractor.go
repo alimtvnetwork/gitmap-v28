@@ -101,6 +101,46 @@ func shortenHash(hash string) string {
 	return hash
 }
 
+// TriggerTwoCommitDiff launches external diff comparing a file across two commits.
+func TriggerTwoCommitDiff(repoRoot, hashA, hashB, filePath, preferredTool string) (string, error) {
+	if strings.TrimSpace(filePath) == "" || filePath == "." {
+		return triggerCommitsTreeCompare(repoRoot, hashA, hashB, preferredTool)
+	}
+
+	leftPath, err := extractBranchFile(repoRoot, hashA, filePath)
+	if err != nil {
+		return "", err
+	}
+
+	rightPath, err := extractBranchFile(repoRoot, hashB, filePath)
+	if err != nil {
+		return "", err
+	}
+
+	tool, err := cmdgit.FindCompareToolWithPreference(preferredTool)
+	if err != nil {
+		return "", err
+	}
+
+	err = cmdgit.LaunchToolWithPathsAsync(tool, []string{leftPath, rightPath})
+	if err != nil {
+		return tool.Name, err
+	}
+
+	return tool.Name, nil
+}
+
+func triggerCommitsTreeCompare(repoRoot, hashA, hashB, preferredTool string) (string, error) {
+	tool, err := cmdgit.FindCompareToolWithPreference(preferredTool)
+	if err != nil {
+		return "", err
+	}
+
+	err = cmdgit.RunCompare([]string{hashA, hashB})
+
+	return tool.Name, err
+}
+
 // TriggerBranchDiff compares a path or whole trees across two branches.
 func TriggerBranchDiff(repoRoot, branchA, branchB, filePath string) (string, error) {
 	if strings.TrimSpace(filePath) == "" || filePath == "." {

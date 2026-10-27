@@ -5,6 +5,9 @@ const showLogMarkupScript = `<script>
 let allCommits = [];
 let activeHash = '';
 let activePath = '';
+let isCompareMode = false;
+let compareBaseHash = '';
+let compareTargetHash = '';
 
 const params = new URLSearchParams(window.location.search);
 activePath = params.get('path') || '.';
@@ -22,20 +25,54 @@ async function loadBranches() {
     const res = await fetch('/api/log/branches');
     const data = await res.json();
     const sel = document.getElementById('branch-select');
+    const searchInput = document.getElementById('branch-search');
+    const datalist = document.getElementById('branch-list');
     const modalA = document.getElementById('modal-branch-a');
     const modalB = document.getElementById('modal-branch-b');
     sel.innerHTML = ''; modalA.innerHTML = ''; modalB.innerHTML = '';
+    if (datalist) datalist.innerHTML = '';
     (data.branches || []).forEach(b => {
       const opt = new Option(b, b);
       if (b === data.activeBranch) opt.selected = true;
       sel.add(opt);
+      if (datalist) {
+        const dOpt = document.createElement('option');
+        dOpt.value = b;
+        datalist.appendChild(dOpt);
+      }
       modalA.add(new Option(b, b));
       modalB.add(new Option(b, b));
     });
+    if (searchInput) searchInput.value = data.activeBranch || '';
     if (modalB.options.length > 1) modalB.selectedIndex = 1;
   } catch (e) {
     console.error('Failed to load branches', e);
   }
+}
+
+const branchSearch = document.getElementById('branch-search');
+if (branchSearch) {
+  branchSearch.addEventListener('change', () => {
+    const val = branchSearch.value.trim();
+    const sel = document.getElementById('branch-select');
+    if (sel && val) {
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === val) {
+          sel.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  });
+}
+
+const branchSel = document.getElementById('branch-select');
+if (branchSel) {
+  branchSel.addEventListener('change', () => {
+    const val = branchSel.value;
+    const searchInput = document.getElementById('branch-search');
+    if (searchInput) searchInput.value = val;
+  });
 }
 
 async function loadCommits() {
@@ -57,19 +94,34 @@ function renderCommits(commits) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No commits found for path</td></tr>';
     return;
   }
-  tbody.innerHTML = commits.map(c => ` + "`" + `
-    <tr data-hash="${c.hash}" class="${c.hash === activeHash ? 'selected' : ''}" onclick="selectCommit('${c.hash}')" oncontextmenu="showCommitContextMenu(event, '${c.hash}', '${escapeQuotes(c.subject)}')">
-      <td style="color:var(--accent);">●</td>
-      <td class="mono hash-cell">${c.shortHash}</td>
-      <td class="date-cell">${c.date}</td>
-      <td class="author-cell" title="${c.author}">${c.author}</td>
-      <td title="${c.subject}">${c.subject}</td>
-    </tr>
-  ` + "`" + `).join('');
+  tbody.innerHTML = commits.map(c => {
+    const selCls = c.hash === activeHash ? 'selected' : '';
+    return '<tr data-hash="' + c.hash + '" class="' + selCls + '" onclick="handleCommitClick(event, \'' + c.hash + '\')" oncontextmenu="showCommitContextMenu(event, \'' + c.hash + '\', \'' + escapeQuotes(c.subject) + '\')">' +
+      '<td style="color:var(--accent);">●</td>' +
+      '<td class="mono hash-cell">' + c.shortHash + '</td>' +
+      '<td class="date-cell">' + c.date + '</td>' +
+      '<td class="author-cell" title="' + escapeQuotes(c.author) + '">' + c.author + '</td>' +
+      '<td title="' + escapeQuotes(c.subject) + '">' + c.subject + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function handleCommitClick(event, hash) {
+  if (event && (event.ctrlKey || event.metaKey)) {
+    if (activeHash && activeHash !== hash) {
+      compareTwoCommits(activeHash, hash);
+      return;
+    }
+  }
+  isCompareMode = false;
+  compareBaseHash = '';
+  compareTargetHash = '';
+  selectCommit(hash);
 }
 
 async function selectCommit(hash) {
   activeHash = hash;
+  isCompareMode = false;
   document.querySelectorAll('#commits-body tr').forEach(tr => {
     tr.classList.toggle('selected', tr.getAttribute('data-hash') === hash);
   });
@@ -87,12 +139,10 @@ function renderCommitDetail(detail) {
   const header = document.getElementById('detail-header');
   const body = document.getElementById('detail-body');
   const parents = (detail.parents || []).join(' ') || 'none (root)';
-  header.innerHTML = ` + "`" + `
-    <div><b>Commit:</b> <span class="mono">${detail.hash}</span></div>
-    <div><b>Author:</b> ${detail.author} &lt;${detail.authorEmail}&gt;</div>
-    <div><b>Date:</b> ${detail.date}</div>
-    <div><b>Parents:</b> <span class="mono">${parents}</span></div>
-  ` + "`" + `;
+  header.innerHTML = '<div><b>Commit:</b> <span class="mono">' + detail.hash + '</span></div>' +
+    '<div><b>Author:</b> ' + detail.author + ' &lt;' + (detail.authorEmail || '') + '&gt;</div>' +
+    '<div><b>Date:</b> ' + detail.date + '</div>' +
+    '<div><b>Parents:</b> <span class="mono">' + parents + '</span></div>';
   body.textContent = (detail.subject || '') + '\n\n' + (detail.body || '');
 }
 
@@ -106,15 +156,87 @@ function renderModifiedFiles(files) {
   tbody.innerHTML = files.map(f => {
     const badgeCls = 'badge-' + (f.action || 'modified').toLowerCase();
     const stats = f.stats || '';
-    return ` + "`" + `
-      <tr ondblclick="triggerDiff('${f.path}')" oncontextmenu="showFileContextMenu(event, '${f.path}')" title="Double click or right click to diff">
-        <td><span class="badge-action ${badgeCls}">${f.action}</span></td>
-        <td class="mono" style="color:var(--text);">${f.path}</td>
-        <td class="mono" style="color:var(--yellow);">${stats}</td>
-        <td style="text-align:right;"><button onclick="triggerDiff('${f.path}')">Diff</button></td>
-      </tr>
-    ` + "`" + `;
+    return '<tr ondblclick="triggerDiff(\'' + f.path + '\')" oncontextmenu="showFileContextMenu(event, \'' + f.path + '\')" title="Double click or right click to diff">' +
+      '<td><span class="badge-action ' + badgeCls + '">' + f.action + '</span></td>' +
+      '<td class="mono" style="color:var(--text);">' + f.path + '</td>' +
+      '<td class="mono" style="color:var(--yellow);">' + stats + '</td>' +
+      '<td style="text-align:right;"><button onclick="triggerDiff(\'' + f.path + '\')">Diff</button></td>' +
+      '</tr>';
   }).join('');
+}
+
+async function compareTwoCommits(hashA, hashB) {
+  isCompareMode = true;
+  compareBaseHash = hashA;
+  compareTargetHash = hashB;
+  activeHash = hashB;
+  document.querySelectorAll('#commits-body tr').forEach(tr => {
+    const h = tr.getAttribute('data-hash');
+    tr.classList.toggle('selected', h === hashA || h === hashB);
+  });
+  showToast('Comparing ' + hashA.substring(0, 8) + ' with ' + hashB.substring(0, 8) + '...');
+  try {
+    const res = await fetch('/api/log/compare-commits?a=' + encodeURIComponent(hashA) + '&b=' + encodeURIComponent(hashB));
+    const data = await res.json();
+    renderCompareDetail(hashA, hashB, data.files || []);
+    renderCompareFiles(hashA, hashB, data.files || []);
+  } catch (e) {
+    showToast('Failed to compare commits: ' + e.message);
+  }
+}
+
+function renderCompareDetail(hashA, hashB, files) {
+  const header = document.getElementById('detail-header');
+  const body = document.getElementById('detail-body');
+  header.innerHTML = '<div><b>⚖ Two-Commit Compare:</b> <span class="mono">' + hashA.substring(0, 8) + '</span> &harr; <span class="mono">' + hashB.substring(0, 8) + '</span></div>' +
+    '<div><b>Changed Files:</b> ' + files.length + '</div>';
+  body.textContent = 'Comparing changes between commit ' + hashA + '\nand commit ' + hashB + '.\n\nDouble-click any file below to launch external comparison (Beyond Compare / VS Code).';
+}
+
+function renderCompareFiles(hashA, hashB, files) {
+  const tbody = document.getElementById('files-body');
+  document.getElementById('files-summary').textContent = 'Comparison Diff Files (' + files.length + ')';
+  if (!files || files.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">No differences between these two commits</td></tr>';
+    return;
+  }
+  tbody.innerHTML = files.map(f => {
+    const badgeCls = 'badge-' + (f.action || 'modified').toLowerCase();
+    const stats = f.stats || '';
+    return '<tr ondblclick="triggerTwoCommitDiff(\'' + hashA + '\', \'' + hashB + '\', \'' + f.path + '\')" oncontextmenu="showCompareFileContextMenu(event, \'' + hashA + '\', \'' + hashB + '\', \'' + f.path + '\')" title="Double click or right click to diff">' +
+      '<td><span class="badge-action ' + badgeCls + '">' + f.action + '</span></td>' +
+      '<td class="mono" style="color:var(--text);">' + f.path + '</td>' +
+      '<td class="mono" style="color:var(--yellow);">' + stats + '</td>' +
+      '<td style="text-align:right;"><button onclick="triggerTwoCommitDiff(\'' + hashA + '\', \'' + hashB + '\', \'' + f.path + '\')">Diff</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+async function triggerTwoCommitDiff(hashA, hashB, filePath) {
+  const preferredTool = localStorage.getItem('gitmap_diff_tool') || '';
+  showToast('Launching external compare tool for ' + filePath + '...');
+  try {
+    const res = await fetch('/api/log/diff-commits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hashA: hashA, hashB: hashB, path: filePath, tool: preferredTool })
+    });
+    const data = await res.json();
+    if (data.isSuccess) {
+      showToast('🚀 ' + (data.tool || 'Compare tool') + ' launched for ' + filePath);
+    } else {
+      showToast('Error: ' + (data.error || 'Failed to launch diff'));
+    }
+  } catch (e) {
+    showToast('Failed to trigger diff: ' + e.message);
+  }
+}
+
+function showCompareFileContextMenu(e, hashA, hashB, filePath) {
+  positionContextMenu(e);
+  contextMenu.innerHTML = '<div class="context-menu-item" onclick="navigator.clipboard.writeText(\'' + filePath + '\'); showToast(\'Copied path: ' + filePath + '\');">📋 Copy File Path</div>' +
+    '<div class="context-menu-separator"></div>' +
+    '<div class="context-menu-item" onclick="triggerTwoCommitDiff(\'' + hashA + '\', \'' + hashB + '\', \'' + filePath + '\')">⚖ Diff Commits (Beyond Compare)</div>';
 }
 
 async function triggerDiff(filePath) {
@@ -199,21 +321,22 @@ function positionContextMenu(e) {
 
 function showCommitContextMenu(e, hash, subject) {
   positionContextMenu(e);
-  contextMenu.innerHTML = ` + "`" + `
-    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${hash}'); showToast('Copied hash: ${hash.substring(0, 8)}');">📋 Copy Commit Hash</div>
-    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${subject}'); showToast('Copied subject line');">📋 Copy Subject Line</div>
-    <div class="context-menu-separator"></div>
-    <div class="context-menu-item" onclick="triggerDiff(activePath)">🔍 Compare with Previous</div>
-  ` + "`" + `;
+  let compareItem = '';
+  if (activeHash && activeHash !== hash) {
+    compareItem = '<div class="context-menu-item" onclick="compareTwoCommits(\'' + activeHash + '\', \'' + hash + '\')">⚖ Compare with Selected (' + activeHash.substring(0, 7) + ')</div>';
+  }
+  contextMenu.innerHTML = '<div class="context-menu-item" onclick="navigator.clipboard.writeText(\'' + hash + '\'); showToast(\'Copied hash: ' + hash.substring(0, 8) + '\');">📋 Copy Commit Hash</div>' +
+    '<div class="context-menu-item" onclick="navigator.clipboard.writeText(\'' + subject + '\'); showToast(\'Copied subject line\');">📋 Copy Subject Line</div>' +
+    compareItem +
+    '<div class="context-menu-separator"></div>' +
+    '<div class="context-menu-item" onclick="triggerDiff(activePath)">🔍 Diff with Parent (Beyond Compare)</div>';
 }
 
 function showFileContextMenu(e, filePath) {
   positionContextMenu(e);
-  contextMenu.innerHTML = ` + "`" + `
-    <div class="context-menu-item" onclick="navigator.clipboard.writeText('${filePath}'); showToast('Copied path: ${filePath}');">📋 Copy File Path</div>
-    <div class="context-menu-separator"></div>
-    <div class="context-menu-item" onclick="triggerDiff('${filePath}')">🔍 Diff with Previous (Beyond Compare)</div>
-  ` + "`" + `;
+  contextMenu.innerHTML = '<div class="context-menu-item" onclick="navigator.clipboard.writeText(\'' + filePath + '\'); showToast(\'Copied path: ' + filePath + '\');">📋 Copy File Path</div>' +
+    '<div class="context-menu-separator"></div>' +
+    '<div class="context-menu-item" onclick="triggerDiff(\'' + filePath + '\')">🔍 Diff with Previous (Beyond Compare)</div>';
 }
 
 const btnFs = document.getElementById('btn-fullscreen');

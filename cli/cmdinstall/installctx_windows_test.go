@@ -74,16 +74,17 @@ func TestCtxWindowsEveryLeafHasCommandKey(t *testing.T) {
 	}
 
 	fileLeafCount := len(ctxFileMenu())
-	dirLeafCount := countCtxLeaves()
-	want := fileLeafCount + (dirLeafCount * 2) // File (1 root) + Background & Directory (2 roots)
+	dirLeafCount := countCtxLeaves(ctxMenu())
+	bgLeafCount := countCtxLeaves(ctxBackgroundMenu())
+	want := fileLeafCount + dirLeafCount + bgLeafCount
 	if commandKeyWrites != want {
-		t.Errorf("got %d \\command writes, want %d (file=%d + dir=%d × 2 roots)", commandKeyWrites, want, fileLeafCount, dirLeafCount)
+		t.Errorf("got %d \\command writes, want %d (file=%d + dir=%d + bg=%d)", commandKeyWrites, want, fileLeafCount, dirLeafCount, bgLeafCount)
 	}
 }
 
-func countCtxLeaves() int {
+func countCtxLeaves(entries []ctxEntry) int {
 	n := 0
-	for _, e := range ctxMenu() {
+	for _, e := range entries {
 		if len(e.Children) == 0 {
 			n++
 

@@ -72,7 +72,7 @@ func ctxKeyHasOptedInIcon(key string) bool {
 		seg = key[i+1:]
 	}
 
-	allEntries := append(ctxMenu(), ctxFileMenu()...)
+	allEntries := append(append(ctxMenu(), ctxFileMenu()...), ctxBackgroundMenu()...)
 	for _, e := range allEntries {
 		if e.KeyName == seg && e.Icon != "" {
 			return true
