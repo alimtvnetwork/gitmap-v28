@@ -398,6 +398,46 @@ func TestParseAndFormatCommitMessage_PseudoModuleStripping(t *testing.T) {
 			module:   "",
 			hasMod:   false,
 		},
+		{
+			name:     "cpc commit stripped without nested module",
+			verb:     "cpc",
+			args:     []string{"commit", "-", "update", "readme"},
+			expected: "Chore: update readme",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "cpc commit stripped with nested docs module promoted",
+			verb:     "cpc",
+			args:     []string{"commit", "-", "docs", "-", "update", "readme"},
+			expected: "Chore: docs - update readme",
+			module:   "docs",
+			hasMod:   true,
+		},
+		{
+			name:     "cpc COMMIT stripped with nested TitleCase Docs module promoted",
+			verb:     "cpc",
+			args:     []string{"COMMIT", "-", "Docs", "-", "update", "readme"},
+			expected: "Chore: Docs - update readme",
+			module:   "Docs",
+			hasMod:   true,
+		},
+		{
+			name:     "cpf commits stripped without nested module",
+			verb:     "cpf",
+			args:     []string{"commits", "-", "add", "feature"},
+			expected: "Feature: add feature",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "cpc gitcommit stripped without nested module",
+			verb:     "cpc",
+			args:     []string{"gitcommit", "-", "clean", "files"},
+			expected: "Chore: clean files",
+			module:   "",
+			hasMod:   false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -459,6 +499,146 @@ func TestParseAndFormatCommitMessage_CanonicalBehavior(t *testing.T) {
 			}
 			if !res.HasModule || res.Module != tc.module {
 				t.Fatalf("expected module '%s', got '%s'", tc.module, res.Module)
+			}
+		})
+	}
+}
+
+func TestParseAndFormatCommitMessage_ModuleCasingPreservation(t *testing.T) {
+	tests := []struct {
+		name     string
+		verb     string
+		args     []string
+		expected string
+		module   string
+		hasMod   bool
+	}{
+		// Title Case preservation
+		{
+			name:     "Title Case Auth preserved",
+			verb:     "cpf",
+			args:     []string{"Auth", "-", "support", "jwt"},
+			expected: "Feature: Auth - support jwt",
+			module:   "Auth",
+			hasMod:   true,
+		},
+		{
+			name:     "Title Case Storage preserved",
+			verb:     "cpc",
+			args:     []string{"Storage", "-", "optimize", "layout"},
+			expected: "Chore: Storage - optimize layout",
+			module:   "Storage",
+			hasMod:   true,
+		},
+		{
+			name:     "Title Case Ui preserved",
+			verb:     "cpb",
+			args:     []string{"Ui", "-", "fix", "button", "alignment"},
+			expected: "Bug: Ui - fix button alignment",
+			module:   "Ui",
+			hasMod:   true,
+		},
+		// Lowercase preservation
+		{
+			name:     "Lowercase auth preserved",
+			verb:     "cpf",
+			args:     []string{"auth", "-", "support", "jwt"},
+			expected: "Feature: auth - support jwt",
+			module:   "auth",
+			hasMod:   true,
+		},
+		{
+			name:     "Lowercase storage preserved",
+			verb:     "cpc",
+			args:     []string{"storage", "-", "optimize", "layout"},
+			expected: "Chore: storage - optimize layout",
+			module:   "storage",
+			hasMod:   true,
+		},
+		{
+			name:     "Lowercase ui preserved",
+			verb:     "cpb",
+			args:     []string{"ui", "-", "fix", "button", "alignment"},
+			expected: "Bug: ui - fix button alignment",
+			module:   "ui",
+			hasMod:   true,
+		},
+		// ALL-CAPS shout-case normalization to lowercase
+		{
+			name:     "Shout-case AUTH normalized to auth",
+			verb:     "cpf",
+			args:     []string{"AUTH", "-", "support", "jwt"},
+			expected: "Feature: auth - support jwt",
+			module:   "auth",
+			hasMod:   true,
+		},
+		{
+			name:     "Shout-case STORAGE normalized to storage",
+			verb:     "cpc",
+			args:     []string{"STORAGE", "-", "optimize", "layout"},
+			expected: "Chore: storage - optimize layout",
+			module:   "storage",
+			hasMod:   true,
+		},
+		{
+			name:     "Shout-case UI normalized to ui",
+			verb:     "cpb",
+			args:     []string{"UI", "-", "fix", "button", "alignment"},
+			expected: "Bug: ui - fix button alignment",
+			module:   "ui",
+			hasMod:   true,
+		},
+		// Conventional commit (commit) stripped
+		{
+			name:     "Conventional (commit) stripped in cfr",
+			verb:     "cfr",
+			args:     []string{"(commit):", "clean", "helpers"},
+			expected: "refactor: clean helpers",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "Conventional (COMMIT) stripped in cfr",
+			verb:     "cfr",
+			args:     []string{"(COMMIT):", "clean", "helpers"},
+			expected: "refactor: clean helpers",
+			module:   "",
+			hasMod:   false,
+		},
+		{
+			name:     "Conventional (Auth) TitleCase preserved",
+			verb:     "cfr",
+			args:     []string{"(Auth):", "clean", "helpers"},
+			expected: "refactor(Auth): clean helpers",
+			module:   "Auth",
+			hasMod:   true,
+		},
+		{
+			name:     "Conventional (auth) Lowercase preserved",
+			verb:     "cfr",
+			args:     []string{"(auth):", "clean", "helpers"},
+			expected: "refactor(auth): clean helpers",
+			module:   "auth",
+			hasMod:   true,
+		},
+		{
+			name:     "Conventional (AUTH) ShoutCase normalized",
+			verb:     "cfr",
+			args:     []string{"(AUTH):", "clean", "helpers"},
+			expected: "refactor(auth): clean helpers",
+			module:   "auth",
+			hasMod:   true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			res := ParseAndFormatCommitMessage(tc.verb, tc.args)
+			if res.FormattedMessage != tc.expected {
+				t.Fatalf("expected '%s', got '%s'", tc.expected, res.FormattedMessage)
+			}
+			if res.HasModule != tc.hasMod || res.Module != tc.module {
+				t.Fatalf("expected hasMod=%v, module '%s', got hasMod=%v, module '%s'", tc.hasMod, tc.module, res.HasModule, res.Module)
 			}
 		})
 	}

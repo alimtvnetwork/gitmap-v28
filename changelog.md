@@ -1,5 +1,12 @@
 # Changelog
 
+## [v6.619.0] - 2026-10-27
+
+### Added
+- strip commit pseudo-module and preserve subsystem casing
+
+---
+
 ## [v6.618.0] - 2026-10-26
 
 ### Added

@@ -2,6 +2,7 @@ package cmdcommit
 
 import (
 	"strings"
+	"unicode"
 
 	commitconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdcommit/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
@@ -73,7 +74,7 @@ func resolveConventionalType(verb string) string {
 
 func isKnownCommitTag(tag string) bool {
 	switch tag {
-	case "feature", "feat", "release", "rel", "bug", "fix", "refactor", "refact", "chore", "docs", "spec", "test", "perf":
+	case "feature", "feat", "release", "rel", "bug", "fix", "refactor", "refact", "chore", "docs", "spec", "test", "perf", "commit", "commits", "gitcommit":
 		return true
 	default:
 		return false
@@ -140,11 +141,34 @@ func sanitizeInput(verb string, rawArgs []string) string {
 
 func isCommitTypeToken(mod string) bool {
 	switch strings.ToUpper(strings.TrimSpace(mod)) {
-	case "FEATURE", "FEAT", "RELEASE", "REL", "VERSION", "BUG", "CHORE", "REFACTOR", "REFACT", "SPEC":
+	case "FEATURE", "FEAT", "RELEASE", "REL", "VERSION", "BUG", "CHORE", "REFACTOR", "REFACT", "SPEC", "COMMIT", "COMMITS", "GITCOMMIT":
 		return true
 	default:
 		return false
 	}
+}
+
+func isAllUpperShoutCase(s string) bool {
+	hasLetters := false
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			hasLetters = true
+			if !unicode.IsUpper(r) {
+				return false
+			}
+		}
+	}
+
+	return hasLetters
+}
+
+func normalizeModuleCasing(mod string) string {
+	trimmed := strings.TrimSpace(mod)
+	if isAllUpperShoutCase(trimmed) {
+		return strings.ToLower(trimmed)
+	}
+
+	return trimmed
 }
 
 func isRedundantModule(prefix, mod string) bool {
@@ -192,7 +216,7 @@ func resolveHyphenModuleAndItem(prefix, mod, item string) (string, string, bool)
 		cleanItem = strings.TrimSpace(nestedItem)
 	}
 
-	return strings.ToLower(candidateMod), cleanItem, true
+	return normalizeModuleCasing(candidateMod), cleanItem, true
 }
 
 func makeHyphenRecord(raw, prefix, mod, item string, hasMod bool) ParsedCommitMessage {
@@ -240,9 +264,15 @@ func isKnownConventionalType(t string) bool {
 
 func buildConventionalRecord(raw, ctype, mod, item string) ParsedCommitMessage {
 	cType := resolveConventionalType(ctype)
-	cMod := strings.ToLower(strings.Trim(mod, "() "))
+	cMod := normalizeModuleCasing(strings.Trim(mod, "() "))
 	cleanItem := strings.TrimSpace(item)
-	formatted := cType + "(" + cMod + "): " + cleanItem
+	hasMod := cMod != "" && !isCommitTypeToken(cMod)
+	formatted := cType + ": " + cleanItem
+	if hasMod {
+		formatted = cType + "(" + cMod + "): " + cleanItem
+	} else {
+		cMod = ""
+	}
 
 	return ParsedCommitMessage{
 		RawInput:           raw,
@@ -250,7 +280,7 @@ func buildConventionalRecord(raw, ctype, mod, item string) ParsedCommitMessage {
 		CommitType:         cType,
 		Module:             cMod,
 		ItemDescription:    cleanItem,
-		HasModule:          cMod != "",
+		HasModule:          hasMod,
 		HasHyphenSeparator: false,
 		IsConventional:     true,
 	}
