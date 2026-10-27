@@ -22,6 +22,8 @@ gitmap create-local-repo (clr) <name> [folder] [slug] [flags]
 | `--dir <path>` | Destination local directory | `./<name>` |
 | `-d`, `--description <text>` | Repository description | `""` |
 | `--no-remote` | Local git repository initialization only | `false` |
+| `--cg`, `--coding-guideline` | Install and synchronize coding guidelines into `02-spec/02-coding-guidelines/` | `false` |
+| `--common` | Apply common project baseline files and git-lfs configuration | `false` |
 | `--json` | Output creation metadata as structured JSON | `false` |
 | `--yaml` | Output creation metadata as structured YAML | `false` |
 
@@ -40,6 +42,11 @@ gitmap create web-client --org my-org --public
 # Create local-only repository without pushing to remote
 
 gitmap create scratch-tool --no-remote
+
+# Create repository with coding guidelines installed
+
+gitmap create micro-service --cg
+gitmap create api-gateway --coding-guideline
 
 # Structured JSON output for CI/CD automation
 

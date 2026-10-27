@@ -34,6 +34,9 @@ gitmap repo-create --local <name> [flags]
 | `--slug <slug>` | Explicit repository slug | Auto-generated from `<name>` |
 | `-d`, `--description <text>` | Repository description | `""` |
 | `--profile <name>` | Target GitHub profile or organization | Active default |
+| `--cg`, `--coding-guideline` | Install and synchronize coding guidelines into `02-spec/02-coding-guidelines/` | `false` |
+| `--common` | Apply common project baseline files and git-lfs configuration | `false` |
+| `--cd` | Change current shell directory to newly created repository | `false` |
 | `--json` | Output creation metadata as structured JSON | `false` |
 | `--yaml` | Output creation metadata as structured YAML | `false` |
 
@@ -46,14 +49,18 @@ gitmap repo-create "My New Project"
 # 2. Using short alias repoc:
 gitmap repoc "Backend API Service"
 
-# 3. Create with explicit folder and slug:
+# 3. Create repository with coding guidelines installed:
+gitmap repo-create "Auth Service" --cg
+gitmap repoc "Billing API" --coding-guideline
+
+# 4. Create local-only repository with coding guidelines and common baseline:
+gitmap create-local-repo "Local Prototype" --cg --common
+gitmap clr "Local Sandbox" --cg
+
+# 5. Create with explicit folder and slug:
 gitmap repo-create "Internal Tool" ./tools/internal internal-tool-v1
 
-# 4. Create local-only repository (skip GitHub):
-gitmap create-local-repo "Local Prototype"
-gitmap clr "Local Sandbox"
-
-# 5. Commit transfer with auto-provisioned destination:
+# 6. Commit transfer with auto-provisioned destination:
 gitmap commit-right ./source-repo "My New Destination"
 gitmap commit-left "New Left Repo" ./source-repo
 gitmap commit-in "Consolidated Suite" ./repo-a ./repo-b
