@@ -268,4 +268,8 @@ const (
 	CmdClientsLS             = "clients ls"          // gitmap:cmd top-level
 	CmdSCLS                  = "servers-clients ls"  // gitmap:cmd top-level
 	CmdSCCat                 = "servers-clients cat" // gitmap:cmd top-level
+	CmdSwapBinary            = "swap-binary"
+	CmdSwapBinaryAlias       = "swap-bin"
+	CmdSwapBinaryAlias2      = "replace-binary"
+	CmdSwapBinaryAlias3      = "replace-bin"
 )

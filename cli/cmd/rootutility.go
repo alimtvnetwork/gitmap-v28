@@ -24,6 +24,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrevert"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsplit"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdswap"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdurl"
@@ -97,6 +98,7 @@ func utilityCoreBaseEntries() []dispatchEntry {
 		{[]string{constants.CmdRevertRunner}, cmdrevert.RunRevertRunner},
 		{[]string{constants.CmdVersion, constants.CmdVersionAlias, "--version", "-version", "-v", "versions"}, printVersionBlock},
 		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
+		{[]string{constants.CmdSwapBinary, constants.CmdSwapBinaryAlias, constants.CmdSwapBinaryAlias2, constants.CmdSwapBinaryAlias3, "bin-swap"}, func() error { return cmdswap.Run(argsTail()) }},
 	}
 }
 

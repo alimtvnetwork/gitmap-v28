@@ -241,6 +241,11 @@ var topicSummaries = map[string]string{
 	"nodes tasks":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
 	"nodes-queue":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
 	"nodes queue":                 "Inspect active, pending, and heavy-duty AI agent tasks across fleet nodes with CPU/RAM metrics.",
+	"swap-binary":                 "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
+	"swap-bin":                    "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
+	"replace-binary":              "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
+	"replace-bin":                 "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
+	"bin-swap":                    "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

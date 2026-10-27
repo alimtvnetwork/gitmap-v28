@@ -233,6 +233,10 @@ var helpAliases = map[string]string{
 	"dbrm":                        "db-rm",
 	"dbdelete":                    "db-rm",
 	"db-delete":                   "db-rm",
+	"swap-bin":                    "swap-binary",
+	"replace-binary":              "swap-binary",
+	"replace-bin":                 "swap-binary",
+	"bin-swap":                    "swap-binary",
 }
 
 func resolveHelpAlias(cmd string) string {

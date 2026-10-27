@@ -48,6 +48,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw `cargo build`, `cargo test`, `cargo check` | ✅ `gitmap cargo build [--install]`, `gitmap cargo test`, `gitmap crg check` | Automatically enriches environment with discovered toolchain paths (`CARGO_HOME`, MSVC) and offers auto-install if missing. |
 | ❌ Hardcoded `$env:LIBCLANG_PATH = "..."` or manual LLVM registry searching | ✅ `gitmap aum locate llvm` + `gitmap env set LIBCLANG_PATH <path>` or `gitmap pwsh "$env:LIBCLANG_PATH=...; gitmap cargo test"` | Dynamically resolves LLVM/Clang bin directories in <15ms across machines without breaking portability. |
 | ❌ Raw `taskkill /F /PID <pid>`, `tasklist`, `kill -9` | ✅ `gitmap ports [port]`, `gitmap os user kill <user>`, `gitmap vscode repair --kill`, `gitmap pwsh "Stop-Process -Id <pid> -Force"` | Cross-platform, audit-logged process management that avoids spurious non-zero exit crashes and file locks. |
+| ❌ Manual pwsh "Move-Item ...; Copy-Item ...", taskkill + copy on locked running binaries | ✅ `gitmap swap-binary [--from <path>] [--to <path>] [--kill] [--reopen]` | Safely generates an OS script (.ps1 or .sh), closes locking PIDs, rotates active binary to .old, copies new binary, and reopens/verifies version without locked file crashes. |
 | ❌ Raw Python folder sizing (`os.walk`, `sys.getsizeof`) or `Get-ChildItem -Recurse \| Measure-Object` | ✅ `gitmap disk [--json]`, `gitmap os storage`, `gitmap os dev-clean` | Native compiled Go drive and storage metrics (<1ms). Prevents terminal freezing and avoids spawning unnecessary Python runtimes. |
 | ❌ Raw directory inspection of Tauri apps (`dir src-tauri`, `Get-ChildItem src-tauri`) | ✅ `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, `gitmap pe -f tauri` | High-speed directory inventory and pipeline error filtering optimized for Tauri/Rust desktop projects. |
 
@@ -579,6 +580,7 @@ Autonomous AI agents are strongly recommended to author a structured JSON payloa
 - `gitmap os user kill <user> [--force]` — Terminates all processes owned by the given OS user.
 - `gitmap vscode repair --kill` — Safely terminates hung VS Code / Antigravity processes locking workspace files.
 - `gitmap pwsh "Stop-Process -Id <pid> -Force"` — Deterministic PID termination via managed PowerShell wrapper.
+- `gitmap swap-binary [path] [--kill] [--reopen]` — Safely terminates locking PIDs, backs up the active binary to `.old`, copies the newly compiled binary in place, and reopens/verifies version without locked file crashes. Supports `--from <path>`, `--to <path>`, `--script-only`, and `--json`.
 
 ### 21. Hardware, Disk & Storage Telemetry
 - `gitmap disk [--json]` — Instant physical drive metrics, capacity, and available space.
@@ -1132,6 +1134,17 @@ gitmap vscode repair --kill
 
 # Deterministic process termination by PID via GitMap managed PowerShell wrapper
 gitmap pwsh "Stop-Process -Id 12345 -Force"
+
+# Safely swap locked running binary on Windows (generates detached .ps1, kills locking PIDs, backs up to .old, copies, verifies version, and reopens)
+gitmap swap-binary --from .\dist\gitmap.exe --to C:\Users\Administrator\go\bin\gitmap.exe --kill --reopen
+gitmap swap-binary .\dist\gitmap.exe --kill
+
+# Safely swap running binary on Linux / macOS (generates detached .sh supervisor script, halts processes, swaps executable, and verifies)
+gitmap swap-binary --from ./bin/gitmap --to /usr/local/bin/gitmap --kill --reopen
+gitmap swap-binary ./bin/gitmap --kill
+
+# Inspect generated detached swap script without executing
+gitmap swap-binary --from ./dist/gitmap.exe --script-only
 ```
 
 ### 18. Hardware, Disk & Storage Telemetry
@@ -1168,6 +1181,7 @@ gitmap os dev-clean
 12. **Total Ban on Filesystem Grepping for Past Agent Decisions:** NEVER grep source files or guess past subagent actions. You MUST run `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` to discover multi-tier SQLite heatmap databases, cross-referenced repository aliases, and recent tasks across 2–5 repositories with interactive suggestion pills.
 13. **Total Ban on Raw Cargo Invocations & Ad-Hoc Toolchain Variables:** NEVER run raw `cargo build`, `cargo test`, `cargo check`, or hardcode `$env:LIBCLANG_PATH` manually. You MUST use `gitmap cargo build [--install]`, `gitmap cargo test`, `gitmap crg check`, and dynamic resolution via `gitmap aum locate llvm` and `gitmap env set LIBCLANG_PATH <path>`.
 14. **Total Ban on Raw Process Termination:** NEVER execute raw `taskkill /F /PID <pid>`, `Stop-Process`, or `kill -9` directly. You MUST use `gitmap ports [port]`, `gitmap os user kill <user>`, `gitmap vscode repair --kill`, or managed wrapper `gitmap pwsh "Stop-Process -Id <pid> -Force"`.
-15. **Total Ban on Python Folder Sizing Scripts:** NEVER run `os.walk` or `sys.getsizeof` inline scripts to compute folder sizes. You MUST use native compiled `gitmap disk [--json]`, `gitmap os storage`, and `gitmap os dev-clean`.
-16. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
-17. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `MODULE - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument.
+15. **Total Ban on Raw Locked Binary Operations:** NEVER attempt manual binary replacement on locked, running executables using PowerShell `Move-Item`, `Copy-Item`, raw `taskkill` + copy, or shell copy scripts that cause locked file crashes or sharing violations (`ERROR_SHARING_VIOLATION` / `0x20`). You MUST use `gitmap swap-binary [--from <path>] [--to <path>] [--kill] [--reopen]` (or alias `gitmap swap-bin`) to safely generate a platform-specific runner script, gracefully terminate locking PIDs, rotate the active binary to `.old`, install the new binary, verify version integrity, and restart.
+16. **Total Ban on Python Folder Sizing Scripts:** NEVER run `os.walk` or `sys.getsizeof` inline scripts to compute folder sizes. You MUST use native compiled `gitmap disk [--json]`, `gitmap os storage`, and `gitmap os dev-clean`.
+17. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
+18. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `MODULE - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument.
