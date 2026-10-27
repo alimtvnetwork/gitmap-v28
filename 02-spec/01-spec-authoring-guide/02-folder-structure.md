@@ -1,7 +1,7 @@
 # Folder Structure
 
-**Version:** 3.2.0
-**Updated:** 2026-04-16
+**Version:** 5.0.0
+**Updated:** 2026-10-27
 
 ---
 
@@ -30,9 +30,9 @@ IMPORTANT — AI INSTRUCTION:
 ### Numbering Policy
 
 - **01–20**: Reserved exclusively for **core fundamentals** — foundational principles, standards, integrations, research, and consolidated summaries.
-- **21+**: Reserved for **app-specific** content — application features, workflows, and issue tracking.
+- **21+**: Reserved for **app-specific modules and audits** — application features, workflows, issue tracking, domain databases, UI tokens, and specification audits (`21-app/` through `25-spec-audits/`).
 
-No app-specific content may appear in the 01–20 range. No foundational principles may appear at 21+.
+No app-specific content may appear in the 01–20 range. No foundational principles may appear at 21+. All 21+ directories reside directly under `02-spec/` as top-level containers.
 
 ### Required Root Folders
 
@@ -40,80 +40,91 @@ No app-specific content may appear in the 01–20 range. No foundational princip
 |---|--------|---------|
 | 01 | `01-spec-authoring-guide/` | Meta-guide — how to write and maintain specs |
 | 02 | `02-coding-guidelines/` | Cross-language and language-specific coding standards |
-| 03 | `03-error-manage/` | Error management, error codes, error architecture |
+| 03 | `03-error-manage/` | Error management, application errors, and error envelopes |
 | 04 | `04-database-conventions/` | Database schema design, naming, ORM, views, testing, REST API format |
 | 05 | `05-split-db-architecture/` | Split database pattern (operational + config DBs) |
-| 06 | `06-seedable-config-architecture/` | Seedable configuration with versioning |
-| 07 | `07-design-system/` | Design system tokens, components, theming |
+| 06 | `06-seedable-config-architecture/` | Seedable configuration with versioning and changelogs |
+| 07 | `07-design-system/` | Design system tokens, components, theming, visual rules |
 | 08 | `08-docs-viewer-ui/` | Documentation viewer UI specifications |
 | 09 | `09-code-block-system/` | Code block rendering pipeline, interactions, styling |
 | 10 | `10-research/` | Comparative studies, technology evaluations, exploratory notes |
 | 11 | `11-powershell-integration/` | PowerShell scripting conventions, cross-platform automation |
-| 12 | `12-cicd-pipeline-workflows/` | CI/CD pipeline specs, deployment workflows, automation |
+| 12 | `12-cicd-pipeline-workflows/` | CI/CD pipeline specs, deployment workflows, quality gates |
 | 13 | `13-generic-cli/` | Generic CLI terminal UX, colors, flags, and help contracts |
 | 14 | `14-update/` | CLI self-update blueprints, release distribution, deploy strategies |
 | 15 | `15-distribution-and-runner/` | Cross-platform installers, runners, and repository forwarding |
 | 16 | `16-generic-release/` | Universal release pipeline blueprint and asset matrices |
-| 17 | `17-consolidated-guidelines/` | AI-readable summaries of every major spec module |
+| 17 | `17-consolidated-guidelines/` | Single-file AI summaries of every major spec module |
 | 18 | `18-wp-plugin-how-to/` | WordPress plugin architecture, admin UI, and REST API |
 | 19 | `19-main-worker-service/` | Split-tier architecture, credential-blind proxy, and backup nodes |
+| 20 | `20-*` *(Reserved)* | Reserved for future core fundamentals |
 | 21 | `21-app/` | App-specific specs: features, workflows, architecture |
 | 22 | `22-app-issues/` | App bug analysis, root cause analysis, fix documentation |
 | 23 | `23-app-db/` | App-specific data model, table designs, migration strategies |
 | 24 | `24-app-ui-design-system/` | App-specific UI, design system, theming, component patterns |
+| 25 | `25-spec-audits/` | Specification audits, blind-AI readiness scorecards, and matrices |
 
 ### Rules
 
 1. **Required folders are fixed** — Their numbering and naming MUST NOT change unless this file is explicitly updated and all cross-references are audited.
 2. **App content starts at 21** — App-specific folders MUST use numbers 21+. They MUST NOT be placed in the 01–20 range.
-3. **Sequential numbering** — New folders use the next available number. Gaps are acceptable for historical reasons.
-4. **Lowercase kebab-case** — All folder names: `{NN}-{kebab-case-name}/` (zero-padded, lowercase, hyphens only).
-5. **Every folder needs `readme.md`** — Every root folder MUST contain a `readme.md` as its entry point.
-6. **Cross-references must be updated after restructuring** — Grep `02-spec/` for old paths, update all references, run link scanner.
+3. **Top-level direct placement** — Folders 21+ (`21-app/` through `25-spec-audits/`) are top-level containers located directly under `02-spec/`. They must NEVER be placed inside `02-spec/02-coding-guidelines/`.
+4. **Sequential numbering** — New folders use the next available number. Gaps are acceptable for historical reasons.
+5. **Lowercase kebab-case** — All folder names: `{NN}-{kebab-case-name}/` (zero-padded, lowercase, hyphens only).
+6. **Every folder needs `readme.md`** — Every root folder MUST contain a `readme.md` as its entry point.
+7. **Cross-references must be updated after restructuring** — Search `02-spec/` for old paths, update all references, and run link validation.
 
 ### Validation Checklist
 
 Before any spec generation, restructuring, or audit, verify:
 
-- [ ] All required root folders (01–14, 21–23) exist
-- [ ] Core fundamental folders are numbered within 01–20
-- [ ] App-specific folders start at 21+
+- [ ] All required root folders (01–19, 21–25) exist directly under `02-spec/`
+- [ ] Core fundamental folders are numbered strictly within 01–20
+- [ ] App-specific and audit folders start at 21+
 - [ ] All folders use lowercase kebab-case naming
 - [ ] Every folder contains `readme.md`
 - [ ] Root-level `readme.md` and `99-consistency-report.md` exist
 - [ ] All cross-references resolve correctly
-- [ ] Zero broken links reported by `node linter-scripts/generate-dashboard-data.cjs`
+- [ ] Zero broken links reported across spec documentation
 
 ---
 
 ## Root-Level Tree
 
 ```
-spec/
-├── readme.md                          # Master index — links every module
+02-spec/
+├── readme.md                               # Master index — links every module
 ├── folder-structure-root.md                # Redirect → this file is the canonical source
-├── 99-consistency-report.md               # Root-level consistency report
+├── 99-consistency-report.md                # Root-level consistency report
 │
 │ ── CORE FUNDAMENTALS (01–20) ──
-├── 01-spec-authoring-guide/                 # THIS GUIDE — how to write specs
+├── 01-spec-authoring-guide/                # THIS GUIDE — how to write specs
 ├── 02-coding-guidelines/                   # Consolidated coding standards
-├── 03-error-manage/                   # Error management, codes, architecture
+├── 03-error-manage/                        # Error management, codes, architecture
 ├── 04-database-conventions/                # Database schema design, naming, ORM, views
 ├── 05-split-db-architecture/               # Split database pattern
 ├── 06-seedable-config-architecture/        # Seedable configuration with versioning
 ├── 07-design-system/                       # Design system tokens, components, theming
 ├── 08-docs-viewer-ui/                      # Documentation viewer UI specifications
 ├── 09-code-block-system/                   # Code block rendering pipeline
-├── 11-powershell-integration/              # PowerShell scripting & automation
 ├── 10-research/                            # Research: studies, evaluations, explorations
-├── 17-consolidated-guidelines/             # AI-readable summaries of all modules
+├── 11-powershell-integration/              # PowerShell scripting & automation
 ├── 12-cicd-pipeline-workflows/             # CI/CD pipelines, deployment workflows
-├── 14-update/              # CLI self-update, release distribution
-├── 15–20 (reserved)                        # Future core fundamentals
+├── 13-generic-cli/                         # Generic CLI UX, exit codes, and flags
+├── 14-update/                              # CLI self-update, release distribution
+├── 15-distribution-and-runner/             # Installers, runners, repository forwarding
+├── 16-generic-release/                     # Universal release pipeline blueprint
+├── 17-consolidated-guidelines/             # AI-readable summaries of all modules
+├── 18-wp-plugin-how-to/                    # WordPress plugin architecture
+├── 19-main-worker-service/                 # Split-tier service and proxy nodes
+├── 20-reserved/                            # Reserved for future core fundamentals
 │
-│ ── APP-SPECIFIC (21+) ──
-├── 21-app/                                  # App feature specs, workflows
+│ ── APP-SPECIFIC & AUDITS (21+) ──
+├── 21-app/                                 # App feature specs, workflows
 ├── 22-app-issues/                          # App bug analysis, root cause, fixes
+├── 23-app-db/                              # App data models, migrations
+├── 24-app-ui-design-system/                # App UI components, tokens
+├── 25-spec-audits/                         # Specification audits and scorecards
 │
 │ ── ARCHIVE & GOVERNANCE ──
 ├── 99-archive/                             # Deprecated specifications
@@ -133,28 +144,36 @@ Foundational rules, standards, and integrations that all other work depends on. 
 | # | Module | Purpose |
 |---|--------|---------|
 | 01 | spec-authoring-guide | This guide — how to write and maintain specs |
-| 02 | coding-guidelines | Consolidated language standards (cross-language, TS, Go, PHP, Rust) |
-| 03 | error-manage | Error management, error codes, error architecture |
+| 02 | coding-guidelines | Consolidated language standards (cross-language, TS, Go, PHP, Rust, C#) |
+| 03 | error-manage | Error management, application errors, and error envelopes |
 | 04 | database-conventions | Database schema design, naming, ORM, views, testing, REST API |
 | 05 | split-db-architecture | Split database pattern (operational + config DBs) |
 | 06 | seedable-config-architecture | Seedable configuration with changelog versioning |
 | 07 | design-system | Design system tokens, components, theming |
 | 08 | docs-viewer-ui | Documentation viewer UI specifications |
 | 09 | code-block-system | Code block rendering pipeline, interactions, styling |
-| 10 | powershell-integration | PowerShell scripting conventions, cross-platform automation |
-| 11 | research | Comparative studies, technology evaluations, exploratory notes |
-| 12 | consolidated-guidelines | Single-file AI-readable summaries of all major modules |
-| 13 | cicd-pipeline-workflows | CI/CD pipeline specs, deployment workflows, automation |
-| 14 | self-update-app-update | CLI self-update blueprints, release distribution |
+| 10 | research | Comparative studies, technology evaluations, exploratory notes |
+| 11 | powershell-integration | PowerShell scripting conventions, cross-platform automation |
+| 12 | cicd-pipeline-workflows | CI/CD pipeline specs, deployment workflows, automation |
+| 13 | generic-cli | Generic CLI UX, ANSI colors, flags, and help contracts |
+| 14 | update | CLI self-update blueprints, release distribution, deploy strategies |
+| 15 | distribution-and-runner | Cross-platform installers, runners, and repository forwarding |
+| 16 | generic-release | Universal release pipeline blueprint and asset matrices |
+| 17 | consolidated-guidelines | Single-file AI-readable summaries of all major modules |
+| 18 | wp-plugin-how-to | WordPress plugin architecture, admin UI, and REST API |
+| 19 | main-worker-service | Split-tier architecture, credential-blind proxy, and backup nodes |
 
-### Layer 2: App-Specific (21+)
+### Layer 2: App-Specific & Audits (21+)
 
-Application-level content — features, workflows, and issue tracking.
+Application-level content — features, workflows, issue tracking, databases, UI design systems, and specification audits.
 
 | # | Module | Purpose |
 |---|--------|---------|
 | 21 | app | App feature specs, workflows, architecture decisions |
 | 22 | app-issues | App bug analysis, root cause analysis, fix documentation |
+| 23 | app-db | App-specific data models, table designs, and migration strategies |
+| 24 | app-ui-design-system | App-specific UI components, tokens, and design patterns |
+| 25 | spec-audits | Specification audits, blind-AI readiness scorecards, and matrices |
 
 ### Layer 3: Archive & Governance (99, validation-reports)
 
@@ -173,7 +192,7 @@ Historical and governance artifacts.
 |-------|---------|
 | 00 | Root files (overview, folder guideline) and `readme.md` within folders |
 | 01–20 | **Core fundamentals** — standards, principles, integrations, research, consolidated summaries |
-| 21+ | **App-specific** — application features, workflows, issue analysis |
+| 21+ | **App-specific & audits** — application features, workflows, issue analysis, UI, databases, audits |
 | 97 | Acceptance criteria |
 | 98 | Changelogs |
 | 99 | Consistency reports and archive |
@@ -196,7 +215,7 @@ Two templates exist depending on project type:
 
 ## Subfolder Depth Rules
 
-- **Maximum depth:** 3 levels (e.g., `02-spec/13-wp-plugin/03-exam-manager/02-features/01-exam-builder/`)
+- **Maximum depth:** 3 levels (e.g., `02-spec/13-generic-cli/03-subcommand-architecture.md`)
 - **Each level** follows the same `{NN}-{name}` convention
 - **Every folder** at any depth must have `readme.md`
 - **Only top-level** and major subfolder boundaries require `99-consistency-report.md`
@@ -209,64 +228,48 @@ Historical gaps exist in the numbering sequence (e.g., numbers previously used f
 
 ---
 
-## Coding Guidelines Subfolder Numbering Convention
+## Direct Top-Level Placement for 21+ Containers
 
-The `02-spec/02-coding-guidelines/` directory uses a **split numbering scheme** that separates core fundamentals from app-specific content:
+A critical architectural invariant is that **all 21+ containers reside directly under `02-spec/`**:
 
-### Core Fundamentals Range (01–20)
+```
+02-spec/
+├── 21-app/
+├── 22-app-issues/
+├── 23-app-db/
+├── 24-app-ui-design-system/
+└── 25-spec-audits/
+```
 
-Folders 01–20 are **reserved exclusively** for core, foundational coding standards. This includes:
-
-- Language-specific standards (TypeScript, Go, PHP, Rust, C#)
-- Cross-language principles (naming, DRY, typing, booleans)
-- AI optimization rules
-- File & folder naming conventions
-- PowerShell integration (`09`)
-- Research — comparative studies, technology evaluations (`10`)
-- Security policies (`11`)
-- Database conventions (`04` — root level)
-
-**No app-specific content may appear in this range.** New core fundamentals use the next available number within 01–20.
-
-### App-Specific Range (21+)
-
-Folders 21 and above are for **application-level** content:
-
-| # | Folder | Purpose |
-|---|--------|---------|
-| 21 | `21-app/` | App feature specs, workflows, architecture decisions |
-| 22 | `22-app-issues/` | App bug analysis, root cause analysis, fix documentation |
-
-New app-related folders use the next available number after 22.
+- **NEVER nest under `02-coding-guidelines/`**: `02-spec/02-coding-guidelines/` is strictly reserved for language-specific standards (`01-cross-language/`, `02-golang/`, `03-typescript/`, etc.). App-specific specifications or audit documents must never be created inside `02-coding-guidelines/`.
+- **Isolation Boundary**: Cross-repository synchronization tools strictly exclude `02-spec/21-*` through `02-spec/25-*` from syncing into external repositories to prevent domain-specific leaks.
 
 ### Decision Guide — Where to Place New Content
 
 ```
-AI INSTRUCTION — Coding Guidelines Placement:
+AI INSTRUCTION — Spec Placement Decision Guide:
 
-1. Is the content reusable, foundational, or principle-driven?
-   → Place in 01–20 (core fundamentals range)
+1. Is the content reusable, foundational, or principle-driven across all codebases?
+   → Place in 01–20 (core fundamentals range under 02-spec/)
 
 2. Is the content exploratory, comparative, or evaluative?
-   → Place in 10-research
+   → Place in 02-spec/10-research/
 
 3. Does the content define a specific application feature or workflow?
-   → Place in 21-app
+   → Place in 02-spec/21-app/
 
-4. Does the content analyze bugs, failures, root causes, or fixes?
-   → Place in 22-app-issues
+4. Does the content analyze application bugs, failures, root causes, or fixes?
+   → Place in 02-spec/22-app-issues/
 
-5. Never place app-specific content in the 01–20 range.
-6. Never place foundational principles in the 21+ range.
+5. Does the content define application data models, tables, or database migrations?
+   → Place in 02-spec/23-app-db/
+
+6. Does the content define application-specific UI tokens, screens, or layouts?
+   → Place in 02-spec/24-app-ui-design-system/
+
+7. Does the content contain specification audits, readiness scorecards, or gap analysis?
+   → Place in 02-spec/25-spec-audits/
+
+8. Never place app-specific content in the 01–20 range.
+9. Never place foundational principles in the 21+ range.
 ```
-
-### Fixed Folder Assignments
-
-| # | Folder | Status |
-|---|--------|--------|
-| 09 | `09-powershell-integration/` | Fixed — all PowerShell content goes here |
-| 10 | `10-research/` | Fixed — all research content goes here |
-| 21 | `21-app/` | Fixed — all app specs go here |
-| 22 | `22-app-issues/` | Fixed — all app issue analysis goes here |
-
-See [`readme.md`](../02-coding-guidelines/readme.md) for the full category listing.

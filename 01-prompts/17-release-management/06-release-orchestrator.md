@@ -143,7 +143,7 @@ The release orchestrator and all release triggers MUST strictly execute this 5-s
                    │
                    ▼
 [STEP 3] Stage & Commit on Release Branch:
-         gitmap cpr "vX.Y.Z <scope>"
+         gitmap cpr "RELEASE - vX.Y.Z <scope>"
                    │
                    ▼
 [STEP 4] Create Annotated Git Tag on Release Commit:

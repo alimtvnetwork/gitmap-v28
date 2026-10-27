@@ -2,6 +2,10 @@
 <!-- Source: 02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md -->
 <!-- Regenerate with: npm run sync:guidelines -->
 
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Source: 02-spec/17-consolidated-guidelines/34-compiled-simple-coding-guidelines.md -->
+<!-- Regenerate with: npm run sync:guidelines -->
+
 # 31. Compiled Simple Coding Guidelines (AI Blind-Follow)
 
 Version: 1.5.0

@@ -116,7 +116,7 @@ All major version bumps and releases MUST strictly follow this 5-step Git releas
                    │
                    ▼
 [STEP 3] Stage & Commit on Release Branch:
-         gitmap cpr "vX.0.0 <breaking change scope>"
+         gitmap cpr "RELEASE - vX.0.0 <breaking change scope>"
                    │
                    ▼
 [STEP 4] Create Annotated Git Tag on Release Commit:
@@ -139,10 +139,10 @@ All major version bumps and releases MUST strictly follow this 5-step Git releas
 
 > [!IMPORTANT]
 > **GitMap Semantic Release Directives:**
-> - **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "v<version> <scope>"`.
+> - **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "RELEASE - <version> <scope>"`.
 > - **TOTAL BAN ON CPF FOR RELEASES:** Never use `gitmap cpf` for releases (it stamps commits with `Feature:`).
-> - **TOTAL BAN ON NESTED & REDUNDANT PREFIXES:** Never write `chore(release):`, `release:`, `RELEASE - `, or `VERSION - ` inside the message argument for `gitmap cpr`. GitMap adds the prefix automatically!
-> - **TOTAL BAN ON THIRD BRACKETS & COLONS:** Format directly as `"v<version> <scope>"` with no square brackets `[...]` or colons.
+> - **TOTAL BAN ON NESTED PREFIXES:** Never write `chore(release):`, `release:`, or `feat:` inside the message argument. GitMap adds the prefix automatically!
+> - **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"RELEASE - <version> <scope>"` with hyphen and no square brackets `[...]`.
 
 1. **Step 1: Create & Switch to Release Branch:**
    Create and checkout the dedicated release branch first: `git checkout -b release/vX.0.0`. Releases MUST NOT be committed directly to `main` without a release branch.
@@ -151,7 +151,7 @@ All major version bumps and releases MUST strictly follow this 5-step Git releas
    - The bump version script must be adapted based on the target repository architecture to update `version.json`, `package.json`, `readme.md`, `changelog.md`, and install snippets.
    - If the script needs changes for this repo, fix it before running.
 3. **Step 3: Commit in Release Branch:**
-   Stage and commit all version bump and generated release files on the release branch: `gitmap cpr "vX.0.0 <breaking change scope>"`.
+   Stage and commit all version bump and generated release files on the release branch: `gitmap cpr "RELEASE - vX.0.0 <breaking change scope>"`.
 4. **Step 4: Create Annotated Git Tag:**
    Create the annotated tag on that release commit: `git tag -a vX.0.0 -m "Release vX.0.0"`.
 5. **Step 5: Put Commit Back to Main Branch & Push:**
@@ -286,7 +286,7 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 - [ ] Read `version.json` for Changelog formatting rules and prepend entry in `changelog.md`.
 - [ ] Pin the latest version into root `readme.md` (badges, text, install snippets; FATAL IF MISSED).
 - [ ] Run post-bump sync scripts (`npm run sync` or repository generator) to update spec trees and manifests.
-- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpr "vX.0.0 <breaking change scope>"`.
+- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpr "RELEASE - vX.0.0 <breaking change scope>"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.0.0 -m "Release vX.0.0"`.
 - [ ] Step 5: Switch to `main`, merge `release/vX.0.0`, push `main`, `release/vX.0.0`, and tag `vX.0.0` to `origin`, then restore starting branch.
 - [ ] Generate release notes file with Quick Install one-liners and changelog, and publish via `gh release create --notes-file` (NEVER bare `--generate-notes`).

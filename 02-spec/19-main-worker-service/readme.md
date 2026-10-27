@@ -118,6 +118,7 @@ A literal AI MUST read every numbered file 00→24 before scoping work. The map 
 |------|---------|
 | `29-plan.md` | Phased task list, decisions, open questions |
 | `readme.md` | This file |
+| `100-improvement-possibilities.md` | Comprehensive catalog of 100 architectural improvement possibilities across 10 functional clusters |
 | `02-architecture.md` | Topology, request flow, boundaries |
 | `03-glossary.md` | Canonical terms |
 | `04-main-db-schema.md` | Main-server SQLite schema (single source of truth for `WorkerNode`, `Company`, `UserDirectory`, audit tables) |
@@ -143,12 +144,33 @@ A literal AI MUST read every numbered file 00→24 before scoping work. The map 
 | `24-snapshot-storage-and-restore.md` | Snapshot build + restore flow |
 | `25-threat-model.md` | Threat-model pointer (no implementation) |
 | `26-inherited-rules.md` | Inline blind-AI reference for rules inherited from `02-spec/03-`, `04-`, `05-`, `06-` (Phase 13.3) |
+| `27-trust-boundaries-and-isolation.md` | Non-negotiable one-way trust gradients and reverse channel denial matrix |
+| `28-git-backup-targets.md` | Isolated Git repositories as out-of-band backup targets |
 | `96-linter-audit.md` | ⚠ Historical linter snapshot — see banner at top |
 | `97-acceptance-criteria.md` | Verbatim acceptance criteria mapping |
 | `98-changelog.md` | Spec version history |
 | `99-consistency-report.md` | ⚠ Historical consistency snapshot — see banner at top |
 | `audit/` | Independent blind-AI readiness audits (latest = `07-…-v2.md`); earlier files marked STALE |
 | `diagrams/` | Mermaid ERDs + sequence diagrams (non-authoritative projections) |
+
+---
+
+## 6.1 Architectural Evolution: 100 Improvement Possibilities
+
+Full detailed specification and remediation catalog: **[`100-improvement-possibilities.md`](./100-improvement-possibilities.md)**.
+
+The catalog documents 100 concrete, grounded improvement possibilities across 10 functional clusters (10 items each) with exact deficiency analysis, concrete engineering remediation, and quantified architectural benefits:
+
+1. **Cluster 01: Core Worker Architecture & Topology Hardening (Items 01–10):** Multi-region active-active worker federation, dynamic ingress admission rate limiting, mTLS inter-tier wire encryption, graceful worker drain protocol, cgroup resource isolation, dual-phase push staging and rollback, ephemeral secret zeroization, distributed static asset offload, cross-tier capability negotiation, and multi-process advisory lock pooling.
+2. **Cluster 02: Split-DB Schema, Multi-Tenant Isolation & Migration Integrity (Items 11–20):** Schema version attestation matrix, zero-downtime WAL checkpointing, tenant schema mutation sandboxing, automated orphaned directory pruning, cross-tier migration rollback verification gates, parameterized query bind hardening, tier boundary violation detectors, monotonic rowid optimizations, storage quota admission controls, and pre-migration page integrity verification.
+3. **Cluster 03: Authentication, Session Tokens & 2FA/TOTP Resilience (Items 21–30):** Constant-time synthetic authentication, single-use TOTP verification tickets, JWT `kid` grace-period keyring rotation, distributed token revocation Bloom filters, independent Argon2id salted backup codes, client transport fingerprint binding, refresh token family rotation, fine-grained M2M OAuth scopes, WebAuthn/FIDO2 hardware keys, and sliding-window anti-brute-force delays.
+4. **Cluster 04: Structured Error Handling, Leaf Error Sovereignty & AppError Integration (Items 31–40):** Monadic Result wire envelopes, leaf error sovereignty preservation, structured field-level validation schemas, compile-time error code registry parity, automatic caller context trace injection, exponential backoff with decorrelated jitter, deep PII error redaction, non-breaking minor envelope versioning, distributed correlation ID context binding, and stack-agnostic AppFault wrappers.
+5. **Cluster 05: Backup Replication, Key Rotation & Disaster Recovery (Items 41–50):** CDC sequence gap detection and backfill, hybrid RSA envelope key rotation, atomic transactional CDC application, poison-pill CDC isolation via dead-letter queues (DLQ), scoped append-only Git backup targets, differential snapshots with Merkle tree verification, zero-data-loss failover promotion state machine, at-rest HMAC storage envelope verification, tiered cold-storage compaction, and continuous synthetic disaster recovery drill harness.
+6. **Cluster 06: Worker Registration, Heartbeat Leases & Health Checking (Items 51–60):** Cryptographic hardware machine attestation, adaptive sliding-window heartbeat leases, deep synthetic split-DB health probing, flapping node quarantine state machine, graceful worker de-registration drain, multi-dimensional capacity scoring, compressed heartbeat metrics batching, probabilistic early cache refresh (XFetch), split-brain safe mode fallback, and security taint tracking on worker retirement.
+7. **Cluster 07: Subdomain Routing, Edge Proxying & Reverse Tunneling (Items 61–70):** Dynamic wildcard DNS-01 TLS provisioning, reverse tunneling gateway for private VPC workers, edge DNS SRV/Anycast direct routing, strict SNI proxy header sanitization, per-tenant dedicated egress IP pools, WebSocket and SSE bidirectional streaming tunnels, geo-distributed latency routing, edge circuit breakers for degraded workers, HTTP/3 QUIC listener upgrades, and vanity subdomain anti-squatting locks.
+8. **Cluster 08: Observability, Cognitive Heatmap Telemetry & Structured Logging (Items 71–80):** Native cognitive heatmap telemetry lifecycle hooks, W3C Trace Context and OpenTelemetry span propagation, high-frequency SQLite lock contention counters, dynamic seedable-config log level reload, immutable JSON audit trails for privilege escalation, autonomous CDC latency anomaly detection, per-tenant bandwidth accounting, privacy-preserving PII log filters, W3C Server-Timing latency headers, and distributed cooperative cancellation early warning dumps.
+9. **Cluster 09: Cross-Language Coding Guidelines, Positive Booleans & Monadic Results (Items 81–90):** AST linter ban on inverted booleans and explicit true, cross-language monadic Result and AppError envelopes, parameter struct refactoring for >2-3 arguments, mandatory vertical line gaps and clean flow, strict 8-15 line function and 150-300 line file sizing limits, universal PascalCase database and wire naming, compile-time enum exhaustiveness checks, elimination of bare void returns, value semantics over pointer indirection, and immutable request context pattern.
+10. **Cluster 10: Chaos Engineering, Test Isolation & E2E Validation Boundaries (Items 91–100):** Synthetic Toxiproxy network partition injection, split-DB disk corruption and lock contention harness, clock skew and NTP drift simulation, malformed and out-of-order CDC fuzzing, injectable OS command mock executors, RAM-backed shared-cache SQLite test rig, blind-AI automated spec conformance suite, mass concurrent registration race stress harness, backup promotion split-brain chaos verification, and rolling zero-downtime canary deployment suites.
 
 ---
 

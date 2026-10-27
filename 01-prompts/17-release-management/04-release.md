@@ -138,7 +138,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
       - **CRITICAL REPOSITORY ADAPTATION & SCRIPT REPAIR:** The bump version script MUST be inspected, created, or adapted based on the target repository architecture. The agent MUST identify where versions are defined (`version.json`, `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), where they will change (`readme.md`, `changelog.md`, badges, install scripts), and what sync operations run (`npm run sync`, `go generate ./...`). If the bump script is missing, outdated, or lacks support for this repository's version pin sites, **the agent MUST fix or recreate the Python bump script immediately** before running the release!
       - **Execution:** Run `python 03-ai-scripts/29-release-orchestrator.py --tier <tier>` or `python 03-ai-scripts/37-bump-version.py --tier <tier>` or `.ai-memory/release/bump_versions.py --type <tier>`.
    - **Step 3: Commit in Release Branch:**
-     Stage and commit all version bump and generated release files on the release branch: `gitmap cpr "vX.Y.Z <scope>"`.
+     Stage and commit all version bump and generated release files on the release branch: `gitmap cpr "RELEASE - vX.Y.Z <scope>"`.
    - **Step 4: Create Annotated Git Tag:**
      Create the annotated tag on that release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
    - **Step 5: Put Commit Back to Main Branch & Push:**
@@ -179,7 +179,7 @@ Past release turns were sloppy: guessed the version, bumped PATCH instead of MIN
    Follow the 5-step release branching lifecycle:
    - Checkout `release/vX.Y.Z`
    - Bump version on release branch via Python script
-   - Commit on release branch: `gitmap cpr "vX.Y.Z <headline>"`
+   - Commit on release branch: `gitmap cpr "RELEASE - vX.Y.Z <headline>"`
    - Tag on release branch commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
    - Checkout `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`. Restore starting branch.
 
@@ -285,7 +285,7 @@ When answered: `mv` from `01-new-ambiguity/` to `02-ambiguity-resolved/`, flip `
 - [ ] Inspect repository architecture and adapt/fix the Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`) based on where versions are tracked and how they change.
 - [ ] Step 1: Create and switch to dedicated release branch: `git checkout -b release/vX.Y.Z`.
 - [ ] Step 2: Bump version on release branch using the repository-aware Python bump script (`python 03-ai-scripts/37-bump-version.py` or `python .ai-memory/release/bump_versions.py`).
-- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpr "vX.Y.Z <scope>"`.
+- [ ] Step 3: Stage and commit all release changes on release branch: `gitmap cpr "RELEASE - vX.Y.Z <scope>"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
 - [ ] Step 5: Switch to `main`, merge `release/vX.Y.Z`, push `main`, `release/vX.Y.Z`, and tag `vX.Y.Z` to `origin`, then restore starting branch.
 - [ ] Ensure `.gitignore` explicitly excludes test reports, artifacts, and compiled binaries.
@@ -323,7 +323,7 @@ To survive massive checklists and complex codebases, you MUST operate using thes
 - [ ] AVOID: Do NOT touch or modify any files inside the `.gitmap` folder.
 - [ ] Step 1: Create dedicated release branch: `git checkout -b release/v<new_version>`.
 - [ ] Step 2: Bump version on release branch using repository-aware Python bump script (`03-ai-scripts/37-bump-version.py` or `.ai-memory/release/bump_versions.py`).
-- [ ] Step 3: Stage and commit on release branch: `gitmap cpr "v<new_version> <scope>"`.
+- [ ] Step 3: Stage and commit on release branch: `gitmap cpr "RELEASE - v<new_version> <scope>"`.
 - [ ] Step 4: Create annotated tag on release commit: `git tag -a v<new_version> -m "Release v<new_version>"`.
 - [ ] Step 5: Switch to `main`, merge `release/v<new_version>`, push `main`, `release/v<new_version>`, and tag `v<new_version>` to `origin`, and restore starting branch.
 

@@ -40,6 +40,23 @@ WAVES = ceil(subtasks / (A x H))
 9. **Enum-Driven Action Dispatch**: Every action, operation, command kind, and event kind is a member of a named enum. Dispatch ONLY by exhaustive switch/match on the enum — never by raw-string or magic-number comparison. The `default` branch raises a typed error (see `cg-error-management`); never a silent no-op. Adding an action = adding one enum member + one switch case; no other registration step.
 10. **IsValid Before Dispatch**: Before dispatch, check the action with the enum's `IsValid` / membership util. Unchecked external input never reaches the switch. External input enters ONLY through the enum's parse util (item 11).
 11. **Util-Methods Checkup (mandatory, never deferred)**: Every enum ships `String()` / label, `Parse` / `TryParse` (typed error on unknown input), `IsValid`, and `All` / `Values` — or a documented exception. Any enum missing a util gets it added in the same change that touches the enum.
+12. **Enum-per-Package + Type Convention (HARD RULE — NOT A SUGGESTION)**: Every enum gets its OWN package; one file per enum going forward. One-file-per-enum and one-file-many-enums both exist in older code and must be unified to one-file-per-enum. Every enum type name ends in `Type` and ships `String()`, `IsValid()`, `Parse`, `AllTypes()`, and per-variant `IsXxx()` predicates — no exceptions, never deferred.
+13. **Never Merge Same-Named Enums Across Packages**: Same-named enums in different packages (`ModeType`, `DirectionType`, `PreferPolicyType`, `AlignmentType`) must NEVER be merged, deduplicated, or "unified" across packages. Package boundaries are the boundary.
+14. **String() — Never `+` — On Enum Values (called-out anti-pattern: `cli/cmdcargo/cargo_exec.go` in gitmap-v28)**: Converting an enum value to a string is done ONLY via the enum's `String()` method, an enum entry/with-value helper method, or `strings.Join` over already-converted values. NEVER use string `+` on an enum value or on mixed enum/string operands. FORBIDDEN shapes, to be refactored on sight:
+    ```go
+    // ❌ FORBIDDEN:
+    targetPrefix := string(enums.ToolchainEnvPath) + "="
+    return binDir + sep + currentPath
+    targetPrefix + newPath // inside injectPathEnv
+    ```
+    ```go
+    // ✅ REQUIRED:
+    targetPrefix := enums.ToolchainEnvPath.WithValue() // entry helper carrying its own separator
+    newPath := strings.Join([]string{binDir, currentPath}, sep)
+    ```
+15. **App Error, Never a Regular Error**: Functions never return a bare/regular `error`. They always return the app error type (e.g. `*appfault.AppError`), enriched with the variables and paths involved, so the failure is diagnosable from the error alone.
+16. **Map Lookup, Never `==` Chains for Flags/Args**: Flag and argument comparisons are NEVER written as `==` chains (`if x == a || x == b || ...`). Use a map/dictionary lookup over constants instead.
+17. **Lazy Regex Only**: Regex is NEVER compiled inline at a call site. Every pattern is compiled once at package level via the lazyregex pattern, and the pattern itself comes from constants — never an inline literal.
 
 ---
 
@@ -133,3 +150,9 @@ All symbol and literal searches MUST use GitMap. Shell search tools (`rg`, `ripg
 - [ ] Every action/operation/command/event kind is an enum member, dispatched by exhaustive switch/match; `default` raises a typed error.
 - [ ] `IsValid` checked before dispatch; external input enters only via `Parse`/`TryParse`.
 - [ ] Util-methods checkup passed: `String()`, `Parse`/`TryParse`, `IsValid`, `All`/`Values` present (or documented exception) for every touched enum.
+- [ ] Enum-per-package hard rule passed: every touched enum has its own package, one file per enum, `Type` suffix, and `String()`, `IsValid()`, `Parse`, `AllTypes()`, per-variant `IsXxx()` predicates.
+- [ ] No same-named enum merged across packages (`ModeType`, `DirectionType`, `PreferPolicyType`, `AlignmentType` kept separate per package).
+- [ ] Zero string `+` on enum values or mixed enum/string operands (no `cargo_exec.go`-style `string(...) + "="`, `binDir + sep + ...`, or `prefix + newPath` shapes); conversions via `String()`, an enum entry/with-value helper, or `strings.Join`.
+- [ ] Zero regular errors returned; app error type used, enriched with variables/paths.
+- [ ] Zero `==` chains for flags/args; map/dictionary lookup over constants used.
+- [ ] Zero inline-compiled regex; lazyregex package-level compilation with patterns from constants.

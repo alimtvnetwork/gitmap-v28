@@ -10,7 +10,7 @@ Strict Non-Negotiable Boundaries:
 2. Additive-Only AI Scripts: Add new scripts; never overwrite scripts modified by target repos.
 3. Bump Script Protection: Never overwrite version bump scripts (bump*).
 4. Memory & Plans Protection: Never touch or overwrite .ai-memory/memory/ or .ai-memory/plans/.
-5. Archive Exclusion: Never synchronize 06-archive/ or 06-old-prompts/.
+5. Archive & History Exclusion: Never synchronize 06-archive/, 06-old-prompts/, 05-changes-history/, skills-archived/, or deprecated prompt folders.
 
 Performs the complete, safe multi-branch backup and release ceremony per repo:
 1. Detect base branch and pull latest changes (`git pull origin <base_branch> --no-rebase`).
@@ -129,8 +129,13 @@ EXCLUDE_NAMES = {
     ".pytest_cache",
     ".mypy_cache",
     ".DS_Store",
+    "05-changes-history",
     "06-archive",
     "06-old-prompts",
+    "skills-archived",
+    "12-old-plan-prompts",
+    "18-insults",
+    "19-old-execute-prompts",
     "v4",
     "21-app",
     "21-app-issues",
@@ -682,9 +687,18 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
     result["pre_release_tag"] = pre_tag
     current_ver = pre_tag.lstrip("v")
 
-    # Ensure 06-archive and 06-old-prompts are never present in target repository
+    # Ensure 06-archive, 06-old-prompts, 05-changes-history, and legacy directories are never present in target repository
     if not is_dry_run:
-        for legacy_dir_name in ("06-archive", "06-old-prompts"):
+        for legacy_dir_name in (
+            "06-archive",
+            "06-old-prompts",
+            "05-changes-history",
+            "01-prompts/12-old-plan-prompts",
+            "01-prompts/18-insults",
+            "01-prompts/19-old-execute-prompts",
+            ".agents/skills/skills-archived",
+            ".cursor/skills/skills-archived",
+        ):
             legacy_dir = target / legacy_dir_name
 
             if legacy_dir.exists():

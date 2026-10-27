@@ -556,13 +556,7 @@ func extractVersionValue(rawMap map[string]interface{}) string {
 13. **GitMap Search Primacy & Fast Tooling:** TOTAL BAN on `rg`, `ripgrep`, `grep`, `git grep`, PowerShell `Select-String`, `findstr`, or recursive `Get-ChildItem`. All symbol searches, directory inventories, and file reads MUST use GitMap high-speed commands:
     - **Code & Symbol Search:** `gitmap aum search "<pattern>" [dir]` or named-flag syntax `gitmap aum search --query "<pattern>" --root "<dir>"` (supports `--pattern`, `--dir`, `--path`, `-q`, `-p`, `-d`).
     - **Instant Directory Listing:** `gitmap lf <dir>` or `gitmap find "*.*" <dir>`.
-    - **Zero-Disk File Streaming & Safe Asset Inspection:** `gitmap cat <filepath>`.
-      Natively parses, strips, and resolves conversational and flexible path formats:
-      1. Windows absolute inside brackets: `gitmap cat @[<drive>:\path\to\media_1792894009084_45b4893f.png]`
-      2. Markdown embeds with file URI: `gitmap cat "![Attached Image 1](file:///<drive>:/path/to/media_1792894009084_45b4893f.png)"`
-      3. Numbered list with repo-relative path and comment: `gitmap cat "1. @[assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo"`
-      4. Numbered list with parent repo-cache path and comment: `gitmap cat "1. @[../repo-cache/assets/media_1792894009084_45b4893f.png] # consider the file is relative from the repo outside of the repo"`
-      Automatically detects image extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`, `.ico`, `.bmp`, `.tiff`) and renders a TokyoNight card displaying image dimensions, byte size, format, and verification status instead of dumping raw binary noise to stdout (for SVG files, renders the metadata card followed by clean SVG text).
+    - **Zero-Disk File Streaming:** `gitmap cat <filepath>`.
 13. **Asset Naming:** Assets go to `assets/<NN-folder>/<NN-file>.<ext>` with two-digit sequence prefixes (e.g., `assets/01-icons/03-logo.svg`).
 14. **No Inverted Complex Conditions:** Never use `!` on complex conditions containing AND/OR. Simplify or extract into named booleans.
 15. **Boolean Return Wrapper:** Functions returning multiple values including a boolean must return a named struct/object (e.g. `{ data, isSuccess }`), never bare tuples `(int, bool)`.
@@ -833,7 +827,7 @@ To avoid 50-result tool truncation limits and eliminate multi-turn exploratory r
 - **Universal File Search:** `gitmap find "<pattern>" [-ext <ext>]` (e.g. `gitmap find "*.go" -ext "go"`, `gitmap find "01*"`)
 - **List Indexed Files:** `gitmap list-files [pattern]` (alias `gitmap lf [pattern] [-ext <ext>]`)
 - **Substring Match:** `gitmap find-files-any "<substring>"` (alias `gitmap ffa "<str>"`)
-- **Stream File Content & Inspect Media Assets:** `gitmap cat <filepath>` (streams text to stdout with zero disk writes; auto-parses flexible paths like `@[...]`, markdown embeds, repo-cache paths, and renders TokyoNight metadata cards for binary image files)
+- **Stream File Content:** `gitmap cat <filepath>` (streams to stdout with zero disk writes)
 - **Instant Code Search:** `gitmap search "<term>"` (immediate multi-core filesystem walk)
 
 ### Tier 2: Fast Cached Python Toolchain (FALLBACK)
@@ -856,18 +850,19 @@ GitMap automatically stages, formats with the appropriate sovereign type prefix,
 
 | Change Category | GitMap Command | Sovereign Output Header | Purpose & Rule |
 | :--- | :--- | :--- | :--- |
-| **Features** | `gitmap cpf "MODULE - <summary>"` | `Feature: MODULE - <summary>` | New features, enhancements, additions. NEVER use for chores or releases. |
-| **Bug Fixes** | `gitmap cbf "MODULE - <summary>"` (or `cpb`) | `Bug: MODULE - <summary>` | Defect repairs, regression fixes, error resolutions. |
-| **Refactoring** | `gitmap cfr "MODULE - <summary>"` | `Refactor: MODULE - <summary>` | Code restructuring, DRY extraction, type reorganization. |
-| **Chores / Sync / Docs** | `gitmap cpc "MODULE - <summary>"` | `Chore: MODULE - <summary>` | Guideline updates, prompts sync, dependencies, documentation. |
-| **Releases / Version Bumps** | `gitmap cpr "v<version> <summary>"` | `Release: v<version> <summary>` | Version increments, release tags, release branch ceremonies. |
+| **Features** | `gitmap cpf "<module> - <summary>"` | `Feature: <module> - <summary>` | New features, enhancements, additions. NEVER use for chores or releases. |
+| **Bug Fixes** | `gitmap cbf "<module> - <summary>"` (or `cpb`) | `Bug: <module> - <summary>` | Defect repairs, regression fixes, error resolutions. |
+| **Refactoring** | `gitmap cfr "<module> - <summary>"` | `Refactor: <module> - <summary>` | Code restructuring, DRY extraction, type reorganization. |
+| **Chores / Sync / Docs** | `gitmap cpc "<module> - <summary>"` | `Chore: <module> - <summary>` | Guideline updates, prompts sync, dependencies, documentation. |
+| **Releases / Version Bumps** | `gitmap cpr "<module> - <summary>"` | `Release: <module> - <summary>` | Version increments, release tags, release branch ceremonies. |
 | **Local Checkpoint (No Push)** | `gitmap commit "wip - <msg>"` (or `cm`) | Verbatim `<msg>` | Local WIP checkpoints only. No remote push. |
 
 ### 3. Commit Argument Formatting Standards
-- **Release Commit Formatting (TOTAL BAN on "VERSION - " or "RELEASE - " in CPR):** For releases (`gitmap cpr`), format directly as `"v<version> <summary>"` (e.g. `gitmap cpr "v6.613.0 hardened flexible path parsing and universal CLI expansion"`). Do NOT write `gitmap cpr "VERSION - ..."` or `gitmap cpr "RELEASE - ..."`. GitMap automatically prefixes `Release: `, so `gitmap cpr "vX.Y.Z <summary>"` produces the clean sovereign commit header `Release: vX.Y.Z <summary>` without redundant noise.
-- **Feature, Fix, Refactor, and Chore Formatting:** Always format feature (`cpf`), bugfix (`cbf`), refactor (`cfr`), and chore (`cpc`) arguments as `"MODULE - summary of changes"` (e.g. `gitmap cpf "CLI - implement user profile dashboard"`).
+- **Hyphen-Separated Standard:** Always format the commit argument as `"<module> - summary of changes"` with space-padded hyphen.
+- **Subsystem Module Standard (Title Case or Lowercase Allowed):** The `<module>` token MUST represent a functional codebase subsystem (e.g. `Auth`, `Storage`, `Ui`, `Guidelines`, `Scanner`, `Cli`, `Sync`, `Prompt`). Title Case (`Auth`, `Storage`, `Ui`) or lowercase (`auth`, `storage`, `ui`) is completely valid. ALL-CAPS shout case (`AUTH`, `STORAGE`) should not be used.
+- **TOTAL BAN on 'commit' / 'commits' as Module:** The word `commit` or `commits` MUST NEVER be used as a module name (e.g. NEVER run `gitmap cpc "commit - ..."` or `gitmap cpf "COMMIT - ..."`). Committing is already the version control action being performed by Git and GitMap; writing `commit` as the module produces meaningless tautological stuttering (`Chore: commit - ...`). If modifying commit-related tooling, code, or documentation, name the specific component (e.g. `Formatter`, `Provenance`, `Cli`, `Docs`) or omit the module prefix entirely (`gitmap cpc "clean constructor helpers and strip redundant tokens"`).
 - **TOTAL BAN on Third Brackets `[...]`:** Never use square brackets (`[...]`) in commit messages or module tags (e.g. BANNED: `gitmap cpf "[module]: ..."`, `gitmap cpr "[v1.0]: ..."`).
-- **TOTAL BAN on Colons Inside Arguments:** Do not pass colons `:` inside the message argument (e.g. BANNED: `gitmap cpf "module: feature description"`). Use space-padded hyphen: `"MODULE - feature description"`.
+- **TOTAL BAN on Colons Inside Arguments:** Do not pass colons `:` inside the message argument (e.g. BANNED: `gitmap cpf "module: feature description"`). Use space-padded hyphen: `"<module> - feature description"`.
 - **TOTAL BAN on Nested Conventional Prefixes:** Never pass redundant type prefixes like `chore(release):`, `feat(...)`, `fix(...)`, or `chore:` inside the argument (e.g. BANNED: `gitmap cpf "chore(release): bump version"`, `gitmap cpr "release: v1.0"`). GitMap adds the sovereign prefix automatically!
 - **TOTAL BAN on Raw Git Commits:** Never execute `git commit`, `git commit -m "..."`, `git add -A`, or raw `git push`.
 - **TOTAL BAN on Per-File Commits:** All modified files across the turn MUST be accumulated in the working tree and committed together in a SINGLE grouped atomic commit at the final step before ending.
@@ -877,7 +872,7 @@ GitMap automatically stages, formats with the appropriate sovereign type prefix,
 ## Final Step Git Commit & Push Mandate (Strict Checklist)
 
 - [ ] **MANDATORY PRE-FLIGHT PULL VIA GITMAP:** Executed `gitmap pull` (fallback `git pull`) prior to touching files.
-- [ ] **MANDATORY FINAL COMMIT & PUSH VIA GITMAP:** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST commit and push using the dedicated GitMap semantic verb (`gitmap cpr "v<version> <summary>"` for releases, `gitmap cpc "MODULE - summary"` for chores/guidelines, `gitmap cbf "MODULE - summary"` for bug fixes, `gitmap cfr "MODULE - summary"` for refactors, `gitmap cpf "MODULE - summary"` for features). Format features/fixes/chores/refactors with uppercase module and hyphen (`"MODULE - summary"`), and releases directly with version (`"v<version> <summary>"`).
+- [ ] **MANDATORY FINAL COMMIT & PUSH VIA GITMAP:** At the FINAL step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, you MUST commit and push using the dedicated GitMap semantic verb (`gitmap cpr` for releases, `gitmap cpc` for chores/guidelines, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, `gitmap cpf` for features). Format with Title Case or lowercase subsystem module and hyphen: `gitmap <verb> "<module> - summary"`. TOTAL BAN on `commit` as a module name.
 - [ ] **STRICT VERB TAXONOMY VERIFIED:** Did NOT use `gitmap cpf` for chores, bug fixes, or releases. Used `cpr` for release bumps, `cpc` for chores/syncs, `cbf` for bug fixes.
 - [ ] **ZERO NESTED CONVENTIONAL PREFIXES & ZERO THIRD BRACKETS:** No `chore(release):`, no `feat(...)`, no `fix(...)`, no `[...]` square brackets, no colons `:` inside the argument.
 - [ ] **TOTAL BAN ON PER-FILE COMMITS:** Staged and pushed all files across the turn together in a single atomic GitMap command at the final step. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.

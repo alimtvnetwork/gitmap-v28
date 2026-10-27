@@ -303,6 +303,33 @@ are STRICTLY PROHIBITED.
 - **No Raw Magic Numbers / Strings:** Extract configuration constants, timeout values, status tokens, and character runes into dedicated constant files.
 - **Value Semantics:** Small enums and constant definitions should use value receivers and immutable structures.
 
+### 4.3 Enum-per-Package + Type Convention (HARD RULE — NOT A SUGGESTION)
+
+This section is a hard rule. It is not a suggestion, preference, or guideline to follow "where convenient". Any code or refactor that violates it is rejected, no matter how small the violation.
+
+1. **One enum, its own package.** Every enum gets its OWN package. One file per enum going forward. One-file-per-enum and one-file-many-enums both exist in older code; all new and refactored code unifies to one-file-per-enum. Never add a second enum to a package that already holds one, and never define an enum inline in a handler, test, or unrelated file.
+2. **Type convention (all five, no exceptions).** Every enum type name ends in `Type`, and every enum ships all of: `String()`, `IsValid()`, `Parse`, `AllTypes()`, and per-variant `IsXxx()` predicates. An enum missing any of these gets the missing member added in the same change that touches the enum — never deferred.
+3. **Never merge same-named enums across packages.** Same-named enums in different packages (`ModeType`, `DirectionType`, `PreferPolicyType`, `AlignmentType`) must NEVER be merged, deduplicated, or "unified" across packages. Package boundaries are the boundary: each package keeps its own enum even when the names match.
+4. **Never build strings from enums with `+` — use `String()` or an enum method.** Converting an enum value to a string is done ONLY via the enum's `String()` method, an enum entry/with-value helper method, or `strings.Join` over already-converted values. NEVER use string `+` on an enum value or on mixed enum/string operands.
+   - **Called-out anti-pattern BY NAME — `cli/cmdcargo/cargo_exec.go` (gitmap-v28).** The following shapes are FORBIDDEN and must be refactored on sight:
+     ```go
+     // ❌ FORBIDDEN — string `+` on an enum value:
+     targetPrefix := string(enums.ToolchainEnvPath) + "="
+     // ❌ FORBIDDEN — string `+` joining path segments:
+     return binDir + sep + currentPath
+     // ❌ FORBIDDEN — string `+` reusing an enum-derived prefix:
+     targetPrefix + newPath // inside injectPathEnv
+     ```
+     ```go
+     // ✅ REQUIRED — enum method / with-value helper, or strings.Join:
+     targetPrefix := enums.ToolchainEnvPath.WithValue() // entry helper carrying its own separator
+     newPath := strings.Join([]string{binDir, currentPath}, sep)
+     // or: enums.ToolchainEnvPath.String() where a plain conversion is genuinely needed
+     ```
+5. **Never return a regular error — always the app error type.** Functions never return a bare/regular `error`. They always return the app error type (e.g. `*appfault.AppError`), enriched with the variables and paths involved, so the failure is diagnosable from the error alone.
+6. **Never compare flags/args with `==` chains — use a map lookup.** Flag and argument comparisons are NEVER written as `==` chains (`if x == a || x == b || ...`). Use a map/dictionary lookup over constants instead (a declared lookup table keyed by the flag/arg value).
+7. **Regex must be lazy — compiled once at package level.** Regex is NEVER compiled inline at a call site. Every pattern is compiled once at package level via the lazyregex pattern, and the pattern itself comes from constants — never an inline literal.
+
 ---
 
 ## 5. Step 0: Preflight, Platform Handshake & SQLite Task DB Initialization (Phase 1 Budget)

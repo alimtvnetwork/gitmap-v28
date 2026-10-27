@@ -2,7 +2,7 @@
 
 This directory hosts the canonical, production-grade prompts library (V4 architecture) for the Prompt Architect meta-repository and all connected repositories.
 
-> **Historical Archive Note:** Legacy versioned tiers (`execute/`, `v1/`, `v2/`, and `v3/`) have been archived in [`06-archive/`](../06-archive/) inside the `coding-guidelines` meta-repository and are never synchronized to downstream repositories.
+> **Historical Archive Note:** Legacy versioned tiers (`execute/`, `v1/`, `v2/`, `v3/`, `v4/`) and deprecated prompt collections (`12-old-plan-prompts/`, `18-insults/`, `19-old-execute-prompts/`) have been archived in [`06-archive/`](06-archive/) inside the `coding-guidelines` meta-repository and are strictly isolated from syncing to downstream repositories.
 
 ---
 
@@ -37,7 +37,7 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
    - Pure parameterization driven entirely by header variables (`N = 300`, `A = 2`, `H = 2`, `C = 30`, `PHASE_1_BUDGET = 150`, `PHASE_2_BUDGET = 150`, `WAVES`) with zero hardcoded literal step or agent counts in the body.
    - **Mandatory Subagent Spawning Gate (`invoke_subagent`, Zero Solo Execution):** Requires spawning `A = 2` concurrent subagents (`H = 2` disjoint tasks per subagent, `TypeName: "self"` in Phase 2) across both Phase 1 discovery/spec generation and Phase 2 code execution.
    - 100% GitMap commit primacy via atomic `gitmap cpf` / `gitmap cpb` (eliminating manual `git add` and `git commit`), upstream `.gitignore` hygiene gate (R8) with automatic untracking of ignored files (`git rm --cached`), SQLite task tracking, self-contained worker briefs with language-specific rules, secrets gate, and <= 3,200-word footprint.
-   - Historical versions (V2, V3, V4, V5, and `excute-parent-old.md`) are preserved in [`06-archive/execute/`](../06-archive/execute/) and [`01-prompts/19-old-execute-prompts/`](19-old-execute-prompts/readme.md). All previous versions of execution skills have been completely purged from `.agents/skills/` and `.cursor/skills/`, leaving [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6) as the sole canonical execution engine.
+   - Historical versions (V2, V3, V4, V5, and `excute-parent-old.md`) are preserved in [`06-archive/execute/`](06-archive/execute/) and [`06-archive/19-old-execute-prompts/`](06-archive/19-old-execute-prompts/). All previous versions of execution skills have been completely purged from `.agents/skills/` and `.cursor/skills/`, leaving [`execute-parent-task-with-n-steps-v6`](file;.agents/skills/execute-parent-task-with-n-steps-v6) as the sole canonical execution engine.
 
 7. **Strict Relative Git Paths Mandate (TOTAL BAN on Absolute Paths & `file:///` URIs):**
    - Only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well. All references, links, changelogs, manifests, and documentation must strictly use relative paths from repository root.
@@ -46,7 +46,7 @@ This directory hosts the canonical, production-grade prompts library (V4 archite
 
 ## Directory Index
 
-All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
+All 28 active canonical prompt categories reside directly at the root of `01-prompts/`:
 
 ```text
 01-prompts/
@@ -62,14 +62,11 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 ├── 09-commit-and-multi-agent-code-fix/
 ├── 10-ui-and-design/
 ├── 11-content-and-seo/
-├── 12-old-plan-prompts/
 ├── 13-plan-audit/
 ├── 14-execute/
 ├── 15-cg-execute/
 ├── 16-ci-cd/
 ├── 17-release-management/
-├── 18-insults/
-├── 19-old-execute-prompts/
 ├── 20-ai-fix-script-prompts/
 ├── 21-temp-end-to-end-tests/
 ├── 22-letterly/
@@ -93,7 +90,7 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 
 ---
 
-## Table of Categories
+## Table of Active Categories
 
 | # | Category | Key Prompts | Description |
 | :---: | :--- | :--- | :--- |
@@ -109,14 +106,11 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 | **09** | `09-commit-and-multi-agent-code-fix/` | `01-boolean-improvements.md`, `03-commit-fix-v2.md`, `08-git-reconcile-and-resolve-conflict.md`, `09-commit-and-push-all-repos.md` | Atomic commits, multi-repo sync, boolean refactoring, and conflict resolution |
 | **10** | `10-ui-and-design/` | `01-logo-create.md`, `02-react-ui-fixes-update.md`, `08-create-slide-deck.md` | Visual design, logos, slide decks, and React UI components |
 | **11** | `11-content-and-seo/` | `01-jokes-ideas-generate.md`, `03-seo-optimization.md`, `05-update-readme.md` | Content copywriting, SEO optimization, and documentation sync |
-| **12** | `12-old-plan-prompts/` | `01-plan-maximum-enforcement.md`, `05-plan-spec-steps.md` | Archived legacy planning protocols and audit workflows |
 | **13** | `13-plan-audit/` | `01-inventory-pending-tasks.md`, `02-plan-spec-steps-v2.md`, `03-audit-app-spec.md` | Task inventory, spec planning V2, and blind-AI audits |
 | **14** | `14-execute/` | `01-execute-pending-tasks.md`, `02-execute-parent-task-with-n-steps-v6.md`, `07-run.md`, `08-execute-with-e2e.md` | Canonical V6 autonomous parent task execution, continuous loops, run orchestration, and E2E verification with minor bump release |
 | **15** | `15-cg-execute/` | `01-execute-coding-guideline-fix.md` through `39-golang-pointers-and-mutation-reduction.md` | Granular coding guideline rule enforcement suite (all 39 prompts V6 compliant) |
 | **16** | `16-ci-cd/` | `01-ci-cd-fix-with-release.md`, `02-cicd-pipeline-create.md` | CI/CD pipeline diagnosis, creation, and release integration |
 | **17** | `17-release-management/` | `01-release.md`, `02-patch-bump.md`, `03-minor-bump.md`, `04-major-bump.md` | Semantic release ceremonies, version bumps, and tags |
-| **18** | `18-insults/` | `01-raw-insults.md` | Anti-carelessness discipline and quality enforcement |
-| **19** | `19-old-execute-prompts/` | `01-execute-robust-loop.md`, `03-execute-parent-task-with-n-steps.md`, `04-parent-task-in-below-steps.md` | Archived legacy execute prompt templates |
 | **20** | `20-ai-fix-script-prompts/` | `01-python-file-manipulator.md` | Dedicated AI utility script prompt definitions |
 | **21** | `21-temp-end-to-end-tests/` | `01-temp-end-to-end-test.md` | Isolated temporary end-to-end tests with skip-by-default guards |
 | **22** | `22-letterly/` | `01-mobile-letterly.md` through `10-execute-with-release-letterly.md` | Voice dictation prompt formatters for mobile, desktop, execution, and releases |
@@ -128,3 +122,16 @@ All 31 canonical prompt categories reside directly at the root of `01-prompts/`:
 | **28** | `28-mastery-prompts/` | `01-mastery-bootstrap-prompt.md` | Foolproof standalone bootstrap prompt: reproduces the full working environment (GitHub, GitMap, repos, memory, chats) from any fresh chat on any machine |
 | **29** | `29-chat-management/` | `01-chat-histories-reread-remove-and-recreate.md` | Chat-history recovery: re-read per-repo side chats, prune stale ones (archive by default, delete only on explicit word), and recreate one `<repo> repo` chat per repo after a VM replacement |
 | **30** | `30-improvements/` | `01-next-100-ui-improvements.md`, `02-next-100-code-improvements.md`, `03-next-100-whole-system-improvements.md`, `04-next-detail-out-100-improvements.md`, `05-next-100-ideas-for-improvements.md`, `06-check-pending-improvements.md`, `07-implement-next-10-improvements.md` | Autonomous continuous improvement, ideation, backlog visibility, and fast-forward implementation suite covering UI, codebase quality, whole-system UX, review dockets, pending counts, and bounded 10-item execution loops without intermediate builds/tests |
+
+---
+
+## Archived Categories (`06-archive/`)
+
+The following legacy prompt directories have been retired from active rotation and permanently archived in [`06-archive/`](06-archive/):
+
+| Category | Archived Location | Description |
+| :--- | :--- | :--- |
+| `12-old-plan-prompts/` | [`06-archive/12-old-plan-prompts/`](06-archive/12-old-plan-prompts/) | Legacy planning engines (`01-plan-maximum-enforcement.md`, `05-plan-spec-steps.md`, old spec audits) superseded by V2 spec planning and V6 execution |
+| `18-insults/` | [`06-archive/18-insults/`](06-archive/18-insults/) | Legacy insult disciplinary prompts (`01-raw-insults.md`, `02-consolidated-insults-v2.md`) |
+| `19-old-execute-prompts/` | [`06-archive/19-old-execute-prompts/`](06-archive/19-old-execute-prompts/) | Legacy execution prompt variants and backup tiers superseded by `14-execute/02-execute-parent-task-with-n-steps-v6.md` |
+| Versioned Tiers | [`06-archive/`](06-archive/) | Historical prompt tiers `execute/`, `v1/`, `v2/`, `v3/`, `v4/` |

@@ -10,7 +10,7 @@ Strict Non-Negotiable Boundaries:
 2. Additive-Only AI Scripts: Add new scripts; never overwrite scripts modified by target repos.
 3. Bump Script Protection: Never overwrite version bump scripts (bump*).
 4. Memory & Plans Protection: Never touch or overwrite .ai-memory/memory/ or .ai-memory/plans/.
-5. Archive Exclusion: Never synchronize 06-archive/ or 06-old-prompts/.
+5. Archive & History Exclusion: Never synchronize 06-archive/, 06-old-prompts/, 05-changes-history/, skills-archived/, or deprecated prompt folders.
 
 Performs the complete, safe multi-branch backup and release ceremony per repo:
 1. Detect base branch and pull latest changes (`git pull origin <base_branch> --no-rebase`).
@@ -129,8 +129,13 @@ EXCLUDE_NAMES = {
     ".pytest_cache",
     ".mypy_cache",
     ".DS_Store",
+    "05-changes-history",
     "06-archive",
     "06-old-prompts",
+    "skills-archived",
+    "12-old-plan-prompts",
+    "18-insults",
+    "19-old-execute-prompts",
     "v4",
     "21-app",
     "21-app-issues",
@@ -682,9 +687,18 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
     result["pre_release_tag"] = pre_tag
     current_ver = pre_tag.lstrip("v")
 
-    # Ensure 06-archive and 06-old-prompts are never present in target repository
+    # Ensure 06-archive, 06-old-prompts, 05-changes-history, and legacy directories are never present in target repository
     if not is_dry_run:
-        for legacy_dir_name in ("06-archive", "06-old-prompts"):
+        for legacy_dir_name in (
+            "06-archive",
+            "06-old-prompts",
+            "05-changes-history",
+            "01-prompts/12-old-plan-prompts",
+            "01-prompts/18-insults",
+            "01-prompts/19-old-execute-prompts",
+            ".agents/skills/skills-archived",
+            ".cursor/skills/skills-archived",
+        ):
             legacy_dir = target / legacy_dir_name
 
             if legacy_dir.exists():
@@ -730,16 +744,92 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
                 except Exception:
                     pass
 
-        # Purge deprecated 100-improvements skill directories superseded by next-100 suite
+        # Purge deprecated 100-improvements and archived skills superseded by unified suites
         for dep_skill_dir in (
             ".agents/skills/find-100-improvements-in-ui-level",
             ".agents/skills/find-100-improvements-in-code-base",
             ".agents/skills/find-100-improvements-in-whole-system",
             ".agents/skills/detail-plans-and-improvements-for-review",
+            ".agents/skills/release-now-without-test",
+            ".agents/skills/letterly-cicd-fix-release",
+            ".agents/skills/letterly-desktop",
+            ".agents/skills/letterly-execute-n-steps",
+            ".agents/skills/letterly-execute-with-release",
+            ".agents/skills/letterly-execute-with-verification",
+            ".agents/skills/letterly-mobile",
+            ".agents/skills/letterly-mobile-cicd-fix",
+            ".agents/skills/letterly-muse-long-update",
+            ".agents/skills/letterly-muse-sleepy",
+            ".agents/skills/letterly-plan",
+            ".agents/skills/letterly-release",
+            ".agents/skills/letterly-run",
+            ".agents/skills/muse-master-prompt",
+            ".agents/skills/social-media-post",
+            ".agents/skills/jokes-ideas-generate",
+            ".agents/skills/linkedin-company-banner",
+            ".agents/skills/linkedin-profile-banner",
+            ".agents/skills/youtube-thumbnail-create",
+            ".agents/skills/create-slide-deck",
+            ".agents/skills/slides-deck-management",
+            ".agents/skills/prompt-library-setup",
+            ".agents/skills/proofread-repo-create",
+            ".agents/skills/python-array-constants-and-dynamic-enums",
+            ".agents/skills/python-dry-caching",
+            ".agents/skills/major-bump",
+            ".agents/skills/minor-bump",
+            ".agents/skills/patch-bump",
+            ".agents/skills/version-bump-docs",
+            ".agents/skills/logo-create",
+            ".agents/skills/svg-logo",
+            ".agents/skills/theming-guidelines",
+            ".agents/skills/update-theming",
+            ".agents/skills/sync",
+            ".agents/skills/sync-codebase",
+            ".agents/skills/sync-other-codebase",
+            ".agents/skills/next-steps",
+            ".agents/skills/pending-tasks",
             ".cursor/skills/find-100-improvements-in-ui-level",
             ".cursor/skills/find-100-improvements-in-code-base",
             ".cursor/skills/find-100-improvements-in-whole-system",
             ".cursor/skills/detail-plans-and-improvements-for-review",
+            ".cursor/skills/release-now-without-test",
+            ".cursor/skills/letterly-cicd-fix-release",
+            ".cursor/skills/letterly-desktop",
+            ".cursor/skills/letterly-execute-n-steps",
+            ".cursor/skills/letterly-execute-with-release",
+            ".cursor/skills/letterly-execute-with-verification",
+            ".cursor/skills/letterly-mobile",
+            ".cursor/skills/letterly-mobile-cicd-fix",
+            ".cursor/skills/letterly-muse-long-update",
+            ".cursor/skills/letterly-muse-sleepy",
+            ".cursor/skills/letterly-plan",
+            ".cursor/skills/letterly-release",
+            ".cursor/skills/letterly-run",
+            ".cursor/skills/muse-master-prompt",
+            ".cursor/skills/social-media-post",
+            ".cursor/skills/jokes-ideas-generate",
+            ".cursor/skills/linkedin-company-banner",
+            ".cursor/skills/linkedin-profile-banner",
+            ".cursor/skills/youtube-thumbnail-create",
+            ".cursor/skills/create-slide-deck",
+            ".cursor/skills/slides-deck-management",
+            ".cursor/skills/prompt-library-setup",
+            ".cursor/skills/proofread-repo-create",
+            ".cursor/skills/python-array-constants-and-dynamic-enums",
+            ".cursor/skills/python-dry-caching",
+            ".cursor/skills/major-bump",
+            ".cursor/skills/minor-bump",
+            ".cursor/skills/patch-bump",
+            ".cursor/skills/version-bump-docs",
+            ".cursor/skills/logo-create",
+            ".cursor/skills/svg-logo",
+            ".cursor/skills/theming-guidelines",
+            ".cursor/skills/update-theming",
+            ".cursor/skills/sync",
+            ".cursor/skills/sync-codebase",
+            ".cursor/skills/sync-other-codebase",
+            ".cursor/skills/next-steps",
+            ".cursor/skills/pending-tasks",
         ):
             dep_dir_path = target / dep_skill_dir
             if dep_dir_path.exists():
