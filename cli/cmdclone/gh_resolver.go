@@ -210,7 +210,14 @@ func resolveFromStoreWithDB(db *store.DB, slug string) string {
 		return url
 	}
 
-	if isAlimtvnetworkUser() || hasGitHubCredentials() {
+	owner := resolveActiveOrProfileOwner()
+	if len(owner) > 0 && isValidSlugPart(owner) {
+		if url := findURLForOwner(db, owner, cleanSlug); len(url) > 0 {
+			return url
+		}
+	}
+
+	if owner != "alimtvnetwork" && (isAlimtvnetworkUser() || hasGitHubCredentials()) {
 		return findURLForAlimtvnetwork(db, cleanSlug)
 	}
 
@@ -354,11 +361,14 @@ func queryOwnerIndexRow(db *store.DB, candidate string) string {
 	return fmt.Sprintf("https://github.com/%s/%s", owner, repoName)
 }
 
-func findURLForAlimtvnetwork(db *store.DB, cleanSlug string) string {
+func findURLForOwner(db *store.DB, owner, cleanSlug string) string {
+	if len(owner) == 0 || !isValidSlugPart(owner) {
+		return ""
+	}
 	cleanTarget := extractRepoNameFromTarget(cleanSlug)
 	candidates := buildBareSlugCandidates(cleanTarget)
 	for _, c := range candidates {
-		if url := matchAlimCandidateWithCache(db, c); len(url) > 0 {
+		if url := matchOwnerCandidateWithCache(db, owner, c); len(url) > 0 {
 			return url
 		}
 	}
@@ -366,17 +376,21 @@ func findURLForAlimtvnetwork(db *store.DB, cleanSlug string) string {
 	return ""
 }
 
-func matchAlimCandidateWithCache(db *store.DB, c string) string {
-	scoped := "alimtvnetwork/" + c
+func matchOwnerCandidateWithCache(db *store.DB, owner, c string) string {
+	scoped := owner + "/" + c
 	if url := findURLInRepoTable(db, scoped); len(url) > 0 {
 		return url
 	}
 
-	if url := queryOwnerIndexForOwner(db, "alimtvnetwork", c); len(url) > 0 {
+	if url := queryOwnerIndexForOwner(db, owner, c); len(url) > 0 {
 		return url
 	}
 
-	return probeAndCacheRemoteCandidate(db, "alimtvnetwork", c)
+	return probeAndCacheRemoteCandidate(db, owner, c)
+}
+
+func findURLForAlimtvnetwork(db *store.DB, cleanSlug string) string {
+	return findURLForOwner(db, "alimtvnetwork", cleanSlug)
 }
 
 func probeAndCacheRemoteCandidate(db *store.DB, owner, candidate string) string {
