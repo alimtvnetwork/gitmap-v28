@@ -47,7 +47,7 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Modifying shared files blindly without checking multi-agent contention | ✅ `gitmap heatmap discuss` or `gitmap agent heatmap` | Ranks write claims, active leases, and collision blast radius across agents (<5ms). Prevents file lock crashes and concurrent overwrites. |
 | ❌ Raw `cargo build`, `cargo test`, `cargo check` | ✅ `gitmap cargo build [--install]`, `gitmap cargo test`, `gitmap crg check` | Automatically enriches environment with discovered toolchain paths (`CARGO_HOME`, MSVC) and offers auto-install if missing. |
 | ❌ Hardcoded `$env:LIBCLANG_PATH = "..."` or manual LLVM registry searching | ✅ `gitmap aum locate llvm` + `gitmap env set LIBCLANG_PATH <path>` or `gitmap pwsh "$env:LIBCLANG_PATH=...; gitmap cargo test"` | Dynamically resolves LLVM/Clang bin directories in <15ms across machines without breaking portability. |
-| ❌ `taskkill /F /PID <pid>`, `tasklist`, `kill -9` | ✅ `gitmap proc kill <pid> [--force]`, `gitmap ports [port]`, `gitmap pwsh "Stop-Process -Id <pid> -Force"` | Deterministic process termination with PID validation, caller self-protection guards, and graceful two-stage shutdown. |
+| ❌ `taskkill /F /PID <pid>`, `tasklist`, `kill -9`, raw `Stop-Process` | ✅ `gitmap kill <pid|name|:port> [--force] [--tree]` (alias: `gitmap terminate`), `gitmap ports [port]` | Safe cross-platform process termination with PID/port/name validation, caller self-protection guards, and graceful or forced two-stage shutdown. |
 | ❌ Manual pwsh "Move-Item ...; Copy-Item ...", taskkill + copy on locked running binaries | ✅ `gitmap swap-binary [--from <path>] [--to <path>] [--kill] [--reopen]` | Safely generates an OS script (.ps1 or .sh), closes locking PIDs, rotates active binary to .old, copies new binary, and reopens/verifies version without locked file crashes. |
 | ❌ Raw directory inspection of Tauri apps (`dir src-tauri`, `Get-ChildItem src-tauri`) | ✅ `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, `gitmap pe -f tauri` | High-speed directory inventory and pipeline error filtering optimized for Tauri/Rust desktop projects. |
 
@@ -480,9 +480,13 @@ Instead of typing multi-line SQL queries, use GitMap's dedicated shorthand comma
 - `gitmap pe -f tauri` — CI/CD and runtime diagnostic log extractor filtered specifically for Tauri build errors.
 
 ### 20. Process Termination & Network Port Diagnostics
-- `gitmap proc kill <pid> [--force]` — Native deterministic process termination with caller safety guards, protected IDE/shell checks, and graceful two-stage fallback.
+- `gitmap kill <pid|name|:port> [--force] [--tree]` (alias `gitmap terminate`, `gitmap proc kill`) — Native cross-platform process termination with safety guards, protected IDE/shell checks, and graceful or forced execution:
+  * Terminate by PID: `gitmap kill 12345`
+  * Terminate process tree: `gitmap kill 12345 --tree` (`-t`)
+  * Force immediate termination: `gitmap kill 12345 --force` (`-f`)
+  * Terminate process listening on TCP port: `gitmap kill :8080 -f`
+  * Terminate process by binary name: `gitmap kill node.exe -f`
 - `gitmap ports [port]` — Inspects listening network ports, bound PIDs, and process names.
-- `gitmap pwsh "Stop-Process -Id <pid> -Force"` — Deterministic PID termination via managed PowerShell wrapper.
 - `gitmap swap-binary [path] [--kill] [--reopen]` — Safely terminates locking PIDs, backs up the active binary to `.old`, copies the newly compiled binary in place, and reopens/verifies version without locked file crashes. Supports `--from <path>`, `--to <path>`, `--script-only`, and `--json`.
 
 ---
@@ -998,12 +1002,12 @@ gitmap ports
 gitmap ports 1420
 gitmap ports 8080
 
-# Native process termination with safety guards (blocks self-kill and protected IDE/shell termination unless --force)
-gitmap proc kill 12345
-gitmap proc kill 12345 --force
-
-# Deterministic process termination by PID via GitMap managed PowerShell wrapper
-gitmap pwsh "Stop-Process -Id 12345 -Force"
+# Native cross-platform process termination with safety guards (blocks self-kill and protected IDEs/shells unless --force)
+gitmap kill 12345
+gitmap kill 12345 --tree
+gitmap kill 12345 --force
+gitmap kill :8080 --force
+gitmap kill node.exe --force
 
 # Safely swap locked running binary on Windows (generates detached .ps1, kills locking PIDs, backs up to .old, copies, verifies version, and reopens)
 gitmap swap-binary --from .\dist\gitmap.exe --to C:\Users\Administrator\go\bin\gitmap.exe --kill --reopen
@@ -1034,7 +1038,7 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 11. **Total Ban on Raw Web Fetchers & Single-Stream Downloads:** NEVER invoke `curl`, `wget`, `Invoke-WebRequest`, or custom HTTP scripts to read remote files. All remote URLs MUST be fetched via `gitmap url read <url>` (aliases: `gitmap url`, `gitmap get`), which provides dedicated Split-DB caching (`repodb/url_cache.db`), sub-millisecond retrieval (<0.5ms), unbuffered byte-faithful streaming via `output.Raw()`, and automatic 10-split segmented downloading (`aria2c` or native Go Range workers) for files $\ge 1\text{--}2\text{ MB}$.
 12. **Total Ban on Filesystem Grepping for Past Agent Decisions:** NEVER grep source files or guess past subagent actions. You MUST run `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` to discover multi-tier SQLite heatmap databases, cross-referenced repository aliases, and recent tasks across 2–5 repositories with interactive suggestion pills.
 13. **Total Ban on Raw Cargo Invocations & Ad-Hoc Toolchain Variables:** NEVER run raw `cargo build`, `cargo test`, `cargo check`, or hardcode `$env:LIBCLANG_PATH` manually. You MUST use `gitmap cargo build [--install]`, `gitmap cargo test`, `gitmap crg check`, and dynamic resolution via `gitmap aum locate llvm` and `gitmap env set LIBCLANG_PATH <path>`.
-14. **Total Ban on Raw Process Termination:** NEVER execute raw `taskkill /F /PID <pid>`, `Stop-Process`, or `kill -9` directly. You MUST use native compiled `gitmap proc kill <pid> [--force]`, `gitmap ports [port]`, or managed wrapper `gitmap pwsh "Stop-Process -Id <pid> -Force"`.
+14. **Total Ban on Raw Process Termination:** NEVER execute raw `taskkill /F /PID <pid>`, `Stop-Process`, or `kill -9` directly. You MUST use native compiled `gitmap kill <pid|name|:port> [--force] [--tree]` (aliases: `gitmap terminate`, `gitmap proc kill`) or `gitmap ports [port]`.
 15. **Total Ban on Raw Locked Binary Operations:** NEVER attempt manual binary replacement on locked, running executables using PowerShell `Move-Item`, `Copy-Item`, raw `taskkill` + copy, or shell copy scripts that cause locked file crashes or sharing violations (`ERROR_SHARING_VIOLATION` / `0x20`). You MUST use `gitmap swap-binary [--from <path>] [--to <path>] [--kill] [--reopen]` (or alias `gitmap swap-bin`) to safely generate a platform-specific runner script, gracefully terminate locking PIDs, rotate the active binary to `.old`, install the new binary, verify version integrity, and restart.
 16. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
 17. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `<module> - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument. Module must be Title Case or lowercase representing the subsystem; TOTAL BAN on `commit` / `commits` as a module name.

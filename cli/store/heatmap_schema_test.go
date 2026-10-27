@@ -166,7 +166,7 @@ func TestOpenHeatmapDBAtPath_CreatesAndMigrates(t *testing.T) {
 	tmpDir := t.TempDir()
 	dbPath := filepath.Join(tmpDir, "heatmap.db")
 
-	db, err := openHeatmapDBAtPath(dbPath)
+	db, err := OpenHeatmapDBAtPath(dbPath)
 	if err != nil {
 		t.Fatalf("openHeatmapDBAtPath failed: %v", err)
 	}
@@ -175,5 +175,40 @@ func TestOpenHeatmapDBAtPath_CreatesAndMigrates(t *testing.T) {
 
 	if !hasColumn(t, db.Conn(), "HeatmapActionLog", "ModelName") {
 		t.Errorf("expected ModelName column in opened heatmap DB")
+	}
+}
+
+func TestRecordParentTask_Upsert(t *testing.T) {
+	tmpDir := t.TempDir()
+	dbPath := filepath.Join(tmpDir, "heatmap.db")
+
+	db, err := OpenHeatmapDBAtPath(dbPath)
+	if err != nil {
+		t.Fatalf("openHeatmapDBAtPath failed: %v", err)
+	}
+	defer db.Close()
+
+	task := HeatmapParentTaskRecord{
+		TaskSlug:         "test-task-slug",
+		TaskName:         "Test Task Name",
+		RunDirectory:     ".ai-memory/temp-agents/01-test",
+		RootDbPath:       dbPath,
+		RootSpecFilePath: "02-spec/21-app/01-test/spec.md",
+		TaskFolder:       "02-spec/21-app/01-test/",
+		Status:           "IN_PROGRESS",
+	}
+
+	if err := db.RecordParentTask(task); err != nil {
+		t.Fatalf("RecordParentTask failed: %v", err)
+	}
+
+	var name, specFile, specFolder string
+	query := "SELECT TaskName, RootSpecFilePath, TaskFolder FROM HeatmapParentTask WHERE TaskSlug = ?"
+	if err := db.Conn().QueryRow(query, "test-task-slug").Scan(&name, &specFile, &specFolder); err != nil {
+		t.Fatalf("QueryRow failed: %v", err)
+	}
+
+	if name != "Test Task Name" || specFile != "02-spec/21-app/01-test/spec.md" || specFolder != "02-spec/21-app/01-test/" {
+		t.Errorf("mismatched task record: got name=%s, specFile=%s, specFolder=%s", name, specFile, specFolder)
 	}
 }

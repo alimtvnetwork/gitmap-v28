@@ -32,16 +32,17 @@ func (h *HeatmapDB) Close() error {
 // OpenHeatmapRootDB opens or creates the root global heatmap database.
 func OpenHeatmapRootDB(repoRoot string) (*HeatmapDB, error) {
 	dbPath := ResolveHeatmapRootDbPath(repoRoot)
-	return openHeatmapDBAtPath(dbPath)
+	return OpenHeatmapDBAtPath(dbPath)
 }
 
 // OpenHeatmapRepoDB opens or creates a repository-specific split heatmap database.
 func OpenHeatmapRepoDB(repoSlug, repoRoot string) (*HeatmapDB, error) {
 	dbPath := ResolveHeatmapRepoSplitDbPath(repoSlug, repoRoot)
-	return openHeatmapDBAtPath(dbPath)
+	return OpenHeatmapDBAtPath(dbPath)
 }
 
-func openHeatmapDBAtPath(dbPath string) (*HeatmapDB, error) {
+// OpenHeatmapDBAtPath opens or creates a heatmap database at the specified filesystem path.
+func OpenHeatmapDBAtPath(dbPath string) (*HeatmapDB, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		return nil, apperror.WrapSimple(err, "heatmap.mkdir")
 	}
@@ -348,4 +349,36 @@ func (h *HeatmapDB) GetHeatmapTaskSummary(taskSlug string) (*HeatmapTaskSummary,
 		CreateCount:  creates,
 		OtherCount:   other,
 	}, nil
+}
+
+const sqlUpsertHeatmapParentTask = `INSERT INTO HeatmapParentTask (
+    TaskSlug, TaskName, RunDirectory, RootDbPath, RootSpecFilePath, TaskFolder, Status, Notes, Comments, CreatedAt, UpdatedAt
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+ON CONFLICT(TaskSlug) DO UPDATE SET
+    TaskName = CASE WHEN excluded.TaskName != '' THEN excluded.TaskName ELSE TaskName END,
+    RunDirectory = CASE WHEN excluded.RunDirectory != '' THEN excluded.RunDirectory ELSE RunDirectory END,
+    RootDbPath = CASE WHEN excluded.RootDbPath != '' THEN excluded.RootDbPath ELSE RootDbPath END,
+    RootSpecFilePath = CASE WHEN excluded.RootSpecFilePath != '' THEN excluded.RootSpecFilePath ELSE RootSpecFilePath END,
+    TaskFolder = CASE WHEN excluded.TaskFolder != '' THEN excluded.TaskFolder ELSE TaskFolder END,
+    Status = excluded.Status,
+    Notes = CASE WHEN excluded.Notes IS NOT NULL THEN excluded.Notes ELSE Notes END,
+    Comments = CASE WHEN excluded.Comments IS NOT NULL THEN excluded.Comments ELSE Comments END,
+    UpdatedAt = CURRENT_TIMESTAMP`
+
+// RecordParentTask registers or updates a parent task record in the heatmap.
+func (h *HeatmapDB) RecordParentTask(task HeatmapParentTaskRecord) error {
+	status := task.Status
+	if strings.TrimSpace(status) == "" {
+		status = "IN_PROGRESS"
+	}
+
+	_, err := h.conn.Exec(sqlUpsertHeatmapParentTask,
+		task.TaskSlug, task.TaskName, task.RunDirectory, task.RootDbPath,
+		task.RootSpecFilePath, task.TaskFolder, status, task.Notes, task.Comments,
+	)
+	if err != nil {
+		return apperror.WrapSimple(err, "heatmap.recordParentTask")
+	}
+
+	return nil
 }

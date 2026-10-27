@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	appfault "github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	_ "modernc.org/sqlite"
 )
 
@@ -128,8 +129,32 @@ func runTaskSQLiteInit(args []string) error {
 	}
 
 	parentId, _ := res.LastInsertId()
+	syncTaskToHeatmap(repoRoot, slug, *name, relRunDir, dbPath, *specFile, *specFolder)
 	out := buildTaskInitOutput(repoRoot, dbPath, relRunDir, slug, *specFile, *specFolder, parentId, *budget)
 	return printJson(out)
+}
+
+func syncTaskToHeatmap(repoRoot, slug, name, relRunDir, dbPath, specFile, specFolder string) {
+	recordTaskInHeatmapDB(store.ResolveHeatmapRootDbPath(repoRoot), slug, name, relRunDir, dbPath, specFile, specFolder)
+	recordTaskInHeatmapDB(store.ResolveHeatmapRootDbPath(""), slug, name, relRunDir, dbPath, specFile, specFolder)
+}
+
+func recordTaskInHeatmapDB(targetPath, slug, name, relRunDir, dbPath, specFile, specFolder string) {
+	h, err := store.OpenHeatmapDBAtPath(targetPath)
+	if err != nil {
+		return
+	}
+	defer h.Close()
+
+	_ = h.RecordParentTask(store.HeatmapParentTaskRecord{
+		TaskSlug:         slug,
+		TaskName:         name,
+		RunDirectory:     relRunDir,
+		RootDbPath:       dbPath,
+		RootSpecFilePath: specFile,
+		TaskFolder:       specFolder,
+		Status:           "IN_PROGRESS",
+	})
 }
 
 func runTaskSQLiteSchema(args []string) error {

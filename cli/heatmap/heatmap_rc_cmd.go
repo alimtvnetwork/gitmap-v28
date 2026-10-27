@@ -57,6 +57,14 @@ func dispatchRcAdmin(ctx context.Context, subcmd string, flags map[string]string
 		return ExecuteHeatmapQuery(true, flags, pos, out)
 	case "overview":
 		return DispatchHeatmapOverview(ctx, out, true)
+	case "failures", "broken", "failed", "unmet":
+		return RunHeatmapFailures(true, flags, out)
+	case "hotfiles", "hot", "hotspots":
+		return RunHeatmapHotfiles(true, flags, out)
+	case "recent", "latest":
+		return RunHeatmapRecent(true, flags, out)
+	case "tasks", "task-list":
+		return RunHeatmapTasks(true, flags, out)
 	default:
 		return apperror.NewValidation("heatmap_rc", "E1000", fmt.Sprintf("unknown rc subcommand: %s", subcmd))
 	}

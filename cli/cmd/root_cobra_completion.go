@@ -133,6 +133,10 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 			"$Directive = 0\n    $CleanOut = @()\n    if ($Out) {\n        foreach ($line in $Out) {\n            if (-not $line) { continue }\n            if ($line -like 'Completion ended with*') { continue }\n            if ($line -match '^:(\\d+)$') {\n                $Directive = [int]$matches[1]\n                continue\n            }\n            $CleanOut += $line\n        }\n    }\n    $Out = $CleanOut\n    __gitmap_debug \"The completion directive is: $Directive\"",
 			1)
 		rawScript = strings.Replace(rawScript,
+			"$CompletionText = $($comp.Name | __gitmap_escapeStringWithSpecialChars) + $Space",
+			"$CompletionText = [string]($comp.Name | __gitmap_escapeStringWithSpecialChars); if (-not $CompletionText) { $CompletionText = [string]$comp.Name }; if (-not $CompletionText) { continue }; $CompletionText = $CompletionText + $Space",
+			-1)
+		rawScript = strings.Replace(rawScript,
 			"$CompletionText = $($comp.Name | __gitmap_escapeStringWithSpecialChars)",
 			"$CompletionText = [string]($comp.Name | __gitmap_escapeStringWithSpecialChars); if (-not $CompletionText) { $CompletionText = [string]$comp.Name }; if (-not $CompletionText) { continue }",
 			-1)
