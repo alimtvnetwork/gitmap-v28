@@ -82,10 +82,25 @@ func resolveProbeDirectory(absPath string) string {
 func findRepoRoot(dir string) (string, error) {
 	out, err := runGitInDir(dir, "rev-parse", "--show-toplevel")
 	if err != nil {
-		return "", apperror.WrapSimple(err, "not a git repository: "+dir)
+		return "", newNonGitRepoShowLogError(dir)
 	}
 
 	return strings.TrimSpace(out), nil
+}
+
+func newNonGitRepoShowLogError(dir string) *apperror.AppError {
+	fmt.Fprintf(os.Stderr, "✗ Not a git repository: %s\n", dir)
+	fmt.Fprintln(os.Stderr, "💡 Run 'gitmap show-log' inside a Git repository, or specify target: gitmap show-log <path>")
+
+	return apperror.NewWithDetails(
+		"show-log",
+		"E9001",
+		"not a git repository: "+dir,
+		"cli",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityWarn,
+		map[string]any{"reported": true},
+	)
 }
 
 func computeRelativePath(repoRoot, absPath string) string {

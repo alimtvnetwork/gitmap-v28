@@ -119,12 +119,13 @@ function renderModifiedFiles(files) {
 
 async function triggerDiff(filePath) {
   if (!activeHash) return;
+  const preferredTool = localStorage.getItem('gitmap_diff_tool') || '';
   showToast('Launching external compare tool for ' + filePath + '...');
   try {
     const res = await fetch('/api/log/diff', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ commit: activeHash, path: filePath })
+      body: JSON.stringify({ commit: activeHash, path: filePath, tool: preferredTool })
     });
     const data = await res.json();
     if (data.isSuccess) {
@@ -223,6 +224,38 @@ if (btnFs) {
     } else {
       if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
     }
+  });
+}
+
+const settingsModal = document.getElementById('settings-modal');
+const btnSettings = document.getElementById('btn-settings');
+const settingDiffTool = document.getElementById('setting-diff-tool');
+const settingAutoExit = document.getElementById('setting-auto-exit');
+
+if (btnSettings && settingsModal) {
+  btnSettings.addEventListener('click', () => {
+    settingDiffTool.value = localStorage.getItem('gitmap_diff_tool') || 'auto';
+    settingAutoExit.value = localStorage.getItem('gitmap_auto_exit') || '1';
+    settingsModal.classList.add('open');
+  });
+
+  document.getElementById('modal-settings-cancel').addEventListener('click', () => {
+    settingsModal.classList.remove('open');
+  });
+
+  document.getElementById('modal-settings-save').addEventListener('click', () => {
+    localStorage.setItem('gitmap_diff_tool', settingDiffTool.value);
+    localStorage.setItem('gitmap_auto_exit', settingAutoExit.value);
+    settingsModal.classList.remove('open');
+    showToast('⚙ Settings saved (diff tool: ' + settingDiffTool.value + ')');
+  });
+}
+
+const btnRefresh = document.getElementById('btn-refresh');
+if (btnRefresh) {
+  btnRefresh.addEventListener('click', () => {
+    showToast('Refreshing commits...');
+    loadCommits();
   });
 }
 

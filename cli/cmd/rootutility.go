@@ -174,7 +174,7 @@ func runPeatCmd(args []string) error {
 
 func utilitySystemEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{"cpu", "processor", "proc"}, func() error { return cmdos.RunCPUCLI(argsTail()) }},
+		{[]string{"cpu", "processor"}, func() error { return cmdos.RunCPUCLI(argsTail()) }},
 		{[]string{"ram", "mem", "memory"}, func() error { return cmdos.RunRAMCLI(argsTail()) }},
 		{[]string{"disk"}, func() error { return cmdos.RunDiskCLI(argsTail()) }},
 		{[]string{constants.CmdPower, constants.CmdPowerAlias, constants.CmdPowerAlias2}, func() error { return cmdos.RunPower(argsTail()) }},

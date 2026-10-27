@@ -14,12 +14,17 @@ import (
 
 // TriggerExternalDiff prepares file revisions and launches the external compare tool.
 func TriggerExternalDiff(repoRoot, commitHash, filePath string) (string, error) {
+	return TriggerExternalDiffWithTool(repoRoot, commitHash, filePath, "")
+}
+
+// TriggerExternalDiffWithTool prepares file revisions and launches with user preferred tool.
+func TriggerExternalDiffWithTool(repoRoot, commitHash, filePath, preferredTool string) (string, error) {
 	leftPath, rightPath, err := prepareDiffFiles(repoRoot, commitHash, filePath)
 	if err != nil {
 		return "", err
 	}
 
-	tool, err := cmdgit.FindCompareTool()
+	tool, err := cmdgit.FindCompareToolWithPreference(preferredTool)
 	if err != nil {
 		return "", err
 	}

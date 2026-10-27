@@ -12,11 +12,16 @@ import (
 
 // OpenReadOnlyHeatmapDB opens a SQLite database connection in read-only mode with query safety pragmas.
 func OpenReadOnlyHeatmapDB(dbPath string) (*sql.DB, error) {
-	if _, err := os.Stat(dbPath); err != nil {
-		return nil, apperror.NewNotFound("store.OpenReadOnlyHeatmapDB", "E1001", fmt.Sprintf("database file not found: %s", dbPath))
+	effectivePath := dbPath
+	if _, err := os.Stat(effectivePath); err != nil {
+		if fallback := findGlobalFallbackDB(filepath.Base(dbPath), dbPath); fallback != "" {
+			effectivePath = fallback
+		} else {
+			return nil, apperror.NewNotFound("store.OpenReadOnlyHeatmapDB", "E1001", fmt.Sprintf("database file not found: %s", dbPath))
+		}
 	}
 
-	dsn := fmt.Sprintf("file:%s?mode=ro&cache=shared", filepath.ToSlash(dbPath))
+	dsn := fmt.Sprintf("file:%s?mode=ro&cache=shared", filepath.ToSlash(effectivePath))
 	conn, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, apperror.WrapSimple(err, "store.OpenReadOnlyHeatmapDB.open")

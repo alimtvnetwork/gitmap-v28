@@ -15,6 +15,8 @@ const (
     TaskName            TEXT NOT NULL,
     RunDirectory        TEXT NOT NULL DEFAULT '',
     RootDbPath          TEXT NOT NULL DEFAULT '',
+    RootSpecFilePath    TEXT NOT NULL DEFAULT '',
+    TaskFolder          TEXT NOT NULL DEFAULT '',
     Status              TEXT NOT NULL DEFAULT 'IN_PROGRESS',
     Notes               TEXT NULL,
     Comments            TEXT NULL,
@@ -87,6 +89,8 @@ type HeatmapParentTaskRecord struct {
 	TaskName            string `json:"taskName"`
 	RunDirectory        string `json:"runDirectory"`
 	RootDbPath          string `json:"rootDbPath"`
+	RootSpecFilePath    string `json:"rootSpecFilePath,omitempty"`
+	TaskFolder          string `json:"taskFolder,omitempty"`
 	Status              string `json:"status"`
 	Notes               string `json:"notes,omitempty"`
 	Comments            string `json:"comments,omitempty"`
@@ -193,6 +197,9 @@ func ensureHeatmapActionLogColumns(conn *sql.DB) error {
 		"ALTER TABLE HeatmapActionLog ADD COLUMN ModelName TEXT NULL;",
 		"ALTER TABLE HeatmapActionLog ADD COLUMN ToolName TEXT NULL;",
 		"CREATE INDEX IF NOT EXISTS IdxHeatmapActionLog_ModelTool ON HeatmapActionLog(ModelName, ToolName);",
+		"ALTER TABLE HeatmapParentTask ADD COLUMN RootSpecFilePath TEXT NOT NULL DEFAULT '';",
+		"ALTER TABLE HeatmapParentTask ADD COLUMN TaskFolder TEXT NOT NULL DEFAULT '';",
+		"CREATE INDEX IF NOT EXISTS IdxHeatmapParentTask_Spec ON HeatmapParentTask(RootSpecFilePath);",
 	}
 
 	for _, stmt := range alterStatements {

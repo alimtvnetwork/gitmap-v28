@@ -1,6 +1,7 @@
 package cmdgit
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -27,6 +28,19 @@ func ExecGitInspection(targetDir string, gitArgs ...string) error {
 
 	err := cmd.Run()
 	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
+			return apperror.NewWithDetails(
+				"git",
+				"E9001",
+				"git execution failed: "+strings.Join(gitArgs, " "),
+				"cli",
+				apperror.ErrorTypeAbort,
+				apperror.SeverityWarn,
+				map[string]any{"reported": true},
+			)
+		}
+
 		return apperror.WrapSimple(err, "git "+strings.Join(gitArgs, " "))
 	}
 

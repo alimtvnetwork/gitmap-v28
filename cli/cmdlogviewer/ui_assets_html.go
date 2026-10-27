@@ -7,6 +7,7 @@ const showLogMarkupHead = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GitMap — Show Log</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2389b4fa'%3E%3Cpath d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #181825;
@@ -88,6 +89,44 @@ const showLogMarkupHead = `<!DOCTYPE html>
   }
   button:hover { background: var(--accent); color: #11111b; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(137, 180, 250, 0.25); }
   button:active { transform: translateY(0); filter: brightness(0.95); }
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .btn-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    pointer-events: none;
+  }
+  [data-tooltip] { position: relative; }
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #11111b;
+    color: #cdd6f4;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  [data-tooltip]:hover::after { opacity: 1; }
   .btn-primary { background: var(--accent); color: #11111b; font-weight: 600; }
   .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 3px 10px rgba(180, 190, 254, 0.3); }
   .btn-danger { background: #451a1a; color: #f38ba8; border-color: #f38ba8; }
@@ -207,10 +246,21 @@ const showLogMarkupHead = `<!DOCTYPE html>
   <div class="path-badge" id="path-indicator" title="Active Path">Loading path...</div>
   <select id="branch-select" title="Active Branch"></select>
   <input type="text" id="commit-search" class="search-box" placeholder="Filter commits (hash, author, message)...">
-  <button id="btn-refresh" title="Refresh commit list">↻ Refresh</button>
-  <button id="btn-compare-branches" title="Compare two branches via Beyond Compare">Branch Comparison...</button>
-  <button id="btn-fullscreen" title="Toggle Fullscreen (F11)">⛶ Fullscreen</button>
-  <button id="btn-exit" class="btn-danger" title="Stop local server and close window">✕ Exit</button>
+  <button id="btn-refresh" class="btn-icon" data-tooltip="Refresh commit list">
+    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+  </button>
+  <button id="btn-compare-branches" class="btn-icon" data-tooltip="Branch comparison">
+    <svg viewBox="0 0 24 24"><path d="M19 13v-2c-1.54.02-3.09-.75-4.07-1.83l-1.29-1.43c-.87-.97-2.11-1.55-3.41-1.61L10 6V4c0-1.1-.9-2-2-2S6 2.9 6 4v3.59c-.58.33-1 .95-1 1.66 0 1.07.87 1.94 1.94 1.94h.06c.45 1.5 1.62 2.68 3.12 3.12v1.88c-.58.33-1 .95-1 1.66 0 1.07.87 1.94 1.94 1.94s1.94-.87 1.94-1.94c0-.71-.42-1.33-1-1.66V13.8c1.37-.2 2.59-.96 3.32-2.07l1.05 1.16C16.33 13.87 17.64 14.48 19 14.5V17l4-4-4-4v2z"/></svg>
+  </button>
+  <button id="btn-settings" class="btn-icon" data-tooltip="Diff & viewer settings">
+    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+  </button>
+  <button id="btn-fullscreen" class="btn-icon" data-tooltip="Toggle Fullscreen (F11)">
+    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+  </button>
+  <button id="btn-exit" class="btn-icon btn-danger" data-tooltip="Stop server and close window">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
 </header>
 <main class="workspace">
   <section class="pane-upper">
@@ -281,6 +331,32 @@ const showLogMarkupHead = `<!DOCTYPE html>
     <div class="modal-actions">
       <button id="modal-cancel">Cancel</button>
       <button id="modal-submit" class="btn-primary">Launch Beyond Compare</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-card">
+    <h3>Settings & Compare Tool</h3>
+    <div class="form-row">
+      <label>Preferred External Diff Tool</label>
+      <select id="setting-diff-tool">
+        <option value="auto">Auto-detect (Beyond Compare → VS Code → Meld → WinMerge)</option>
+        <option value="bcomp">Beyond Compare (bcomp / BCompare.exe)</option>
+        <option value="vscode">Visual Studio Code (code -d)</option>
+        <option value="meld">Meld</option>
+        <option value="winmerge">WinMerge</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Auto-Close Server on Window Exit</label>
+      <select id="setting-auto-exit">
+        <option value="1">Enabled (Stop server immediately)</option>
+        <option value="0">Disabled (Keep background daemon running)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button id="modal-settings-cancel">Cancel</button>
+      <button id="modal-settings-save" class="btn-primary">Save Settings</button>
     </div>
   </div>
 </div>

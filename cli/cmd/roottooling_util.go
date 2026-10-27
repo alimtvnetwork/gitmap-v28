@@ -27,6 +27,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdports"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdproc"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdregoldens"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdreplace"
@@ -240,6 +241,7 @@ func toolingNetworkEntries() []dispatchEntry {
 		}},
 		{[]string{"ip"}, func() error { return runIP(argsTail()) }},
 		{[]string{"ports", "port", "open-ports", "listening-ports"}, func() error { return cmdports.Run(argsTail()) }},
+		{[]string{"proc", "process"}, func() error { return cmdproc.Run(argsTail()) }},
 	}
 }
 

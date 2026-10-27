@@ -24,6 +24,7 @@ const (
 
 	sqlCreateRcHeatmapParentTask = `CREATE TABLE IF NOT EXISTS HeatmapParentTask (
     HeatmapParentTaskId INTEGER PRIMARY KEY AUTOINCREMENT, TaskSlug TEXT NOT NULL UNIQUE, TaskName TEXT NOT NULL, RepoSlug TEXT NOT NULL, Status TEXT NOT NULL DEFAULT 'IN_PROGRESS',
+    RootSpecFilePath TEXT NOT NULL DEFAULT '', TaskFolder TEXT NOT NULL DEFAULT '',
     StepBudget INTEGER NOT NULL DEFAULT 300, CompletedSteps INTEGER NOT NULL DEFAULT 0, HasCompleted INTEGER NOT NULL DEFAULT 0, IsActive INTEGER NOT NULL DEFAULT 1,
     StartedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, CompletedAt TEXT NULL, Notes TEXT NULL, Comments TEXT NULL, CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UpdatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 ); CREATE UNIQUE INDEX IF NOT EXISTS IdxHeatmapParentTask_Slug ON HeatmapParentTask(TaskSlug); CREATE INDEX IF NOT EXISTS IdxHeatmapParentTask_RepoSlug ON HeatmapParentTask(RepoSlug); CREATE INDEX IF NOT EXISTS IdxHeatmapParentTask_Status ON HeatmapParentTask(Status); CREATE INDEX IF NOT EXISTS IdxHeatmapParentTask_IsActive ON HeatmapParentTask(IsActive);`
@@ -100,6 +101,8 @@ type RcHeatmapParentTaskRecord struct {
 	TaskSlug            string  `json:"taskSlug"`
 	TaskName            string  `json:"taskName"`
 	RepoSlug            string  `json:"repoSlug"`
+	RootSpecFilePath    string  `json:"rootSpecFilePath,omitempty"`
+	TaskFolder          string  `json:"taskFolder,omitempty"`
 	Status              string  `json:"status"`
 	StepBudget          int     `json:"stepBudget"`
 	CompletedSteps      int     `json:"completedSteps"`
@@ -208,10 +211,23 @@ func ConfigureRcHeatmapPragmas(conn *sql.DB) error {
 
 // EnsureRcHeatmapRootTables creates all root-heatmap.db tables.
 func EnsureRcHeatmapRootTables(conn *sql.DB) error {
-	return executeSchemaBatch(conn, []string{
+	if err := executeSchemaBatch(conn, []string{
 		sqlCreateHeatmapAiSession, sqlCreateHeatmapRepoRegistry,
 		sqlCreateRcHeatmapParentTask, sqlCreateHeatmapCommitLog,
-	}, "heatmap_rc.ensureRoot")
+	}, "heatmap_rc.ensureRoot"); err != nil {
+		return err
+	}
+
+	alterStatements := []string{
+		"ALTER TABLE HeatmapParentTask ADD COLUMN RootSpecFilePath TEXT NOT NULL DEFAULT '';",
+		"ALTER TABLE HeatmapParentTask ADD COLUMN TaskFolder TEXT NOT NULL DEFAULT '';",
+		"CREATE INDEX IF NOT EXISTS IdxHeatmapParentTask_Spec ON HeatmapParentTask(RootSpecFilePath);",
+	}
+	for _, stmt := range alterStatements {
+		_ = execHeatmapAlter(conn, stmt)
+	}
+
+	return nil
 }
 
 // EnsureRcHeatmapRepoTables creates all per-repo heatmap.db tables.

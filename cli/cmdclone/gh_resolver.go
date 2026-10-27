@@ -74,12 +74,12 @@ func isFullURLOrPath(target string) bool {
 
 func isLocalPath(target string) bool {
 	if isRelativeOrHomePath(target) || isDriveLetterPath(target) {
-		info, err := os.Stat(target)
-
-		return err == nil && info.IsDir()
+		return true
 	}
 
-	return false
+	info, err := os.Stat(target)
+
+	return err == nil && info.IsDir()
 }
 
 func isRelativeOrHomePath(target string) bool {
@@ -219,13 +219,20 @@ func matchReposExactOrSuffix(repos []model.ScanRecord, slug string) string {
 
 func matchRepoByBaseName(repos []model.ScanRecord, slug string) string {
 	base := clonenext.ParseRepoName(slug).BaseName
+	var bestURL string
+	maxVersion := -1
+
 	for _, r := range repos {
-		if strings.EqualFold(clonenext.ParseRepoName(r.RepoName).BaseName, base) {
-			return pickRepoURL(r)
+		parsed := clonenext.ParseRepoName(r.RepoName)
+		if strings.EqualFold(parsed.BaseName, base) {
+			if parsed.CurrentVersion > maxVersion {
+				maxVersion = parsed.CurrentVersion
+				bestURL = pickRepoURL(r)
+			}
 		}
 	}
 
-	return ""
+	return bestURL
 }
 
 func isRepoURLSuffixMatch(r model.ScanRecord, slug string) bool {

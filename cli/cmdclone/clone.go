@@ -270,8 +270,14 @@ func runDirectClone(cf CloneFlags) error {
 }
 
 func handleBareSlugClone(cf CloneFlags) error {
-	resolved := ResolveRepoSlug(cf.Source)
+	resolved := ResolveRepoSlugForProfile(cf.Source, cf.Profile)
 	if isDirectURL(resolved) {
+		if cf.UseSSH {
+			if sshURL, ok := ConvertURLToSSH(resolved); ok {
+				resolved = sshURL
+			}
+		}
+
 		cf.Source = resolved
 
 		return runDirectClone(cf)

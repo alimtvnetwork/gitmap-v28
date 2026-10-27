@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
@@ -31,6 +32,31 @@ func FindCompareTool() (CompareTool, error) {
 	}
 
 	return findWinMerge()
+}
+
+// FindCompareToolWithPreference discovers an available external compare tool honoring user preference.
+func FindCompareToolWithPreference(pref string) (CompareTool, error) {
+	lower := strings.ToLower(strings.TrimSpace(pref))
+	switch lower {
+	case "vscode", "code":
+		if tool, isFound := findVSCode(); isFound {
+			return tool, nil
+		}
+	case "bcomp", "beyondcompare", "bcompare":
+		if tool, isFound := findBeyondCompare(); isFound {
+			return tool, nil
+		}
+	case "meld":
+		if tool, isFound := findMeld(); isFound {
+			return tool, nil
+		}
+	case "winmerge":
+		if tool, isFound := findWinMerge(); isFound == nil {
+			return tool, nil
+		}
+	}
+
+	return FindCompareTool()
 }
 
 func findCompareTool() (CompareTool, error) {

@@ -38,6 +38,14 @@ func dispatchHeatmapAdmin(ctx context.Context, subcmd string, args []string, fla
 		return RunHeatmapView(false, flags, pos, out)
 	case "query", "sql":
 		return ExecuteHeatmapQuery(false, flags, pos, out)
+	case "failures", "broken":
+		return RunHeatmapFailures(false, flags, out)
+	case "hotfiles", "hot":
+		return RunHeatmapHotfiles(false, flags, out)
+	case "recent":
+		return RunHeatmapRecent(false, flags, out)
+	case "tasks":
+		return RunHeatmapTasks(false, flags, out)
 	case "rc", "rc-heatmap":
 		return DispatchRcHeatmap(ctx, args[1:], out)
 	default:

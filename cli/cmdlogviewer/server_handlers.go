@@ -73,7 +73,7 @@ func handleAPIDiff(repoRoot string) http.HandlerFunc {
 }
 
 func executeDiffRequest(w http.ResponseWriter, repoRoot string, req DiffRequest) {
-	tool, err := TriggerExternalDiff(repoRoot, req.Commit, req.Path)
+	tool, err := TriggerExternalDiffWithTool(repoRoot, req.Commit, req.Path, req.Tool)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, buildDiffErrorResponse(err))
 		return
