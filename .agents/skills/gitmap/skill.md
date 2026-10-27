@@ -1,6 +1,6 @@
 ---
 name: gitmap
-description: Autonomous developer companion and CLI for ultra-fast repository scanning, polyglot automation (AUM), cluster/SSH delegation, pipeline self-healing, and coding guideline enforcement.
+description: Autonomous developer companion and CLI for ultra-fast repository scanning, polyglot automation (AUM), pipeline self-healing, process management, and coding guideline enforcement.
 ---
 
 # GitMap Autonomous Engineering Skill
@@ -137,28 +137,23 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 
 ### 7. Semantic Commit Suite, CFR & Workgroup
 
-#### GitMap Commit & Release Commands
-| Command | Alias | Scope | Prefix Added | Auto Push | Purpose |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `gitmap commit "<message>"` | `gitmap cm "<msg>"` | Local only | None (verbatim) | No | Fast 1-step auto-stage (`git add -A`) and local commit for scratch/micro-steps. |
-| `gitmap cpf "<module> - <summary>"` | - | Remote | `Feature: ` | Yes | Stage all, commit feature with `<module> - <summary>`, and push to remote. |
-| `gitmap cbf "<module> - <summary>"` | `gitmap cpb` | Remote | `Bug: ` | Yes | Stage all, commit bugfix with `<module> - <summary>`, and push to remote. |
-| `gitmap cfr "<module> - <summary>"` | - | Remote | `Refactor: ` | Yes | Stage all, commit refactor with `<module> - <summary>`, and push to remote. |
-| `gitmap cpc "<module> - <summary>"` | - | Remote | `Chore: ` | Yes | Stage all, commit chore with `<module> - <summary>`, and push to remote. |
-| `gitmap cpr "<module> - <summary>"` | - | Remote | `Release: ` | Yes | Stage all, commit release chore with `<module> - <summary>`, and push to remote. |
-| `gitmap pcp "<module> - <summary>"` | - | Remote | Normalized | Yes | Pull latest with rebase, stage all, commit, and push with preflight verification. |
+Disciplined atomic commit workflow enforcing hyphen-separated messages (`<Module> - <summary>`) and upstream delivery invariants.
 
-#### Command Details & Behavioral Guidelines
-- `gitmap commit "<message>"` (alias `gitmap cm "<message>"`) — 1-step auto-stage (`git add -A`) and local commit without semantic prefixing and without remote git push. Ideal for quick local iterations, WIP checkpoints, and subtask milestones.
-- `gitmap cpf "<module> - <summary>"` — Features ONLY. Stages all, formats with `Feature: <module> - <summary>`, and pushes. NEVER use for chores, releases, or bugs.
-- `gitmap cbf "<module> - <summary>"` (alias: `gitmap cpb`) — Bug fixes ONLY. Stages all, formats with `Bug: <module> - <summary>`, and pushes.
-- `gitmap cfr "<module> - <summary>"` — Refactoring ONLY. Stages all, formats with `Refactor: <module> - <summary>`, and pushes.
-- `gitmap cpc "<module> - <summary>"` — Chores, docs, sync, and maintenance ONLY. Stages all, formats with `Chore: <module> - <summary>`, and pushes.
-- `gitmap cpr "<module> - <summary>"` — Releases ONLY. Stages all, formats with `Release: <module> - <summary>`, and pushes. MANDATORY verb for version bumps and releases!
-- `gitmap pcp "<module> - <summary>"` — Pull latest with rebase, commit, and push with preflight verification.
-- **Subsystem Module Standard (Title Case or Lowercase Allowed):** The `<module>` token MUST represent a functional codebase subsystem (e.g. `Auth`, `Storage`, `Ui`, `Guidelines`, `Scanner`, `Cli`, `Sync`, `Prompt`). Title Case (`Auth`, `Storage`, `Ui`) or lowercase (`auth`, `storage`, `ui`) is completely valid. ALL-CAPS shout case (`AUTH`, `STORAGE`) should not be used.
-- **TOTAL BAN ON 'commit' / 'commits' AS MODULE:** The word `commit` or `commits` MUST NEVER be used as a module name (e.g. NEVER run `gitmap cpc "commit - ..."` or `gitmap cpf "COMMIT - ..."`). Committing is already the version control action being performed by Git and GitMap; writing `commit` as the module produces meaningless tautological stuttering (`Chore: commit - ...`). If modifying commit-related tooling, code, or documentation, name the specific component (e.g. `Formatter`, `Provenance`, `Cli`, `Docs`) or omit the module prefix entirely (`gitmap cpc "clean constructor helpers and strip redundant tokens"`).
-- **DRY-RUN BEFORE EVERY GITMAP COMMIT (MANDATORY):** run `gitmap <verb> "<module> - <summary>" --dry-run` (short flag `-n`) before the real commit, then confirm with `git status` and `git diff`. With `--dry-run` the command prints exactly what it WOULD do — the full list of files it would stage (so a sweep of unrelated files is visible before a real run), the formatted commit message, the branch and HEAD, the push target (remote/branch and URL, or local-commit-only for plain `commit`/`cm`), whether it would pull first (`pcp`), and that tag/release actions are none — then exits WITHOUT mutating anything: no commit created, no push, no pull, and no staging changes left behind. It applies to `commit`/`cm`, `cpf`, `cpb`/`cbf`, `cpc`, `cfr`, `cpr`, and `pcp`. CAUTION: pre-fix `--dry-run` did NOT actually dry-run — in img-pdf it committed and pushed 67b7b21 "Feature: test dry run", sweeping unrelated sync files and .gitmap/backup into main — so on any gitmap build predating this fix, never trust `--dry-run` alone; always verify with `git status`/`git diff` first.
+#### Commands & Behavioral Guidelines
+- `gitmap commit "<msg>"` (alias `gitmap cm "<msg>"`) — Fast 1-step auto-stage (`git add -A`) and local commit without semantic prefixing and without remote push. Ideal for quick local iterations and WIP checkpoints:
+  `gitmap commit "wip - draft initial types and interfaces"`
+- `gitmap cpf "<Module> - <summary>"` — Features ONLY. Stages all, formats with `Feature: <Module> - <summary>`, and pushes:
+  `gitmap cpf "Skills - enrich gitmap skill with 12 real world categories"`
+- `gitmap cbf "<Module> - <summary>"` (alias `gitmap cpb`) — Bug fixes ONLY. Stages all, formats with `Bug: <Module> - <summary>`, and pushes:
+  `gitmap cbf "Cloner - correct concurrency flag parsing and worker limits"`
+- `gitmap cfr "<Module> - <summary>"` — Refactoring ONLY. Stages all, formats with `Refactor: <Module> - <summary>`, and pushes:
+  `gitmap cfr "Guidelines - decompose function argument structs"`
+- `gitmap cpc "<Module> - <summary>"` — Chores, docs, sync, and maintenance ONLY. Stages all, formats with `Chore: <Module> - <summary>`, and pushes:
+  `gitmap cpc "Docs - realign companion skills and remove help flags"`
+- `gitmap cpr "<Module> - <summary>"` — Releases ONLY. Stages all, formats with `Release: <Module> - <summary>`, and pushes. MANDATORY verb for version bumps and releases:
+  `gitmap cpr "v2.18.0 - bump minor version and update changelog"`
+- `gitmap pcp "<Module> - <summary>"` — Pull latest with rebase, stage all, commit, and push with preflight verification:
+  `gitmap pcp "Skills - sync cross-platform runner templates"`
 - `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
 - `gitmap workgroup bind <dir> <key>` — Bind folder to dedicated SSH key.
@@ -168,6 +163,9 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap fix [repo] [action]` — Apply remediation to repo (aliases: `stash`, `wip`, `discard`).
 - `gitmap lowercase` (alias `gitmap lcf`) — Safe 2-step `git mv` file case normalization.
 - `gitmap lowercase-readme` — Safe 2-step `git mv` case normalization for root `readme.md`.
+- **Subsystem Module Standard (Title Case or Lowercase Allowed):** The `<module>` token MUST represent a functional codebase subsystem (e.g. `Auth`, `Storage`, `Ui`, `Guidelines`, `Scanner`, `Cli`, `Sync`, `Prompt`). Title Case (`Auth`, `Storage`, `Ui`) or lowercase (`auth`, `storage`, `ui`) is completely valid. ALL-CAPS shout case (`AUTH`, `STORAGE`) should not be used.
+- **TOTAL BAN ON 'commit' / 'commits' AS MODULE:** The word `commit` or `commits` MUST NEVER be used as a module name (e.g. NEVER run `gitmap cpc "commit - ..."` or `gitmap cpf "COMMIT - ..."`). Committing is already the version control action being performed by Git and GitMap; writing `commit` as the module produces meaningless tautological stuttering (`Chore: commit - ...`). If modifying commit-related tooling, code, or documentation, name the specific component (e.g. `Formatter`, `Provenance`, `Cli`, `Docs`) or omit the module prefix entirely (`gitmap cpc "clean constructor helpers and strip redundant tokens"`).
+- **DRY-RUN BEFORE EVERY GITMAP COMMIT (MANDATORY):** run `gitmap <verb> "<module> - <summary>" --dry-run` (short flag `-n`) before the real commit, then confirm with `git status` and `git diff`. With `--dry-run` the command prints exactly what it WOULD do — the full list of files it would stage (so a sweep of unrelated files is visible before a real run), the formatted commit message, the branch and HEAD, the push target (remote/branch and URL, or local-commit-only for plain `commit`/`cm`), whether it would pull first (`pcp`), and that tag/release actions are none — then exits WITHOUT mutating anything: no commit created, no push, no pull, and no staging changes left behind. It applies to `commit`/`cm`, `cpf`, `cpb`/`cbf`, `cpc`, `cfr`, `cpr`, and `pcp`.
 - **STRICT VERB TAXONOMY (NEVER MISUSE CPF):** Never use `gitmap cpf` for chore, release, or bug fix tasks. Use `cpr` for releases, `cpc` for chores, `cbf` for bug fixes, `cfr` for refactors, and `cpf` for features.
 - **ZERO NESTED CONVENTIONAL PREFIXES:** Never write redundant prefixes inside GitMap arguments (e.g. BANNED: `gitmap cpf "chore(release): bump version"`, `gitmap cpr "release: v1.0"`, `gitmap cpf "feat: ..."`). GitMap automatically adds the prefix!
 - **ZERO THIRD BRACKETS & COLONS IN ARGUMENTS:** Commits MUST NOT use square brackets `[...]` (colloquially called "third brackets") or colons `:` inside the argument. Use space-padded hyphen: `"<module> - summary"`. If square brackets are passed, GitMap automatically sanitizes them to round parentheses.
@@ -207,12 +205,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | `--urls` | `bool` | `false` | Outputs complete 8-document Authoritative Public Documentation Registry for LLM memory ingestion. |
 | `-j`, `--json` | `bool` | `false` | Emits structured machine-readable JSON curriculum and document metadata. |
 
-### 9. Multi-Repo, SSH & Toolchain Operations
+### 9. Multi-Repo & Toolchain Operations
 - `gitmap pae --json` — Multi-repo pull with compact JSON telemetry (use only when explicitly requested; ban routine polling).
-- `gitmap sc list` — Query servers-clients topology, active services, and background daemon tasks.
-- `gitmap sc ping` — Verify server-client connectivity with zero timeout lag.
-- `gitmap ssh health --all` — Probe port 22 liveness across all known remote hosts and SSH nodes.
-- `gitmap ssh identity --email <email> --seq <N> --operator <name>` — Formats canonical SSH comment token `<email>-muse<muse-sequence>-<operator-name>` and sets `git config` user identity.
 - `gitmap cargo status` — Inspect Rust and Cargo toolchain status.
 - `gitmap install cargo --check` — Validate Cargo and Rust toolchain installation.
 - `gitmap install cargo` — Install Rust toolchain if missing.
@@ -346,20 +340,11 @@ Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers)
 > NEVER run inline Python sqlite3 snippets or execute raw database queries against `.ai-memory/temp-agents/<slug>/agent-task.db`.
 > All agent task lifecycle operations, status inspections, claiming, logging, and diagnostics MUST use compiled `gitmap agent` CLI commands (`task init`, `task status`, `task ls`, `subtask add`, `subtask ls`, `subtask claim`, `subtask complete`, `subtask fail`, `log`, `diagnose`, `crashed`, `temp-clear`).
 
-### 11. Fleet Telemetry & Running-Only Delegation
-- `gitmap nodes-running-only` (alias `gitmap nro`) — Lists strictly online/open nodes (`is_online: true`), filtering out offline noise.
-- `gitmap nro --json` (`-j`) — Emits clean JSON array of online cluster nodes.
-- `gitmap nro exec "<cmd>"` — Runs SSH execution strictly across online nodes without offline timeout delays.
-- `gitmap nro tasks [--json]` — Interrogates active and pending task queues on online nodes.
-- `gitmap nro resources [--json]` — Probes CPU & RAM benchmarks across online nodes.
-- `gitmap nro ping` — Pings reachable nodes with zero timeout lag.
-- `gitmap nro pull` / `gitmap nro cp` / `gitmap nro scan` — High-speed running-only fleet operations.
+### 11. System Diagnostics & Performance Telemetry
 - `gitmap os --json` — Structured machine and OS identity with kernel, build, and version telemetry.
 - `gitmap cpu` / `gitmap processor` — Live & 5s cached CPU utilization, architecture, and core counts.
 - `gitmap ram` — Live & 5s cached memory capacity, free/used MB, and visual utilization meter.
-- `gitmap disk` — Disk volume capacity, free space, and mount telemetry.
 - `gitmap network [--json]` — Network adapter configuration, IPs, MAC addresses, link speeds, and throughput metrics.
-- `gitmap nodes tasks [--json] [--open-only]` — Queries local and remote node task queues with `?` role placeholder.
 
 ### 12. File Contention Heatmap, Cognitive Telemetry & Agent Activity Observation
 - `gitmap heatmap` — **Heatmap Database Discovery Catalog**: Surveys all 3 tiers of heatmap databases (local root `<EffectiveDataDir>/heatmap.db`, per-repo split DBs `<EffectiveDataDir>/heatmap/<repo>/sql.db`, and repo-cache multi-AI DBs `repo-cache/.heatmap/<seq>-<ai>/`), maps registered repository aliases via `db.ListAliasesWithRepo()`, aggregates recent tasks across 2–5 repositories (minimum 5 tasks), and provides dynamic interactive AI suggestion pills.
@@ -428,25 +413,17 @@ All companion RC commands support full tri-alias routing parity:
 - `gitmap heatmap rc <status|tables|query|view|tree|live|sync>`
 - `gitmap heatmap rc-heatmap <status|tables|query|view|tree|live|sync>`
 
-#### AI Agent Non-Blocking SQL Recipes
-AI agents analyzing prior session decisions, execution trees, and file hotspots should use direct read-only queries with `--json` or `--yaml` to prevent lock contention:
+#### Shorthand Commands vs Direct SQL Queries
 
-```bash
-# 1. Inspect recent chronological trace for active task slug:
-gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, ReasoningState, IsExpectationMet FROM HeatmapActionLog WHERE TaskSlug = 'heatmap-commands-testing-and-rc-admin-instructions' ORDER BY HeatmapActionLogId ASC" --json
+Instead of typing multi-line SQL queries, use GitMap's dedicated shorthand commands (with direct SQL queries available as secondary alternatives):
 
-# 2. Deep forensic inspection of specific action ID:
-gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, CodeSnippet, CommandText, ReasoningNotes, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE HeatmapActionLogId = 1" --yaml
-
-# 3. Analyze touched file churn and editing hotspots:
-gitmap heatmap query "SELECT FilePath, COUNT(*) AS TotalTouches, SUM(CASE WHEN ActionType = 'MODIFY' THEN 1 ELSE 0 END) AS Modifies FROM HeatmapActionLog GROUP BY FilePath ORDER BY TotalTouches DESC"
-
-# 4. Extract unmet expectations and failed execution steps:
-gitmap heatmap query "SELECT HeatmapActionLogId, TaskSlug, FilePath, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE IsExpectationMet = 0" --json
-
-# 5. Cross-repo activity rollup in companion root database:
-gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoRegistry ORDER BY TotalActionsRecorded DESC" --tier root
-```
+| Operational Goal | Dedicated GitMap Command (Preferred) | Direct SQL Query Alternative |
+| :--- | :--- | :--- |
+| **Chronological Task Trace** | `gitmap heatmap tree --task <slug>` or `gitmap heatmap view HeatmapActionLog --task <slug> --json` | `gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, ReasoningState, IsExpectationMet FROM HeatmapActionLog WHERE TaskSlug = '<slug>' ORDER BY HeatmapActionLogId ASC" --json` |
+| **Inspect Specific Action ID** | `gitmap heatmap view HeatmapActionLog --id <id> --yaml` or `gitmap heatmap search --id <id>` | `gitmap heatmap query "SELECT HeatmapActionLogId, ActionType, FilePath, CodeSnippet, CommandText, ReasoningNotes, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE HeatmapActionLogId = <id>" --yaml` |
+| **File Churn & Hotspot Analysis** | `gitmap heatmap status` or `gitmap agent heatmap --json` | `gitmap heatmap query "SELECT FilePath, COUNT(*) AS TotalTouches, SUM(CASE WHEN ActionType = 'MODIFY' THEN 1 ELSE 0 END) AS Modifies FROM HeatmapActionLog GROUP BY FilePath ORDER BY TotalTouches DESC"` |
+| **Unmet Expectations & Failures** | `gitmap heatmap status --task <slug>` or `gitmap heatmap search --unmet` | `gitmap heatmap query "SELECT HeatmapActionLogId, TaskSlug, FilePath, ExpectedOutcome, ActualOutcome FROM HeatmapActionLog WHERE IsExpectationMet = 0" --json` |
+| **Cross-Repo Activity Rollup** | `gitmap rc heatmap status` or `gitmap heatmap rc view HeatmapRepoRegistry --tier root` | `gitmap heatmap rc query "SELECT RepoSlug, TotalActionsRecorded FROM HeatmapRepoRegistry ORDER BY TotalActionsRecorded DESC" --tier root` |
 
 ### 15. Native SQLite Database Exploration, REST API Server & Lifecycle Suite
 - `gitmap db-read "<path-or-alias>" "<sql>"` — Executes read-only SQL query with request timing.
@@ -739,25 +716,12 @@ gitmap lowercase
 gitmap lowercase-readme
 ```
 
-### 8. Multi-Repo, SSH & Toolchain Operations
-Managing remote topologies, SSH node pooling, and developer toolchains.
+### 8. Multi-Repo & Toolchain Operations
+Managing multi-repository workflows, toolchain installation, and environment preparation.
 
 ```bash
-
-# Servers-clients topology service list and status inspection
-gitmap sc list
-
-# Run background daemon task via server-client engine
-gitmap sc bash "python -m http.server 8080"
-
-# Verify server-client daemon connectivity and response latency
-gitmap sc ping
-
-# Check remote SSH fleet health and port 22 connectivity across all nodes
-gitmap ssh health --all
-
-# Register remote node with authentication vault
-gitmap ssh join user@192.168.1.50 --alias worker-node-1
+# Multi-repo pull with compact JSON telemetry
+gitmap pae --json
 
 # Inspect Rust and Cargo toolchain status
 gitmap cargo status
@@ -767,6 +731,9 @@ gitmap install cargo --check
 
 # Install missing toolchain or system runtime
 gitmap install cargo
+
+# Discover developer toolchains, profiles, and runtime packages
+gitmap install --list
 ```
 
 ### 9. Native Fleet Synchronization & SQLite Agent Task Engine
