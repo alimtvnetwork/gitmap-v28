@@ -1,3 +1,19 @@
+## [v6.621.0] 2026-10-28 Release v6.621.0
+
+### Install GitMap v6.621.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.621.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.621.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.621.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.621.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Show-Log Non-Git Guard: Running `gitmap show-log` outside a git repository emits a clean guidance error without dumping any Go runtime stack traces.
+- Process Killer (`proc kill`): Native process management command `gitmap proc kill <pid> [--force]` with self/caller/system PID protection and two-stage graceful termination.
+- Heatmap Query Shortcuts: Instant telemetry views (`gitmap heatmap recent`, `gitmap heatmap failures`, `gitmap heatmap hotfiles`, `gitmap heatmap tasks`) executing sub-millisecond SQLite queries.
+- Show-Log UI Modernization: Added embedded SVG favicon, compact icon buttons with hover tooltips, external diff tool configuration modal (Beyond Compare, VS Code), and searchable branch selector.
+- Clone Bare Repo Resolution: `gitmap clone <name>` automatically resolves bare repository names to the highest semantic version release and converts to SSH when requested.
+
 ## [v6.620.0] 2026-10-27 Release v6.620.0
 
 ### Install GitMap v6.620.0

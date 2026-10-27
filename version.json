@@ -8,7 +8,7 @@
         "prohibition": "Never hardcode version numbers in code, scripts, or documentation. Always read from or sync with version.json.",
         "singleVersionField": "The root 'Version' field is the ONLY version field in this file (a legacy lowercase duplicate was removed in 6.518.0). Human edits touch ONLY 'Version'; 37-bump-version.py is the sole writer for every other copy (constants.go, package.json, changelog)."
     },
-    "Version": "6.620.0",
+    "Version": "6.621.0",
     "Title": "GitMap",
     "RepoSlug": "gitmap-v28",
     "RepoUrl": "https://github.com/alimtvnetwork/gitmap-v28",
@@ -65,7 +65,7 @@
         "19-plan-spec-steps-v2.md",
         "20-audit-app-spec.md"
     ],
-    "updated": "2026-10-27T06:41:37Z",
+    "updated": "2026-10-27T18:24:36Z",
     "name": "gitmap",
     "description": "Git repository scanner, manager, and navigator CLI with parallel cloning, SSH cluster fleet management, and AI agent task orchestration. Built in Go, incorporating rigorous coding guidelines and specification standards written by MD ALIM UL KARIM, sponsored by RISEUP ASIA LLC.",
     "git": {
@@ -404,5 +404,5 @@
         "20-audit-app-spec.md"
     ],
     "releaseDate": "2026-10-27",
-    "version": "6.620.0"
+    "version": "6.621.0"
 }
