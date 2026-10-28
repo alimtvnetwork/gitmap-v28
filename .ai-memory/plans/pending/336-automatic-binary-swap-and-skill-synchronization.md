@@ -26,9 +26,9 @@ Plan 336 introduces:
 
 | Subtask ID | File | Description | Target | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Subtask-01** | [01-swap-core-and-script-generator.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/01-swap-core-and-script-generator.md) | Implement core swap models, PID discovery, detached handoff script generation (`.ps1`/`.sh`), atomic file replacement, and post-swap verification engine. | `cli/cmdswap/`, `cli/cmdupdate/` | Pending |
-| **Subtask-02** | [02-cli-dispatch-and-helpdoc.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/02-cli-dispatch-and-helpdoc.md) | Register `gitmap swap-binary` and aliases in `cli/root.go`, implement CLI command flags, Lipgloss summary cards, and add themed help documentation in `cli/helpdoc/`. | `cli/root.go`, `cli/cmdswap/`, `cli/helpdoc/` | Pending |
-| **Subtask-03** | [03-coding-guidelines-skill-sync.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/03-coding-guidelines-skill-sync.md) | Author new Antigravity skill `gitmap-binary-swap`, update coding guidelines, and synchronize skills and prompts across connected repositories using script 38. | `.agents/skills/`, `.agents/rules/`, `03-ai-scripts/` | Pending |
+| **Subtask-01** | [01-swap-core-and-script-generator.md](.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/01-swap-core-and-script-generator.md) | Implement core swap models, PID discovery, detached handoff script generation (`.ps1`/`.sh`), atomic file replacement, and post-swap verification engine. | `cli/cmdswap/`, `cli/cmdupdate/` | Pending |
+| **Subtask-02** | [02-cli-dispatch-and-helpdoc.md](.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/02-cli-dispatch-and-helpdoc.md) | Register `gitmap swap-binary` and aliases in `cli/root.go`, implement CLI command flags, Lipgloss summary cards, and add themed help documentation in `cli/helpdoc/`. | `cli/root.go`, `cli/cmdswap/`, `cli/helpdoc/` | Pending |
+| **Subtask-03** | [03-coding-guidelines-skill-sync.md](.ai-memory/plans/subtasks/336-automatic-binary-swap-and-skill-synchronization/03-coding-guidelines-skill-sync.md) | Author new Antigravity skill `gitmap-binary-swap`, update coding guidelines, and synchronize skills and prompts across connected repositories using script 38. | `.agents/skills/`, `.agents/rules/`, `03-ai-scripts/` | Pending |
 
 ---
 

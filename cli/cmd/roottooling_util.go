@@ -84,8 +84,6 @@ func toolingUtilSearchEntries() []dispatchEntry {
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return cmdcommit.RunCommitPushFeature(argsTail()) }},
 		{[]string{constants.CmdCommitPushRefactor}, func() error { return cmdcommit.RunCommitPushRefactor(argsTail()) }},
 		{[]string{"cfr"}, func() error { return runCfrDisambiguated(argsTail()) }},
-		{[]string{"crf"}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},
-		{[]string{"crfb"}, func() error { return cmdclone.RunCloneFixRepoPub(argsTail()) }},
 		{[]string{constants.CmdCommitPushChore}, func() error { return cmdcommit.RunCommitPushChore(argsTail()) }},
 		{[]string{"cpc"}, func() error { return runCpcDisambiguated(argsTail()) }},
 		{[]string{constants.CmdCommitPushRelease, constants.CmdCommitPushReleaseAlias}, func() error { return cmdcommit.RunCommitPushRelease(argsTail()) }},

@@ -51,7 +51,7 @@ func initRepoCacheSequenceTable(db *sql.DB) error {
 		return apperror.WrapSimple(err, "init repo cache sequence table")
 	}
 
-	_, _ = db.Exec(sqlCreateIdxRepoCacheSeqFolder)
+	_, _ = db.Exec(sqlCreateIdxRepoCacheSeqFolder) // lint-allow: ignore-db-error
 
 	return nil
 }
@@ -74,7 +74,7 @@ func lookupCachedSequenceFolder(db *sql.DB, repoSlug string) (string, bool) {
 func queryCachedPath(db *sql.DB, repoSlug string) string {
 	var cachedPath string
 	query := "SELECT CachedPath FROM RepoCacheSequenceIndex WHERE RepoSlug = ? LIMIT 1;"
-	_ = db.QueryRow(query, repoSlug).Scan(&cachedPath)
+	_ = db.QueryRow(query, repoSlug).Scan(&cachedPath) // lint-allow: ignore-db-error
 
 	return cachedPath
 }

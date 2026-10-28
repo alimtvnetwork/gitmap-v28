@@ -79,4 +79,3 @@ func TestBuildServerMuxWithExit(t *testing.T) {
 		t.Fatal("expected non-nil server mux")
 	}
 }
-

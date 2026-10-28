@@ -117,7 +117,7 @@ func handleAPIUIExit(server *http.Server) http.HandlerFunc {
 			if target != nil {
 				_ = target.Close()
 			}
-			os.Exit(0)
+			os.Exit(0) // lint-allow: os.Exit
 		}()
 	}
 }

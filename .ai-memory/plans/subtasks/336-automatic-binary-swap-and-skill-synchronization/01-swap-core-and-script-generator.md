@@ -1,7 +1,7 @@
 # Subtask 336.01 — Swap Core Engine and Platform Script Generator
 
 > **Sequence ID:** 336  
-> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](file:///d:/work/gitmap/.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
+> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
 > **Target Packages:** `cli/cmdswap/`, `cli/cmdupdate/`  
 > **Status:** Pending  
 

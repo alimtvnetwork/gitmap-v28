@@ -114,7 +114,7 @@ The Antigravity runtime tracks active conversation workspaces in `conversation_s
 - Columns: `conversation_id`, `workspace_uris` (comma-separated or JSON list of URIs), `project_id`.
 - Action:
   1. Retrieve active conversation records where `killed IS NULL OR killed = 0`.
-  2. If the cloned repo URI is missing from `workspace_uris`, append the URI formatted as `file:///d:/work/<target-repo>`.
+  2. If the cloned repo URI is missing from `workspace_uris`, append the URI formatted as `file:///<workspace-root>/<target-repo>`.
   3. Commit transaction via SQLite driver.
 
 ### 3.3 Tier 4: GitMap CLI Integration Command

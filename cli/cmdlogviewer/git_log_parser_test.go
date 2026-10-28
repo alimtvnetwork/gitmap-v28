@@ -13,8 +13,8 @@ func TestParseCommitLine(t *testing.T) {
 		isOk     bool
 	}{
 		{
-			name:     "valid commit line",
-			input:    "90f75b081057019d3d246e33f6db41ed02b09df5|90f75b081|Alim Karim|2026-10-25|fix: test commit subject",
+			name:  "valid commit line",
+			input: "90f75b081057019d3d246e33f6db41ed02b09df5|90f75b081|Alim Karim|2026-10-25|fix: test commit subject",
 			expected: CommitItem{
 				Hash:      "90f75b081057019d3d246e33f6db41ed02b09df5",
 				ShortHash: "90f75b081",
@@ -25,8 +25,8 @@ func TestParseCommitLine(t *testing.T) {
 			isOk: true,
 		},
 		{
-			name:     "commit subject with pipe",
-			input:    "1111111111111111111111111111111111111111|1111111|Author|2026-01-01|feat: foo | bar | baz",
+			name:  "commit subject with pipe",
+			input: "1111111111111111111111111111111111111111|1111111|Author|2026-01-01|feat: foo | bar | baz",
 			expected: CommitItem{
 				Hash:      "1111111111111111111111111111111111111111",
 				ShortHash: "1111111",

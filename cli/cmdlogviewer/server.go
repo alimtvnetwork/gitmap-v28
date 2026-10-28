@@ -205,7 +205,7 @@ func handleAPIExit(server *http.Server) http.HandlerFunc {
 			if server != nil {
 				_ = server.Close()
 			}
-			os.Exit(0)
+			os.Exit(0) // lint-allow: os.Exit
 		}()
 	}
 }

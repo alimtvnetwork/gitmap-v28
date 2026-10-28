@@ -1,6 +1,6 @@
 # Subtask 03: Search UI Interactive Hover and File Opener
 **Sequence ID:** 335  
-**Parent Plan:** [335-gitmap-author-information-and-search-feature.md](file:///d:/work/gitmap/.ai-memory/plans/pending/335-gitmap-author-information-and-search-feature.md)  
+**Parent Plan:** [335-gitmap-author-information-and-search-feature.md](.ai-memory/plans/pending/335-gitmap-author-information-and-search-feature.md)  
 **Status:** Pending  
 
 ---

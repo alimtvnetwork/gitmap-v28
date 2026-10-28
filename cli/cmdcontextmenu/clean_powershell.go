@@ -23,8 +23,8 @@ const (
 type regRunnerFunc func(args ...string) ([]byte, error)
 
 var (
-	targetOS     = runtime.GOOS
-	overrideKeys = []string{hkcuPwshLegacyBg, hkcuPwshLegacyDir}
+	targetOS                   = runtime.GOOS
+	overrideKeys               = []string{hkcuPwshLegacyBg, hkcuPwshLegacyDir}
 	regRunner    regRunnerFunc = executeRegCommand
 )
 

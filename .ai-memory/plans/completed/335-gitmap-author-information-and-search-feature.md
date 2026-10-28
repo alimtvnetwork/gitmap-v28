@@ -16,7 +16,7 @@
 ---
 
 ## 2. Subtasks
-- [x] [01-commit-author-information.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/01-commit-author-information.md): Metadata, flag parsing, Git config fallback, commit execution, and UI card rendering.
-- [x] [02-aum-repo-search-api-and-ui.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/02-aum-repo-search-api-and-ui.md): `/api/search/repo` endpoint calling `cmdautomation.RunSearch` and Web UI markup.
-- [x] [03-search-ui-interactive-hover-and-open.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/03-search-ui-interactive-hover-and-open.md): Interactive hover previews, open in editor/IDE integration, and `gitmap search --ui`.
-- [x] [04-verification-and-release.md](file:///d:/work/gitmap/.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/04-verification-and-release.md): Unit tests, FastGate, version bump, and minor release ceremony.
+- [x] [01-commit-author-information.md](.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/01-commit-author-information.md): Metadata, flag parsing, Git config fallback, commit execution, and UI card rendering.
+- [x] [02-aum-repo-search-api-and-ui.md](.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/02-aum-repo-search-api-and-ui.md): `/api/search/repo` endpoint calling `cmdautomation.RunSearch` and Web UI markup.
+- [x] [03-search-ui-interactive-hover-and-open.md](.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/03-search-ui-interactive-hover-and-open.md): Interactive hover previews, open in editor/IDE integration, and `gitmap search --ui`.
+- [x] [04-verification-and-release.md](.ai-memory/plans/subtasks/335-gitmap-author-information-and-search-feature/04-verification-and-release.md): Unit tests, FastGate, version bump, and minor release ceremony.

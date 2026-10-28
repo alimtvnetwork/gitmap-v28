@@ -274,4 +274,3 @@ func runOpenAgy(args []string) error {
 
 	return cmdagy.RunAgyOpen(target)
 }
-

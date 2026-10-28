@@ -401,5 +401,3 @@ func matchChecksumInFile(r io.Reader, hash, expectedAssetName string) (bool, err
 
 	return false, apperror.NewWithDetails("cmd.update.checksumNotFound", "E1141", "asset not found in checksums", "cmdupdate", apperror.ErrorTypeValidation, apperror.SeverityError, nil)
 }
-
-

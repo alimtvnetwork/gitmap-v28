@@ -1,7 +1,7 @@
 # Subtask 336.02 — CLI Command Registration, Dispatch and Themed Help Documentation
 
 > **Sequence ID:** 336  
-> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](file:///d:/work/gitmap/.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
+> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
 > **Target Packages:** `cli/`, `cli/cmdswap/`, `cli/helpdoc/`  
 > **Status:** Pending  
 

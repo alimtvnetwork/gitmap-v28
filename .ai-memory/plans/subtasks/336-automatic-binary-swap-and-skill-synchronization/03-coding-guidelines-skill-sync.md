@@ -1,7 +1,7 @@
 # Subtask 336.03 — Coding Guidelines & Antigravity Skill Synchronization
 
 > **Sequence ID:** 336  
-> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](file:///d:/work/gitmap/.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
+> **Parent Plan:** [336-automatic-binary-swap-and-skill-synchronization.md](.ai-memory/plans/pending/336-automatic-binary-swap-and-skill-synchronization.md)  
 > **Target Packages:** `.agents/skills/`, `.agents/rules/`, `03-ai-scripts/`  
 > **Status:** Pending  
 

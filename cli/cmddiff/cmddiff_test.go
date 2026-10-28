@@ -80,4 +80,3 @@ func TestParseDiffArgsSinglePath(t *testing.T) {
 		t.Errorf("expected empty left and right for single path, got left=%s right=%s", left, right)
 	}
 }
-
