@@ -27,10 +27,13 @@ func buildCGHelpMenu() termout.HelpMenu {
 func buildCGUsageLines() []string {
 	return []string{
 		"gitmap cg <command> [targets...] [flags]",
+		"gitmap cg install [targets...] [--all] [--dry-run]",
+		"gitmap cg install-prompts [targets...] [--all] [--dry-run]",
 		"gitmap cg status [--all]",
 		"gitmap cg audit [targets...]",
 		"gitmap cg doctor [targets...]",
-		"gitmap cg sync [targets...] [--all]",
+		"gitmap cg sync [targets...] [--all] [--exclude <csv>]",
+		"gitmap cg install-version-json --version 1.0.0",
 	}
 }
 

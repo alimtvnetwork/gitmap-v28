@@ -57,16 +57,26 @@ func buildPowerShellCmd(psPath string, args []string) *exec.Cmd {
 		return exec.Command(psPath)
 	}
 
-	if cleanArgs[0] == "-Command" || cleanArgs[0] == "-c" {
-		return exec.Command(psPath, cleanArgs...)
-	}
+	return assemblePowerShellCmd(psPath, cleanArgs)
+}
 
+func assemblePowerShellCmd(psPath string, cleanArgs []string) *exec.Cmd {
 	isWin := constants.IsWindowsPlatform()
+	scriptText := extractPowerShellScript(cleanArgs)
+
 	if isWin {
-		return exec.Command(psPath, "-NoProfile", "-Command", strings.Join(cleanArgs, " "))
+		return exec.Command(psPath, "-NoProfile", "-Command", scriptText)
 	}
 
-	return exec.Command(psPath, "-Command", strings.Join(cleanArgs, " "))
+	return exec.Command(psPath, "-Command", scriptText)
+}
+
+func extractPowerShellScript(cleanArgs []string) string {
+	if cleanArgs[0] == "-Command" || cleanArgs[0] == "-c" {
+		return strings.Join(cleanArgs[1:], " ")
+	}
+
+	return strings.Join(cleanArgs, " ")
 }
 
 func stripForceFlag(args []string) []string {

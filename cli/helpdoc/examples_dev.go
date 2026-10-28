@@ -131,4 +131,35 @@ AI TRAVERSAL CHECKLIST: gitmap cat repo-secrets/Muse/README.md …`,
 			},
 		},
 	}
+
+	reg["cg"] = HelpExample{
+		WhatItDoes: "Orchestrates Coding Guidelines standards, Prompt Architect templates, compliance audits, and cross-repo synchronization.",
+		Examples: []Example{
+			{
+				Invocation: "gitmap cg install --all --dry-run",
+				ExpectedOutput: `coding-guidelines: dry-run install across <count> repositories
+✓ scanned all target repositories
+0 files modified (dry-run)`,
+			},
+			{
+				Invocation: "gitmap cg audit",
+				ExpectedOutput: `coding-guidelines audit:
+✓ 02-spec compliance: PASS
+✓ .ai-memory compliance: PASS
+✓ naming & boolean conventions: PASS`,
+			},
+		},
+	}
+	reg["coding-guidelines"] = reg["cg"]
+
+	reg["install-prompts"] = HelpExample{
+		WhatItDoes: "Installs Prompt Architect v2 suite and canonical prompt library into target repositories.",
+		Examples: []Example{
+			{
+				Invocation: "gitmap cg install-prompts --all",
+				ExpectedOutput: `installing prompt architect templates across <count> repositories… ✓
+prompts synchronized successfully`,
+			},
+		},
+	}
 }

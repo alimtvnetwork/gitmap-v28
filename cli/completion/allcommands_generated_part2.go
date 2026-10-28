@@ -5,8 +5,6 @@ package completion
 // generatedCommandsPart2 holds chunk 2 of 3 of the generated command
 // list (see allcommands_generated.go).
 var generatedCommandsPart2 = []string{
-	"lb",
-	"lcf",
 	"ld",
 	"lemon",
 	"lfs-common",
@@ -143,8 +141,6 @@ var generatedCommandsPart2 = []string{
 	"relp",
 	"remove",
 	"replace",
-	"replace-bin",
-	"replace-binary",
 	"replace-regex",
 	"repo-cache",
 	"repo-create",
@@ -244,8 +240,6 @@ var generatedCommandsPart2 = []string{
 	"sug",
 	"sv",
 	"sw",
-	"swap-bin",
-	"swap-binary",
 	"sy",
 	"sync",
 	"tag-rename",
@@ -255,4 +249,10 @@ var generatedCommandsPart2 = []string{
 	"td",
 	"temp-release",
 	"templates",
+	"ti",
+	"tk",
+	"todo",
+	"tpl",
+	"tr",
+	"ud",
 }
