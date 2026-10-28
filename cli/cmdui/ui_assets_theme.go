@@ -88,13 +88,13 @@ const uiAssetsStyle = `  <style>
     #sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: var(--sp-5) var(--sp-4); font-size: var(--fs-lg); font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--sp-2); }
     #sidebar nav { flex: 1; padding: var(--sp-3) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-1); overflow-y: auto; }
-    .nav-btn { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: var(--sp-2) var(--sp-3); border: none; background: transparent; color: var(--muted); border-radius: var(--radius-sm); cursor: pointer; text-align: left; font-size: var(--fs-sm); font-weight: 500; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .nav-btn { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: var(--sp-2) var(--sp-3); border: none; background: transparent; color: var(--muted); border-radius: var(--radius-sm); cursor: pointer; text-align: left; font-size: var(--fs-sm); font-weight: 500; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
     .nav-btn:hover { background: var(--card); color: var(--text); transform: translateX(2px); }
     .nav-btn.active { background: var(--primary); color: var(--primary-ink); font-weight: 600; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35); }
     .nav-btn .nav-icon { display: inline-flex; width: 18px; height: 18px; flex: none; }
     .nav-btn .nav-icon svg { width: 100%; height: 100%; }
     #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); min-width: 0; }
-    header { min-height: 56px; border-bottom: 1px solid var(--border); padding: var(--sp-2) var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); background: var(--card); }
+    header { min-height: 72px; border-bottom: 1px solid var(--border); padding: var(--sp-2) var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); background: rgba(var(--card-rgb, 24, 27, 39), 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     header h2 { font-size: var(--fs-lg); font-weight: 600; }
     .hamburger { display: none; background: transparent; border: none; color: var(--text); cursor: pointer; padding: var(--sp-2); border-radius: var(--radius-sm); align-items: center; }
     .hamburger:hover { background: var(--raised); }
@@ -105,7 +105,7 @@ const uiAssetsStyle = `  <style>
     @keyframes pulseGlow { 0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px var(--success)); } 50% { opacity: 0.6; filter: none; } }
     .content-area { flex: 1; padding: var(--sp-6); overflow-y: auto; display: none; animation: appEntrance 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .content-area.active { display: block; }
-    .card { background: var(--card); border: 1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.25); border-radius: var(--radius-md); padding: var(--sp-5); margin-bottom: var(--sp-5); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1); animation: appEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+    .card { background: var(--card); border: 1px solid var(--border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.25); border-radius: var(--radius-md); padding: var(--sp-5); margin-bottom: var(--sp-5); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1); animation: appEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
     .card:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08); border-color: rgba(245, 158, 11, 0.25); }
     .card h3 { font-size: var(--fs-md); margin-bottom: var(--sp-3); color: var(--primary); }
     .card-hero { background: var(--popover); box-shadow: var(--shadow-card); border-top: 2px solid var(--primary); }
@@ -153,7 +153,7 @@ const uiAssetsStyle = `  <style>
     .term-prompt { color: var(--term-prompt); font-weight: 600; }
     .terminal-card { background: var(--terminal-bg); border: 1px solid var(--terminal-border); border-radius: var(--radius-md); }
     .terminal-header { background: var(--terminal-header); border-bottom: 1px solid var(--terminal-border); }
-    #toast-stack { position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 200; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 360px; }
+    #toast-stack { position: fixed; right: calc(var(--sp-4) + env(safe-area-inset-right, 0px)); bottom: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px)); z-index: 200; display: flex; flex-direction: column; gap: var(--sp-2); max-width: 360px; }
     .toast { display: flex; align-items: flex-start; gap: var(--sp-2); background: var(--popover); color: var(--text); border: 1px solid var(--border); border-left: 3px solid var(--info); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: var(--sp-3) var(--sp-4); font-size: var(--fs-sm); cursor: pointer; animation: toast-in 0.25s ease; }
     .toast-success { border-left-color: var(--success); }
     .toast-error { border-left-color: var(--error); }

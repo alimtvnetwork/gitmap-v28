@@ -25,12 +25,12 @@ const MOCK_REPOS: MockRepo[] = [
 const isDirty = (status: RepoStatus): boolean => status === RepoStatus.Dirty;
 
 const statusColor = (status: RepoStatus) =>
-  isDirty(status) ? "text-yellow-400" : "text-primary";
+  isDirty(status) ? "text-amber-600 dark:text-amber-400" : "text-primary";
 
 const hasCount = (count: number): boolean => count > 0;
 
 const countColor = (count: number) =>
-  hasCount(count) ? "text-yellow-400" : "text-muted-foreground";
+  hasCount(count) ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground";
 
 const TerminalPreview = () => {
   const [tick, setTick] = useState(0);

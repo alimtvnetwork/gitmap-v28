@@ -63,6 +63,20 @@
     --terminal-foreground: 0 0% 92%;
     --code-bg: 0 0% 95%;
 
+    /* Terminal Ubuntu theme tokens */
+    --terminal-ubuntu-bg: 310 65% 11%;
+    --terminal-ubuntu-header: 314 69% 9%;
+    --terminal-ubuntu-quickbar: 315 67% 10%;
+    --terminal-ubuntu-border: 315 41% 26%;
+    --terminal-ubuntu-prompt: 16 83% 52%;
+
+    /* Terminal Windows / PowerShell theme tokens */
+    --terminal-win-bg: 215 98% 17%;
+    --terminal-win-header: 215 100% 11%;
+    --terminal-win-quickbar: 215 97% 14%;
+    --terminal-win-border: 213 84% 26%;
+    --terminal-win-prompt: 54 86% 81%;
+
     /* Semantic success accent — used for install CTAs in hero card. */
     --accent-success: 158 64% 38%;
     --accent-success-bg: 158 64% 38% / 0.12;

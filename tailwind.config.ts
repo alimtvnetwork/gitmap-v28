@@ -32,6 +32,16 @@ export default {
         terminal: {
           DEFAULT: "hsl(var(--terminal))",
           foreground: "hsl(var(--terminal-foreground))",
+          "ubuntu-bg": "hsl(var(--terminal-ubuntu-bg, 310 65% 11%))",
+          "ubuntu-header": "hsl(var(--terminal-ubuntu-header, 314 69% 9%))",
+          "ubuntu-quickbar": "hsl(var(--terminal-ubuntu-quickbar, 315 67% 10%))",
+          "ubuntu-border": "hsl(var(--terminal-ubuntu-border, 315 41% 26%))",
+          "ubuntu-prompt": "hsl(var(--terminal-ubuntu-prompt, 16 83% 52%))",
+          "win-bg": "hsl(var(--terminal-win-bg, 215 98% 17%))",
+          "win-header": "hsl(var(--terminal-win-header, 215 100% 11%))",
+          "win-quickbar": "hsl(var(--terminal-win-quickbar, 215 97% 14%))",
+          "win-border": "hsl(var(--terminal-win-border, 213 84% 26%))",
+          "win-prompt": "hsl(var(--terminal-win-prompt, 54 86% 81%))",
         },
         "code-bg": "hsl(var(--code-bg))",
         primary: {

@@ -3,11 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { ProjectType, type ProjectTypeConfig } from "./types";
 
 export const ProjectTypes: Record<ProjectType, ProjectTypeConfig> = {
-  [ProjectType.Go]: { label: "Go", color: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 border-cyan-500/30", icon: Code2 },
-  [ProjectType.Node]: { label: "Node.js", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30", icon: Braces },
-  [ProjectType.React]: { label: "React", color: "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/30", icon: Braces },
-  [ProjectType.Cpp]: { label: "C++", color: "bg-violet-500/15 text-violet-700 dark:text-violet-400 border-violet-500/30", icon: Cpu },
-  [ProjectType.Csharp]: { label: "C#", color: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/30", icon: Hash },
+  [ProjectType.Go]: { label: "Go", color: "bg-muted/60 text-foreground/80 border-border/60 hover:bg-muted/80", icon: Code2 },
+  [ProjectType.Node]: { label: "Node.js", color: "bg-muted/60 text-foreground/80 border-border/60 hover:bg-muted/80", icon: Braces },
+  [ProjectType.React]: { label: "React", color: "bg-muted/60 text-foreground/80 border-border/60 hover:bg-muted/80", icon: Braces },
+  [ProjectType.Cpp]: { label: "C++", color: "bg-muted/60 text-foreground/80 border-border/60 hover:bg-muted/80", icon: Cpu },
+  [ProjectType.Csharp]: { label: "C#", color: "bg-muted/60 text-foreground/80 border-border/60 hover:bg-muted/80", icon: Hash },
 };
 
 export const TypeBadge = ({ type }: { type: ProjectType }) => {

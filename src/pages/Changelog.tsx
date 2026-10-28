@@ -94,10 +94,16 @@ const ChangelogPage = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={expandAll} className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded border border-border">
+          <button
+            onClick={expandAll}
+            className="inline-flex min-h-[44px] items-center justify-center text-xs font-mono text-muted-foreground hover:text-foreground transition-all duration-200 px-3 py-2 rounded border border-border active:scale-[0.98]"
+          >
             Expand all
           </button>
-          <button onClick={collapseAll} className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded border border-border">
+          <button
+            onClick={collapseAll}
+            className="inline-flex min-h-[44px] items-center justify-center text-xs font-mono text-muted-foreground hover:text-foreground transition-all duration-200 px-3 py-2 rounded border border-border active:scale-[0.98]"
+          >
             Collapse all
           </button>
         </div>
@@ -134,7 +140,7 @@ const ChangelogPage = () => {
             <button
               key={tag}
               onClick={() => toggleTag(tag)}
-              className={`text-xs font-mono px-2 py-0.5 rounded border transition-colors ${
+              className={`inline-flex min-h-[44px] items-center justify-center text-xs font-mono px-3 py-2 rounded border transition-all duration-200 active:scale-[0.98] ${
                 active
                   ? "border-primary/60 bg-primary/10 text-foreground"
                   : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
@@ -148,7 +154,7 @@ const ChangelogPage = () => {
         {activeTags.size > 0 && (
           <button
             onClick={() => setActiveTags(new Set())}
-            className="text-xs font-mono text-muted-foreground hover:text-foreground underline-offset-2 hover:underline ml-1"
+            className="inline-flex min-h-[44px] items-center justify-center text-xs font-mono text-muted-foreground hover:text-foreground underline-offset-2 hover:underline px-2 py-1"
           >
             clear
           </button>

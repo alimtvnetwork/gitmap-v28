@@ -81,12 +81,12 @@ export function CopyPaletteButton() {
         type="button"
         onClick={handleCopy}
         aria-label={`Copy ${themeLabel} theme palette to clipboard`}
-        className="docs-focus-ring inline-flex h-7 w-7 items-center justify-center rounded-sm border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+        className="docs-focus-ring inline-flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-sm border border-border bg-card text-muted-foreground shadow-sm transition-all duration-200 hover:text-foreground active:scale-[0.98]"
       >
         {copied ? (
-          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+          <Check className="h-4 w-4" aria-hidden="true" />
         ) : (
-          <ClipboardCopy className="h-3.5 w-3.5" aria-hidden="true" />
+          <ClipboardCopy className="h-4 w-4" aria-hidden="true" />
         )}
       </button>
     </DocsTooltip>

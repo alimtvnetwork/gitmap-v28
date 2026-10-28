@@ -30,9 +30,13 @@ function getXTermTheme(os: OsTheme) {
   const isWin = os === "win";
   const isLinux = os === "linux";
 
-  if (isWin) return { background: "#012456", foreground: "#ffffff" };
+  if (isWin) {
+    return { background: "#012456", foreground: "#ffffff" };
+  }
 
-  if (isLinux) return { background: "#000000", foreground: "#00ff00" };
+  if (isLinux) {
+    return { background: "#000000", foreground: "#00ff00" };
+  }
 
   return { background: "#300a24", foreground: "#ffffff" };
 }
@@ -41,11 +45,15 @@ function getThemeBgClass(os: OsTheme) {
   const isWin = os === "win";
   const isLinux = os === "linux";
 
-  if (isWin) return "bg-[#012456]";
+  if (isWin) {
+    return "bg-terminal-win-bg";
+  }
 
-  if (isLinux) return "bg-black";
+  if (isLinux) {
+    return "bg-black";
+  }
 
-  return "bg-[#300a24]";
+  return "bg-terminal-ubuntu-bg";
 }
 
 export function XTermRenderer({ content, theme }: { content: string; theme: OsTheme }) {

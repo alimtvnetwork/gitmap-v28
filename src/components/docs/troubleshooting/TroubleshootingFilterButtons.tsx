@@ -18,7 +18,10 @@ export const TroubleshootingFilterButtons = ({
 
   return (
     <div className="flex flex-wrap gap-2 mt-4 mb-8">
-      <button onClick={() => onSelectCategory(CategoryFilterType.All)} className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors ${allButtonClasses}`}>
+      <button
+        onClick={() => onSelectCategory(CategoryFilterType.All)}
+        className={`inline-flex min-h-[44px] items-center justify-center px-4 py-2 rounded-md text-sm font-mono border transition-all duration-200 active:scale-[0.98] ${allButtonClasses}`}
+      >
         all ({categoryCounts[CategoryFilterType.All]})
       </button>
       {(Object.keys(CATEGORY_META) as CategoryType[]).map((categoryKey) => {
@@ -32,7 +35,7 @@ export const TroubleshootingFilterButtons = ({
           <button
             key={categoryKey}
             onClick={() => onSelectCategory(categoryKey)}
-            className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-colors flex items-center gap-1.5 ${categoryClasses}`}
+            className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 px-4 py-2 rounded-md text-sm font-mono border transition-all duration-200 active:scale-[0.98] ${categoryClasses}`}
           >
             <Icon className="h-3.5 w-3.5" />
             {CATEGORY_META[categoryKey].label} ({categoryCounts[categoryKey] ?? 0})

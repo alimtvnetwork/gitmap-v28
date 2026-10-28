@@ -41,7 +41,7 @@ const DocsLayout = ({ children }: DocsLayoutProps) => {
                 aria-label="Dark theme"
                 onClick={() => setTheme("dark")}
                 className={[
-                  "docs-focus-ring inline-flex h-6 w-6 items-center justify-center rounded-[3px] transition-colors duration-200",
+                  "docs-focus-ring inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[3px] transition-all duration-200 active:scale-[0.98]",
                   dark
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:text-foreground",
@@ -58,7 +58,7 @@ const DocsLayout = ({ children }: DocsLayoutProps) => {
                 aria-label="Light theme"
                 onClick={() => setTheme("light")}
                 className={[
-                  "docs-focus-ring inline-flex h-6 w-6 items-center justify-center rounded-[3px] transition-colors duration-200",
+                  "docs-focus-ring inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[3px] transition-all duration-200 active:scale-[0.98]",
                   !dark
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:text-foreground",
