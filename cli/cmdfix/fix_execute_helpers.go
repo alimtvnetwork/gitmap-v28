@@ -202,10 +202,6 @@ func humanizeStashStep(step gitutil.RemediationStep) string {
 }
 
 func formatStepCommand(step gitutil.RemediationStep) string {
-	if humanized := humanizeStashStep(step); humanized != "" {
-		return humanized
-	}
-
 	if len(step.Args) >= 2 && step.Args[0] == "-C" {
 		return step.Name + " " + strings.Join(step.Args[2:], " ")
 	}

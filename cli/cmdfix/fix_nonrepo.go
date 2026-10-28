@@ -43,7 +43,7 @@ func resolveRepoPathForFix(repoQuery string) string {
 		return ""
 	}
 
-	if isGitDirectory(cleanQuery) {
+	if info, err := os.Stat(cleanQuery); err == nil && info.IsDir() {
 		return cleanQuery
 	}
 

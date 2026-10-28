@@ -32,6 +32,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.623.0] - 2026-10-28
+
+### Added
+- Routine release v6.623.0
+
+---
+
 ## [v6.622.0] - 2026-10-28
 
 ### Added

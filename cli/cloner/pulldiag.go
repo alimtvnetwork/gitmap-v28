@@ -283,8 +283,9 @@ func isNonRepoDirectory(path string) bool {
 }
 
 func resolveRepoCandidateName(cleanPath, repoName string) string {
-	if repoName != "" {
-		return repoName
+	candidate := strings.TrimSpace(repoName)
+	if candidate != "" && !strings.Contains(candidate, "/") && !strings.Contains(candidate, "\\") {
+		return candidate
 	}
 
 	return filepath.Base(cleanPath)
