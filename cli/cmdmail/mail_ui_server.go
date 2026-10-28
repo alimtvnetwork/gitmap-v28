@@ -67,8 +67,29 @@ func BuildMailUIMux() *http.ServeMux {
 	mux.HandleFunc("/api/mail/send", handleAPIMailSend)
 	mux.HandleFunc("/api/mail/templates", handleAPIMailTemplates)
 	mux.HandleFunc("/api/mail/accounts", handleAPIMailAccounts)
+	mux.HandleFunc("/api/mail/check", handleAPIMailCheck)
 
 	return mux
+}
+
+func handleAPIMailCheck(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	store, _ := OpenMailStore("")
+	defer func() {
+		if store != nil {
+			_ = store.Close()
+		}
+	}()
+
+	summary, err := EvaluateMailboxes(store, MailboxCheckFilter{CheckAll: true})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(summary)
 }
 
 // ScanAvailableMailListener searches for an open port using sequential probing.

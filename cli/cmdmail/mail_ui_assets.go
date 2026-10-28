@@ -39,6 +39,132 @@ body {
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.mailbox-panel {
+	background: var(--bg-input);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	padding: 14px 16px;
+	margin-bottom: 20px;
+}
+
+.panel-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.panel-title {
+	font-size: 13px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+}
+
+.unread-badge {
+	background: #313244;
+	color: #a6e3a1;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: 12px;
+	border: 1px solid #45475a;
+}
+
+.mailbox-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 10px;
+}
+
+.mailbox-card {
+	background: #181825;
+	border: 1px solid #313244;
+	border-radius: 6px;
+	padding: 10px 12px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: border-color 0.2s;
+}
+
+.mailbox-card:hover {
+	border-color: #89b4fa;
+}
+
+.mailbox-card.card-unread {
+	border-color: #a6e3a1;
+}
+
+.card-left {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.account-name {
+	font-weight: 600;
+	font-size: 13px;
+	color: #cdd6f4;
+}
+
+.account-email {
+	font-size: 11px;
+	color: #6c7086;
+}
+
+.card-right {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+}
+
+.unread-count {
+	font-size: 11px;
+	color: #a6e3a1;
+	font-weight: 600;
+}
+
+.account-status {
+	font-size: 10px;
+	padding: 1px 6px;
+	border-radius: 4px;
+	font-weight: 600;
+}
+
+.status-active {
+	background: rgba(166, 227, 161, 0.15);
+	color: #a6e3a1;
+}
+
+.status-inactive {
+	background: rgba(243, 139, 168, 0.15);
+	color: #f38ba8;
+}
+
+.mailbox-loading {
+	font-size: 12px;
+	color: #6c7086;
+	grid-column: 1 / -1;
+	padding: 8px 0;
+}
+
+.btn-sm {
+	padding: 4px 10px;
+	font-size: 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
 .header-bar {
 	display: flex;
 	justify-content: space-between;

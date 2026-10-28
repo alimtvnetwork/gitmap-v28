@@ -220,6 +220,16 @@ func stageGitAddAll(repoPath string) {
 	_ = exec.Command("git", "-C", repoPath, "add", "-A").Run()
 }
 
+func commitCasingNormalization(repoPath string, d CasingDiscrepancy) {
+	out, err := exec.Command("git", "-C", repoPath, "status", "--porcelain").Output()
+	if err != nil || len(strings.TrimSpace(string(out))) == 0 {
+		return
+	}
+
+	msg := fmt.Sprintf("chore: normalize casing %s to %s", d.CurrentPath, d.CanonicalPath)
+	_ = exec.Command("git", "-C", repoPath, "commit", "-m", msg).Run()
+}
+
 // RecordCasingRemediationRecipe persists the executed casing recipe to repo-cache and local state.
 func RecordCasingRemediationRecipe(item CasingDiscrepancy) error {
 	recordLocalOutputState(item)
@@ -317,6 +327,7 @@ func ReconcileDiscrepancyList(discrepancies []CasingDiscrepancy) error {
 			return err
 		}
 
+		commitCasingNormalization(d.RepoPath, d)
 		_ = RecordCasingRemediationRecipe(d)
 		repoName := filepath.Base(d.RepoPath)
 		fmt.Printf("  • Normalized casing: %s -> %s (%s)\n",

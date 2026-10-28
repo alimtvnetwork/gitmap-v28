@@ -8,30 +8,31 @@ import (
 //go:embed favicon.ico
 var FaviconICO []byte
 
-// GitMapLogoSVG is the authentic GitMap brand emblem logo.
-const GitMapLogoSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22">
+// GitMapLogoSVG is the authentic GitMap brand emblem logo designed with a 100% transparent canvas and crisp vector geometry.
+const GitMapLogoSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24" fill="none">
   <defs>
-    <linearGradient id="gmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="gmBranch" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#89b4fa"/>
       <stop offset="100%" stop-color="#b4befe"/>
     </linearGradient>
-    <linearGradient id="gmBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1e1e2e"/>
-      <stop offset="100%" stop-color="#11111b"/>
+    <linearGradient id="gmGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a6e3a1"/>
+      <stop offset="100%" stop-color="#94e2d5"/>
     </linearGradient>
-    <filter id="gmShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.4"/>
-    </filter>
   </defs>
-  <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#gmBg)" stroke="#89b4fa" stroke-width="1.6" filter="url(#gmShadow)"/>
-  <rect x="2.5" y="2.5" width="27" height="27" rx="5.5" fill="none" stroke="#313244" stroke-width="0.8" opacity="0.6"/>
-  <path d="M11 7.5v17M11 14c3.5 0 10 2.5 10 9.5" fill="none" stroke="url(#gmGrad)" stroke-width="2.2" stroke-linecap="round"/>
-  <circle cx="11" cy="7.5" r="3" fill="#89b4fa" stroke="#cdd6f4" stroke-width="0.8"/>
-  <circle cx="11" cy="7.5" r="1.2" fill="#1e1e2e"/>
-  <circle cx="11" cy="24.5" r="3" fill="#89b4fa" stroke="#cdd6f4" stroke-width="0.8"/>
-  <circle cx="11" cy="24.5" r="1.2" fill="#1e1e2e"/>
-  <circle cx="21" cy="23.5" r="3.2" fill="#a6e3a1" stroke="#ffffff" stroke-width="0.8"/>
-  <circle cx="21" cy="23.5" r="1.3" fill="#1e1e2e"/>
+  <!-- Main trunk -->
+  <line x1="9" y1="7" x2="9" y2="25" stroke="url(#gmBranch)" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- Branch fork -->
+  <path d="M9 14.5 C9 18.5, 14 20, 22 20 L22 23" fill="none" stroke="url(#gmBranch)" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- Root node -->
+  <circle cx="9" cy="7" r="3.4" fill="#89b4fa" stroke="#181825" stroke-width="1.2"/>
+  <circle cx="9" cy="7" r="1.4" fill="#cdd6f4"/>
+  <!-- Base node -->
+  <circle cx="9" cy="25" r="3.4" fill="#89b4fa" stroke="#181825" stroke-width="1.2"/>
+  <circle cx="9" cy="25" r="1.4" fill="#cdd6f4"/>
+  <!-- Merged leaf node -->
+  <circle cx="22" cy="23.5" r="3.8" fill="url(#gmGreen)" stroke="#181825" stroke-width="1.2"/>
+  <circle cx="22" cy="23.5" r="1.6" fill="#ffffff"/>
 </svg>`
 
 func serveFaviconICO(w http.ResponseWriter, r *http.Request) {

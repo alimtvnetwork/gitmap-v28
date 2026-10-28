@@ -6,10 +6,25 @@ const mailAppHTMLBody = `
 <div class="composer-container">
 	<div class="header-bar">
 		<div class="header-title">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-			GitMap Mail Composer
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#89b4fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+			GitMap Mail Composer & Mailbox Studio
 		</div>
-		<label class="switch-label"><input type="checkbox" id="maskToggle" checked><span>Mask View (u***r@d***n.com)</span></label>
+		<div class="header-actions">
+			<label class="switch-label"><input type="checkbox" id="maskToggle" checked><span>Privacy Mask</span></label>
+			<button type="button" class="btn btn-sm btn-secondary" id="btnRefreshMailboxes" title="Refresh Mailbox Status">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+				Check Mailboxes
+			</button>
+		</div>
+	</div>
+	<div class="mailbox-panel" id="mailboxPanel">
+		<div class="panel-header">
+			<span class="panel-title">Configured Mailboxes</span>
+			<span class="unread-badge" id="totalUnreadBadge">0 unread</span>
+		</div>
+		<div class="mailbox-cards" id="mailboxCards">
+			<div class="mailbox-loading">Inspecting mailbox health & unread messages...</div>
+		</div>
 	</div>
 	<div class="row">
 		<div class="col"><label for="accountSelect">Sender Account</label><select id="accountSelect"><option value="">Loading accounts...</option></select></div>
@@ -32,7 +47,10 @@ const mailAppHTMLBody = `
 	<div id="previewContainer" style="display: none;"><div id="previewPane"></div></div>
 	<div class="action-bar">
 		<button type="button" class="btn btn-secondary" id="btnClear">Clear</button>
-		<button type="button" class="btn btn-primary" id="btnSend">Send Email</button>
+		<button type="button" class="btn btn-primary" id="btnSend">
+			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+			Send Email
+		</button>
 	</div>
 </div>
 <div class="modal" id="statusModal">
@@ -50,7 +68,7 @@ var MailUIJavaScript = `
 (function() {
 	var toList = [], ccList = [], isMasked = true, templates = [];
 	document.addEventListener('DOMContentLoaded', function() {
-		initMaskToggle(); initChipInputs(); initTabs(); initActions(); fetchAccounts(); fetchTemplates();
+		initMaskToggle(); initChipInputs(); initTabs(); initActions(); fetchAccounts(); fetchTemplates(); fetchMailboxStatus();
 	});
 	function initMaskToggle() {
 		var toggle = document.getElementById('maskToggle');
@@ -127,6 +145,33 @@ var MailUIJavaScript = `
 		document.getElementById('btnClear').addEventListener('click', clearForm);
 		document.getElementById('modalCloseBtn').addEventListener('click', hideModal);
 		document.getElementById('templateSelect').addEventListener('change', onTemplateChange);
+		document.getElementById('btnRefreshMailboxes').addEventListener('click', fetchMailboxStatus);
+	}
+	function fetchMailboxStatus() {
+		var container = document.getElementById('mailboxCards');
+		container.innerHTML = '<div class="mailbox-loading">Updating mailbox telemetry...</div>';
+		fetch('/api/mail/check').then(function(r) { return r.json(); }).then(function(summary) {
+			renderMailboxSummary(summary);
+		}).catch(function() {
+			container.innerHTML = '<div class="mailbox-card"><span class="account-name">Local Mailer</span><span class="account-status status-active">Active</span></div>';
+		});
+	}
+	function renderMailboxSummary(summary) {
+		var container = document.getElementById('mailboxCards');
+		container.innerHTML = '';
+		var unreadBadge = document.getElementById('totalUnreadBadge');
+		unreadBadge.textContent = (summary.totalUnread || 0) + ' unread';
+		if (!summary.items || summary.items.length === 0) {
+			container.innerHTML = '<div class="mailbox-card"><span class="account-name">Default Mail Gateway</span><span class="account-status status-active">Ready</span></div>';
+			return;
+		}
+		summary.items.forEach(function(item) {
+			var card = document.createElement('div');
+			card.className = 'mailbox-card' + (item.hasUnread ? ' card-unread' : '');
+			var addr = isMasked ? item.maskedAddress : item.emailAddress;
+			card.innerHTML = '<div class="card-left"><span class="account-name">' + escapeHTML(item.accountName) + '</span><span class="account-email">' + escapeHTML(addr) + '</span></div><div class="card-right"><span class="unread-count">' + (item.unreadCount || 0) + ' unread</span><span class="account-status ' + (item.isActive ? 'status-active' : 'status-inactive') + '">' + escapeHTML(item.status || 'Active') + '</span></div>';
+			container.appendChild(card);
+		});
 	}
 	function fetchAccounts() {
 		fetch('/api/mail/accounts').then(function(r) { return r.json(); }).then(function(accounts) {
