@@ -169,18 +169,18 @@ const BatchActions = () => {
 
         {/* Actions Reference */}
         <section className="mb-10">
-          <h2 className="text-xl font-heading font-semibold text-foreground mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] text-foreground mb-4 flex items-center gap-2">
             <Terminal className="h-5 w-5 text-primary" />
             Actions Reference
           </h2>
           <div className="space-y-6">
             {ACTIONS.map((action) => (
-              <div key={action.key} className="rounded-lg border border-border bg-card overflow-hidden">
+              <div key={action.key} className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-border bg-muted/20 flex items-center gap-3">
                   <kbd className="px-2 py-1 rounded bg-muted text-sm font-mono font-bold border border-border">
                     {action.key}
                   </kbd>
-                  <h3 className="font-mono font-semibold text-foreground">{action.name}</h3>
+                  <h3 className="font-heading font-semibold tracking-[-0.01em] text-foreground">{action.name}</h3>
                 </div>
                 <div className="p-4">
                   <p className="text-sm text-muted-foreground mb-4">{action.description}</p>

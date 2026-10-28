@@ -106,9 +106,9 @@ const CloneNextPage = () => {
               { icon: GitBranch, title: "Clone", desc: "Removes existing base folder and clones target into flattened path" },
               { icon: Monitor, title: "Register", desc: "Adds the new clone to GitHub Desktop automatically" },
             ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="border border-border rounded-lg p-4 bg-card">
+              <div key={title} className="border border-border rounded-lg p-4 bg-card shadow-sm hover:border-primary/40 transition-colors">
                 <Icon className="w-5 h-5 text-primary mb-2" />
-                <h3 className="font-mono font-semibold text-sm mb-1">{title}</h3>
+                <h3 className="font-heading font-semibold tracking-[-0.01em] text-sm mb-1 text-foreground">{title}</h3>
                 <p className="text-xs text-muted-foreground">{desc}</p>
               </div>
             ))}
