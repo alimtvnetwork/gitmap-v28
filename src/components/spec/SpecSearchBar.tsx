@@ -16,17 +16,17 @@ const SpecSearchBar = forwardRef<HTMLInputElement, SpecSearchBarProps>(
         value={query}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Filter specs… (e.g. release, database, TUI)"
-        className="w-full pl-9 pr-16 py-2.5 text-sm font-mono bg-muted/30 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-colors"
+        className="w-full pl-9 pr-16 py-2.5 text-sm font-mono bg-muted/30 border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-colors"
       />
       {query ? (
         <button
           onClick={() => onChange("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[36px] min-w-[36px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors active:scale-[0.98]"
         >
           <X className="h-4 w-4" />
         </button>
       ) : (
-        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground/50 border border-border rounded px-1.5 py-0.5 pointer-events-none">
+        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground font-medium border border-border rounded px-1.5 py-0.5 pointer-events-none">
           /
         </kbd>
       )}

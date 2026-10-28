@@ -356,13 +356,13 @@ export default function AGYPromptsPage() {
           <div className="space-y-3 pt-2">
             {filteredPrompts.length === 0 ? (
               <div className="p-8 text-center rounded-lg border border-dashed border-border bg-muted/20">
-                <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+                <Search className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm font-medium text-foreground">No prompt commands found</p>
                 <p className="text-xs text-muted-foreground mt-1">Try clearing your search query or choosing another category.</p>
                 <button
                   type="button"
                   onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
-                  className="mt-3 px-3 py-1.5 rounded text-xs font-mono bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                  className="mt-3 px-3 py-1.5 rounded text-xs font-mono bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
                 >
                   Reset Filters
                 </button>

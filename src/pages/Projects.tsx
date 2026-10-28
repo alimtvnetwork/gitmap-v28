@@ -6,6 +6,7 @@ import DocsLayout from "@/components/docs/DocsLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import ProjectDetailDialog from "@/components/projects/ProjectDetailDialog";
+import ProjectMetricCards from "@/components/projects/ProjectMetricCards";
 import RepoGroup from "@/components/projects/RepoGroup";
 import { ProjectTypes } from "@/components/projects/TypeBadge";
 import { type DetectedProject, ProjectType, type ProjectFilter, ProjectFilterType } from "@/components/projects/types";
@@ -98,7 +99,7 @@ const ProjectsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h1 className="text-2xl sm:text-3xl font-mono font-bold text-foreground flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold tracking-[-0.02em] text-foreground flex items-center gap-3">
             <FolderGit2 className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
             Detected Projects
           </h1>
@@ -113,34 +114,12 @@ const ProjectsPage = () => {
           </Link>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3"
-        >
-          <Card
-            className={`cursor-pointer transition-all ${activeFilter === FILTER_ALL ? "ring-2 ring-primary shadow-sm" : "hover:border-primary/40"}`}
-            onClick={() => setActiveFilter(FILTER_ALL)}
-          >
-            <CardContent className="p-2 sm:p-3 text-center">
-              <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">{SAMPLE_PROJECTS.length}</div>
-              <div className="text-[10px] sm:text-xs text-muted-foreground">All</div>
-            </CardContent>
-          </Card>
-          {(Object.entries(ProjectTypes) as [ProjectType, typeof ProjectTypes[ProjectType]][]).map(([key, config]) => (
-            <Card
-              key={key}
-              className={`cursor-pointer transition-all ${activeFilter === key ? "ring-2 ring-primary shadow-sm" : "hover:border-primary/40"}`}
-              onClick={() => setActiveFilter(key)}
-            >
-              <CardContent className="p-2 sm:p-3 text-center">
-                <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">{typeCounts[key] || 0}</div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground">{config.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
+        <ProjectMetricCards
+          activeFilter={activeFilter}
+          onSelectFilter={setActiveFilter}
+          totalProjects={SAMPLE_PROJECTS.length}
+          typeCounts={typeCounts}
+        />
 
         <motion.div
           initial={{ opacity: 0 }}

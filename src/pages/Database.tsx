@@ -205,14 +205,14 @@ function DatabaseHeader() {
           <Database className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Database Visualizer</h1>
+          <h1 className="text-2xl font-heading font-bold tracking-[-0.02em] text-foreground">Database Visualizer</h1>
           <p className="text-sm text-muted-foreground">
             Interactive table browser, schema inspector, and binary/JSON payload decoder.
           </p>
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
           Connected
         </span>
       </div>
@@ -349,7 +349,7 @@ function DatabaseCellRenderer({ columnName, value, onInspect }: CellRendererProp
   const classified = useMemo(() => classifyCell(value), [value]);
 
   if (classified.cellType === "null") {
-    return <span className="text-muted-foreground/60 italic font-sans">NULL</span>;
+    return <span className="text-muted-foreground font-medium italic font-sans text-xs">NULL</span>;
   }
 
   if (classified.cellType === "bool") {
@@ -359,8 +359,8 @@ function DatabaseCellRenderer({ columnName, value, onInspect }: CellRendererProp
       <span
         className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
           isTrue
-            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-            : "bg-red-500/15 text-red-400 border border-red-500/30"
+            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+            : "bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30"
         }`}
       >
         {classified.badgeText}
@@ -373,7 +373,7 @@ function DatabaseCellRenderer({ columnName, value, onInspect }: CellRendererProp
       <button
         type="button"
         onClick={() => onInspect(columnName, classified)}
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30 hover:bg-purple-500/25 transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors cursor-pointer"
       >
         <Binary className="h-3 w-3" />
         {classified.badgeText}
@@ -386,7 +386,7 @@ function DatabaseCellRenderer({ columnName, value, onInspect }: CellRendererProp
       <button
         type="button"
         onClick={() => onInspect(columnName, classified)}
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/30 hover:bg-sky-500/25 transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30 hover:bg-sky-500/25 transition-colors cursor-pointer"
       >
         <Code2 className="h-3 w-3" />
         {classified.badgeText}
@@ -399,7 +399,7 @@ function DatabaseCellRenderer({ columnName, value, onInspect }: CellRendererProp
       <button
         type="button"
         onClick={() => onInspect(columnName, classified)}
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors cursor-pointer max-w-[280px] truncate"
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-colors cursor-pointer max-w-[280px] truncate"
       >
         <FileText className="h-3 w-3 flex-shrink-0" />
         <span className="truncate">{classified.badgeText}</span>
@@ -547,7 +547,7 @@ function ModalNav({
 
 function HexDumpView({ content }: { content: string }) {
   return (
-    <div className="bg-black/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-sky-400 whitespace-pre">
+    <div className="bg-muted/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-sky-700 dark:text-sky-300 whitespace-pre shadow-inner">
       {content}
     </div>
   );
@@ -555,7 +555,7 @@ function HexDumpView({ content }: { content: string }) {
 
 function JsonDumpView({ content }: { content: string }) {
   return (
-    <pre className="bg-black/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-emerald-400 whitespace-pre-wrap word-break">
+    <pre className="bg-muted/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-emerald-700 dark:text-emerald-300 whitespace-pre-wrap word-break shadow-inner">
       {content}
     </pre>
   );
@@ -563,7 +563,7 @@ function JsonDumpView({ content }: { content: string }) {
 
 function TextDumpView({ content }: { content: string }) {
   return (
-    <pre className="bg-black/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-amber-300 whitespace-pre-wrap word-break">
+    <pre className="bg-muted/40 p-3.5 rounded-lg border border-border overflow-x-auto text-[11px] leading-relaxed text-amber-800 dark:text-amber-300 whitespace-pre-wrap word-break shadow-inner">
       {content}
     </pre>
   );
