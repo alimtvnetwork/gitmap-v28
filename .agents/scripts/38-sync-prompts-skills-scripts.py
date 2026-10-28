@@ -32,6 +32,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -246,6 +247,139 @@ def run_cmd(cmd: str | list[str], cwd: Path) -> tuple[int, str, str]:
     )
 
     return res.returncode, res.stdout.strip(), res.stderr.strip()
+
+
+def format_sync_date(dt: datetime | None = None) -> str:
+    """Format date as dd-MMM-yy with 12-hour am/pm (e.g. '28-Oct-26 10:11 am')."""
+    if dt is None:
+        dt = datetime.now()
+    am_pm = dt.strftime("%p").lower()
+
+    return f"{dt.strftime('%d-%b-%y %I:%M')} {am_pm}"
+
+
+def format_sync_branch_name(dt: datetime | None = None) -> str:
+    """Format branch-safe sync backup branch name (e.g. 'backup/sync-28-Oct-26-10-11am')."""
+    if dt is None:
+        dt = datetime.now()
+    am_pm = dt.strftime("%p").lower()
+
+    return f"backup/sync-{dt.strftime('%d-%b-%y-%I-%M')}{am_pm}"
+
+
+def prune_older_sync_branches(
+    target: Path,
+    max_age_days: int = 10,
+    is_dry_run: bool = False,
+    is_push_disabled: bool = False,
+) -> tuple[list[str], list[str]]:
+    """Detect and remove older sync branches (> max_age_days) locally and remotely.
+
+    Eligible branches:
+    - Branches under refs/heads/backup/* or refs/remotes/origin/backup/* (or feat/sync*) containing 'sync'
+    - Not the current active branch or protected branch (main, master, dev)
+    - Commit age > max_age_days (86400 * max_age_days seconds)
+
+    Returns (pruned_local, pruned_remote).
+    """
+    pruned_local: list[str] = []
+    pruned_remote: list[str] = []
+
+    has_git = target.exists() and (target / ".git").exists()
+
+    if not has_git:
+        return pruned_local, pruned_remote
+
+    # Get current branch so we NEVER touch it
+    _, current_branch_raw, _ = run_cmd("git branch --show-current", target)
+    current_branch = current_branch_raw.strip()
+
+    cutoff_ts = time.time() - (max_age_days * 86400)
+
+    # Query all refs with commit unix timestamp
+    code, out, _ = run_cmd(
+        'git for-each-ref --format="%(refname)|%(committerdate:unix)" refs/heads/ refs/remotes/origin/',
+        target,
+    )
+
+    if code != 0 or not out.strip():
+        return pruned_local, pruned_remote
+
+    local_candidates: list[str] = []
+    remote_candidates: list[str] = []
+
+    for line in out.strip().splitlines():
+        if not line or "|" not in line:
+            continue
+
+        ref, ts_str = line.split("|", 1)
+        ref = ref.strip()
+
+        try:
+            ts = int(ts_str.strip())
+        except ValueError:
+            continue
+
+        if ts >= cutoff_ts:
+            continue
+
+        ref_lower = ref.lower()
+
+        if "sync" not in ref_lower:
+            continue
+
+        if ref.startswith("refs/heads/"):
+            bname = ref[len("refs/heads/") :]
+
+            if bname == current_branch or bname in ("main", "master", "dev"):
+                continue
+
+            if bname.startswith("backup/") or "sync" in bname.lower():
+                local_candidates.append(bname)
+
+        elif ref.startswith("refs/remotes/origin/"):
+            bname = ref[len("refs/remotes/origin/") :]
+
+            if bname in ("HEAD", "main", "master", "dev"):
+                continue
+
+            if bname.startswith("backup/") or "sync" in bname.lower():
+                remote_candidates.append(bname)
+
+    # Prune local branches
+    for bname in local_candidates:
+        if is_dry_run:
+            pruned_local.append(bname)
+        else:
+            del_code, _, _ = run_cmd(["git", "branch", "-D", bname], target)
+
+            if del_code == 0:
+                pruned_local.append(bname)
+
+    # Prune remote branches in batches of 10
+    if remote_candidates and not is_push_disabled:
+        batch_size = 10
+
+        for i in range(0, len(remote_candidates), batch_size):
+            batch = remote_candidates[i : i + batch_size]
+
+            if is_dry_run:
+                pruned_remote.extend(batch)
+            else:
+                del_cmd = ["git", "push", "origin", "--delete"] + batch
+                del_code, _, _ = run_cmd(del_cmd, target)
+
+                if del_code == 0:
+                    pruned_remote.extend(batch)
+                else:
+                    for single_branch in batch:
+                        single_cmd = ["git", "push", "origin", "--delete", single_branch]
+                        s_code, _, _ = run_cmd(single_cmd, target)
+
+                        if s_code == 0:
+                            pruned_remote.append(single_branch)
+
+    return pruned_local, pruned_remote
 
 
 def detect_base_branch(target: Path) -> str:
@@ -575,7 +709,13 @@ def mirror_conditional_guidelines(target: Path, is_dry_run: bool = False) -> tup
     return copied, removed
 
 
-def ensure_pre_release(target: Path, current_ver: str, is_dry_run: bool, is_push_disabled: bool) -> str:
+def ensure_pre_release(
+    target: Path,
+    current_ver: str,
+    is_dry_run: bool,
+    is_push_disabled: bool,
+    sync_date_str: str = "",
+) -> str:
     """Ensure a pre-change release tag and release branch exist and are pushed for current HEAD."""
     _, head_tags, _ = run_cmd("git tag --points-at HEAD", target)
     existing_ver_tags = [
@@ -595,7 +735,8 @@ def ensure_pre_release(target: Path, current_ver: str, is_dry_run: bool, is_push
         pre_tag = f"v{pre_ver}"
 
         if not is_dry_run:
-            run_cmd(f'git tag -a {pre_tag} -m "Pre-sync release {pre_tag}"', target)
+            tag_msg = f"Pre-sync release {pre_tag} ({sync_date_str})" if sync_date_str else f"Pre-sync release {pre_tag}"
+            run_cmd(f'git tag -a {pre_tag} -m "{tag_msg}"', target)
 
     pre_rel_branch = f"release/{pre_tag}"
 
@@ -615,10 +756,13 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
         "path": str(target),
         "base_branch": "",
         "backup_branch": "",
+        "sync_date": "",
         "pre_release_tag": "",
         "release_tag": "",
         "copied": 0,
         "removed": 0,
+        "pruned_local": 0,
+        "pruned_remote": 0,
         "changed": False,
         "committed": False,
         "pushed": False,
@@ -640,6 +784,23 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
     if not is_dry_run:
         run_cmd(f"git checkout {base_branch}", target)
         run_cmd(f"git pull origin {base_branch} --no-rebase", target)
+        run_cmd("git remote prune origin", target)
+
+    # 1a. Prune older sync branches (>10 days) locally and remotely
+    pruned_local, pruned_remote = prune_older_sync_branches(
+        target,
+        max_age_days=10,
+        is_dry_run=is_dry_run,
+        is_push_disabled=is_push_disabled,
+    )
+    result["pruned_local"] = len(pruned_local)
+    result["pruned_remote"] = len(pruned_remote)
+
+    if pruned_local or pruned_remote:
+        print(
+            f"[PRUNE] {target.name:<31} | Pruned >10d sync branches: {len(pruned_local)} local, {len(pruned_remote)} remote",
+            flush=True,
+        )
 
     # 1b. Daily-sync guard: at most one feat(sync) commit per repo per day.
     # The first run of the day lands the canonical sync; later same-day runs
@@ -664,9 +825,17 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
                 return result
 
     # 2. Create and push pre-change backup branch from HEAD, then return to base branch
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    backup_branch = f"backup/sync-{timestamp}"
+    now_dt = datetime.now()
+    sync_date_str = format_sync_date(now_dt)
+    backup_branch = format_sync_branch_name(now_dt)
+
+    # Ensure unique branch name if already exists
+    _, branch_exists_chk, _ = run_cmd(f"git branch --list {backup_branch}", target)
+    if branch_exists_chk.strip():
+        backup_branch = f"{backup_branch}-{now_dt.strftime('%S')}"
+
     result["backup_branch"] = backup_branch
+    result["sync_date"] = sync_date_str
 
     if not is_dry_run:
         run_cmd(f"git checkout -b {backup_branch}", target)
@@ -683,6 +852,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
         current_ver,
         is_dry_run=is_dry_run,
         is_push_disabled=is_push_disabled,
+        sync_date_str=sync_date_str,
     )
     result["pre_release_tag"] = pre_tag
     current_ver = pre_tag.lstrip("v")
@@ -744,16 +914,92 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
                 except Exception:
                     pass
 
-        # Purge deprecated 100-improvements skill directories superseded by next-100 suite
+        # Purge deprecated 100-improvements and archived skills superseded by unified suites
         for dep_skill_dir in (
             ".agents/skills/find-100-improvements-in-ui-level",
             ".agents/skills/find-100-improvements-in-code-base",
             ".agents/skills/find-100-improvements-in-whole-system",
             ".agents/skills/detail-plans-and-improvements-for-review",
+            ".agents/skills/release-now-without-test",
+            ".agents/skills/letterly-cicd-fix-release",
+            ".agents/skills/letterly-desktop",
+            ".agents/skills/letterly-execute-n-steps",
+            ".agents/skills/letterly-execute-with-release",
+            ".agents/skills/letterly-execute-with-verification",
+            ".agents/skills/letterly-mobile",
+            ".agents/skills/letterly-mobile-cicd-fix",
+            ".agents/skills/letterly-muse-long-update",
+            ".agents/skills/letterly-muse-sleepy",
+            ".agents/skills/letterly-plan",
+            ".agents/skills/letterly-release",
+            ".agents/skills/letterly-run",
+            ".agents/skills/muse-master-prompt",
+            ".agents/skills/social-media-post",
+            ".agents/skills/jokes-ideas-generate",
+            ".agents/skills/linkedin-company-banner",
+            ".agents/skills/linkedin-profile-banner",
+            ".agents/skills/youtube-thumbnail-create",
+            ".agents/skills/create-slide-deck",
+            ".agents/skills/slides-deck-management",
+            ".agents/skills/prompt-library-setup",
+            ".agents/skills/proofread-repo-create",
+            ".agents/skills/python-array-constants-and-dynamic-enums",
+            ".agents/skills/python-dry-caching",
+            ".agents/skills/major-bump",
+            ".agents/skills/minor-bump",
+            ".agents/skills/patch-bump",
+            ".agents/skills/version-bump-docs",
+            ".agents/skills/logo-create",
+            ".agents/skills/svg-logo",
+            ".agents/skills/theming-guidelines",
+            ".agents/skills/update-theming",
+            ".agents/skills/sync",
+            ".agents/skills/sync-codebase",
+            ".agents/skills/sync-other-codebase",
+            ".agents/skills/next-steps",
+            ".agents/skills/pending-tasks",
             ".cursor/skills/find-100-improvements-in-ui-level",
             ".cursor/skills/find-100-improvements-in-code-base",
             ".cursor/skills/find-100-improvements-in-whole-system",
             ".cursor/skills/detail-plans-and-improvements-for-review",
+            ".cursor/skills/release-now-without-test",
+            ".cursor/skills/letterly-cicd-fix-release",
+            ".cursor/skills/letterly-desktop",
+            ".cursor/skills/letterly-execute-n-steps",
+            ".cursor/skills/letterly-execute-with-release",
+            ".cursor/skills/letterly-execute-with-verification",
+            ".cursor/skills/letterly-mobile",
+            ".cursor/skills/letterly-mobile-cicd-fix",
+            ".cursor/skills/letterly-muse-long-update",
+            ".cursor/skills/letterly-muse-sleepy",
+            ".cursor/skills/letterly-plan",
+            ".cursor/skills/letterly-release",
+            ".cursor/skills/letterly-run",
+            ".cursor/skills/muse-master-prompt",
+            ".cursor/skills/social-media-post",
+            ".cursor/skills/jokes-ideas-generate",
+            ".cursor/skills/linkedin-company-banner",
+            ".cursor/skills/linkedin-profile-banner",
+            ".cursor/skills/youtube-thumbnail-create",
+            ".cursor/skills/create-slide-deck",
+            ".cursor/skills/slides-deck-management",
+            ".cursor/skills/prompt-library-setup",
+            ".cursor/skills/proofread-repo-create",
+            ".cursor/skills/python-array-constants-and-dynamic-enums",
+            ".cursor/skills/python-dry-caching",
+            ".cursor/skills/major-bump",
+            ".cursor/skills/minor-bump",
+            ".cursor/skills/patch-bump",
+            ".cursor/skills/version-bump-docs",
+            ".cursor/skills/logo-create",
+            ".cursor/skills/svg-logo",
+            ".cursor/skills/theming-guidelines",
+            ".cursor/skills/update-theming",
+            ".cursor/skills/sync",
+            ".cursor/skills/sync-codebase",
+            ".cursor/skills/sync-other-codebase",
+            ".cursor/skills/next-steps",
+            ".cursor/skills/pending-tasks",
         ):
             dep_dir_path = target / dep_skill_dir
             if dep_dir_path.exists():
@@ -790,8 +1036,11 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
         has_dry_changes = (total_copied + total_removed) > 0
         result["changed"] = has_dry_changes
         result["release_tag"] = f"v{bump_patch_version(current_ver)}" if has_dry_changes else pre_tag
+        p_loc = result.get("pruned_local", 0)
+        p_rem = result.get("pruned_remote", 0)
+        prune_str = f" | Pruned: {p_loc}loc/{p_rem}rem" if (p_loc or p_rem) else ""
         print(
-            f"[DRY-RUN] {target.name:<30} | Pre: {pre_tag:<9} | Post: {result['release_tag']:<9} | +{total_copied}/-{total_removed}",
+            f"[DRY-RUN] {target.name:<28} | {sync_date_str} | Pre: {pre_tag:<8} | Post: {result['release_tag']:<8} | +{total_copied}/-{total_removed}{prune_str}",
             flush=True,
         )
 
@@ -812,7 +1061,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
     # 6. Commit changes on base branch and push
     run_cmd("git add -A", target)
     commit_msg = (
-        "feat(sync) - sync canonical v6 execute suite, gitmap heatmap telemetry, skills, and prompts"
+        f"feat(sync) - sync canonical v6 execute suite, gitmap heatmap telemetry, skills, and prompts ({sync_date_str})"
     )
     code, out, err = run_cmd(f'git commit -m "{commit_msg}"', target)
 
@@ -886,7 +1135,7 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
         run_cmd(f'git commit -m "chore(version) - bump to {release_tag}"', target)
 
     run_cmd(
-        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize prompts, skills, AI scripts, and coding guidelines"',
+        f'git tag -a {release_tag} -m "Release {release_tag} - Synchronize prompts, skills, AI scripts, and coding guidelines ({sync_date_str})"',
         target,
     )
 
@@ -906,8 +1155,11 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
         else:
             result["error"] = f"Push failed: {p_err or p_out}"
 
+    p_loc = result.get("pruned_local", 0)
+    p_rem = result.get("pruned_remote", 0)
+    prune_str = f" | Pruned: {p_loc}loc/{p_rem}rem" if (p_loc or p_rem) else ""
     print(
-        f"[OK] {target.name:<32} | Pre: {pre_tag:<9} | Post: {release_tag:<9} | +{total_copied}/-{total_removed}",
+        f"[OK] {target.name:<28} | {sync_date_str} | Pre: {pre_tag:<8} | Post: {release_tag:<8} | +{total_copied}/-{total_removed}{prune_str}",
         flush=True,
     )
 
@@ -979,25 +1231,40 @@ def main() -> None:
 
     summary.sort(key=lambda x: str(x["repo"]).lower())
 
-    print("\n===============================================================================================")
-    print("MULTI-REPOSITORY SYNCHRONIZATION SUMMARY")
-    print("===============================================================================================")
+    print("\n=======================================================================================================================")
+    print(f"MULTI-REPOSITORY SYNCHRONIZATION SUMMARY ({format_sync_date()})")
+    print("=======================================================================================================================")
     print(
-        f"{'Repository':<34} | {'Status':<8} | {'Pre-Tag':<10} | {'Post-Tag':<10} | {'Files':<12} | {'Action'}"
+        f"{'Repository':<32} | {'Status':<6} | {'Pre-Tag':<8} | {'Post-Tag':<8} | {'Files':<10} | {'Pruned':<10} | {'Action'}"
     )
-    print("-" * 105)
+    print("-" * 118)
 
     for s in summary:
         status = "OK" if not s["error"] else "FAIL"
         pre_tag = str(s.get("pre_release_tag") or "N/A")
         tag = str(s.get("release_tag") or "N/A")
         files = f"+{s['copied']}/-{s['removed']}"
+        p_loc = s.get("pruned_local", 0)
+        p_rem = s.get("pruned_remote", 0)
+
+        if p_rem and p_loc:
+            pruned_info = f"-{p_loc}l/-{p_rem}r"
+        elif p_rem:
+            pruned_info = f"-{p_rem} rem"
+        elif p_loc:
+            pruned_info = f"-{p_loc} loc"
+        else:
+            pruned_info = "0"
+
         action = "Released & Pushed" if s["pushed"] else ("Clean" if not s["changed"] else "Committed")
+
+        if s.get("skipped"):
+            action = f"Skipped: {str(s['skipped'])[:25]}"
 
         if s["error"]:
             action = f"Error: {str(s['error'])[:35]}"
 
-        print(f"{str(s['repo']):<34} | {status:<8} | {pre_tag:<10} | {tag:<10} | {files:<12} | {action}")
+        print(f"{str(s['repo']):<32} | {status:<6} | {pre_tag:<8} | {tag:<8} | {files:<10} | {pruned_info:<10} | {action}")
 
 
 if __name__ == "__main__":
