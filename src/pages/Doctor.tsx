@@ -108,10 +108,10 @@ const DoctorPage = () => (
                 <tr key={c.name} className="border-t border-border">
                   <td className="px-4 py-2 font-mono text-primary text-xs">{c.name}</td>
                   <td className="px-4 py-2">
-                    <span className={`text-xs font-mono px-1.5 py-0.5 rounded border ${
-                      c.severity === "error" ? "bg-destructive/10 text-foreground border-destructive/20 dark:bg-destructive/20 dark:text-destructive" :
-                      c.severity === "warn" ? "bg-yellow-500/10 text-yellow-700 border-yellow-500/30 dark:bg-yellow-500/20 dark:text-yellow-100 dark:border-yellow-400/40" :
-                      "bg-primary/10 text-foreground border-primary/20 dark:bg-primary/15 dark:text-primary"
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded border font-medium ${
+                      c.severity === "error" ? "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20" :
+                      c.severity === "warn" ? "bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30" :
+                      "bg-muted text-muted-foreground border-border"
                     }`}>
                       {c.severity}
                     </span>

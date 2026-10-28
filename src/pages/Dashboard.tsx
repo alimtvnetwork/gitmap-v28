@@ -1,6 +1,7 @@
 import DocsLayout from "@/components/docs/DocsLayout";
 import CodeBlock from "@/components/docs/CodeBlock";
 import TerminalDemo from "@/components/docs/TerminalDemo";
+import DashboardFeatureGrid from "@/components/docs/DashboardFeatureGrid";
 import { BarChart3, Globe, Filter, FolderOpen } from "lucide-react";
 
 const features = [
@@ -56,24 +57,16 @@ const demoFilterLines = [
 
 const DashboardPage = () => (
   <DocsLayout>
-    <h1 className="text-3xl font-heading font-bold mb-2 docs-h1">Dashboard Command</h1>
+    <h1 className="text-3xl font-heading font-bold tracking-[-0.02em] mb-2 docs-h1">Dashboard Command</h1>
     <p className="text-muted-foreground mb-6">
       Generate an interactive, self-contained HTML dashboard for repository analytics.
       <span className="ml-2 text-xs font-mono bg-muted px-2 py-0.5 rounded">alias: db</span>
     </p>
 
-    <h2 className="text-xl font-heading font-semibold mt-8 mb-4">Features</h2>
-    <div className="grid md:grid-cols-2 gap-4 mb-8">
-      {features.map((f) => (
-        <div key={f.title} className="rounded-lg border border-border bg-card p-4">
-          <f.icon className="h-5 w-5 text-primary mb-2" />
-          <h3 className="font-mono font-semibold text-sm mb-1">{f.title}</h3>
-          <p className="text-xs text-muted-foreground">{f.desc}</p>
-        </div>
-      ))}
-    </div>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-8 mb-4">Features</h2>
+    <DashboardFeatureGrid features={features} />
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Interactive Examples</h2>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">Interactive Examples</h2>
 
     <div className="space-y-6 mb-8">
       <TerminalDemo title="Full dashboard generation" lines={demoLines} autoPlay />
@@ -81,24 +74,24 @@ const DashboardPage = () => (
       <TerminalDemo title="Filtered: since date, no merges, custom output" lines={demoFilterLines} />
     </div>
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Usage</h2>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">Usage</h2>
     <CodeBlock code="gitmap dashboard [flags]" title="Basic usage" />
     <CodeBlock code="gitmap db --limit 100 --open" title="Alias with flags" />
     <CodeBlock code="gitmap dashboard --since 2025-01-01 --no-merges --out-dir ./report" title="Filtered output" />
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Flags</h2>
-    <div className="rounded-lg border border-border overflow-hidden">
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">Flags</h2>
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-muted/50">
+          <tr className="bg-muted/50 border-b border-border">
             <th className="text-left font-mono font-semibold px-4 py-2">Flag</th>
             <th className="text-left font-mono font-semibold px-4 py-2">Description</th>
             <th className="text-left font-mono font-semibold px-4 py-2">Default</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-border">
           {flags.map(([flag, desc, def]) => (
-            <tr key={flag} className="border-t border-border">
+            <tr key={flag} className="hover:bg-muted/30 transition-colors">
               <td className="px-4 py-2 font-mono text-primary">{flag}</td>
               <td className="px-4 py-2 text-muted-foreground">{desc}</td>
               <td className="px-4 py-2 text-muted-foreground">{def}</td>
@@ -108,18 +101,18 @@ const DashboardPage = () => (
       </table>
     </div>
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">File Layout</h2>
-    <div className="rounded-lg border border-border overflow-hidden">
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">File Layout</h2>
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-muted/50">
+          <tr className="bg-muted/50 border-b border-border">
             <th className="text-left font-mono font-semibold px-4 py-2">File</th>
             <th className="text-left font-mono font-semibold px-4 py-2">Purpose</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-border">
           {fileLayout.map(([file, purpose]) => (
-            <tr key={file} className="border-t border-border">
+            <tr key={file} className="hover:bg-muted/30 transition-colors">
               <td className="px-4 py-2 font-mono text-primary">{file}</td>
               <td className="px-4 py-2 text-muted-foreground">{purpose}</td>
             </tr>
