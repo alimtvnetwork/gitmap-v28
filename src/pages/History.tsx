@@ -1,5 +1,6 @@
 import DocsLayout from "@/components/docs/DocsLayout";
 import CodeBlock from "@/components/docs/CodeBlock";
+import HistoryTerminalPreview from "@/components/docs/HistoryTerminalPreview";
 import { Clock, RotateCcw, Shield, Database } from "lucide-react";
 
 const detailLevels = [
@@ -16,40 +17,6 @@ const MOCK_HISTORY = [
   { command: "clone", alias: "c", flags: "--safe-pull", status: "OK", duration: "5621ms", time: "14:10:33" },
 ];
 
-const TerminalPreview = () => (
-  <div className="rounded-lg border border-border overflow-hidden my-6">
-    <div className="bg-terminal px-4 py-2 flex items-center gap-2 border-b border-border">
-      <div className="flex gap-1.5">
-        <span className="w-3 h-3 rounded-full bg-red-500/80" />
-        <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-        <span className="w-3 h-3 rounded-full bg-green-500/80" />
-      </div>
-      <span className="text-xs font-mono text-muted-foreground ml-2">gitmap history</span>
-    </div>
-    <div className="bg-terminal p-4 font-mono text-sm leading-relaxed overflow-x-auto">
-      <div className="text-primary font-bold">
-        {"  "}COMMAND{"     "}ALIAS{"  "}FLAGS{"                "}STATUS{"  "}DURATION{"   "}TIME
-      </div>
-      {MOCK_HISTORY.map((r) => (
-        <div key={r.time} className="text-terminal-foreground">
-          {"  "}
-          <span className="inline-block w-[88px]">{r.command}</span>
-          <span className="inline-block w-[48px] text-muted-foreground">{r.alias}</span>
-          <span className="inline-block w-[160px] text-muted-foreground">{r.flags}</span>
-          <span className={`inline-block w-[56px] ${r.status === "FAIL" ? "text-destructive" : "text-primary"}`}>
-            {r.status === "FAIL" ? "✗" : "✔"} {r.status}
-          </span>
-          <span className="inline-block w-[80px] text-muted-foreground">{r.duration}</span>
-          <span className="text-muted-foreground">{r.time}</span>
-        </div>
-      ))}
-      <div className="mt-3 text-muted-foreground text-xs border-t border-border/50 pt-2">
-        Showing {MOCK_HISTORY.length} entries | 1 failed
-      </div>
-    </div>
-  </div>
-);
-
 const features = [
   { icon: Clock, title: "Automatic Audit Trail", desc: "Every CLI execution is logged automatically via a two-phase hook — no manual action required." },
   { icon: Database, title: "Queryable History", desc: "Filter by command name, limit results, and choose detail levels (basic, standard, detailed)." },
@@ -59,46 +26,46 @@ const features = [
 
 const HistoryPage = () => (
   <DocsLayout>
-    <h1 className="text-3xl font-heading font-bold mb-2 docs-h1">Command History</h1>
+    <h1 className="text-3xl font-heading font-bold tracking-[-0.02em] mb-2 docs-h1">Command History</h1>
     <p className="text-muted-foreground mb-6">
       Automatic audit trail of every gitmap CLI execution with queryable history and usage tracking.
     </p>
 
-    <h2 className="text-xl font-heading font-semibold mt-8 mb-2">Live Preview</h2>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-8 mb-2">Live Preview</h2>
     <p className="text-sm text-muted-foreground mb-2">
       Simulated terminal output of the history command in standard detail mode.
     </p>
-    <TerminalPreview />
+    <HistoryTerminalPreview items={MOCK_HISTORY} />
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-4">Features</h2>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-4">Features</h2>
     <div className="grid md:grid-cols-2 gap-4 mb-8">
       {features.map((f) => (
-        <div key={f.title} className="rounded-lg border border-border bg-card p-4">
+        <div key={f.title} className="rounded-lg border border-border bg-card p-4 shadow-sm hover:border-primary/40 transform-gpu hover:-translate-y-0.5 transition-all">
           <f.icon className="h-5 w-5 text-primary mb-2" />
-          <h3 className="font-mono font-semibold text-sm mb-1">{f.title}</h3>
+          <h3 className="font-heading font-semibold tracking-[-0.01em] text-sm mb-1 text-foreground">{f.title}</h3>
           <p className="text-xs text-muted-foreground">{f.desc}</p>
         </div>
       ))}
     </div>
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Usage</h2>
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">Usage</h2>
     <CodeBlock code="gitmap history" title="Show recent history (standard detail)" />
     <CodeBlock code="gitmap history --detail basic" title="Basic view" />
     <CodeBlock code="gitmap history --detail detailed --command scan" title="Detailed view filtered by command" />
     <CodeBlock code="gitmap history --json --limit 10" title="Last 10 entries as JSON" />
     <CodeBlock code="gitmap history-reset --confirm" title="Clear all history" />
 
-    <h2 className="text-xl font-heading font-semibold mt-10 mb-3">Flags — history</h2>
-    <div className="rounded-lg border border-border overflow-hidden">
+    <h2 className="text-xl font-heading font-semibold tracking-[-0.02em] mt-10 mb-3">Flags — history</h2>
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-muted/50">
+          <tr className="bg-muted/50 border-b border-border">
             <th className="text-left font-mono font-semibold px-4 py-2">Flag</th>
             <th className="text-left font-mono font-semibold px-4 py-2">Description</th>
             <th className="text-left font-mono font-semibold px-4 py-2">Default</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-border">
           {[
             ["--detail <level>", "Output detail: basic, standard, detailed", "standard"],
             ["--command <name>", "Filter by command name", "(all)"],
