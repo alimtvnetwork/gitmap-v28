@@ -16,15 +16,22 @@ const GitMapLogoSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 3
       <stop offset="100%" stop-color="#b4befe"/>
     </linearGradient>
     <linearGradient id="gmBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#313244"/>
-      <stop offset="100%" stop-color="#181825"/>
+      <stop offset="0%" stop-color="#1e1e2e"/>
+      <stop offset="100%" stop-color="#11111b"/>
     </linearGradient>
+    <filter id="gmShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#gmBg)" stroke="#89b4fa" stroke-width="1.5"/>
-  <path d="M10 8v16M10 14c3 0 7 2 7 6v4" fill="none" stroke="url(#gmGrad)" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="10" cy="9" r="2.8" fill="#89b4fa"/>
-  <circle cx="10" cy="23" r="2.8" fill="#89b4fa"/>
-  <circle cx="17" cy="23" r="2.8" fill="#a6e3a1"/>
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#gmBg)" stroke="#89b4fa" stroke-width="1.6" filter="url(#gmShadow)"/>
+  <rect x="2.5" y="2.5" width="27" height="27" rx="5.5" fill="none" stroke="#313244" stroke-width="0.8" opacity="0.6"/>
+  <path d="M11 7.5v17M11 14c3.5 0 10 2.5 10 9.5" fill="none" stroke="url(#gmGrad)" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="11" cy="7.5" r="3" fill="#89b4fa" stroke="#cdd6f4" stroke-width="0.8"/>
+  <circle cx="11" cy="7.5" r="1.2" fill="#1e1e2e"/>
+  <circle cx="11" cy="24.5" r="3" fill="#89b4fa" stroke="#cdd6f4" stroke-width="0.8"/>
+  <circle cx="11" cy="24.5" r="1.2" fill="#1e1e2e"/>
+  <circle cx="21" cy="23.5" r="3.2" fill="#a6e3a1" stroke="#ffffff" stroke-width="0.8"/>
+  <circle cx="21" cy="23.5" r="1.3" fill="#1e1e2e"/>
 </svg>`
 
 func serveFaviconICO(w http.ResponseWriter, r *http.Request) {
