@@ -5,13 +5,20 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 )
 
-// LaunchBrowserAppWindow attempts to launch targetURL in Chrome or Edge in --app mode.
-// Returns true if a browser is found and successfully started.
+// LaunchBrowserAppWindow attempts to launch targetURL in Chrome or Edge in --app mode,
+// or opens in the system default browser if app mode is disabled or no browser binary is found.
+// When GITMAP_BROWSER_MODE is "default", "browser", or "no-app", it directly opens using the default system browser.
 func LaunchBrowserAppWindow(targetURL string) bool {
+	mode := strings.ToLower(strings.TrimSpace(os.Getenv("GITMAP_BROWSER_MODE")))
+	if mode == "default" || mode == "browser" || mode == "no-app" {
+		return false
+	}
+
 	bin := findAppBrowserBinary()
 	if bin == "" {
 		return false

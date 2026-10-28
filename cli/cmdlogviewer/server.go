@@ -43,6 +43,10 @@ func RunShowLog(args []string) error {
 				}
 				fmt.Fprintf(os.Stderr, "    • %s  (run: gitmap show-log %s)\n", filepath.Base(cr), rel)
 			}
+			if !*noBrowser && FallbackDashboardUIFn != nil {
+				fmt.Fprintln(os.Stderr, "  ⚡ Launching GitMap Web UI dashboard...")
+				return FallbackDashboardUIFn("search", 8080)
+			}
 		} else {
 			fmt.Fprintln(os.Stderr, "  💡 Tip: Run 'gitmap show-log' inside a Git repository or specify target: gitmap show-log <path>")
 		}

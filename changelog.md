@@ -32,6 +32,16 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.627.0] - 2026-10-28
+
+### Added
+- Context Menu Icon Isolation: Resolved duplicate child entry icon writes, ensuring the top-level `gitmap` menu item displays the crisp official application icon while child actions omit redundant collision icons.
+- Non-Git Folder Show-Log Guard: When right-clicking inside non-git container folders (e.g. `D:\work`), `gitmap show-log` displays detected repositories and launches the Web UI dashboard instead of halting with an error.
+- Default Browser Decoupling: Browser windows now support clean launching in default system browsers without forcing isolated Chrome profile data directories.
+- Profile Tree, Single Tool Installer & Macro UI: Added context menu entries for Macro Builder UI and Profile installer, with live Profile Tree inspection and single-tool installer actions in Fleet Web UI.
+
+---
+
 ## [v6.626.0] - 2026-10-28
 
 ### Added

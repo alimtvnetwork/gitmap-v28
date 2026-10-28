@@ -203,9 +203,170 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
     }
 
     // Dead-handler stubs (spec 249.2 §7): honest "not implemented yet" toasts, zero ReferenceErrors.
-    ['deployMacroFleetModal', 'loadMacros', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule', 'testNode'].forEach(function (nm) {
+    ['deployMacroFleetModal', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule', 'testNode'].forEach(function (nm) {
       window[nm] = function () { showToast('Not implemented yet', 'info'); };
     });
+
+    window.loadMacros = async function () {
+      const container = document.getElementById('macros-list');
+      if (!container) return;
+      container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);">Loading macros...</div>';
+      try {
+        const res = await fetch('/api/macros');
+        const data = await res.json();
+        if (!data.success || !data.macros || data.macros.length === 0) {
+          container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);">No macros saved yet. Run <code>gitmap macro add &lt;name&gt;</code> to create one.</div>';
+          return;
+        }
+        let html = '';
+        data.macros.forEach(function (m) {
+          const stepCount = (m.Steps || []).length;
+          html += '<div style="padding:12px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+            '<div>' +
+              '<div style="font-weight:600;color:var(--foreground);">' + m.Name + ' <span style="font-size:11px;color:var(--muted);font-weight:normal;">(' + stepCount + ' step' + (stepCount === 1 ? '' : 's') + ')</span></div>' +
+              (m.Description ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + m.Description + '</div>' : '') +
+            '</div>' +
+            '<div style="display:flex;gap:6px;">' +
+              '<button class="btn btn-sm" onclick="runMacroUI(\'' + m.Name + '\')">Run</button>' +
+              '<button class="btn btn-sm btn-secondary" onclick="deleteMacroUI(\'' + m.Name + '\')">Delete</button>' +
+            '</div>' +
+          '</div>';
+        });
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = '<div style="color:var(--danger);font-size:var(--fs-sm);">Failed to load macros: ' + e.message + '</div>';
+      }
+    };
+
+    window.runMacroUI = async function (name) {
+      showToast('Executing macro: ' + name, 'info');
+      try {
+        const res = await fetch('/api/terminal/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: 'gitmap macro run ' + name })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('Macro ' + name + ' completed!', 'success');
+        } else {
+          showToast('Macro failed: ' + (d.stderr || d.error || 'exit error'), 'error');
+        }
+      } catch (err) {
+        showToast('Execution error: ' + err.message, 'error');
+      }
+    };
+
+    window.deleteMacroUI = async function (name) {
+      if (!confirm('Are you sure you want to delete macro "' + name + '"?')) return;
+      try {
+        const res = await fetch('/api/macros/delete?name=' + encodeURIComponent(name), { method: 'POST' });
+        const d = await res.json();
+        if (d.success) {
+          showToast('Macro deleted', 'success');
+          loadMacros();
+        } else {
+          showToast('Delete failed: ' + (d.error || 'unknown'), 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    };
+
+    window.loadInstallerProfiles = async function () {
+      const container = document.getElementById('profiles-tree-list');
+      if (!container) return;
+      container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);">Loading workstation profiles...</div>';
+      try {
+        const res = await fetch('/api/installers/profiles');
+        const data = await res.json();
+        if (!data.success || !data.profiles || data.profiles.length === 0) {
+          container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);">No workstation profiles discovered.</div>';
+          return;
+        }
+        let html = '';
+        data.profiles.forEach(function (p) {
+          const tools = p.tools || [];
+          html += '<div style="padding:14px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
+              '<div>' +
+                '<span style="font-weight:700;font-size:14px;color:var(--foreground);">' + p.title + '</span> ' +
+                '<code style="font-size:11px;background:var(--code-bg);padding:2px 6px;border-radius:4px;">' + p.name + '</code>' +
+                '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + (p.description || '') + '</div>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;">' +
+                '<button class="btn btn-sm" onclick="installProfileUI(\'' + p.name + '\')">Install Profile</button>' +
+                '<button class="btn btn-sm btn-secondary" onclick="uninstallProfileUI(\'' + p.name + '\')">Uninstall</button>' +
+              '</div>' +
+            '</div>' +
+            '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">' +
+              '<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">Included Tools (' + tools.length + '):</div>' +
+              '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                tools.map(function(t) {
+                  return '<span style="font-size:11px;background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px;">' +
+                    t +
+                    '<button onclick="installSingleToolUI(\'' + t + '\')" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10px;padding:0 2px;" title="Install this tool">↓</button>' +
+                  '</span>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        });
+        container.innerHTML = html;
+      } catch (err) {
+        container.innerHTML = '<div style="color:var(--danger);font-size:var(--fs-sm);">Failed to load profiles: ' + err.message + '</div>';
+      }
+    };
+
+    window.installProfileUI = async function (name) {
+      showToast('Installing profile: ' + name, 'info');
+      try {
+        const res = await fetch('/api/terminal/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: 'gitmap install profile ' + name })
+        });
+        const d = await res.json();
+        if (d.success) {
+          showToast('Profile ' + name + ' installed successfully!', 'success');
+        } else {
+          showToast('Profile install error: ' + (d.stderr || d.error || 'exit error'), 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    };
+
+    window.uninstallProfileUI = async function (name) {
+      if (!confirm('Uninstall workstation tools for profile "' + name + '"?')) return;
+      showToast('Uninstalling profile: ' + name, 'info');
+      try {
+        const res = await fetch('/api/terminal/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: 'gitmap uninstall ' + name })
+        });
+        const d = await res.json();
+        showToast(d.success ? 'Profile uninstalled!' : 'Uninstall error', d.success ? 'success' : 'error');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    };
+
+    window.installSingleToolUI = async function (tool) {
+      showToast('Installing single tool: ' + tool, 'info');
+      try {
+        const res = await fetch('/api/terminal/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: 'gitmap install ' + tool })
+        });
+        const d = await res.json();
+        showToast(d.success ? 'Installed ' + tool : 'Install error', d.success ? 'success' : 'error');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    };
     const NAV_ITEMS = [
       { id: 'settings', label: 'Settings', icon: 'settings' },
       { id: 'commitin', label: 'Commitin', icon: 'package' },

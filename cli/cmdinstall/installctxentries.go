@@ -64,7 +64,15 @@ func ctxCategoryEntries() []ctxEntry {
 		{KeyName: "40_repos", MUIVerb: "Repositories", Children: repoChildren()},
 		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
 		{KeyName: "60_install", MUIVerb: "Install", Children: installChildren()},
+		{KeyName: "65_macro", MUIVerb: "Macro", Children: macroChildren()},
 		{KeyName: "70_settings", MUIVerb: "Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+	}
+}
+
+func macroChildren() []ctxEntry {
+	return []ctxEntry{
+		{KeyName: "10_macro_ui", MUIVerb: "Open Macro Builder UI", Args: []string{"ui", "macro"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "20_macro_list", MUIVerb: "List Saved Macros", Args: []string{"macro", "list"}, Mode: ctxmodetype.Terminal},
 	}
 }
 

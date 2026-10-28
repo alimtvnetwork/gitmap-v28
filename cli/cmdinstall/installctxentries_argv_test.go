@@ -60,6 +60,9 @@ var expectedCtxArgv = map[string]struct {
 	"60_install/30_tools":        {"", []string{"install", "list"}},
 	"60_install/40_agy":          {"", []string{"install", "antigravity"}},
 	"60_install/50_clean_pwsh":   {"", []string{"context-menu", "clean-powershell"}},
+	// Macro
+	"65_macro/10_macro_ui":   {"", []string{"ui", "macro"}},
+	"65_macro/20_macro_list": {"", []string{"macro", "list"}},
 	// Top-level standalone entries
 	"70_settings":    {"", []string{"ui", "settings"}},
 	"80_antigravity": {"", []string{"ag"}},

@@ -8,6 +8,7 @@ type SettingsData struct {
 	AutoDeployKey   bool              `json:"isAutoDeployKey"`
 	GraphicsMode    string            `json:"graphicsMode"`
 	AutoOpenBrowser bool              `json:"autoOpenBrowser"`
+	BrowserMode     string            `json:"browserMode"`
 	CommitInLayout  string            `json:"commitInLayout"`
 	PullDirection   string            `json:"pullDirection"`
 	PRReplayMode    string            `json:"prReplayMode"`

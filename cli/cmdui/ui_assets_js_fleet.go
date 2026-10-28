@@ -16,6 +16,8 @@ const uiAssetsJSCore = `    function showTab(tabId) {
       });
       if (tabId === 'ssh') refreshNodes();
       if (tabId === 'editor') populateEditorNodes();
+      if (tabId === 'macro' && typeof window.loadMacros === 'function') window.loadMacros();
+      if (tabId === 'installer' && typeof window.loadInstallerProfiles === 'function') window.loadInstallerProfiles();
     }
     // Fills every [data-icon] placeholder with the inline SVG from the icon()
     // helper (provided by the theme assets). Guarded so the page still boots

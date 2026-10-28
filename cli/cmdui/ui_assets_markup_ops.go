@@ -79,22 +79,40 @@ const uiAssetsMarkupOps = `    <div id="tab-commitin" class="content-area">
     <!-- MACRO TAB -->
     <div id="tab-macro" class="content-area">
       <div class="card card-hero">
-        <h3>Macro Automation Builder</h3>
-        <button class="btn" onclick="loadMacros()">Reload Macros</button>
-        <div id="macros-list" style="margin-top: 1rem;"></div>
+        <h3><span data-icon="scroll-text"></span> Macro Automation Builder</h3>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3);">
+          Inspect, create, test, and replay saved CLI workflow macros across all workspaces.
+        </p>
+        <div style="display: flex; gap: var(--sp-2); margin-bottom: var(--sp-3);">
+          <button class="btn" onclick="loadMacros()"><span data-icon="clock"></span> Reload Macros</button>
+          <button class="btn btn-secondary" onclick="openNewMacroDialog()"><span data-icon="plus"></span> New Macro</button>
+        </div>
+        <div id="macros-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: var(--sp-2);"></div>
       </div>
     </div>
 
     <!-- INSTALLER TAB -->
     <div id="tab-installer" class="content-area">
       <div class="card card-hero">
-        <h3>Custom Multi-OS Installer Manager</h3>
-        <div class="form-group"><label for="inst-name">Installer Name</label><input type="text" id="inst-name" placeholder="e.g. agy-tools"></div>
+        <h3><span data-icon="rocket"></span> Installer &amp; Workstation Profile Tree</h3>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3);">
+          Explore workstation profiles, install/uninstall profiles, run single tool installations, and inspect dependency hierarchies.
+        </p>
+        <div style="display: flex; gap: var(--sp-2); margin-bottom: var(--sp-3);">
+          <button class="btn" onclick="loadInstallerProfiles()"><span data-icon="clock"></span> Reload Profiles</button>
+        </div>
+        <div id="profiles-tree-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: var(--sp-3);"></div>
+      </div>
+      <div class="card" style="margin-top: var(--sp-4);">
+        <h3>Custom Multi-OS Installer Definition</h3>
+        <div class="form-group"><label for="inst-name">Installer Name / Slug</label><input type="text" id="inst-name" placeholder="e.g. agy-tools"></div>
         <div class="form-group"><label for="inst-os">Target OS</label><select id="inst-os"><option value="windows">Windows</option><option value="ubuntu">Ubuntu / Debian</option><option value="centos">CentOS / RHEL</option><option value="unix">Universal Unix</option></select></div>
         <div class="form-group"><label for="inst-cmd">Install Command</label><input type="text" id="inst-cmd" placeholder="curl -fsSL ... | sh"></div>
         <div class="form-group"><label for="inst-node-select">Target Node for Immediate Test</label><select id="inst-node-select"><option value="local">Local Machine</option></select></div>
-        <button class="btn" onclick="saveInstaller()">Save Installer</button>
-        <button class="btn btn-secondary" onclick="testInstaller()">Test on Selected Node</button>
+        <div style="display: flex; gap: var(--sp-2); margin-top: var(--sp-2);">
+          <button class="btn" onclick="saveInstaller()">Save Installer</button>
+          <button class="btn btn-secondary" onclick="testInstaller()">Test on Selected Node</button>
+        </div>
       </div>
     </div>
 

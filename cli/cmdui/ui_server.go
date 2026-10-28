@@ -75,6 +75,7 @@ func mountAPIRoutes(mux *http.ServeMux) {
 	mountSSHAndEditorRoutes(mux)
 	mountToolAndScanRoutes(mux)
 	mountContextMenuRoutes(mux)
+	mountMacroAndInstallerRoutes(mux)
 }
 
 func mountSSHAndEditorRoutes(mux *http.ServeMux) {

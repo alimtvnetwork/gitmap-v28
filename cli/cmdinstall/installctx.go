@@ -3,6 +3,7 @@ package cmdinstall
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 	"sync"
@@ -74,6 +75,8 @@ func runUninstallCtx() error {
 func runInstallCtxWindows() error {
 	fmt.Print(constants.MsgCtxInstallStart)
 
+	purgeLegacyWindowsCtxKeys()
+
 	exe := resolveCtxExe()
 	cmds := buildCtxInstallCommands(exe)
 
@@ -81,6 +84,18 @@ func runInstallCtxWindows() error {
 	fmt.Printf(constants.MsgCtxInstallDone, successes, len(cmds))
 
 	return nil
+}
+
+func purgeLegacyWindowsCtxKeys() {
+	legacyKeys := []string{
+		constants.CtxRootKeyDirectory + `\shell\70_git`,
+		constants.CtxRootKeyBackground + `\shell\70_git`,
+		constants.CtxRootKeyDirectory + `\shell\95_install_wizard`,
+		constants.CtxRootKeyDirectory + `\shell\96_clean_powershell`,
+	}
+	for _, k := range legacyKeys {
+		_ = exec.Command("reg", "delete", k, "/f").Run()
+	}
 }
 
 // runUninstallCtxWindows removes the gitmap subtree from all HKCU roots.

@@ -33,6 +33,7 @@ func loadSettings() SettingsData {
 		AutoDeployKey:   true,
 		GraphicsMode:    "high",
 		AutoOpenBrowser: true,
+		BrowserMode:     "default",
 		CommitInLayout:  "split",
 		PullDirection:   "pull-left",
 		PRReplayMode:    "merges",
@@ -133,6 +134,11 @@ func mergeSettings(current, req SettingsData) SettingsData {
 	}
 
 	current.AutoOpenBrowser = req.AutoOpenBrowser
+
+	if req.BrowserMode != "" {
+		current.BrowserMode = req.BrowserMode
+		_ = os.Setenv("GITMAP_BROWSER_MODE", req.BrowserMode)
+	}
 
 	if req.CommitInLayout != "" {
 		current.CommitInLayout = req.CommitInLayout

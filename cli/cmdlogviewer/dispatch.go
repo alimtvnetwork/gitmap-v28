@@ -6,6 +6,9 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgit"
 )
 
+// FallbackDashboardUIFn can be set by cmdui to launch the Web UI dashboard on non-git container folders.
+var FallbackDashboardUIFn func(page string, preferredPort int) error
+
 func init() {
 	cmdgit.RunLogUIFn = RunShowLog
 }
