@@ -184,23 +184,6 @@ func maybeDisplayStashNotice(repoPath string, recipe gitutil.RemediationRecipe) 
 	}
 }
 
-func humanizeStashStep(step gitutil.RemediationStep) string {
-	cmdStr := strings.Join(step.Args, " ")
-	if strings.Contains(cmdStr, "stash -u") || strings.Contains(cmdStr, "stash push") {
-		return "shelving local modifications (git stash -u)"
-	}
-
-	if strings.Contains(cmdStr, "stash pop") {
-		return "restoring local modifications (git stash pop)"
-	}
-
-	if strings.Contains(cmdStr, "pull") {
-		return "pulling upstream changes (git pull)"
-	}
-
-	return ""
-}
-
 func formatStepCommand(step gitutil.RemediationStep) string {
 	if len(step.Args) >= 2 && step.Args[0] == "-C" {
 		return step.Name + " " + strings.Join(step.Args[2:], " ")
