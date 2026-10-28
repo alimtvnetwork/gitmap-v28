@@ -111,7 +111,7 @@ const CategorySummaryButton = ({ category, count, onClick }: CategorySummaryButt
   return (
     <button
       onClick={onClick}
-      className="rounded-lg border border-border bg-card px-3 py-2.5 text-left hover:bg-muted/50 hover:border-primary/40 transition-all duration-200 cursor-pointer group"
+      className="rounded-lg border border-border bg-card px-3 py-2.5 text-left hover:bg-muted/50 hover:border-primary/40 shadow-sm transform-gpu hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 cursor-pointer group"
     >
       <div className="flex items-center gap-2 mb-1">
         {category.icon && <span className="text-base">{category.icon}</span>}
@@ -142,18 +142,18 @@ const CategorySummaryBanner = ({ onSelectCategory }: CategorySummaryBannerProps)
 const CommandsHeader = ({ isCopied, onCopyAll, onDownload }: CommandsHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-2">
-      <h1 className="text-3xl font-heading font-bold docs-h1">Command Reference</h1>
-      <div className="flex items-center gap-1">
+      <h1 className="text-3xl font-heading font-bold tracking-[-0.02em] docs-h1">Command Reference</h1>
+      <div className="flex items-center gap-1.5">
         <button
           onClick={onCopyAll}
-          className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-[0.98] transition-all"
           title="Copy all as Markdown"
         >
           {isCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
         </button>
         <button
           onClick={onDownload}
-          className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 active:scale-[0.98] transition-all"
           title="Download as .md"
         >
           <Download className="h-4 w-4" />

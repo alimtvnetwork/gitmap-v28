@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import DocsLayout from "@/components/docs/DocsLayout";
-import { Activity, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw, GitPullRequest, Tag, ExternalLink, Download, Copy, Check } from "lucide-react";
+import { Activity, ExternalLink, Download, Copy, Check } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
 import { useToast } from "@/hooks/use-toast";
+import PipelineStatusCards from "@/components/pipeline/PipelineStatusCards";
 
 interface PipelineStatusData {
   isRunning: boolean;
@@ -54,7 +55,7 @@ export default function PipelinePage() {
               <Activity className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl font-heading font-bold text-foreground">CI/CD Pipeline Monitor</h1>
+              <h1 className="text-3xl font-heading font-bold tracking-[-0.02em] text-foreground">CI/CD Pipeline Monitor</h1>
               <p className="text-sm text-muted-foreground">Real-time status, ETA completion estimation, and failure logs.</p>
             </div>
           </div>
@@ -62,7 +63,7 @@ export default function PipelinePage() {
             <button
               type="button"
               onClick={handleCopyJSON}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-card text-xs font-mono text-foreground hover:bg-muted transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-md border border-border bg-card text-xs font-mono text-foreground hover:bg-muted transition-all active:scale-[0.98]"
             >
               {isCopied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
               {isCopied ? "Copied" : "Copy Status JSON"}
@@ -71,62 +72,7 @@ export default function PipelinePage() {
         </div>
 
         {/* Status Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="rounded-xl border-2 border-primary/70 bg-card p-5 space-y-2 shadow-sm shadow-primary/10">
-            <div className="flex items-center justify-between text-primary text-xs font-mono uppercase tracking-wider font-semibold">
-              <span>Pipeline Status</span>
-              <Activity className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex items-center gap-2">
-              {data.isRunning ? (
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-yellow-500 bg-yellow-500/10 px-2.5 py-1 rounded-full border border-yellow-500/20">
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  Running
-                </span>
-              ) : data.lastConclusion === "failure" ? (
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20">
-                  <XCircle className="h-3.5 w-3.5" />
-                  Failed
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Passing
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
-            <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
-              <span>ETA Completion</span>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="text-2xl font-bold text-foreground font-mono">
-              {data.isRunning ? `${data.etaSeconds}s` : "0s (Idle)"}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
-            <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
-              <span>Latest Release</span>
-              <Tag className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="text-2xl font-bold text-foreground font-mono">
-              {data.lastTagRelease}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
-            <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
-              <span>Pending PRs</span>
-              <GitPullRequest className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="text-2xl font-bold text-foreground font-mono">
-              {data.pendingPRs}
-            </div>
-          </div>
-        </div>
+        <PipelineStatusCards data={data} />
 
         {/* CLI Usage Commands */}
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">

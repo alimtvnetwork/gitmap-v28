@@ -1,6 +1,6 @@
 # Subtask 02: Visual Balance, Typography & Buttons (Clusters 04, 05, 06)
 
-**Parent:** `344-next-100-ui-improvements`  
+**Parent:** `345-next-100-ui-improvements`  
 **Scope:** Items 31–60 from master audit ledger.
 
 ## Execution Checklist
