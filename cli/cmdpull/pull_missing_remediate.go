@@ -107,30 +107,41 @@ func reportPostCloneStatus(repoPath, remoteURL string) {
 		constants.TreeCorner, constants.ColorGreen, constants.ColorReset)
 }
 
-func purgeInvalidRepoEntry(repoName, repoPath string) {
+func purgeInvalidRepoEntry(repoName, repoPath string) error {
+	var errReturn error
 	if repoPath != "" {
-		_ = DeleteRepoRecordByPath(repoPath)
+		if errDel := DeleteRepoRecordByPath(repoPath); errDel != nil {
+			errReturn = errDel
+		}
 	}
 
-	clearPullSplitDBError(repoName, repoPath)
+	if errClear := clearPullSplitDBError(repoName, repoPath); errClear != nil && errReturn == nil {
+		errReturn = errClear
+	}
+
+	return errReturn
 }
 
-func clearPullSplitDBError(repoName, repoPath string) {
+func clearPullSplitDBError(repoName, repoPath string) error {
 	db, err := store.OpenPullSplitDB()
 	if err != nil {
-		return
+		return err
 	}
 
 	defer db.Close()
 
-	_ = db.ClearPullErrorsForRepo(repoName, repoPath)
+	if appErr := db.ClearPullErrorsForRepo(repoName, repoPath); appErr != nil {
+		return appErr
+	}
+
+	return nil
 }
 
 func execCloneAndRecord(repoName, repoPath, remoteURL string) bool {
 	if err := ExecCloneRepo(remoteURL, repoPath); err != nil {
 		printCloneFailure(err)
 		if strings.Contains(remoteURL, " ") || !strings.Contains(remoteURL, "/") {
-			purgeInvalidRepoEntry(repoName, repoPath)
+			_ = purgeInvalidRepoEntry(repoName, repoPath)
 		}
 
 		return false
@@ -148,7 +159,7 @@ func RemediateMissingRepo(f PullFailureSummary) bool {
 	remoteURL := resolveMissingRemoteURL(f)
 	if remoteURL == "" || strings.Contains(remoteURL, " ") {
 		printMissingRemoteURLError()
-		purgeInvalidRepoEntry(f.RepoName, f.RepoPath)
+		_ = purgeInvalidRepoEntry(f.RepoName, f.RepoPath)
 
 		return false
 	}

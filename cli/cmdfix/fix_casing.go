@@ -220,14 +220,17 @@ func stageGitAddAll(repoPath string) {
 	_ = exec.Command("git", "-C", repoPath, "add", "-A").Run()
 }
 
-func commitCasingNormalization(repoPath string, d CasingDiscrepancy) {
+func commitCasingNormalization(repoPath string, d CasingDiscrepancy) error {
 	out, err := exec.Command("git", "-C", repoPath, "status", "--porcelain").Output()
-	if err != nil || len(strings.TrimSpace(string(out))) == 0 {
-		return
+	if err != nil {
+		return err
+	}
+	if len(strings.TrimSpace(string(out))) == 0 {
+		return nil
 	}
 
 	msg := fmt.Sprintf("chore: normalize casing %s to %s", d.CurrentPath, d.CanonicalPath)
-	_ = exec.Command("git", "-C", repoPath, "commit", "-m", msg).Run()
+	return exec.Command("git", "-C", repoPath, "commit", "-m", msg).Run()
 }
 
 // RecordCasingRemediationRecipe persists the executed casing recipe to repo-cache and local state.
@@ -327,8 +330,16 @@ func ReconcileDiscrepancyList(discrepancies []CasingDiscrepancy) error {
 			return err
 		}
 
-		commitCasingNormalization(d.RepoPath, d)
-		_ = RecordCasingRemediationRecipe(d)
+		if commitErr := commitCasingNormalization(d.RepoPath, d); commitErr != nil {
+			fmt.Fprintf(os.Stderr, "  %s⚠ Casing auto-commit notice (%s): %v%s\n",
+				constants.ColorYellow, d.CanonicalPath, commitErr, constants.ColorReset)
+		}
+
+		if recErr := RecordCasingRemediationRecipe(d); recErr != nil {
+			fmt.Fprintf(os.Stderr, "  %s⚠ Failed to record casing recipe: %v%s\n",
+				constants.ColorYellow, recErr, constants.ColorReset)
+		}
+
 		repoName := filepath.Base(d.RepoPath)
 		fmt.Printf("  • Normalized casing: %s -> %s (%s)\n",
 			d.CurrentPath, d.CanonicalPath, repoName)

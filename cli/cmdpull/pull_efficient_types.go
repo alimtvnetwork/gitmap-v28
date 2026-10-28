@@ -274,7 +274,7 @@ func recordSinglePullErrorToDB(db *store.PullSplitDB, s *PullRepoState) {
 		return
 	}
 	if s.ErrorMsg != "" || s.Step == PullStepTypeError {
-		_ = db.InsertPullError(store.PullErrorRecord{
+		rec := store.PullErrorRecord{
 			RepoSlug:       s.RepoName,
 			RepoPath:       s.RepoPath,
 			NodeID:         "local-01",
@@ -283,8 +283,15 @@ func recordSinglePullErrorToDB(db *store.PullSplitDB, s *PullRepoState) {
 			ErrorText:      s.ErrorMsg,
 			RemediationCmd: ResolvePullRemediationHint(s),
 			CreatedAt:      time.Now().UTC(),
-		})
+		}
+		if insErr := db.InsertPullError(rec); insErr != nil {
+			fmt.Fprintf(os.Stderr, "  %s⚠ Error inserting pull error for %s: %v%s\n",
+				constants.ColorYellow, s.RepoName, insErr, constants.ColorReset)
+		}
 		return
 	}
-	_ = db.ClearPullErrorsForRepo(s.RepoName, s.RepoPath)
+	if clearErr := db.ClearPullErrorsForRepo(s.RepoName, s.RepoPath); clearErr != nil {
+		fmt.Fprintf(os.Stderr, "  %s⚠ Notice: error clearing pull status for %s: %v%s\n",
+			constants.ColorYellow, s.RepoName, clearErr, constants.ColorReset)
+	}
 }

@@ -46,13 +46,19 @@ func syncSingleStateToDB(db *store.PullSplitDB, state *PullRepoState, nodeID str
 	}
 	if isStateFailure(state) {
 		rec := buildPullErrorRecordFromState(state, nodeID, now)
-		_ = db.InsertPullError(rec)
-		_ = LogPullErrorToFile(rec)
+		if insErr := db.InsertPullError(rec); insErr != nil {
+			_ = LogPullErrorToFile(rec)
+		} else {
+			_ = LogPullErrorToFile(rec)
+		}
 
 		return
 	}
 
-	_ = db.ClearPullErrorsForRepo(state.RepoName, state.RepoPath)
+	if clearErr := db.ClearPullErrorsForRepo(state.RepoName, state.RepoPath); clearErr != nil {
+		fmt.Fprintf(os.Stderr, "  %s⚠ Notice: error clearing pull status for %s: %v%s\n",
+			constants.ColorYellow, state.RepoName, clearErr, constants.ColorReset)
+	}
 }
 
 func buildPullErrorRecordFromState(state *PullRepoState, nodeID string, now time.Time) store.PullErrorRecord {
