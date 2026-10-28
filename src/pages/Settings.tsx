@@ -402,7 +402,7 @@ export default function SettingsPage() {
                   Antigravity Multi-Instance Engine
                 </h2>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/60 font-medium">
                 Task-06 REST &amp; CLI API
               </span>
             </div>
@@ -511,7 +511,7 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+                <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/60 font-medium">
                   Fleet Engine Tuning
                 </span>
               </div>
@@ -591,7 +591,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border/60 font-medium">
                 Design Reference Spec
               </span>
             </div>

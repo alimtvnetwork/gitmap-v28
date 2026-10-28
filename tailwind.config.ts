@@ -25,6 +25,10 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "plane-canvas": "hsl(var(--plane-canvas))",
+        "plane-well": "hsl(var(--plane-well))",
+        "plane-surface": "hsl(var(--plane-surface))",
+        "plane-elevated": "hsl(var(--plane-elevated))",
         terminal: {
           DEFAULT: "hsl(var(--terminal))",
           foreground: "hsl(var(--terminal-foreground))",

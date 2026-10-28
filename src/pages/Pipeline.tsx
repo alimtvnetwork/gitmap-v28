@@ -72,8 +72,8 @@ export default function PipelinePage() {
 
         {/* Status Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-            <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
+          <div className="rounded-xl border-2 border-primary/70 bg-card p-5 space-y-2 shadow-sm shadow-primary/10">
+            <div className="flex items-center justify-between text-primary text-xs font-mono uppercase tracking-wider font-semibold">
               <span>Pipeline Status</span>
               <Activity className="h-4 w-4 text-primary" />
             </div>
@@ -97,30 +97,30 @@ export default function PipelinePage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 space-y-2">
+          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
             <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
               <span>ETA Completion</span>
-              <Clock className="h-4 w-4 text-primary" />
+              <Clock className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-foreground font-mono">
               {data.isRunning ? `${data.etaSeconds}s` : "0s (Idle)"}
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 space-y-2">
+          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
             <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
               <span>Latest Release</span>
-              <Tag className="h-4 w-4 text-primary" />
+              <Tag className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-foreground font-mono">
               {data.lastTagRelease}
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 space-y-2">
+          <div className="rounded-xl border border-border/60 bg-card/60 p-5 space-y-2">
             <div className="flex items-center justify-between text-muted-foreground text-xs font-mono uppercase tracking-wider">
               <span>Pending PRs</span>
-              <GitPullRequest className="h-4 w-4 text-primary" />
+              <GitPullRequest className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-foreground font-mono">
               {data.pendingPRs}

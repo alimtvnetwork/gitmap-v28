@@ -20,7 +20,7 @@ const DocsLayout = ({ children }: DocsLayoutProps) => {
     <SidebarProvider className="h-full max-h-screen w-full overflow-hidden bg-background text-foreground">
       <DocsSidebar />
       <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
-        <header className="sticky top-0 z-10 flex shrink-0 flex-wrap items-center gap-2 border-b border-sidebar-border bg-sidebar/95 px-3 py-2 backdrop-blur-sm">
+        <header className="sticky top-0 z-50 flex h-[72px] shrink-0 flex-wrap items-center gap-2 border-b border-sidebar-border bg-sidebar/85 px-4 sm:px-6 backdrop-blur-xl transition-shadow duration-200">
           <DocsTooltip label="Toggle sidebar (navigation)">
             <SidebarTrigger
               aria-label="Toggle sidebar"
@@ -85,7 +85,7 @@ const DocsLayout = ({ children }: DocsLayoutProps) => {
           </div>
         </header>
         <main className="docs-scroll flex-1 overflow-y-auto overflow-x-hidden bg-background">
-          <div className="mx-auto max-w-5xl px-6 py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </div>
         </main>

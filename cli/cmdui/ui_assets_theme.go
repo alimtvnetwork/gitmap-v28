@@ -117,11 +117,12 @@ const uiAssetsStyle = `  <style>
     input, select { color-scheme: dark; }
     :root[data-theme="light"] input, :root[data-theme="light"] select { color-scheme: light; }
     textarea { font-family: var(--font-mono); resize: vertical; }
-    .btn { background: var(--primary); color: var(--primary-ink); font-weight: 600; padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); font-size: var(--fs-sm); }
+    .btn { background: var(--primary); color: var(--primary-ink); font-weight: 600; padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); font-size: var(--fs-sm); display: inline-flex; align-items: center; justify-content: center; }
     .btn:hover { background: var(--primary-hover); filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
-    .btn:active { transform: translateY(0); filter: brightness(0.96); }
+    .btn:active { transform: translateY(1px); filter: brightness(0.94); }
     .btn-secondary { background: var(--raised); color: var(--text); margin-left: var(--sp-2); }
     .btn-secondary:hover { background: var(--popover); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+    .btn-secondary:active { transform: translateY(1px); }
     table { width: 100%; border-collapse: collapse; margin-top: var(--sp-2); font-variant-numeric: tabular-nums; }
     tbody tr { transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1); }
     tbody tr:hover { background: var(--raised); }
@@ -165,8 +166,8 @@ const uiAssetsStyle = `  <style>
     .toast-msg { flex: 1; overflow-wrap: anywhere; }
     .toast-out { opacity: 0; transform: translateX(16px); transition: opacity 0.25s ease, transform 0.25s ease; }
     @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    .skip-link { position: absolute; left: var(--sp-4); top: -96px; z-index: 300; background: var(--primary); color: var(--primary-ink); font-weight: 600; font-size: var(--fs-sm); padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); transition: top 0.15s ease; }
-    .skip-link:focus { top: var(--sp-2); }
+    .skip-link { position: absolute; left: var(--sp-4); top: var(--sp-2); transform: translateY(-200%); z-index: 300; background: var(--primary); color: var(--primary-ink); font-weight: 600; font-size: var(--fs-sm); padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1); }
+    .skip-link:focus { transform: translateY(0); }
     .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
     .toast:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
     .shortcuts-overlay { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; padding: var(--sp-6); background: rgba(0, 0, 0, 0.55); }
@@ -191,6 +192,18 @@ const uiAssetsStyle = `  <style>
       .sidebar-scrim.open { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 90; }
       .content-area { padding: var(--sp-4); }
       header { padding: var(--sp-2) var(--sp-4); }
+      .btn, .nav-btn, .sub-tab-btn { min-height: 44px; min-width: 44px; }
+    }
+    @media (pointer: coarse) {
+      .btn, .nav-btn, .sub-tab-btn { min-height: 44px; min-width: 44px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
   </style>
 `

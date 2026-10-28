@@ -89,13 +89,13 @@ const HomePage = () => {
           <div className="flex gap-4 justify-center">
             <Link
               to="/getting-started"
-              className="btn-slide group relative rounded-sm border border-primary bg-primary px-6 py-2.5 font-heading text-sm font-medium text-primary-foreground shadow-sm hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="btn-slide group relative rounded-sm border border-primary bg-primary px-6 py-2.5 font-heading text-sm font-medium text-primary-foreground shadow-sm hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Get Started
             </Link>
             <Link
               to="/commands"
-              className="btn-slide btn-slide-ghost group relative rounded-sm border border-border bg-card px-6 py-2.5 font-heading text-sm font-medium text-foreground hover:border-primary/40 hover:bg-secondary active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="btn-slide btn-slide-ghost group relative rounded-sm border border-input/60 bg-background/50 backdrop-blur-sm px-6 py-2.5 font-heading text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 hover:border-border active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               View Commands
             </Link>

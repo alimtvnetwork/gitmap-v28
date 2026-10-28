@@ -41,16 +41,12 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
+import { DocsSidebarNav } from "@/components/docs/DocsSidebarNav";
+import { DocsSidebarFooter } from "@/components/docs/DocsSidebarFooter";
+
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useTheme } from "@/hooks/useTheme";
@@ -144,56 +140,9 @@ export function DocsSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarContent>
-        <SidebarGroup>
-          {!collapsed && (
-            <div className="border-b border-sidebar-border px-3 py-4">
-              <div className="mb-1 text-[11px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
-                Workspace
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-lg font-bold text-sidebar-primary">gitmap</span>
-                <span className="text-xs font-mono text-sidebar-foreground/70">docs</span>
-              </div>
-            </div>
-          )}
-          {collapsed && (
-            <div className="flex justify-center py-4">
-              <span className="font-mono text-lg font-bold text-sidebar-primary">g</span>
-            </div>
-          )}
-          <SidebarGroupLabel className="px-3 pt-3 text-[11px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
-            Explorer
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/"}
-                      className="flex min-h-8 items-center rounded-sm border border-transparent px-2 text-sm text-sidebar-foreground/85 hover:border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      activeClassName="border-sidebar-border bg-sidebar-accent text-sidebar-primary shadow-sm"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <DocsSidebarNav items={navItems} isCollapsed={collapsed} />
       </SidebarContent>
-      <SidebarFooter>
-        <button
-          onClick={toggleTheme}
-          className="flex w-full items-center gap-2 rounded-sm border border-sidebar-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        >
-          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          {!collapsed && <span>{dark ? "Light mode" : "Dark mode"}</span>}
-        </button>
-      </SidebarFooter>
+      <DocsSidebarFooter isDark={dark} isCollapsed={collapsed} onToggleTheme={toggleTheme} />
     </Sidebar>
   );
 }
