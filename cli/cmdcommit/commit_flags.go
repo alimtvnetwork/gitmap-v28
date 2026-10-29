@@ -62,6 +62,9 @@ func isStandaloneFlag(arg string, meta *CommitMetadata) bool {
 	case FlagAutoWindow:
 		meta.IsAutoWindow = true
 		return true
+	case FlagCommitOnly:
+		meta.IsCommitOnly = true
+		return true
 	default:
 		return false
 	}

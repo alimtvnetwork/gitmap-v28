@@ -174,6 +174,7 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
         <div class="form-group">
           <label for="setting-commit-weekday-cutoff">Commit Weekday Cutoff Time (<code>commit.weekday_cutoff</code>)</label>
           <input type="text" id="setting-commit-weekday-cutoff" name="commit.weekday_cutoff" data-key="commit.weekday_cutoff" value="08:00 AM" placeholder="08:00 AM">
+          <p style="font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-1);">Terminal check: <code>gitmap restrict status</code>. Add or edit with <code>--name</code>, <code>--blocked-after</code>, <code>--email</code>, <code>--tz</code>. Weekends: <code>--weekend-open</code> or <code>--weekend-closed</code>. Stay and commit after the cutoff with <code>--permit-stay</code> and <code>--auto-window</code>. <code>--commit-only</code> keeps the restriction and skips push.</p>
         </div>
         <div class="form-group" style="margin-top:var(--sp-3);">
           <label>Prompt Preview Header Metadata (Default Instance Template)</label>

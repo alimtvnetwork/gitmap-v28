@@ -18,6 +18,7 @@ type CommitMetadata struct {
 	IsDryRun       bool
 	IsTimeEnforced bool
 	IsAutoWindow   bool
+	IsCommitOnly   bool
 }
 
 const (
@@ -41,6 +42,7 @@ const (
 	FlagSchedule      = "--schedule"
 	FlagScheduleShort = "-sc"
 	FlagAutoWindow    = "--auto-window"
+	FlagCommitOnly    = "--commit-only"
 
 	EnvGitmapAgentID          = commitconstants.EnvGitmapAgentID
 	EnvAntigravityAgentID     = commitconstants.EnvAntigravityAgentID

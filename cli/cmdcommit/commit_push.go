@@ -219,6 +219,7 @@ func isTimeRestricted(meta CommitMetadata) bool {
 
 func evaluateTimeWindow(meta CommitMetadata, loc *time.Location) *apperror.AppError {
 	now := time.Now().In(loc)
+	printPaddedInfo("GitMap restricted status: %s (%s)", now.Format("02-Jan-06 03:04 PM"), loc.String())
 	if timeutil.IsCommitWindowAllowed(now, loc) {
 		return nil
 	}
@@ -256,6 +257,12 @@ func cleanupTimeSimulatedEnv(isAutoWindow bool) {
 func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	if errCommit := commitAndRecord(commitMessage, meta); errCommit != nil {
 		return errCommit
+	}
+
+	if meta.IsCommitOnly {
+		printPaddedInfo("Commit-only: restrictions kept, push skipped")
+
+		return nil
 	}
 
 	return pushAndSummarize(commitMessage, meta.Author)

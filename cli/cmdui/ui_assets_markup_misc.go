@@ -33,7 +33,7 @@ const uiAssetsMarkupShell = `<body>
       </div>
       <div style="display:flex;align-items:center;gap:var(--sp-2);">
         <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
-        <button id="btn-fullscreen" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--raised);border:1px solid var(--border);" title="Toggle Fullscreen (F11)">⛶ Fullscreen</button>
+        <button id="btn-fullscreen" class="icon-btn" title="Toggle Fullscreen (F11)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg> Fullscreen</button>
         <button id="btn-exit" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--error);color:var(--text);" title="Close application window and stop server">✕ Close Window</button>
       </div>
     </header>

@@ -245,6 +245,7 @@ func utilityUserEntries() []dispatchEntry {
 		{[]string{"change-user", "cu"}, runChangeUserUtility},
 		{[]string{"change-login", "cl"}, runChangeLoginUtility},
 		{[]string{"autobot", "bot"}, runAutobotUtility},
+		{[]string{"restrict", "restriction"}, runRestrictUtility},
 	}
 }
 

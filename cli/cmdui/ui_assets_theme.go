@@ -122,6 +122,9 @@ const uiAssetsStyle = `  <style>
     .btn { background: var(--primary); color: var(--primary-ink); font-weight: 600; padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-size: var(--fs-sm); display: inline-flex; align-items: center; justify-content: center; }
     .btn:hover { background: var(--primary-hover); filter: brightness(1.04); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
     .btn:active { filter: brightness(0.94); }
+    .icon-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: var(--fs-xs); background: var(--raised); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background 0.3s, border-color 0.3s, color 0.3s; }
+    .icon-btn:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
+    .icon-btn:active { filter: brightness(0.95); }
     .btn-secondary { background: var(--raised); color: var(--text); margin-left: var(--sp-2); }
     .btn-secondary:hover { background: var(--popover); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
     table { width: 100%; border-collapse: collapse; margin-top: var(--sp-2); font-variant-numeric: tabular-nums; }
