@@ -17,22 +17,51 @@ func RunIDE(args []string) error {
 }
 
 func dispatchSubcommand(subcmd string, args []string) error {
+	if isSetupSubcommand(subcmd) {
+		return runIDESetup(args)
+	}
+
+	return dispatchStandardSubcommand(subcmd, args)
+}
+
+func isSetupSubcommand(subcmd string) bool {
+	return subcmd == "setup" || subcmd == "cursor-setup" || subcmd == "setup-ai" || subcmd == "configure"
+}
+
+func dispatchStandardSubcommand(subcmd string, args []string) error {
+	if isRepoManageSubcommand(subcmd) {
+		return dispatchRepoManage(subcmd, args)
+	}
+
+	return dispatchQuerySubcommand(subcmd, args)
+}
+
+func isRepoManageSubcommand(subcmd string) bool {
+	return subcmd == "add" || subcmd == "register" || subcmd == "sync" || subcmd == "remove" || subcmd == "rm"
+}
+
+func dispatchRepoManage(subcmd string, args []string) error {
 	switch subcmd {
 	case "add", "register":
 		return runIDEAdd(args)
 	case "sync":
 		return runIDESync(args)
-	case "remove", "rm":
+	default:
 		return runIDERemove(args)
+	}
+}
+
+func dispatchQuerySubcommand(subcmd string, args []string) error {
+	switch subcmd {
 	case "list", "ls":
 		return runIDEList(args)
 	case "status":
 		return runIDEStatus(args)
 	case "help", "-h", "--help":
 		return RunHelp()
-	default:
-		return apperror.NewValidation("cmdide.RunIDE", "E1000", "unknown ide subcommand: "+subcmd)
 	}
+
+	return apperror.NewValidation("cmdide.RunIDE", "E1000", "unknown ide subcommand: "+subcmd)
 }
 
 func defaultIDEOptions() IDEOptions {

@@ -21,8 +21,41 @@ func RunHelp() error {
 }
 
 func printHelpDetails() {
-	fmt.Print("Commands:\n  add <path>       Add repository to IDEs (--target <ide>)\n  sync [dir]       Synchronize repositories across IDEs\n  remove <path>    Remove repository from IDEs (alias: rm)\n  list             List repositories and status (alias: ls)\n  status           Display overview of installed IDEs\n  help             Show this help reference\n\n")
-	fmt.Print("Flags:\n  -t, --target <ide>    Target specific IDE (vscode, cursor, agy, desktop, all)\n  -e, --exclude <ide>   Exclude IDE from synchronization (e.g. desktop)\n  -d, --dir <path>      Scan specific directory instead of store\n  -n, --dry-run         Simulate operations without writing changes\n  -j, --json            Emit machine-readable JSON output\n  -q, --quiet           Suppress informational messages\n\n")
+	printHelpCommands()
+	printHelpFlags()
+	printHelpExamples()
+}
+
+func printHelpCommands() {
+	fmt.Print("Commands:\n")
+	fmt.Print("  setup [target]   Configure AI IDEs (cline, continue, zed, all) (alias: cursor-setup, setup-ai, configure)\n")
+	fmt.Print("  add <path>       Add repository to IDEs (--target <ide>)\n")
+	fmt.Print("  sync [dir]       Synchronize repositories across IDEs\n")
+	fmt.Print("  remove <path>    Remove repository from IDEs (alias: rm)\n")
+	fmt.Print("  list             List repositories and status (alias: ls)\n")
+	fmt.Print("  status           Display overview of installed IDEs\n")
+	fmt.Print("  help             Show this help reference\n\n")
+}
+
+func printHelpFlags() {
+	fmt.Print("Flags:\n")
+	fmt.Print("  -p, --provider <name> AI provider preset (kimi, openrouter, deepseek, anthropic, ollama, custom)\n")
+	fmt.Print("  -m, --model <id>      Model identifier override\n")
+	fmt.Print("  -b, --base-url <url>  Custom endpoint base URL override\n")
+	fmt.Print("  -k, --api-key <key>   API key for the provider\n")
+	fmt.Print("      --test            Test connectivity before configuring\n")
+	fmt.Print("  -t, --target <ide>    Target specific IDE (vscode, cursor, agy, desktop, all)\n")
+	fmt.Print("  -n, --dry-run         Simulate operations without writing changes\n")
+	fmt.Print("  -j, --json            Emit machine-readable JSON output\n")
+	fmt.Print("  -q, --quiet           Suppress informational messages\n\n")
+}
+
+func printHelpExamples() {
+	fmt.Print("Examples:\n")
+	fmt.Print("  gitmap ide setup --provider kimi --api-key sk-xxxxxx\n")
+	fmt.Print("  gitmap ide setup all --provider ollama --model deepseek-r1\n")
+	fmt.Print("  gitmap ide setup cline --dry-run\n")
+	fmt.Print("  gitmap ide setup --test --provider deepseek -k sk-xxxxxx\n\n")
 }
 
 func runIDEStatus(args []string) error {

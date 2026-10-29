@@ -76,6 +76,14 @@ func mountAPIRoutes(mux *http.ServeMux) {
 	mountToolAndScanRoutes(mux)
 	mountContextMenuRoutes(mux)
 	mountMacroAndInstallerRoutes(mux)
+	mountIDESetupRoutes(mux)
+}
+
+func mountIDESetupRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/ide/setup/status", handleIDESetupStatus)
+	mux.HandleFunc("/api/ide/setup/presets", handleIDESetupPresets)
+	mux.HandleFunc("/api/ide/setup/test-connection", handleIDESetupTestConnection)
+	mux.HandleFunc("/api/ide/setup/apply", handleIDESetupApply)
 }
 
 func mountSSHAndEditorRoutes(mux *http.ServeMux) {
