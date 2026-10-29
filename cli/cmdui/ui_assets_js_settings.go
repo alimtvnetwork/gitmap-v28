@@ -203,7 +203,7 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
     }
 
     // Dead-handler stubs (spec 249.2 §7): honest "not implemented yet" toasts, zero ReferenceErrors.
-    ['deployMacroFleetModal', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule', 'testNode'].forEach(function (nm) {
+    ['deployMacroFleetModal', 'saveInstaller', 'testInstaller', 'formatPromptJSON', 'importPrompt', 'exportFullConfig', 'importFullConfig', 'addSchedule'].forEach(function (nm) {
       window[nm] = function () { showToast('Not implemented yet', 'info'); };
     });
 

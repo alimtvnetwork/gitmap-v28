@@ -88,6 +88,7 @@ func mountIDESetupRoutes(mux *http.ServeMux) {
 
 func mountSSHAndEditorRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ssh/nodes", handleAPISSHNodes)
+	mux.HandleFunc("/api/ssh/test", handleAPISSHTest)
 	mux.HandleFunc("/api/ssh/export", handleAPISSHExport)
 	mux.HandleFunc("/api/ssh/import", handleAPISSHImport)
 	mux.HandleFunc("/api/ssh/deploy-keys", handleAPISSHDeployKeys)

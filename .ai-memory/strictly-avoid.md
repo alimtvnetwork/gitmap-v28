@@ -804,3 +804,18 @@ Allowed work:
 
 - Do not store a personal access token inside a git remote URL. Use SSH.
 - Do not commit Go coverage profiles or SQLite `-shm` and `-wal` sidecars.
+
+---
+
+## Hover Must Not Move Controls — TOTAL BAN
+
+🔴 **NEVER move a control on hover or active. Hover and active may change color, background, border, and shadow. They must not change transform, position, top, margin, or translate.**
+
+Forbidden:
+- ❌ `:hover` or `:active` rules that set `transform`, `translate`, `translateX`, or `translateY`.
+- ❌ Shifting a control with `position`, `top`, or `margin` when it is hovered or pressed.
+
+Allowed work:
+- ✅ Change `color`, `background`, `border`, `border-color`, and `box-shadow` on hover and active.
+
+**Why:** The settings UI shifted nav buttons, cards, and buttons on hover and press. That motion makes controls feel unstable. Color, background, border, and shadow are enough feedback.

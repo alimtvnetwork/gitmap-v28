@@ -15,35 +15,35 @@ File ownership is disjoint. Each path below belongs to one subtask. An owner edi
 ### ST-01 theme hover
 
 - **Owner:** Worker 01
-- **Status:** pending
+- **Status:** done
 - **Files:** `cli/cmdui/ui_assets_theme.go`
 - **Work:** Hover rules in the theme asset move controls (`translateX` on navigation buttons, `translateY` on cards and buttons). Remove hover movement from this file. Color and border changes on hover may remain. Leave `.ai-memory/strictly-avoid.md` to ST-05.
 
 ### ST-02 ssh ping mount and online probe
 
 - **Owner:** Worker 02
-- **Status:** pending
+- **Status:** done
 - **Files:** `cli/cmdui/ui_server.go`, `cli/cmdui/ui_server_ssh.go`
 - **Work:** The server mux mounts SSH node, export, import, and deploy-key routes and does not mount `/api/ssh/ping` or `/api/ssh/test`. Mount those two routes on the server mux. Node summaries currently set online to true for every connection. Replace that constant with a real online probe and return the probed state. Leave the settings script to ST-03.
 
 ### ST-03 stop stubbing testNode; settings debug toggle
 
 - **Owner:** Worker 03
-- **Status:** pending
+- **Status:** partial
 - **Files:** `cli/cmdui/ui_assets_js_settings.go`
 - **Work:** The dead-handler list assigns `window.testNode` to a "Not implemented yet" toast and covers the real ping function. Remove `testNode` from that stub list. Add a settings debug toggle in this same file. Do not edit the SSH server files (ST-02) or the nodes script.
 
 ### ST-04 help contrast
 
 - **Owner:** Worker 04
-- **Status:** pending
+- **Status:** done
 - **Files:** `cli/cmdui/ui_server_help.go`, `cli/cmdui/ui_assets_js_prompts_help.go`
 - **Work:** Help topic names, summaries, and prompt badges use low-contrast foregrounds against the theme background. Raise that contrast in these two files so help text stays readable on the dark theme and the light theme.
 
 ### ST-05 strictly avoid hover movement
 
 - **Owner:** Worker 05
-- **Status:** pending
+- **Status:** done
 - **Files:** `.ai-memory/strictly-avoid.md`
 - **Work:** Record the rule that hover must not move the hovered element. This file is the rule. The theme asset change belongs to ST-01.
 

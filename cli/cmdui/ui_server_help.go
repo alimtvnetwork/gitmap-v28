@@ -2,12 +2,12 @@ package cmdui
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/helpdoc"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 type topicSummaryItem struct {
@@ -16,6 +16,14 @@ type topicSummaryItem struct {
 	Summary     string `json:"summary"`
 	HasMarkdown bool   `json:"hasMarkdown"`
 }
+
+const (
+	helpTopicMissMessagePrefix = "embedded manual file is absent for topic "
+	helpTopicMissErrorCode     = "ERR_HELP_TOPIC_MISS"
+	helpTopicMissErrorType     = "HelpDocMiss"
+	helpTopicMissCommand       = "ui help doc"
+	helpTopicMissSourceFile    = "cli/cmdui/ui_server_help.go"
+)
 
 func handleAPIHelpTopics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
@@ -55,7 +63,9 @@ func handleAPIHelpDoc(w http.ResponseWriter, r *http.Request) {
 
 	content, err := helpdoc.ReadRaw(topic)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("topic documentation not found: %s", topic), http.StatusNotFound)
+		logHelpTopicMiss(topic)
+		http.Error(w, helpTopicMissMessagePrefix + topic, http.StatusNotFound)
+
 		return
 	}
 
@@ -73,4 +83,15 @@ func handleAPIHelpDoc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(content)
+}
+
+func logHelpTopicMiss(topic string) {
+	store.LogInternalErrorRecord(store.InternalErrorRecord{
+		ErrorCode:  helpTopicMissErrorCode,
+		ErrorType:  helpTopicMissErrorType,
+		Command:    helpTopicMissCommand,
+		Message:    helpTopicMissMessagePrefix + topic,
+		Details:    topic,
+		SourceFile: helpTopicMissSourceFile,
+	})
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/db"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // SSHPingResult encapsulates the JSON response for node ping tests.
@@ -68,7 +69,7 @@ func buildNodeSummaries(conns []db.SSHConnection) []NodeSummary {
 			Alias:        c.Alias,
 			Host:         c.IPAddress,
 			Port:         22,
-			IsOnline:     true,
+			IsOnline:     false,
 			OS:           c.OS,
 			Account:      account,
 			Instances:    1,
@@ -112,7 +113,34 @@ func handleAPISSHTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := executeNodePingCheck(alias)
+	logFailedSSHPing(alias, res)
 	_ = json.NewEncoder(w).Encode(res)
+}
+
+func logFailedSSHPing(alias string, res SSHPingResult) {
+	isPingOk := res.Success
+	if isPingOk {
+		return
+	}
+
+	store.LogInternalErrorRecord(store.InternalErrorRecord{
+		ErrorType:  "ssh",
+		ErrorCode:  "ssh_ping_failed",
+		Command:    "api/ssh/test",
+		Message:    sshPingFailureMessage(res),
+		Details:    alias,
+		SourceFile: "cli/cmdui/ui_server_ssh.go",
+	})
+}
+
+func sshPingFailureMessage(res SSHPingResult) string {
+	message := strings.TrimSpace(res.Error)
+	hasMessage := message != ""
+	if hasMessage {
+		return message
+	}
+
+	return "ssh ping failed"
 }
 
 func handleAPISSHPing(w http.ResponseWriter, r *http.Request) {

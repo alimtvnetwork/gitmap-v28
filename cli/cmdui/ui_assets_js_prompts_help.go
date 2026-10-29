@@ -63,48 +63,66 @@ const uiAssetsJSPromptsHelp = `    let allPrompts = [], activePromptCategory = '
         container.innerHTML = '<div style="color:var(--muted);font-size:var(--fs-sm);padding:var(--sp-2)">No prompts found matching filter.</div>';
         return;
       }
-      filtered.sort(function (a, b) {
-        function rank(s) {
-          const st = (s || '').toLowerCase();
-          if (st === 'running') return 0;
-          if (st === 'queued' || st === 'enqueued') return 1;
-          if (st === 'active') return 2;
-          return 3;
+      function rankPromptRow(s) {
+        const st = (s || '').toLowerCase();
+        if (st === 'running') return 0;
+        if (st === 'queued' || st === 'enqueued') return 1;
+        if (st === 'active') return 2;
+        return 3;
+      }
+      const promptGroups = [];
+      const promptGroupSeen = {};
+      filtered.forEach(function (p) {
+        const instName = p.instance || 'instance';
+        if (promptGroupSeen[instName] === undefined) {
+          promptGroupSeen[instName] = promptGroups.length;
+          promptGroups.push({ name: instName, rows: [] });
         }
-        return rank(a.status) - rank(b.status);
+        promptGroups[promptGroupSeen[instName]].rows.push(p);
       });
       container.innerHTML = '';
-      filtered.slice(0, 30).forEach(function (p) {
-        const item = document.createElement('div');
-        item.style.cssText = 'padding:var(--sp-3);background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;';
-        const stLower = (p.status || '').toLowerCase();
-        let badgeClass = 'badge-offline';
-        let badgeText = (p.status || 'IDLE').toUpperCase();
-        let badgeStyle = '';
-        if (stLower === 'running') {
-          badgeClass = 'badge-online';
-          badgeText = 'RUNNING';
-          badgeStyle = 'background:rgba(210,153,34,0.18);color:#d29922;border:1px solid #d29922;font-weight:700;';
-        } else if (stLower === 'queued' || stLower === 'enqueued') {
-          badgeClass = 'badge-queued';
-          badgeText = stLower === 'enqueued' ? 'ENQUEUED' : 'QUEUED';
-          badgeStyle = 'background:rgba(88,166,255,0.18);color:#58a6ff;border:1px solid #58a6ff;font-weight:700;';
-        } else if (stLower === 'active') {
-          badgeClass = 'badge-online';
-          badgeText = 'ACTIVE';
-        }
-        item.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-          '<b>' + escapeHTML(p.title) + '</b>' +
-          '<span class="badge ' + badgeClass + '"' + (badgeStyle ? ' style="' + badgeStyle + '"' : '') + '>' + escapeHTML(badgeText) + '</span>' +
-          '</div>' +
-          '<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">Instance: ' + escapeHTML(p.instance) + '</div>' +
-          '<div style="font-size:var(--fs-sm);color:var(--text);font-family:var(--font-mono);max-height:48px;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML((p.text || '').slice(0, 160)) + '</div>';
-        item.addEventListener('click', function () {
-          const area = document.getElementById('prompt-content');
-          if (area) { area.value = p.text || p.title; area.scrollIntoView({ behavior: 'smooth' }); }
-          showToast('Loaded prompt template into scratchpad', 'info');
+      let shownPromptCount = 0;
+      promptGroups.forEach(function (g) {
+        if (shownPromptCount >= 30) return;
+        g.rows.sort(function (a, b) { return rankPromptRow(a.status) - rankPromptRow(b.status); });
+        const heading = document.createElement('div');
+        heading.style.cssText = 'font-size:var(--fs-sm);font-weight:700;color:var(--text);margin-top:var(--sp-2);';
+        heading.textContent = g.name;
+        container.appendChild(heading);
+        g.rows.forEach(function (p) {
+          if (shownPromptCount >= 30) return;
+          shownPromptCount += 1;
+          const item = document.createElement('div');
+          item.style.cssText = 'padding:var(--sp-3);background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;';
+          const stLower = (p.status || '').toLowerCase();
+          let badgeClass = 'badge-offline';
+          let badgeText = (p.status || 'IDLE').toUpperCase();
+          let badgeStyle = '';
+          if (stLower === 'running') {
+            badgeClass = 'badge-online';
+            badgeText = 'RUNNING';
+            badgeStyle = 'background:rgba(210,153,34,0.18);color:#d29922;border:1px solid #d29922;font-weight:700;';
+          } else if (stLower === 'queued' || stLower === 'enqueued') {
+            badgeClass = 'badge-queued';
+            badgeText = stLower === 'enqueued' ? 'ENQUEUED' : 'QUEUED';
+            badgeStyle = 'background:rgba(88,166,255,0.18);color:#58a6ff;border:1px solid #58a6ff;font-weight:700;';
+          } else if (stLower === 'active') {
+            badgeClass = 'badge-online';
+            badgeText = 'ACTIVE';
+          }
+          item.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+            '<b>' + escapeHTML(p.title) + '</b>' +
+            '<span class="badge ' + badgeClass + '"' + (badgeStyle ? ' style="' + badgeStyle + '"' : '') + '>' + escapeHTML(badgeText) + '</span>' +
+            '</div>' +
+            '<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">Instance: ' + escapeHTML(p.instance) + '</div>' +
+            '<div style="font-size:var(--fs-sm);color:var(--text);font-family:var(--font-mono);max-height:48px;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML((p.text || '').slice(0, 160)) + '</div>';
+          item.addEventListener('click', function () {
+            const area = document.getElementById('prompt-content');
+            if (area) { area.value = p.text || p.title; area.scrollIntoView({ behavior: 'smooth' }); }
+            showToast('Loaded prompt template into scratchpad', 'info');
+          });
+          container.appendChild(item);
         });
-        container.appendChild(item);
       });
     }
     function copyPromptToClipboard() {
@@ -178,11 +196,15 @@ const uiAssetsJSPromptsHelp = `    let allPrompts = [], activePromptCategory = '
       if (viewer) viewer.innerText = 'Loading manual for ' + topic + '...';
       try {
         const res = await fetch('/api/help/doc?topic=' + encodeURIComponent(topic));
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        if (viewer) viewer.innerText = text;
+        const hasManual = res.ok;
+        if (hasManual && viewer) {
+          viewer.innerText = await res.text();
+          return;
+        }
+        if (viewer) viewer.innerText = 'The topic ' + topic + ' has no embedded manual yet.';
       } catch (e) {
-        if (viewer) viewer.innerText = 'Failed to load manual for ' + topic + ': ' + e.message;
+        console.error('loadHelpDoc', topic, e);
+        if (viewer) viewer.innerText = 'The topic ' + topic + ' has no embedded manual yet.';
       }
     }
     function copyCurrentHelpDoc() {
