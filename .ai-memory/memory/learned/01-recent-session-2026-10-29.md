@@ -41,6 +41,8 @@ These local commits are still unpushed because GitHub denied `alimtvnetwork`:
 ## Last 30 commits in this repo
 
 ```text
+da47c12bc Feature: ide - complete cursor-like ide setup plan 352
+ec61b69cf docs(memory) - record the 2026-10-29 warm-up and git session.
 04690b952 test(ide) - cover single-target Cline, Continue, and Zed setup.
 864012968 test(ide) - cover the cursor-like IDE setup presets.
 3229df9b4 feat(ide) - add the cursor-like IDE setup command and its spec.
@@ -69,6 +71,4 @@ d770e7e28 Feature: ui - next 100 ui improvements round 7 history decomposition a
 f64ce63fa Feature: ui - next 100 ui improvements round 3 tokens contrast and component hygiene
 e24099b78 Feature: ui - next 100 ui improvements round 2 tokens touch targets and motion
 cf0e789e1 Feature: ui - next 100 ui improvements across tokens depth buttons and navigation
-1dd56d6b2 Release: v6.627.0 context menu icon isolation, non-git show-log dashboard fallback, browser decoupling, profile and macro UI
-7b4e509cc Release: v6.626.0 eliminate error swallowing across pull db sync and casing normalization
 ```
