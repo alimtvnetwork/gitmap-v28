@@ -118,3 +118,34 @@ func TestIsContextMenuHelp(t *testing.T) {
 		t.Errorf("isContextMenuHelp(install) = true, want false")
 	}
 }
+
+func TestHasHideGitFlag(t *testing.T) {
+	if !hasHideGitFlag([]string{"--hide-git"}) {
+		t.Errorf("hasHideGitFlag(--hide-git) = false, want true")
+	}
+
+	if !hasHideGitFlag([]string{"--hide-git-actions"}) {
+		t.Errorf("hasHideGitFlag(--hide-git-actions) = false, want true")
+	}
+
+	if hasHideGitFlag([]string{"install"}) {
+		t.Errorf("hasHideGitFlag(install) = true, want false")
+	}
+}
+
+func TestRunContextMenu_ToggleGitActions(t *testing.T) {
+	mockRunner := func(args ...string) ([]byte, error) {
+		return []byte("ok"), nil
+	}
+	withMockReg("windows", mockRunner, func() {
+		if err := RunContextMenu([]string{"hide-git-actions"}); err != nil {
+			t.Fatalf("hide-git-actions failed: %v", err)
+		}
+		if err := RunContextMenu([]string{"show-git-actions"}); err != nil {
+			t.Fatalf("show-git-actions failed: %v", err)
+		}
+		if err := RunContextMenu([]string{"toggle-git-actions"}); err != nil {
+			t.Fatalf("toggle-git-actions failed: %v", err)
+		}
+	})
+}

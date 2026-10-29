@@ -12,11 +12,12 @@ import (
 
 // ContextMenuStatusResponse represents context menu state for the Web UI.
 type ContextMenuStatusResponse struct {
-	IsActive  bool   `json:"isActive"`
-	Status    string `json:"status"`
-	IsCleaned bool   `json:"isCleaned"`
-	OS        string `json:"os"`
-	Success   bool   `json:"success"`
+	IsActive           bool   `json:"isActive"`
+	Status             string `json:"status"`
+	IsCleaned          bool   `json:"isCleaned"`
+	IsGitActionsHidden bool   `json:"isGitActionsHidden"`
+	OS                 string `json:"os"`
+	Success            bool   `json:"success"`
 }
 
 func mountContextMenuRoutes(mux *http.ServeMux) {
@@ -25,6 +26,7 @@ func mountContextMenuRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/context-menu/install", handleAPIContextMenuInstall)
 	mux.HandleFunc("/api/context-menu/uninstall", handleAPIContextMenuUninstall)
 	mux.HandleFunc("/api/context-menu/ide-setup", handleAPIContextMenuIDESetup)
+	mux.HandleFunc("/api/context-menu/toggle-git-actions", handleAPIContextMenuToggleGitActions)
 }
 
 func handleAPIContextMenuIDESetup(w http.ResponseWriter, r *http.Request) {
@@ -42,6 +44,22 @@ func handleAPIContextMenuIDESetup(w http.ResponseWriter, r *http.Request) {
 	handleIDESetupApply(w, r)
 }
 
+func handleAPIContextMenuToggleGitActions(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
+	if r.Method != http.MethodPost {
+		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+
+		return
+	}
+
+	isHidden := cmdinstall.IsGitActionsHidden()
+	err := cmdinstall.SetGitActionsHidden(!isHidden)
+	if err == nil {
+		err = cmdinstall.RunInstallCtx(false)
+	}
+	encodeOperationResponse(w, err, "Git actions context menu visibility updated")
+}
+
 func handleAPIContextMenuStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
@@ -53,11 +71,12 @@ func handleAPIContextMenuStatus(w http.ResponseWriter, r *http.Request) {
 
 	st := cmdcontextmenu.DetectPowerShellStatus()
 	resp := ContextMenuStatusResponse{
-		IsActive:  isActive,
-		Status:    statusText,
-		IsCleaned: st.IsCleaned,
-		OS:        runtime.GOOS,
-		Success:   true,
+		IsActive:           isActive,
+		Status:             statusText,
+		IsCleaned:          st.IsCleaned,
+		IsGitActionsHidden: cmdinstall.IsGitActionsHidden(),
+		OS:                 runtime.GOOS,
+		Success:            true,
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)

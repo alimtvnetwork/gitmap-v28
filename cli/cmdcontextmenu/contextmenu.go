@@ -31,11 +31,17 @@ var ctxCmdDispatch = map[string]ctxSubcmdHandler{
 	"pwsh-clean":       runContextMenuCleanPowerShell,
 	"customize":        runContextMenuCustomize,
 	"custom":           runContextMenuCustomize,
-	"wizard":           runWizardAdapter,
-	"ui":               runWizardAdapter,
-	"ide-setup":        runContextMenuIDESetup,
-	"setup-ide":        runContextMenuIDESetup,
-	"cursor-setup":     runContextMenuIDESetup,
+	"wizard":             runWizardAdapter,
+	"ui":                 runWizardAdapter,
+	"ide-setup":          runContextMenuIDESetup,
+	"setup-ide":          runContextMenuIDESetup,
+	"cursor-setup":       runContextMenuIDESetup,
+	"hide-git-actions":   runContextMenuHideGitActions,
+	"hide-git":           runContextMenuHideGitActions,
+	"show-git-actions":   runContextMenuShowGitActions,
+	"show-git":           runContextMenuShowGitActions,
+	"toggle-git-actions": runContextMenuToggleGitActions,
+	"toggle-git":         runContextMenuToggleGitActions,
 }
 
 // RunContextMenu handles the 'context-menu' command and its subcommands.
@@ -126,8 +132,53 @@ func hasHelpFlag(args []string) bool {
 
 func runContextMenuInstall(args []string) error {
 	hasExplain := hasExplainFlag(args)
+	if hasHideGitFlag(args) {
+		_ = cmdinstall.SetGitActionsHidden(true)
+	}
 
 	return cmdinstall.RunInstallCtx(hasExplain)
+}
+
+func hasHideGitFlag(args []string) bool {
+	for _, a := range args {
+		if strutil.EqualFoldAny(a, "--hide-git", "--hide-git-actions", "-hide-git") {
+			return true
+		}
+	}
+
+	return false
+}
+
+func runContextMenuHideGitActions(_ []string) error {
+	if err := cmdinstall.SetGitActionsHidden(true); err != nil {
+		return err
+	}
+	fmt.Printf("✓ %sGit actions hidden from context menu.%s\n", constants.ColorGreen, constants.ColorReset)
+
+	return cmdinstall.RunInstallCtx(false)
+}
+
+func runContextMenuShowGitActions(_ []string) error {
+	if err := cmdinstall.SetGitActionsHidden(false); err != nil {
+		return err
+	}
+	fmt.Printf("✓ %sGit actions enabled in context menu.%s\n", constants.ColorGreen, constants.ColorReset)
+
+	return cmdinstall.RunInstallCtx(false)
+}
+
+func runContextMenuToggleGitActions(_ []string) error {
+	isHidden := cmdinstall.IsGitActionsHidden()
+
+	return dispatchToggleGitActions(!isHidden)
+}
+
+func dispatchToggleGitActions(hide bool) error {
+	if hide {
+		return runContextMenuHideGitActions(nil)
+	}
+
+	return runContextMenuShowGitActions(nil)
 }
 
 func runContextMenuUninstall() error {
@@ -140,6 +191,7 @@ func runContextMenuStatus() error {
 	isActive := cmdinstall.IsContextMenuActive()
 	if isActive {
 		fmt.Printf("✓ %sGitMap context menu is active in the OS.%s\n", constants.ColorGreen, constants.ColorReset)
+		printGitActionsVisibility()
 		fmt.Println("  Use 'gitmap context-menu uninstall' to remove it.")
 
 		return nil
@@ -149,6 +201,15 @@ func runContextMenuStatus() error {
 	fmt.Println("  Use 'gitmap context-menu install' to register it.")
 
 	return nil
+}
+
+func printGitActionsVisibility() {
+	if cmdinstall.IsGitActionsHidden() {
+		fmt.Printf("  • Git Actions: %sHidden%s\n", constants.ColorYellow, constants.ColorReset)
+
+		return
+	}
+	fmt.Printf("  • Git Actions: %sVisible%s\n", constants.ColorGreen, constants.ColorReset)
 }
 
 func runContextMenuCleanPowerShell(args []string) error {
@@ -212,6 +273,8 @@ func printCustomizeActions() {
 	fmt.Println("\nAvailable Customizations:")
 	fmt.Println("  gitmap context-menu clean-powershell          Hide legacy PowerShell duplicate")
 	fmt.Println("  gitmap context-menu clean-powershell --restore Restore legacy PowerShell menu")
+	fmt.Println("  gitmap context-menu hide-git-actions          Hide Git direct actions from context menu")
+	fmt.Println("  gitmap context-menu show-git-actions          Show Git direct actions in context menu")
 	fmt.Println("  gitmap context-menu install                   Register GitMap context menus")
 	fmt.Println("  gitmap context-menu uninstall                 Remove GitMap context menus")
 	fmt.Println("  gitmap context-menu wizard                    Open install wizard UI")
@@ -249,10 +312,13 @@ func printContextMenuHelp() {
 	fmt.Println("  uninstall        Remove GitMap from OS context menus")
 	fmt.Println("  status           Check whether context menu integration is active")
 	fmt.Println("  clean-powershell Clean duplicate legacy PowerShell context menu entries")
+	fmt.Println("  hide-git-actions Hide Git direct actions from folder context menu")
+	fmt.Println("  show-git-actions Restore Git direct actions in folder context menu")
 	fmt.Println("  customize        Overview and configure context menu customizations")
 	fmt.Println("  ide-setup        Configure Cursor-like IDEs (Cline, Continue, Zed)")
 	fmt.Println("  wizard           Open the interactive Install Wizard overview")
 	fmt.Println("\nFlags:")
+	fmt.Println("  --hide-git       Omit Git direct actions during install")
 	fmt.Println("  --explain        Print command templates before execution")
 	fmt.Println("  --help, -h       Show this help message")
 }

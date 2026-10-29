@@ -159,6 +159,7 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         <div style="display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-4);">
           <button class="btn" type="button" id="btn-ctx-install" onclick="installContextMenuUI()"><span data-icon="check"></span>Install Context Menu</button>
           <button class="btn btn-secondary" type="button" id="btn-ctx-uninstall" onclick="uninstallContextMenuUI()"><span data-icon="x"></span>Uninstall Context Menu</button>
+          <button class="btn btn-secondary" type="button" id="btn-ctx-toggle-git" onclick="toggleGitActionsUI()"><span data-icon="git-branch"></span><span id="txt-ctx-toggle-git">Toggle Git Actions</span></button>
           <button class="btn btn-secondary" type="button" id="btn-ctx-clean-ps" onclick="cleanDuplicatePowerShellUI()"><span data-icon="check"></span>Clean Duplicate PowerShell Menu</button>
           <button class="btn btn-secondary" type="button" id="btn-open-log-viewer" onclick="openLogViewerUI()"><span data-icon="scroll-text"></span>Git Log &amp; Diff Viewer</button>
         </div>
@@ -231,6 +232,7 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
     <script>
       async function refreshContextMenuStatus() {
         const badge = document.getElementById('ctx-status-badge');
+        const gitTxt = document.getElementById('txt-ctx-toggle-git');
         try {
           const res = await fetch('/api/context-menu/status');
           const data = await res.json();
@@ -238,9 +240,20 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
             badge.className = data.isActive ? 'badge badge-online' : 'badge badge-offline';
             badge.textContent = data.isActive ? 'Active' : 'Inactive';
           }
+          if (gitTxt && data.isGitActionsHidden !== undefined) {
+            gitTxt.textContent = data.isGitActionsHidden ? 'Show Git Actions' : 'Hide Git Actions';
+          }
         } catch (e) {
           if (badge) { badge.className = 'badge'; badge.textContent = 'Unknown'; }
         }
+      }
+      async function toggleGitActionsUI() {
+        try {
+          const res = await fetch('/api/context-menu/toggle-git-actions', { method: 'POST' });
+          const data = await res.json();
+          showToast(data.success ? (data.message || 'Updated Git actions visibility') : ('Update failed: ' + (data.error || 'error')), data.success ? 'success' : 'error');
+          refreshContextMenuStatus();
+        } catch (e) { showToast('Toggle error: ' + e.message, 'error'); }
       }
       async function installContextMenuUI() {
         try {

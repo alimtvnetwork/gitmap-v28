@@ -83,3 +83,29 @@ func assertMarkupContains(t *testing.T, html, substr string) {
 		t.Errorf("expected IndexHTML to contain %q", substr)
 	}
 }
+
+func TestAPIContextMenuToggleGitActionsMethodNotAllowed(t *testing.T) {
+	mux := http.NewServeMux()
+	mountAPIRoutes(mux)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/context-menu/toggle-git-actions", nil)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected 405 MethodNotAllowed, got %d", rec.Code)
+	}
+}
+
+func TestAPIContextMenuToggleGitActionsPost(t *testing.T) {
+	mux := http.NewServeMux()
+	mountAPIRoutes(mux)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/context-menu/toggle-git-actions", nil)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}

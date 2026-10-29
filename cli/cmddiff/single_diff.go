@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdgit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/gitutil"
 )
@@ -14,7 +13,10 @@ import (
 func runSinglePathDiff(target string) error {
 	repoRoot, isGitRepo := detectTargetGitRepo(target)
 	if !isGitRepo {
-		return apperror.NewExecutionError("not a git repository: " + target)
+		fmt.Fprintf(os.Stderr, "  ✗ '%s' is not a Git repository.\n", target)
+		fmt.Fprintln(os.Stderr, "  💡 Tip: Specify comparison paths (gitmap diff <folder1> <folder2>) or run inside a Git repository.")
+
+		return nil
 	}
 
 	compareTool, err := cmdgit.FindCompareTool()

@@ -87,13 +87,12 @@ func runInstallCtxWindows() error {
 }
 
 func purgeLegacyWindowsCtxKeys() {
-	legacyKeys := []string{
-		constants.CtxRootKeyDirectory + `\shell\70_git`,
-		constants.CtxRootKeyBackground + `\shell\70_git`,
-		constants.CtxRootKeyDirectory + `\shell\95_install_wizard`,
-		constants.CtxRootKeyDirectory + `\shell\96_clean_powershell`,
+	wipeKeys := []string{
+		constants.CtxRootKeyBackground + `\shell`,
+		constants.CtxRootKeyDirectory + `\shell`,
+		constants.CtxRootKeyFile + `\shell`,
 	}
-	for _, k := range legacyKeys {
+	for _, k := range wipeKeys {
 		_ = exec.Command("reg", "delete", k, "/f").Run()
 	}
 }

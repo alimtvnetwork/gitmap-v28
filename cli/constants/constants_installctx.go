@@ -41,8 +41,26 @@ const CtxIconExeToken = "{exe}"
 // Format: "<path>,<index>" — Windows shell uses the indexed icon
 // resource inside the binary/DLL. Index 0 picks the default icon.
 const (
-	CtxIconGitmap = CtxIconExeToken + ",0"
-	CtxIconPwsh   = `C:\Program Files\PowerShell\7\pwsh.exe,0`
+	CtxIconGitmap        = CtxIconExeToken + ",0"
+	CtxIconPwsh          = `C:\Program Files\PowerShell\7\pwsh.exe,0`
+	CtxIconShowLog       = "shell32.dll,264"
+	CtxIconDiff          = "shell32.dll,246"
+	CtxIconBranchCompare = "shell32.dll,133"
+	CtxIconCommit        = "shell32.dll,297"
+	CtxIconPull          = "shell32.dll,146"
+	CtxIconPush          = "shell32.dll,147"
+	CtxIconScan          = "shell32.dll,22"
+	CtxIconClone         = "shell32.dll,134"
+	CtxIconRelease       = "shell32.dll,265"
+	CtxIconRepos         = "shell32.dll,4"
+	CtxIconWebUI         = "shell32.dll,14"
+	CtxIconSettings      = "shell32.dll,315"
+	CtxIconTerminal      = "shell32.dll,220"
+	CtxIconDocs          = "shell32.dll,266"
+	CtxIconHelp          = "shell32.dll,23"
+	CtxIconInstall       = "shell32.dll,260"
+	CtxIconMacro         = "shell32.dll,250"
+	CtxIconVisibility    = "shell32.dll,174"
 )
 
 // User-facing labels and exec messages.

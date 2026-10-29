@@ -31,32 +31,62 @@ func RunShowLog(args []string) error {
 
 	repoRoot, relPath, err := ResolveTargetRepoAndPath(fs.Args())
 	if err != nil {
-		cleanTarget := sanitizeTargetArg(fs.Args())
-		fmt.Fprintf(os.Stderr, "  ✗ '%s' is not a Git repository.\n", cleanTarget)
-		childRepos := findChildRepos(cleanTarget)
-		if len(childRepos) > 0 {
-			fmt.Fprintln(os.Stderr, "  📁 Detected Git repositories in this directory:")
-			for _, cr := range childRepos {
-				rel, _ := filepath.Rel(cleanTarget, cr)
-				if rel == "" {
-					rel = filepath.Base(cr)
-				}
-				fmt.Fprintf(os.Stderr, "    • %s  (run: gitmap show-log %s)\n", filepath.Base(cr), rel)
-			}
-			if !*noBrowser && FallbackDashboardUIFn != nil {
-				fmt.Fprintln(os.Stderr, "  ⚡ Launching GitMap Web UI dashboard...")
-				return FallbackDashboardUIFn("search", 8080)
-			}
-		} else {
-			fmt.Fprintln(os.Stderr, "  💡 Tip: Run 'gitmap show-log' inside a Git repository or specify target: gitmap show-log <path>")
-		}
-		return nil
+		return handleNonGitShowLog(fs.Args(), *noBrowser)
 	}
 
 	return startLogServer(repoRoot, relPath, *port, !*noBrowser, *branchCompare)
 }
 
+func handleNonGitShowLog(args []string, isNoBrowser bool) error {
+	cleanTarget := sanitizeTargetArg(args)
+	fmt.Fprintf(os.Stderr, "  ✗ '%s' is not a Git repository.\n", cleanTarget)
+	childRepos := findChildRepos(cleanTarget)
+	printDetectedChildRepos(cleanTarget, childRepos)
+	if !isNoBrowser && FallbackDashboardUIFn != nil {
+		fmt.Fprintln(os.Stderr, "  ⚡ Launching GitMap Web UI dashboard...")
+
+		return FallbackDashboardUIFn("search", 8080)
+	}
+
+	return nil
+}
+
+func printDetectedChildRepos(target string, repos []string) {
+	if len(repos) == 0 {
+		fmt.Fprintln(os.Stderr, "  💡 Tip: Run 'gitmap show-log' inside a Git repository or specify target: gitmap show-log <path>")
+
+		return
+	}
+	fmt.Fprintln(os.Stderr, "  📁 Detected Git repositories in this directory:")
+	for _, cr := range repos {
+		rel, _ := filepath.Rel(target, cr)
+		if rel == "" {
+			rel = filepath.Base(cr)
+		}
+		fmt.Fprintf(os.Stderr, "    • %s  (run: gitmap show-log %s)\n", filepath.Base(cr), rel)
+	}
+}
+
 func findChildRepos(dir string) []string {
+	found := probeDirectChildRepos(dir)
+	if len(found) > 0 {
+		return found
+	}
+
+	return probeNestedChildRepos(dir)
+}
+
+func isSkippedDir(name string) bool {
+	lower := strings.ToLower(name)
+	switch lower {
+	case "node_modules", "vendor", ".git", ".cache", "appdata", "windows", "program files", "$recycle.bin", "system volume information":
+		return true
+	default:
+		return strings.HasPrefix(name, ".")
+	}
+}
+
+func probeDirectChildRepos(dir string) []string {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil
@@ -64,20 +94,47 @@ func findChildRepos(dir string) []string {
 
 	var found []string
 	for _, e := range entries {
-		if !e.IsDir() {
+		if !e.IsDir() || isSkippedDir(e.Name()) {
 			continue
 		}
 		candidate := filepath.Join(dir, e.Name())
-		gitDir := filepath.Join(candidate, ".git")
-		if info, err := os.Stat(gitDir); err == nil && (info.IsDir() || !info.IsDir()) {
+		if isGitRepoPath(candidate) {
 			found = append(found, candidate)
-			if len(found) >= 10 {
-				break
-			}
+		}
+		if len(found) >= 10 {
+			break
 		}
 	}
 
 	return found
+}
+
+func probeNestedChildRepos(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var found []string
+	for _, e := range entries {
+		if !e.IsDir() || isSkippedDir(e.Name()) {
+			continue
+		}
+		subFound := probeDirectChildRepos(filepath.Join(dir, e.Name()))
+		found = append(found, subFound...)
+		if len(found) >= 10 {
+			break
+		}
+	}
+
+	return found
+}
+
+func isGitRepoPath(candidate string) bool {
+	gitDir := filepath.Join(candidate, ".git")
+	info, err := os.Stat(gitDir)
+
+	return err == nil && info != nil
 }
 
 // ResolveTargetRepoAndPath resolves repository root and relative file/dir path.

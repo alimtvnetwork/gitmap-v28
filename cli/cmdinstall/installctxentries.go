@@ -34,10 +34,10 @@ func ctxMenu() []ctxEntry {
 // Omits Show log which requires an active repository target.
 func ctxBackgroundMenu() []ctxEntry {
 	entries := []ctxEntry{
-		{KeyName: "01_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "02_repos_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "03_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "04_settings_ui", MUIVerb: "GitMap Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "01_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconScan},
+		{KeyName: "02_repos_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconWebUI},
+		{KeyName: "03_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconInstall},
+		{KeyName: "04_settings_ui", MUIVerb: "GitMap Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconSettings},
 	}
 	entries = append(entries, ctxCategoryEntries()...)
 	entries = append(entries, ctxTailEntries()...)
@@ -46,44 +46,48 @@ func ctxBackgroundMenu() []ctxEntry {
 }
 
 func ctxDirectEntries() []ctxEntry {
+	if isGitActionsHidden() {
+		return nil
+	}
+
 	return []ctxEntry{
-		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "01_show_log", MUIVerb: "Show log", Args: []string{"show-log"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconShowLog},
+		{KeyName: "02_diff", MUIVerb: "Diff (Working Tree)", Args: []string{"diff"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDiff},
+		{KeyName: "03_branch_compare", MUIVerb: "Branch comparison", Args: []string{"show-log", "--branch-compare"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconBranchCompare},
+		{KeyName: "04_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconCommit},
+		{KeyName: "05_pull", MUIVerb: "Pull", Args: []string{"pull"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconPull},
+		{KeyName: "06_push", MUIVerb: "Push", Args: []string{"push"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconPush},
 	}
 }
 
 func ctxCategoryEntries() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_scan", MUIVerb: "Scan", Children: scanChildren()},
-		{KeyName: "20_clone", MUIVerb: "Clone", Children: cloneChildren()},
-		{KeyName: "30_release", MUIVerb: "Release", Children: releaseChildren()},
-		{KeyName: "40_repos", MUIVerb: "Repositories", Children: repoChildren()},
-		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren()},
-		{KeyName: "60_install", MUIVerb: "Install", Children: installChildren()},
-		{KeyName: "65_macro", MUIVerb: "Macro", Children: macroChildren()},
-		{KeyName: "70_settings", MUIVerb: "Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "10_scan", MUIVerb: "Scan", Children: scanChildren(), Icon: constants.CtxIconScan},
+		{KeyName: "20_clone", MUIVerb: "Clone", Children: cloneChildren(), Icon: constants.CtxIconClone},
+		{KeyName: "30_release", MUIVerb: "Release", Children: releaseChildren(), Icon: constants.CtxIconRelease},
+		{KeyName: "40_repos", MUIVerb: "Repositories", Children: repoChildren(), Icon: constants.CtxIconRepos},
+		{KeyName: "50_visibility", MUIVerb: "Visibility", Children: visibilityChildren(), Icon: constants.CtxIconVisibility},
+		{KeyName: "60_install", MUIVerb: "Install", Children: installChildren(), Icon: constants.CtxIconInstall},
+		{KeyName: "65_macro", MUIVerb: "Macro", Children: macroChildren(), Icon: constants.CtxIconMacro},
+		{KeyName: "70_settings", MUIVerb: "Settings (UI)", Args: []string{"ui", "settings"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconSettings},
 	}
 }
 
 func macroChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_macro_ui", MUIVerb: "Open Macro Builder UI", Args: []string{"ui", "macro"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "20_macro_list", MUIVerb: "List Saved Macros", Args: []string{"macro", "list"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "10_macro_ui", MUIVerb: "Open Macro Builder UI", Args: []string{"ui", "macro"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconMacro},
+		{KeyName: "20_macro_list", MUIVerb: "List Saved Macros", Args: []string{"macro", "list"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDocs},
 	}
 }
 
 func ctxTailEntries() []ctxEntry {
 	return []ctxEntry{
 		{KeyName: "80_antigravity", MUIVerb: "Open project with Antigravity", Args: []string{constants.CmdAg}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
-		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
-		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill},
-		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal},
-		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconGitmap},
+		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconTerminal},
+		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDocs},
+		{KeyName: "90_terminal", MUIVerb: constants.MsgCtxOpenTerminalLbl, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconTerminal},
+		{KeyName: "91_docs", MUIVerb: constants.MsgCtxDocsLbl, Args: []string{constants.CmdDocs}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDocs},
+		{KeyName: "92_help", MUIVerb: "Help (filter…)", Args: []string{constants.CmdHelp}, Mode: ctxmodetype.Prefill, Icon: constants.CtxIconHelp},
 	}
 }
 
@@ -91,66 +95,66 @@ func ctxTailEntries() []ctxEntry {
 // HKCU\Software\Classes\*\shell\gitmap for right-clicking any file.
 func ctxFileMenu() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_diff", MUIVerb: "Diff", Args: []string{"diff", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "20_diff_later", MUIVerb: "Diff later", Args: []string{"diff", "--stash-path", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "30_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "40_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "50_blame", MUIVerb: "Blame", Args: []string{"blame", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "60_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "10_diff", MUIVerb: "Diff", Args: []string{"diff", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDiff},
+		{KeyName: "20_diff_later", MUIVerb: "Diff later", Args: []string{"diff", "--stash-path", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDiff},
+		{KeyName: "30_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDiff},
+		{KeyName: "40_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconShowLog},
+		{KeyName: "50_blame", MUIVerb: "Blame", Args: []string{"blame", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconShowLog},
+		{KeyName: "60_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconCommit},
 	}
 }
 
 func scanChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_rescan", MUIVerb: "Rescan", Args: []string{constants.CmdRescan}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_find_next", MUIVerb: "Find next", Args: []string{constants.CmdFindNext}, Mode: ctxmodetype.Terminal},
+		{KeyName: "10_scan_here", MUIVerb: "Scan here", Args: []string{constants.CmdScan}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconScan},
+		{KeyName: "20_rescan", MUIVerb: "Rescan", Args: []string{constants.CmdRescan}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconScan},
+		{KeyName: "30_find_next", MUIVerb: "Find next", Args: []string{constants.CmdFindNext}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconScan},
 	}
 }
 
 func cloneChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_clone_next", MUIVerb: "Clone-next here", Args: []string{constants.CmdCloneNext}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_pull", MUIVerb: "Pull", Args: []string{constants.CmdPull}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_pull_all", MUIVerb: "Pull all (every tracked repo)", Args: []string{constants.CmdPullAll}, Mode: ctxmodetype.Terminal, Extended: true},
+		{KeyName: "10_clone_next", MUIVerb: "Clone-next here", Args: []string{constants.CmdCloneNext}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconClone},
+		{KeyName: "20_pull", MUIVerb: "Pull", Args: []string{constants.CmdPull}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconPull},
+		{KeyName: "30_pull_all", MUIVerb: "Pull all (every tracked repo)", Args: []string{constants.CmdPullAll}, Mode: ctxmodetype.Terminal, Extended: true, Icon: constants.CtxIconPull},
 	}
 }
 
 func releaseChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_release", MUIVerb: "Release current", Args: []string{constants.CmdRelease}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_release_next", MUIVerb: "Release next (bump minor)", Args: []string{constants.CmdRelease, constants.FlagBumpDash, constants.BumpMinor}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_release_pull", MUIVerb: "Pull then release", Args: []string{constants.CmdReleasePull}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_release_pending", MUIVerb: "Release pending", Args: []string{constants.CmdReleasePending}, Mode: ctxmodetype.Terminal},
-		{KeyName: "50_list_releases", MUIVerb: "List releases", Args: []string{constants.CmdListReleases}, Mode: ctxmodetype.Terminal},
-		{KeyName: "60_list_versions", MUIVerb: "List versions", Args: []string{constants.CmdListVersions}, Mode: ctxmodetype.Terminal},
+		{KeyName: "10_release", MUIVerb: "Release current", Args: []string{constants.CmdRelease}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRelease},
+		{KeyName: "20_release_next", MUIVerb: "Release next (bump minor)", Args: []string{constants.CmdRelease, constants.FlagBumpDash, constants.BumpMinor}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRelease},
+		{KeyName: "30_release_pull", MUIVerb: "Pull then release", Args: []string{constants.CmdReleasePull}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRelease},
+		{KeyName: "40_release_pending", MUIVerb: "Release pending", Args: []string{constants.CmdReleasePending}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRelease},
+		{KeyName: "50_list_releases", MUIVerb: "List releases", Args: []string{constants.CmdListReleases}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDocs},
+		{KeyName: "60_list_versions", MUIVerb: "List versions", Args: []string{constants.CmdListVersions}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDocs},
 	}
 }
 
 func visibilityChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_public", MUIVerb: "Make public", Args: []string{constants.CmdMakePublic}, Mode: ctxmodetype.Terminal},
-		{KeyName: "20_private", MUIVerb: "Make private", Args: []string{constants.CmdMakePrivate}, Mode: ctxmodetype.Terminal},
+		{KeyName: "10_public", MUIVerb: "Make public", Args: []string{constants.CmdMakePublic}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconVisibility},
+		{KeyName: "20_private", MUIVerb: "Make private", Args: []string{constants.CmdMakePrivate}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconVisibility},
 	}
 }
 
 func repoChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "10_web_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "20_list", MUIVerb: "List Tracked Repositories", Args: []string{"list"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_status", MUIVerb: "Status All Repositories", Args: []string{"status-all"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_pull_all", MUIVerb: "Pull All Repositories", Args: []string{"pull-all"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "10_web_ui", MUIVerb: "Open Repositories Web UI", Args: []string{"ui"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconWebUI},
+		{KeyName: "20_list", MUIVerb: "List Tracked Repositories", Args: []string{"list"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRepos},
+		{KeyName: "30_status", MUIVerb: "Status All Repositories", Args: []string{"status-all"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconRepos},
+		{KeyName: "40_pull_all", MUIVerb: "Pull All Repositories", Args: []string{"pull-all"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconPull},
 	}
 }
 
 func installChildren() []ctxEntry {
 	return []ctxEntry{
-		{KeyName: "01_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "05_install_ctx", MUIVerb: "Install Context Menu", Args: []string{"install", "context-menu"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "10_wizard", MUIVerb: "Install Wizard (Interactive)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
-		{KeyName: "20_dev", MUIVerb: "Install Dev Workstation Profile", Args: []string{"install", "profile", "dev"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "30_tools", MUIVerb: "Install Development Tools (ls)", Args: []string{"install", "list"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "40_agy", MUIVerb: "Install Antigravity (AGY)", Args: []string{"install", "antigravity"}, Mode: ctxmodetype.Terminal},
-		{KeyName: "50_clean_pwsh", MUIVerb: "Clean Duplicate PowerShell", Args: []string{"context-menu", "clean-powershell"}, Mode: ctxmodetype.Terminal},
+		{KeyName: "01_installer_ui", MUIVerb: "Open Installer Manager UI", Args: []string{"ui", "installer"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconInstall},
+		{KeyName: "05_install_ctx", MUIVerb: "Install Context Menu", Args: []string{"install", "context-menu"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconSettings},
+		{KeyName: "10_wizard", MUIVerb: "Install Wizard (Interactive)", Args: []string{"install", "--wizard"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconInstall},
+		{KeyName: "20_dev", MUIVerb: "Install Dev Workstation Profile", Args: []string{"install", "profile", "dev"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconSettings},
+		{KeyName: "30_tools", MUIVerb: "Install Development Tools (ls)", Args: []string{"install", "list"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconInstall},
+		{KeyName: "40_agy", MUIVerb: "Install Antigravity (AGY)", Args: []string{"install", "antigravity"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconGitmap},
+		{KeyName: "50_clean_pwsh", MUIVerb: "Clean Duplicate PowerShell", Args: []string{"context-menu", "clean-powershell"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconTerminal},
 	}
 }

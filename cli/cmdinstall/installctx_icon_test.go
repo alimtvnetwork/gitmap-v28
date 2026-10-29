@@ -9,13 +9,13 @@ import (
 
 // TestCtxWindowsHelpEntryHasIcon pins the contract that the new
 // 92_help prefill entry renders with a per-entry Icon registry value
-// resolved from constants.CtxIconGitmap (the {exe},0 form). One Icon
+// resolved from constants.CtxIconHelp. One Icon
 // write must appear under each of the two HKCU roots.
 func TestCtxWindowsHelpEntryHasIcon(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	cmds := buildCtxInstallCommands(exe)
 
-	wantIcon := strings.ReplaceAll(constants.CtxIconGitmap, constants.CtxIconExeToken, exe)
+	wantIcon := constants.CtxIconHelp
 
 	hits := 0
 	for _, c := range cmds {
