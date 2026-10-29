@@ -105,6 +105,7 @@ func mountToolAndScanRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/help/topics", handleAPIHelpTopics)
 	mux.HandleFunc("/api/help/doc", handleAPIHelpDoc)
 	mux.HandleFunc("/api/settings", handleAPISettings)
+	mux.HandleFunc("/api/history/purge", handleAPIHistoryPurge)
 	mux.HandleFunc("/api/instances", handleAPIInstances)
 	mux.HandleFunc("/api/prompts/instances", handleAPIPromptsInstances)
 	mux.HandleFunc("/api/scan/repos", handleAPIScanRepos)

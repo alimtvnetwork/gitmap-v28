@@ -18,6 +18,7 @@ type purgeFlagCollector struct {
 	folder        string
 	file          string
 	commit        string
+	commitRange   string
 	repo          string
 	isRelease     bool
 	isAutoConfirm bool
@@ -46,6 +47,7 @@ func bindPurgeFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("folder", "d", "", "Relative directory path to purge from history")
 	cmd.Flags().StringP("file", "f", "", "Relative file path to purge from history")
 	cmd.Flags().StringP("commit", "c", "", "Target commit SHA or comma-separated list of commit SHAs")
+	cmd.Flags().String("range", "", "Commit range start..end expanded with git rev-list")
 	cmd.Flags().BoolP("release", "r", false, "Scrub matching artifacts and notes from GitHub releases")
 	cmd.Flags().BoolP("yes", "y", false, "Auto-confirm pre-flight prompt without interactive input")
 	cmd.Flags().BoolP("dry-run", "n", false, "Preview affected commits without mutating Git objects")
@@ -78,6 +80,11 @@ func bindUndoFlags(cmd *cobra.Command) {
 
 // RunHistoryPurgeCLI is the main entry point for history purge CLI invocations.
 func RunHistoryPurgeCLI(args []string) error {
+	if isPurgeHelp(args) {
+		printPurgeHelp()
+
+		return nil
+	}
 	opts, err := parsePurgeCLIOptions(args)
 	if err != nil {
 		return err
@@ -138,6 +145,9 @@ func consumePurgeFlag(arg string, args []string, idx int, col *purgeFlagCollecto
 	case slices.Contains([]string{"--commit", "-c"}, arg) && idx+1 < len(args):
 		idx++
 		col.commit = args[idx]
+	case arg == "--range" && idx+1 < len(args):
+		idx++
+		col.commitRange = args[idx]
 	case (arg == "--repo") && idx+1 < len(args):
 		idx++
 		col.repo = args[idx]
@@ -176,8 +186,35 @@ func resolvePurgeTarget(col *purgeFlagCollector) (cmdpurge.TargetType, string, [
 		commits := strings.Split(col.commit, ",")
 		return cmdpurge.TargetTypeCommit, col.commit, commits, nil
 	}
+	if len(col.commitRange) > 0 {
+		return commitsFromRange(col)
+	}
 
-	return "", "", nil, apperror.NewSimple("ERR_PURGE_NO_TARGET", "no target specified; pass --folder <path>, --file <path>, or --commit <sha>")
+	printPurgeHelp()
+
+	return "", "", nil, apperror.NewSimple("ERR_PURGE_NO_TARGET", "no target specified; pass --folder, --file, --commit, or --range")
+}
+
+func commitsFromRange(col *purgeFlagCollector) (cmdpurge.TargetType, string, []string, error) {
+	shas, err := expandCommitRange(col.repo, col.commitRange)
+	if err != nil {
+		return "", "", nil, apperror.NewSimple("ERR_PURGE_RANGE", err.Error())
+	}
+	if len(shas) == 0 {
+		return "", "", nil, apperror.NewSimple("ERR_PURGE_RANGE", "range matched no commits")
+	}
+
+	return cmdpurge.TargetTypeCommit, col.commitRange, shas, nil
+}
+
+func isPurgeHelp(args []string) bool {
+	for _, arg := range args {
+		if arg == "-h" || arg == "--help" || arg == "help" {
+			return true
+		}
+	}
+
+	return false
 }
 
 // RunHistoryUndoCLI is the main entry point for history undo CLI invocations.

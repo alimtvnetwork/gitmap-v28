@@ -13,6 +13,7 @@ const IndexHTML = uiAssetsDocHead +
 	uiAssetsJSNodes +
 	uiAssetsJSCommit +
 	uiAssetsJSSettings +
+	uiAssetsJSHistory +
 	uiAssetsJSPromptsHelp +
 	uiAssetsJSTerminal +
 	uiAssetsJSSearch +

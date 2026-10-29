@@ -222,6 +222,20 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         </div>
       </div>
 
+      <div class="card">
+        <h3><span class="gitmap-mark">` + gitmapMarkSVG + `</span> History purge</h3>
+        <p style="font-size:var(--fs-sm);color:var(--muted);margin-bottom:var(--sp-3);">Preview a file, a commit list, or a commit range. Dry run is on until you type yes.</p>
+        <div class="form-group"><label for="history-repo">Repository path</label><input id="history-repo" type="text" value="."></div>
+        <div class="form-group"><label for="history-file">File path</label><input id="history-file" type="text" placeholder=".cursor/skills/execute-parent-task-with-n-steps-v7"></div>
+        <div class="form-group"><label for="history-folder">Folder path</label><input id="history-folder" type="text" placeholder="02-spec/21-app/355-gitmap-restriction-management"></div>
+        <div class="form-group"><label for="history-commit">Commit SHAs</label><input id="history-commit" type="text" placeholder="abc123,def456"></div>
+        <div class="form-group"><label for="history-range">Commit range</label><input id="history-range" type="text" placeholder="abc123..def456"></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-3);"><input id="history-dry-run" type="checkbox" checked> Dry run</label>
+        <div class="form-group"><label for="history-confirm">Type yes to rewrite</label><input id="history-confirm" type="text" placeholder="yes"></div>
+        <button class="btn btn-save" type="button" onclick="runHistoryPurge()">Preview or purge</button>
+        <pre id="history-purge-result" style="margin-top:var(--sp-3);white-space:pre-wrap;color:var(--code-text);background:var(--code-bg);padding:var(--sp-2);"></pre>
+      </div>
+
     </div>
 
     <script>

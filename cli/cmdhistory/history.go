@@ -17,12 +17,23 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 )
 
+func isHistoryPurgeRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	return args[0] == "purge"
+}
+
 func isHistorySubcommand(sub string) bool {
 	return sub == "ls" || sub == "list" || sub == "suggest" || sub == "clear" || sub == "clean"
 }
 
 // runHistory handles the "history" subcommand.
 func RunHistory(args []string) error {
+	if isHistoryPurgeRequest(args) {
+		return RunHistoryPurgeCLI(args[1:])
+	}
 	checkHelp("history", args)
 	if len(args) > 0 && (strings.EqualFold(args[0], "ssh") || strings.EqualFold(args[0], "--ssh")) {
 		return cmdssh.RunFleetPASCommand("history", "gitmap history --limit 10", func() error {
