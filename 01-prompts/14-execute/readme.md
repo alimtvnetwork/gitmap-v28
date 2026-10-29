@@ -33,6 +33,7 @@ The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v6.md`](02-e
 | [`06-execute-batched-loop-v2.md`](06-execute-batched-loop-v2.md) | V4 | Batched Loop V2 | Streamlined batched loop execution engine. |
 | [`07-run.md`](07-run.md) | V6 | Run Script Orchestration | Autonomous execution of run.ps1 / run.sh with GitMap or local-install fallback. |
 | [`08-execute-with-e2e.md`](08-execute-with-e2e.md) | Canonical V6 | E2E Testing & Release | Parameter-driven execution loop with mandatory local test suite verification (100% green), Turn 1 commit and test case inventory, audit log inspection, and automated minor version bump release ceremony. |
+| [`09-execute-parent-task-with-n-steps-v7.md`](09-execute-parent-task-with-n-steps-v7.md) | Canonical V7 | Master Orchestration | Parameter-driven execution loop (N=400, A=3, H=2, C=30) with On-Call Skill Gates (time-restriction, autobot), recommit protocols, SQLite tracking, and GitMap atomic commits. |
 
 ---
 
@@ -48,6 +49,7 @@ The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v6.md`](02-e
 ├── 06-execute-batched-loop-v2.md
 ├── 07-run.md
 ├── 08-execute-with-e2e.md
+├── 09-execute-parent-task-with-n-steps-v7.md    # Canonical V7 Orchestrator
 └── readme.md
 
 Archived:
