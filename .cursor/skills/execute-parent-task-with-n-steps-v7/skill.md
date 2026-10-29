@@ -22,7 +22,7 @@ WAVES = ceil(subtasks / (A x H))
 > [!IMPORTANT]
 > **Prompt Version:** 7.0.0  
 > **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
-> **Canonical Prompt Specification:** [`01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md`](file:///01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md)  
+> **Canonical Prompt Specification:** [`01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md`](file;01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md)  
 > **Toolchain Discovery & Primacy:** [/learn](slashCommand;learn) from [gitmap](file;.cursor/skills/gitmap)  
 > **Invocation:** `@[execute-parent-task-with-n-steps-v7](file;.cursor/skills/execute-parent-task-with-n-steps-v7)`  
 >
@@ -55,7 +55,7 @@ Active when the user prompt specifies time windows, schedule bounds, restricted 
    - `--auto-window`: Automatically calculates the next valid morning window slot (07:30 AM) and sets compliant `GIT_AUTHOR_DATE` / `GIT_COMMITTER_DATE` timestamps.
 4. **Recommit & History Normalization:**
    - When amending or recommitting prior work: verify clean working tree (`gitmap st`), soft reset (`gitmap git-reset HEAD~1 --no-push`), and recommit using semantic verbs with target timezone stamps.
-   - Operational reference: [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction).
+   - Operational reference: [gitmap-time-restriction](file;.cursor/skills/gitmap-time-restriction).
 
 ---
 
@@ -88,7 +88,7 @@ Active when the user requests an automated bot persona, AI commit authoring, or 
      gitmap autobot
      gitmap cpf "Module - summary" --tz <timezone> --schedule --auto-window --non-interactive
      ```
-4. **Operational reference:** [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot).
+4. **Operational reference:** [gitmap-automation-bot](file;.cursor/skills/gitmap-automation-bot).
 
 ---
 

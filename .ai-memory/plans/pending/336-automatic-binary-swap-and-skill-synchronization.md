@@ -2,7 +2,7 @@
 
 **Sequence ID:** 336  
 **Task Slug:** `automatic-binary-swap-and-skill-synchronization`  
-**Specification:** [02-spec/21-app/336-automatic-binary-swap-and-skill-synchronization/01-architecture-spec.md](file:///02-spec/21-app/336-automatic-binary-swap-and-skill-synchronization/01-architecture-spec.md)  
+**Specification:** [02-spec/21-app/336-automatic-binary-swap-and-skill-synchronization/01-architecture-spec.md](file;02-spec/21-app/336-automatic-binary-swap-and-skill-synchronization/01-architecture-spec.md)  
 **Status:** Pending  
 **Created:** 2026-10-27  
 
