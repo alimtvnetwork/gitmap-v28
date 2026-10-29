@@ -63,7 +63,7 @@ def is_external_or_special(target: str) -> bool:
     clean = target.strip()
     return clean.startswith((
         "http://", "https://", "mailto:", "tel:", "ftp://",
-        "conversation://", "file:///", "#", "javascript:", "slashCommand:"
+        "conversation://", "file:///", "#", "javascript:", "slashCommand:", "slashCommand;"
     ))
 
 

@@ -55,7 +55,7 @@ You are pair programming with **GitMap**, the ultra-fast developer companion and
 | **06** | **Script Execution & Cache Offloading** | `gitmap py "<code-or-script>"`<br>`gitmap ps "<cmd>"` / `gitmap pwsh "<cmd>"`<br>`gitmap rc <file\|folder\|text>` | Cross-platform runners (`-NoProfile`) coupled with auto-committing `repo-cache` storage. | Create, execute, and persist test harnesses and diagnostic scripts without dirtying worktree. |
 | **07** | **Python Toolchain Locator & Cache Backup** | `gitmap aum locate python`<br>`gitmap aum cache status` | Sub-15ms toolchain scanner caching absolute executable path into SQLite `installation.db`. | Ensures persistent, deterministic Python binary resolution avoiding PATH ambiguities. |
 | **08** | **LLM Training Curriculum & Pipeline Diagnostics** | `gitmap llm train` / `gitmap ld`<br>`gitmap pe` / `gitmap pe history-ai` | 4-stage chained curriculum, markdown docs matrix, and pipeline error log extraction. | Instant blind-AI onboarding and automated CI/CD log extraction for 4-part RCA remediation. |
-| **09** | **Semantic Hyphen-Separated Atomic Commits** | `gitmap cpf "<module> - <summary>"`<br>`gitmap cpb "<module> - <summary>"`<br>`gitmap cpr "v<version> <summary>"` | Automated git staging, semantic prefixing, atomic commit, and upstream branch push. | Standardizes commit history; prevents colon syntax corruption in automated release pipelines. |
+| **09** | **Semantic Hyphen-Separated Atomic Commits** | `gitmap cpf "<module> - <summary>"`<br>`gitmap cpb "<module> - <summary>"`<br>`gitmap cpr "<module> - <summary>"` | Automated git staging, semantic prefixing, atomic commit, and upstream branch push. | Standardizes commit history; prevents colon syntax corruption in automated release pipelines. |
 
 ---
 

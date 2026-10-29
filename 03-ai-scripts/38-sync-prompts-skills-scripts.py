@@ -163,26 +163,21 @@ def is_spec_21(path: Path) -> bool:
     """Check if directory/file belongs to 02-spec/21-* or higher application specs which must NEVER be synced."""
     norm = str(path).replace("\\", "/").lower()
 
-    for i in range(21, 30):
-        if f"/{i:02d}-" in norm:
+    if "/02-spec/" not in norm and not norm.startswith("02-spec/"):
+        return False
+
+    for i in range(21, 100):
+        pattern = f"{i:02d}-"
+
+        if f"/02-spec/{pattern}" in norm or norm.startswith(f"02-spec/{pattern}"):
             return True
 
-        if f"/{i}-" in norm:
+        pattern_single = f"{i}-"
+
+        if f"/02-spec/{pattern_single}" in norm or norm.startswith(f"02-spec/{pattern_single}"):
             return True
-
-        if f"spec/{i}" in norm:
-            return True
-
-    for part in path.parts:
-        for i in range(21, 30):
-            if part.startswith(f"{i:02d}-"):
-                return True
-
-            if part.startswith(f"{i}-"):
-                return True
 
     return False
-
 
 def is_bump_script(path: Path) -> bool:
     """Check if file is a version bump script that must not be overwritten."""

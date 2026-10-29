@@ -267,7 +267,7 @@ Proceeding directly to Preflight & Phase 1B Discovery (Active Tool Call Running 
 3. **Update Central Registers:**
    - Update `01-prompts/readme.md`, `.ai-memory/prompts.md`, and `.ai-memory/plans/readme.md`.
 4. **Final Atomic Commit in Source Repo:**
-   - Call `gitmap cpf "SYNC - synchronize prompts skills and guidelines to connected repositories"`.
+   - Call `gitmap cpc "sync - synchronize prompts skills and guidelines to connected repositories"`.
    - Use hyphen `-` format (no colons in GitMap message argument).
 
 ---

@@ -44,7 +44,7 @@ ${Input Text Verbatim}
 4. Strictly use relative Git paths (02-spec/..., .ai-memory/..., cmd/...); only add the relative paths, never add the absolute path during your work, and ensure this is respected on the release page and in release notes as well.
 5. Inspect active file leases & contention via `gitmap agent heatmap` before editing shared files; log all file exploration and modifications with rationale using `gitmap heatmap log`.
 6. Execute bounded subtasks in micro-batches of 5–8 files each, strictly preserving implicit positive booleans, error envelopes, and coding guidelines.
-7. Finish each completed subtask with an atomic GitMap commit using hyphen format (`gitmap cpf "<module> - <summary>"` / `gitmap cpb "<module> - <summary>"`).
+7. Finish each completed task with ONE single GitMap commit covering all its files together, pushed immediately — git is a quick draft, no per-step verification. Never scatter one task across micro-commits.
 8. Run retrospective AI verification prompt/script (01-prompts/25-ai-verification/01-retrospective-ai-verification.md / 03-ai-scripts/47-retrospective-ai-verification.py) or skill [ai-verification](file;.agents/skills/ai-verification) to audit specs, touched files, code quality, and CI/CD status upon task completion (`gitmap pe -t`).
 
 ## Must follow and spawn agent using
@@ -264,11 +264,18 @@ For every subsequent task assigned in this session:
    - Booleans: strictly implicit evaluations (`if isReady`), positive prefixes (`is*`, `has*`), no `== true`, no mixed polarity.
    - Never disable or comment out CI/CD checks or GitHub Actions.
    - Never force-push (`git push --force` is banned).
-4. **Atomic Commit & Push:** Finish each subtask with an atomic GitMap commit using hyphen format (no colons in arguments):
+4. **Commit mindset — MUST checklist (user rule, 2026-10-25):** Finish each completed task with ONE single GitMap commit covering ALL its files together, using hyphen format (no colons in arguments):
    - Feature: `gitmap cpf "<module> - <summary>"`
    - Bug Fix: `gitmap cpb "<module> - <summary>"`
    - Chore: `gitmap cpc "<module> - <summary>"`
-5. **CI Telemetry Verification:** Verify status upstream via `gitmap pe -t`.
+   - [ ] Comment ALL your changes (brief WHY comment at each change plus a descriptive message).
+   - [ ] Commit FAST — git is a quick draft: all modified files together, pushed immediately. No verifying every step, no perfect-commit chasing, no one-commit-at-a-time.
+   - [ ] Verify ONCE at the end of the tunnel: build, verify code, find the actual logic — a reverse-check at the end, or when the user says "verify the CI/CD". With many agents working, on-the-fly verification of everything wastes time and resources.
+   - [ ] Mark doubts STRICTLY for future AI review: any code with a doubt gets an explicit comment at that exact spot stating what is doubtful and what must be verified, so it can be verified easily later.
+   - [ ] Log doubtful issues in gitmap agent with line numbers: record each doubtful spot via `gitmap heatmap log` with the file path, the line number (in the code comment and in the log's expected text), and what needs verification — so tools or any AI can re-check it again later.
+   - [ ] Prompt/skill update scope: master-prompt and generic-prompt updates apply to the coding-guidelines prompts and their skills ONLY. NEVER sync prompt/skill updates across other repositories — the user has other tools for that.
+   - Date & time standard (user rule, 2026-10-25, corrected 2026-10-25): date format is ALWAYS DD-MMM-YY (e.g. 25-Oct-25). AM/PM format is for DISPLAY purposes ONLY, nothing else. In code, time is written in UTC+0 using the default coding format, and saved everywhere as UTC. A UI displays time in the LOCAL timezone taken from the MACHINE (OS timezone) — NOT from the user. When the AI writes back to the user, display uses GMT+8 (with AM/PM format) — this AI-to-user GMT+8 rule lives STRICTLY in the Muse prompt, never in execute v6. Branch names use the DATE only, never the time. Where time is irrelevant, do NOT mention time at all.
+5. **CI Telemetry Verification (end of the tunnel only):** Verify status upstream via `gitmap pe -t` ONCE at the end of the tunnel — not after every commit.
 
 ---
 

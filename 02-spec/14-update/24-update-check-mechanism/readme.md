@@ -71,8 +71,8 @@ detached process so the user is never blocked.
 | 08 | [08-error-handling.md](./09-error-handling.md) | Try/catch policy, file-system log, `ErrorMessage` column |
 | 09 | [09-json-fallback-store.md](./10-json-fallback-store.md) | JSON-file storage when no SQLite database exists |
 | 97 | [97-acceptance-criteria.md](./97-acceptance-criteria.md) | 16-point acceptance criteria |
-| 97b | [97-changelog.md](./98-changelog.md) | Changelog |
-| 99 | [99-consistency-report.md](./99-consistency-report.md) | Consistency report |
+| 97b | `97-changelog.md` | Changelog |
+| 99 | `99-consistency-report.md` | Consistency report |
 
 ---
 

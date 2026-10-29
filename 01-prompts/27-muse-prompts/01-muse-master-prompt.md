@@ -549,10 +549,18 @@ Before modifying ANY file, run `gitmap pull` (fallback `git pull`) in that repos
    - Feature: `gitmap cpf "<module> - <summary>"`
    - Bug fix: `gitmap cpb "<module> - <summary>"`
    - Total ban on colons inside the message argument (GitMap provides the colon prefix). Total ban on raw git commits.
-4. **CI Telemetry:**
-   - Run `gitmap pe -t` to monitor the pipeline timeline to completion.
-   - If red, run `gitmap pe` to inspect errors and apply surgical fix.
-5. **Next-Task Loop:** Brief done-report, then ask "What's next?".
+4. **Commit mindset — MUST checklist (user rule, 2026-10-25):**
+   - [ ] **Comment ALL your changes:** every non-trivial change gets a brief comment explaining WHY (code comment at the change, plus a descriptive commit message). No uncommented changes.
+   - [ ] **Commit FAST — git is a quick draft:** the moment files are modified, commit them ALL together and push immediately. No verifying every step, no perfect-commit chasing, no one-commit-at-a-time. A bunch of modified files goes in together, fast.
+   - [ ] **Verify ONCE at the end of the tunnel:** only when the work unit is complete — or the user says "verify the CI/CD" — do you start building, verifying code, and finding the actual logic. That is a reverse-check at the end. With many agents working, verifying everything on the fly in memory wastes time and everyone's resources.
+   - [ ] **Mark doubts STRICTLY for future AI review:** any code with a doubt gets an explicit comment at that exact spot stating what is doubtful and what must be verified, so it can be verified easily later.
+   - [ ] **Log doubtful issues in gitmap agent with line numbers:** record each doubtful spot via `gitmap heatmap log` with the file path, the line number (in the code comment and in the log's expected text), and what needs verification — so tools or any AI can re-check it again later.
+   - [ ] **Prompt/skill update scope:** master-prompt and generic-prompt updates apply to the coding-guidelines prompts and their skills ONLY. NEVER sync prompt/skill updates across other repositories — the user has other tools for that.
+   - **Date & time standard (user rule, 2026-10-25, corrected 2026-10-25):** date format is ALWAYS DD-MMM-YY (2-digit day, 3-letter month abbreviation, 2-digit year; e.g. 25-Oct-25). AM/PM (12-hour) format is for DISPLAY purposes ONLY, nothing else. In code, time is written in UTC+0 using the default coding format, and saved everywhere as UTC. A UI displays time in the LOCAL timezone taken from the MACHINE (OS timezone) — NOT from the user. When the AI writes back to the user, display uses GMT+8 (with AM/PM format) — this AI-to-user GMT+8 rule lives STRICTLY in the Muse prompt, never in execute v6. Branch names use the DATE only, never the time. Where time is irrelevant, do NOT mention time at all.
+5. **CI Telemetry (end of the tunnel only):**
+   - Run `gitmap pe -t` ONCE at the end of the tunnel to monitor the pipeline timeline to completion.
+   - If red, run `gitmap pe` to inspect errors and apply a surgical fix, then re-verify once. Only then report done (and only then release).
+6. **Next-Task Loop:** Brief done-report, then ask "What's next?".
 
 ---
 

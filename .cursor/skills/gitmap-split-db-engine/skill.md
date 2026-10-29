@@ -51,7 +51,7 @@ gitmap db-find master -table Project,Alias --find "enrichment" --json
 gitmap db-rest master,tasks 8080,8081
 ```
 
-For comprehensive CRUD mutations, join views, and REST API gateway documentation, refer to `@[.cursor/skills/gitmap]` Section 11 and Section 15.
+For comprehensive CRUD mutations, join views, and REST API gateway documentation, refer to `@@[.cursor/skills/gitmap]` Section 11 and Section 15.
 
 ---
 

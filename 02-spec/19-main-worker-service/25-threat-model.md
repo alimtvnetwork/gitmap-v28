@@ -76,7 +76,7 @@ only this reservation notice.
 | Tunable constants (cap prerequisite) | [`16-tunable-constants.md`](./16-tunable-constants.md) |
 | Error codes (allocation prerequisite) | [`14-error-codes.md`](./14-error-codes.md) |
 | Acceptance criteria | [`97-acceptance-criteria.md`](./97-acceptance-criteria.md) |
-| Changelog | [`98-changelog.md`](./98-changelog.md) |
+| Changelog | `98-changelog.md` |
 
 ---
 
