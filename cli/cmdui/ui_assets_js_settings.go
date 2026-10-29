@@ -466,4 +466,113 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
         });
       }
     }
+
+    window.onIDEProviderChange = function () {
+      const p = (document.getElementById('ide-provider-select') || {}).value;
+      const urlInput = document.getElementById('ide-base-url');
+      const modelInput = document.getElementById('ide-model-name');
+      const presets = {
+        kimi: { url: 'https://api.moonshot.cn/v1', model: 'kimi-k3.1-pro' },
+        deepseek: { url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+        openrouter: { url: 'https://openrouter.ai/api/v1', model: 'moonshotai/kimi-k3.1-pro' },
+        anthropic: { url: 'https://api.anthropic.com/v1', model: 'claude-3-5-sonnet-20241022' },
+        ollama: { url: 'http://localhost:11434/v1', model: 'llama3' },
+        custom: { url: '', model: '' }
+      };
+      if (presets[p]) {
+        if (urlInput) urlInput.value = presets[p].url;
+        if (modelInput) modelInput.value = presets[p].model;
+      }
+    };
+
+    window.loadIDESetupStatus = async function () {
+      const box = document.getElementById('ide-setup-status-box');
+      if (!box) return;
+      box.innerHTML = 'Scanning detected IDEs and configuration files...';
+      try {
+        const res = await fetch('/api/ide/setup/status');
+        const data = await res.json();
+        if (!data || !data.isSuccess) throw new Error((data && data.errorMessage) || 'Failed to detect IDEs');
+        let html = '<div style="display:flex; flex-direction:column; gap:4px;">';
+        const editors = data.detectedEditors || [];
+        if (editors.length === 0) {
+          html += '<div>No known IDEs detected. Configurations can still be created for Cline, Continue, and Zed.</div>';
+        } else {
+          editors.forEach(function (e) {
+            const statusBadge = e.isInstalled ? '<span class="badge badge-online">Installed</span>' : '<span class="badge">Not Found</span>';
+            html += '<div><strong>' + e.displayName + ':</strong> ' + statusBadge + ' <code style="color:var(--muted);">' + (e.configPath || '') + '</code></div>';
+          });
+        }
+        html += '</div>';
+        box.innerHTML = html;
+      } catch (err) {
+        box.innerHTML = '<span style="color:var(--danger);">Error: ' + err.message + '</span>';
+      }
+    };
+
+    window.testIDEConnection = async function () {
+      const box = document.getElementById('ide-setup-status-box');
+      const baseUrl = (document.getElementById('ide-base-url') || {}).value;
+      const apiKey = (document.getElementById('ide-api-key') || {}).value;
+      const model = (document.getElementById('ide-model-name') || {}).value;
+      const provider = (document.getElementById('ide-provider-select') || {}).value;
+      if (!baseUrl) {
+        showToast('Base URL is required to test connection', 'error');
+        return;
+      }
+      showToast('Testing endpoint connection...', 'info');
+      try {
+        const res = await fetch('/api/ide/setup/test-connection', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ baseUrl: baseUrl, apiKey: apiKey, model: model, provider: provider })
+        });
+        const data = await res.json();
+        if (data.isSuccess) {
+          showToast('Connection verified! Latency: ' + (data.latencyMs || 0) + 'ms', 'success');
+          if (box) box.innerHTML = '<span style="color:var(--success);">✓ Connection probe succeeded (' + (data.latencyMs || 0) + 'ms)</span>';
+        } else {
+          showToast('Connection test failed: ' + (data.errorMessage || 'Unknown error'), 'error');
+          if (box) box.innerHTML = '<span style="color:var(--danger);">Probe failed: ' + (data.errorMessage || '') + '</span>';
+        }
+      } catch (err) {
+        showToast('Test request failed: ' + err.message, 'error');
+      }
+    };
+
+    window.applyIDESetup = async function () {
+      const box = document.getElementById('ide-setup-status-box');
+      const target = (document.getElementById('ide-target-select') || {}).value || 'all';
+      const provider = (document.getElementById('ide-provider-select') || {}).value || 'kimi';
+      const apiKey = (document.getElementById('ide-api-key') || {}).value || '';
+      const baseUrl = (document.getElementById('ide-base-url') || {}).value || '';
+      const model = (document.getElementById('ide-model-name') || {}).value || '';
+      showToast('Applying IDE configuration...', 'info');
+      try {
+        const res = await fetch('/api/ide/setup/apply', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            target: target,
+            provider: provider,
+            apiKey: apiKey,
+            baseUrl: baseUrl,
+            model: model,
+            isBackupEnabled: true
+          })
+        });
+        const data = await res.json();
+        if (data.isSuccess) {
+          showToast('IDE setup applied successfully!', 'success');
+          if (box) {
+            const targets = (data.configuredTargets || []).join(', ') || target;
+            box.innerHTML = '<span style="color:var(--success);">✓ Successfully configured: ' + targets + ' (backups created)</span>';
+          }
+        } else {
+          showToast('Apply failed: ' + (data.errorMessage || 'Unknown error'), 'error');
+        }
+      } catch (err) {
+        showToast('Apply request failed: ' + err.message, 'error');
+      }
+    };
 `

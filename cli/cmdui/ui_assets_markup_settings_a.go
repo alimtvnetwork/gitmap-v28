@@ -91,6 +91,58 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
           <label for="setting-special-cache-name">Special Cache / Storage Repository Name (<code>special_repos.cache_name</code> &mdash; shortcut: <code>gitmap rc</code> / <code>gitmap cd rc</code>)</label>
           <input type="text" id="setting-special-cache-name" name="special_repos.cache_name" data-key="special_repos.cache_name" value="repo-cache" placeholder="repo-cache">
         </div>
+        <div style="margin-top:var(--sp-4); padding-top:var(--sp-3); border-top:1px solid var(--border);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-2); flex-wrap:wrap; gap:var(--sp-2);">
+            <h4 style="margin:0; font-size:var(--fs-base); color:var(--text);"><span data-icon="cpu"></span> AI IDE Setup (Cursor Alternatives: Cline, Continue, Zed)</h4>
+            <div style="display:flex; gap:var(--sp-2);">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="loadIDESetupStatus()"><span data-icon="refresh-cw"></span> Refresh Status</button>
+              <button class="btn btn-secondary btn-sm" type="button" onclick="testIDEConnection()"><span data-icon="activity"></span> Test Connection</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="applyIDESetup()"><span data-icon="check"></span> Apply Setup</button>
+            </div>
+          </div>
+          <p style="font-size:var(--fs-xs); color:var(--muted); margin-bottom:var(--sp-3);">
+            Configure VS Code + Cline (Composer multi-file agent), Continue.dev (Tab-autocomplete &amp; inline edit), and Zed AI with Moonshot Kimi K3.1 Pro or custom providers across Windows, macOS, and Linux.
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--sp-2); margin-bottom:var(--sp-3);">
+            <div class="form-group" style="margin:0;">
+              <label for="ide-target-select" style="font-size:var(--fs-xs);">Target IDE / Extension</label>
+              <select id="ide-target-select">
+                <option value="all">All Targets (Cline, Continue, Zed)</option>
+                <option value="cline">VS Code + Cline (Composer Agent)</option>
+                <option value="continue">VS Code + Continue (Inline &amp; Tab-Autocomplete)</option>
+                <option value="zed">Zed AI Editor (Native BYOK)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label for="ide-provider-select" style="font-size:var(--fs-xs);">AI Provider</label>
+              <select id="ide-provider-select" onchange="onIDEProviderChange()">
+                <option value="kimi">Moonshot / Kimi (kimi-k3.1-pro)</option>
+                <option value="deepseek">DeepSeek (deepseek-chat / reasoner)</option>
+                <option value="openrouter">OpenRouter (Multi-model gateway)</option>
+                <option value="anthropic">Anthropic Claude</option>
+                <option value="ollama">Ollama (Local)</option>
+                <option value="custom">Custom Endpoint</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label for="ide-api-key" style="font-size:var(--fs-xs);">API Key</label>
+              <input type="password" id="ide-api-key" placeholder="Enter API Key (sk-...)">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-2); margin-bottom:var(--sp-3);">
+            <div class="form-group" style="margin:0;">
+              <label for="ide-base-url" style="font-size:var(--fs-xs);">Base URL</label>
+              <input type="text" id="ide-base-url" value="https://api.moonshot.cn/v1">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label for="ide-model-name" style="font-size:var(--fs-xs);">Model ID</label>
+              <input type="text" id="ide-model-name" value="kimi-k3.1-pro">
+            </div>
+          </div>
+          <div id="ide-setup-status-box" style="font-size:var(--fs-xs); color:var(--muted); background:var(--code-bg); padding:var(--sp-2); border-radius:var(--radius-sm); border:1px solid var(--border);">
+            Click <strong>Refresh Status</strong> to detect installed IDEs and verify configuration paths.
+          </div>
+        </div>
       </div>
 
       <!-- 3. SPEED & AUTOMATION -->

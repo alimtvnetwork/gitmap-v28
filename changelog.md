@@ -32,6 +32,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.630.0] - 2026-10-29
+
+### Added
+- ide setup from settings ui and context menu with verified cross-os support
+
+---
+
 ## [v6.629.0] - 2026-10-29
 
 ### Added
