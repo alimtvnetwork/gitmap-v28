@@ -15,6 +15,19 @@ var (
 	nodeProbes  = map[string]nodeProbe{}
 )
 
+const (
+	probeStatusOnline   = "Online"
+	probeStatusOffline  = "Offline"
+	probeStatusTimedOut = "Timed out"
+	probeTimeoutMarker  = "timeout"
+)
+
+func finishPingResult(res SSHPingResult) SSHPingResult {
+	res.Status = probeStatus(res)
+
+	return res
+}
+
 func rememberNodeProbe(alias string, res SSHPingResult) {
 	nodeProbeMu.Lock()
 	nodeProbes[alias] = nodeProbe{IsOnline: res.IsOnline, Status: probeStatus(res)}
@@ -23,21 +36,40 @@ func rememberNodeProbe(alias string, res SSHPingResult) {
 
 func probeStatus(res SSHPingResult) string {
 	if res.IsOnline {
-		return "Online"
+		return probeStatusOnline
 	}
-	if strings.Contains(strings.ToLower(res.Error), "timeout") {
-		return "Timed out"
+	if strings.Contains(strings.ToLower(res.Error), probeTimeoutMarker) {
+		return probeStatusTimedOut
 	}
 
-	return "Offline"
+	return probeStatusOffline
 }
 
 func storedNodeProbe(alias string) (nodeProbe, bool) {
 	nodeProbeMu.Lock()
-	probe, isFound := nodeProbes[alias]
+	probe, isFound := lookupNodeProbe(alias)
 	nodeProbeMu.Unlock()
 
 	return probe, isFound
+}
+
+func lookupNodeProbe(alias string) (nodeProbe, bool) {
+	probe, isFound := nodeProbes[alias]
+	if isFound {
+		return probe, true
+	}
+
+	return probeByFold(alias)
+}
+
+func probeByFold(alias string) (nodeProbe, bool) {
+	for key, probe := range nodeProbes {
+		if strings.EqualFold(key, alias) {
+			return probe, true
+		}
+	}
+
+	return nodeProbe{}, false
 }
 
 func applyStoredProbe(summary *NodeSummary) {

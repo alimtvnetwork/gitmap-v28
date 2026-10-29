@@ -22,6 +22,7 @@ type SSHPingResult struct {
 	IsOnline  bool   `json:"isOnline"`
 	LatencyMs int64  `json:"latencyMs"`
 	Alias     string `json:"alias"`
+	Status    string `json:"status"`
 	Error     string `json:"error,omitempty"`
 }
 
@@ -114,7 +115,7 @@ func handleAPISSHTest(w http.ResponseWriter, r *http.Request) {
 		alias = "local"
 	}
 
-	res := executeNodePingCheck(alias)
+	res := finishPingResult(executeNodePingCheck(alias))
 	rememberNodeProbe(alias, res)
 	logFailedSSHPing(alias, res)
 	_ = json.NewEncoder(w).Encode(res)

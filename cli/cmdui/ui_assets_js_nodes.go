@@ -1,8 +1,26 @@
 package cmdui
 
-const uiAssetsJSNodes = `    async function refreshNodes() {
+const uiAssetsJSNodes = `    const liveNodeProbes = {};
+    function rememberLiveProbe(alias, isOnline, status) {
+      liveNodeProbes[alias] = { isOnline: !!isOnline, status: status };
+    }
+    function probeForNode(n) {
+      const live = liveNodeProbes[n.alias];
+      if (live) return live;
+      const isOnline = !!n.isOnline;
+      const status = n.status || (isOnline ? 'Online' : 'Offline');
+      return { isOnline: isOnline, status: status };
+    }
+    function pingStatusLabel(data) {
+      if (data.status) return data.status;
+      if (data.success || data.isOnline) return 'Online';
+      const errorText = String(data.error || '').toLowerCase();
+      if (errorText.indexOf('timeout') >= 0) return 'Timed out';
+      return 'Offline';
+    }
+    async function refreshNodes() {
       try {
-        const res = await fetch('/api/ssh/nodes');
+        const res = await fetch('/api/ssh/nodes', { cache: 'no-store' });
         const data = await res.json();
         const tbody = document.getElementById('nodes-body');
         tbody.innerHTML = '';
@@ -12,9 +30,9 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         }
         data.forEach(n => {
           const row = document.createElement('tr');
-          const statusLabel = n.status || (n.isOnline ? 'Online' : 'Offline');
-          const statusClass = n.isOnline ? 'badge-online' : 'badge-offline';
-          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td>${n.account || '-'}</td><td>${n.instances || 0}</td><td><span class="badge ${statusClass}">${statusLabel}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
+          const probe = probeForNode(n);
+          const statusClass = probe.isOnline ? 'badge-online' : 'badge-offline';
+          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td>${n.account || '-'}</td><td>${n.instances || 0}</td><td><span class="badge ${statusClass}">${probe.status}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
           tbody.appendChild(row);
         });
       } catch (e) { console.error(e); }
@@ -24,12 +42,15 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
       try {
         const res = await fetch('/api/ssh/test?alias=' + encodeURIComponent(alias));
         const data = await res.json();
-        if (data.success || data.isOnline) {
+        const isOnline = !!(data.success || data.isOnline);
+        const status = pingStatusLabel(data);
+        rememberLiveProbe(alias, isOnline, status);
+        if (isOnline) {
           showToast('Node ' + alias + ' is online (' + (data.latencyMs || 0) + 'ms)', 'success');
         } else {
-          showToast('Node ' + alias + ' ping failed: ' + (data.error || 'unreachable'), 'error');
+          showToast('Node ' + alias + ' ping failed: ' + (data.error || status), 'error');
         }
-        refreshNodes();
+        await refreshNodes();
       } catch (e) {
         showToast('Ping error: ' + e.message, 'error');
       }
