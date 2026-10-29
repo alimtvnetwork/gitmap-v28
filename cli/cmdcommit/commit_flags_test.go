@@ -157,3 +157,62 @@ func TestFormatAuthorIdentity(t *testing.T) {
 		t.Errorf("expected email only author, got %q", got)
 	}
 }
+
+func TestExtractCommitFlags_TimeFlags(t *testing.T) {
+	args := []string{
+		"--timezone", "Asia/Tokyo",
+		"--schedule",
+		"--auto-window",
+		"feat: time flagged commit",
+	}
+
+	clean, meta := ExtractCommitFlags(args)
+	if meta.Timezone != "Asia/Tokyo" {
+		t.Errorf("expected timezone Asia/Tokyo, got %q", meta.Timezone)
+	}
+	if !meta.IsTimeEnforced {
+		t.Errorf("expected IsTimeEnforced to be true")
+	}
+	if !meta.IsAutoWindow {
+		t.Errorf("expected IsAutoWindow to be true")
+	}
+	assertCleanMessage(t, clean, []string{"feat: time flagged commit"})
+}
+
+func TestExtractCommitFlags_ShortTimeFlags(t *testing.T) {
+	args := []string{
+		"-tz", "UTC",
+		"-sc",
+		"chore: short time flags",
+	}
+
+	clean, meta := ExtractCommitFlags(args)
+	if meta.Timezone != "UTC" {
+		t.Errorf("expected timezone UTC, got %q", meta.Timezone)
+	}
+	if !meta.IsTimeEnforced {
+		t.Errorf("expected IsTimeEnforced to be true")
+	}
+	assertCleanMessage(t, clean, []string{"chore: short time flags"})
+}
+
+func TestExtractCommitFlags_EqualsTimeFlags(t *testing.T) {
+	args := []string{
+		"--timezone=+08:00",
+		"--schedule=true",
+		"--auto-window=true",
+		"fix: equals time flags",
+	}
+
+	clean, meta := ExtractCommitFlags(args)
+	if meta.Timezone != "+08:00" {
+		t.Errorf("expected timezone +08:00, got %q", meta.Timezone)
+	}
+	if !meta.IsTimeEnforced {
+		t.Errorf("expected IsTimeEnforced to be true")
+	}
+	if !meta.IsAutoWindow {
+		t.Errorf("expected IsAutoWindow to be true")
+	}
+	assertCleanMessage(t, clean, []string{"fix: equals time flags"})
+}

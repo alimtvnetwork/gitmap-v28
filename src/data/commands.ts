@@ -4130,6 +4130,38 @@ export const commands: CommandDef[] = [
   },
 
   // ═══════════════════════════════════════════
+  // Commit & Semantic Shortcuts (commit / cm)
+  // ═══════════════════════════════════════════
+  {
+    name: "commit",
+    alias: "cm, ca, commit-all, cpf, cpb, cpc, cpr, pcp",
+    description: "Flat git commit suite with automatic staging, semantic shortcuts (cpf/cpb/cpc/cpr), and timezone-aware schedule restriction",
+    usage: "gitmap commit \"<message>\" [--push] [--dry-run] [--timezone <tz>] [--schedule]",
+    category: "commit",
+    flags: [
+      { flag: "--message, -m <msg>", description: "Commit message (positional arguments also accepted)" },
+      { flag: "--push, -p", description: "Push commits to remote upstream branch after committing" },
+      { flag: "--dry-run, -n", description: "Preview staged changes and commit metadata without modifying disk" },
+      { flag: "--timezone, -tz <tz>", description: "Canonical IANA target timezone for schedule evaluation (e.g., America/New_York, UTC, Local)" },
+      { flag: "--schedule, -sc", description: "Enforce weekday morning cutoff (< 08:00 AM) schedule restriction (weekends unconstrained)" },
+    ],
+    examples: [
+      { command: "gitmap commit \"feat: auto-stage and flat commit\"", description: "Auto-stage modified files and commit with message" },
+      { command: "gitmap cm \"fix: resolve edge case\" -p", description: "Stage, commit, and push in one step" },
+      { command: "gitmap commit \"chore: morning sync\" --schedule --timezone America/New_York", description: "Enforce weekday morning (< 08:00 AM) schedule in target timezone" },
+      { command: "gitmap cpf \"MODULE - add feature\"", description: "1-step stage, semantic commit, and push" },
+    ],
+    notes: [
+      "Auto-stages all modified, untracked, and deleted files without manual 'git add'.",
+      "Under --schedule, weekday commits must be completed before 08:00 AM in the target timezone; weekend commits are unconstrained.",
+    ],
+    seeAlso: [
+      { name: "cpar", description: "Workspace-wide parallel execution and synchronization engine" },
+      { name: "sends cp all", description: "Semantic commit dispatch across all dirty repositories" },
+    ],
+  },
+
+  // ═══════════════════════════════════════════
   // Commit & Synchronization (cpar)
   // ═══════════════════════════════════════════
   {
@@ -4140,6 +4172,8 @@ export const commands: CommandDef[] = [
     category: "commit",
     flags: [
       { flag: "--message, -m <msg>", description: "Commit message for workspace-wide commit and push" },
+      { flag: "--timezone, -tz <tz>", description: "Target canonical IANA timezone identifier for commit schedule" },
+      { flag: "--schedule, -sc", description: "Enforce weekday morning (< 08:00 AM) commit schedule restriction" },
       { flag: "--concurrency <n>", description: "Maximum concurrent worker routines (default: CPU cores * 2)" },
       { flag: "--timeout <sec>", description: "Command execution timeout per repository" },
       { flag: "--continue-on-error", description: "Prevent single repository failure from halting batch run" },
@@ -4168,11 +4202,13 @@ export const commands: CommandDef[] = [
     name: "sends cp all",
     alias: "sends cp, sends-cp-all",
     description: "Scan workspace via gitmap.db to discover all dirty repositories, generate pattern-categorized commit messages with relative markdown links, stage, commit, and push in parallel",
-    usage: "gitmap sends cp all \"<message>\" [--dry-run] [--no-push] [--json] [--verbose]",
+    usage: "gitmap sends cp all \"<message>\" [--dry-run] [--no-push] [--timezone <tz>] [--schedule] [--json] [--verbose]",
     category: "commit",
     flags: [
       { flag: "--dry-run, -n", description: "Simulate commit message generation and staging without mutating Git refs" },
       { flag: "--no-push", description: "Commit changes locally without pushing to upstream remote" },
+      { flag: "--timezone, -tz <tz>", description: "Target canonical IANA timezone for commit schedule evaluation" },
+      { flag: "--schedule, -sc", description: "Enforce weekday morning (< 08:00 AM) commit cutoff window" },
       { flag: "--json, -j", description: "Output machine-readable JSON summary of affected repositories" },
       { flag: "--verbose, -v", description: "Print detailed git subprocess execution diagnostics" },
     ],

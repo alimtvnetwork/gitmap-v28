@@ -52,11 +52,14 @@ func buildCommitTips() []string {
 		"Use 'gitmap cpf \"MODULE - description\"' for 1-step stage, commit, and push.",
 		"Use 'gitmap cbf \"MODULE - description\"' for 1-step bug fix stage, commit, and push.",
 		"Use 'gitmap cpc \"MODULE - description\"' for 1-step chore stage, commit, and push.",
+		"Weekday commits under --schedule must be completed before 08:00 AM in target timezone.",
 	}
 }
 
 func buildCommitFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
+		{Command: "--timezone, -tz <tz>", Description: "Target canonical IANA timezone identifier for scheduling"},
+		{Command: "--schedule, -sc", Description: "Enforce weekday morning cutoff (< 08:00 AM) schedule restriction"},
 		{Command: "--interleave", Description: "Merge commits by author date order for commit-both"},
 		{Command: "--dry-run", Description: "Preview transfer or commit actions without modifying disk"},
 		{Command: "--no-push", Description: "Create local commits without pushing to remote"},

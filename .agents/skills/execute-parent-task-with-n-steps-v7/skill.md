@@ -44,7 +44,7 @@ WAVES = ceil(subtasks / (A x H))
   1. **Planning Step (A = 3 `research` subagents):** Spawn 3 read-only discovery subagents (`TypeName: "research"`) to research the codebase and return findings; lead writes the unified Brain execution plan and roadmap.
   2. **Spec Step (A = 3 self authoring subagents — ZERO SOLO SPEC AUTHORING):** Spawn 3 authoring subagents (TypeName: "self") to author modular, disjoint spec files and subtasks (never writing the same file). Solo authoring by the lead orchestrator is STRICTLY FORBIDDEN.
   3. **Execution Step (A = 3 `self` worker subagents):** Spawn 3 worker subagents (`TypeName: "self"`) to execute code modifications in strictly disjoint file boxes.
-- **DYNAMIC AGENT JOIN & IMMEDIATE RESPAWN (NO IDLE WORKERS):** Worker capacity `A` must remain pinned at 3 active agents (System Concurrency Capacity = 6) throughout execution. The lead orchestrator MUST NOT wait for an entire 3-agent wave to finish. As soon as ANY single worker completes, the lead immediately spawns a replacement worker for the next pending subtask, or commands the worker to dynamically join an active subtask in collaborative assistance mode (parallel reading, companion linters, memory logging) to keep concurrency at exactly 3 active subagents (100% duty cycle).
+- **DYNAMIC AGENT JOIN & IMMEDIATE RESPAWN (NO IDLE WORKERS):** Worker capacity `A` must remain pinned at 3 active agents (System Concurrency Capacity = 6) throughout execution. As soon as ANY single worker completes, the lead immediately spawns a replacement worker for the next pending subtask, or commands the worker to dynamically join an active subtask in collaborative assistance mode (parallel reading, companion linters, memory logging) to keep concurrency at exactly 3 active subagents (100% duty cycle).
 - **SOLO EXECUTION IS AN AUTO-REJECT FAILURE:** The lead orchestrator is **STRICTLY FORBIDDEN** from executing planning, spec writing, or code changes by itself without calling the `invoke_subagent` tool.
 
 ---
@@ -84,11 +84,15 @@ Before proceeding to research or spec generation, evaluate whether the incoming 
 1. **Time Restriction Check (`gitmap-time-restriction`):**
    - If prompt specifies working hours, schedules, or commit timestamps, activate `.agents/skills/gitmap-time-restriction/skill.md`.
    - Set `isTimeRestricted: true` in task configuration.
+   - Resolve target timezone perspective from CLI flag `--tz`, task config, or fallback to local workstation timezone.
+   - Evaluate weekday vs weekend schedule constraints: Monday–Friday commits strictly permitted BEFORE 08:00 AM in target timezone; Saturday–Sunday commits permitted anytime (24h unconstrained).
+   - In automated agent workflows, always pass headless one-liner flags (`--tz <timezone>`, `--auto-window`, `--non-interactive`) to prevent interactive prompt blocks.
    - Enforce the `DD-MMM-YY` UTC standard across all date handling.
 2. **AI Automation Bot Check (`gitmap-automation-bot`):**
    - If prompt specifies bot author identity or headless automation commits, activate `.agents/skills/gitmap-automation-bot/skill.md`.
    - Execute pre-flight identity switch via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot`.
    - Set `isAutobotActive: true` in task tracking.
+   - If `isTimeRestricted: true` is also active, pair autobot execution with headless time-restriction flags (`--tz`, `--auto-window`, `--non-interactive`).
 3. **Recommit Verification Check:**
    - If task specifies amending, replaying, or recommitting previous changes, verify working tree cleanliness via `gitmap st` and check commit history before modifying files.
 
@@ -112,7 +116,7 @@ Before proceeding to research or spec generation, evaluate whether the incoming 
 ### Phase 3: Verification, Audit & Atomic GitMap Commit (Steps 251–400)
 
 1. Run targeted, file-scoped checks on modified files.
-2. If `isTimeRestricted` is active, verify commit timestamp window.
+2. If `isTimeRestricted` is active, verify commit timestamp against target timezone before push: confirm weekday commits are strictly before 08:00 AM in target timezone (or shifted via `--auto-window`), or anytime on weekends.
 3. If `isAutobotActive` is active, verify author credentials before committing.
 4. If recommit was commanded, execute history reconciliation.
 5. Move plan from `.ai-memory/plans/pending/XX-<slug>.md` to `.ai-memory/plans/completed/XX-<slug>.md`.

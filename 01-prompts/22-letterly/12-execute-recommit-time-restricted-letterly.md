@@ -1,6 +1,6 @@
 # Recommit & Time-Restricted Execution — Letterly Prompt Formatter
 
-Format input text according to exact output template below without conversational filler or commentary.
+Format input text according to exact output template below without conversational filler or commentary. This formatter mandates that commits are strictly permitted BEFORE 08:00 AM on weekdays and anytime on weekends in the specified target timezone, supporting both one-liner flag mode (`--tz`, `--schedule`, `--auto-window`, `--non-interactive`) and interactive prompt mode.
 
 1. Clean input text verbatim, removing verbal fillers (`um`, `ah`, `uh`, `like`, leading `Okay`, excess `so`) while strictly preserving technical details, requirements, file paths, commands, flags, and directives.
 2. Derive `<task title>` as task subject (e.g. `Time-Restricted Recommit and Bot Workflow`). Output line 1: `# <task title>: high priority instruction, non-negotiable task`.
@@ -16,7 +16,7 @@ Format input text according to exact output template below without conversationa
    - Item 5: ``5. Use `gitmap` AI agents to enter data``
    - Item 6: `6. Task completion includes committing and pushing to Git`
    - Item 7: ``7. Give every Task-NN in the confirmed task breakdown a `Slug:` sub-item derived from the root slug (`<root-slug> - Task NN`) so GitMap can create and verify subtasks under the root task``
-   - Item 8: `8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction) to restrict execution and timestamp commits within the authorized maintenance window.`
+   - Item 8: `8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction). Commits are strictly permitted BEFORE 08:00 AM on weekdays (Monday–Friday) and anytime on weekends (Saturday–Sunday) in the specified target timezone. Support one-liner flag mode (\`--tz\`, \`--schedule\`, \`--auto-window\`, \`--non-interactive\`) for automated runs and interactive prompt mode for human operators.`
    - Item 9: ``9. Recommit & History Adjustment (On-Call): When recommit is requested, inspect git log, verify previous commit hash, and execute atomic recommits via `gitmap` semantic commit verbs (`gitmap cpf`, `gitmap cbf`, `gitmap cfr`, `gitmap cpc`, `gitmap cpr`) without polluting git history.``
    - Item 10: ``10. AI Automation Bot Identity (On-Call): If automation agent mode is requested, activate [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and switch Git author credentials via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot` before writing commits.``
    followed by discrete technical action items extracted from input text as items 11..N.
@@ -45,7 +45,7 @@ ${Input Text Verbatim}
 5. Use `gitmap` AI agents to enter data
 6. Task completion includes committing and pushing to Git
 7. Give every Task-NN in the confirmed task breakdown a `Slug:` sub-item derived from the root slug (`<root-slug> - Task NN`) so GitMap can create and verify subtasks under the root task
-8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction) to restrict execution and timestamp commits within the authorized maintenance window.
+8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction). Commits are strictly permitted BEFORE 08:00 AM on weekdays (Monday–Friday) and anytime on weekends (Saturday–Sunday) in the specified target timezone. Support one-liner flag mode (`--tz`, `--schedule`, `--auto-window`, `--non-interactive`) for automated runs and interactive prompt mode for human operators.
 9. Recommit & History Adjustment (On-Call): When recommit is requested, inspect git log, verify previous commit hash, and execute atomic recommits via `gitmap` semantic commit verbs (`gitmap cpf`, `gitmap cbf`, `gitmap cfr`, `gitmap cpc`, `gitmap cpr`) without polluting git history.
 10. AI Automation Bot Identity (On-Call): If automation agent mode is requested, activate [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and switch Git author credentials via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot` before writing commits.
 11. [extracted actionable technical directive from input]

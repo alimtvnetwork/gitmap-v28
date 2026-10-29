@@ -23,6 +23,7 @@ import { PullCacheCard } from "@/components/settings/PullCacheCard";
 import { TerminalThemeCard } from "@/components/settings/TerminalThemeCard";
 import { GitHubAuthCard } from "@/components/settings/GitHubAuthCard";
 import { AntigravityInstancesCard } from "@/components/settings/AntigravityInstancesCard";
+import { CommitScheduleCard } from "@/components/settings/CommitScheduleCard";
 
 interface AgyInstanceRecord {
   instanceId: string;
@@ -133,6 +134,9 @@ export default function SettingsPage() {
   const [terminalTheme, setTerminalTheme] = useState(TerminalThemeType.Dark);
   const [nodeResourceThreshold, setNodeResourceThreshold] = useState<number>(30);
   const [paeRecencyHours, setPaeRecencyHours] = useState<number>(48);
+  const [commitTimezone, setCommitTimezone] = useState("Local");
+  const [isCommitScheduleActive, setIsCommitScheduleActive] = useState(false);
+  const [commitWeekdayCutoff, setCommitWeekdayCutoff] = useState("08:00 AM");
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -151,6 +155,9 @@ export default function SettingsPage() {
       theme: localStorage.getItem("gitmap_terminal_theme"),
       nodeThreshold: localStorage.getItem("gitmap_node_resource_threshold"),
       paeRecency: localStorage.getItem("gitmap_pae_recency_window_hours"),
+      commitTz: localStorage.getItem("gitmap_commit_timezone"),
+      commitSchedule: localStorage.getItem("gitmap_commit_schedule_active"),
+      commitCutoff: localStorage.getItem("gitmap_commit_weekday_cutoff"),
       instanceId: localStorage.getItem("gitmap_agy_instance_id"),
       autoDiscover: localStorage.getItem("gitmap_agy_auto_discover"),
       telemetry: localStorage.getItem("gitmap_agy_telemetry_sync"),
@@ -182,6 +189,18 @@ export default function SettingsPage() {
 
     if (res.data.paeRecency) {
       setPaeRecencyHours(Number(res.data.paeRecency) || 48);
+    }
+
+    if (res.data.commitTz) {
+      setCommitTimezone(res.data.commitTz);
+    }
+
+    if (res.data.commitSchedule !== null) {
+      setIsCommitScheduleActive(res.data.commitSchedule === "true");
+    }
+
+    if (res.data.commitCutoff) {
+      setCommitWeekdayCutoff(res.data.commitCutoff);
     }
 
     if (res.data.instanceId) {
@@ -261,6 +280,9 @@ export default function SettingsPage() {
       localStorage.setItem("gitmap_terminal_theme", terminalTheme);
       localStorage.setItem("gitmap_node_resource_threshold", String(nodeResourceThreshold));
       localStorage.setItem("gitmap_pae_recency_window_hours", String(paeRecencyHours));
+      localStorage.setItem("gitmap_commit_timezone", commitTimezone);
+      localStorage.setItem("gitmap_commit_schedule_active", String(isCommitScheduleActive));
+      localStorage.setItem("gitmap_commit_weekday_cutoff", commitWeekdayCutoff);
       localStorage.setItem("gitmap_agy_instance_id", selectedInstanceId);
       localStorage.setItem("gitmap_agy_auto_discover", String(isAutoDiscoverActive));
       localStorage.setItem("gitmap_agy_telemetry_sync", String(isTelemetrySyncActive));
@@ -287,6 +309,9 @@ export default function SettingsPage() {
             "pull_cache_window_seconds": pullCacheWindow,
             "node_resource_threshold": String(nodeResourceThreshold),
             "pae_recency_window_hours": String(paeRecencyHours),
+            "commit.timezone": commitTimezone,
+            "commit.schedule_active": String(isCommitScheduleActive),
+            "commit.weekday_cutoff": commitWeekdayCutoff,
             "antigravity.instance_id": selectedInstanceId,
             "antigravity.auto_discover": String(isAutoDiscoverActive),
             "antigravity.telemetry_sync": String(isTelemetrySyncActive),
@@ -411,6 +436,13 @@ export default function SettingsPage() {
             <StorageTempCard tempDir={tempDir} onTempDirChange={setTempDir} />
             <PipelineMonitorCard pollInterval={pollInterval} onPollIntervalChange={setPollInterval} />
             <PullCacheCard pullCacheWindow={pullCacheWindow} onPullCacheWindowChange={setPullCacheWindow} />
+            <CommitScheduleCard
+              timezone={commitTimezone}
+              onTimezoneChange={setCommitTimezone}
+              isScheduleActive={isCommitScheduleActive}
+              onToggleSchedule={setIsCommitScheduleActive}
+              weekdayCutoff={commitWeekdayCutoff}
+            />
 
             {/* Node Resource Benchmark Threshold & PAE Commit Recency Card */}
             <div className="rounded-xl bg-card border border-border/50 p-6 shadow-sm space-y-6">

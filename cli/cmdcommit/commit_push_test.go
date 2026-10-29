@@ -1,6 +1,7 @@
 package cmdcommit
 
 import (
+	"os"
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
@@ -225,5 +226,36 @@ func TestRunGitResetValidation(t *testing.T) {
 	assertSubcommandHelpAndEmpty(t, RunGitReset, "-h")
 	if err := RunGitReset([]string{"abc"}); err == nil {
 		t.Error("RunGitReset short SHA expected error, got nil")
+	}
+}
+
+func TestVerifyTimeRestriction_NotRestricted(t *testing.T) {
+	meta := CommitMetadata{}
+	if err := verifyTimeRestriction(meta); err != nil {
+		t.Errorf("expected nil error when restriction not active, got %v", err)
+	}
+}
+
+func TestVerifyTimeRestriction_InvalidTimezone(t *testing.T) {
+	meta := CommitMetadata{IsTimeEnforced: true, Timezone: "Invalid/Zone/Location"}
+	err := verifyTimeRestriction(meta)
+	if err == nil {
+		t.Fatal("expected error on invalid timezone, got nil")
+	}
+	if err.Code != "E9001" {
+		t.Errorf("expected code E9001, got %s", err.Code)
+	}
+}
+
+func TestCleanupTimeSimulatedEnv(t *testing.T) {
+	t.Setenv("GIT_AUTHOR_DATE", "2026-10-29T07:30:00Z")
+	t.Setenv("GIT_COMMITTER_DATE", "2026-10-29T07:30:00Z")
+	cleanupTimeSimulatedEnv(true)
+
+	if os.Getenv("GIT_AUTHOR_DATE") != "" {
+		t.Errorf("expected GIT_AUTHOR_DATE to be unset")
+	}
+	if os.Getenv("GIT_COMMITTER_DATE") != "" {
+		t.Errorf("expected GIT_COMMITTER_DATE to be unset")
 	}
 }

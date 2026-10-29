@@ -79,11 +79,15 @@ Before proceeding to research or spec generation, evaluate whether the incoming 
 1. **Time Restriction Check (`gitmap-time-restriction`):**
    - If prompt specifies working hours, schedules, or commit timestamps, activate `.agents/skills/gitmap-time-restriction/skill.md`.
    - Set `isTimeRestricted: true` in task configuration.
+   - Resolve target timezone perspective from CLI flag `--tz`, task config, or fallback to local workstation timezone.
+   - Evaluate weekday vs weekend schedule constraints: Monday–Friday commits strictly permitted BEFORE 08:00 AM in target timezone; Saturday–Sunday commits permitted anytime (24h unconstrained).
+   - In automated agent workflows, always pass headless one-liner flags (`--tz <timezone>`, `--auto-window`, `--non-interactive`) to prevent interactive prompt blocks.
    - Enforce the `DD-MMM-YY` UTC standard across all date handling.
 2. **AI Automation Bot Check (`gitmap-automation-bot`):**
    - If prompt specifies bot author identity or headless automation commits, activate `.agents/skills/gitmap-automation-bot/skill.md`.
    - Execute pre-flight identity switch via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot`.
    - Set `isAutobotActive: true` in task tracking.
+   - If `isTimeRestricted: true` is also active, pair autobot execution with headless time-restriction flags (`--tz`, `--auto-window`, `--non-interactive`).
 3. **Recommit Verification Check:**
    - If task specifies amending, replaying, or recommitting previous changes, verify working tree cleanliness via `gitmap st` and check commit history before modifying files.
 
@@ -107,7 +111,7 @@ Before proceeding to research or spec generation, evaluate whether the incoming 
 ### Phase 3: Verification, Audit & Atomic GitMap Commit (Steps 251–400)
 
 1. Run targeted, file-scoped checks on modified files.
-2. If `isTimeRestricted` is active, verify commit timestamp window.
+2. If `isTimeRestricted` is active, verify commit timestamp against target timezone before push: confirm weekday commits are strictly before 08:00 AM in target timezone (or shifted via `--auto-window`), or anytime on weekends.
 3. If `isAutobotActive` is active, verify author credentials before committing.
 4. If recommit was commanded, execute history reconciliation.
 5. Move plan from `.ai-memory/plans/pending/XX-<slug>.md` to `.ai-memory/plans/completed/XX-<slug>.md`.

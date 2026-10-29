@@ -87,6 +87,22 @@ gitmap change-user --restore
 gitmap change-user "<Developer Name> <developer@email.com>"
 ```
 
+### 3.5 Pairing Autobot with Headless Time-Restriction
+
+When autonomous agents operate under time-restricted maintenance windows, pair `gitmap autobot` with headless time-restriction flags:
+
+- `--tz <timezone>`: Target timezone perspective for schedule validation.
+- `--auto-window`: Automatically normalizes commit timestamps to the next valid window (strictly before 08:00 AM on weekdays or anytime on weekends).
+- `--non-interactive`: Enforces headless execution without interactive terminal prompts.
+
+```bash
+# Step 1: Switch repository git identity to autobot
+gitmap autobot
+
+# Step 2: Execute atomic commit with headless time-restriction flags
+gitmap cpf "Module - implement autonomous subtask" --tz "America/New_York" --auto-window --non-interactive
+```
+
 ---
 
 ## 4. Headless & Automated Commit Protocols
@@ -106,6 +122,8 @@ When operating under bot mode, all commits must adhere to GitMap semantic commit
 3. **Atomic Scope**:
    - Touch only files assigned to the active subtask.
    - Run pre-flight pull (`gitmap pull`) before writing changes.
+4. **Time-Restriction Flag Integration**:
+   - In automated bot workflows governed by `[gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction)`, always supply `--tz`, `--auto-window`, and `--non-interactive` to prevent interactive blocks and maintain schedule compliance.
 
 ---
 
@@ -117,8 +135,8 @@ When authoring code, scripts, or plans supporting the automation bot:
    - Always reference `.agents/skills/gitmap-automation-bot/skill.md`, `02-spec/...`, `.ai-memory/...`.
    - Never use absolute paths (`C:\...`, `D:\...`).
 2. **Positive Boolean Naming**:
-   - Use `isAutobotActive`, `hasLocalScope`, `isRestored`, `isValidProfile`.
-   - Ban negative booleans (`isNotHuman`, `isNonInteractive`) and non-standard prefixes (`canSwitch`, `shouldRestore`).
+   - Use `isAutobotActive`, `hasLocalScope`, `isRestored`, `isValidProfile`, `hasTimeRestriction`, `hasAutoWindow`, `isHeadless`.
+   - Ban negative booleans (`isNotHuman`, `isOutsideWindow`) and non-standard prefixes (`canSwitch`, `shouldRestore`).
 3. **Leaf Error Sovereignty**:
    - Identity configuration helpers return `error` or `*apperror.AppError` directly.
    - Never invoke `os.Exit` or `cliexit.HandleError` inside leaf helpers.

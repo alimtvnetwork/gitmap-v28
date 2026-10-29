@@ -2,12 +2,14 @@ package cmdcommit
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/timeutil"
 )
 
 // IsCommitPushHelpArg returns true if the first argument is a help trigger word.
@@ -28,8 +30,9 @@ func RunCommitPush(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push <message>", "E9000")
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push", "E9000")
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage("cp", cleanArgs)
 
@@ -45,8 +48,9 @@ func RunPullCommitPush(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap pull-commit-push <message>", "E9000")
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "pull-commit-push", "E9000")
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage("pcp", cleanArgs)
 
@@ -54,12 +58,18 @@ func RunPullCommitPush(args []string) error {
 }
 
 func executePullCommitPush(commitMessage string, meta CommitMetadata) error {
-	// Dry-run must return before the pull: a preview must not move the
-	// tree, and a failing or unreachable remote must not fail a preview.
 	if meta.IsDryRun {
 		return previewCommitPush(commitMessage, meta, true)
 	}
+	if errTime := verifyTimeRestriction(meta); errTime != nil {
+		return errTime
+	}
+	defer cleanupTimeSimulatedEnv(meta.IsAutoWindow)
 
+	return proceedPullCommitPush(commitMessage, meta)
+}
+
+func proceedPullCommitPush(commitMessage string, meta CommitMetadata) error {
 	fmt.Println()
 	printPaddedInfo("Pulling latest changes before commit...")
 
@@ -82,8 +92,9 @@ func RunCommitPushBug(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-bug <message>", string(constants.ErrCodeGenericExecution))
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push-bug", string(constants.ErrCodeGenericExecution))
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage(string(constants.CommitVerbBugAlt), cleanArgs)
 
@@ -99,8 +110,9 @@ func RunCommitPushFeature(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-feature <message>", string(constants.ErrCodeGenericExecution))
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push-feature", string(constants.ErrCodeGenericExecution))
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage(string(constants.CommitVerbFeature), cleanArgs)
 
@@ -116,8 +128,9 @@ func RunCommitPushChore(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-chore <message>", string(constants.ErrCodeGenericExecution))
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push-chore", string(constants.ErrCodeGenericExecution))
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage(string(constants.CommitVerbChore), cleanArgs)
 
@@ -133,8 +146,9 @@ func RunCommitPushRelease(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-release <message>", string(constants.ErrCodeGenericExecution))
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push-release", string(constants.ErrCodeGenericExecution))
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage(string(constants.CommitVerbRelease), cleanArgs)
 
@@ -150,8 +164,9 @@ func RunCommitPushRefactor(args []string) error {
 	}
 
 	cleanArgs, meta := ExtractCommitFlags(args)
-	if len(cleanArgs) == 0 {
-		return apperror.NewSimple("Usage: gitmap commit-push-refactor <message>", string(constants.ErrCodeGenericExecution))
+	cleanArgs, errPrompt := PromptCommitMessageIfMissing(cleanArgs, "commit-push-refactor", string(constants.ErrCodeGenericExecution))
+	if errPrompt != nil {
+		return errPrompt
 	}
 	commitMessage := FormatCommitMessage(string(constants.CommitVerbRefactor), cleanArgs)
 
@@ -159,25 +174,26 @@ func RunCommitPushRefactor(args []string) error {
 }
 
 // executeCommitPush is the shared logic for all commit-push variants.
-// When meta.TaskSlug is set (--task flag or GITMAP_TASK env), staging is scoped to
-// that task's claimed files instead of staging everything.
 func executeCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	if !cmdpull.IsGitRepoCWD() {
 		return handleNonGitRepoCommitPush()
 	}
-
-	// Dry-run early return: the flag was parsed into meta.IsDryRun but
-	// never checked here, so --dry-run previously fell through to staging,
-	// committing, and pushing. Preview and return before any mutation.
 	if meta.IsDryRun {
 		return previewCommitPush(commitMessage, meta, false)
 	}
+	if errTime := verifyTimeRestriction(meta); errTime != nil {
+		return errTime
+	}
+	defer cleanupTimeSimulatedEnv(meta.IsAutoWindow)
 
+	return proceedCommitPush(commitMessage, meta)
+}
+
+func proceedCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	hasChanges, errPrep := stageAndCheckChanges(meta.TaskSlug)
 	if errPrep != nil {
 		return errPrep
 	}
-
 	if !hasChanges {
 		return handleCleanWorkingTreeCP()
 	}
@@ -185,19 +201,82 @@ func executeCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppE
 	return performCommitPush(commitMessage, meta)
 }
 
+func verifyTimeRestriction(meta CommitMetadata) *apperror.AppError {
+	if !isTimeRestricted(meta) {
+		return nil
+	}
+	loc, errLoc := timeutil.ResolveLocation(meta.Timezone)
+	if errLoc != nil {
+		return apperror.NewSimple("Invalid timezone "+meta.Timezone+": "+errLoc.Error(), "E9001")
+	}
+
+	return evaluateTimeWindow(meta, loc)
+}
+
+func isTimeRestricted(meta CommitMetadata) bool {
+	return meta.IsTimeEnforced || meta.IsAutoWindow
+}
+
+func evaluateTimeWindow(meta CommitMetadata, loc *time.Location) *apperror.AppError {
+	now := time.Now().In(loc)
+	if timeutil.IsCommitWindowAllowed(now, loc) {
+		return nil
+	}
+	if meta.IsAutoWindow {
+		return applySimulatedMorningWindow(now, loc)
+	}
+
+	return newWindowClosedError(now, loc)
+}
+
+func applySimulatedMorningWindow(now time.Time, loc *time.Location) *apperror.AppError {
+	morning := timeutil.SimulateMorningWindow(now, loc)
+	stamp := morning.Format(time.RFC3339)
+	os.Setenv("GIT_AUTHOR_DATE", stamp)
+	os.Setenv("GIT_COMMITTER_DATE", stamp)
+	printPaddedInfo("Time window closed; auto-window simulated compliant morning timestamp: %s", stamp)
+
+	return nil
+}
+
+func newWindowClosedError(now time.Time, loc *time.Location) *apperror.AppError {
+	nextSlot := timeutil.CalculateNextWindow(now, loc)
+	msg := fmt.Sprintf("Commit rejected: outside allowed window for timezone %s. Next window opens at %s", loc.String(), nextSlot.Format(time.RFC3339))
+
+	return apperror.NewSimple(msg, "E9002")
+}
+
+func cleanupTimeSimulatedEnv(isAutoWindow bool) {
+	if isAutoWindow {
+		os.Unsetenv("GIT_AUTHOR_DATE")
+		os.Unsetenv("GIT_COMMITTER_DATE")
+	}
+}
+
 func performCommitPush(commitMessage string, meta CommitMetadata) *apperror.AppError {
+	if errCommit := commitAndRecord(commitMessage, meta); errCommit != nil {
+		return errCommit
+	}
+
+	return pushAndSummarize(commitMessage, meta.Author)
+}
+
+func commitAndRecord(commitMessage string, meta CommitMetadata) *apperror.AppError {
 	printPaddedInfo("Committing: %s", commitMessage)
 	if errCommit := performCommitStep(commitMessage, meta.Author); errCommit != nil {
 		return errCommit
 	}
-
 	RecordCurrentCommitSafely(meta)
 
+	return nil
+}
+
+func pushAndSummarize(commitMessage, author string) *apperror.AppError {
 	printPaddedInfo("Pushing to remote...")
 	if errPush := performPushStep(); errPush != nil {
 		return errPush
 	}
-	renderSuccessSummary(commitMessage, meta.Author)
+	renderSuccessSummary(commitMessage, author)
 
 	return nil
 }
@@ -206,8 +285,12 @@ func performCommitStep(commitMessage, author string) *apperror.AppError {
 	if idErr := ensureGitIdentity(); idErr != nil {
 		return idErr
 	}
-
 	commitArgs := buildCommitArgs(commitMessage, author)
+
+	return execAndRecordCommit(commitArgs)
+}
+
+func execAndRecordCommit(commitArgs []string) *apperror.AppError {
 	startTime := time.Now()
 	out, err := execGitPaddedFilteredCapture(commitArgs...)
 	durMs := time.Since(startTime).Milliseconds()

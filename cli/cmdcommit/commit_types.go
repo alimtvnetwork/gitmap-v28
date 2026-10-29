@@ -6,15 +6,18 @@ import (
 
 // CommitMetadata encapsulates operational flags and ambient AI provenance.
 type CommitMetadata struct {
-	TaskSlug  string
-	AgentID   string
-	HeatmapID string
-	AIName    string
-	SpecPath  string
-	Author    string
-	IsAIMode  bool
-	HasPush   bool
-	IsDryRun  bool
+	TaskSlug       string
+	AgentID        string
+	HeatmapID      string
+	AIName         string
+	SpecPath       string
+	Author         string
+	Timezone       string
+	IsAIMode       bool
+	HasPush        bool
+	IsDryRun       bool
+	IsTimeEnforced bool
+	IsAutoWindow   bool
 }
 
 const (
@@ -33,6 +36,12 @@ const (
 	FlagDryRunLong  = commitconstants.FlagDryRun
 	FlagDryRunShort = "-n"
 
+	FlagTimezone      = "--timezone"
+	FlagTimezoneShort = "-tz"
+	FlagSchedule      = "--schedule"
+	FlagScheduleShort = "-sc"
+	FlagAutoWindow    = "--auto-window"
+
 	EnvGitmapAgentID          = commitconstants.EnvGitmapAgentID
 	EnvAntigravityAgentID     = commitconstants.EnvAntigravityAgentID
 	EnvAgentID                = "AGENT_ID"
@@ -45,4 +54,6 @@ const (
 	EnvGitmapTaskSlug         = "GITMAP_TASK_SLUG"
 	EnvGitmapTask             = "GITMAP_TASK"
 	EnvGitmapSpecPath         = "GITMAP_SPEC_PATH"
+	EnvGitmapTimezone         = "GITMAP_TIMEZONE"
+	EnvGitmapTimeEnforced     = "GITMAP_TIME_ENFORCED"
 )

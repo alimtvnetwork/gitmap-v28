@@ -108,6 +108,21 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
           <label for="setting-ui-refresh-interval">UI Background Auto-Refresh Interval (ms) (<code>ui.refresh_interval_ms</code> &mdash; default 300000ms / 5m)</label>
           <input type="number" id="setting-ui-refresh-interval" name="ui.refresh_interval_ms" data-key="ui.refresh_interval_ms" value="300000" placeholder="300000">
         </div>
+        <div class="form-group">
+          <label for="setting-commit-timezone">Commit Schedule Timezone (<code>commit.timezone</code>)</label>
+          <input type="text" id="setting-commit-timezone" name="commit.timezone" data-key="commit.timezone" value="Local" placeholder="Local or America/New_York">
+        </div>
+        <div class="form-group">
+          <label for="setting-commit-schedule-active">Commit Schedule Enforcement Active (<code>commit.schedule_active</code>)</label>
+          <select id="setting-commit-schedule-active" name="commit.schedule_active" data-key="commit.schedule_active">
+            <option value="false">Disabled (Unconstrained commits anytime)</option>
+            <option value="true">Enabled (Enforce weekday cutoff before 08:00 AM)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="setting-commit-weekday-cutoff">Commit Weekday Cutoff Time (<code>commit.weekday_cutoff</code>)</label>
+          <input type="text" id="setting-commit-weekday-cutoff" name="commit.weekday_cutoff" data-key="commit.weekday_cutoff" value="08:00 AM" placeholder="08:00 AM">
+        </div>
         <div class="form-group" style="margin-top:var(--sp-3);">
           <label>Prompt Preview Header Metadata (Default Instance Template)</label>
           <div class="prompt-preview-header-wrapper" style="border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--code-bg);padding:var(--sp-2);">

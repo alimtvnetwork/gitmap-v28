@@ -9,20 +9,25 @@ import (
 
 // ExtractCommitFlags parses CLI arguments, strips metadata flags, and resolves ambient fallbacks.
 func ExtractCommitFlags(args []string) ([]string, CommitMetadata) {
-	var clean []string
 	var meta CommitMetadata
-	isSkip := false
+	clean := parseArgsFlags(args, &meta)
+	applyAmbientFallbacks(&meta)
 
+	return clean, meta
+}
+
+func parseArgsFlags(args []string, meta *CommitMetadata) []string {
+	var clean []string
+	isSkip := false
 	for i := 0; i < len(args); i++ {
 		if isSkip {
 			isSkip = false
 			continue
 		}
-		clean, isSkip = processSingleFlag(args, i, clean, &meta)
+		clean, isSkip = processSingleFlag(args, i, clean, meta)
 	}
-	applyAmbientFallbacks(&meta)
 
-	return clean, meta
+	return clean
 }
 
 func processSingleFlag(args []string, i int, clean []string, meta *CommitMetadata) ([]string, bool) {
@@ -51,31 +56,81 @@ func isStandaloneFlag(arg string, meta *CommitMetadata) bool {
 	case FlagAI:
 		meta.IsAIMode = true
 		return true
+	case FlagSchedule, FlagScheduleShort:
+		meta.IsTimeEnforced = true
+		return true
+	case FlagAutoWindow:
+		meta.IsAutoWindow = true
+		return true
 	default:
 		return false
 	}
 }
 
 func hasValuePrefix(arg string, meta *CommitMetadata) bool {
+	if hasProvenancePrefix(arg, meta) {
+		return true
+	}
+	if hasAuthorOrTaskPrefix(arg, meta) {
+		return true
+	}
+
+	return hasTimePrefix(arg, meta)
+}
+
+func hasProvenancePrefix(arg string, meta *CommitMetadata) bool {
+	if hasAgentOrHeatmapPrefix(arg, meta) {
+		return true
+	}
+
+	return hasAIOrSpecPrefix(arg, meta)
+}
+
+func hasAgentOrHeatmapPrefix(arg string, meta *CommitMetadata) bool {
 	if matchPrefixTarget(arg, []string{FlagAgentID + "=", FlagAgent + "="}, &meta.AgentID) {
 		meta.IsAIMode = true
 		return true
 	}
-	if matchPrefixTarget(arg, []string{FlagHeatmapID + "=", FlagHeatmap + "="}, &meta.HeatmapID) {
-		return true
-	}
+
+	return matchPrefixTarget(arg, []string{FlagHeatmapID + "=", FlagHeatmap + "="}, &meta.HeatmapID)
+}
+
+func hasAIOrSpecPrefix(arg string, meta *CommitMetadata) bool {
 	if matchPrefixTarget(arg, []string{FlagAI + "="}, &meta.AIName) {
 		meta.IsAIMode = true
 		return true
 	}
-	if matchPrefixTarget(arg, []string{FlagSpec + "="}, &meta.SpecPath) {
-		return true
-	}
+
+	return matchPrefixTarget(arg, []string{FlagSpec + "="}, &meta.SpecPath)
+}
+
+func hasAuthorOrTaskPrefix(arg string, meta *CommitMetadata) bool {
 	if matchPrefixTarget(arg, []string{FlagAuthor + "=", FlagAuthorShort + "="}, &meta.Author) {
 		return true
 	}
 
 	return matchPrefixTarget(arg, []string{FlagTask + "=", "-t="}, &meta.TaskSlug)
+}
+
+func hasTimePrefix(arg string, meta *CommitMetadata) bool {
+	if matchPrefixTarget(arg, []string{FlagTimezone + "=", FlagTimezoneShort + "="}, &meta.Timezone) {
+		return true
+	}
+
+	return hasScheduleOrAutoPrefix(arg, meta)
+}
+
+func hasScheduleOrAutoPrefix(arg string, meta *CommitMetadata) bool {
+	if strings.HasPrefix(arg, FlagSchedule+"=") || strings.HasPrefix(arg, FlagScheduleShort+"=") {
+		meta.IsTimeEnforced = true
+		return true
+	}
+	if strings.HasPrefix(arg, FlagAutoWindow+"=") {
+		meta.IsAutoWindow = true
+		return true
+	}
+
+	return false
 }
 
 func matchPrefixTarget(arg string, prefixes []string, target *string) bool {
@@ -96,11 +151,20 @@ func isValuedFlag(arg, val string, meta *CommitMetadata) bool {
 	if isAIFlag(arg, val, meta) || isSpecFlag(arg, val, meta) {
 		return true
 	}
-	if isAuthorFlag(arg, val, meta) {
+	if isAuthorFlag(arg, val, meta) || isTaskFlag(arg, val, meta) {
 		return true
 	}
 
-	return isTaskFlag(arg, val, meta)
+	return isTimezoneFlag(arg, val, meta)
+}
+
+func isTimezoneFlag(arg, val string, meta *CommitMetadata) bool {
+	if arg != FlagTimezone && arg != FlagTimezoneShort {
+		return false
+	}
+	meta.Timezone = strings.TrimSpace(val)
+
+	return true
 }
 
 func isAgentFlag(arg, val string, meta *CommitMetadata) bool {
@@ -166,6 +230,14 @@ func applyAmbientFallbacks(meta *CommitMetadata) {
 	fallbackString(&meta.SpecPath, EnvGitmapSpecPath)
 	resolveAuthorFallback(meta)
 	resolveAIFallbacks(meta)
+	resolveTimeFallbacks(meta)
+}
+
+func resolveTimeFallbacks(meta *CommitMetadata) {
+	fallbackString(&meta.Timezone, EnvGitmapTimezone, "TZ")
+	if !meta.IsTimeEnforced && os.Getenv(EnvGitmapTimeEnforced) == "true" {
+		meta.IsTimeEnforced = true
+	}
 }
 
 func resolveAuthorFallback(meta *CommitMetadata) {
