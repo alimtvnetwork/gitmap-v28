@@ -1,6 +1,6 @@
 # Recommit & Time-Restricted Execution — Letterly Prompt Formatter
 
-Format input text according to exact output template below without conversational filler or commentary. This formatter mandates that commits are strictly permitted BEFORE 08:00 AM on weekdays and anytime on weekends in the specified target timezone, supporting both one-liner flag mode (`--tz`, `--schedule`, `--auto-window`, `--non-interactive`) and interactive prompt mode.
+Format input text according to exact output template below without conversational filler or commentary. This formatter directs the AI agent to follow the unified V7 master execution skill (`execute-parent-task-with-n-steps-v7`), which encapsulates both Option 1 (Time-Restricted with timezone & weekday < 08:00 AM cutoff) and Option 2 (Unrestricted Time) alongside AI automation bot integration.
 
 1. Clean input text verbatim, removing verbal fillers (`um`, `ah`, `uh`, `like`, leading `Okay`, excess `so`) while strictly preserving technical details, requirements, file paths, commands, flags, and directives.
 2. Derive `<task title>` as task subject (e.g. `Time-Restricted Recommit and Bot Workflow`). Output line 1: `# <task title>: high priority instruction, non-negotiable task`.
@@ -16,14 +16,12 @@ Format input text according to exact output template below without conversationa
    - Item 5: ``5. Use `gitmap` AI agents to enter data``
    - Item 6: `6. Task completion includes committing and pushing to Git`
    - Item 7: ``7. Give every Task-NN in the confirmed task breakdown a `Slug:` sub-item derived from the root slug (`<root-slug> - Task NN`) so GitMap can create and verify subtasks under the root task``
-   - Item 8: `8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction). Commits are strictly permitted BEFORE 08:00 AM on weekdays (Monday–Friday) and anytime on weekends (Saturday–Sunday) in the specified target timezone. Support one-liner flag mode (\`--tz\`, \`--schedule\`, \`--auto-window\`, \`--non-interactive\`) for automated runs and interactive prompt mode for human operators.`
+   - Item 8: `8. Execute via V7 Master Engine with Dual-Option Support: Follow [execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7) which provides two explicit execution options: Option 1 (Restricted Time: enforce commits strictly BEFORE 08:00 AM on weekdays and anytime on weekends in target timezone via \`--tz\`, \`--schedule\`, \`--auto-window\`, \`--non-interactive\`) or Option 2 (Unrestricted Time: immediate commits anytime). When automation bot persona is commanded, configure identity via \`gitmap autobot\` before modifying code.`
    - Item 9: ``9. Recommit & History Adjustment (On-Call): When recommit is requested, inspect git log, verify previous commit hash, and execute atomic recommits via `gitmap` semantic commit verbs (`gitmap cpf`, `gitmap cbf`, `gitmap cfr`, `gitmap cpc`, `gitmap cpr`) without polluting git history.``
-   - Item 10: ``10. AI Automation Bot Identity (On-Call): If automation agent mode is requested, activate [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and switch Git author credentials via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot` before writing commits.``
-   followed by discrete technical action items extracted from input text as items 11..N.
-6. Append mandatory on-call skill section referencing `gitmap-time-restriction` and `gitmap-automation-bot`.
-7. End with mandatory agent invocation suffix pointing to `[execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7)`.
-8. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
-9. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
+   followed by discrete technical action items extracted from input text as items 10..N.
+6. End with mandatory agent invocation suffix pointing to `@[.agents/skills/execute-parent-task-with-n-steps-v7]`.
+7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
+8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
 
 ${Input Text Verbatim} = Cleaned input text without verbal filler words.
 
@@ -45,19 +43,13 @@ ${Input Text Verbatim}
 5. Use `gitmap` AI agents to enter data
 6. Task completion includes committing and pushing to Git
 7. Give every Task-NN in the confirmed task breakdown a `Slug:` sub-item derived from the root slug (`<root-slug> - Task NN`) so GitMap can create and verify subtasks under the root task
-8. Time-Restriction Enforcement (On-Call): If the task specifies restricted working hours, scheduled windows, or commit timestamp pacing, activate [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction). Commits are strictly permitted BEFORE 08:00 AM on weekdays (Monday–Friday) and anytime on weekends (Saturday–Sunday) in the specified target timezone. Support one-liner flag mode (`--tz`, `--schedule`, `--auto-window`, `--non-interactive`) for automated runs and interactive prompt mode for human operators.
+8. Execute via V7 Master Engine with Dual-Option Support: Follow [execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7) which provides two explicit execution options: Option 1 (Restricted Time: enforce commits strictly BEFORE 08:00 AM on weekdays and anytime on weekends in target timezone via `--tz`, `--schedule`, `--auto-window`, `--non-interactive`) or Option 2 (Unrestricted Time: immediate commits anytime). When automation bot persona is commanded, configure identity via `gitmap autobot` before modifying code.
 9. Recommit & History Adjustment (On-Call): When recommit is requested, inspect git log, verify previous commit hash, and execute atomic recommits via `gitmap` semantic commit verbs (`gitmap cpf`, `gitmap cbf`, `gitmap cfr`, `gitmap cpc`, `gitmap cpr`) without polluting git history.
-10. AI Automation Bot Identity (On-Call): If automation agent mode is requested, activate [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and switch Git author credentials via `gitmap change-user "gitmap automation <local@local>"` or `gitmap autobot` before writing commits.
-11. [extracted actionable technical directive from input]
-
-## On-Call Skills (Conditional Activation)
-
-- [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction): Active ONLY when time windows, schedule bounds, or restricted commit pacing are specified in the prompt.
-- [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot): Active ONLY when AI bot persona, automation commits, or headless CI workflows are requested.
+10. [extracted actionable technical directive from input]
 
 ## Must follow and spawn agent using
 
-[execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7)
+@[.agents/skills/execute-parent-task-with-n-steps-v7]
 
 ## Additional Instructions
 
