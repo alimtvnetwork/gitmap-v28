@@ -41,6 +41,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdplans"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpull"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpy"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdspace"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdvscode"
@@ -91,6 +92,7 @@ func utilityCoreBaseEntries() []dispatchEntry {
 	return []dispatchEntry{
 		{[]string{"binary", "info"}, printIdentityLong},
 		{[]string{"error"}, func() error { return cmderrors.RunErrorCmd(argsTail()) }},
+		{[]string{"send-email", "sendemail"}, func() error { return cmdspace.RunSendEmail(argsTail()) }},
 		{[]string{constants.CmdUpdate, "ua", "update-all", "updateall", "uaz", "update-all-zip", "updateallzip"}, runUpdateHelp},
 		{[]string{constants.CmdUpdateRunner}, cmdupdate.RunUpdateRunner},
 		{[]string{constants.CmdUpdateCleanup}, cmdupdate.RunUpdateCleanup},

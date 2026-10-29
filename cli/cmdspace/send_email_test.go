@@ -86,6 +86,21 @@ func TestParseSendEmailArgsTable(t *testing.T) {
 			args: []string{"--to", "a@x.com", "--subject", "Hi", "--expand"},
 			want: sendEmailOptions{To: "a@x.com", Subject: "Hi", IsExpandLinks: true},
 		},
+		{
+			name: "instruction flag",
+			args: []string{"--instruction", "job.json", "--json"},
+			want: sendEmailOptions{InstructionFile: "job.json", HasInstruction: true, IsJSON: true},
+		},
+		{
+			name: "instruction short flag",
+			args: []string{"-i", "job.json"},
+			want: sendEmailOptions{InstructionFile: "job.json", HasInstruction: true},
+		},
+		{
+			name: "instruction equals form",
+			args: []string{"--instruction=job.json"},
+			want: sendEmailOptions{InstructionFile: "job.json", HasInstruction: true},
+		},
 	}
 
 	for _, tc := range cases {
@@ -298,3 +313,37 @@ func TestBuildEmailMessageLinkExpansion(t *testing.T) {
 		t.Fatalf("expected expanded body %q, got %q", expected, msg.Body)
 	}
 }
+
+func TestRunSendEmailWithInstruction_RelaxesToSubject(t *testing.T) {
+	dir := t.TempDir()
+	path := writeTempEmailFile(t, dir, "instruction.json", `{
+		"links": [
+			{
+				"url": "https://serviceactivation.in/subscription/new/ALPHA200",
+				"recipients": ["job@example.com"],
+				"subject": "Subj {{original}}"
+			}
+		],
+		"autoSend": false
+	}`)
+
+	args := []string{"--instruction", path, "--json"}
+	if err := RunSendEmail(args); err != nil {
+		t.Fatalf("expected success with --instruction without --to and --subject, got %v", err)
+	}
+}
+
+func TestRunSpaceEmailExpand_WithInstruction(t *testing.T) {
+	dir := t.TempDir()
+	path := writeTempEmailFile(t, dir, "expand_instruction.json", `{
+		"links": [
+			{"url": "https://serviceactivation.in/subscription/new/BETA300"}
+		]
+	}`)
+
+	args := []string{"--instruction", path, "--json"}
+	if err := runSpaceEmailExpand(args); err != nil {
+		t.Fatalf("expected success with runSpaceEmailExpand --instruction, got %v", err)
+	}
+}
+

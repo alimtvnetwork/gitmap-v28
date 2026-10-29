@@ -81,8 +81,9 @@ var helpDisplayRegistry = map[string]helpDisplayEntry{
 			constants.CmdSpaceScheduleSendEmail: cmdspace.SpaceScheduleSendEmailHelpDisplay,
 		},
 	},
-	constants.CmdScan:    {build: cmdscan.ScanHelpDisplay},
-	constants.CmdPullAll: {build: cmdpull.PullAllHelpDisplay},
+	constants.CmdSpaceSendEmail: {build: cmdspace.SpaceSendEmailHelpDisplay},
+	constants.CmdScan:           {build: cmdscan.ScanHelpDisplay},
+	constants.CmdPullAll:        {build: cmdpull.PullAllHelpDisplay},
 }
 
 // TryPrintDisplayerHelp renders a registered command's HelpDisplay and exits.
@@ -118,6 +119,7 @@ func tryPrintDisplayerHelp(command string, args []string) bool {
 var helpDisplayAlias = map[string]string{
 	constants.CmdScanAlias:    constants.CmdScan,
 	constants.CmdPullAllAlias: constants.CmdPullAll,
+	"sendemail":               constants.CmdSpaceSendEmail,
 }
 
 // resolveHelpCommand maps a pilot alias to its canonical command name.

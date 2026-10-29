@@ -13,27 +13,31 @@ import (
 
 // send-email flag names.
 const (
-	flagSendEmailTo        = "--to"
-	flagSendEmailSubject   = "--subject"
-	flagSendEmailBody      = "--body"
-	flagSendEmailFile      = "--file"
-	flagSendEmailHTML        = "--html"
-	flagSendEmailExpand      = "--expand-links"
-	flagSendEmailExpandShort = "--expand"
-	flagSendEmailJSON        = "--json"
-	flagSendEmailHelp        = "--help"
-	flagSendEmailHelpShort = "-h"
+	flagSendEmailTo               = "--to"
+	flagSendEmailSubject          = "--subject"
+	flagSendEmailBody             = "--body"
+	flagSendEmailFile             = "--file"
+	flagSendEmailHTML             = "--html"
+	flagSendEmailExpand           = "--expand-links"
+	flagSendEmailExpandShort      = "--expand"
+	flagSendEmailInstruction      = "--instruction"
+	flagSendEmailInstructionShort = "-i"
+	flagSendEmailJSON             = "--json"
+	flagSendEmailHelp             = "--help"
+	flagSendEmailHelpShort        = "-h"
 )
 
 // sendEmailOptions holds the parsed `space send-email` flags.
 type sendEmailOptions struct {
-	To            string
-	Subject       string
-	Body          string
-	File          string
-	IsHTML        bool
-	IsExpandLinks bool
-	IsJSON        bool
+	To              string
+	Subject         string
+	Body            string
+	File            string
+	InstructionFile string
+	IsHTML          bool
+	IsExpandLinks   bool
+	IsJSON          bool
+	HasInstruction  bool
 }
 
 // RunSendEmail implements `gitmap space send-email --to X [--subject S]
@@ -46,22 +50,92 @@ func RunSendEmail(args []string) error {
 
 		return nil
 	}
-
 	opts, parseErr := parseSendEmailArgs(args)
 	if parseErr != nil {
 		return parseErr
 	}
+	if opts.HasInstruction {
+		return runSendEmailInstruction(opts)
+	}
 
+	return runStandardSendEmail(opts)
+}
+
+func runStandardSendEmail(opts sendEmailOptions) error {
 	msg, buildErr := buildEmailMessage(opts)
 	if buildErr != nil {
 		return buildErr
 	}
-
 	if bin := resolveGoEmailReaderBin(); len(bin) > 0 {
 		return delegateToGoEmailReader(bin, opts, msg)
 	}
 
 	return sendEmailWithJSONSupport(opts, msg)
+}
+
+func runSendEmailInstruction(opts sendEmailOptions) error {
+	cfg, parseErr := parseInstructionFileConfig(opts.InstructionFile)
+	if parseErr != nil {
+		return parseErr
+	}
+	applyInstructionAmbientOverrides(&cfg, opts)
+	res, execErr := linkexpander.ExecuteInstruction(cfg)
+	if execErr != nil {
+		return execErr
+	}
+
+	return outputInstructionResult(opts, res)
+}
+
+func parseInstructionFileConfig(path string) (linkexpander.InstructionConfig, error) {
+	cfg := linkexpander.DefaultInstructionConfig()
+	data, readErr := os.ReadFile(path)
+	if readErr != nil {
+		return cfg, apperror.WrapSimple(readErr, "read instruction file:")
+	}
+	if unmarshalErr := json.Unmarshal(data, &cfg); unmarshalErr != nil {
+		return cfg, apperror.WrapSimple(unmarshalErr, "parse instruction JSON:")
+	}
+
+	return cfg, nil
+}
+
+func applyInstructionAmbientOverrides(cfg *linkexpander.InstructionConfig, opts sendEmailOptions) {
+	for i := range cfg.Links {
+		if len(cfg.Links[i].Recipients) == 0 && len(opts.To) > 0 {
+			cfg.Links[i].Recipients = splitAddresses(opts.To)
+		}
+		if len(cfg.Links[i].Subject) == 0 && len(opts.Subject) > 0 {
+			cfg.Links[i].Subject = opts.Subject
+		}
+	}
+}
+
+func outputInstructionResult(opts sendEmailOptions, res linkexpander.InstructionResult) error {
+	if opts.IsJSON {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		return enc.Encode(res)
+	}
+
+	return printInstructionSummaryText(res)
+}
+
+func printInstructionSummaryText(res linkexpander.InstructionResult) error {
+	fmt.Printf("Instruction executed: %d total links, %d expanded, %d sent\n", res.TotalLinks, res.ExpandedCount, res.SentCount)
+	for _, item := range res.Results {
+		printInstructionItemSummary(item)
+	}
+
+	return nil
+}
+
+func printInstructionItemSummary(item linkexpander.InstructionLinkReport) {
+	if item.IsExpanded {
+		fmt.Printf("  %s -> %s (hops: %d)\n", item.OriginalURL, item.ExpandedURL, item.RedirectHops)
+		return
+	}
+	fmt.Printf("  %s (unchanged)\n", item.OriginalURL)
 }
 
 func sendEmailWithJSONSupport(opts sendEmailOptions, msg EmailMessage) error {
@@ -128,8 +202,8 @@ func applyNextSendEmailArg(args []string, i int, opts *sendEmailOptions) (int, e
 func isKnownSendEmailFlag(name string) bool {
 	switch name {
 	case flagSendEmailTo, flagSendEmailSubject, flagSendEmailBody, flagSendEmailFile, flagSendEmailHTML,
-		flagSendEmailExpand, flagSendEmailExpandShort, flagSendEmailJSON,
-		flagSendEmailHelp, flagSendEmailHelpShort:
+		flagSendEmailExpand, flagSendEmailExpandShort, flagSendEmailInstruction, flagSendEmailInstructionShort,
+		flagSendEmailJSON, flagSendEmailHelp, flagSendEmailHelpShort:
 		return true
 	}
 
@@ -225,6 +299,9 @@ func assignSendEmailFlag(name, val string, opts *sendEmailOptions) error {
 		opts.Body = val
 	case flagSendEmailFile:
 		opts.File = val
+	case flagSendEmailInstruction, flagSendEmailInstructionShort:
+		opts.InstructionFile = val
+		opts.HasInstruction = len(strings.TrimSpace(val)) > 0
 	default:
 		return apperror.NewValidationError(fmt.Sprintf("unknown flag: %s", name))
 	}
