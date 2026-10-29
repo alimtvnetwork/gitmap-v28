@@ -157,6 +157,19 @@ func TestPathResolverUnix(t *testing.T) {
 	}
 }
 
+func TestPathResolverDarwin(t *testing.T) {
+	resolver := &PathResolver{BaseHomeDir: "/Users/testuser", TargetOS: "darwin"}
+	storage, err := resolver.GetClineStorageDir()
+	if err != nil {
+		t.Fatalf("GetClineStorageDir failed: %v", err)
+	}
+
+	expected := filepath.Join("/Users/testuser", "Library", "Application Support", "Code", "User", "globalStorage", "saoudrizwan.claude-dev")
+	if storage != expected {
+		t.Errorf("expected %s, got %s", expected, storage)
+	}
+}
+
 func TestClineProviderSettingsPath(t *testing.T) {
 	resolver := &PathResolver{BaseHomeDir: "/home/testuser", TargetOS: "linux"}
 	path, err := resolver.GetClineProviderSettingsPath()
