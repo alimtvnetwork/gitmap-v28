@@ -19,7 +19,7 @@ Format input text according to exact output template below without conversationa
    - Item 8: `8. Execute via V7 Master Engine with Dual-Option Support: Follow [execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7) which provides two explicit execution options: Option 1 (Restricted Time: enforce commits strictly BEFORE 08:00 AM on weekdays and anytime on weekends in target timezone via \`--tz\`, \`--schedule\`, \`--auto-window\`, \`--non-interactive\`) or Option 2 (Unrestricted Time: immediate commits anytime). When automation bot persona is commanded, configure identity via \`gitmap autobot\` before modifying code.`
    - Item 9: ``9. Recommit & History Adjustment (On-Call): When recommit is requested, inspect git log, verify previous commit hash, and execute atomic recommits via `gitmap` semantic commit verbs (`gitmap cpf`, `gitmap cbf`, `gitmap cfr`, `gitmap cpc`, `gitmap cpr`) without polluting git history.``
    followed by discrete technical action items extracted from input text as items 10..N.
-6. End with mandatory agent invocation suffix pointing to `@@[.agents/skills/execute-parent-task-with-n-steps-v7]`.
+6. End with mandatory agent invocation suffix pointing to `@[execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7)`.
 7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
 8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
 
@@ -49,7 +49,7 @@ ${Input Text Verbatim}
 
 ## Must follow and spawn agent using
 
-@@[.agents/skills/execute-parent-task-with-n-steps-v7]
+@[execute-parent-task-with-n-steps-v7](file;.agents/skills/execute-parent-task-with-n-steps-v7)
 
 ## Additional Instructions
 
