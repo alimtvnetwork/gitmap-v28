@@ -58,7 +58,7 @@ func buildUserTips() []string {
 	return []string{
 		"Run 'gitmap user info' to inspect both GitHub CLI auth state and Git author configs.",
 		"Switch profiles effortlessly per project or machine using 'switch' and 'project bind'.",
-		"Run 'gitmap autobot' to immediately set machine identity to 'AI automation bot <local@local>'.",
+		"Run 'gitmap autobot' to immediately set machine identity to 'gitmap automation <local@local>'.",
 		"Provision system users and deploy SSH authorization keys securely.",
 	}
 }
@@ -91,7 +91,7 @@ func buildGitChangeUserEntries() []termout.CommandEntry {
 	return []termout.CommandEntry{
 		{Command: "change-user / cu", Description: "Set Git author name and email directly (--global or --project)"},
 		{Command: "change-login / cl", Description: "Switch active Git profile and login credential"},
-		{Command: "autobot / bot", Description: "Instantly configure identity to 'AI automation bot' (email: local@local)"},
+		{Command: "autobot / bot", Description: "Instantly configure identity to 'gitmap automation' (email: local@local)"},
 	}
 }
 

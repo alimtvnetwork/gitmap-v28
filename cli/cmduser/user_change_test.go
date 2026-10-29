@@ -140,7 +140,7 @@ func TestParseAutobotArgs_Defaults(t *testing.T) {
 		t.Fatalf("unexpected error parsing autobot defaults: %v", err)
 	}
 
-	if opts.Name != "AI automation bot" || opts.Email != "local@local" {
+	if opts.Name != "gitmap automation" || opts.Email != "local@local" {
 		t.Errorf("unexpected autobot defaults: %s / %s", opts.Name, opts.Email)
 	}
 
@@ -155,7 +155,7 @@ func TestParseAutobotArgs_CustomEmail(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if opts.Name != "AI automation bot" || opts.Email != "custom@corp.internal" {
+	if opts.Name != "gitmap automation" || opts.Email != "custom@corp.internal" {
 		t.Errorf("unexpected custom email autobot: %s / %s", opts.Name, opts.Email)
 	}
 }
@@ -166,7 +166,7 @@ func TestParseAutobotArgs_EmptyEmail(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if opts.Name != "AI automation bot" || opts.Email != "" || !opts.HasEmptyEmail {
+	if opts.Name != "gitmap automation" || opts.Email != "" || !opts.HasEmptyEmail {
 		t.Errorf("unexpected empty email autobot: %+v", opts)
 	}
 }

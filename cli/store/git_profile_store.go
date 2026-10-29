@@ -15,7 +15,7 @@ import (
 
 const (
 	AutobotProfileID = "autobot"
-	AutobotName      = "AI automation bot"
+	AutobotName      = "gitmap automation"
 	AutobotEmail     = "local@local"
 	AutobotType      = "automation agent"
 )

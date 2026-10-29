@@ -244,7 +244,7 @@ func printUserUsage() {
 	fmt.Println()
 	fmt.Println("Git Profile & Identity Commands:")
 	fmt.Println("  change, change-user <name> <email>           Change Git author identity in one liner")
-	fmt.Println("  autobot [email] [--empty-email]              Switch Git identity to AI automation bot")
+	fmt.Println("  autobot [email] [--empty-email]              Switch Git identity to gitmap automation")
 	fmt.Println("  info, status                                 Show Git and GitHub CLI user context card")
 	fmt.Println("  list, ls                                     List configured Git profiles (* active/bound)")
 	fmt.Println("  switch, use <alias> [--global] [--project]   Switch active profile or bind to project")

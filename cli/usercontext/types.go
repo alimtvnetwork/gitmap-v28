@@ -13,10 +13,11 @@ const (
 )
 
 const (
-	DefaultBotProfileID = "autobot"
-	DefaultBotName      = "AI automation bot"
-	DefaultBotEmail     = "local@local"
-	DefaultBotRole      = "automation agent"
+	DefaultBotProfileID  = "autobot"
+	DefaultBotName       = "gitmap automation"
+	DefaultLegacyBotName = "AI automation bot"
+	DefaultBotEmail      = "local@local"
+	DefaultBotRole       = "automation agent"
 )
 
 // AuthStatus is an alias for AuthStatusType for backwards compatibility.
