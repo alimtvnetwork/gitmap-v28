@@ -51,12 +51,12 @@ Also using the `gitmap`, we should be able to see using a commit SHA, if we just
 
 ## Must follow and spawn agent using
 
-@[.agents/skills/execute-parent-task-with-n-steps-v6]
+@[\1](file;.agents/skills/\1)
 
 ## Additional Instructions
 
 - /plan first before doing work for improved work or less friction, faster execution for AI and coding without errors and following Coding Guidelines.
-- /learn from @[.agents/skills/gitmap] skill to leverage GitMap high-speed search, toolchain discovery, and caching.
+- /learn from @[\1](file;.agents/skills/\1) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
 - Track in-flight file touches and prevent write collisions using GitMap RC Heatmap (`gitmap rc heatmap status` / `gitmap rc heatmap tree` / `gitmap rc heatmap live` / `gitmap rc heatmap sync`).
 - Only add relative paths, never add absolute paths during work; this must be respected on release page and in release notes as well.
 ```

@@ -2,7 +2,7 @@
 
 ## User Request (Verbatim)
 ```text
-@[.agents/skills/naming-conventions-and-boolean-prefixes]
+@[\1](file;.agents/skills/\1)
 ```
 
 ## 1. Executive Summary & Architectural Intent

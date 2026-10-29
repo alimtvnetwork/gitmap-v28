@@ -26,12 +26,12 @@ Hi there. Can you please update the Antigravity IDE? And also please confirm if 
 
 ## Must follow and spawn agent using
 
-@[.agents/skills/execute-parent-task-with-n-steps-v6]
+@[\1](file;.agents/skills/\1)
 
 ## Additional Instructions
 
 - /plan first before doing the work to reduce the credits.
-- /learn from @[.agents/skills/gitmap] skill to leverage GitMap high-speed search, toolchain discovery, and caching.
+- /learn from @[\1](file;.agents/skills/\1) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
 - Only add the relative paths, never add the absolute path during your work; this should be respected on the release page and in release notes as well.
 ```
 

@@ -28,7 +28,7 @@ On these that this is actually ran by cursor. Why it ran this code? That's the f
 8. Correct commit message format to use `gitmap` CFR CBF, in uppercase, without third brackets.
 
 ## Must follow and spawn agent using
-@[.agents/skills/execute-parent-task-with-n-steps-v6]
+@[\1](file;.agents/skills/\1)
 ```
 
 ---

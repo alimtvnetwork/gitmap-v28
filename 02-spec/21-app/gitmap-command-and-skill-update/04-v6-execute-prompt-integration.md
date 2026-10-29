@@ -19,7 +19,7 @@ Add row:
 ### TOTAL BAN ON AD-HOC PYTHON NETWORK SCRAPERS
 In Section 3 (TOTAL BAN rules):
 ```markdown
-- **TOTAL BAN ON RAW PYTHON SCRAPERS & URL FETCHER SCRIPTS:** NEVER execute `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[.agents/skills/gitmap]` for full command reference.
+- **TOTAL BAN ON RAW PYTHON SCRAPERS & URL FETCHER SCRIPTS:** NEVER execute `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[\1](file;.agents/skills/\1)` for full command reference.
 ```
 
 ---
