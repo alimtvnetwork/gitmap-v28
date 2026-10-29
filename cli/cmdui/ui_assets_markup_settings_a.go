@@ -165,6 +165,14 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
           <input type="text" id="setting-commit-timezone" name="commit.timezone" data-key="commit.timezone" value="Local" placeholder="Local or America/New_York">
         </div>
         <div class="form-group">
+          <label for="setting-restriction-enforcement">Restriction enforcement (<code>restriction.enforcement</code>)</label>
+          <select id="setting-restriction-enforcement" data-key="restriction.enforcement">
+            <option value="auto">Auto (every repository on this machine)</option>
+            <option value="flag">Flag only (when --schedule is passed)</option>
+          </select>
+          <p style="font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-1);">Auto is the default. The same switch is <code>gitmap restrict mode auto</code> or <code>gitmap restrict mode flag</code>. <code>gitmap restrict status</code> prints the active choice.</p>
+        </div>
+        <div class="form-group">
           <label for="setting-commit-schedule-active">Commit Schedule Enforcement Active (<code>commit.schedule_active</code>)</label>
           <select id="setting-commit-schedule-active" name="commit.schedule_active" data-key="commit.schedule_active">
             <option value="false">Disabled (Unconstrained commits anytime)</option>

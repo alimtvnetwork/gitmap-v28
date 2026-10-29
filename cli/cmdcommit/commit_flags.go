@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -240,6 +241,16 @@ func resolveTimeFallbacks(meta *CommitMetadata) {
 	fallbackString(&meta.Timezone, EnvGitmapTimezone, "TZ")
 	if !meta.IsTimeEnforced && os.Getenv(EnvGitmapTimeEnforced) == "true" {
 		meta.IsTimeEnforced = true
+	}
+	if cmdrestrict.IsAutoEnforced() {
+		meta.IsTimeEnforced = true
+		applyAutoTimezone(meta)
+	}
+}
+
+func applyAutoTimezone(meta *CommitMetadata) {
+	if meta.Timezone == "" {
+		meta.Timezone = cmdrestrict.ActiveTimezone()
 	}
 }
 

@@ -30,6 +30,34 @@ func TestAddEditStatus(t *testing.T) {
 	}
 }
 
+func TestMachineModeAutoThenFlag(t *testing.T) {
+	dir := t.TempDir()
+	SetStoreDir(dir)
+	t.Cleanup(func() { SetStoreDir("") })
+	if !IsAutoEnforced() {
+		t.Fatal("missing file must default to auto")
+	}
+	if err := SetMode(ModeFlag); err != nil {
+		t.Fatal(err)
+	}
+	if IsAutoEnforced() {
+		t.Fatal("flag mode must not auto-enforce")
+	}
+	if err := Run([]string{"mode", ModeAuto}); err != nil {
+		t.Fatal(err)
+	}
+	if CurrentMode() != ModeAuto {
+		t.Fatalf("mode = %s", CurrentMode())
+	}
+	attrs := map[string]string{settingsModeKey: ModeFlag}
+	if err := ApplySettingsMode(attrs); err != nil {
+		t.Fatal(err)
+	}
+	if CurrentMode() != ModeFlag {
+		t.Fatalf("settings mode = %s", CurrentMode())
+	}
+}
+
 func TestWindowAfterCutoffIsRestricted(t *testing.T) {
 	loc, err := time.LoadLocation("Asia/Singapore")
 	if err != nil {

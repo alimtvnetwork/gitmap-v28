@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
@@ -169,7 +170,9 @@ func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
 
 	if r.Method == http.MethodGet {
-		_ = json.NewEncoder(w).Encode(loadSettings())
+		loaded := loadSettings()
+		cmdrestrict.ExposeMode(loaded.Attributes)
+		_ = json.NewEncoder(w).Encode(loaded)
 		return
 	}
 
@@ -181,6 +184,10 @@ func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	merged := mergeSettings(loadSettings(), req)
+	if errMode := cmdrestrict.ApplySettingsMode(merged.Attributes); errMode != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": errMode.Error()})
+		return
+	}
 	saveErr := saveSettingsData(merged)
 	if saveErr != nil {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": saveErr.Error()})

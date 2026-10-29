@@ -36,6 +36,7 @@ func writeStatus(item Restriction, loc *time.Location) error {
 	fmt.Printf("Weekend open: %t\n", item.IsWeekendOpen)
 	fmt.Printf("Permit stay: %t\n", item.IsPermitStay)
 	fmt.Printf("Window: %s\n", windowLabel(now, loc, item))
+	fmt.Printf("Enforcement: %s\n", describeMode(CurrentMode()))
 
 	return nil
 }

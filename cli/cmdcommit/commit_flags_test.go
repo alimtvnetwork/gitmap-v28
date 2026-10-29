@@ -3,6 +3,8 @@ package cmdcommit
 import (
 	"reflect"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
 )
 
 func TestExtractCommitFlags_SpaceDelimited(t *testing.T) {
@@ -155,6 +157,29 @@ func TestFormatAuthorIdentity(t *testing.T) {
 	}
 	if got := formatAuthorIdentity("", "carol@example.com"); got != "<carol@example.com>" {
 		t.Errorf("expected email only author, got %q", got)
+	}
+}
+
+func TestExtractCommitFlags_AutoEnforcesWithoutSchedule(t *testing.T) {
+	dir := t.TempDir()
+	cmdrestrict.SetStoreDir(dir)
+	t.Cleanup(func() { cmdrestrict.SetStoreDir("") })
+	t.Setenv(EnvGitmapTimeEnforced, "")
+	t.Setenv(EnvGitmapTimezone, "")
+	_, metaAuto := ExtractCommitFlags([]string{"chore: plain"})
+	if !metaAuto.IsTimeEnforced {
+		t.Fatal("auto mode must enforce without --schedule")
+	}
+	if err := cmdrestrict.SetMode(cmdrestrict.ModeFlag); err != nil {
+		t.Fatal(err)
+	}
+	_, metaFlag := ExtractCommitFlags([]string{"chore: plain"})
+	if metaFlag.IsTimeEnforced {
+		t.Fatal("flag mode must wait for --schedule")
+	}
+	_, metaScheduled := ExtractCommitFlags([]string{"--schedule", "chore: plain"})
+	if !metaScheduled.IsTimeEnforced {
+		t.Fatal("flag mode must enforce when --schedule is passed")
 	}
 }
 
