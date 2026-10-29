@@ -5,6 +5,8 @@ description: Autonomously audits and enforces cross-language enum standards (Go,
 
 # Enum Standards Coding Guidelines (`cg-enum-standards`)
 
+> **Invocation:** `@[cg-enum-standards](file;.cursor/skills/cg-enum-standards)`
+
 This skill provides autonomous audit and validation of repository-wide enum definitions based on `02-spec/02-coding-guidelines/01-cross-language/15-master-coding-guidelines/03-boolean-and-enum.md` and `02-spec/17-consolidated-guidelines/07-enum-standards.md`.
 
 ## 1. Concurrency Invariants & Header Parameters

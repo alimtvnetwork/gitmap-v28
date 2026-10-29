@@ -4,14 +4,14 @@ Hi there. Whatever is given as an input, you don't add anything, you just follow
 
 Don't write "Certainly! Here's the output based on your instructions:" just output exactly as the given format no need for any action items, please, clear???
 
-no new line gaps please, follow the below format without text "output", must add `must follow the skill [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)` as a suffix not as a prefix you stupid. Follow exactly as I have said.
+no new line gaps please, follow the below format without text "output", must add `must follow the skill @[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)` as a suffix not as a prefix you stupid. Follow exactly as I have said.
 
 ${Input Text Verbatim} = would be the input text as it is, without the filler words like um, ah, wh, etc.
 
 Output
-[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} - must follow the skill [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)
+[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} - must follow the skill @[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
 
 ---
 
 Don't output like
-[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6) Input : ...text given (no please no)
+[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} @[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6) Input : ...text given (no please no)

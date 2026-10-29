@@ -5,6 +5,8 @@ description: Autonomously manage, optimize, and diagnose CI/CD pipeline runs, er
 
 # GitMap Pipeline & Diagnostics Skill (`gitmap-pipeline-and-diagnostics`)
 
+> **Invocation:** `@[gitmap-pipeline-and-diagnostics](file;.cursor/skills/gitmap-pipeline-and-diagnostics)`
+
 ## Mission & Purpose
 This skill provides authoritative architectural guidance, code navigation, and execution rules for managing GitMap's CI/CD pipelines, bounded stack trace extraction, dynamic ETA waiting, and Root Cause Analysis (RCA) records.
 

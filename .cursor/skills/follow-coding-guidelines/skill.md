@@ -5,6 +5,8 @@ description: Autonomously enforce, audit, and follow repository coding guideline
 
 # Follow Coding Guidelines Autonomous Skill
 
+> **Invocation:** `@[follow-coding-guidelines](file;.cursor/skills/follow-coding-guidelines)`
+
 ## Overview
 
 This skill establishes the non-negotiable coding standards, architectural guardrails, and audit checklists across all codebases managed by Prompt Architect. Every AI agent, subagent, and human engineer operating in this repository MUST strictly adhere to these 12 grounded rules.

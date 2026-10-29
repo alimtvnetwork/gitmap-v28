@@ -5,6 +5,8 @@ description: "Executes the \u274c WRONG: Undocumented arguments and missing help
 
 # ❌ WRONG: Undocumented arguments and missing help
 
+> **Invocation:** `@[cli-commands-and-help](file;.cursor/skills/cli-commands-and-help)`
+
 Source prompt: `01-prompts/15-cg-execute/13-cli-commands-and-help.md`
 
 ## Instructions

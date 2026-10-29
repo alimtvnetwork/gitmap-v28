@@ -11,6 +11,7 @@ Trigger Keywords & Aliases: `reverse-engineer`, `spec-write`, `reverse-engineeri
 > [!IMPORTANT]
 > Prompt Version: 2.4.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
+> **Invocation:** `@[spec-reverse-engineering](file;.cursor/skills/spec-reverse-engineering)`  
 
 ```text
 N = 80

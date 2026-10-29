@@ -5,6 +5,8 @@ description: Autonomously scan, discover, plan, and refactor 100 UI-level improv
 
 # Next 100 UI Improvements
 
+> **Invocation:** `@[next-100-ui-improvements](file;.cursor/skills/next-100-ui-improvements)`
+
 > **[/goal](slashCommand;goal)** Autonomously audit, catalog, plan, and execute 100 concrete UI improvements across the target frontend codebase, enforcing strict design token architecture, WCAG 2.2 AA/AAA contrast, 4-plane depth hierarchy, 60/30/10 visual balance, typography stacks, button systems, sticky navigation physics, and React component decomposition.
 > **[/learn](slashCommand;learn)** Ingest the 10 UI improvement clusters and design tokens from `02-spec/07-design-system/` before applying modifications. Enqueue all 100 improvements as structured pending plans in `.ai-memory/plans/pending/` and execute in bounded micro-batches via GitMap.
 > **[/plan](slashCommand;plan)** [/plan](slashCommand;plan) first before doing work for improved work or less friction, faster work and more pure and effective work.

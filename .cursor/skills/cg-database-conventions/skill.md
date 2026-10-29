@@ -5,6 +5,8 @@ description: Autonomously audits, refactors, and validates repository-wide datab
 
 # Database Conventions Coding Guidelines (`cg-database-conventions`)
 
+> **Invocation:** `@[cg-database-conventions](file;.cursor/skills/cg-database-conventions)`
+
 This skill provides autonomous audit, refactoring, and validation of repository-wide database management based on `02-spec/02-coding-guidelines/01-cross-language/07-database-naming.md`, `02-spec/04-database-conventions/`, and `02-spec/05-split-db-architecture/readme.md`.
 
 ## 1. Concurrency Invariants & Header Parameters

@@ -47,11 +47,11 @@ ${Input Text Verbatim}
 
 ## Must follow and spawn agent using
 
-[execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)
+@[execute-parent-task-with-n-steps-v6](file;.cursor/skills/execute-parent-task-with-n-steps-v6)
 
 ## Additional Instructions
 
 - [/plan](slashCommand;plan) first before doing work for improved work or less friction, faster work and more pure and effective work.
-- [/learn](slashCommand;learn) from [gitmap](file;.cursor/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
+- [/learn](slashCommand;learn) from @[gitmap](file;.cursor/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
 - Track in-flight file touches and prevent write collisions using GitMap RC Heatmap (`gitmap rc heatmap status` / `gitmap rc heatmap live`).
 - Only add relative paths, never add absolute paths during work; this must be respected on release page and in release notes as well.

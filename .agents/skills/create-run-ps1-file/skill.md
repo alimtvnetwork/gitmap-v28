@@ -6,6 +6,8 @@ description: >-
 
 # Create Run & Install Scripts Skill (`create-run-ps1-file`)
 
+> **Invocation:** `@[create-run-ps1-file](file;.agents/skills/create-run-ps1-file)`
+
 This skill autonomously architects, constructs, and verifies cross-platform execution runners (`run.ps1` and `run.sh`) driven by a central `run.config.json` manifest, along with accompanying standalone environment installation scripts (`local-install.ps1` and `local-install.sh`). It implements robust dependency pre-flight checks, intelligent fallback to GitMap (`gitmap aum install`) or `local-install.ps1`/`local-install.sh` with automatic rerun, and clean process cleanup on exit.
 
 ## Architecture & Lifecyle

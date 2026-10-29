@@ -5,6 +5,8 @@ description: Autonomously analyze codebases deeply, identify duplicated patterns
 
 # Skill: Code DRYness & Reusable Library Extraction (`cg-code-dryness-and-library-extraction`)
 
+> **Invocation:** `@[cg-code-dryness-and-library-extraction](file;.cursor/skills/cg-code-dryness-and-library-extraction)`
+
 This skill governs autonomous deep codebase analysis, identification of duplicated patterns, extraction of reusable utilities, frameworks, packages, and libraries, and caller rewiring across polyglot repositories.
 
 ## 1. Concurrency Invariants & Header Parameters

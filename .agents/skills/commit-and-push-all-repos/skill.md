@@ -5,6 +5,8 @@ description: Autonomously discover, stage, commit, and push all Git repositories
 
 # Multi-Repository Commit & Push Orchestrator
 
+> **Invocation:** `@[commit-and-push-all-repos](file;.agents/skills/commit-and-push-all-repos)`
+
 Autonomously scans the entire workspace root directory (e.g. `D:\work` on Windows or `~/git-work` on POSIX/Linux), audits working tree status across dozens of Git repositories, excludes non-owned tools/shells, pools remote updates, stages dirty files, authors atomic conventional commits, and pushes to remote tracking branches with a strict "No Push = Not Done" completion invariant.
 
 ## Core Capabilities

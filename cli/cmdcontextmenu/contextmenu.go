@@ -11,6 +11,9 @@ import (
 
 type ctxSubcmdHandler func(args []string) error
 
+// IDESetupRunner allows hooking IDE setup from root command dispatcher without heavy dependency imports.
+var IDESetupRunner func(args []string) error
+
 var ctxCmdDispatch = map[string]ctxSubcmdHandler{
 	"install":          runContextMenuInstall,
 	"in":               runContextMenuInstall,
@@ -30,6 +33,9 @@ var ctxCmdDispatch = map[string]ctxSubcmdHandler{
 	"custom":           runContextMenuCustomize,
 	"wizard":           runWizardAdapter,
 	"ui":               runWizardAdapter,
+	"ide-setup":        runContextMenuIDESetup,
+	"setup-ide":        runContextMenuIDESetup,
+	"cursor-setup":     runContextMenuIDESetup,
 }
 
 // RunContextMenu handles the 'context-menu' command and its subcommands.
@@ -218,6 +224,14 @@ func printCustomizeHelp() {
 	fmt.Println("  --help, -h    Show this help message")
 }
 
+func runContextMenuIDESetup(args []string) error {
+	if IDESetupRunner != nil {
+		return IDESetupRunner(args)
+	}
+
+	return fmt.Errorf("IDE setup runner is not initialized")
+}
+
 func printCleanPowerShellHelp() {
 	fmt.Println("Usage: gitmap context-menu clean-powershell [flags]")
 	fmt.Println("\nSuppress redundant legacy PowerShell context menu when PowerShell 7 is installed.")
@@ -236,6 +250,7 @@ func printContextMenuHelp() {
 	fmt.Println("  status           Check whether context menu integration is active")
 	fmt.Println("  clean-powershell Clean duplicate legacy PowerShell context menu entries")
 	fmt.Println("  customize        Overview and configure context menu customizations")
+	fmt.Println("  ide-setup        Configure Cursor-like IDEs (Cline, Continue, Zed)")
 	fmt.Println("  wizard           Open the interactive Install Wizard overview")
 	fmt.Println("\nFlags:")
 	fmt.Println("  --explain        Print command templates before execution")

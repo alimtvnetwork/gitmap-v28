@@ -5,6 +5,8 @@ description: "Executes the React Component Modernization & Responsive Styling pr
 
 # React Component Modernization & Responsive Styling
 
+> **Invocation:** `@[react-ui-fixes-update](file;.cursor/skills/react-ui-fixes-update)`
+
 Source prompt: `01-prompts/10-ui-and-design/02-react-ui-fixes-update.md`
 
 ## Instructions

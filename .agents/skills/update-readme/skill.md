@@ -5,6 +5,8 @@ description: "Executes the Documentation Synchronization & README Maintenance pr
 
 # Documentation Synchronization & README Maintenance
 
+> **Invocation:** `@[update-readme](file;.agents/skills/update-readme)`
+
 Source prompt: `01-prompts/11-content-and-seo/05-update-readme.md`
 
 ## Instructions

@@ -5,6 +5,8 @@ description: Safely clean build artifacts, test outputs, and temporary files whi
 
 # Clean Artifacts and Git History
 
+> **Invocation:** `@[clean-artifacts-and-git-history](file;.agents/skills/clean-artifacts-and-git-history)`
+
 Enforces repository cleanliness and guards against accidental commit of generated files.
 
 ## Actions

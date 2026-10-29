@@ -5,6 +5,8 @@ description: "Executes the Nuclear Package Modularization And Unit Test Optimiza
 
 # Nuclear Package Modularization And Unit Test Optimization
 
+> **Invocation:** `@[nuclear-package-modularization-and-unit-test-optimization](file;.cursor/skills/nuclear-package-modularization-and-unit-test-optimization)`
+
 Source prompt: `01-prompts/15-cg-execute/25-nuclear-package-modularization-and-unit-test-optimization.md`
 
 ## Instructions

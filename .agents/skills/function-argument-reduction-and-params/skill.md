@@ -5,6 +5,8 @@ description: "Executes the Function Argument Reduction And Params prompt. Autono
 
 # Function Argument Reduction And Params
 
+> **Invocation:** `@[function-argument-reduction-and-params](file;.agents/skills/function-argument-reduction-and-params)`
+
 Source prompt: `01-prompts/15-cg-execute/18-function-argument-reduction-and-params.md`
 
 ## Instructions

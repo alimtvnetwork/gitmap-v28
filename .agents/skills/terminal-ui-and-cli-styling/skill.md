@@ -5,6 +5,8 @@ description: "Executes the Terminal Ui And Cli Styling prompt. Autonomously scan
 
 # Terminal Ui And Cli Styling
 
+> **Invocation:** `@[terminal-ui-and-cli-styling](file;.agents/skills/terminal-ui-and-cli-styling)`
+
 Source prompt: `01-prompts/15-cg-execute/17-terminal-ui-and-cli-styling.md`
 
 ## Instructions

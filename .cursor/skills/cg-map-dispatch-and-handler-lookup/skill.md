@@ -5,6 +5,8 @@ description: Autonomously audits, refactors, and replaces repetitive chained if-
 
 # Skill: Map Dispatch & Handler Table Patterns (`cg-map-dispatch-and-handler-lookup`)
 
+> **Invocation:** `@[cg-map-dispatch-and-handler-lookup](file;.cursor/skills/cg-map-dispatch-and-handler-lookup)`
+
 This skill governs autonomous execution for auditing, refactoring, and standardizing repetitive chained conditional ladders (`if ... else if ... else if`) and verbose `switch-case` statements that match keys, event codes, or string tokens to invoke discrete functions, replacing them with declarative map lookup tables across TypeScript, Go, Python, Rust, and PHP.
 
 ## 1. Concurrency Invariants & Header Parameters

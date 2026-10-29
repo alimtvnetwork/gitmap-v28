@@ -5,6 +5,8 @@ description: "Executes the Find 100 Improvements in the Codebase prompt. Autonom
 
 # Find 100 Improvements in the Codebase
 
+> **Invocation:** `@[find-100-codebase-improvements](file;.cursor/skills/find-100-codebase-improvements)`
+
 Source prompt: `01-prompts/30-improvements/02-find-100-improvements-in-codebase-coding-guidelines.md`
 
 ## Instructions

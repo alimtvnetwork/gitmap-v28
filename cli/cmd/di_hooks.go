@@ -12,6 +12,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcargo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcontextmenu"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmddb"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdexec"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdfind"
@@ -49,6 +50,7 @@ func init() {
 	cmdssh.ProfileRunner = cmdprofiles.RunProfile
 	cmdmacro.MacroSyncRunner = cmdssh.RunSSHMacroSyncCLI
 	cmdmacro.FinishCommandAuditFn = cmdaudit.FinishCommandAudit
+	cmdcontextmenu.IDESetupRunner = cmdide.RunIDESetup
 
 	cmdpull.CPULoadMetricFn = func() (int, error) {
 		metrics, err := cmdos.GetHardwareMetrics()

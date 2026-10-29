@@ -32,6 +32,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 
 # Changelog
 
+## [v6.629.0] - 2026-10-29
+
+### Added
+- cursor-like ide setup with settings ui context menu and heatmap live telemetry
+
+---
+
 ## [v6.628.3] - 2026-10-29
 
 ### Added

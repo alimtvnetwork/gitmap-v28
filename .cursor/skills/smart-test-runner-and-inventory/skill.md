@@ -5,6 +5,8 @@ description: Autonomously orchestrate smart incremental test execution, centrali
 
 # Smart Test Runner & Centralized Inventory Manifest
 
+> **Invocation:** `@[smart-test-runner-and-inventory](file;.cursor/skills/smart-test-runner-and-inventory)`
+
 > **Scope:** Multi-Repository Test Execution & Caching Engine
 
 ## Core Architectural Pillars

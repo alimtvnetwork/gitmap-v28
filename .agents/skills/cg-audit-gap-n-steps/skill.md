@@ -5,6 +5,8 @@ description: "Executes the Gap Analysis & N-Step Guideline Audit - Planning Spec
 
 # Gap Analysis & N-Step Guideline Audit - Planning Spec
 
+> **Invocation:** `@[cg-audit-gap-n-steps](file;.agents/skills/cg-audit-gap-n-steps)`
+
 Source prompt: `01-prompts/05-coding-guidelines/03-cg-audit-gap-n-steps.md`
 
 ## Instructions

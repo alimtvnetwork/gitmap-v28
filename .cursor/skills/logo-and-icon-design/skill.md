@@ -6,6 +6,8 @@ description: >-
 
 # Logo & Icon Design Workflow — Asset & Branding Standards
 
+> **Invocation:** `@[logo-and-icon-design](file;.cursor/skills/logo-and-icon-design)`
+
 > **Skill Version:** 1.3.0
 > **Target Environment:** Lovable, Web Design AI Platforms, & Local Design Workflows
 > **Synchronization:** Main Meta-Repo & Connected Workspaces

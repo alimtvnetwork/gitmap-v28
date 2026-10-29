@@ -24,6 +24,7 @@ WAVES = ceil(subtasks / (A x H))
 > Prompt Version: 6.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
 > Invoke: /execute-with-e2e <task>
+> **Invocation:** `@[execute-with-e2e](file;.agents/skills/execute-with-e2e)`  
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below. The agent MUST inspect and follow the instructions above with absolute precedence.

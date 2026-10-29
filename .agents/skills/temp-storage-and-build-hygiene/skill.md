@@ -5,6 +5,8 @@ description: Enforce repository-scoped temporary directory isolation and mandato
 
 # Temp Storage & Build Hygiene
 
+> **Invocation:** `@[temp-storage-and-build-hygiene](file;.agents/skills/temp-storage-and-build-hygiene)`
+
 ## Core Directives
 
 1. **Repository Namespacing in OS/User Temp**:

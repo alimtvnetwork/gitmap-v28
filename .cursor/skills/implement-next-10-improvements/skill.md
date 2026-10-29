@@ -12,6 +12,7 @@ Source Prompt: `01-prompts/30-improvements/07-implement-next-10-improvements.md`
 > **Environment:** Cursor IDE  
 > **Canonical Prompt:** `01-prompts/30-improvements/07-implement-next-10-improvements.md`  
 > **IDE Link Syntax:** [`implement-next-10-improvements`](file;.cursor/skills/implement-next-10-improvements)  
+> **Invocation:** `@[implement-next-10-improvements](file;.cursor/skills/implement-next-10-improvements)`  
 
 This skill governs the autonomous, high-velocity implementation of exactly 10 pending improvements from `.ai-memory/plans/subtasks/`. It operates under the **Fast-Forwarding Protocol**, which enforces a strict ban on intermediate compilations and test suite runs during editing turns, while mandating 100% adherence to the **8-Pillar Strict Coding Guideline Enforcement Matrix**. Execution is repeatable via the command `"next"` and concludes with a handoff to the decoupled terminal End-to-End Verification Gate.
 

@@ -5,6 +5,8 @@ description: "Executes the Boolean Optimization & Complexity Reduction (v2) - Co
 
 # Boolean Optimization & Complexity Reduction (v2) - Coding Guideline
 
+> **Invocation:** `@[boolean-improvements-v2](file;.cursor/skills/boolean-improvements-v2)`
+
 Source prompt: `01-prompts/09-commit-and-multi-agent-code-fix/05-boolean-improvements-v2.md`
 
 ## Instructions

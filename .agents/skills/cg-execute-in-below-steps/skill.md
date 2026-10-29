@@ -22,6 +22,7 @@ WAVES = ceil(subtasks / (A x H))
 > Prompt Version: 6.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
 > Invoke: /cg-execute-in-below-steps <task>
+> **Invocation:** `@[cg-execute-in-below-steps](file;.agents/skills/cg-execute-in-below-steps)`  
 >
 > **Bottom-Instruction Priority Mandate (Below Precedence / Suffix Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given BELOW this prompt (following the `--` divider border at the bottom) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE.

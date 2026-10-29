@@ -5,6 +5,8 @@ description: Autonomously audits, refactors, and enforces variadic and spread pa
 
 # Skill: Variadic & Spread Parameters, Rest Elements & Slices (`cg-variadic-and-spread-parameters`)
 
+> **Invocation:** `@[cg-variadic-and-spread-parameters](file;.agents/skills/cg-variadic-and-spread-parameters)`
+
 This skill governs autonomous execution for auditing, refactoring, and enforcing variadic parameters, rest elements, and slice reference patterns across Go, TypeScript, and Rust codebases.
 
 ## 1. Concurrency Invariants & Header Parameters

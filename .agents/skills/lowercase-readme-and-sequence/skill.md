@@ -5,6 +5,8 @@ description: "Executes the Lowercase Filename Enforcement & Sequence Re-Ordering
 
 # Lowercase Filename Enforcement & Sequence Re-Ordering
 
+> **Invocation:** `@[lowercase-readme-and-sequence](file;.agents/skills/lowercase-readme-and-sequence)`
+
 Source prompt: `01-prompts/11-content-and-seo/02-lowercase-readme-and-sequence.md`
 
 ## Instructions

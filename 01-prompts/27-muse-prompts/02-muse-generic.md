@@ -49,13 +49,13 @@ ${Input Text Verbatim}
 
 ## Must follow and spawn agent using
 
-[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
+@[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
 
 ## Additional Instructions
 
 - Execute within the 400-step lifecycle budget: Phase 1 (Steps 1..100) planning and spec authoring, Phase 2 (Steps 101..250) sanitization, archival, and prerequisites, Phase 3 (Steps 251..400) worker swarm implementation, targeted checks, and retrospective verification.
 - [/plan](slashCommand;plan) first before doing the work for improved work or less friction.
-- [/learn](slashCommand;learn) from [gitmap](file;.agents/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
+- [/learn](slashCommand;learn) from @[gitmap](file;.agents/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
 - Track in-flight file touches, prevent write collisions, and query the cognitive graph via GitMap RC Heatmap (`gitmap rc heatmap status` / `gitmap rc heatmap tree` / `gitmap rc heatmap live` / `gitmap rc heatmap sync`). If RC does not exist, auto-provision it linked to the mission folder; connect the roadmap to the heatmap command so newly spawned subagents can join dynamically without redundant reads; verify prior task existence and prompt MD5 hash code before initialization.
 - Only add relative paths, never add absolute paths during your work; this should be respected on the release page and in release notes as well.
 ```

@@ -150,6 +150,8 @@ func executeFallbackRCHeatmap(args []string) error {
 		return runFallbackRCStatus(args[1:])
 	case "commit":
 		return runFallbackRCCommit(args[1:])
+	case "tree", "live", "watch", "in-flight", "inflight":
+		return heatmap.DispatchRcHeatmap(context.Background(), args, os.Stdout)
 	}
 
 	printRCHeatmapHelp()
@@ -319,12 +321,16 @@ func CommitAndPushHeatmapRC(repoCachePath, repoSlug, taskSummary string) (string
 func printRCHeatmapHelp() {
 	fmt.Println("Usage: gitmap rc heatmap <command> [flags]")
 	fmt.Println("\nCommands:")
-	fmt.Println("  sync    Reconcile local deltas, rebase remote commits, and commit to repo-cache")
 	fmt.Println("  status  Show local tracking database synchronization status")
+	fmt.Println("  tree    Render hierarchical execution and reasoning tree")
+	fmt.Println("  live    Show in-flight file touches and real-time telemetry")
+	fmt.Println("  sync    Reconcile local deltas, rebase remote commits, and commit to repo-cache")
 	fmt.Println("  commit  Create feature commit on repo-cache repository")
 	fmt.Println("\nFlags:")
 	fmt.Println("  --repo  Target repository slug (defaults to ambient repo)")
 	fmt.Println("  --ai    AI agent namespace (defaults to active AI)")
 	fmt.Println("  --task  Parent task slug")
+	fmt.Println("  --file  Filter by touched file path")
+	fmt.Println("  --limit Maximum records to return (default: 25)")
 	fmt.Println("  --msg   Custom commit message")
 }

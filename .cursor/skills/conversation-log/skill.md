@@ -5,6 +5,8 @@ description: "Executes the Conversation Log & Context Wrapper - Engineering Work
 
 # Conversation Log & Context Wrapper - Engineering Workflow
 
+> **Invocation:** `@[conversation-log](file;.cursor/skills/conversation-log)`
+
 Source prompt: `01-prompts/03-read-write/05-conversation-log.md`
 
 ## Instructions

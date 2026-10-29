@@ -5,6 +5,8 @@ description: Autonomously ingest source designs (codebases, specifications, pres
 
 # Write and Enhance a Design Spec That a Blind AI Can Follow
 
+> **Invocation:** `@[write-and-enhance-design-spec](file;.cursor/skills/write-and-enhance-design-spec)`
+
 > **[/goal](slashCommand;goal)** Autonomously ingest source designs (codebases, specifications, presentation decks, UI components, screenshots) and author or enhance public design-system specifications so comprehensive, mathematically exact, and rigorous that any "blind AI" or human engineer with zero external context can follow them blindly to design websites, presentations, blogs, animations, menus, buttons, builder modes, or images without guessing a single value or hallucinating.
 > **[/learn](slashCommand;learn)** A specification is finished ONLY when every component, token, physics parameter, layout slot, and interaction timing in the source has its exact values written down in structured tables, every gap is audited, and the completion gate at the end passes 100%.
 

@@ -19,6 +19,7 @@ WAVES = ceil(subtasks / (A x H))
 > Prompt Version: 6.0.0
 > Runtime: Google Antigravity 2.0 (IDE and CLI)
 > Invoke: /fix-spec-from-audit <task>
+> **Invocation:** `@[fix-spec-from-audit](file;.cursor/skills/fix-spec-from-audit)`  
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE.

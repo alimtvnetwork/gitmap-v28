@@ -5,6 +5,8 @@ description: "Executes the Python prompt. Autonomously scan, discover, plan, ref
 
 # Python
 
+> **Invocation:** `@[function-signatures-and-return-types](file;.agents/skills/function-signatures-and-return-types)`
+
 Source prompt: `01-prompts/15-cg-execute/14-function-signatures-and-return-types.md`
 
 ## Instructions

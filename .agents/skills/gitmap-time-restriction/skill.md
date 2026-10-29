@@ -11,6 +11,7 @@ This skill provides operational procedures, automated command sequences, and ver
 
 > [!IMPORTANT]
 > **On-Call Invariant**: This skill is strictly **on-call**. It remains dormant during normal engineering turns. It activates **only** when explicitly commanded by user prompts, plan directives, or when tasks specify time-window boundaries, commit date overrides, or recommits.
+> **Invocation:** `@[gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction)`  
 
 ### Trigger Keywords & Directives
 - `time restriction`, `time-restriction`, `restrict hours`, `work window`, `cutoff hour`

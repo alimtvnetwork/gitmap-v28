@@ -5,6 +5,8 @@ description: "Executes the Relative Paths prompt. Autonomously scan, plan, refac
 
 # Relative Paths
 
+> **Invocation:** `@[relative-paths](file;.cursor/skills/relative-paths)`
+
 Source prompt: `01-prompts/15-cg-execute/12-relative-paths.md`
 
 ## Instructions

@@ -5,6 +5,8 @@ description: "Executes the Find 100 Improvements in the Whole System prompt. Aut
 
 # Find 100 Improvements in the Whole System
 
+> **Invocation:** `@[find-100-system-ux-improvements](file;.agents/skills/find-100-system-ux-improvements)`
+
 Source prompt: `01-prompts/30-improvements/03-find-100-improvements-in-whole-system-ux.md`
 
 ## Instructions

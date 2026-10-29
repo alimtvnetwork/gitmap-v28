@@ -5,6 +5,8 @@ description: "Executes the Proofread V2 (On the Fly) Instruction prompt. Autonom
 
 # Proofread V2 (On the Fly) Instruction
 
+> **Invocation:** `@[proofread-v2](file;.cursor/skills/proofread-v2)`
+
 Source prompt: `01-prompts/03-read-write/09-proofread-v2.md`
 
 ## Instructions

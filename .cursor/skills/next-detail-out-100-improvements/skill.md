@@ -6,6 +6,8 @@ description: >-
 
 # Next Detail Out 100 Improvements
 
+> **Invocation:** `@[next-detail-out-100-improvements](file;.cursor/skills/next-detail-out-100-improvements)`
+
 Source Prompt: `01-prompts/30-improvements/04-next-detail-out-100-improvements.md`
 
 This skill governs the systematic, autonomous detailing of active, pending, and completed plans as well as discovered improvement vectors into exhaustive, multi-step execution blueprints. It enforces a strict **Review-First & No-Immediate-Execution Gate**: improvements and plans must be deeply elaborated, bounded into isolated subtasks, verified with concrete code contracts, and presented in an interactive Review Docket for explicit human review and sign-off before any code modification, build, or test execution is permitted.

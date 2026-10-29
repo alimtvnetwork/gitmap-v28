@@ -8,6 +8,7 @@ description: Autonomously orchestrate and apply concrete, surgical refactoring f
 > [!IMPORTANT]
 > Skill Version: 2.6.0
 > Synchronization: Main Meta-Repo & Connected Workspaces
+> **Invocation:** `@[execute-coding-guideline-fix](file;.cursor/skills/execute-coding-guideline-fix)`  
 >
 > **Top-Instruction Priority Mandate (Preamble Precedence):**
 > Whatever directives, constraints, checklists, or instructions are given before this section or prompt (including in the prompt preamble, header blocks, or incoming user request) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.

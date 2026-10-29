@@ -5,6 +5,8 @@ description: Autonomously construct production-grade marketing websites, blogs, 
 
 # Follow UI/UX Design System Specification & Component Assembly
 
+> **Invocation:** `@[follow-ui-ux-design-system](file;.cursor/skills/follow-ui-ux-design-system)`
+
 > **[/goal](slashCommand;goal)** Autonomously construct production-grade marketing websites, blogs, dashboards, navigation systems, avant-garde mega menus, buttons, and responsive sections by strictly following grounded design specifications without inventing values or hallucinating aesthetics.
 > **[/learn](slashCommand;learn)** Ingest the sequentially numbered design system specifications under `02-spec/07-design-system/` in exact order before authoring HTML, JSX, CSS, LESS, or Tailwind code.
 

@@ -5,6 +5,8 @@ description: Develop, theme, and maintain modern React UI components using Tailw
 
 # React UI, Components & Theming Design System
 
+> **Invocation:** `@[react-ui-theming-design](file;.cursor/skills/react-ui-theming-design)`
+
 This skill guides frontend component engineering, theme token management, and accessibility standards across `src/`.
 
 ## Architecture & Technology Stack

@@ -23,6 +23,8 @@ func dispatchHeatmapAction(subcmd string, flags map[string]string, pos []string,
 		return true, runHeatmapTree(flags, out)
 	case "status":
 		return true, runHeatmapStatus(flags, out)
+	case "live", "watch", "in-flight", "inflight":
+		return true, runHeatmapLive(flags, out)
 	}
 
 	return false, nil
@@ -348,4 +350,27 @@ func runHeatmapStatus(flags map[string]string, out io.Writer) error {
 	}
 
 	return renderStatusResults(status, db, flags, out)
+}
+
+func runHeatmapLive(flags map[string]string, out io.Writer) error {
+	db, err := store.OpenHeatmapRootDB("")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	limit := resolveLiveLimit(flags["limit"])
+	records, err := db.SearchActionLogs(flags["task"], "", flags["file"], limit)
+	if err != nil {
+		return err
+	}
+
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, records)
+	}
+
+	title := fmt.Sprintf("Root Heatmap: %s", flags["task"])
+	renderLiveTouches(out, records, title)
+
+	return nil
 }

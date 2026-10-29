@@ -5,6 +5,8 @@ description: Appends the next 100 design-system checks for slides, motion, and a
 
 # Design System Spec Improvements
 
+> **Invocation:** `@[design-system-spec-improvements](file;.agents/skills/design-system-spec-improvements)`
+
 Read and follow `01-prompts/30-improvements/08-design-system-spec-improvements.md`.
 
 The living spec is `02-spec/21-app/35-coding-guideline-and-design-system-spec-improvements/`.

@@ -5,6 +5,8 @@ description: Autonomously audits, refactors, and enforces branch immutability, c
 
 # Skill: Branch Immutability, Clean Construction & Condition Decomposition (`cg-branch-immutability-and-clean-construction`)
 
+> **Invocation:** `@[cg-branch-immutability-and-clean-construction](file;.agents/skills/cg-branch-immutability-and-clean-construction)`
+
 This skill governs autonomous execution for eliminating piecemeal struct/object mutations inside conditional branches (`if`/`else` ladders or `switch` cases), compound 3+ clause boolean conditions, and mixed polarity logic chains across all source files.
 
 ## 1. Concurrency Invariants & Header Parameters

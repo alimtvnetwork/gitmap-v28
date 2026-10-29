@@ -5,6 +5,8 @@ description: Autonomously audits, refactors, and validates repository-wide unit 
 
 # Skill: Unit Test Isolation & Destructive OS Prevention (`cg-isolate-os-tests`)
 
+> **Invocation:** `@[cg-isolate-os-tests](file;.agents/skills/cg-isolate-os-tests)`
+
 This skill governs autonomous auditing, refactoring, and validation of unit tests to strictly prevent execution of destructive host OS commands (shutdown, reboot, poweroff, system package modifications, user group alterations, unmocked filesystem purges) by enforcing injectable command executors and mock duration math.
 
 ## 1. Concurrency Invariants & Header Parameters

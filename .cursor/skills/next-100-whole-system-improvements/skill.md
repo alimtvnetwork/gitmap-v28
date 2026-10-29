@@ -5,6 +5,8 @@ description: "Autonomously audit, discover, plan, and orchestrate 100 high-impac
 
 # Next 100 Whole System Improvements (`next-100-whole-system-improvements`)
 
+> **Invocation:** `@[next-100-whole-system-improvements](file;.cursor/skills/next-100-whole-system-improvements)`
+
 > **[/goal](slashCommand;goal)** Autonomously audit the entire system architecture, discover 100 high-leverage improvements focused strictly on user experience, developer ergonomics, agent friction reduction, performance, reliability, error clarity, and spec governance. Enqueue all 100 improvements as structured pending plans in `.ai-memory/plans/pending/` with subtasks in `.ai-memory/plans/subtasks/` using the Continuous Improvement Flywheel.
 > **[/learn](slashCommand;learn)** Enforce the 8-Part Specification Schema, Zero Harm / Regression Safety Matrix, backward compatibility guarantees (e.g. `type Fault = AppError`), strict relative Git paths, lowercase naming, and GitMap command primacy.
 > **[/plan](slashCommand;plan)** Plan first before doing work for improved work, less friction, faster execution, and pure, effective outcomes.

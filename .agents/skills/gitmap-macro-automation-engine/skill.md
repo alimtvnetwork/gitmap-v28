@@ -5,6 +5,8 @@ description: Autonomously extend and troubleshoot interactive macro recording, r
 
 # GitMap Macro Automation Engine Skill (`gitmap-macro-automation-engine`)
 
+> **Invocation:** `@[gitmap-macro-automation-engine](file;.agents/skills/gitmap-macro-automation-engine)`
+
 ## Mission & Purpose
 This skill provides authoritative architectural guidance, code navigation, and execution rules for developing, maintaining, and executing interactive multi-step macros, cross-platform shell command shims, and batch automation scripts in GitMap.
 

@@ -5,6 +5,8 @@ description: "Executes the Canonical Folder Structure & Sizing Rules - Architect
 
 # Canonical Folder Structure & Sizing Rules - Architecture Spec
 
+> **Invocation:** `@[canonical-folder-structure](file;.cursor/skills/canonical-folder-structure)`
+
 Source prompt: `01-prompts/00-folder-structure/01-canonical-folder-structure.md`
 
 ## Instructions

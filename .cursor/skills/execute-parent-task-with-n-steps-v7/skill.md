@@ -21,7 +21,7 @@ WAVES = ceil(subtasks / (A x H))
 
 > [!IMPORTANT]
 > **Prompt Version:** 7.0.0  
-> **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
+> **Runtime:** Cursor IDE & AI Agent  
 > **Canonical Prompt Specification:** [`01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md`](file;01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md)  
 > **Toolchain Discovery & Primacy:** [/learn](slashCommand;learn) from [gitmap](file;.cursor/skills/gitmap)  
 > **Invocation:** `@[execute-parent-task-with-n-steps-v7](file;.cursor/skills/execute-parent-task-with-n-steps-v7)`  

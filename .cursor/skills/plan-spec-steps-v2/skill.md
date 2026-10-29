@@ -5,6 +5,8 @@ description: "Executes the Specification Planning Engine (v2) prompt. Autonomous
 
 # Plan Spec Steps (v2) — Specification Planning Engine
 
+> **Invocation:** `@[plan-spec-steps-v2](file;.cursor/skills/plan-spec-steps-v2)`
+
 Source prompt: `01-prompts/13-plan-audit/02-plan-spec-steps-v2.md`
 
 ## Instructions

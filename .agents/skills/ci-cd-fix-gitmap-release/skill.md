@@ -6,6 +6,8 @@ description: >-
 
 # Autonomous CI/CD Pipeline Healing & Minor Release Loop via GitMap (`ci-cd-fix-gitmap-release`)
 
+> **Invocation:** `@[ci-cd-fix-gitmap-release](file;.agents/skills/ci-cd-fix-gitmap-release)`
+
 This skill autonomously monitors, diagnoses, and resolves all CI/CD pipeline failures across the repository using GitMap live telemetry (`gitmap pe -t`), performs grounded 4-part Root Cause Analysis (RCA), applies surgical code fixes without disabling CI or deleting tests, verifies locally with targeted linters, commits with `gitmap cpf "<module> - <summary>"`, executes a minor version bump using `python 03-ai-scripts/37-bump-version.py -t minor`, tags and pushes, and continuously loops until all CI/CD workflows are completely green.
 
 ## Core Operational Workflow

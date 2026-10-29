@@ -5,6 +5,8 @@ description: Autonomous developer companion and CLI for ultra-fast repository sc
 
 # GitMap Autonomous Engineering Skill
 
+> **Invocation:** `@[gitmap](file;.cursor/skills/gitmap)`
+
 ## Overview
 GitMap is an ultra-fast developer companion and autonomous CLI engine designed for AI coding agents and software engineers.
 

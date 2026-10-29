@@ -5,6 +5,8 @@ description: "Executes the Nested If And Guard Clauses prompt. Autonomously scan
 
 # Nested If And Guard Clauses
 
+> **Invocation:** `@[nested-if-and-guard-clauses](file;.agents/skills/nested-if-and-guard-clauses)`
+
 Source prompt: `01-prompts/15-cg-execute/03-nested-if-and-guard-clauses.md`
 
 ## Instructions

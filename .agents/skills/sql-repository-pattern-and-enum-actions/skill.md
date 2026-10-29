@@ -5,6 +5,8 @@ description: Enforces the SQL repository pattern in every language and enum-driv
 
 # SQL Repository Pattern & Enum-Driven Actions (`sql-repository-pattern-and-enum-actions`)
 
+> **Invocation:** `@[sql-repository-pattern-and-enum-actions](file;.agents/skills/sql-repository-pattern-and-enum-actions)`
+
 Source spec: 02-spec/21-app/03-execute-n-steps-letterly-prompt-formatter/04-sql-repository-pattern-and-enum-actions-spec.md
 
 ## 1. Core Mandate

@@ -11,6 +11,7 @@ This skill manages automated identity switching, sandboxed bot configurations, a
 
 > [!IMPORTANT]
 > **On-Call Invariant**: This skill is strictly **on-call**. It remains dormant during standard engineering workflows. It activates **only** when explicitly requested by user instructions, task plans, CI/CD orchestration scripts, or designated Letterly directives.
+> **Invocation:** `@[gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot)`  
 
 ### Trigger Keywords & Directives
 - `automation bot`, `autobot`, `gitmap automation`, `ai automation bot`

@@ -16,7 +16,7 @@ Format input text according to exact planning template below without conversatio
    - Item 5: `5. Write first step on task decomposition and bounded subtasks under .ai-memory/plans/subtasks/XX-<slug>/`
    - Item 6: `6. Enforce strict no-build and no-test rules throughout planning phase`
    followed by discrete architectural requirements from input as items 7..N.
-6. Append mandatory planning skill invocation suffix `[plan-spec-steps-v2](file;.agents/skills/plan-spec-steps-v2)`.
+6. Append mandatory planning skill invocation suffix `@[plan-spec-steps-v2](file;.agents/skills/plan-spec-steps-v2)`.
 7. Output plain markdown text only. Never wrap in fenced code blocks (no ```markdown or ``` fences).
 8. Relative Paths: Only add relative paths (`02-spec/...`, `.ai-memory/...`, `cmd/...`); never add absolute paths.
 
@@ -43,11 +43,11 @@ ${Input Text Verbatim}
 
 ## Must follow and spawn agent using
 
-[plan-spec-steps-v2](file;.agents/skills/plan-spec-steps-v2)
+@[plan-spec-steps-v2](file;.agents/skills/plan-spec-steps-v2)
 
 ## Additional Instructions
 
 - [/plan](slashCommand;plan) first before doing work for improved work or less friction, faster execution for AI and coding without errors and following Coding Guidelines.
-- [/learn](slashCommand;learn) from [gitmap](file;.agents/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
+- [/learn](slashCommand;learn) from @[gitmap](file;.agents/skills/gitmap) skill to leverage GitMap high-speed search, toolchain discovery, and caching.
 - Track in-flight file touches and prevent write collisions using GitMap RC Heatmap (`gitmap rc heatmap status` / `gitmap rc heatmap tree` / `gitmap rc heatmap live` / `gitmap rc heatmap sync`).
 - Only add relative paths, never add absolute paths during work; this must be respected on release page and in release notes as well.

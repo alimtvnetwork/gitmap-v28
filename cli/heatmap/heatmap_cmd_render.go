@@ -3,6 +3,7 @@ package heatmap
 import (
 	"fmt"
 	"io"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -73,10 +74,21 @@ func formatFileLineInfo(filePath string, startLine, endLine int) string {
 		return ""
 	}
 
-	return fmt.Sprintf(" [%s:%d-%d]", filePath, startLine, endLine)
+	cleanPath := filepath.ToSlash(filePath)
+	if startLine == 0 && endLine == 0 {
+		return fmt.Sprintf(" [%s]", cleanPath)
+	}
+
+	return fmt.Sprintf(" [%s:%d-%d]", cleanPath, startLine, endLine)
 }
 
 func renderTreeText(out io.Writer, nodes []store.HeatmapExecutionTreeNode, indent string) {
+	if len(nodes) == 0 && indent == "" {
+		fmt.Fprintln(out, "No in-flight file touches or action tree recorded.")
+
+		return
+	}
+
 	for i, node := range nodes {
 		branch, nextIndent := resolveBranchIndent(i, len(nodes), indent)
 		lineInfo := formatFileLineInfo(node.FilePath, node.StartLine, node.EndLine)
@@ -94,6 +106,12 @@ func renderTreeText(out io.Writer, nodes []store.HeatmapExecutionTreeNode, inden
 }
 
 func renderRcTreeText(out io.Writer, nodes []store.RcHeatmapExecutionTreeNode, indent string) {
+	if len(nodes) == 0 && indent == "" {
+		fmt.Fprintln(out, "No in-flight file touches or action tree recorded.")
+
+		return
+	}
+
 	for i, node := range nodes {
 		branch, nextIndent := resolveBranchIndent(i, len(nodes), indent)
 		lineInfo := formatFileLineInfo(node.FilePath, node.StartLine, node.EndLine)
@@ -108,6 +126,28 @@ func renderRcTreeText(out io.Writer, nodes []store.RcHeatmapExecutionTreeNode, i
 			renderRcTreeText(out, node.Children, nextIndent)
 		}
 	}
+}
+
+func renderLiveTouches(out io.Writer, records []store.HeatmapActionLogRecord, title string) {
+	if len(records) == 0 {
+		fmt.Fprintln(out, "No in-flight file touches or active live actions recorded.")
+
+		return
+	}
+
+	fmt.Fprintf(out, "In-Flight File Touches & Live Telemetry [%s]:\n", title)
+	for _, r := range records {
+		printLiveRecord(out, r)
+	}
+}
+
+func printLiveRecord(out io.Writer, r store.HeatmapActionLogRecord) {
+	cleanPath := filepath.ToSlash(r.FilePath)
+	lineInfo := formatFileLineInfo(cleanPath, r.StartLine, r.EndLine)
+	styledID := formatNodeLogID(r.HeatmapActionLogId)
+	styledState := formatReasoningState(r.ReasoningState)
+
+	fmt.Fprintf(out, " %s (%s) %s%s - %s\n", styledID, styledState, r.ActionType, lineInfo, r.ReasoningNotes)
 }
 
 func renderStatusDashboard(out io.Writer, s store.HeatmapStatusSummary, inv TaskInventory, alerts []HeatmapAiConfusion, cmds SuggestedCommandsPayload) {

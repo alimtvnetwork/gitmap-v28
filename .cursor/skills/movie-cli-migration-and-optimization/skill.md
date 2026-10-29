@@ -5,6 +5,8 @@ description: Migration and DRY optimization plan orchestration for movie-cli-v8.
 
 # Movie CLI Migration and Optimization
 
+> **Invocation:** `@[movie-cli-migration-and-optimization](file;.cursor/skills/movie-cli-migration-and-optimization)`
+
 This skill encapsulates the workflow for migrating a legacy `.lovable` repository to the modern `.ai-memory` and `02-spec` folder architecture, and subsequently performing DRY code optimizations on the target codebase (specifically replacing legacy error wrappers with `pkg/appfault` and enforcing strict boolean standards).
 
 ## Instructions

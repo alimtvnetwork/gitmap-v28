@@ -4,7 +4,7 @@ Okay. Now, you have to write an output in a different way. So first of all, what
 
 Don't write "Certainly! Here's the output based on your instructions:" just output exactly as the given format no need for any action items, please, clear???
 
-Follow the format below without the text "output"; you must add [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6) as a suffix, not as a prefix, you stupid. Follow exactly as I have said.
+Follow the format below without the text "output"; you must add @[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6) as a suffix, not as a prefix, you stupid. Follow exactly as I have said.
 
 ${Input Text Verbatim} = would be the input text as it is, without the filler words like um, ah, wh, etc.
 
@@ -20,7 +20,7 @@ ${Input Text Verbatim}
 
 Must follow and spawn agent using
 
-[06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6)
+@[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6)
 
 ## Additional Instructions
 
@@ -29,4 +29,4 @@ learn [/learn](slashCommand;learn) if you have to learn something and [/plan](sl
 ---
 
 Don't output like
-[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} [06-execute-parent-task-with-n-steps-v6.md](file;.agents/skills/execute-parent-task-with-n-steps-v6) Input : ...text given (no please no)
+[/goal](slashCommand;goal) [/learn](slashCommand;learn) ${Input Text Verbatim} @[execute-parent-task-with-n-steps-v6](file;.agents/skills/execute-parent-task-with-n-steps-v6) Input : ...text given (no please no)

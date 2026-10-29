@@ -5,6 +5,8 @@ description: Master 39-step orchestrator for executing all coding guideline comp
 
 # Master 39-Step Coding Guideline Orchestrator (`follow-cg-execute`)
 
+> **Invocation:** `@[follow-cg-execute](file;.cursor/skills/follow-cg-execute)`
+
 ## 1. Overview & Operational Directive
 
 `follow-cg-execute` is the master sequencing skill designed to execute all **39 Coding Guideline (`cg-*`) compliance prompts** across the target codebase in strict sequential order.

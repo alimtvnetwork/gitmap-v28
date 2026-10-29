@@ -5,6 +5,8 @@ description: Autonomously scan, audit, discover, and document 100 grounded code 
 
 # Next 100 Code Improvements
 
+> **Invocation:** `@[next-100-code-improvements](file;.cursor/skills/next-100-code-improvements)`
+
 Source Prompt: `01-prompts/30-improvements/02-next-100-code-improvements.md`
 
 This skill governs the systematic, autonomous discovery, technical specification, and backlog enqueueing of exactly 100 high-impact code improvements across the repository. It enforces structured 10-field specification cards, balances discovery across 10 canonical rule families, and writes actionable execution plans into `.ai-memory/plans/pending/`.

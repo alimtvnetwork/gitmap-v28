@@ -5,6 +5,8 @@ description: Update execute, RCA, and CI/CD fix prompts and skills to use GitMap
 
 # GitMap Pipeline-AI & Dynamic Waiting Protocol
 
+> **Invocation:** `@[gitmap-pipeline-waiting-prompts](file;.agents/skills/gitmap-pipeline-waiting-prompts)`
+
 This skill encapsulates the guidelines and workflow updates for CI/CD pipeline monitoring and diagnostic fetching across all orchestration, RCA, and execution prompts.
 
 ## Core Protocols

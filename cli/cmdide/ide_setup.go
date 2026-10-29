@@ -9,6 +9,11 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
+// RunIDESetup exports the IDE setup workflow for external packages (e.g. contextmenu).
+func RunIDESetup(args []string) error {
+	return runIDESetup(args)
+}
+
 func runIDESetup(args []string) error {
 	opts, err := parseSetupOptions(args)
 	if err != nil {

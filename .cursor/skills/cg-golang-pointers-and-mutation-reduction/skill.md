@@ -11,6 +11,7 @@ description: Autonomously audits, plans, and refactors Golang codebases to elimi
 > **Specification Reference:** `02-spec/21-app/06-cg-execute-golang-pointers-and-mutation-reduce/02-component-spec.md`  
 > **Invoke Command:** `> Invoke: /golang-pointers-and-mutation-reduction <task>`  
 > **IDE Link Syntax:** [`cg-golang-pointers-and-mutation-reduction`](file;.cursor/skills/cg-golang-pointers-and-mutation-reduction)  
+> **Invocation:** `@[cg-golang-pointers-and-mutation-reduction](file;.cursor/skills/cg-golang-pointers-and-mutation-reduction)`  
 
 This skill governs autonomous execution for eliminating excessive pointer indirection (`*T`), heap escapes, CPU cache line thrashing, nil-dereference panics, and in-place variable mutations across Golang repositories and connected fleet tools.
 

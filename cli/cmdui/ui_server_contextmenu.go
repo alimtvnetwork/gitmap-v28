@@ -24,6 +24,22 @@ func mountContextMenuRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/context-menu/clean-powershell", handleAPIContextMenuCleanPowerShell)
 	mux.HandleFunc("/api/context-menu/install", handleAPIContextMenuInstall)
 	mux.HandleFunc("/api/context-menu/uninstall", handleAPIContextMenuUninstall)
+	mux.HandleFunc("/api/context-menu/ide-setup", handleAPIContextMenuIDESetup)
+}
+
+func handleAPIContextMenuIDESetup(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(constants.HeaderContentType, constants.MediaTypeJSON)
+	if r.Method == http.MethodGet {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"target":  "all",
+			"actions": []string{"status", "presets", "apply", "test-connection"},
+		})
+
+		return
+	}
+
+	handleIDESetupApply(w, r)
 }
 
 func handleAPIContextMenuStatus(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,8 @@ description: Unified release management orchestrator governing major, minor, pat
 
 # Unified Release Management & Version Bump Orchestrator (`release`)
 
+> **Invocation:** `@[release](file;.cursor/skills/release)`
+
 ## Overview
 
 `release` is the canonical skill governing all version increments and release deployments across the meta-repository. It consolidates and replaces all individual bump wrappers (`major-bump`, `minor-bump`, `patch-bump`, `version-bump-docs`, `release-now`).

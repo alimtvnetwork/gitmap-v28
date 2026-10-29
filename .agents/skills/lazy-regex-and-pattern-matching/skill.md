@@ -5,6 +5,8 @@ description: "Executes the Lazy Regex And Pattern Matching prompt. Autonomously 
 
 # Lazy Regex And Pattern Matching
 
+> **Invocation:** `@[lazy-regex-and-pattern-matching](file;.agents/skills/lazy-regex-and-pattern-matching)`
+
 Source prompt: `01-prompts/15-cg-execute/21-lazy-regex-and-pattern-matching.md`
 
 ## Instructions

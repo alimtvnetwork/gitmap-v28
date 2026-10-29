@@ -6,6 +6,8 @@ description: >-
 
 # Error Management & Architecture Coding Guidelines (`cg-error-management`)
 
+> **Invocation:** `@[cg-error-management](file;.cursor/skills/cg-error-management)`
+
 This skill provides autonomous audit, refactoring, and validation of repository-wide error handling based on `02-spec/03-error-manage/` and `.ai-memory/coding-guidelines.md`.
 
 ## 1. Concurrency Invariants & Header Parameters

@@ -36,6 +36,8 @@ func dispatchRcAction(subcmd string, flags map[string]string, pos []string, out 
 		return true, runRcTree(flags, out)
 	case "status":
 		return true, runRcStatus(flags, out)
+	case "live", "watch", "in-flight", "inflight":
+		return true, runRcLive(flags, out)
 	}
 
 	return false, nil
@@ -173,6 +175,40 @@ func runRcStatus(flags map[string]string, out io.Writer) error {
 	fmt.Fprintf(out, "RC Heatmap Status [AI: %s, Repo: %s]\nUncommitted Actions: %d\n", aiName, repoSlug, uncommitted)
 	renderStatusText(out, *summary)
 	return nil
+}
+
+func runRcLive(flags map[string]string, out io.Writer) error {
+	aiName, repoSlug := resolveTargetAi(flags["ai"]), resolveTargetRepo(flags["repo"])
+	st, err := store.OpenRcHeatmapStore(aiName, repoSlug)
+	if err != nil {
+		return err
+	}
+	defer st.Close()
+
+	limit := resolveLiveLimit(flags["limit"])
+	records, err := st.SearchActions("", flags["task"], flags["file"], limit)
+	if err != nil {
+		return err
+	}
+
+	if flags["json"] == "true" || isJsonRequested(flags) {
+		return writeIndentedJSON(out, records)
+	}
+
+	title := fmt.Sprintf("AI: %s, Repo: %s", aiName, repoSlug)
+	renderLiveTouches(out, records, title)
+
+	return nil
+}
+
+func resolveLiveLimit(flag string) int {
+	if s := strings.TrimSpace(flag); s != "" {
+		if n, err := strconv.Atoi(s); err == nil && n > 0 {
+			return n
+		}
+	}
+
+	return 25
 }
 
 func runRcListAi(flags map[string]string, out io.Writer) error {

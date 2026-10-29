@@ -5,6 +5,8 @@ description: Plan a structured coding guideline audit across repository codebase
 
 # Plan Coding Guideline Audit
 
+> **Invocation:** `@[plan-coding-guideline-audit](file;.agents/skills/plan-coding-guideline-audit)`
+
 Autonomously plans a comprehensive audit of repository codebases against the master coding guidelines.
 
 ## Audit Areas

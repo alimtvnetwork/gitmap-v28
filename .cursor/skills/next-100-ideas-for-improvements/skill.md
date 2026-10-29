@@ -5,6 +5,8 @@ description: Autonomously survey, discover, architect, and catalog the next 100 
 
 # Next 100 Ideas for Improvements
 
+> **Invocation:** `@[next-100-ideas-for-improvements](file;.cursor/skills/next-100-ideas-for-improvements)`
+
 > **[/goal](slashCommand;goal)** Autonomously survey the target codebase, discover 100 high-leverage innovation and improvement ideas across 10 functional clusters, articulate each idea using the 8-field Idea Specification Schema, and enqueue them as pending plans in `.ai-memory/plans/pending/XX-next-100-ideas-for-improvements.md` with modular subtasks in `.ai-memory/plans/subtasks/XX-next-100-ideas-for-improvements/`.
 > **[/plan](slashCommand;plan)** Plan first before doing work for improved work or less friction, faster work and more pure and effective work.
 > **[/learn](slashCommand;learn)** Enforce the Review-First Gate (zero immediate code edits, NO-BUILD, NO-TEST during ideation discovery), GitMap search primacy, strict relative Git paths, and lowercase naming conventions.

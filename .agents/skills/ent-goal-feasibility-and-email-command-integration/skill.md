@@ -5,6 +5,8 @@ description: Conduct Ent Go ORM feasibility analysis and implement multi-format 
 
 # ENT Goal Feasibility and Email Command Integration Skill
 
+> **Invocation:** `@[ent-goal-feasibility-and-email-command-integration](file;.agents/skills/ent-goal-feasibility-and-email-command-integration)`
+
 ## Mission & Purpose
 This skill provides authoritative architectural guidance, code navigation, and execution rules for:
 1. **Ent Go (entgo.io) Feasibility & Migration Analysis:** Benchmarking query latency, memory allocation overhead, binary size, compilation duration, and SQLite Split-DB compatibility against GitMap's existing type-safe data access layer.

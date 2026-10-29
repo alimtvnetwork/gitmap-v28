@@ -5,6 +5,8 @@ description: Autonomously discover, purge, and govern GitHub Actions storage, de
 
 # Zero-Storage Actions Purge & Storage Governance
 
+> **Invocation:** `@[zero-storage-actions-purge](file;.agents/skills/zero-storage-actions-purge)`
+
 Autonomously inspects repositories, identifies bloated GitHub Actions storage (artifacts and caches), eliminates excessive caching configurations in workflows, and executes multi-threaded API deletion of remote artifacts and caches to maintain zero storage footprint.
 
 ## Core Capabilities

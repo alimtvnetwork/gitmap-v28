@@ -6,6 +6,8 @@ description: >-
 
 # Run Script Orchestration Skill (`run`)
 
+> **Invocation:** `@[run](file;.agents/skills/run)`
+
 This skill autonomously executes the project run script (`.\run.ps1` on Windows pwsh, or `./run.sh` on Unix/macOS) with target parameters and complete self-healing dependency recovery. It inspects `run.config.json`, verifies required toolchains, and if dependencies are missing, automatically falls back to environment installation via GitMap (`gitmap aum install`) or `.\local-install.ps1` (`./local-install.sh`), automatically rerunning `run.ps1` once installed.
 
 ## Execution Workflow

@@ -9,6 +9,8 @@ description: >-
 
 # Read Memory (Enhanced)
 
+> **Invocation:** `@[read-memory-enhanced](file;.agents/skills/read-memory-enhanced)`
+
 ## Ambiguity folder path (non-negotiable)
 
 - Open questions: `.ai-memory/ambiguous-questions/01-new-ambiguity/xx-<slug>.md`

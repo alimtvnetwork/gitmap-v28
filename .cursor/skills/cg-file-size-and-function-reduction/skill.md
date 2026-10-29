@@ -5,6 +5,8 @@ description: Autonomously audits, decomposes, and refactors files over 100 lines
 
 # Skill: File Size & Function Size Reduction (`cg-file-size-and-function-reduction`)
 
+> **Invocation:** `@[cg-file-size-and-function-reduction](file;.cursor/skills/cg-file-size-and-function-reduction)`
+
 This skill governs autonomous auditing, decomposition, and refactoring of bloated source code files exceeding the **100-line standard file cap** (recommended <= 80 lines) and functions exceeding **8–15 lines** across polyglot codebases (Go, TypeScript, Python, PHP, Rust, C#).
 
 ## 1. Concurrency Invariants & Header Parameters

@@ -5,6 +5,8 @@ description: Design, implement, and maintain Split SQLite databases, Casbin RBAC
 
 # Split SQLite & Database Architecture Guidelines (`app-db-architecture`)
 
+> **Invocation:** `@[app-db-architecture](file;.cursor/skills/app-db-architecture)`
+
 This skill guides the design, schema management, and querying of database layers in alignment with `02-spec/02-coding-guidelines/01-cross-language/07-database-naming.md`, `02-spec/04-database-conventions/02-naming-conventions.md`, and `02-spec/05-split-db-architecture/readme.md`.
 
 ## 1. Architecture Principles

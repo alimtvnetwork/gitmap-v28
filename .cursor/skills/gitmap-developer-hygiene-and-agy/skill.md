@@ -5,6 +5,8 @@ description: Autonomously maintain and extend Google Antigravity (AGY) tools, de
 
 # GitMap Developer Hygiene & Antigravity (AGY) Skill (`gitmap-developer-hygiene-and-agy`)
 
+> **Invocation:** `@[gitmap-developer-hygiene-and-agy](file;.cursor/skills/gitmap-developer-hygiene-and-agy)`
+
 ## Mission & Purpose
 This skill provides authoritative architectural guidance, code navigation, and execution rules for managing Google Antigravity (AGY) integrations, developer cache purges, operating system process hygiene, and Chrome browser profile synchronizations.
 

@@ -12,6 +12,7 @@ Source Prompt: `01-prompts/30-improvements/06-check-pending-improvements.md`
 > **Environment:** Google Antigravity 2.0 (IDE & CLI)  
 > **Canonical Prompt:** `01-prompts/30-improvements/06-check-pending-improvements.md`  
 > **IDE Link Syntax:** [`check-pending-improvements`](file;.agents/skills/check-pending-improvements)  
+> **Invocation:** `@[check-pending-improvements](file;.agents/skills/check-pending-improvements)`  
 
 This skill governs the systematic, autonomous scanning, status aggregation, and real-time visualization of all pending improvement plans and subtasks across the repository. It queries `.ai-memory/plans/` using GitMap high-speed commands, producing an executive health dashboard, category-by-category breakdown across the 5 improvement pillars, priority tier distribution (P0/P1/P2), and the deterministic Next 10 Queue for immediate execution handoff to [`implement-next-10-improvements`](file;.agents/skills/implement-next-10-improvements).
 

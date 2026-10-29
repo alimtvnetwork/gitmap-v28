@@ -5,6 +5,8 @@ description: Author, structure, sequence, and validate repository specifications
 
 # Specification Authoring & Validation Guide
 
+> **Invocation:** `@[spec-authoring-and-validation](file;.cursor/skills/spec-authoring-and-validation)`
+
 This skill governs the creation, organization, and automated validation of architectural specifications in `02-spec/`, primarily under the canonical application specifications folder `02-spec/21-app/`.
 
 ## RULE 00: Pure Specification Authoring Only (Total Ban on Code Execution)

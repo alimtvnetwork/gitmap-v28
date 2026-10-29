@@ -5,6 +5,8 @@ description: "Executes the Atomic Commit Organization & Working Tree Sanitizatio
 
 # Atomic Commit Organization & Working Tree Sanitization
 
+> **Invocation:** `@[commit-fix-v2](file;.agents/skills/commit-fix-v2)`
+
 Source prompt: `01-prompts/09-commit-and-multi-agent-code-fix/03-commit-fix-v2.md`
 
 ## Instructions

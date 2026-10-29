@@ -5,6 +5,8 @@ description: Autonomously reconcile diverged Git branches, mechanically resolve 
 
 # Git Reconciliation & Mechanical Conflict Resolver
 
+> **Invocation:** `@[git-reconcile-and-resolve-conflict](file;.cursor/skills/git-reconcile-and-resolve-conflict)`
+
 Autonomously resolves git branch divergence, applies deterministic domain-specific conflict resolution rules, and pushes to remote tracking branches without rewriting published Git history.
 
 ## Core Capabilities

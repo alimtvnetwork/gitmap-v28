@@ -5,6 +5,8 @@ description: Autonomously audits, extracts, and centralizes domain structs, raw 
 
 # Skill: Extracting Generic Types & Models to `types.go` (`cg-extract-types`)
 
+> **Invocation:** `@[cg-extract-types](file;.cursor/skills/cg-extract-types)`
+
 This skill governs autonomous auditing, extraction, and centralization of scattered domain structs, raw generic Result envelopes (`ResultSlice[T]`, `ResultMap[K, V]`, `Result[T]`, `Wrap[T]`), and repeated generic type parameters into dedicated, package-level `types.go` files (or language-equivalent leaf `types/` modules) as single reusable named types.
 
 ## 1. Concurrency Invariants & Header Parameters

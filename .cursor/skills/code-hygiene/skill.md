@@ -5,6 +5,8 @@ description: "Executes the Code Hygiene prompt. Autonomously scan, plan, refacto
 
 # Code Hygiene
 
+> **Invocation:** `@[code-hygiene](file;.cursor/skills/code-hygiene)`
+
 Source prompt: `01-prompts/15-cg-execute/09-code-hygiene.md`
 
 ## Instructions

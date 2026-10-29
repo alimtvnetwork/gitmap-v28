@@ -127,10 +127,10 @@ All documentation version bumps and releases MUST strictly follow this 5-step Gi
 
 > [!IMPORTANT]
 > **GitMap Semantic Release Directives:**
-> - **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "v<version> <scope>"`.
+> - **Dedicated Release Verb:** Commit release changes on the release branch using `gitmap cpr "RELEASE - <version> <scope>"`.
 > - **TOTAL BAN ON CPF FOR RELEASES:** Never use `gitmap cpf` for releases (it stamps commits with `Feature:`).
 > - **TOTAL BAN ON NESTED PREFIXES:** Never write `chore(release):`, `release:`, or `feat:` inside the message argument. GitMap adds the prefix automatically!
-> - **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"v<version> <scope>"` with no square brackets `[...]`.
+> - **TOTAL BAN ON THIRD BRACKETS & COLONS:** Use `"RELEASE - <version> <scope>"` with hyphen and no square brackets `[...]`.
 
 1. **Step 1: Create & Switch to Release Branch:**
    Create and checkout the dedicated release branch first: `git checkout -b release/vX.Y.Z`. Releases MUST NOT be committed directly to `main` without a release branch.
