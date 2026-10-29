@@ -25,6 +25,7 @@ Every spec module (top-level folder under `02-spec/`) must contain a minimum set
 | File | Purpose | When Required |
 |------|---------|---------------|
 | `97-acceptance-criteria.md` | Testable acceptance criteria (numbered, specific, measurable) | All implementation-ready modules |
+| `15-executable-spec-ticket.md` | Ticket shape for a single change a stranger will implement | Use for one change. Not mandatory for every module |
 | `98-changelog.md` | Chronological record of changes | Active modules with ongoing updates |
 | `error-codes.json` | Error code definitions for the module | Modules with error code allocations |
 

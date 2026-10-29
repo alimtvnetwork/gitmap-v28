@@ -39,6 +39,7 @@ All improvements adhere to structured specification schemas, enforce the **Zero 
 | [`05-next-100-ideas-for-improvements.md`](05-next-100-ideas-for-improvements.md) | V6 / 1.0.0 | Generative Innovation & Superpowers | Autonomously surveys target repositories across a 5-layer diagnostic inspection to synthesize 100 concrete, high-leverage improvement and innovation ideas across 10 ideation clusters with strict review-first gating, grounded codebase anchors, and actionable pending plan enqueueing. |
 | [`06-check-pending-improvements.md`](06-check-pending-improvements.md) | V6 / 1.0.0 | Backlog Inspection & Telemetry | Autonomously scans `.ai-memory/plans/pending/` and `.ai-memory/plans/subtasks/` using GitMap high-speed commands to render an executive improvement dashboard with category breakdowns, priority tiers (P0–P3), completion KPIs, and the Next 10 Queue for immediate execution handoff. |
 | [`07-implement-next-10-improvements.md`](07-implement-next-10-improvements.md) | V6 / 1.0.0 | Fast-Forward Batch Implementation | Autonomously implements the next 10 unexecuted improvements from the backlog using the Fast-Forwarding Protocol (strictly NO-BUILD and NO-TEST during implementation) while strictly enforcing the 8-Pillar Coding Guideline Matrix, repeatable on user command `"next"`. |
+| [`08-design-system-spec-improvements.md`](08-design-system-spec-improvements.md) | 1.0.0 | Design system spec | Appends the next 100 slide, motion, and tree checks under `02-spec/21-app/35-coding-guideline-and-design-system-spec-improvements/` without renumbering prior `DS-IMP` ids. |
 
 ---
 
@@ -252,5 +253,6 @@ Each prompt in this category is accompanied by symmetric, production-grade skill
 ├── 05-next-100-ideas-for-improvements.md
 ├── 06-check-pending-improvements.md
 ├── 07-implement-next-10-improvements.md
+├── 08-design-system-spec-improvements.md
 └── readme.md
 ```

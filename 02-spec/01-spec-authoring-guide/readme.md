@@ -61,7 +61,7 @@ Measures how ready the specification is for an AI agent to implement the describ
 
 ### Ambiguity
 
-Measures how much interpretation is required. **Lower tiers are better.**
+Measures how much interpretation is required. **Lower tiers are better.** An overview may say `Ambiguity: None` only when `99-consistency-report.md` in that same folder has result `PASS` and names no open contradiction. Otherwise write the contradiction in one sentence.
 
 | Tier | Icon | Meaning | When to Use |
 |------|------|---------|-------------|
@@ -197,6 +197,8 @@ App and WordPress projects use `02-fundamentals.md` as the first content file, t
 | 09 | [11-exceptions.md](./11-exceptions.md) | Rules | All known exception cases with folder structure examples |
 | 10 | [12-mandatory-linter-infra03-structure.md](./12-mandatory-linter-infrastructure.md) | Rules | Mandatory linter scripts — AI must verify presence before validation |
 | 11 | [13-root-readme-conventions.md](./13-root-readme-conventions.md) | Rules | **MANDATORY** root `readme.md` format — centered icon, hero block, author/company template, badges, §9 release-blocker checklist |
+| 12 | [15-executable-spec-ticket.md](./15-executable-spec-ticket.md) | Template | One-change ticket a stranger can pass or fail |
+| 13 | [16-blind-agent-reading-path.md](./16-blind-agent-reading-path.md) | Guide | Three-file reading path for a weak agent |
 
 ## File Naming Convention (Quick Reference)
 

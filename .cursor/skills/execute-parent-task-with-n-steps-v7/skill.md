@@ -23,7 +23,8 @@ WAVES = ceil(subtasks / (A x H))
 > **Prompt Version:** 7.0.0  
 > **Runtime:** Google Antigravity 2.0 (IDE and CLI)  
 > **Canonical Prompt Specification:** [`01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md`](file:///01-prompts/14-execute/09-execute-parent-task-with-n-steps-v7.md)  
-> **Toolchain Discovery & Primacy:** [/learn](slashCommand;learn) from [gitmap](file;.agents/skills/gitmap)  
+> **Toolchain Discovery & Primacy:** [/learn](slashCommand;learn) from [gitmap](file;.cursor/skills/gitmap)  
+> **Invocation:** `@@[.cursor/skills/execute-parent-task-with-n-steps-v7]`  
 >
 > **Top-Instruction Priority Mandate (Above Precedence / Preamble Precedence):**  
 > Whatever directives, constraints, checklists, or user instructions are given ABOVE this prompt (including in the user preamble, header blocks, or incoming user request above) are HIGHEST PRIORITY and MUST BE FOLLOWED as strictly NON-NEGOTIABLE. They supersede and strictly override any conflicting general advice, default conventions, or lower-level guidelines below.
