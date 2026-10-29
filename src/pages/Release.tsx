@@ -127,7 +127,7 @@ const ReleasePage = () => {
           <h2 className="text-xl font-heading font-bold text-foreground mb-4 docs-h2">Release Workflow</h2>
 
           <h3 className="text-base font-heading font-semibold text-foreground mb-3">gitmap release [version]</h3>
-          <div className="p-5 rounded-lg border border-border bg-card font-mono text-sm space-y-1 mb-6">
+          <div className="p-5 rounded-lg border border-border bg-card font-mono text-sm space-y-1 mb-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
             {[
               "1. Resolve version (CLI → --bump → version.json → error)",
               "2. Pad partial version to full semver",
@@ -150,7 +150,7 @@ const ReleasePage = () => {
           </div>
 
           <h3 className="text-base font-heading font-semibold text-foreground mb-3">gitmap release-branch / release-pending</h3>
-          <div className="p-5 rounded-lg border border-border bg-card font-mono text-sm space-y-1">
+          <div className="p-5 rounded-lg border border-border bg-card font-mono text-sm space-y-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
             {[
               "1. Validate branch exists / discover pending branches + metadata",
               "2. Extract version from branch name, pad to semver",
@@ -203,17 +203,17 @@ const ReleasePage = () => {
           </div>
 
           <h3 className="text-base font-heading font-semibold text-foreground mt-6 mb-3">Target Resolution (Three-Layer)</h3>
-          <div className="bg-card border border-border rounded-lg p-4 space-y-2">
+          <div className="bg-card border border-border rounded-lg p-4 space-y-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
             <div className="flex items-center gap-3 font-mono text-sm">
-              <span className="bg-primary/20 text-foreground border border-primary/30 dark:bg-primary/20 dark:text-primary px-3 py-1 rounded font-semibold">1. --targets flag</span>
+              <span className="bg-primary/15 text-primary border border-primary/30 px-3 py-1 rounded font-semibold">1. --targets flag</span>
               <span className="text-muted-foreground">→ Highest priority (always wins)</span>
             </div>
             <div className="flex items-center gap-3 font-mono text-sm">
-              <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">2. config.json</span>
+              <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">2. config.json</span>
               <span className="text-muted-foreground">→ release.targets array</span>
             </div>
             <div className="flex items-center gap-3 font-mono text-sm">
-              <span className="bg-muted text-muted-foreground px-3 py-1 rounded">3. Built-in defaults</span>
+              <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">3. Built-in defaults</span>
               <span className="text-muted-foreground">→ All 6 targets</span>
             </div>
           </div>

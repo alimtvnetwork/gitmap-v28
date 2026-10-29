@@ -34,7 +34,7 @@ const uiAssetsMarkupShell = `<body>
       <div style="display:flex;align-items:center;gap:var(--sp-2);">
         <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
         <button id="btn-fullscreen" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--raised);border:1px solid var(--border);" title="Toggle Fullscreen (F11)">⛶ Fullscreen</button>
-        <button id="btn-exit" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--error);color:#fff;" title="Close application window and stop server">✕ Close Window</button>
+        <button id="btn-exit" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--error);color:var(--text);" title="Close application window and stop server">✕ Close Window</button>
       </div>
     </header>
 
@@ -126,7 +126,7 @@ const uiAssetsMarkupMisc = `    <!-- REPOSITORY SEARCH TAB -->
           <div style="display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); overflow: hidden;">
             <div style="padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--raised);">
               <span id="help-active-topic-title" style="font-size: var(--fs-sm); font-weight: 600; color: var(--primary);">Select a topic</span>
-              <button class="btn btn-secondary" onclick="copyCurrentHelpDoc()" style="padding: 2px 8px; font-size: var(--fs-xs);"><span data-icon="check"></span>Copy Markdown</button>
+              <button class="btn btn-secondary" onclick="copyCurrentHelpDoc()" style="padding: var(--sp-1) var(--sp-2); font-size: var(--fs-xs);"><span data-icon="check"></span>Copy Markdown</button>
             </div>
             <div id="help-doc-viewer" tabindex="0" aria-label="Help document content" style="flex: 1; padding: var(--sp-4); overflow-y: auto; max-height: 500px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; color: var(--text); background: var(--code-bg);">Select a command topic from the list to view its official manual.</div>
           </div>

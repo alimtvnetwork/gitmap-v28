@@ -88,7 +88,7 @@ const ChangelogPage = () => {
     <DocsLayout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-heading font-bold docs-h1">Changelog</h1>
+          <h1 className="text-3xl font-heading font-bold docs-h1 tracking-[-0.02em]">Changelog</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {filteredChangelog.length} of {changelog.length} releases shown
           </p>
@@ -189,7 +189,7 @@ const ChangelogPage = () => {
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                     )}
-                    <Tag className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <Tag className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="font-mono font-semibold text-sm">{entry.version}</span>
                     {isLatest && (
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">
@@ -224,7 +224,7 @@ const ChangelogPage = () => {
                       <ul className="mt-1 ml-12 mr-2 space-y-1 pb-2 border-l border-border/60 pl-4">
                         {entry.items.map((item, j) => (
                           <li key={j} className="text-sm text-muted-foreground flex gap-2">
-                            <span className="text-primary mt-1.5 shrink-0">•</span>
+                            <span className="text-muted-foreground/60 mt-1.5 shrink-0">•</span>
                             <span className="leading-relaxed">{item}</span>
                           </li>
                         ))}

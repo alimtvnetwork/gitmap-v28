@@ -166,6 +166,17 @@ const Sidebar = React.forwardRef<
 
 >(({ side = SidebarSideType.Left, variant = SidebarVariantType.Sidebar, collapsible = SidebarCollapsibleType.Offcanvas, className, children, ...props }, ref) => {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const lastToggleRef = React.useRef<number>(0);
+
+  const handleOpenMobileChange = React.useCallback((open: boolean) => {
+    const now = Date.now();
+    if (!open && now - lastToggleRef.current < 220) {
+      // Suppress rapid rebound dismissal
+      return;
+    }
+    lastToggleRef.current = now;
+    setOpenMobile(open);
+  }, [setOpenMobile]);
 
   if (collapsible === SidebarCollapsibleType.None) {
     return (
@@ -181,11 +192,11 @@ const Sidebar = React.forwardRef<
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet open={openMobile} onOpenChange={handleOpenMobileChange} {...props}>
         <SheetContent
           data-sidebar="sidebar"
           data-mobile="true"
-          className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden transform-gpu will-change-transform"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -222,7 +233,7 @@ const Sidebar = React.forwardRef<
       />
       <div
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex transform-gpu will-change-transform",
           side === SidebarSideType.Left
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",

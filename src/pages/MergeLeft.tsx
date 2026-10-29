@@ -25,11 +25,11 @@ const exitCodes = [
 
 const MergeLeftPage = () => (
   <DocsLayout>
-    <div className="max-w-4xl space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       <div>
         <div className="flex items-center gap-3 mb-2">
           <GitMerge className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">merge-left</h1>
+          <h1 className="text-3xl font-heading font-bold tracking-[-0.02em]">merge-left</h1>
           <span className="font-mono text-xs px-2 py-1 rounded bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary dark:border-primary/40 transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">alias: ml</span>
         </div>
         <p className="text-lg text-muted-foreground">

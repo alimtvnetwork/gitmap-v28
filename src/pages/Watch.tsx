@@ -25,12 +25,12 @@ const MOCK_REPOS: MockRepo[] = [
 const isDirty = (status: RepoStatus): boolean => status === RepoStatus.Dirty;
 
 const statusColor = (status: RepoStatus) =>
-  isDirty(status) ? "text-amber-600 dark:text-amber-400" : "text-primary";
+  isDirty(status) ? "text-help-recommended font-medium" : "text-primary";
 
 const hasCount = (count: number): boolean => count > 0;
 
 const countColor = (count: number) =>
-  hasCount(count) ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground";
+  hasCount(count) ? "text-help-recommended font-medium" : "text-muted-foreground";
 
 const TerminalPreview = () => {
   const [tick, setTick] = useState(0);
@@ -51,13 +51,13 @@ const TerminalPreview = () => {
   const stash = MOCK_REPOS.reduce((acc, repo) => acc + repo.stash, 0);
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden my-6">
+    <div className="rounded-lg border border-border overflow-hidden my-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
       <div className="bg-terminal px-4 py-2 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <span className="w-3 h-3 rounded-full bg-green-500/80" />
+            <span className="w-3 h-3 rounded-full bg-destructive/80" />
+            <span className="w-3 h-3 rounded-full bg-warning/80" />
+            <span className="w-3 h-3 rounded-full bg-accent-success/80" />
           </div>
           <span className="text-xs font-mono text-muted-foreground ml-2">
             gitmap watch
@@ -176,7 +176,7 @@ const WatchPage = () => {
         {features.map((f) => (
           <div
             key={f.title}
-            className="rounded-lg border border-border bg-card p-4"
+            className="rounded-lg border border-border bg-card p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]"
           >
             <f.icon className="h-5 w-5 text-primary mb-2" />
             <h3 className="font-mono font-semibold text-sm mb-1">{f.title}</h3>

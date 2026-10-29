@@ -282,7 +282,7 @@ export default function AGYPromptsPage() {
             <Bot className="w-4 h-4" />
             <span>AI Orchestration</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">AGY Prompts, Templates & Rerun</h1>
+          <h1 className="text-3xl font-heading font-bold tracking-[-0.02em] text-foreground">AGY Prompts, Templates & Rerun</h1>
           <p className="text-muted-foreground mt-2 text-base leading-relaxed">
             Replay historical agent prompts with verification prefixes, inspect prompt diffs across multiple commit projects via non-admin VS Code, manage reusable prompt templates, and delegate execution remotely across SSH, Cluster, and SC nodes.
           </p>
@@ -396,7 +396,7 @@ export default function AGYPromptsPage() {
                       <button
                         type="button"
                         onClick={() => handleCopy(item.id, item.command)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex min-h-[44px] items-center gap-1 px-3 py-1.5 rounded text-xs font-mono border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-[0.98]"
                         title="Copy command to clipboard"
                       >
                         {copiedId === item.id ? (
@@ -415,7 +415,7 @@ export default function AGYPromptsPage() {
                       <button
                         type="button"
                         onClick={() => handleRunInTerminal(item.command)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+                        className="inline-flex min-h-[44px] items-center gap-1 px-3 py-1.5 rounded text-xs font-mono font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-sm active:scale-[0.98]"
                         title="Execute command in live web terminal drawer"
                       >
                         <Terminal className="w-3.5 h-3.5" />

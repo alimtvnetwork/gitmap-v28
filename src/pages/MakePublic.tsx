@@ -21,11 +21,11 @@ const exitCodes = [
 
 const MakePublicPage = () => (
   <DocsLayout>
-    <div className="max-w-4xl space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       <div>
         <div className="flex items-center gap-3 mb-2">
           <Globe className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">make-public</h1>
+          <h1 className="text-3xl font-heading font-bold tracking-[-0.02em]">make-public</h1>
         </div>
         <p className="text-lg text-muted-foreground">
           Make the current repository <strong>public</strong> on GitHub or GitLab. Detects the

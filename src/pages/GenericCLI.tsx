@@ -14,7 +14,7 @@ const Section = ({ id, title, children, defaultOpen = false }: SectionProps) => 
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div id={id} className="border border-border rounded-lg overflow-hidden">
+    <div id={id} className="border border-border rounded-lg overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
@@ -22,7 +22,7 @@ const Section = ({ id, title, children, defaultOpen = false }: SectionProps) => 
         {open ? <ChevronDown className="h-4 w-4 text-primary shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
         <span className="font-mono font-semibold text-sm text-foreground">{title}</span>
       </button>
-      {open && <div className="px-4 pb-5 pt-3 space-y-4">{children}</div>}
+      {open && <div className="p-4 sm:p-6 space-y-4">{children}</div>}
     </div>
   );
 };
@@ -36,10 +36,10 @@ const H3 = ({ children }: { children: React.ReactNode }) => (
 );
 
 const Table = ({ headers, rows }: { headers: string[]; rows: string[][] }) => (
-  <div className="bg-card border border-border rounded-lg overflow-hidden overflow-x-auto">
+  <div className="bg-card border border-border rounded-lg overflow-hidden overflow-x-auto shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-border bg-muted/30">
+        <tr className="bg-muted/50 border-b border-border">
           {headers.map((h) => (
             <th key={h} className="text-left px-4 py-2 font-mono font-semibold text-foreground whitespace-nowrap">{h}</th>
           ))}
@@ -49,7 +49,7 @@ const Table = ({ headers, rows }: { headers: string[]; rows: string[][] }) => (
         {rows.map((row, i) => (
           <tr key={i}>
             {row.map((cell, j) => (
-              <td key={j} className={`px-4 py-2 whitespace-nowrap ${j === 0 ? "font-mono text-primary" : "text-muted-foreground"}`}>{cell}</td>
+              <td key={j} className={`px-4 py-2 whitespace-nowrap ${j === 0 ? "font-mono text-primary font-semibold" : "text-foreground/90"}`}>{cell}</td>
             ))}
           </tr>
         ))}
@@ -95,7 +95,7 @@ const GenericCLIPage = () => {
 
   return (
     <DocsLayout>
-      <h1 className="text-3xl font-heading font-bold mb-2 docs-h1">Generic CLI Creation Guidelines</h1>
+      <h1 className="text-3xl font-heading font-bold mb-2 docs-h1 tracking-[-0.02em]">Generic CLI Creation Guidelines</h1>
       <P>A complete, self-contained blueprint for building production-quality CLI tools. Hand this spec to any AI or developer to implement a well-structured CLI from scratch.</P>
 
       {/* Section jump nav */}
@@ -104,7 +104,7 @@ const GenericCLIPage = () => {
           <button
             key={s.id}
             onClick={() => scrollTo(s.id)}
-            className="text-xs font-mono px-2.5 py-1.5 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+            className="inline-flex min-h-[44px] items-center justify-center text-xs font-mono px-3 py-2 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all duration-200 active:scale-[0.98]"
           >
             {s.label}
           </button>

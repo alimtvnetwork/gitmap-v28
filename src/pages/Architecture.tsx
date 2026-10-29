@@ -46,26 +46,26 @@ const ArchitecturePage = () => {
 
         <div>
           <h2 className="text-xl font-heading font-semibold mb-3 docs-h2">Data Flow</h2>
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="plane-1 bg-plane-well border border-border/80 rounded-lg p-6">
             <div className="space-y-4 font-mono text-sm">
               <div className="flex items-center gap-3">
-                <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">scanner</span>
+                <span className="bg-primary/15 text-primary border border-primary/30 px-3 py-1 rounded">scanner</span>
                 <span className="text-muted-foreground">→ discovers .git directories recursively</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">mapper</span>
+                <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">mapper</span>
                 <span className="text-muted-foreground">→ extracts metadata (URLs, branches, paths)</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">formatter</span>
+                <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">formatter</span>
                 <span className="text-muted-foreground">→ outputs CSV, JSON, terminal, tree, scripts</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">store</span>
+                <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">store</span>
                 <span className="text-muted-foreground">→ upserts records into SQLite database</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary px-3 py-1 rounded transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">cloner</span>
+                <span className="bg-muted/60 text-muted-foreground border border-border px-3 py-1 rounded">cloner</span>
                 <span className="text-muted-foreground">→ re-clones from structured files with progress</span>
               </div>
             </div>

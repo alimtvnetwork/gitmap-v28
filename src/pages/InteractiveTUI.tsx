@@ -112,11 +112,11 @@ const InteractiveTUI = () => {
             Views
           </h2>
           <p className="text-muted-foreground mb-4">
-            The TUI has four views, accessible via <kbd className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono border border-border">Tab</kbd>:
+            The TUI has four views, accessible via <kbd className="px-1.5 py-0.5 rounded bg-muted/80 text-foreground font-mono font-semibold text-xs border border-border/80 shadow-xs">Tab</kbd>:
           </p>
           <div className="grid gap-4">
             {VIEWS.map((view) => (
-              <div key={view.name} className="rounded-lg border border-border p-4 bg-card">
+              <div key={view.name} className="rounded-lg border border-border p-4 bg-card shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
                 <h3 className="font-mono font-semibold text-foreground mb-1 flex items-center gap-2">
                   <span>{view.icon}</span>
                   {view.name}
@@ -124,7 +124,7 @@ const InteractiveTUI = () => {
                 <p className="text-sm text-muted-foreground mb-3">{view.description}</p>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   {view.features.map((f) => (
-                    <li key={f} className="text-sm text-foreground/80 flex items-center gap-1.5">
+                    <li key={f} className="text-sm text-foreground font-medium flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                       {f}
                     </li>
@@ -154,7 +154,7 @@ const InteractiveTUI = () => {
                 {KEY_BINDINGS.map((kb, i) => (
                   <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="px-4 py-2">
-                      <kbd className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono border border-border">{kb.key}</kbd>
+                      <kbd className="px-1.5 py-0.5 rounded bg-muted/80 text-foreground font-mono font-semibold text-xs border border-border/80 shadow-xs">{kb.key}</kbd>
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">{kb.context}</td>
                     <td className="px-4 py-2 text-foreground">{kb.action}</td>

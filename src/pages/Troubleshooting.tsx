@@ -173,7 +173,7 @@ const Troubleshooting = () => {
 
   return (
     <DocsLayout>
-      <h1 className="text-3xl font-heading font-bold mb-2 docs-h1">Troubleshooting</h1>
+      <h1 className="text-3xl font-heading font-bold mb-2 docs-h1 tracking-[-0.02em]">Troubleshooting</h1>
       <p className="text-muted-foreground mb-6">
         Common gitmap errors grouped by category, each with the symptom, root cause, and the exact flag or command to fix it. When in doubt, start with <code className="docs-inline-code">gitmap doctor</code>.
       </p>

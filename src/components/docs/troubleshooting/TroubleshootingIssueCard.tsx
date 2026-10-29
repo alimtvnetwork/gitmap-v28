@@ -20,7 +20,7 @@ const IssueHeader = ({ issue }: IssueProps) => {
       <Icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <h2 className="text-base font-heading font-semibold docs-h3">{issue.title}</h2>
-        <p className="text-xs font-mono text-muted-foreground mt-0.5">{meta.label}</p>
+        <p className="text-xs font-mono uppercase tracking-wider text-foreground/80 dark:text-muted-foreground font-semibold mb-1">{meta.label}</p>
       </div>
       <CopyLinkButton issueId={issue.id} />
       {issue.fixCommand && <CopyFixButton command={issue.fixCommand} altCommand={issue.altCommand} />}
@@ -35,7 +35,7 @@ const IssueRelatedLinks = ({ related }: IssueRelatedLinksProps) => {
 
   return (
     <div className="pt-2 border-t border-border flex flex-wrap items-center gap-3 text-xs">
-      <span className="text-muted-foreground font-mono uppercase tracking-wider">Related</span>
+      <span className="text-xs font-mono uppercase tracking-wider text-foreground/80 dark:text-muted-foreground font-semibold mb-1">Related</span>
       {related!.map((linkItem) => (
         <a key={linkItem.href} href={linkItem.href} className="text-primary hover:underline font-mono">
           {linkItem.label}
@@ -48,7 +48,7 @@ const IssueRelatedLinks = ({ related }: IssueRelatedLinksProps) => {
 const IssueFixSection = ({ issue }: IssueProps) => {
   return (
     <div>
-      <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Fix</h3>
+      <h3 className="text-xs font-mono uppercase tracking-wider text-foreground/80 dark:text-muted-foreground font-semibold mb-1">Fix</h3>
       <p className="text-sm text-foreground/90 mb-2">{issue.fix}</p>
       {issue.fixCommand && <CodeBlock language={issue.fixLanguage ?? "bash"} code={issue.fixCommand} title="Run" />}
       {issue.altCommand && (
@@ -63,15 +63,15 @@ const IssueFixSection = ({ issue }: IssueProps) => {
 
 export const TroubleshootingIssueCard = ({ issue }: IssueProps) => {
   return (
-    <article id={issue.id} className="rounded-lg border border-border bg-card overflow-hidden">
+    <article id={issue.id} className="rounded-lg border border-border bg-card overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
       <IssueHeader issue={issue} />
       <div className="p-5 space-y-4">
         <div>
-          <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Symptom</h3>
-          <pre className="text-sm font-mono bg-muted/40 border border-border rounded p-3 overflow-x-auto">{issue.symptom}</pre>
+          <h3 className="text-xs font-mono uppercase tracking-wider text-foreground/80 dark:text-muted-foreground font-semibold mb-1">Symptom</h3>
+          <pre className="text-sm font-mono bg-plane-well border border-border/80 rounded p-3 overflow-x-auto">{issue.symptom}</pre>
         </div>
         <div>
-          <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Cause</h3>
+          <h3 className="text-xs font-mono uppercase tracking-wider text-foreground/80 dark:text-muted-foreground font-semibold mb-1">Cause</h3>
           <p className="text-sm text-foreground/90">{issue.cause}</p>
         </div>
         <IssueFixSection issue={issue} />

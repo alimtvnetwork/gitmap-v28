@@ -3,7 +3,7 @@ import CodeBlock from "@/components/docs/CodeBlock";
 import { GitCompareArrows, Database, FileJson, Eye, AlertTriangle } from "lucide-react";
 
 const TerminalPreview = () => (
-  <div className="rounded-lg border border-border overflow-hidden my-6">
+  <div className="rounded-lg bg-plane-well border border-border/80 overflow-hidden my-6">
     <div className="bg-terminal px-4 py-2 flex items-center gap-2 border-b border-border">
       <div className="flex gap-1.5">
         <span className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -14,16 +14,16 @@ const TerminalPreview = () => (
     </div>
     <div className="bg-terminal p-4 font-mono text-sm leading-relaxed">
       <div className="text-muted-foreground mb-2">Comparing profiles: default ↔ work</div>
-      <div className="text-yellow-400 font-bold text-xs mt-2">ONLY IN default:</div>
+      <div className="text-help-recommended font-semibold text-xs mt-2">ONLY IN default:</div>
       <div className="text-foreground ml-2">docs-site{"          "}C:\repos\docs-site</div>
-      <div className="text-yellow-400 font-bold text-xs mt-2">ONLY IN work:</div>
+      <div className="text-help-recommended font-semibold text-xs mt-2">ONLY IN work:</div>
       <div className="text-foreground ml-2">client-portal{"      "}D:\work\client-portal</div>
-      <div className="text-yellow-400 font-bold text-xs mt-2">DIFFERENT:</div>
+      <div className="text-help-recommended font-semibold text-xs mt-2">DIFFERENT:</div>
       <div className="text-foreground ml-2">shared-lib</div>
       <div className="text-muted-foreground ml-4">default: C:\repos\github\shared-lib{"  "}(https)</div>
       <div className="text-muted-foreground ml-4">work:{"    "}D:\work\shared-lib{"           "}(ssh)</div>
       <div className="text-muted-foreground mt-2">SAME: 12 repos (use --all to show)</div>
-      <div className="text-green-400 mt-2 text-xs">Summary: 1 only-left | 1 only-right | 1 different | 12 same</div>
+      <div className="text-accent-success font-medium mt-2 text-xs">Summary: 1 only-left | 1 only-right | 1 different | 12 same</div>
     </div>
   </div>
 );
@@ -36,8 +36,8 @@ const features = [
 ];
 
 const categories = [
-  { label: "Only in A", color: "text-yellow-400", desc: "Repository exists in the first profile but not the second." },
-  { label: "Only in B", color: "text-yellow-400", desc: "Repository exists in the second profile but not the first." },
+  { label: "Only in A", color: "text-help-recommended font-semibold", desc: "Repository exists in the first profile but not the second." },
+  { label: "Only in B", color: "text-help-recommended font-semibold", desc: "Repository exists in the second profile but not the first." },
   { label: "Different", color: "text-primary", desc: "Exists in both but path or URL mode differs." },
   { label: "Same", color: "text-muted-foreground", desc: "Identical in both profiles. Hidden by default; use --all to show." },
 ];
@@ -77,15 +77,15 @@ const DiffProfilesPage = () => (
       {/* Resolution Logic */}
       <section className="mb-10">
         <h2 className="text-xl font-heading font-bold text-foreground mb-4 docs-h2">Profile Resolution Logic</h2>
-        <div className="border border-border rounded-lg p-4 bg-card">
+        <div className="border border-border/80 rounded-lg p-4 bg-plane-well">
           <div className="flex items-center gap-3 mb-3 flex-wrap">
-            <span className="px-2 py-1 bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary rounded text-xs font-mono transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">1. Open Profile A DB</span>
+            <span className="px-2 py-1 bg-primary/15 text-primary border border-primary/30 rounded text-xs font-mono">1. Open Profile A DB</span>
             <span className="text-muted-foreground">→</span>
-            <span className="px-2 py-1 bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary rounded text-xs font-mono transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">2. Open Profile B DB</span>
+            <span className="px-2 py-1 bg-muted/60 text-muted-foreground border border-border rounded text-xs font-mono">2. Open Profile B DB</span>
             <span className="text-muted-foreground">→</span>
-            <span className="px-2 py-1 bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary rounded text-xs font-mono transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">3. Load repo lists</span>
+            <span className="px-2 py-1 bg-muted/60 text-muted-foreground border border-border rounded text-xs font-mono">3. Load repo lists</span>
             <span className="text-muted-foreground">→</span>
-            <span className="px-2 py-1 bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary rounded text-xs font-mono transition-colors duration-300 hover:border-primary/40 hover:shadow-sm hover:shadow-primary/10">4. Match by RepoName</span>
+            <span className="px-2 py-1 bg-muted/60 text-muted-foreground border border-border rounded text-xs font-mono">4. Match by RepoName</span>
           </div>
           <p className="text-sm text-muted-foreground mb-3">
             Each profile name resolves to its database file via <code className="text-primary">store.OpenProfile()</code>.

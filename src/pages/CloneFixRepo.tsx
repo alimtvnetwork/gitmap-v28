@@ -11,11 +11,11 @@ const exitCodes = [
 
 const CloneFixRepoPage = () => (
   <DocsLayout>
-    <div className="max-w-4xl space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       <div>
         <div className="flex items-center gap-3 mb-2">
           <GitBranch className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">clone-fix-repo</h1>
+          <h1 className="text-3xl font-heading font-bold tracking-[-0.02em]">clone-fix-repo</h1>
           <span className="font-mono text-xs px-2 py-1 rounded bg-primary/10 text-foreground border border-primary/20 dark:bg-primary/15 dark:text-primary dark:border-primary/40">
             alias: cfr
           </span>

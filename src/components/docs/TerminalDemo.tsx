@@ -25,7 +25,7 @@ function colorForLine(type?: TerminalLineType): string {
 
   if (isAccent) return "text-primary";
 
-  return "text-[hsl(var(--foreground))]/70";
+  return "text-foreground font-medium";
 }
 
 function getLineDelay(line?: TerminalLine): number {
@@ -94,26 +94,38 @@ const TerminalDemo = ({ title, lines, autoPlay = false }: TerminalDemoProps) => 
   }, [isPlaying, visibleLines, lines]);
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
+    <div className="rounded-lg border border-border overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
       <div className="flex items-center justify-between px-4 py-2 bg-muted/30 border-b border-border">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-destructive/60" />
-            <div className="w-3 h-3 rounded-full bg-[hsl(45,80%,50%)]/60" />
+            <div className="w-3 h-3 rounded-full bg-warning/80" />
             <div className="w-3 h-3 rounded-full bg-primary/60" />
           </div>
           <span className="text-xs font-mono text-muted-foreground ml-2">{title}</span>
         </div>
         <div className="flex gap-1">
-          <button onClick={play} className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors" title="Play">
+          <button
+            type="button"
+            onClick={play}
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            title="Play"
+            aria-label="Play terminal demo"
+          >
             <Play className="h-3.5 w-3.5" />
           </button>
-          <button onClick={reset} className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors" title="Reset">
+          <button
+            type="button"
+            onClick={reset}
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center p-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            title="Reset"
+            aria-label="Reset terminal demo"
+          >
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
-      <div className="docs-scroll bg-[hsl(var(--terminal))] p-4 font-mono text-xs leading-relaxed min-h-[120px] max-h-[320px] overflow-y-auto">
+      <div className="docs-scroll bg-[hsl(var(--terminal))] p-4 font-mono text-xs leading-relaxed min-h-[120px] max-h-[320px] overflow-y-auto shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_4px_20px_rgba(0,0,0,0.25)]">
         {lines.slice(0, visibleLines).map((line, i) => (
           <div key={i} className={colorForLine(line.type)}>
             {line.type === TerminalLineType.Input && <span className="text-primary mr-1">$</span>}
