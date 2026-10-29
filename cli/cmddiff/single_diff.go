@@ -58,9 +58,37 @@ func launchExternalToolDiff(tool cmdgit.CompareTool, repoRoot, target string) er
 		diffTarget = repoRoot
 	}
 
+	if isWorktreeClean(repoRoot, diffTarget) {
+		fmt.Printf("No changes in %s\n", diffTarget)
+
+		return nil
+	}
+
 	dirs := []string{diffTarget}
 
 	return cmdgit.LaunchToolWithPathsAsync(tool, dirs)
+}
+
+func isWorktreeClean(repoRoot, target string) bool {
+	if isDirectoryTarget(target) {
+		return false
+	}
+
+	res := gitutil.RunGitInDir(repoRoot, "status", "--porcelain", "--", target)
+	if res.IsFailure() {
+		return false
+	}
+
+	return strings.TrimSpace(string(res.Data)) == ""
+}
+
+func isDirectoryTarget(target string) bool {
+	info, err := os.Stat(target)
+	if err != nil {
+		return true
+	}
+
+	return info.IsDir()
 }
 
 func renderTerminalGitDiff(repoRoot, target string) error {

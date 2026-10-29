@@ -219,6 +219,16 @@ func leafCommands(key string, e ctxEntry, exe string) [][]string {
 		out = append(out, []string{"reg", "add", key, "/v", "Extended", "/d", "", "/f"})
 	}
 
+	return appendMenuGap(out, key, e.HasMenuGap)
+}
+
+const ctxSeparatorBeforeValue = "32"
+
+func appendMenuGap(out [][]string, key string, hasMenuGap bool) [][]string {
+	if hasMenuGap {
+		return append(out, []string{"reg", "add", key, "/v", "CommandFlags", "/t", "REG_DWORD", "/d", ctxSeparatorBeforeValue, "/f"})
+	}
+
 	return out
 }
 
@@ -244,11 +254,13 @@ func commandTemplate(e ctxEntry, exe string) string {
 	args := strings.Join(e.Args, " ")
 	prefix := ctxExplainPrefixPwsh(target, e.Args)
 	if e.Mode == ctxmodetype.Silent {
-		return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "if (Test-Path -LiteralPath '%%V') { Set-Location -LiteralPath '%%V' }; %s& '%s' %s 2>&1 | Out-String | %% { msg.exe * $_ }"`, prefix, target, args)
+		return fmt.Sprintf(`pwsh -NoProfile -WindowStyle Hidden -Command "%s%s& '%s' %s 2>&1 | Out-String | %% { msg.exe * $_ }"`, ctxEnterDirectoryPwsh, prefix, target, args)
 	}
 
-	return fmt.Sprintf(`pwsh -NoExit -NoProfile -Command "if (Test-Path -LiteralPath '%%V') { Set-Location -LiteralPath '%%V' }; %s& '%s' %s"`, prefix, target, args)
+	return fmt.Sprintf(`pwsh -NoExit -NoProfile -Command "%s%s& '%s' %s"`, ctxEnterDirectoryPwsh, prefix, target, args)
 }
+
+const ctxEnterDirectoryPwsh = `if (Test-Path -LiteralPath '%%V' -PathType Container) { Set-Location -LiteralPath '%%V' } elseif (Test-Path -LiteralPath '%%V') { Set-Location -LiteralPath (Split-Path -LiteralPath '%%V') }; `
 
 func resolveCtxTarget(e ctxEntry, exe string) string {
 	if e.Exe != "" {

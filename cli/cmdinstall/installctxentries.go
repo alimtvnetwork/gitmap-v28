@@ -18,7 +18,9 @@ type ctxEntry struct {
 	//                  which is substituted with the resolved gitmap binary path at
 	//                  registry-write time (see leafCommands / categoryCommands).
 	Extended bool       // Windows: Shift+right-click only (HKCU "Extended" REG_SZ); macOS/Linux: prepend confirm prompt
-	Children []ctxEntry // non-nil => this is a submenu
+	// HasMenuGap writes CommandFlags so Explorer draws a separator before this item.
+	HasMenuGap bool
+	Children   []ctxEntry // non-nil => this is a submenu
 }
 
 // ctxMenu returns the full menu tree for directory context.
@@ -100,7 +102,7 @@ func ctxFileMenu() []ctxEntry {
 		{KeyName: "30_diff_prev", MUIVerb: "Diff with previous version", Args: []string{"diff", "HEAD~1", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconDiff},
 		{KeyName: "40_show_log", MUIVerb: "Show log", Args: []string{"show-log", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconShowLog},
 		{KeyName: "50_blame", MUIVerb: "Blame", Args: []string{"blame", `"%1"`}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconShowLog},
-		{KeyName: "60_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconCommit},
+		{KeyName: "60_commit", MUIVerb: "Commit to main", Args: []string{"commit", "-b", "main"}, Mode: ctxmodetype.Terminal, Icon: constants.CtxIconCommit, HasMenuGap: true},
 	}
 }
 
