@@ -70,11 +70,13 @@ func buildNodeSummaries(conns []db.SSHConnection) []NodeSummary {
 			Host:         c.IPAddress,
 			Port:         22,
 			IsOnline:     false,
+			Status:       "Offline",
 			OS:           c.OS,
 			Account:      account,
 			Instances:    1,
 			InstanceList: []string{fmt.Sprintf("%s-instance-1", c.Alias)},
 		}
+		applyStoredProbe(&summaries[i])
 	}
 	return summaries
 }
@@ -113,6 +115,7 @@ func handleAPISSHTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := executeNodePingCheck(alias)
+	rememberNodeProbe(alias, res)
 	logFailedSSHPing(alias, res)
 	_ = json.NewEncoder(w).Encode(res)
 }

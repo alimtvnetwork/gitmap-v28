@@ -87,7 +87,7 @@ const uiAssetsJSPromptsHelp = `    let allPrompts = [], activePromptCategory = '
         g.rows.sort(function (a, b) { return rankPromptRow(a.status) - rankPromptRow(b.status); });
         const heading = document.createElement('div');
         heading.style.cssText = 'font-size:var(--fs-sm);font-weight:700;color:var(--text);margin-top:var(--sp-2);';
-        heading.textContent = g.name;
+        heading.textContent = 'From instance: ' + g.name;
         container.appendChild(heading);
         g.rows.forEach(function (p) {
           if (shownPromptCount >= 30) return;
@@ -114,7 +114,7 @@ const uiAssetsJSPromptsHelp = `    let allPrompts = [], activePromptCategory = '
             '<b>' + escapeHTML(p.title) + '</b>' +
             '<span class="badge ' + badgeClass + '"' + (badgeStyle ? ' style="' + badgeStyle + '"' : '') + '>' + escapeHTML(badgeText) + '</span>' +
             '</div>' +
-            '<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">Instance: ' + escapeHTML(p.instance) + '</div>' +
+            '<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">Source: ' + escapeHTML(p.instance || g.name) + '</div>' +
             '<div style="font-size:var(--fs-sm);color:var(--text);font-family:var(--font-mono);max-height:48px;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML((p.text || '').slice(0, 160)) + '</div>';
           item.addEventListener('click', function () {
             const area = document.getElementById('prompt-content');

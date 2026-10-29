@@ -222,11 +222,6 @@ const uiAssetsMarkupSettingsB = `      <!-- 5. ANTIGRAVITY MULTI-INSTANCE PANEL 
         </div>
       </div>
 
-      <!-- ONE sticky save bar for all settings panes (replaces the per-pane Save buttons) -->
-      <div class="settings-savebar">
-        <span style="font-size: 0.8rem; color: var(--muted);">Saves every settings pane above.</span>
-        <button class="btn" type="button" onclick="saveSettings()"><span data-icon="check"></span>Save All Settings</button>
-      </div>
     </div>
 
     <script>

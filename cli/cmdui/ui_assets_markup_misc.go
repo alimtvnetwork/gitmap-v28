@@ -6,6 +6,7 @@ const uiAssetsDocHead = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitMap Management & Fleet Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="` + gitmapFavicon + `">
 `
 
 // uiAssetsStyle moved to ui_assets_theme.go (program 246) — extended there with
@@ -21,7 +22,7 @@ const uiAssetsTail = `</body>
 const uiAssetsMarkupShell = `<body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar">
-    <div class="logo"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span class="nav-label">GitMap Fleet UI</span></div>
+    <div class="logo"><span class="gitmap-mark">` + gitmapMarkSVG + `</span><span class="nav-label">GitMap</span></div>
     <nav id="nav-list" role="tablist" aria-label="Primary"></nav>
   </div>
   <div id="sidebar-scrim" class="sidebar-scrim" tabindex="0" role="button" aria-label="Close navigation" onclick="toggleSidebar()" onkeydown="if(event.key==='Enter'||event.key==='Escape'){event.preventDefault();toggleSidebar();}"></div>
@@ -29,11 +30,12 @@ const uiAssetsMarkupShell = `<body>
     <header>
       <div style="display:flex;align-items:center;gap:var(--sp-3);">
         <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <span class="gitmap-mark">` + gitmapMarkSVG + `</span>
         <h2 id="header-title">Settings</h2>
       </div>
       <div style="display:flex;align-items:center;gap:var(--sp-2);">
         <div id="status-indicator"><span class="status-dot" aria-hidden="true"></span><span class="badge badge-online">Connected</span></div>
-        <button id="btn-fullscreen" class="icon-btn" title="Toggle Fullscreen (F11)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg> Fullscreen</button>
+        <button id="btn-fullscreen" class="fs-btn" title="Full screen (F11)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg><span>Full screen</span></button>
         <button id="btn-exit" class="btn" style="padding:4px 10px;font-size:var(--fs-xs);background:var(--error);color:var(--text);" title="Close application window and stop server">✕ Close Window</button>
       </div>
     </header>

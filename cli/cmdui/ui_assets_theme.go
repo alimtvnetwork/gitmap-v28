@@ -88,10 +88,10 @@ const uiAssetsStyle = `  <style>
     #sidebar { width: 240px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: var(--sp-5) var(--sp-4); font-size: var(--fs-lg); font-weight: 700; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: var(--sp-2); }
     #sidebar nav { flex: 1; padding: var(--sp-3) var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-1); overflow-y: auto; }
-    .nav-btn { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: var(--sp-2) var(--sp-3); border: none; background: transparent; color: var(--muted); border-radius: var(--radius-sm); cursor: pointer; text-align: left; font-size: var(--fs-sm); font-weight: 500; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
-    .nav-btn:hover { background: var(--card); color: var(--text); }
+    .nav-btn { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: var(--sp-2) var(--sp-3); border: none; border-left: 3px solid transparent; background: transparent; color: var(--muted); border-radius: var(--radius-sm); cursor: pointer; text-align: left; font-size: var(--fs-sm); font-weight: 500; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+    .nav-btn:hover { background: color-mix(in srgb, var(--bg) 78%, black); color: var(--text); }
     .nav-btn:active { filter: brightness(0.95); }
-    .nav-btn.active { background: var(--primary); color: var(--primary-ink); font-weight: 600; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35); }
+    .nav-btn.active, .nav-btn.active:hover { background: color-mix(in srgb, var(--bg) 70%, black); color: var(--text); border-left-color: var(--primary); font-weight: 600; }
     .nav-btn .nav-icon { display: inline-flex; width: 18px; height: 18px; flex: none; }
     .nav-btn .nav-icon svg { width: 100%; height: 100%; }
     #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); min-width: 0; }
@@ -149,7 +149,16 @@ const uiAssetsStyle = `  <style>
     .sub-tab-btn.active { background: var(--primary); color: var(--primary-ink); font-weight: 600; border-color: var(--primary); }
     .sub-tab-btn .nav-icon { display: inline-flex; width: 16px; height: 16px; }
     .sub-tab-btn .nav-icon svg { width: 100%; height: 100%; }
-    .settings-savebar { position: sticky; bottom: 0; background: var(--card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom, 0px)) var(--sp-4); display: flex; justify-content: flex-end; z-index: 10; }
+    .settings-savebar { display: flex; justify-content: flex-end; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); padding: var(--sp-3) var(--sp-4); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .btn-save { background: #16a34a; color: #f0fdf4; }
+    .btn-save:hover { background: #15803d; filter: none; }
+    .fs-btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); color: var(--text); font-size: var(--fs-xs); cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+    .fs-btn:hover { background: color-mix(in srgb, var(--bg) 78%, black); border-color: var(--primary); color: var(--primary); }
+    .gitmap-mark { display: inline-flex; width: 22px; height: 22px; flex: none; }
+    .gitmap-mark svg { width: 22px; height: 22px; }
+    .profile-tree { background: var(--raised); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); padding: 8px 12px; }
+    .profile-tree summary { cursor: pointer; font-weight: 700; }
+    .profile-tree ul { margin: 8px 0 8px 18px; }
     .chip { background: var(--raised); border: 1px solid var(--border); color: var(--muted); padding: var(--sp-1) var(--sp-3); border-radius: 9999px; font-size: var(--fs-xs); cursor: pointer; transition: all 0.15s ease; font-family: var(--font-mono); }
     .chip:hover { border-color: var(--primary); color: var(--text); background: var(--popover); }
     .term-stdout { color: var(--code-text); }

@@ -12,7 +12,9 @@ const uiAssetsJSNodes = `    async function refreshNodes() {
         }
         data.forEach(n => {
           const row = document.createElement('tr');
-          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td>${n.account || '-'}</td><td>${n.instances || 0}</td><td><span class="badge ${n.isOnline ? 'badge-online' : 'badge-offline'}">${n.isOnline ? 'Online' : 'Offline'}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
+          const statusLabel = n.status || (n.isOnline ? 'Online' : 'Offline');
+          const statusClass = n.isOnline ? 'badge-online' : 'badge-offline';
+          row.innerHTML = ` + "`" + `<td>${n.nodeId || '-'}</td><td><b>${n.alias}</b></td><td>${n.host}</td><td>${n.os || 'Linux'}</td><td>${n.account || '-'}</td><td>${n.instances || 0}</td><td><span class="badge ${statusClass}">${statusLabel}</span></td><td><button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="testNode('${n.alias}')">Ping</button></td>` + "`" + `;
           tbody.appendChild(row);
         });
       } catch (e) { console.error(e); }

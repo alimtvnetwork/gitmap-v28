@@ -287,30 +287,16 @@ const uiAssetsJSSettings = `    function showSettingsSubTab(subId) {
         let html = '';
         data.profiles.forEach(function (p) {
           const tools = p.tools || [];
-          html += '<div style="padding:14px;background:var(--raised);border:1px solid var(--border);border-radius:var(--radius-sm);">' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-              '<div>' +
-                '<span style="font-weight:700;font-size:14px;color:var(--foreground);">' + p.title + '</span> ' +
-                '<code style="font-size:11px;background:var(--code-bg);padding:2px 6px;border-radius:4px;">' + p.name + '</code>' +
-                '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + (p.description || '') + '</div>' +
-              '</div>' +
-              '<div style="display:flex;gap:6px;">' +
-                '<button class="btn btn-sm" onclick="installProfileUI(\'' + p.name + '\')">Install Profile</button>' +
-                '<button class="btn btn-sm btn-secondary" onclick="uninstallProfileUI(\'' + p.name + '\')">Uninstall</button>' +
-              '</div>' +
-            '</div>' +
-            '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">' +
-              '<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;">Included Tools (' + tools.length + '):</div>' +
-              '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-                tools.map(function(t) {
-                  return '<span style="font-size:11px;background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px;">' +
-                    t +
-                    '<button onclick="installSingleToolUI(\'' + t + '\')" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10px;padding:0 2px;" title="Install this tool">↓</button>' +
-                  '</span>';
-                }).join('') +
-              '</div>' +
-            '</div>' +
-          '</div>';
+          html += '<details class="profile-tree" open>' +
+            '<summary>' + p.title + ' <code>' + p.name + '</code></summary>' +
+            '<div style="font-size:12px;color:var(--muted);margin-top:6px;">' + (p.description || '') + '</div>' +
+            '<ul>' + tools.map(function (t) {
+              return '<li>' + t + ' <button onclick="installSingleToolUI(\'' + t + '\')" style="background:none;border:none;cursor:pointer;color:var(--primary);" title="Install this tool">install</button></li>';
+            }).join('') + '</ul>' +
+            '<div style="display:flex;gap:6px;">' +
+              '<button class="btn btn-sm" onclick="installProfileUI(\'' + p.name + '\')">Install Profile</button>' +
+              '<button class="btn btn-sm btn-secondary" onclick="uninstallProfileUI(\'' + p.name + '\')">Uninstall</button>' +
+            '</div></details>';
         });
         container.innerHTML = html;
       } catch (err) {

@@ -31,6 +31,7 @@ type NodeSummary struct {
 	Host         string   `json:"host"`
 	Port         int      `json:"port"`
 	IsOnline     bool     `json:"isOnline"`
+	Status       string   `json:"status"`
 	OS           string   `json:"os"`
 	Account      string   `json:"account"`
 	Instances    int      `json:"instances"`

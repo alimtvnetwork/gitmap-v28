@@ -12,6 +12,11 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
         <button type="button" class="sub-tab-btn" onclick="showTab('terminal')" id="subnav-terminal"><span data-icon="scroll-text"></span>Embedded Terminal</button>
       </div>
 
+      <div class="settings-savebar">
+        <span style="font-size: 0.8rem; color: var(--muted);">Saves every settings pane.</span>
+        <button class="btn btn-save" type="button" onclick="saveSettings()"><span data-icon="check"></span>Save All Settings</button>
+      </div>
+
       <!-- 1. GENERAL & UI APPEARANCE -->
       <div class="card card-hero settings-subtab-pane" id="settings-pane-general">
         <h3><span data-icon="pen-line"></span> General &amp; UI Appearance</h3>
