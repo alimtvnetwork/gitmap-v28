@@ -59,6 +59,20 @@ func verifyProviderParse(t *testing.T, input string, expected IDEProviderType) {
 	}
 }
 
+func TestProviderPredicates(t *testing.T) {
+	if !ProviderOpenRouter.IsOpenRouter() || !ProviderDeepSeek.IsDeepSeek() {
+		t.Errorf("provider predicates mismatch")
+	}
+
+	if !ProviderOllama.IsOllama() || !ProviderCustom.IsCustom() {
+		t.Errorf("local and custom provider predicates mismatch")
+	}
+
+	if !ProviderKimi.IsValid() || IDETargetType("").String() != "" {
+		t.Errorf("provider validity check failed")
+	}
+}
+
 func TestPresetsDefaults(t *testing.T) {
 	presets := GetProviderPresets()
 	kimi, exists := presets[ProviderKimi]
@@ -140,6 +154,14 @@ func TestPathResolverUnix(t *testing.T) {
 	expected := filepath.Join("/home/testuser", ".config", "zed", "settings.json")
 	if zedPath != expected {
 		t.Errorf("expected %s, got %s", expected, zedPath)
+	}
+}
+
+func TestClineProviderSettingsPath(t *testing.T) {
+	resolver := &PathResolver{BaseHomeDir: "/home/testuser", TargetOS: "linux"}
+	path, err := resolver.GetClineProviderSettingsPath()
+	if err != nil || path == "" {
+		t.Errorf("failed resolving cline provider path: %s", path)
 	}
 }
 
@@ -230,6 +252,10 @@ func TestGenerateContinueConfig(t *testing.T) {
 		t.Fatalf("GenerateContinueConfig failed: %v", err)
 	}
 
+	if err := GenerateContinueConfig(resolver, opts); err != nil {
+		t.Fatalf("GenerateContinueConfig second pass failed: %v", err)
+	}
+
 	verifyContinueOutput(t, resolver)
 }
 
@@ -244,8 +270,8 @@ func verifyContinueOutput(t *testing.T, resolver *PathResolver) {
 	var parsed map[string]interface{}
 	_ = json.Unmarshal(data, &parsed)
 	models, hasModels := parsed["models"].([]interface{})
-	if !hasModels || len(models) == 0 {
-		t.Fatalf("continue config missing models: %s", string(data))
+	if !hasModels || len(models) != 1 {
+		t.Fatalf("expected exactly 1 model after dedup, got %d", len(models))
 	}
 }
 
@@ -300,6 +326,19 @@ func TestTestConnectionFailure(t *testing.T) {
 	res := TestConnection(req)
 	if res.IsSuccess || res.HTTPStatusCode != http.StatusUnauthorized {
 		t.Errorf("expected failed connection test: %+v", res)
+	}
+}
+
+func TestRunConnectionTest(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	opts := IDESetupOptions{Provider: ProviderKimi, BaseURL: server.URL, Model: "kimi-k3.1-pro", APIKey: "sk-test"}
+	res, err := RunConnectionTest(opts)
+	if err != nil || !res.IsSuccess {
+		t.Errorf("RunConnectionTest failed: %v", err)
 	}
 }
 
