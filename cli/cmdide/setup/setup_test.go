@@ -302,6 +302,29 @@ func verifyZedOutput(t *testing.T, resolver *PathResolver) {
 	}
 }
 
+func TestConfigureIndividualTargets(t *testing.T) {
+	tempDir := t.TempDir()
+	resolver := &PathResolver{BaseHomeDir: tempDir, BaseAppDataDir: tempDir, TargetOS: "windows"}
+	opts := sampleSetupOptions(TargetAll, ProviderKimi)
+
+	assertTargetConfigsSucceed(t, resolver, opts)
+}
+
+func assertTargetConfigsSucceed(t *testing.T, resolver *PathResolver, opts IDESetupOptions) {
+	t.Helper()
+	if !ConfigureCline(resolver, opts).IsConfigured {
+		t.Errorf("expected cline configured")
+	}
+
+	if !ConfigureContinue(resolver, opts).IsConfigured {
+		t.Errorf("expected continue configured")
+	}
+
+	if !ConfigureZed(resolver, opts).IsConfigured {
+		t.Errorf("expected zed configured")
+	}
+}
+
 func TestTestConnectionSuccess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -388,5 +411,19 @@ func TestRunSetupDryRun(t *testing.T) {
 
 	if len(res.TargetResults) != 3 {
 		t.Errorf("expected 3 target results, got %d", len(res.TargetResults))
+	}
+}
+
+func TestRunSetupSpecificTargets(t *testing.T) {
+	optsCline := IDESetupOptions{Target: TargetCline, Provider: ProviderKimi, IsDryRun: true}
+	resCline, errCline := RunSetup(optsCline)
+	if errCline != nil || len(resCline.TargetResults) != 1 {
+		t.Errorf("expected 1 result for cline: %+v", resCline)
+	}
+
+	optsZed := IDESetupOptions{Target: TargetZed, Provider: ProviderKimi, IsDryRun: true}
+	resZed, errZed := RunSetup(optsZed)
+	if errZed != nil || len(resZed.TargetResults) != 1 {
+		t.Errorf("expected 1 result for zed: %+v", resZed)
 	}
 }
