@@ -12,6 +12,13 @@ const (
 	StatusToolMissing     = enums.StatusToolMissing
 )
 
+const (
+	DefaultBotProfileID = "autobot"
+	DefaultBotName      = "AI automation bot"
+	DefaultBotEmail     = "local@local"
+	DefaultBotRole      = "automation agent"
+)
+
 // AuthStatus is an alias for AuthStatusType for backwards compatibility.
 type AuthStatus = enums.AuthStatusType
 
@@ -28,6 +35,17 @@ type GitIdentity struct {
 	Name         string `json:"name"`
 	Email        string `json:"email"`
 	IsConfigured bool   `json:"isConfigured"`
+	HasName      bool   `json:"hasName"`
+	HasEmail     bool   `json:"hasEmail"`
+}
+
+// GitIdentityOptions configures Git identity setting and unsetting operations.
+type GitIdentityOptions struct {
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	IsGlobal      bool   `json:"isGlobal"`
+	IsUnsetEmail  bool   `json:"isUnsetEmail"`
+	HasEmptyEmail bool   `json:"hasEmptyEmail"`
 }
 
 // UserSummary consolidates user identity and context for display and inspection.

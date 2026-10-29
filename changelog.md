@@ -1,10 +1,10 @@
-## [v6.621.0] 2026-10-28 Release v6.621.0
+## [v6.628.0] 2026-10-29 Release v6.628.0
 
-### Install GitMap v6.621.0
+### Install GitMap v6.628.0
 
 To pin your repository to this exact version, run the following one-liner:
-Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.621.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.621.0"`
-PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.621.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.621.0"`
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.628.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.628.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.628.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.628.0"`
 
 ### Added / Changed / Fixed / Removed
 
@@ -31,6 +31,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Clone Bare Repo Resolution: `gitmap clone <name>` automatically resolves bare repository names to the highest semantic version release and converts to SSH when requested.
 
 # Changelog
+
+## [v6.628.0] - 2026-10-29
+
+### Added
+- add change-user, change-login, autobot Git identity commands and migrate machine to AI automation bot
+
+---
 
 ## [v6.627.0] - 2026-10-28
 

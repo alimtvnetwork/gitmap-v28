@@ -28,6 +28,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdurl"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
 	"os"
 	"strings"
 
@@ -59,12 +60,13 @@ func dispatchUtility(command string) (bool, error) {
 
 // utilityDispatchEntries returns the routing table for utility commands.
 func utilityDispatchEntries() []dispatchEntry {
-	entries := make([]dispatchEntry, 0, 45)
+	entries := make([]dispatchEntry, 0, 50)
 	entries = append(entries, utilityCoreEntries()...)
 	entries = append(entries, utilityToolEntries()...)
 	entries = append(entries, utilitySystemEntries()...)
 	entries = append(entries, utilityPipelineEntries()...)
 	entries = append(entries, utilityDesktopEntries()...)
+	entries = append(entries, utilityUserEntries()...)
 
 	return entries
 }
@@ -234,4 +236,36 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
 		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
+}
+
+func utilityUserEntries() []dispatchEntry {
+	return []dispatchEntry{
+		{[]string{"change-user", "cu"}, runChangeUserUtility},
+		{[]string{"change-login", "cl"}, runChangeLoginUtility},
+		{[]string{"autobot", "bot"}, runAutobotUtility},
+	}
+}
+
+func runChangeUserUtility() error {
+	checkHelp("change-user", argsTail())
+
+	_, err := cmduser.DispatchUser("change-user")
+
+	return err
+}
+
+func runChangeLoginUtility() error {
+	checkHelp("change-login", argsTail())
+
+	_, err := cmduser.DispatchUser("change-login")
+
+	return err
+}
+
+func runAutobotUtility() error {
+	checkHelp("autobot", argsTail())
+
+	_, err := cmduser.DispatchUser("autobot")
+
+	return err
 }

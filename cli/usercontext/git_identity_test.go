@@ -28,16 +28,12 @@ func TestGetGitIdentity_Configured(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if identity.Name != "Jane Doe" {
-		t.Errorf("expected Jane Doe, got %s", identity.Name)
+	if identity.Name != "Jane Doe" || identity.Email != "jane@example.com" {
+		t.Errorf("expected Jane Doe / jane@example.com, got %s / %s", identity.Name, identity.Email)
 	}
 
-	if identity.Email != "jane@example.com" {
-		t.Errorf("expected jane@example.com, got %s", identity.Email)
-	}
-
-	if !identity.IsConfigured {
-		t.Errorf("expected IsConfigured to be true")
+	if !identity.IsConfigured || !identity.HasName || !identity.HasEmail {
+		t.Errorf("expected fully configured identity, got %+v", identity)
 	}
 }
 
@@ -58,8 +54,33 @@ func TestGetGitIdentity_Unconfigured(t *testing.T) {
 		t.Errorf("expected empty name/email, got %s / %s", identity.Name, identity.Email)
 	}
 
-	if identity.IsConfigured {
-		t.Errorf("expected IsConfigured to be false")
+	if identity.IsConfigured || identity.HasName || identity.HasEmail {
+		t.Errorf("expected unconfigured identity, got %+v", identity)
+	}
+}
+
+func TestGetGitIdentity_PartialConfigured(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	execGitCommand = mockSingleKeyGitCommand("user.name", "Only Name")
+	ident, err := GetGitIdentity(false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !ident.HasName || ident.HasEmail || ident.IsConfigured {
+		t.Errorf("unexpected identity state: %+v", ident)
+	}
+}
+
+func mockSingleKeyGitCommand(matchedKey, value string) func(context.Context, ...string) ([]byte, error) {
+	return func(ctx context.Context, args ...string) ([]byte, error) {
+		if args[len(args)-1] == matchedKey {
+			return []byte(value + "\n"), nil
+		}
+
+		return nil, errors.New("not set")
 	}
 }
 
@@ -107,5 +128,141 @@ func TestSetGitIdentity_Error(t *testing.T) {
 
 	if !strings.Contains(err.Error(), "git config set failed") {
 		t.Errorf("expected wrapped error message, got %v", err)
+	}
+}
+
+func TestUnsetGitConfigKey_Global(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	var captured []string
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		captured = args
+
+		return []byte(""), nil
+	}
+
+	err := UnsetGitConfigKey(context.Background(), "user.email", true)
+	assertUnsetArgs(t, err, captured, []string{"config", "--global", "--unset", "user.email"})
+}
+
+func TestUnsetGitConfigKey_Local(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	var captured []string
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		captured = args
+
+		return []byte(""), nil
+	}
+
+	err := UnsetGitConfigKey(context.Background(), "user.email", false)
+	assertUnsetArgs(t, err, captured, []string{"config", "--unset", "user.email"})
+}
+
+func assertUnsetArgs(t *testing.T, err error, actual, expected []string) {
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if strings.Join(actual, " ") != strings.Join(expected, " ") {
+		t.Errorf("expected %v, got %v", expected, actual)
+	}
+}
+
+func TestUnsetGitConfigKey_ExitStatusFive(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		return []byte(""), errors.New("exit status 5")
+	}
+
+	if err := UnsetGitConfigKey(context.Background(), "user.email", true); err != nil {
+		t.Fatalf("expected nil for exit status 5, got %v", err)
+	}
+}
+
+func TestUnsetGitConfigKey_Error(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		return []byte("permission denied"), errors.New("exit status 1")
+	}
+
+	if err := UnsetGitConfigKey(context.Background(), "user.email", false); err == nil {
+		t.Fatalf("expected error, got nil")
+	}
+}
+
+func TestSetGitIdentityWithOptions_Unset(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	var calls [][]string
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		calls = append(calls, args)
+
+		return []byte(""), nil
+	}
+
+	opts := GitIdentityOptions{Name: "Bot", IsUnsetEmail: true, IsGlobal: false}
+	if err := SetGitIdentityWithOptions(opts); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	assertCallContains(t, calls, "--unset")
+}
+
+func TestSetGitIdentityWithOptions_EmptyEmail(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	var calls [][]string
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		calls = append(calls, args)
+
+		return []byte(""), nil
+	}
+
+	opts := GitIdentityOptions{Name: "Bot", HasEmptyEmail: true, IsGlobal: false}
+	if err := SetGitIdentityWithOptions(opts); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	assertCallContains(t, calls, "user.email")
+}
+
+func TestSetGitIdentity_EmptyEmailUnsets(t *testing.T) {
+	orig := execGitCommand
+	defer func() { execGitCommand = orig }()
+
+	var calls [][]string
+	execGitCommand = func(ctx context.Context, args ...string) ([]byte, error) {
+		calls = append(calls, args)
+
+		return []byte(""), nil
+	}
+
+	if err := SetGitIdentity("Bot", "", false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	assertCallContains(t, calls, "--unset")
+}
+
+func assertCallContains(t *testing.T, calls [][]string, token string) {
+	hasToken := false
+	for _, call := range calls {
+		if strings.Join(call, " ") != "" && strings.Contains(strings.Join(call, " "), token) {
+			hasToken = true
+			break
+		}
+	}
+
+	if !hasToken {
+		t.Errorf("expected at least one call to contain %q, calls: %v", token, calls)
 	}
 }

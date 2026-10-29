@@ -299,4 +299,12 @@ const (
 	CmdAgent              = "agent"
 	CmdAgentAlias         = "ai-agents"
 	CmdAgentAlias2        = "agents"
+	CmdChangeUser         = "change-user"  // gitmap:cmd skip
+	CmdChangeUserAlias    = "cu"           // gitmap:cmd skip
+	CmdChangeUserAlias2   = "chuser"       // gitmap:cmd skip
+	CmdChangeLogin        = "change-login" // gitmap:cmd skip
+	CmdChangeLoginAlias   = "cl"           // gitmap:cmd skip
+	CmdChangeLoginAlias2  = "chlogin"      // gitmap:cmd skip
+	CmdAutobot            = "autobot"      // gitmap:cmd skip
+	CmdAutobotAlias       = "bot"          // gitmap:cmd skip
 )

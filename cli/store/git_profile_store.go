@@ -13,6 +13,13 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 )
 
+const (
+	AutobotProfileID = "autobot"
+	AutobotName      = "AI automation bot"
+	AutobotEmail     = "local@local"
+	AutobotType      = "automation agent"
+)
+
 func GitProfilesPath() string {
 	return filepath.Join(BinaryDataDir(), "git_profiles.json")
 }
@@ -24,10 +31,16 @@ func LoadGitProfiles() (model.GitProfileConfig, error) {
 		return handleDefaultProfilesLoad()
 	}
 
-	cfg, unmarshalErr := unmarshalGitProfiles(data)
-	if unmarshalErr != nil {
-		return cfg, apperror.WrapSimple(unmarshalErr, "unmarshal git profiles:")
+	return parseAndSeedProfiles(data)
+}
+
+func parseAndSeedProfiles(data []byte) (model.GitProfileConfig, error) {
+	cfg, err := unmarshalGitProfiles(data)
+	if err != nil {
+		return cfg, apperror.WrapSimple(err, "unmarshal git profiles:")
 	}
+
+	SeedAutobotProfile(&cfg)
 
 	return cfg, nil
 }
@@ -40,27 +53,34 @@ func handleDefaultProfilesLoad() (model.GitProfileConfig, error) {
 }
 
 func unmarshalGitProfiles(data []byte) (model.GitProfileConfig, error) {
-	payload, _, extractErr := jsonx.ExtractPayload(data)
-	if extractErr != nil {
-		payload = data
-	}
-
+	payload := extractProfilePayload(data)
 	var cfg model.GitProfileConfig
 	if err := json.Unmarshal(payload, &cfg); err != nil {
 		return cfg, err
 	}
 
-	if cfg.ProjectBindings == nil {
-		cfg.ProjectBindings = make(map[string]model.ProjectBinding)
-	}
+	ensureProjectBindings(&cfg)
 
 	return cfg, nil
 }
 
-func SaveGitProfiles(cfg model.GitProfileConfig) error {
+func extractProfilePayload(data []byte) []byte {
+	payload, _, err := jsonx.ExtractPayload(data)
+	if err != nil {
+		return data
+	}
+
+	return payload
+}
+
+func ensureProjectBindings(cfg *model.GitProfileConfig) {
 	if cfg.ProjectBindings == nil {
 		cfg.ProjectBindings = make(map[string]model.ProjectBinding)
 	}
+}
+
+func SaveGitProfiles(cfg model.GitProfileConfig) error {
+	ensureProjectBindings(&cfg)
 	cfg.UpdatedAt = time.Now()
 	envelope := jsonx.NewEnvelope(
 		jsonx.TypeGitProfiles,
@@ -86,6 +106,40 @@ func writeProfilesEnvelope(envelope jsonx.Envelope[model.GitProfileConfig]) erro
 	return os.WriteFile(GitProfilesPath(), data, 0644)
 }
 
+// NewAutobotProfile constructs the standard automation agent Git profile.
+func NewAutobotProfile() model.GitProfile {
+	return model.GitProfile{
+		ID:         AutobotProfileID,
+		Name:       AutobotName,
+		Email:      AutobotEmail,
+		Provider:   "local",
+		Type:       AutobotType,
+		AuthMethod: "none",
+		IsDefault:  false,
+		UsageCount: 0,
+		LastUsedAt: time.Now(),
+	}
+}
+
+// SeedAutobotProfile ensures the autobot profile exists in the configuration.
+func SeedAutobotProfile(cfg *model.GitProfileConfig) {
+	if hasAutobotProfile(cfg.Profiles) {
+		return
+	}
+
+	cfg.Profiles = append(cfg.Profiles, NewAutobotProfile())
+}
+
+func hasAutobotProfile(profiles []model.GitProfile) bool {
+	for _, p := range profiles {
+		if p.ID == AutobotProfileID {
+			return true
+		}
+	}
+
+	return false
+}
+
 func discoverDefaultProfiles() model.GitProfileConfig {
 	cfg := model.GitProfileConfig{
 		Profiles:        make([]model.GitProfile, 0),
@@ -95,6 +149,7 @@ func discoverDefaultProfiles() model.GitProfileConfig {
 
 	appendDefaultUserProfile(&cfg)
 	discoverGitHubOrgs(&cfg)
+	SeedAutobotProfile(&cfg)
 
 	return cfg
 }

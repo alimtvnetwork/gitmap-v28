@@ -99,7 +99,7 @@ func tryRenderCoreRichTopic(topic string) bool {
 		cmdautofix.RenderFixHelp()
 
 		return true
-	case "user", "os-user":
+	case "user", "os-user", "change-user", "change-login", "autobot", "cu", "cl", "bot":
 		cmduser.RenderUserHelp()
 
 		return true

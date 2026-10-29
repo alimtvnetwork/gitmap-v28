@@ -8,8 +8,12 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/osuser"
 )
 
-// dispatchUser handles the "user" command routing.
+// DispatchUser handles the user, change-user, and autobot command routing.
 func DispatchUser(command string) (bool, error) {
+	if isDirect, err := dispatchDirectUserRoute(command); isDirect {
+		return true, err
+	}
+
 	if command != "user" && command != "user-info" {
 		return false, nil
 	}
@@ -18,7 +22,35 @@ func DispatchUser(command string) (bool, error) {
 		return true, runUserInfo(os.Args[2:])
 	}
 
-	args := os.Args[2:]
+	return handleUserSubcommandDispatch(os.Args[2:])
+}
+
+func dispatchDirectUserRoute(command string) (bool, error) {
+	if isChangeUserCommand(command) {
+		return true, RunChangeUser(os.Args[2:])
+	}
+
+	if isAutobotCommand(command) {
+		return true, RunUserAutobot(os.Args[2:])
+	}
+
+	return false, nil
+}
+
+func isChangeUserCommand(command string) bool {
+	switch command {
+	case "change-user", "change-login", "chuser", "chlogin", "cu", "cl":
+		return true
+	default:
+		return false
+	}
+}
+
+func isAutobotCommand(command string) bool {
+	return command == "autobot" || command == "bot"
+}
+
+func handleUserSubcommandDispatch(args []string) (bool, error) {
 	if len(args) == 0 {
 		printUserUsage()
 
@@ -30,6 +62,10 @@ func DispatchUser(command string) (bool, error) {
 
 func dispatchUserSubcommand(sub string, args []string) error {
 	switch sub {
+	case "change", "change-user", "change-login", "chuser", "chlogin", "cu", "cl":
+		return RunChangeUser(args)
+	case "autobot", "bot":
+		return RunUserAutobot(args)
 	case "info", "status":
 		return runUserInfo(args)
 	case "list", "ls":
@@ -207,6 +243,8 @@ func printUserUsage() {
 	fmt.Println("The user command manages Git author profiles, repo bindings, and OS-level accounts.")
 	fmt.Println()
 	fmt.Println("Git Profile & Identity Commands:")
+	fmt.Println("  change, change-user <name> <email>           Change Git author identity in one liner")
+	fmt.Println("  autobot [email] [--empty-email]              Switch Git identity to AI automation bot")
 	fmt.Println("  info, status                                 Show Git and GitHub CLI user context card")
 	fmt.Println("  list, ls                                     List configured Git profiles (* active/bound)")
 	fmt.Println("  switch, use <alias> [--global] [--project]   Switch active profile or bind to project")
