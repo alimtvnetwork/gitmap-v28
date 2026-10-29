@@ -51,6 +51,11 @@ func parseCommitFlags(args []string) ([]string, bool, bool) {
 }
 
 func executeCommit(args []string, meta CommitMetadata) error {
+	if errTime := verifyTimeRestriction(meta); errTime != nil {
+		return errTime
+	}
+	defer cleanupTimeSimulatedEnv(meta.IsAutoWindow)
+
 	hasChanges, err := stageAndCheckStaged()
 	if err != nil {
 		return err

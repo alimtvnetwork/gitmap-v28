@@ -15,7 +15,7 @@ func TestCtxWindowsHelpEntryHasIcon(t *testing.T) {
 	exe := fakeGitmapExe(t)
 	cmds := buildCtxInstallCommands(exe)
 
-	wantIcon := constants.CtxIconHelp
+	wantIcon := strings.ReplaceAll(constants.CtxIconHelp, constants.CtxIconExeToken, exe)
 
 	hits := 0
 	for _, c := range cmds {

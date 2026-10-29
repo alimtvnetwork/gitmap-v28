@@ -219,15 +219,20 @@ func isTimeRestricted(meta CommitMetadata) bool {
 
 func evaluateTimeWindow(meta CommitMetadata, loc *time.Location) *apperror.AppError {
 	now := time.Now().In(loc)
-	printPaddedInfo("GitMap restricted status: %s (%s)", now.Format("02-Jan-06 03:04 PM"), loc.String())
+	printPaddedInfo("GitMap restricted status: %s (%s)", now.Format("02-Jan-06 03:04 PM"), zoneLabel(meta, loc))
 	if timeutil.IsCommitWindowAllowed(now, loc) {
 		return nil
 	}
-	if meta.IsAutoWindow {
-		return applySimulatedMorningWindow(now, loc)
+
+	return applySimulatedMorningWindow(now, loc)
+}
+
+func zoneLabel(meta CommitMetadata, loc *time.Location) string {
+	if meta.Timezone != "" {
+		return meta.Timezone
 	}
 
-	return newWindowClosedError(now, loc)
+	return loc.String()
 }
 
 func applySimulatedMorningWindow(now time.Time, loc *time.Location) *apperror.AppError {
@@ -235,22 +240,19 @@ func applySimulatedMorningWindow(now time.Time, loc *time.Location) *apperror.Ap
 	stamp := morning.Format(time.RFC3339)
 	os.Setenv("GIT_AUTHOR_DATE", stamp)
 	os.Setenv("GIT_COMMITTER_DATE", stamp)
-	printPaddedInfo("Time window closed; auto-window simulated compliant morning timestamp: %s", stamp)
+	isMorningStampApplied = true
+	printPaddedInfo("Time window closed; backdated commit in %s to %s", loc.String(), stamp)
 
 	return nil
 }
 
-func newWindowClosedError(now time.Time, loc *time.Location) *apperror.AppError {
-	nextSlot := timeutil.CalculateNextWindow(now, loc)
-	msg := fmt.Sprintf("Commit rejected: outside allowed window for timezone %s. Next window opens at %s", loc.String(), nextSlot.Format(time.RFC3339))
-
-	return apperror.NewSimple(msg, "E9002")
-}
+var isMorningStampApplied bool
 
 func cleanupTimeSimulatedEnv(isAutoWindow bool) {
-	if isAutoWindow {
+	if isAutoWindow || isMorningStampApplied {
 		os.Unsetenv("GIT_AUTHOR_DATE")
 		os.Unsetenv("GIT_COMMITTER_DATE")
+		isMorningStampApplied = false
 	}
 }
 
