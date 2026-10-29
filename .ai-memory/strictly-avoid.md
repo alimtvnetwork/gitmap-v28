@@ -802,3 +802,5 @@ Allowed work:
 
 **Why:** User explicitly mandated clean, consistent Git history across all AI agents and tools. Redundant prefixes in `cpr` caused inconsistent commit headers in Git history (`Release: RELEASE - ...` vs `Release: VERSION - ...` vs `Release: vX.Y.Z ...`). GitMap already prefixes `Release: `, so passing `v<version> <summary>` directly produces the clean sovereign commit header `Release: v<version> <summary>`.
 
+- Do not store a personal access token inside a git remote URL. Use SSH.
+- Do not commit Go coverage profiles or SQLite `-shm` and `-wal` sidecars.

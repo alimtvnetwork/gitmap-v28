@@ -93,3 +93,6 @@ How this repository is engineered. Internalize before writing any code:
 - Root `readme.md` (must stay in sync with this file)
 - `docs/benchmarks/benchmark.md`, why: Native AUM search vs Go walk vs Python grep benchmark report
 - `02-spec/21-app/236-deep-spec-consolidation-and-canonical-reduction/01-architecture-spec.md`, why: Master consolidation architecture and reduction ledger
+- .ai-memory/memory/readme.md
+- .ai-memory/memory/learned/01-recent-session-2026-10-29.md
+- .ai-memory/plans/readme.md

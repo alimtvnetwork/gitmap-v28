@@ -109,3 +109,7 @@ Only active subtask directories are maintained under `.ai-memory/plans/subtasks/
 - [goemailsender-connection-and-testing](subtasks/goemailsender-connection-and-testing/) — GoEmailSender Connection & Multi-Profile Fallback
 - [muse-memory-io-and-gitmap-integration](subtasks/muse-memory-io-and-gitmap-integration/) — Muse Memory IO, 7-Day Digest & Training Vault
 - [update-antigravity-ide](subtasks/update-antigravity-ide/) — Antigravity Desktop IDE Update CLI Commands
+
+## Recent Completed Tasks Register
+
+- 2026-10-29 — Recorded the warm-up gate session. Sequences 08 through 13 remain pending catalogs. The live gate engine is in go-email-reader commit `f3864ee`.

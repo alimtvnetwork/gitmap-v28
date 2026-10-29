@@ -33,3 +33,4 @@ All previous fragmented memory notes, legacy audit reports, and temporary logs h
 1. **Strict File Limit:** This directory contains **strictly 10 files** (the 9 domain references above + this `readme.md`). Do not create loose files, session dumps, or uncurated scratch notes in this directory.
 2. **Authoritative Cross-Linking:** All specifications in `02-spec/` and subtask plans in `.ai-memory/plans/` must reference these documents directly via relative links.
 3. **Continuous Compaction:** When new operational learnings or architectural changes are ratified, update the corresponding domain document directly rather than creating incremental notes.
+| [learned/01-recent-session-2026-10-29.md](learned/01-recent-session-2026-10-29.md) | 2026-10-29 warm-up gate session, gitmap IDE setup, and repo-cache heatmaps. |

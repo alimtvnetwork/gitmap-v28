@@ -153,3 +153,9 @@ For AI assistants and autonomous agents navigating this repository:
 - **[.ai-memory/overview.md](.ai-memory/overview.md)**: Architectural summary and active subsystem indexes.
 - **[.ai-memory/plans/](.ai-memory/plans/)**: Subtask registers, active execution plans, and progress milestones.
 - **[version.json](version.json)**: Canonical single source of truth for versioning (`v6.555.0`).
+
+## Memory
+
+- .ai-memory/memory/readme.md
+- .ai-memory/memory/learned/01-recent-session-2026-10-29.md
+- .ai-memory/plans/readme.md
