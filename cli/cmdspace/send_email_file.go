@@ -9,16 +9,20 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/linkexpander"
 )
 
 // EmailMessage is one parsed email: recipients plus content.
 type EmailMessage struct {
-	To      []string
-	Cc      []string
-	Bcc     []string
-	Subject string
-	Body    string
-	IsHTML  bool
+	To            []string
+	Cc            []string
+	Bcc           []string
+	Subject       string
+	Body          string
+	IsHTML        bool
+	IsExpanded    bool
+	ExpandedCount int
+	ExpandedLinks []linkexpander.ExpandedLink
 }
 
 // Email-file extensions dispatched by parseEmailFile.

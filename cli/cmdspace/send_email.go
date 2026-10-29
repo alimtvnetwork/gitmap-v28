@@ -1,12 +1,14 @@
 package cmdspace
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/linkexpander"
 )
 
 // send-email flag names.
@@ -15,18 +17,23 @@ const (
 	flagSendEmailSubject   = "--subject"
 	flagSendEmailBody      = "--body"
 	flagSendEmailFile      = "--file"
-	flagSendEmailHTML      = "--html"
-	flagSendEmailHelp      = "--help"
+	flagSendEmailHTML        = "--html"
+	flagSendEmailExpand      = "--expand-links"
+	flagSendEmailExpandShort = "--expand"
+	flagSendEmailJSON        = "--json"
+	flagSendEmailHelp        = "--help"
 	flagSendEmailHelpShort = "-h"
 )
 
 // sendEmailOptions holds the parsed `space send-email` flags.
 type sendEmailOptions struct {
-	To      string
-	Subject string
-	Body    string
-	File    string
-	IsHTML  bool
+	To            string
+	Subject       string
+	Body          string
+	File          string
+	IsHTML        bool
+	IsExpandLinks bool
+	IsJSON        bool
 }
 
 // RunSendEmail implements `gitmap space send-email --to X [--subject S]
@@ -54,7 +61,35 @@ func RunSendEmail(args []string) error {
 		return delegateToGoEmailReader(bin, opts, msg)
 	}
 
-	return sendEmailViaSMTP(msg)
+	return sendEmailWithJSONSupport(opts, msg)
+}
+
+func sendEmailWithJSONSupport(opts sendEmailOptions, msg EmailMessage) error {
+	sendErr := sendEmailViaSMTP(msg)
+	if !opts.IsJSON {
+		return sendErr
+	}
+
+	return printSendEmailJSON(opts, msg, sendErr)
+}
+
+func printSendEmailJSON(opts sendEmailOptions, msg EmailMessage, sendErr error) error {
+	result := linkexpander.SendEmailJSONResult{
+		IsSuccess:     sendErr == nil,
+		To:            msg.To,
+		Subject:       msg.Subject,
+		IsHTML:        msg.IsHTML,
+		IsExpanded:    msg.IsExpanded,
+		ExpandedCount: msg.ExpandedCount,
+		Links:         msg.ExpandedLinks,
+	}
+	if sendErr != nil {
+		result.Error = sendErr.Error()
+	}
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+
+	return enc.Encode(result)
 }
 
 // parseSendEmailArgs parses the send-email flags; unknown dash flags and
@@ -92,7 +127,9 @@ func applyNextSendEmailArg(args []string, i int, opts *sendEmailOptions) (int, e
 // isKnownSendEmailFlag reports whether name is a recognized send-email flag.
 func isKnownSendEmailFlag(name string) bool {
 	switch name {
-	case flagSendEmailTo, flagSendEmailSubject, flagSendEmailBody, flagSendEmailFile, flagSendEmailHTML, flagSendEmailHelp, flagSendEmailHelpShort:
+	case flagSendEmailTo, flagSendEmailSubject, flagSendEmailBody, flagSendEmailFile, flagSendEmailHTML,
+		flagSendEmailExpand, flagSendEmailExpandShort, flagSendEmailJSON,
+		flagSendEmailHelp, flagSendEmailHelpShort:
 		return true
 	}
 
@@ -106,6 +143,14 @@ func applySendEmailFlag(args []string, i int, opts *sendEmailOptions) (int, erro
 
 	if name == flagSendEmailHTML {
 		return applyHTMLFlag(hasInline, opts)
+	}
+
+	if name == flagSendEmailExpand || name == flagSendEmailExpandShort {
+		return applyExpandLinksFlag(hasInline, opts)
+	}
+
+	if name == flagSendEmailJSON {
+		return applyJSONFlag(hasInline, opts)
 	}
 
 	val, extra, valErr := resolveFlagValue(args, i, inlineVal, hasInline, name)
@@ -133,6 +178,24 @@ func applyHTMLFlag(hasInline bool, opts *sendEmailOptions) (int, error) {
 		return 0, apperror.NewValidationError("flag --html takes no value")
 	}
 	opts.IsHTML = true
+
+	return 0, nil
+}
+
+func applyExpandLinksFlag(hasInline bool, opts *sendEmailOptions) (int, error) {
+	if hasInline {
+		return 0, apperror.NewValidationError("flag --expand-links takes no value")
+	}
+	opts.IsExpandLinks = true
+
+	return 0, nil
+}
+
+func applyJSONFlag(hasInline bool, opts *sendEmailOptions) (int, error) {
+	if hasInline {
+		return 0, apperror.NewValidationError("flag --json takes no value")
+	}
+	opts.IsJSON = true
 
 	return 0, nil
 }
@@ -177,6 +240,7 @@ func buildEmailMessage(opts sendEmailOptions) (EmailMessage, error) {
 		return msg, parseErr
 	}
 	applySendEmailOverrides(opts, &msg)
+	applyLinkExpansion(&msg, opts.IsExpandLinks)
 
 	if validateErr := validateEmailMessage(msg); validateErr != nil {
 		return msg, validateErr
@@ -206,6 +270,18 @@ func applySendEmailOverrides(opts sendEmailOptions, msg *EmailMessage) {
 	if opts.IsHTML {
 		msg.IsHTML = true
 	}
+}
+
+func applyLinkExpansion(msg *EmailMessage, isExpandLinks bool) {
+	if !isExpandLinks {
+		return
+	}
+	msg.Subject, _ = linkexpander.ExpandText(msg.Subject)
+	expandedBody, links := linkexpander.ExpandText(msg.Body)
+	msg.Body = expandedBody
+	msg.IsExpanded = true
+	msg.ExpandedCount = len(links)
+	msg.ExpandedLinks = links
 }
 
 // validateEmailMessage requires at least one recipient and a subject.
@@ -239,11 +315,17 @@ func delegateToGoEmailReader(bin string, opts sendEmailOptions, msg EmailMessage
 // delegateSendEmailArgv builds the `go-email-reader send` argv.
 func delegateSendEmailArgv(opts sendEmailOptions, msg EmailMessage) []string {
 	argv := []string{"send", "--to", strings.Join(msg.To, ",")}
-	argv = appendValueArg(argv, "--subject", opts.Subject)
-	argv = appendValueArg(argv, "--body", opts.Body)
+	argv = appendValueArg(argv, "--subject", msg.Subject)
+	argv = appendValueArg(argv, "--body", msg.Body)
 	argv = appendValueArg(argv, "--file", opts.File)
 	if opts.IsHTML {
 		argv = append(argv, "--html")
+	}
+	if opts.IsExpandLinks {
+		argv = append(argv, "--expand-links")
+	}
+	if opts.IsJSON {
+		argv = append(argv, "--json")
 	}
 
 	return argv

@@ -141,10 +141,12 @@ Flags:
   --body <text>      Plain-text body
   --file <path>      Email file: .yaml/.yml, .json, .md, or .txt
   --html             Send the body as HTML
+  --expand-links     Expand shortened/redirecting URLs in email body/subject
+  --json             Output send execution result as JSON
 
 Examples:
   gitmap space send-email --to a@x.com --subject "Hi" --body "Hello"
-  gitmap space send-email --file invite.yaml
+  gitmap space send-email --file invite.yaml --expand-links --json
   gitmap space send-email --to a@x.com,b@x.com --file note.md --html
 `
 

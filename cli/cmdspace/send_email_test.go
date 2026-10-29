@@ -76,6 +76,16 @@ func TestParseSendEmailArgsTable(t *testing.T) {
 			args: []string{"--file", "note.yaml", "--to", "b@x.com"},
 			want: sendEmailOptions{File: "note.yaml", To: "b@x.com"},
 		},
+		{
+			name: "expand links and json bool flags",
+			args: []string{"--to", "a@x.com", "--subject", "Hi", "--expand-links", "--json"},
+			want: sendEmailOptions{To: "a@x.com", Subject: "Hi", IsExpandLinks: true, IsJSON: true},
+		},
+		{
+			name: "expand short flag",
+			args: []string{"--to", "a@x.com", "--subject", "Hi", "--expand"},
+			want: sendEmailOptions{To: "a@x.com", Subject: "Hi", IsExpandLinks: true},
+		},
 	}
 
 	for _, tc := range cases {
@@ -262,5 +272,29 @@ func TestBuildEmailMessageFileMissingSubject(t *testing.T) {
 
 	if _, err := buildEmailMessage(sendEmailOptions{File: path, To: "a@x.com"}); err == nil {
 		t.Fatal("expected error when neither file nor flag provides a subject")
+	}
+}
+
+func TestBuildEmailMessageLinkExpansion(t *testing.T) {
+	opts := sendEmailOptions{
+		To:            "user@example.com",
+		Subject:       "Links",
+		Body:          "Activation: https://serviceactivation.in/subscription/new/QuTYNtSw8PTD",
+		IsExpandLinks: true,
+	}
+
+	msg, err := buildEmailMessage(opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !msg.IsExpanded {
+		t.Fatal("expected msg.IsExpanded to be true")
+	}
+	if msg.ExpandedCount != 1 {
+		t.Fatalf("expected ExpandedCount 1, got %d", msg.ExpandedCount)
+	}
+	expected := "Activation: https://serviceactivation.google.com/subscription/new/QuTYNtSw8PTD"
+	if msg.Body != expected {
+		t.Fatalf("expected expanded body %q, got %q", expected, msg.Body)
 	}
 }
