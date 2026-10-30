@@ -208,3 +208,38 @@ func recoverStashPopConflict(step gitutil.RemediationStep, output string) (bool,
 
 	return true, "recovered (auto-resolved stash pop conflicts and dropped stash)"
 }
+
+func isDivergentPullError(output string) bool {
+	lower := strings.ToLower(output)
+
+	return strings.Contains(lower, "divergent") ||
+		strings.Contains(lower, "need to specify how to reconcile") ||
+		strings.Contains(lower, "not possible to fast-forward")
+}
+
+func execDivergentMerge(repoPath string) (bool, string) {
+	if exec.Command("git", "-C", repoPath, "pull", "--no-rebase").Run() == nil {
+		return true, "recovered (merged divergent remote changes)"
+	}
+
+	if hasActiveConflict(repoPath) {
+		autoResolveRepoConflicts(repoPath)
+
+		return true, "recovered (auto-resolved divergent conflicts)"
+	}
+
+	return false, ""
+}
+
+func recoverDivergentPull(step gitutil.RemediationStep, output string) (bool, string) {
+	if !isDivergentPullError(output) {
+		return false, ""
+	}
+
+	repoPath := extractRepoPath(step.Args)
+	if repoPath == "" {
+		return false, ""
+	}
+
+	return execDivergentMerge(repoPath)
+}

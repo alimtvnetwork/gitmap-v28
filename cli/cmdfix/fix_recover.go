@@ -1,9 +1,7 @@
 package cmdfix
 
 import (
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdremediation"
@@ -11,26 +9,15 @@ import (
 )
 
 func isRepoAlreadyClean(item *cmdremediation.RemediationItem) bool {
-	if item == nil || item.RepoPath == "" {
+	if item == nil || !gitutil.IsValidGitRepository(item.RepoPath) {
 		return false
 	}
 
-	gitDir := filepath.Join(item.RepoPath, ".git")
-	stat, err := os.Stat(gitDir)
-	if err != nil || !stat.IsDir() {
+	if gitutil.InspectDirtyState(item.RepoPath).IsDirty {
 		return false
 	}
 
-	diag := gitutil.InspectDirtyState(item.RepoPath)
-	if diag.IsDirty {
-		return false
-	}
-
-	if !gitutil.HasInitialCommit(item.RepoPath) && !gitutil.HasRemote(item.RepoPath) {
-		return true
-	}
-
-	return false
+	return !hasMergeHead(item.RepoPath) && !hasGitLockFile(item.RepoPath)
 }
 
 func sanitizeRecipeForRepo(repoPath string, recipe gitutil.RemediationRecipe) gitutil.RemediationRecipe {

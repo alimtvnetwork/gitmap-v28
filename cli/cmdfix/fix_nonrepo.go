@@ -220,17 +220,27 @@ func collectAllRemediationItems(existing []cmdremediation.RemediationItem) []cmd
 	return all
 }
 
+func appendValidRemediationItem(all []cmdremediation.RemediationItem, item cmdremediation.RemediationItem, seen map[string]bool) []cmdremediation.RemediationItem {
+	cleanPath := filepath.Clean(item.RepoPath)
+	if !isGitDirectory(cleanPath) || IsWorkspaceContainerDirectory(cleanPath) {
+		return all
+	}
+
+	pathKey := strings.ToLower(filepath.ToSlash(cleanPath))
+	nameKey := "name:" + strings.ToLower(item.RepoName)
+	if seen[pathKey] || seen[nameKey] {
+		return all
+	}
+
+	seen[pathKey] = true
+	seen[nameKey] = true
+
+	return append(all, item)
+}
+
 func appendValidRemediationItems(all, items []cmdremediation.RemediationItem, seen map[string]bool) []cmdremediation.RemediationItem {
 	for _, item := range items {
-		cleanPath := filepath.Clean(item.RepoPath)
-		if !isGitDirectory(cleanPath) || IsWorkspaceContainerDirectory(cleanPath) {
-			continue
-		}
-
-		if !seen[cleanPath] {
-			seen[cleanPath] = true
-			all = append(all, item)
-		}
+		all = appendValidRemediationItem(all, item, seen)
 	}
 
 	return all

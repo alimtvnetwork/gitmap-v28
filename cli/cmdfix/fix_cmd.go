@@ -149,15 +149,28 @@ func runParallelFixWorkers(action string, items []cmdremediation.RemediationItem
 }
 
 func executeFixWorkerStep(mu *sync.Mutex, completed *int, total int, action string, item cmdremediation.RemediationItem, failedRepos *[]string) error {
-	idx := resolveRecipeIdx(action, item.Recipes)
-	var recipe gitutil.RemediationRecipe
-	if len(item.Recipes) > 0 {
-		recipe = item.Recipes[idx]
-	}
+	recipe := resolveFixStepRecipe(action, &item)
 	res := executeFixRecipeBatch(&item, recipe)
 	reportFixBatchResult(mu, completed, total, res, failedRepos)
 
 	return res.Err
+}
+
+func resolveFixStepRecipe(action string, item *cmdremediation.RemediationItem) gitutil.RemediationRecipe {
+	if len(item.Recipes) > 0 {
+		idx := resolveRecipeIdx(action, item.Recipes)
+
+		return item.Recipes[idx]
+	}
+
+	switch action {
+	case "commit", "wip":
+		return gitutil.GenerateCommitRecipe(item.RepoPath)
+	case "discard", "clean":
+		return gitutil.GenerateDiscardRecipe(item.RepoPath)
+	default:
+		return gitutil.GenerateStashRecipe(item.RepoPath)
+	}
 }
 
 func resolveRecipeIdx(action string, recipes []gitutil.RemediationRecipe) int {

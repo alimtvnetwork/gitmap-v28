@@ -189,18 +189,18 @@ const (
 	SQLSelectRepoByID   = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE RepoId = ?"
 	SQLSelectRepoBySlug = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE Slug = ?"
 
-	SQLSelectRepoByPath = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE AbsolutePath = ?"
+	SQLSelectRepoByPath = "SELECT RepoId, Slug, RepoName, HttpsUrl, SshUrl, Branch, RelativePath, AbsolutePath, CloneInstruction, Notes, IdentifiedTransport FROM Repo WHERE REPLACE(AbsolutePath, '\\', '/') = ? COLLATE NOCASE"
 
 	SQLSuggestRepoBySlug = "SELECT Slug FROM Repo WHERE Slug LIKE ? OR RepoName LIKE ? ORDER BY Slug ASC LIMIT 10"
 
-	SQLDeleteRepoByPath = "DELETE FROM Repo WHERE AbsolutePath = ?"
+	SQLDeleteRepoByPath = "DELETE FROM Repo WHERE REPLACE(AbsolutePath, '\\', '/') = ? COLLATE NOCASE"
 	SQLDeleteRepoBySlug = "DELETE FROM Repo WHERE Slug = ?"
 
-	SQLUpdateRepoTransport        = `UPDATE Repo SET SshUrl = ?, IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE AbsolutePath = ?`
+	SQLUpdateRepoTransport        = `UPDATE Repo SET SshUrl = ?, IdentifiedTransport = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE REPLACE(AbsolutePath, '\', '/') = ? COLLATE NOCASE`
 	SQLUpdateRepoTransportByPath  = SQLUpdateRepoTransport
-	SQLUpdateRepoAbsolutePath     = `UPDATE Repo SET AbsolutePath = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE AbsolutePath = ?`
-	SQLSelectRepoPrimaryURL       = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE AbsolutePath = ?`
-	SQLSelectRepoPrimaryURLByPath = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, ''), COALESCE(IdentifiedTransport, '') FROM Repo WHERE AbsolutePath = ?`
+	SQLUpdateRepoAbsolutePath     = `UPDATE Repo SET AbsolutePath = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE REPLACE(AbsolutePath, '\', '/') = ? COLLATE NOCASE`
+	SQLSelectRepoPrimaryURL       = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, '') FROM Repo WHERE REPLACE(AbsolutePath, '\', '/') = ? COLLATE NOCASE`
+	SQLSelectRepoPrimaryURLByPath = `SELECT RepoId, COALESCE(HttpsUrl, ''), COALESCE(SshUrl, ''), COALESCE(IdentifiedTransport, '') FROM Repo WHERE REPLACE(AbsolutePath, '\', '/') = ? COLLATE NOCASE`
 )
 
 // SQL: upsert by AbsolutePath (spec requirement).

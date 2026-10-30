@@ -101,6 +101,9 @@ func tryRecoverStepFailure(step gitutil.RemediationStep, outStr string) (bool, s
 	if isBenignPullNoTracking(step, outStr) {
 		return true, "clean (no remote to pull)"
 	}
+	if isDivergent, msg := recoverDivergentPull(step, outStr); isDivergent {
+		return true, msg
+	}
 	if isNeedsMerge, msg := recoverNeedsMerge(step, outStr); isNeedsMerge {
 		return true, msg
 	}

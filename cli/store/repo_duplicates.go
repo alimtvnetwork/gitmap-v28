@@ -2,6 +2,9 @@ package store
 
 import (
 	"context"
+	"net/url"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -27,15 +30,51 @@ type DeduplicationSummary struct {
 	PurgedRepoIDs []int64
 }
 
+func stripURLCredentials(raw string) string {
+	s := strings.TrimSpace(raw)
+	if strings.Contains(s, "://") {
+		return stripHTTPCredentials(s)
+	}
+
+	if strings.HasPrefix(s, "git@") {
+		return stripGitSSHUser(s)
+	}
+
+	return s
+}
+
+func stripHTTPCredentials(s string) string {
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" {
+		return s
+	}
+
+	u.User = nil
+
+	return u.String()
+}
+
+func stripGitSSHUser(s string) string {
+	parts := strings.Split(s, "@")
+	if len(parts) <= 2 {
+		return s
+	}
+
+	return "git@" + parts[len(parts)-1]
+}
+
 // cleanRemoteKey computes the normalized clean remote URL matching the SQLite grouping query.
 func cleanRemoteKey(httpsURL, sshURL string) string {
 	raw := httpsURL
 	if raw == "" {
 		raw = sshURL
 	}
-	s := strings.ToLower(strings.TrimSpace(raw))
+	s := stripURLCredentials(raw)
+	s = strings.ToLower(s)
+	s = strings.TrimRight(s, "/")
 	s = strings.ReplaceAll(s, ".git", "")
 	s = strings.TrimRight(s, "/")
+
 	return s
 }
 
@@ -46,7 +85,7 @@ func (db *DB) FindDuplicateRepos() ([]DuplicateRepoGroup, error) {
 }
 
 func findDuplicateReposRunner(runner sqlQueryer) ([]DuplicateRepoGroup, error) {
-	rows, err := QueryWrapper(runner, constants.SQLSelectDuplicateRepoRows).Destruct()
+	rows, err := QueryWrapper(runner, constants.SQLSelectAllRepos).Destruct()
 	if err != nil {
 		return nil, err
 	}
@@ -57,10 +96,10 @@ func findDuplicateReposRunner(runner sqlQueryer) ([]DuplicateRepoGroup, error) {
 		return nil, err
 	}
 
-	if len(records) == 0 {
-		return nil, nil
-	}
+	return groupDuplicateRecords(records), nil
+}
 
+func groupDuplicateRecords(records []model.ScanRecord) []DuplicateRepoGroup {
 	groupMap := make(map[string][]model.ScanRecord)
 	var groupKeys []string
 
@@ -75,6 +114,10 @@ func findDuplicateReposRunner(runner sqlQueryer) ([]DuplicateRepoGroup, error) {
 		groupMap[key] = append(groupMap[key], r)
 	}
 
+	return buildDuplicateGroups(groupKeys, groupMap)
+}
+
+func buildDuplicateGroups(groupKeys []string, groupMap map[string][]model.ScanRecord) []DuplicateRepoGroup {
 	var groups []DuplicateRepoGroup
 	for _, key := range groupKeys {
 		list := groupMap[key]
@@ -82,10 +125,7 @@ func findDuplicateReposRunner(runner sqlQueryer) ([]DuplicateRepoGroup, error) {
 			continue
 		}
 
-		keeper := list[0]
-		dups := make([]model.ScanRecord, len(list)-1)
-		copy(dups, list[1:])
-
+		keeper, dups := pickKeeperAndDups(list)
 		groups = append(groups, DuplicateRepoGroup{
 			CleanKey:   key,
 			Count:      len(list),
@@ -94,7 +134,36 @@ func findDuplicateReposRunner(runner sqlQueryer) ([]DuplicateRepoGroup, error) {
 		})
 	}
 
-	return groups, nil
+	return groups
+}
+
+func pickKeeperAndDups(list []model.ScanRecord) (model.ScanRecord, []model.ScanRecord) {
+	bestIdx := 0
+	for i, r := range list {
+		if hasWorkingGitDir(r.AbsolutePath) {
+			bestIdx = i
+			break
+		}
+	}
+
+	keeper := list[bestIdx]
+	dups := make([]model.ScanRecord, 0, len(list)-1)
+	for i, r := range list {
+		if i != bestIdx {
+			dups = append(dups, r)
+		}
+	}
+
+	return keeper, dups
+}
+
+func hasWorkingGitDir(path string) bool {
+	if path == "" {
+		return false
+	}
+	info, err := os.Stat(filepath.Join(path, ".git"))
+
+	return err == nil && info.IsDir()
 }
 
 // DeduplicateRepos transactionally prunes redundant repositories in gitmap.db.
@@ -170,11 +239,39 @@ func (db *DB) DeduplicateRepos(keepNewest bool) (*DeduplicationSummary, error) {
 }
 
 func selectKeeperAndDuplicates(records []model.ScanRecord, keepNewest bool) (model.ScanRecord, []model.ScanRecord) {
+	validRecords := filterWorkingGitRecords(records)
+	if len(validRecords) > 0 && len(validRecords) < len(records) {
+		return selectKeeperFromValid(validRecords, records, keepNewest)
+	}
+
 	if keepNewest {
 		return selectNewestKeeper(records)
 	}
 
 	return selectOldestKeeper(records)
+}
+
+func filterWorkingGitRecords(records []model.ScanRecord) []model.ScanRecord {
+	var valid []model.ScanRecord
+	for _, rec := range records {
+		if hasWorkingGitDir(rec.AbsolutePath) {
+			valid = append(valid, rec)
+		}
+	}
+
+	return valid
+}
+
+func selectKeeperFromValid(valid, all []model.ScanRecord, keepNewest bool) (model.ScanRecord, []model.ScanRecord) {
+	keeper, _ := selectKeeperAndDuplicates(valid, keepNewest)
+	var dups []model.ScanRecord
+	for _, rec := range all {
+		if rec.ID != keeper.ID {
+			dups = append(dups, rec)
+		}
+	}
+
+	return keeper, dups
 }
 
 func selectNewestKeeper(records []model.ScanRecord) (model.ScanRecord, []model.ScanRecord) {

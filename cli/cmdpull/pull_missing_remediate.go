@@ -33,6 +33,37 @@ func queryRepoRemoteAndID(db *store.DB, repoPath string) (int64, string, error) 
 	return db.GetRepoPrimaryURLByPath(repoPath)
 }
 
+// LookupRepoRemoteAndIDBySlug finds the RepoId and remote URL for a given repository slug.
+func LookupRepoRemoteAndIDBySlug(slug string) (int64, string, error) {
+	if slug == "" {
+		return 0, "", nil
+	}
+
+	db, err := store.OpenDefault()
+	if err != nil {
+		return 0, "", err
+	}
+
+	defer db.Close()
+
+	return queryRepoRemoteAndIDBySlug(db, slug)
+}
+
+func queryRepoRemoteAndIDBySlug(db *store.DB, slug string) (int64, string, error) {
+	recs, err := db.FindBySlug(slug)
+	if err != nil || len(recs) == 0 {
+		return 0, "", err
+	}
+
+	rec := recs[0]
+	url := rec.SSHUrl
+	if url == "" {
+		url = rec.HTTPSUrl
+	}
+
+	return rec.ID, url, nil
+}
+
 // DeleteRepoRecordByPath removes the repository row from gitmap.db.
 func DeleteRepoRecordByPath(repoPath string) error {
 	if repoPath == "" {
@@ -83,6 +114,13 @@ func resolveMissingRemoteURL(f PullFailureSummary) string {
 	}
 
 	_, remoteURL, _ := LookupRepoRemoteAndID(f.RepoPath)
+	if remoteURL != "" {
+		return remoteURL
+	}
+
+	if f.RepoName != "" {
+		_, remoteURL, _ = LookupRepoRemoteAndIDBySlug(f.RepoName)
+	}
 
 	return remoteURL
 }
@@ -169,6 +207,22 @@ func RemediateMissingRepo(f PullFailureSummary) bool {
 	return execCloneAndRecord(f.RepoName, f.RepoPath, remoteURL)
 }
 
+func cleanDestinationIfNonRepo(destination string) {
+	if destination == "" || gitutil.IsValidGitRepository(destination) {
+		return
+	}
+
+	info, err := os.Stat(destination)
+	if err != nil || !info.IsDir() {
+		return
+	}
+
+	entries, readErr := os.ReadDir(destination)
+	if readErr == nil && len(entries) <= 1 {
+		_ = os.RemoveAll(destination)
+	}
+}
+
 // ExecCloneRepo clones a remote repository into destination path.
 func ExecCloneRepo(remoteURL, destination string) error {
 	parentDir := filepath.Dir(destination)
@@ -176,6 +230,7 @@ func ExecCloneRepo(remoteURL, destination string) error {
 		return err
 	}
 
+	cleanDestinationIfNonRepo(destination)
 	cmd := exec.Command(constants.GitBin, constants.GitClone, constants.GitProgressFlag, remoteURL, destination)
 	cmd.Env = gitutil.BuildSafeGitEnv(constants.EnvGitSSHCommandBatchYes)
 
