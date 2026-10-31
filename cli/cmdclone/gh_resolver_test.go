@@ -68,7 +68,13 @@ func TestResolveRepoSlug_OwnerRepoFallback(t *testing.T) {
 }
 
 func TestResolveRepoSlug_BareSlugFallback(t *testing.T) {
-	input := "coding-guidelines"
+	// WHY: the bare "coding-guidelines" repo is private, so the
+	// unauthenticated ls-remote probe cannot resolve it in CI (no gh
+	// auth, empty store) and the test failed there on every run while
+	// passing locally only via authenticated gh prefix matching. The
+	// versioned public repo exercises the same bare-slug fallback probe
+	// without depending on credentials.
+	input := "coding-guidelines-v24"
 	got := ResolveRepoSlug(input)
 	if !strings.HasPrefix(got, "https://github.com/") || !strings.Contains(got, "coding-guidelines") {
 		t.Errorf("ResolveRepoSlug(%q) = %q; expected GitHub URL containing coding-guidelines", input, got)
