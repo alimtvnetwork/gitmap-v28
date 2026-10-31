@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -66,11 +68,43 @@ func runInstallPhpLinux(opts installOptions) error {
 	}
 
 	installArgs := phpAptInstallArgs(exact)
-	if err := runPhaseWithAudit(constants.ToolPHP, constants.PkgMgrApt, opts.Version, installArgs, "php-apt-install", opts.Verbose); err != nil {
+	if err := runAptPhaseWithLockRetry(opts.Version, installArgs, "php-apt-install", opts.Verbose); err != nil {
 		return err
 	}
 
 	return verifyPhpVersion(opts.Version)
+}
+
+// runAptPhaseWithLockRetry runs an apt phase, retrying while
+// another process holds the apt lock (unattended upgrades, a
+// parallel installer, another agent). Without this, a transient
+// lock turns into a failed install. It never retries a real
+// apt failure: only lock errors are retried, up to 5 minutes.
+func runAptPhaseWithLockRetry(version string, args []string, phase string, verbose bool) error {
+	var lastErr error
+
+	for attempt := 1; attempt <= 30; attempt++ {
+		res := executeCommandWithAudit(args, verbose)
+		recordInstallExecution(constants.ToolPHP, constants.PkgMgrApt, version, res, phase)
+
+		if res.IsSuccess {
+			return nil
+		}
+
+		lastErr = apperror.WrapSimple(res.Err, "cmd.runPhase."+phase)
+		if !isAptLockError(res.Stderr) || attempt == 30 {
+			return lastErr
+		}
+
+		fmt.Printf("  → apt lock held by another process, waiting 10s (attempt %d/30)...\n", attempt)
+		time.Sleep(10 * time.Second)
+	}
+
+	return lastErr
+}
+
+func isAptLockError(stderr string) bool {
+	return strings.Contains(stderr, "Could not get lock") || strings.Contains(stderr, "Unable to lock")
 }
 
 func printPhpInstallPlan(opts installOptions) {
@@ -96,21 +130,21 @@ func printPhpDryRun(opts installOptions) {
 // ensurePhpPpa adds the ondrej/php PPA once, then refreshes apt.
 func ensurePhpPpa(verbose bool) error {
 	if !isCommandAvailable("add-apt-repository") {
-		if err := runPhaseWithAudit(constants.ToolPHP, constants.PkgMgrApt, "", []string{"sudo", "apt-get", "update"}, "php-apt-update", verbose); err != nil {
+		if err := runAptPhaseWithLockRetry("", []string{"sudo", "apt-get", "update"}, "php-apt-update", verbose); err != nil {
 			return err
 		}
-		if err := runPhaseWithAudit(constants.ToolPHP, constants.PkgMgrApt, "", []string{"sudo", "apt", "install", "-y", "software-properties-common"}, "php-ppa-prereq", verbose); err != nil {
+		if err := runAptPhaseWithLockRetry("", []string{"sudo", "apt", "install", "-y", "software-properties-common"}, "php-ppa-prereq", verbose); err != nil {
 			return err
 		}
 	}
 
 	if !isPhpPpaPresent() {
-		if err := runPhaseWithAudit(constants.ToolPHP, constants.PkgMgrApt, "", []string{"sudo", "add-apt-repository", "-y", "ppa:" + phpPpa}, "php-add-ppa", verbose); err != nil {
+		if err := runAptPhaseWithLockRetry("", []string{"sudo", "add-apt-repository", "-y", "ppa:" + phpPpa}, "php-add-ppa", verbose); err != nil {
 			return err
 		}
 	}
 
-	return runPhaseWithAudit(constants.ToolPHP, constants.PkgMgrApt, "", []string{"sudo", "apt-get", "update"}, "php-apt-update", verbose)
+	return runAptPhaseWithLockRetry("", []string{"sudo", "apt-get", "update"}, "php-apt-update", verbose)
 }
 
 func isPhpPpaPresent() bool {

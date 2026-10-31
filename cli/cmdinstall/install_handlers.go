@@ -115,7 +115,11 @@ func resolveLinuxAppHandler(tool string) func(installOptions) {
 		return func(opts installOptions) { _ = runInstallChromeLinux(opts) }
 	case constants.ToolPHP:
 
-		return func(opts installOptions) { _ = runInstallPhpLinux(opts) }
+		return func(opts installOptions) {
+			if err := runInstallPhpLinux(opts); err != nil {
+				cliexit.HandleError(apperror.WrapSimple(err, "cmdinstall.installPhpLinux"), 1)
+			}
+		}
 	default:
 
 		return nil
