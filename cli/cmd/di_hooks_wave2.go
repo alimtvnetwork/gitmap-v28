@@ -172,6 +172,7 @@ func wireWave2Hooks() {
 	cmdlist.CheckHelpFn = checkHelp
 	cmdllm.CheckHelpFn = checkHelp
 	cmdmerge.CheckHelpFn = checkHelp
+	cmdmerge.CommitInRunner = cmdcommitin.RunCommitIn
 	cmdmultigroup.CheckHelpFn = checkHelp
 	cmdnodes.CheckHelpFn = checkHelp
 	cmdnodes.RunNodesPullAllFn = func(args []string) error {

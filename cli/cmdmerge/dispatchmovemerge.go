@@ -2,6 +2,7 @@ package cmdmerge
 
 import (
 	"os"
+	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/movemerge"
@@ -42,7 +43,63 @@ func DispatchMoveMerge(command string) (bool, error) {
 		return true, nil
 	}
 
+	if isMergeCommand(command) {
+		return dispatchMergeCommand(command, os.Args[2:])
+	}
+
 	return false, nil
+}
+
+func isMergeCommand(command string) bool {
+	return command == constants.CmdMerge || command == "merge-in" || command == "mergein"
+}
+
+func dispatchMergeCommand(command string, args []string) (bool, error) {
+	if command == "merge-in" || command == "mergein" {
+		if isHelpRequested(args) {
+			RenderMergeHelp()
+
+			return true, nil
+		}
+
+		if CommitInRunner != nil {
+			return true, CommitInRunner(args)
+		}
+
+		return true, nil
+	}
+
+	if len(args) == 0 || isHelpRequested(args) {
+		RenderMergeHelp()
+
+		return true, nil
+	}
+
+	return dispatchMergeSubcommand(args)
+}
+
+func dispatchMergeSubcommand(args []string) (bool, error) {
+	sub := strings.ToLower(args[0])
+	switch sub {
+	case "right":
+		spec, _ := mergeSpecFor(constants.CmdMergeRight)
+		return true, runMerge(spec, args[1:])
+	case "left":
+		spec, _ := mergeSpecFor(constants.CmdMergeLeft)
+		return true, runMerge(spec, args[1:])
+	case "both":
+		spec, _ := mergeSpecFor(constants.CmdMergeBoth)
+		return true, runMerge(spec, args[1:])
+	case "in":
+		if CommitInRunner != nil {
+			return true, CommitInRunner(args[1:])
+		}
+		return true, nil
+	default:
+		RenderMergeHelp()
+
+		return true, nil
+	}
 }
 
 // mergeSpecFor maps a command/alias to its mergeSpec; ok=false otherwise.

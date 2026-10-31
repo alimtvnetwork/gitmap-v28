@@ -16,6 +16,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdllm"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmerge"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdpipeline"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdscan"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
@@ -61,6 +62,10 @@ func tryRenderCoreRichTopic(topic string) bool {
 		return true
 	case "commit", "cm", "commit-all", "ca", "commit-both", "commit-left", "commit-right", "cmb", "cml", "cmr", "cpf", "cpb", "cbf", "cpr", "pcp", "commit-pull", "cpull":
 		cmdcommit.RenderCommitHelp()
+
+		return true
+	case "merge", "merge-right", "merge-left", "merge-both", "merge-in", "mr", "mrg", "mb", "ml", "cin", "commit-in":
+		cmdmerge.RenderMergeHelp()
 
 		return true
 	case "status", "st":
@@ -167,6 +172,10 @@ func tryRenderToolRichTopic(topic string) bool {
 		return true
 	case "github-desktop", "gd", "github", "desktop-sync", "ds":
 		cmdvscode.RenderGitHubDesktopHelp()
+
+		return true
+	case "settings", "setting", "speed-settings":
+		cmdagy.RenderAgySettingsHelp()
 
 		return true
 	}

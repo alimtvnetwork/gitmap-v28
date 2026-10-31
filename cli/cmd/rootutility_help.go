@@ -133,6 +133,18 @@ func normalizeHelpTopic(topic string) string {
 		return "lfs-convert"
 	case "repo-flatten":
 		return "flatten"
+	case "cin", "commitin":
+		return "commit-in"
+	case "mergein":
+		return "merge-in"
+	case "mrg":
+		return "merge-right"
+	case "ml":
+		return "merge-left"
+	case "mb":
+		return "merge-both"
+	case "th", "thelp":
+		return "help"
 	}
 
 	return topic

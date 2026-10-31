@@ -10,8 +10,10 @@ gitmap login ssh [alias] [-y] # Generate or reuse SSH key and copy public key to
 gitmap login token [PAT]      # Log in with a Personal Access Token
 gitmap login browser-flow     # Log in via browser OAuth / GitHub CLI device flow
 gitmap login --status         # Show current login state and active identity
+gitmap login set ai-auto [agent] # Configure AI automation bot identity with agent name
+gitmap login set global ai-auto [agent] # Configure global AI automation bot identity
+gitmap login set ai-auto --restriction-time # Configure AI bot and apply dynamic waiting defaults
 gitmap login --use-ai-auto    # Switch global Git identity to AI bot and backup original user
-gitmap login --use-ai-auto --restriction-time # Switch to AI bot and auto-apply wait defaults
 gitmap login --revert-to-original # Revert Git identity back to backed-up original user
 gitmap logout                 # Remove stored GitHub credentials
 ```
@@ -76,18 +78,23 @@ gitmap login --status
 
 - Inspects system environment, Windows Credential Manager, global git configuration, and GitHub CLI to display current authentication state with masked credentials.
 
-### 5. AI Automation Identity (`gitmap login --use-ai-auto`)
+### 5. AI Automation Identity (`gitmap login set ai-auto` / `gitmap login --use-ai-auto`)
 
 ```bash
+gitmap login set ai-auto [agent-name]
+gitmap login set global ai-auto [agent-name]
+gitmap login set ai-auto --restriction-time
 gitmap login --use-ai-auto [--restriction-time]
 ```
 
 - Automatically preserves the original user's Git identity (`user.name`, `user.email`, and active GitMap profile) before switching.
-- Configures global Git identity to:
-  - **Name:** `gitmap automation bot - runs autonmously`
+- Configures Git identity with specific AI agent name in the format:
+  - **Name with agent:** `gitmap automation bot - (agent-name) - runs autonomously`
+  - **Global default:** `gitmap automation bot - runs autonomously`
   - **Email:** `info@rgitmap.com`
+- Supported agent examples: `muse`, `gemini`, `cursor-model`.
 - Registers and activates the `autobot` profile in GitMap.
-- Pass `--restriction-time` to auto-apply anti-credit-waste dynamic waiting defaults (20s Pipeline-AI delay, 10s–30s dynamic ETA sleep intervals, 60s runner wait, and rapid polling ban).
+- Pass `--restriction-time` to auto-apply dynamic waiting defaults (20s delay, 10s–30s ETA intervals, 60s runner wait).
 
 ### 6. Revert to Original User (`gitmap login --revert-to-original`)
 
@@ -136,6 +143,14 @@ gitmap login browser-flow
 
 # Verify current authentication state
 gitmap login --status
+
+# Configure AI automation identity with specific agent name
+gitmap login set ai-auto gemini
+gitmap login set ai-auto muse
+gitmap login set ai-auto cursor-model
+
+# Configure global AI automation identity
+gitmap login set global ai-auto
 
 # Switch to AI automation bot and backup original developer identity
 gitmap login --use-ai-auto

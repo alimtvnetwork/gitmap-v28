@@ -33,14 +33,16 @@ func buildCommitUsageLines() []string {
 		"gitmap cm \"<message>\" (short alias for commit)",
 		"gitmap commit info <sha> (inspect AI provenance tree)",
 		"gitmap ci <sha> (short alias for commit info)",
+		"gitmap commit-in <target> <inputs...> [flags]",
+		"gitmap merge-in <target> <inputs...> [flags]",
 		"gitmap commit-both <left> <right> [flags]",
 		"gitmap commit-left <left> <right> [flags]",
 		"gitmap commit-right <left> <right> [flags]",
-		"gitmap cpf \"<message>\" (commit-push-feature)",
-		"gitmap cpb \"<message>\" (commit-push-bug)",
-		"gitmap cpc \"<message>\" (commit-push-chore)",
-		"gitmap cpr \"<message>\" (commit-push-release)",
-		"gitmap pcp \"<message>\" (pull-commit-push)",
+		"gitmap cpf \"<message>\" --ai-agent <name>",
+		"gitmap cpb \"<message>\" --ai-agent <name>",
+		"gitmap cpc \"<message>\" --ai-agent <name>",
+		"gitmap cpr \"<message>\" --ai-agent <name>",
+		"gitmap pcp \"<message>\" --ai-agent <name>",
 	}
 }
 
@@ -49,15 +51,18 @@ func buildCommitTips() []string {
 		"Use 'gitmap commit \"message\"' (or 'gitmap cm') for 1-step auto-stage and flat commit.",
 		"Use 'gitmap ci <sha>' to view universal SHA resolution and AI provenance tree.",
 		"Use 'gitmap commit-both' to synchronize commits bidirectionally between repositories.",
-		"Use 'gitmap cpf \"MODULE - description\"' for 1-step stage, commit, and push.",
-		"Use 'gitmap cbf \"MODULE - description\"' for 1-step bug fix stage, commit, and push.",
-		"Use 'gitmap cpc \"MODULE - description\"' for 1-step chore stage, commit, and push.",
+		"Use 'gitmap commit-in' (or 'gitmap merge-in') to stitch repository histories chronologically.",
+		"Always provide '--ai-agent <name>' (e.g. --ai-agent muse, gemini, cursor) for AI commits.",
+		"Use 'gitmap cpf \"MODULE - description\" --ai-agent <name>' for 1-step stage, commit, and push.",
+		"Use 'gitmap cbf \"MODULE - description\" --ai-agent <name>' for 1-step bug fix stage, commit, and push.",
+		"Use 'gitmap cpc \"MODULE - description\" --ai-agent <name>' for 1-step chore stage, commit, and push.",
 		"Weekday commits under --schedule must be completed before 08:00 AM in target timezone.",
 	}
 }
 
 func buildCommitFooterFlags() []termout.CommandEntry {
 	return []termout.CommandEntry{
+		{Command: "--ai-agent <name>", Description: "Mandatory AI agent name for commit provenance & heatmap"},
 		{Command: "--timezone, -tz <tz>", Description: "Target canonical IANA timezone identifier for scheduling"},
 		{Command: "--schedule, -sc", Description: "Enforce weekday morning cutoff (< 08:00 AM) schedule restriction"},
 		{Command: "--interleave", Description: "Merge commits by author date order for commit-both"},
@@ -72,11 +77,14 @@ func buildCommitFooterFlags() []termout.CommandEntry {
 
 func buildCommitTransferSection() termout.HelpSection {
 	return termout.HelpSection{
-		Title: "Multi-Repo Commit Transfers",
+		Title: "Multi-Repo Commit Transfers & Merges",
 		Entries: []termout.CommandEntry{
 			{Command: "commit-both (cmb)", Description: "Bidirectional commit replay between two repositories"},
 			{Command: "commit-left (cml)", Description: "Replay commits from right repo onto left repo"},
 			{Command: "commit-right (cmr)", Description: "Replay commits from left repo onto right repo"},
+			{Command: "commit-in (cin) / merge-in", Description: "Chronological multi-source commit replay into target"},
+			{Command: "merge-right (mr)", Description: "One-way file merge writing into RIGHT (from LEFT)"},
+			{Command: "merge-left (ml)", Description: "One-way file merge writing into LEFT (from RIGHT)"},
 			{Command: "commit-pull (cpull)", Description: "Pull and replay remote commit chain onto local repo"},
 		},
 	}

@@ -162,6 +162,14 @@ Disciplined atomic commit workflow enforcing hyphen-separated messages (`<Module
   `gitmap pcp "Skills - sync cross-platform runner templates"`
 - `gitmap cpf/cpb/cpc/cfr/cpr "<Module> - <summary>" --ai-agent <name>` — Attaches designated subagent identity (e.g. `--ai-agent "worker-01"`) to commit author metadata, GitMap Split-DB commit history (`repodb/commit_history.db`), and cognitive heatmap tables (`repodb/heatmap.db`). Default author becomes `gitmap automation bot - <name> - runs autonomously <info@rgitmap.com>`:
   `gitmap cpf "Module - implement feature" --ai-agent "worker-01"`
+- `gitmap merge-right <left> <right> [-y]` (alias `gitmap mr`) — One-way file-level merge writing only into RIGHT.
+- `gitmap merge-left <left> <right> [-y]` (alias `gitmap ml`) — One-way file-level merge writing only into LEFT.
+- `gitmap merge-both <left> <right> [-y]` (alias `gitmap mb`) — Two-way bidirectional merge synchronizing endpoints.
+- `gitmap merge-in <target> <inputs...> [flags]` (alias `gitmap commit-in` / `gitmap cin`) — Multi-source chronological commit replay.
+- `gitmap commit-both <left> <right> [flags]` (alias `gitmap cmb`) — Bidirectional commit replay between repositories.
+- `gitmap commit-left <left> <right> [flags]` (alias `gitmap cml`) — Replay commits from right repo onto left repo.
+- `gitmap commit-right <left> <right> [flags]` (alias `gitmap cmr`) — Replay commits from left repo onto right repo.
+- `gitmap thelp [topic]` (alias `gitmap help`) — Access terminal help screens with rich two-column menus and executable examples. Run `gitmap thelp specific` to browse topics.
 - `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
 - `gitmap workgroup bind <dir> <key>` — Bind folder to dedicated SSH key.

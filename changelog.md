@@ -1,3 +1,21 @@
+## [v6.635.0] 2026-10-31 Release v6.635.0
+
+### Install GitMap v6.635.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.635.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.635.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Terminal Help Parity (`thelp` / `th`): Registered `thelp` and `th` as universal aliases to the core help dispatcher, enabling seamless discovery across command topics.
+- Merge & Transfer Suite Menu (`thelp merge` / `gitmap merge`): Structured two-column rich terminal help displaying one-way file merges (`merge-right`, `merge-left`), two-way sync (`merge-both`), chronological commit replay (`merge-in` / `commit-in`), and PR workflows (`merge write`).
+- Merge Subcommand Routing: Natively dispatches `gitmap merge right`, `gitmap merge left`, `gitmap merge both`, and `gitmap merge in` with automatic rich help on bare invocation.
+- First-Class `merge-in` Alias: Added `merge-in` as a first-class alias for `commit-in` (`cin`) for multi-source history replay.
+- AI Automation Terminal Documentation: Complete terminal help coverage and executable examples for `login set ai-auto <agent>`, `login set global ai-auto`, `settings set ai_auto.*`, and `--ai-agent <name>` flags.
+- Curated Examples Registry: Added canonical examples for `merge`, `merge-right`, `merge-left`, `merge-in`, `commit-in`, `commit-both`, `commit-left`, `commit-right`, `thelp`, `specific`, `login`, and `settings`.
+- Specific Query Guidance (`thelp specific`): Dedicated help topic documenting how to query specific command help screens.
+
 ## [v6.634.0] 2026-10-31 Release v6.634.0
 
 ### Install GitMap v6.634.0
@@ -64,6 +82,13 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Clone Bare Repo Resolution: `gitmap clone <name>` automatically resolves bare repository names to the highest semantic version release and converts to SSH when requested.
 
 # Changelog
+
+## [v6.635.0] - 2026-10-31
+
+### Added
+- Add terminal help and examples for merge left right in commit-in and ai-auto commands
+
+---
 
 ## [v6.634.0] - 2026-10-31
 

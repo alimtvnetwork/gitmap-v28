@@ -159,7 +159,7 @@ func coreCloneExtEntries() []dispatchEntry {
 		{[]string{constants.CmdMultiClone, constants.CmdMultiCloneAlias, constants.CmdMutliCloneAlias}, func() error { return cmdclone.RunMultiCloneCommand(argsTail()) }},
 		{[]string{constants.CmdCloneReclone, constants.CmdCloneRecloneAlias, constants.CmdCloneNow, constants.CmdCloneNowAlias, constants.CmdCloneRel, constants.CmdCloneRelAlias}, func() error { return cmdclone.RunCloneNow(argsTail()) }},
 		{[]string{constants.CmdClonePick, constants.CmdClonePickAlias}, func() error { return cmdclone.RunClonePick(argsTail()) }},
-		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias, "commitin"}, func() error { return cmdcommitin.RunCommitIn(argsTail()) }},
+		{[]string{constants.CmdCommitIn, constants.CmdCommitInAlias, "commitin", "merge-in", "mergein"}, func() error { return cmdcommitin.RunCommitIn(argsTail()) }},
 		{[]string{"commit-pull", "cpull", "pull-commits"}, func() error { return cmdcommitpull.RunCommitPull(argsTail()) }},
 		{[]string{"migrate", "wizard", "migration-wizard"}, func() error { return cmdmigrate.RunMigrateWizard(argsTail()) }},
 		{[]string{constants.CmdCloneFixRepo, constants.CmdCloneFixRepoShort}, func() error { return cmdclone.RunCloneFixRepo(argsTail()) }},

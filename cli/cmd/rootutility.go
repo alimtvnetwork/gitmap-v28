@@ -101,7 +101,7 @@ func utilityCoreBaseEntries() []dispatchEntry {
 		{[]string{constants.CmdRm, constants.CmdRmAlias, constants.CmdRmAlias2}, func() error { return cmdrm.RunRm(argsTail()) }},
 		{[]string{constants.CmdRevertRunner}, cmdrevert.RunRevertRunner},
 		{[]string{constants.CmdVersion, constants.CmdVersionAlias, "--version", "-version", "-v", "versions"}, printVersionBlock},
-		{[]string{constants.CmdHelp, "--help", "-h"}, runHelpDispatch},
+		{[]string{constants.CmdHelp, "--help", "-h", "thelp", "th"}, runHelpDispatch},
 		{[]string{constants.CmdSwapBinary, constants.CmdSwapBinaryAlias, constants.CmdSwapBinaryAlias2, constants.CmdSwapBinaryAlias3, "bin-swap"}, func() error { return cmdswap.Run(argsTail()) }},
 	}
 }
