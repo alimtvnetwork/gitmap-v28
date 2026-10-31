@@ -25,8 +25,11 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ `rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr` | ✅ `gitmap aum search "<pattern>" [dir] [--ext <ext>]` or `gitmap search "<pattern>"` | Multi-core streaming live search (<15ms) with binary null-byte probe, 500 KB file cap, and DH2D SQLite hot cache. Prevents buffer bloat and terminal freezing. |
 | ❌ `Get-ChildItem` (all variants: bare `Get-ChildItem`, `-Path`, `-Filter`, `-Recurse`, etc.), `dir`, `ls` (in shell), `find . -name "..."`, `dir /s /b` | ✅ `gitmap lf <dir>` or `gitmap list-files [dir]` or `gitmap find "<pattern>" [dir]` | Sub-millisecond directory listing and file glob discovery without shell traversal overhead. TOTAL BAN on PowerShell Get-ChildItem. |
 | ❌ Inspecting plans manually via `Get-ChildItem -Path ".ai-memory/plans"` or `dir` | ✅ `gitmap plans [--json\|--yaml] [N]` (alias: `gitmap plan`) | Instant Tokyo Night styled inventory of completed and pending plans with sequence IDs, status pills, and backlog overflow navigation. |
-| ❌ Directory File Inventory: `Get-ChildItem -Path <dir>`, `dir <dir>`, `ls <dir>` | ✅ `gitmap lf <dir>` (e.g. `gitmap lf src-tauri/src/modules/repo_db`) or `gitmap find "*.*" <dir>` | Instant directory file listing and inventory without PowerShell object pipeline or shell traversal latency. TOTAL BAN on PowerShell Get-ChildItem. |
-| ❌ Ad-hoc Python file reading or slicing (`gitmap py -c "open('...').read()"` or `gitmap py -c "lines=open('...').readlines(); print(lines[A:B])"`), `pwsh Get-Content`, raw unbuffered `cat`, `type` | ✅ `gitmap cat <filepath> [-L <start>:<end>] [-q <query>] [--head N] [--tail N] [--num] [--raw]` (alias: `gitmap ct`) | Direct zero-disk stream with line range slicing, query filtering, head/tail extraction, gutter line numbers, and safe image cards. TOTAL BAN on ad-hoc Python file reading one-liners. |
+| ❌ Directory File Inventory: `Get-ChildItem -Path <dir>`, `dir <dir>`, `ls <dir>`, `Get-ChildItem -File \| Select-Object -ExpandProperty Name` | ✅ `gitmap lf <dir>` (e.g. `gitmap lf cli/cmdinstall`) or `gitmap find "*.*" <dir>` | Instant directory file listing and inventory without PowerShell object pipeline or shell traversal latency. TOTAL BAN on PowerShell Get-ChildItem. |
+| ❌ Ad-hoc Python file reading or slicing (`gitmap py -c "open('...').read()"` or `gitmap py -c "lines=open('...').readlines(); print(lines[A:B])"`), `pwsh Get-Content`, raw unbuffered `cat`, `type` | ✅ `gitmap cat <filepath> [-L <start>:<end>] [-q <query>] [-t <tail>] [--head N] [--num] [--raw]` (alias: `gitmap ct`) | Direct zero-disk stream with line range slicing, query filtering, tail/head extraction, gutter line numbers, and safe image cards. TOTAL BAN on ad-hoc Python file reading one-liners. |
+| ❌ Reading log tails with PowerShell (`powershell -Command "Get-Content '...' -Tail N \| Select-String -Pattern '...'"`), or Node.js (`node -e "fs.readFileSync..."`) | ✅ `gitmap cat "<file>" -t <tail> -q "<pattern>"` or `gitmap cat "<file>" -L <line>` | Instant tail search with original line numbers, zero disk writes, and cross-platform reliability. TOTAL BAN on PowerShell Select-String and Node read scripts. |
+| ❌ Python filesystem traversal (`gitmap py -c "import os; [print(...) for ... in os.walk(...) if ...]"`) | ✅ `gitmap find "*<pattern>*" [dir]` or `gitmap aum search "<pattern>" [dir]` | High-speed multi-core file globbing (<10ms) without spinning up Python interpreters or memory bloat. TOTAL BAN on ad-hoc os.walk one-liners. |
+| ❌ Python sleep polling (`gitmap py -c "import time; time.sleep(N)"`) or shell sleep loops | ✅ Use Antigravity `schedule` tool, `gitmap watch`, or reactive task wakeup | Sleep loops freeze terminal threads, burn CPU, and violate non-polling guidelines. |
 | ❌ Bypassing restrict conditions during fleet sync or running V6 script under V7 parent task | ✅ `python 03-ai-scripts/38-sync-prompts-skills-scripts-v7.py` (V7) or `python 03-ai-scripts/38-sync-prompts-skills-scripts.py` (V6) | Dedicated V7 sync engine validates calendar window (< 08:00 AM on weekdays), auto-window slotting, target timezone, and autonomous bot credentials. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
 | ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
@@ -43,6 +46,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
+| ❌ Ad-hoc Python scripts querying Antigravity DB (`conversation_summaries.db`) or scratch files (`check_summaries.py`, `query.py`) | ✅ `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`) or `gitmap db-read agy "<sql>"` | Sub-millisecond direct SQL query (<2ms), clean Tokyo Night formatted table, zero python interpreter overhead, JSON support, and zero scratch file pollution. TOTAL BAN on Python scripts for conversation_summaries.db. |
+| ❌ Reading or analyzing files silently without registering Heatmap cognitive intent | ✅ `gitmap heatmap touch <filepath> --reason "<why>"` (or `gitmap cat <filepath> --touch`) | Logs active file lease and inspection purpose into `heatmap.db`, eliminating multi-agent contention and providing instant auditability in `gitmap heatmap live`. |
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
 | ❌ Python or ad-hoc SQLite scripts (`python -c "import sqlite3..."`), `sqlite3` CLI, DB browser tools | ✅ `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` | Compiled native Go SQLite exploration, mutation, view join, REST API server with Swagger UI & visualizer dashboard, and database lifecycle management. |
 | ❌ Ad-hoc Python network scrapers or image link extractors (e.g. `python -c "import urllib.request, re..."`, `fetch_urls.py`, curl pipes to scrape `prnt.sc`/lightshot/screenshot URLs) | ✅ `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (aliases: `gitmap download-prnt`, `gitmap asset download-prnt`) | Native compiled parallel fetching, multi-tier CDN regex resolution, User-Agent emulation, zero external dependencies, and automatic bidirectional Antigravity Brain synchronization. |
@@ -1135,8 +1140,22 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 16. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
 17. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `<module> - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument. Module must be Title Case or lowercase representing the subsystem; TOTAL BAN on `commit` / `commits` as a module name.
 18. **Total Ban on Anonymous AI Autonomous Commits (Mandatory AI Name & On-The-Fly Teaching):** AI agents operating autonomously MUST provide their agent name when setting credentials (`gitmap login set ai-auto <agent-name>`) and when committing (`gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>`). Omitting the agent name triggers on-the-fly teaching diagnostics showing valid syntax (`antigravity`, `gemini`, `cursor-model`, `muse`, `claude`). Machine-wide generic bots use `gitmap login set global ai-auto`. Default bot parameters can be configured via CLI (`gitmap settings set ai_auto.default_agent <agent-name>`) or the Web Settings UI (`Speed & Automation` -> `ai-auto`). AI agents MUST configure their own active identity dynamically based on the executing environment; TOTAL BAN on hardcoding or blindly defaulting to `muse`.
-19. **Total Ban on Ad-Hoc Python File Reading, In-Memory Slicing, and Pattern Filtering:**
-AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners or writing temporary Python scripts to open, read, slice, or grep files across the codebase. You MUST use compiled, native `gitmap cat`:
+19. **Total Ban on Ad-Hoc Python File Reading, Filesystem Crawling, Sleep Polling, and Shell Pipelines:**
+AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners, PowerShell pipeline scripts, or Node.js snippets to open, read, slice, search, or sleep across the codebase. You MUST use compiled, native GitMap commands:
+- ❌ **BANNED:** `powershell -Command "Get-Content 'path/to/transcript.jsonl' -Tail 5 | Select-String -Pattern 'media|USER_INPUT'"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/transcript.jsonl -t 5 -q "media|USER_INPUT"`
+- ❌ **BANNED:** `gitmap py -c "import time; time.sleep(8)"` or shell `sleep 8` / `Start-Sleep -Seconds 8`
+  👉 **MANDATORY REPLACEMENT:** Use Antigravity `schedule` tool, `gitmap watch`, or reactive task wakeup. Sleep loops freeze terminal threads, burn CPU, and violate non-polling guidelines.
+- ❌ **BANNED:** `Get-ChildItem -Path "cli/cmdinstall" -File | Select-Object -ExpandProperty Name` or `dir /s /b`
+  👉 **MANDATORY REPLACEMENT:** `gitmap lf cli/cmdinstall` or `gitmap find "*.*" cli/cmdinstall`
+- ❌ **BANNED:** `node -e "const fs = require('fs'); const lines = fs.readFileSync('.../transcript.jsonl', 'utf-8').trim().split('\n'); console.log(JSON.parse(lines[1519]).content);"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/transcript.jsonl -L 1519` (or `-L 1519:1519 --num`)
+- ❌ **BANNED:** `gitmap py -c "import os; [print(root, files) for root, dirs, files in os.walk('...') if any('subagent' in f.lower() or 'research' in f.lower() for f in files)]"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap find "*subagent*" [dir]` and `gitmap find "*research*" [dir]`
+- ❌ **BANNED:** `gitmap py -c "import os; [print(os.path.join(r, f)) for r, d, fs in os.walk('cli/cmdui') for f in fs if 'settings' in f.lower()]"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap find "*settings*" cli/cmdui` (or `gitmap aum search "settings" cli/cmdui`)
+- ❌ **BANNED:** `gitmap py -c "print(open('cli/cmdui/ui_server_settings.go', encoding='utf-8').read())"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat cli/cmdui/ui_server_settings.go`
 - ❌ **BANNED:** `gitmap py -c "open_f = open('path/to/file.ext').read(); [print(l) for l in open_f.splitlines() if 'word' in l.lower()][:15]"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -q "word" -l 15`
 - ❌ **BANNED:** `gitmap py -c "open_f = open('path').read(); [print(l) for l in open_f.splitlines() if 'Get-ChildItem' in l or 'gitmap find' in l or 'ban' in l.lower() or 'search' in l.lower()][:15]"`
@@ -1147,12 +1166,10 @@ AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners or writi
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -L 140:220 --num`
 - ❌ **BANNED:** `gitmap py -c "import json; line = [l for l in open('transcript.jsonl')...]"`
   👉 **MANDATORY REPLACEMENT:** Use native agent tool `read_file` with line range bounds, or `gitmap cat transcript.jsonl -q "<query>"`
-- ❌ **BANNED:** `gitmap py -c "print(open('path/to/file.ext', encoding='utf-8').read())"`
-  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext`
 - ❌ **BANNED:** `pwsh -Command "Get-Content path/to/file.ext -TotalCount 30"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext --head 30` (or `gitmap head path/to/file.ext 30`)
 - ❌ **BANNED:** `gitmap py -c "lines = open('path/to/file.ext').readlines(); print(''.join(lines[-25:]))"`
-  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext --tail 25` (or `gitmap tail path/to/file.ext 25`)
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -t 25` (or `--tail 25`)
 
 20. **Total Ban on Restrict Condition Bypasses in Fleet Sync (V6 vs V7 Engine Versioning):**
 When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-with-n-steps-v7]`) or any time-restricted pipeline, agents MUST NOT run unconstrained sync scripts or bypass the calendar-aware morning commit cutoff.
@@ -1167,3 +1184,19 @@ When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-wit
 - **Subtask Decomposition Invariant:** In Phase 1C planning (`gitmap agent subtask add`), AI planners MUST NEVER create, plan, or inject an E2E testing subtask (e.g. `TASK-XX: E2E Test Suite Remediation (Achieve 100% Pass in ...)`), compiler build subtask, or release ceremony subtask unless the user prompt EXPLICITLY requested E2E testing or a version release!
 - **Zero Builds / Zero Tests Rule:** If E2E testing was NOT requested in the user prompt, you MUST NOT run full builds (`go build`, `npm run build`, `vite build`, `cargo build`) or full test suites (`go test ./...`, `npm test`, `pytest`, runner scripts). Verification is strictly static inspection and single-file targeted linters.
 - **Mandatory Completion Tables:** Every turn MUST conclude with the 4 mandatory completion tables (Task Execution Matrix, Coding Guidelines Table, Boundary Audit, Upstream Delivery Table) and the masked verification script. When E2E was not requested, Table 1 and Table 2 must explicitly document: `E2E Testing: Skipped (Not requested per Zero Build / Zero Test Invariant)`.
+
+22. **Total Ban on Ad-Hoc Python Database Scripts Querying Antigravity `conversation_summaries.db`:**
+- **❌ BANNED:** Creating scratch Python scripts (e.g. `check_summaries.py`, `query.py`, `brain/.../scratch/*.py`) or executing inline Python one-liners (`python -c "import sqlite3..."`, `gitmap py -c "import sqlite3..."`) to query `conversation_summaries.db` or other Split-DB SQLite databases.
+- 👉 **MANDATORY REPLACEMENTS:**
+  - `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`)
+  - `gitmap db-read agy "SELECT conversation_id, title, status FROM conversation_summaries LIMIT 10"`
+  - `gitmap db-read <alias|path> "<sql>" [-l <limit>] [--json]`
+  - See `@[ai_code_execution_restrictions](file;.agents/rules/ai_code_execution_restrictions.md)` for full specifications.
+
+23. **Mandatory Heatmap Touch Notification Before Analyzing Files:**
+- Whenever an AI agent begins reading, inspecting, or analyzing a source code file or specification during troubleshooting, research, or planning, the agent MUST notify GitMap Heatmap:
+  ```bash
+  gitmap heatmap touch <filepath> --reason "<why the file is being read/analyzed>"
+  ```
+  *(Alternatively, run `gitmap cat <filepath> --touch` to read and record touch in a single stream).*
+  This records active inspection intent and file leases in `repodb/heatmap.db`, preventing write collisions across autonomous agent swarms.

@@ -995,7 +995,7 @@ func dispatchAgySubsystem(
 		"add-read", "ar", "add-and-read",
 		"rwi", "rerun-with-id",
 		"rwc", "rerun-with-convid", "rwp", "rerun-with-prompt-id",
-		"telegram", "email", "settings":
+		"telegram", "email", "settings", "summaries", "convs", "conversations", "agydb":
 		cmdagy.MachineCLIRunner = func(a []string) error { return cmdos.RunOSCLI(append([]string{"machine"}, a...)) }
 		cmdagy.AliasCLIRunner = func(a []string) error { return cmdos.RunOSCLI(append([]string{"alias"}, a...)) }
 		executeAndAudit(cmdagy.DispatchAgy, shouldAudit, auditID, auditStart)

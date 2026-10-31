@@ -13,6 +13,8 @@ import (
 
 func dispatchHeatmapAction(subcmd string, flags map[string]string, pos []string, out io.Writer) (bool, error) {
 	switch subcmd {
+	case "touch", "touch-file", "analyze", "inspect":
+		return true, runHeatmapTouch(flags, pos, out)
 	case "log":
 		return true, runHeatmapLog(flags, out)
 	case "update", "outcome":
@@ -125,6 +127,27 @@ func insertMultipleActionLogs(db *store.HeatmapDB, raw string, out io.Writer, fl
 	}
 
 	return renderHeatmapLogResponse(out, lastRec, db.Path, flags)
+}
+
+func runHeatmapTouch(flags map[string]string, pos []string, out io.Writer) error {
+	filePath := ""
+	if len(pos) > 0 {
+		filePath = pos[0]
+	}
+	if filePath == "" {
+		filePath = flags["file"]
+	}
+	if filePath == "" {
+		return apperror.NewValidation("heatmap.touch", "E1000", "usage: gitmap heatmap touch <filepath> [--reason <why>]")
+	}
+
+	flags["action"] = "analyze"
+	flags["file"] = filePath
+	if flags["reason"] == "" && len(pos) > 1 {
+		flags["reason"] = strings.Join(pos[1:], " ")
+	}
+
+	return runHeatmapLog(flags, out)
 }
 
 func runHeatmapLog(flags map[string]string, out io.Writer) error {

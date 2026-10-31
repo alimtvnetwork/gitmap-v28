@@ -47,7 +47,7 @@ func handleExitCode(exitCode int, runErr error) error {
 }
 
 func warnAdHocAntiPatterns(args []string) {
-	code := extractInlineCode(args)
+	code := extractCodeOrScriptSnippet(args)
 	if code == "" {
 		return
 	}
@@ -57,6 +57,7 @@ func warnAdHocAntiPatterns(args []string) {
 	checkSleepTip(code)
 	checkTranscriptTip(code)
 	checkSocketCDPTip(code)
+	checkAgySummariesTip(code)
 	checkSqliteTaskTip(code)
 }
 
@@ -64,6 +65,26 @@ func extractInlineCode(args []string) string {
 	for idx, arg := range args {
 		if (arg == "-c" || arg == "--command") && idx+1 < len(args) {
 			return args[idx+1]
+		}
+	}
+
+	return ""
+}
+
+func extractCodeOrScriptSnippet(args []string) string {
+	inline := extractInlineCode(args)
+	if inline != "" {
+		return inline
+	}
+
+	for _, arg := range args {
+		if strings.HasSuffix(strings.ToLower(arg), ".py") {
+			if data, err := os.ReadFile(arg); err == nil {
+				if len(data) > 8192 {
+					return string(data[:8192])
+				}
+				return string(data)
+			}
 		}
 	}
 
@@ -115,14 +136,29 @@ func checkSocketCDPTip(code string) {
 	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python socket DevTools scripts. Use native 'gitmap cdp probe', 'gitmap cdp eval <expr>', or 'gitmap cdp target'.%s\n\n", constants.ColorYellow, constants.ColorReset)
 }
 
-func checkSqliteTaskTip(code string) {
-	hasSqlite := strings.Contains(code, "sqlite3")
-	hasTask := strings.Contains(code, "agent-task.db") || strings.Contains(code, "task") || strings.Contains(code, "subtask")
-	if !hasSqlite || !hasTask {
+func checkAgySummariesTip(code string) {
+	hasAgyDB := strings.Contains(code, "conversation_summaries")
+	if !hasAgyDB {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python SQLite queries on agent tasks. Use native 'gitmap agent task list' or 'gitmap agent subtask list'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python queries on conversation_summaries.db. Use native 'gitmap agy summaries [N]' or 'gitmap db-read agy \"<sql>\"'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkSqliteTaskTip(code string) {
+	hasSqlite := strings.Contains(code, "sqlite3")
+	if !hasSqlite {
+		return
+	}
+
+	if strings.Contains(code, "agent-task.db") || strings.Contains(code, "subtask") {
+		fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python SQLite queries on agent tasks. Use native 'gitmap agent task ls' or 'gitmap agent subtask ls'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+		return
+	}
+
+	if strings.Contains(code, "connect(") || strings.Contains(code, ".db") {
+		fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python SQLite scripts. Use native 'gitmap db-read <alias|path> \"<sql>\"' or 'gitmap db-find'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+	}
 }
 
 // RunPy executes the Python runner CLI command.

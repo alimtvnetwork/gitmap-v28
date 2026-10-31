@@ -1,3 +1,20 @@
+## [v6.642.0] 2026-10-31 Release v6.642.0
+
+### Install GitMap v6.642.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.642.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.642.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.642.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.642.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Dedicated Antigravity Database Commands (`gitmap agy summaries`, `convs`, `db`): Added high-speed native commands in `cli/cmdagy/agy_summaries.go` that directly read and project `~/.gemini/antigravity/conversation_summaries.db` in sub-millisecond time (<2ms), formatting results into Tokyo Night styled tables or JSON with query (`-q`), active (`-a`), and limit (`-l`) filters, eliminating ad-hoc Python SQLite scripts.
+- Built-In `agy` Database Alias: Registered `agy` (along with aliases `antigravity`, `convs`, `conversation-summaries`) in `cli/cmddb/alias_registry.go` and `cli/cmddb/cmd_rm.go` so `gitmap db-read agy "<sql>"` automatically resolves and queries the conversation summaries database out of the box.
+- Heatmap Touch File Analysis Logging: Added `gitmap heatmap touch <filepath> [--reason "<why>"]` in `cli/heatmap/heatmap_cmd.go` to register active file inspection intent into Split-DB `heatmap.db`, eliminating cognitive blind spots and file collision risk across autonomous agent swarms.
+- Centralized AI Code Execution Restrictions Rule: Created sovereign rule `.agents/rules/ai_code_execution_restrictions.md` explicitly banning scratch Python files in `brain/.../scratch/`, inline `sqlite3.connect` one-liners, unnotified file reads, and ad-hoc socket scripts.
+- GitMap Py Script File Interceptor: Expanded `warnAdHocAntiPatterns` in `cli/cmdpy/py_cmd.go` to inspect both inline code and `.py` script files, intercepting ad-hoc queries targeting `conversation_summaries.db` and SQLite task files with educational native replacement tips.
+- Fleet Skill & Restriction Synchronization: Synchronized updated skills and restriction rules across all 43 connected repositories via the V7 sync engine.
+
 ## [v6.641.0] 2026-10-31 Release v6.641.0
 
 ### Install GitMap v6.641.0

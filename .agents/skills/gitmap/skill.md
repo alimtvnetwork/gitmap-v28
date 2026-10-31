@@ -46,6 +46,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Committing `.env` or credentials to standard repositories | ✅ `gitmap rs text "<secret>" --slug <slug>` | Strict zero-secrets policy; stores credentials exclusively in `repo-secrets` vault. |
 | ❌ `gh run watch` or tight polling loops (`while true; sleep 5`) | ✅ `gitmap pipeline-ai status -t <eta>` or `gitmap pe -t` | Dynamic timeout waiting driven by calculated workflow ETA without burning CPU or Actions API quotas. |
 | ❌ Slow Python fleet sync (`python 03-ai-scripts/38-sync-prompts-skills-scripts.py`) | ✅ `gitmap sync [--workers 8] [--projects <path|json>]` | Native Go multi-repo synchronization across 43 repositories in <5s with 6-stage safe ceremony (backup branch, pre-pull, 5 boundaries, atomic commit). |
+| ❌ Ad-hoc Python scripts querying Antigravity DB (`conversation_summaries.db`) or scratch files (`check_summaries.py`, `query.py`) | ✅ `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`) or `gitmap db-read agy "<sql>"` | Sub-millisecond direct SQL query (<2ms), clean Tokyo Night formatted table, zero python interpreter overhead, JSON support, and zero scratch file pollution. TOTAL BAN on Python scripts for conversation_summaries.db. |
+| ❌ Reading or analyzing files silently without registering Heatmap cognitive intent | ✅ `gitmap heatmap touch <filepath> --reason "<why>"` (or `gitmap cat <filepath> --touch`) | Logs active file lease and inspection purpose into `heatmap.db`, eliminating multi-agent contention and providing instant auditability in `gitmap heatmap live`. |
 | ❌ Python SQLite task scripts or ad-hoc queries (`python -c "import sqlite3..."`) | ✅ `gitmap agent <task|subtask|log|diagnose|crashed|temp-clear>` | Native compiled Go SQLite task manager (<1ms) with WAL mode, single-writer locking, atomic in-flight telemetry, and crash autopsy. |
 | ❌ Python or ad-hoc SQLite scripts (`python -c "import sqlite3..."`), `sqlite3` CLI, DB browser tools | ✅ `gitmap db-read`, `gitmap db-add`, `gitmap db-edit`, `gitmap db-find`, `gitmap db-listing`, `gitmap db-view`, `gitmap db-rest`, `gitmap db-record-del`, `gitmap db-rm` | Compiled native Go SQLite exploration, mutation, view join, REST API server with Swagger UI & visualizer dashboard, and database lifecycle management. |
 | ❌ Ad-hoc Python network scrapers or image link extractors (e.g. `python -c "import urllib.request, re..."`, `fetch_urls.py`, curl pipes to scrape `prnt.sc`/lightshot/screenshot URLs) | ✅ `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (aliases: `gitmap download-prnt`, `gitmap asset download-prnt`) | Native compiled parallel fetching, multi-tier CDN regex resolution, User-Agent emulation, zero external dependencies, and automatic bidirectional Antigravity Brain synchronization. |
@@ -1182,3 +1184,19 @@ When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-wit
 - **Subtask Decomposition Invariant:** In Phase 1C planning (`gitmap agent subtask add`), AI planners MUST NEVER create, plan, or inject an E2E testing subtask (e.g. `TASK-XX: E2E Test Suite Remediation (Achieve 100% Pass in ...)`), compiler build subtask, or release ceremony subtask unless the user prompt EXPLICITLY requested E2E testing or a version release!
 - **Zero Builds / Zero Tests Rule:** If E2E testing was NOT requested in the user prompt, you MUST NOT run full builds (`go build`, `npm run build`, `vite build`, `cargo build`) or full test suites (`go test ./...`, `npm test`, `pytest`, runner scripts). Verification is strictly static inspection and single-file targeted linters.
 - **Mandatory Completion Tables:** Every turn MUST conclude with the 4 mandatory completion tables (Task Execution Matrix, Coding Guidelines Table, Boundary Audit, Upstream Delivery Table) and the masked verification script. When E2E was not requested, Table 1 and Table 2 must explicitly document: `E2E Testing: Skipped (Not requested per Zero Build / Zero Test Invariant)`.
+
+22. **Total Ban on Ad-Hoc Python Database Scripts Querying Antigravity `conversation_summaries.db`:**
+- **❌ BANNED:** Creating scratch Python scripts (e.g. `check_summaries.py`, `query.py`, `brain/.../scratch/*.py`) or executing inline Python one-liners (`python -c "import sqlite3..."`, `gitmap py -c "import sqlite3..."`) to query `conversation_summaries.db` or other Split-DB SQLite databases.
+- 👉 **MANDATORY REPLACEMENTS:**
+  - `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`)
+  - `gitmap db-read agy "SELECT conversation_id, title, status FROM conversation_summaries LIMIT 10"`
+  - `gitmap db-read <alias|path> "<sql>" [-l <limit>] [--json]`
+  - See `@[ai_code_execution_restrictions](file;.agents/rules/ai_code_execution_restrictions.md)` for full specifications.
+
+23. **Mandatory Heatmap Touch Notification Before Analyzing Files:**
+- Whenever an AI agent begins reading, inspecting, or analyzing a source code file or specification during troubleshooting, research, or planning, the agent MUST notify GitMap Heatmap:
+  ```bash
+  gitmap heatmap touch <filepath> --reason "<why the file is being read/analyzed>"
+  ```
+  *(Alternatively, run `gitmap cat <filepath> --touch` to read and record touch in a single stream).*
+  This records active inspection intent and file leases in `repodb/heatmap.db`, preventing write collisions across autonomous agent swarms.

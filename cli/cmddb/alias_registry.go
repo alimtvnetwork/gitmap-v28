@@ -78,7 +78,17 @@ func getSystemAliasDefs() []sysAliasDef {
 		{"pipeline", func() string { return pipelinedb.ResolvePipelineDbPath("") }, "system-pipeline", "CI/CD pipeline runs and telemetry database"},
 		{"heatmap", func() string { return filepath.Join(store.EffectiveDataDir(), "heatmap.db") }, "system-heatmap", "AI agent heatmap and coordination database"},
 		{"tasks", func() string { return store.ResolveMasterAgentDbPath("") }, "system-tasks", "Master agent swarm task queue database"},
+		{"agy", resolveAgyConversationDbPath, "system-agy", "Antigravity conversation summaries and IDE state database"},
 	}
+}
+
+func resolveAgyConversationDbPath() string {
+	homeDir, homeErr := os.UserHomeDir()
+	if homeErr != nil {
+		return ""
+	}
+
+	return filepath.Join(homeDir, ".gemini", "antigravity", "conversation_summaries.db")
 }
 
 // RegisterAlias registers or updates a database alias mapping with file size stat.
@@ -165,6 +175,9 @@ func resolveSystemDbAlias(input string) (string, bool) {
 	}
 	if strings.EqualFold(input, "tasks") || strings.EqualFold(input, "agents") {
 		return store.ResolveMasterAgentDbPath(""), true
+	}
+	if strings.EqualFold(input, "agy") || strings.EqualFold(input, "antigravity") || strings.EqualFold(input, "conversation-summaries") || strings.EqualFold(input, "convs") {
+		return resolveAgyConversationDbPath(), true
 	}
 	return "", false
 }

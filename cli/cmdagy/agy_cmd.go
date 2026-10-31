@@ -55,6 +55,9 @@ func tryDispatchAgyShortcut(args []string) (error, bool) {
 	if len(args) > 0 && strings.EqualFold(args[0], "settings") {
 		return RunAgySettingsCLI(args[1:]), true
 	}
+	if len(args) > 0 && isAgySummariesSubcommand(args[0]) {
+		return RunAgySummariesCLI(args[1:]), true
+	}
 	if len(args) > 0 && IsAgyUICommand(args[0]) {
 		return RunAgyUI(args[1:]), true
 	}
@@ -259,7 +262,15 @@ func normalizeRwiAndMessagingSubcommands(low string) string {
 	if low == "telegram" || low == "email" || low == "settings" {
 		return low
 	}
+	if isAgySummariesSubcommand(low) {
+		return "summaries"
+	}
 	return ""
+}
+
+func isAgySummariesSubcommand(sub string) bool {
+	low := strings.ToLower(strings.TrimSpace(sub))
+	return low == "summaries" || low == "summary" || low == "convs" || low == "conversations" || low == "agydb" || low == "conv-db"
 }
 
 func normalizeCoreWorkflowAliases(low string) string {

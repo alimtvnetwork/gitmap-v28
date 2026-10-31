@@ -72,7 +72,7 @@ func processAliasRemoval(params dbRmParams) *appfault.AppError {
 func isProtectedSystemAlias(alias string) bool {
 	lower := strings.ToLower(strings.TrimSpace(alias))
 	switch lower {
-	case "master", "gitmap", "pipeline", "pipelines", "heatmap", "tasks", "agents":
+	case "master", "gitmap", "pipeline", "pipelines", "heatmap", "tasks", "agents", "agy", "antigravity", "convs", "conversation-summaries":
 		return true
 	default:
 		return false
