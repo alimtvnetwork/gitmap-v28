@@ -1,6 +1,7 @@
 package cmdlogin
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -180,5 +181,18 @@ func testParseLoginSetInvalid(t *testing.T) {
 	_, err := parseLoginSetArgs([]string{"--invalid-flag"})
 	if err == nil {
 		t.Fatalf("expected error for invalid flag, got nil")
+	}
+}
+
+func TestMandatoryAgentValidation(t *testing.T) {
+	err := runUseAIAutoWithAgent("", false, false)
+	if err == nil {
+		t.Fatalf("expected error when setting local ai-auto without agent name")
+	}
+	if !strings.Contains(err.Error(), "AI agent name is mandatory") {
+		t.Errorf("expected mandatory agent name error, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "Examples to teach on the fly") {
+		t.Errorf("expected teaching examples in error, got: %v", err)
 	}
 }

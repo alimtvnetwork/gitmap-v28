@@ -29,11 +29,11 @@ This skill manages automated identity switching, sandboxed bot configurations, a
 
 When bot execution is engaged or when any autonomous task executes, GitMap provisions a sandboxed Git identity designed to differentiate autonomous agent contributions from human developer commits.
 
-| Parameter | Standard Global Preset (`ai-auto`) | Agent-Specific Preset (`ai-auto [name]`) |
+| Parameter | Standard Global Preset (`ai-auto`) | Agent-Specific Preset (`ai-auto <name>`) [MANDATORY] |
 | :--- | :--- | :--- |
 | **`user.name`** | `gitmap automation bot - runs autonomously` | `gitmap automation bot - <agent-name> - runs autonomously` |
 | **`user.email`** | `info@rgitmap.com` | `info@rgitmap.com` |
-| **Mandatory Command** | `gitmap login set global ai-auto` | `gitmap login set ai-auto [agent-name]` |
+| **Mandatory Command** | `gitmap login set global ai-auto` | `gitmap login set ai-auto <agent-name>` (MANDATORY) |
 | **Default Scope** | `--global` (machine-global) | `--local` (repository-local) |
 | **Human Backup** | Automatically saved to `original_user.json` | Automatically saved to `original_user.json` |
 | **Commit Provenance** | `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>` | `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>` |
@@ -44,7 +44,7 @@ When bot execution is engaged or when any autonomous task executes, GitMap provi
 
 GitMap provides dedicated subcommands for rapid identity locking, subagent attribution, and verification:
 
-### 3.1 Instant AI Automation Bot Activation
+### 3.1 Instant AI Automation Bot Activation (Mandatory Agent Name & Teaching on the Fly)
 
 To switch the workstation or repository to the standardized bot persona:
 
@@ -52,11 +52,23 @@ To switch the workstation or repository to the standardized bot persona:
 # Lock workstation-global Git identity to default AI automation bot
 gitmap login set global ai-auto
 
-# Lock repository Git identity to named AI automation bot (e.g. worker-01, muse)
-gitmap login set ai-auto worker-01
+# MANDATORY FOR AI AGENTS: Lock Git identity to named AI automation bot
+gitmap login set ai-auto muse
+gitmap login set ai-auto gemini
+gitmap login set ai-auto cursor-model
+gitmap login set ai-auto antigravity
+gitmap login set ai-auto claude
 
-# Lock repository Git identity to default AI automation bot (agent name omitted)
-gitmap login set ai-auto
+# On-The-Fly Error Recovery:
+# If an agent runs 'gitmap login set ai-auto' without an agent name (and without global),
+# GitMap emits an actionable error with on-the-fly teaching examples to prompt immediate self-correction.
+
+# Settings & Settings UI Configuration:
+# Default bot name, bot email, and default fallback agent can be configured via CLI or Web Settings UI:
+gitmap settings set ai_auto.default_agent muse
+gitmap settings set ai_auto.default_name "gitmap automation bot - runs autonomously"
+gitmap settings set ai_auto.default_email "info@rgitmap.com"
+# Or open Web Settings UI -> "Speed & Automation" pane -> "ai-auto" settings controls
 ```
 
 ### 3.2 Inspecting Active Identity Context

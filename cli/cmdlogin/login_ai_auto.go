@@ -9,7 +9,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	loginconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	appconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -27,14 +29,50 @@ func runUseAIAuto(hasRestrictionTime bool) error {
 }
 
 func runUseAIAutoWithAgent(agentName string, isGlobal bool, hasRestrictionTime bool) error {
-	botName := resolveAIBotName(agentName)
+	effectiveAgent := resolveEffectiveAgent(agentName)
+	if !isGlobal && len(effectiveAgent) == 0 {
+		return formatMissingAgentNameError()
+	}
+
+	botName := resolveAIBotName(effectiveAgent)
+	botEmail := config.GetAIAutoDefaultEmail()
 	cfg := prepareAIAutoProfiles()
 	targetGlobal := resolveTargetGlobal(isGlobal)
-	if err := usercontext.SetGitIdentity(botName, aiAutoBotEmail, targetGlobal); err != nil {
+	if err := usercontext.SetGitIdentity(botName, botEmail, targetGlobal); err != nil {
 		return err
 	}
 
 	return applyAIAutoPostSwitch(&cfg, botName, targetGlobal, hasRestrictionTime)
+}
+
+func resolveEffectiveAgent(agentName string) string {
+	clean := strings.Trim(strings.TrimSpace(agentName), "()[]{}")
+	if len(clean) > 0 {
+		return clean
+	}
+
+	return config.GetAIAutoDefaultAgent()
+}
+
+func formatMissingAgentNameError() error {
+	msg := strings.Join([]string{
+		"AI agent name is mandatory for 'gitmap login set ai-auto <agent-name>'.",
+		"",
+		"💡 Examples to teach on the fly:",
+		"  • gitmap login set ai-auto muse",
+		"  • gitmap login set ai-auto gemini",
+		"  • gitmap login set ai-auto cursor-model",
+		"  • gitmap login set ai-auto antigravity",
+		"  • gitmap login set ai-auto claude",
+		"",
+		"To configure a generic machine-wide bot without an agent name, use:",
+		"  • gitmap login set global ai-auto",
+		"",
+		"Or configure a default AI agent in Settings:",
+		"  • gitmap settings set ai_auto.default_agent muse",
+	}, "\n")
+
+	return apperror.NewValidationError(msg)
 }
 
 func prepareAIAutoProfiles() model.GitProfileConfig {
@@ -72,7 +110,7 @@ func applyAIAutoPostSwitch(cfg *model.GitProfileConfig, botName string, isGlobal
 func resolveAIBotName(agentName string) string {
 	clean := strings.Trim(strings.TrimSpace(agentName), "()[]{}")
 	if len(clean) == 0 {
-		return aiAutoBotName
+		return config.GetAIAutoDefaultName()
 	}
 
 	return fmt.Sprintf("gitmap automation bot - %s - runs autonomously", clean)

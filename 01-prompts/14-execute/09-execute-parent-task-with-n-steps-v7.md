@@ -87,12 +87,18 @@ Active when the user requests an automated bot persona, AI commit authoring, or 
      gitmap login set global ai-auto
      ```
      Locks workstation-global Git config (`user.name` and `user.email`) to `gitmap automation bot - runs autonomously <info@rgitmap.com>` and preserves original human user configuration in `original_user.json`.
-   - Repository-Local / Named Agent Identity:
+   - Repository-Local / Named Agent Identity (MANDATORY):
      ```bash
-     gitmap login set ai-auto [agent-name]
+     # MANDATORY: Every autonomous AI agent MUST provide its AI name:
+     gitmap login set ai-auto <agent-name>   # e.g. gitmap login set ai-auto antigravity | muse | gemini | cursor-model
      ```
-     Locks Git identity to `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>` (defaults to `gitmap automation bot - runs autonomously <info@rgitmap.com>` if agent name omitted).
-   - Commit Provenance Attribution:
+     Omitting `<agent-name>` triggers a validation error with on-the-fly teaching examples so the AI agent self-corrects immediately.
+     If generic machine-wide identity without agent name is needed:
+     ```bash
+     gitmap login set global ai-auto
+     ```
+     Defaults (bot name, bot email, fallback agent) can be adjusted via Settings CLI (`gitmap settings set ai_auto.default_agent <name>`) or Web Settings UI (`Speed & Automation` -> `ai-auto`).
+   - Commit Provenance Attribution (MANDATORY):
      ```bash
      gitmap cpf/cpb/cpc/cfr/cpr "<module> - <summary>" --ai-agent <name>
      ```

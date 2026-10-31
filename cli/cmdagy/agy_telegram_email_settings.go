@@ -33,6 +33,9 @@ type SpeedSettingsStatus struct {
 	MachineAlias            string `json:"machineAlias"`
 	SpecialReposSecretsName string `json:"specialReposSecretsName"`
 	SpecialReposCacheName   string `json:"specialReposCacheName"`
+	AIAutoDefaultName       string `json:"aiAutoDefaultName"`
+	AIAutoDefaultEmail      string `json:"aiAutoDefaultEmail"`
+	AIAutoDefaultAgent      string `json:"aiAutoDefaultAgent"`
 }
 
 type speedSettingsView = SpeedSettingsStatus
@@ -144,6 +147,12 @@ func applySettingKeyValue(key, val string) {
 		_ = config.SetVariable("global", "special_repos.secrets_name", trimmedVal)
 	case "special_repos.cache_name", "cache_repo", "repo_cache", "repo_storage":
 		_ = config.SetVariable("global", "special_repos.cache_name", trimmedVal)
+	case "ai_auto.default_name", "ai_bot_name", "bot_name":
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultName, trimmedVal)
+	case "ai_auto.default_email", "ai_bot_email", "bot_email":
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultEmail, trimmedVal)
+	case "ai_auto.default_agent", "ai_agent", "default_agent":
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultAgent, trimmedVal)
 	default:
 		_ = config.SetVariable("global", strings.TrimSpace(key), trimmedVal)
 		saveDBSetting(strings.TrimSpace(key), trimmedVal)
@@ -170,6 +179,9 @@ func runSettingsShow(view speedSettingsView) {
 	fmt.Printf("  Email Speed Setup:         smtp=%s | to=%s | ready=%v\n", view.EmailSMTPHost, view.EmailTo, view.EmailReady)
 	fmt.Printf("  Special Secrets Repo  : %s (shortcut: gitmap rs / gitmap cd rs)\n", view.SpecialReposSecretsName)
 	fmt.Printf("  Special Cache Repo    : %s (shortcut: gitmap rc / gitmap cd rc)\n", view.SpecialReposCacheName)
+	fmt.Printf("  AI Auto Bot Name:          %s (key: ai_auto.default_name)\n", view.AIAutoDefaultName)
+	fmt.Printf("  AI Auto Bot Email:         %s (key: ai_auto.default_email)\n", view.AIAutoDefaultEmail)
+	fmt.Printf("  AI Auto Default Agent:     %s (key: ai_auto.default_agent)\n", view.AIAutoDefaultAgent)
 }
 
 func collectSpeedSettingsView() speedSettingsView {
@@ -178,6 +190,9 @@ func collectSpeedSettingsView() speedSettingsView {
 	st := buildBaseSpeedSettingsStatus()
 	st.SpecialReposSecretsName = defaultIfEmpty(secretsName, "repo-secrets")
 	st.SpecialReposCacheName = defaultIfEmpty(cacheName, "repo-cache")
+	st.AIAutoDefaultName = config.GetAIAutoDefaultName()
+	st.AIAutoDefaultEmail = config.GetAIAutoDefaultEmail()
+	st.AIAutoDefaultAgent = config.GetAIAutoDefaultAgent()
 	return st
 }
 

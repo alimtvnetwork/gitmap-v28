@@ -189,6 +189,23 @@ const uiAssetsMarkupSettingsA = `    <div id="tab-settings" class="content-area 
           <input type="text" id="setting-commit-weekday-cutoff" name="commit.weekday_cutoff" data-key="commit.weekday_cutoff" value="08:00 AM" placeholder="08:00 AM">
           <p style="font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-1);">Terminal check: <code>gitmap restrict status</code>. Add or edit with <code>--name</code>, <code>--blocked-after</code>, <code>--email</code>, <code>--tz</code>. Weekends: <code>--weekend-open</code> or <code>--weekend-closed</code>. Stay and commit after the cutoff with <code>--permit-stay</code> and <code>--auto-window</code>. <code>--commit-only</code> keeps the restriction and skips push.</p>
         </div>
+        <div class="form-group" style="margin-top:var(--sp-4); padding-top:var(--sp-3); border-top:1px solid var(--border);">
+          <h4 style="display:flex;align-items:center;gap:var(--sp-2);"><span data-icon="bot"></span> Autonomous AI Bot &amp; Identity (<code>ai-auto</code>)</h4>
+          <p style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:var(--sp-2);">Configure machine-wide credentials for autonomous agents (Muse, Gemini, Cursor, Antigravity) and automated pipeline runs.</p>
+        </div>
+        <div class="form-group">
+          <label for="setting-ai-auto-name">Default AI Auto Bot Name (<code>ai_auto.default_name</code>)</label>
+          <input type="text" id="setting-ai-auto-name" name="ai_auto.default_name" data-key="ai_auto.default_name" value="gitmap automation bot - runs autonomously" placeholder="gitmap automation bot - runs autonomously">
+        </div>
+        <div class="form-group">
+          <label for="setting-ai-auto-email">Default AI Auto Email (<code>ai_auto.default_email</code>)</label>
+          <input type="email" id="setting-ai-auto-email" name="ai_auto.default_email" data-key="ai_auto.default_email" value="info@rgitmap.com" placeholder="info@rgitmap.com">
+        </div>
+        <div class="form-group">
+          <label for="setting-ai-auto-agent">Default AI Agent Name (<code>ai_auto.default_agent</code>)</label>
+          <input type="text" id="setting-ai-auto-agent" name="ai_auto.default_agent" data-key="ai_auto.default_agent" value="" placeholder="e.g. muse, gemini, cursor-model, antigravity">
+          <p style="font-size:var(--fs-xs);color:var(--muted);margin-top:var(--sp-1);">When set, <code>gitmap login set ai-auto</code> or autonomous commits without an explicit agent will fall back to this agent.</p>
+        </div>
         <div class="form-group" style="margin-top:var(--sp-3);">
           <label>Prompt Preview Header Metadata (Default Instance Template)</label>
           <div class="prompt-preview-header-wrapper" style="border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--code-bg);padding:var(--sp-2);">

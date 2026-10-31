@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
+	appconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -287,11 +289,23 @@ func resolveAuthorFallback(meta *CommitMetadata) {
 	}
 	if meta.IsAIMode && meta.AIName != "" {
 		botName := fmt.Sprintf("gitmap automation bot - %s - runs autonomously", meta.AIName)
-		meta.Author = formatAuthorIdentity(botName, "info@rgitmap.com")
+		meta.Author = formatAuthorIdentity(botName, config.GetAIAutoDefaultEmail())
+
+		return
+	}
+	if meta.IsAIMode && meta.AIName == "" {
+		warnMissingAIAgentGuidance()
+		meta.Author = formatAuthorIdentity(config.GetAIAutoDefaultName(), config.GetAIAutoDefaultEmail())
 
 		return
 	}
 	meta.Author = resolveGitConfigAuthor()
+}
+
+func warnMissingAIAgentGuidance() {
+	fmt.Printf("%s💡 Notice: AI agent attribution is mandatory for cognitive heatmap tracking.%s\n", appconstants.ColorYellow, appconstants.ColorReset)
+	fmt.Println("  Use --ai-agent <name> on your commit commands (e.g. gitmap cpf '...' --ai-agent muse).")
+	fmt.Println("  Or configure a default AI agent via: gitmap settings set ai_auto.default_agent muse")
 }
 
 func resolveGitConfigAuthor() string {
@@ -323,8 +337,16 @@ func resolveAIFallbacks(meta *CommitMetadata) {
 		meta.IsAIMode = true
 	}
 	if meta.IsAIMode && meta.AIName == "" {
-		meta.AIName = store.DetectCurrentAIName()
+		meta.AIName = resolveConfiguredAgent()
 	}
+}
+
+func resolveConfiguredAgent() string {
+	if val := config.GetAIAutoDefaultAgent(); len(val) > 0 {
+		return val
+	}
+
+	return store.DetectCurrentAIName()
 }
 
 func hasAmbientAIEnv() bool {

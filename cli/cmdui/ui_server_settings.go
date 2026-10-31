@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
+	"github.com/alimtvnetwork/gitmap-v28/cli/config"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/jsonx"
 )
@@ -172,6 +173,7 @@ func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		loaded := loadSettings()
 		cmdrestrict.ExposeMode(loaded.Attributes)
+		exposeAIAutoSettings(loaded.Attributes)
 		_ = json.NewEncoder(w).Encode(loaded)
 		return
 	}
@@ -188,6 +190,7 @@ func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": errMode.Error()})
 		return
 	}
+	applyAIAutoSettings(merged.Attributes)
 	saveErr := saveSettingsData(merged)
 	if saveErr != nil {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": saveErr.Error()})
@@ -195,4 +198,28 @@ func handleAPISettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(map[string]any{"success": true})
+}
+
+func exposeAIAutoSettings(attrs map[string]string) {
+	if attrs == nil {
+		return
+	}
+	attrs[config.SettingAIAutoDefaultName] = config.GetAIAutoDefaultName()
+	attrs[config.SettingAIAutoDefaultEmail] = config.GetAIAutoDefaultEmail()
+	attrs[config.SettingAIAutoDefaultAgent] = config.GetAIAutoDefaultAgent()
+}
+
+func applyAIAutoSettings(attrs map[string]string) {
+	if attrs == nil {
+		return
+	}
+	if name, ok := attrs[config.SettingAIAutoDefaultName]; ok && len(name) > 0 {
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultName, name)
+	}
+	if email, ok := attrs[config.SettingAIAutoDefaultEmail]; ok && len(email) > 0 {
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultEmail, email)
+	}
+	if agent, ok := attrs[config.SettingAIAutoDefaultAgent]; ok {
+		_ = config.SetAIAutoSetting(config.SettingAIAutoDefaultAgent, agent)
+	}
 }

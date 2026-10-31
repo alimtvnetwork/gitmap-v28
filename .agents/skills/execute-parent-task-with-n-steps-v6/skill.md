@@ -244,15 +244,26 @@ Every code modification executed across any subtask or wave must pass the 12-Pil
 - **R5 Mandatory Subagents (`invoke_subagent`), Concurrency Scaling & Immediate Dynamic Respawn.** Spawning subagents via `invoke_subagent` (`A = 3`, `H = 2`, System Concurrency Capacity = 6 concurrent operations) is an **ABSOLUTE MUST** (`research` for discovery in Phase 1, `self` for spec authoring and code edits in Phase 2/3). The lead agent is STRICTLY FORBIDDEN from executing all reads or edits solo. Organize execution as a Tree Swarm Hierarchy (Root Orchestrator -> Branch Coordinators -> Leaf Workers & Dynamic Assistants). Under the Immediate Dynamic Respawn & Join Protocol, the lead orchestrator MUST NOT wait for an entire 3-agent wave to finish. As soon as ANY single worker completes, the lead immediately spawns a replacement worker for the next pending subtask, or commands the worker to dynamically join an active subtask in collaborative assistance mode (parallel reading, companion linters, memory logging) to keep concurrency at exactly 3 active subagents (100% duty cycle) without file write collisions (respecting R6). Solo execution without calling `invoke_subagent` is an auto-reject failure on the same tier as Rule 0.
 - **R6 One Owner Per File (Disjoint Bounding Boxes).** Within every worker wave, each file has exactly one owner. Shared indexes (`.ai-memory/plans/readme.md`, `.ai-memory/prompts.md`, `.ai-memory/what-to-read.md`, `02-spec/21-app/readme.md`, directory `readme.md`) belong exclusively to lead.
 - **R7 Git Safety & Isolation (Worker Git Ban).** Subagents NEVER run git commands (`git add`, `git commit`, `git push`, `git status`, `git diff`, `git checkout`). In shared workspaces (`Workspace: "inherit"`), worker git calls create `.git/index.lock` collisions that immediately crash parallel agents. Nobody runs `git reset --hard`, `git checkout --`, `git clean`, `git stash`, or force pushes.
-- **R8 Mandatory System-Wide Single Autonomous Bot User (Machine Global & GitMap Invariant).**
-  - Git Author Name: `gitmap automation bot - runs autonmously`
-  - Git Author Email: `info@rgitmap.com`
-  - Global Machine and GitMap Invariant: The Git username and email MUST be configured globally across the host machine and inside GitMap profiles:
+- **R8 Mandatory System-Wide Autonomous Bot Identity & Mandatory Agent Name.**
+  - Global Bot Identity: `gitmap automation bot - runs autonomously <info@rgitmap.com>`
+  - Agent-Specific Identity: `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>`
+  - Activation & Identity Locking (MANDATORY AGENT NAME):
     ```bash
-    gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --global
-    gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --project
+    # MANDATORY: Every autonomous AI agent MUST provide its AI name:
+    gitmap login set ai-auto <agent-name>   # e.g. gitmap login set ai-auto antigravity | muse | gemini | cursor-model
+
+    # Generic machine-wide identity without agent name:
+    gitmap login set global ai-auto
+
+    # Settings configuration via CLI or Web Settings UI:
+    gitmap settings set ai_auto.default_agent muse
     ```
-  - Preflight Git Identity Verification: Lead orchestrator runs `gitmap user info` or `gitmap whoami` during Step 0 to inspect and reveal active identity. If diverging, it must be corrected immediately using GitMap credential commands before committing. Committing under personal human credentials (`MD ALIM UL KARIM`, etc.) is strictly forbidden.
+    If an AI agent omits `<agent-name>` when running `gitmap login set ai-auto`, GitMap rejects the call with actionable on-the-fly teaching examples so the agent self-corrects immediately.
+  - Commit Provenance Attribution:
+    ```bash
+    gitmap cpf/cpb/cpc/cfr/cpr "<module> - <summary>" --ai-agent <agent-name>
+    ```
+  - Preflight Git Identity Verification: Lead orchestrator runs `gitmap user info` during Step 0 to inspect and reveal active identity. Committing under personal human credentials (`MD ALIM UL KARIM`, personal emails) is strictly forbidden.
 - **R9 Atomic Commit & Push via GitMap (TOTAL BAN ON RAW GIT COMMITS, THIRD BRACKETS & 'COMMIT' MODULE).** The run ends with ONE GitMap call:
   - For features: `gitmap cpf "<module> - <feature summary>"`
   - For bug fixes: `gitmap cpb "<module> - <fix summary>"`
@@ -332,10 +343,10 @@ GitMap is your **PRIMARY** acceleration engine. Banned ALL variants of `Get-Chil
    - Run `gitmap user info` to inspect active Git authorship across local and global scopes.
    - Enforce Rule R8: Unconditionally lock both global and project Git identities to the single autonomous bot user:
      ```bash
-     gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --global
-     gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --project
+     gitmap user change-user "gitmap automation bot - runs autonomously" "info@rgitmap.com" --global
+     gitmap user change-user "gitmap automation bot - runs autonomously" "info@rgitmap.com" --project
      ```
-     Run `gitmap user info` to verify `Active Git` and `Global Git` both match `gitmap automation bot - runs autonmously <info@rgitmap.com>`.
+     Run `gitmap user info` to verify `Active Git` and `Global Git` both match `gitmap automation bot - runs autonomously <info@rgitmap.com>`.
      TOTAL BAN ON HUMAN AUTHOR COMMITS: Committing under human developer credentials (`MD ALIM UL KARIM`, personal emails) in automated sessions is an immediate auto-reject failure.
 2. **Commands & Directory:** Confirm `gitmap --version` and `python --version` exit 0. Verify GitMap with harmless call (`gitmap lf readme.md`), not `--help`. `run_command` uses `Cwd` in workspace root, paths relative. Never cd to other drives or tool folders.
 3. **Working Tree Cleanliness:** Run `git status --porcelain`. Record modified files in ledger; never touch them. Confirm root `readme.md` is lowercase. Read `.ai-memory/what-to-read.md`, `strictly-avoid.md`, `coding-guidelines.md`.
