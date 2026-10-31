@@ -4,7 +4,7 @@
 
 **High-Performance Git Repository Scanner, Fleet Manager & AI Orchestration CLI**
 
-**Pinned version: v6.635.0**
+**Pinned version: v6.635.1**
 
 <!-- STAMP:PLATFORM_BADGES -->
 [![CI](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alimtvnetwork/gitmap-v28/actions/workflows/ci.yml)
@@ -58,7 +58,7 @@ GitMap installs cleanly across Windows, Linux, and macOS without external depend
 irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.ps1 | iex
 
 # Pinned release install (v6.555.0):
-irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.0/install.ps1 | iex
+irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.1/install.ps1 | iex
 ```
 
 ### 🐧 Linux & macOS · Bash / zsh
@@ -68,7 +68,7 @@ irm https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.0/install.
 curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/main/install.sh | sh
 
 # Pinned release install (v6.555.0):
-curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.0/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.635.1/install.sh | sh
 ```
 
 ---
