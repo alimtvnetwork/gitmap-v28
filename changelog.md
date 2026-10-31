@@ -1,3 +1,19 @@
+## [v6.641.0] 2026-10-31 Release v6.641.0
+
+### Install GitMap v6.641.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.641.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.641.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.641.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.641.0"`
+
+### Added / Changed / Fixed / Removed
+
+- GitMap Cat Remediation & Missing File Suggestions: Eliminated fatal E9000 execution crashes and raw Go stack traces when `gitmap cat` encounters missing files or directories, returning typed `ErrorTypeNotFound` and `ErrorTypeValidation` errors accompanied by Catppuccin remediation boxes offering closest candidate files via Levenshtein fuzzy distance and directory navigation alternatives (`gitmap tree`, `gitmap find`).
+- GitMap Py Educational Tips: Added interceptor warnings in `cli/cmdpy/py_cmd.go` for `.splitlines()`, JSON transcripts (`transcript_full.jsonl`), raw DevTools WebSocket scripts (`socket.socket`, `send_frame`), and task database queries (`agent-task.db`), printing educational native GitMap CLI alternatives directly on stderr.
+- Letterly Format Linter & Prompt Hygiene: Updated `linter-scripts/check-letterly-format.py` and canonical prompt templates to eliminate `gitmap py` and `gitmap ps` from the search tool instructions, reinforcing `gitmap aum search`, `gitmap find`, and `gitmap cat` as the sole permissible search tools.
+- AI Auto Agent Settings Synchronization: Synchronized `ai_auto.default_agent` across `gitmap settings`, `gitmap login set ai-auto`, and the GitMap Web UI settings panel, ensuring dynamic agent persona configuration.
+- Fleet Skill & Guideline Propagation: Synchronized updated skill matrices across connected repositories via the V7 sync engine.
+
 ## [v6.640.0] 2026-10-31 Release v6.640.0
 
 ### Install GitMap v6.640.0

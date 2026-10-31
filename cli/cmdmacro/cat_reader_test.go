@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 )
 
 func TestParseCatOptions(t *testing.T) {
@@ -85,5 +87,56 @@ func TestExecuteCatWithOptionsQuery(t *testing.T) {
 
 	if err := ExecuteCatWithOptions(opts); err != nil {
 		t.Fatalf("ExecuteCatWithOptions failed: %v", err)
+	}
+}
+
+func TestExecuteCatWithOptions_FileNotFound(t *testing.T) {
+	tempDir := t.TempDir()
+	_ = os.WriteFile(filepath.Join(tempDir, "cat_reader.go"), []byte("package test"), 0644)
+	opts := CatOptions{TargetFile: filepath.Join(tempDir, "cat_run.go")}
+
+	err := ExecuteCatWithOptions(opts)
+	if err == nil {
+		t.Fatalf("expected error for missing file")
+	}
+
+	appErr, isApp := err.(*apperror.AppError)
+	if !isApp || appErr == nil {
+		t.Fatalf("expected AppError, got %T", err)
+	}
+
+	assertCatNotFoundProperties(t, appErr)
+}
+
+func assertCatNotFoundProperties(t *testing.T, appErr *apperror.AppError) {
+	if appErr.Type != apperror.ErrorTypeNotFound {
+		t.Errorf("expected ErrorTypeNotFound, got %s", appErr.Type)
+	}
+
+	if appErr.Stack != "" {
+		t.Errorf("expected empty stack trace, got %q", appErr.Stack)
+	}
+
+	if !appErr.HasSuggestions() {
+		t.Errorf("expected suggestions for typo in target file")
+	}
+}
+
+func TestExecuteCatWithOptions_DirectoryTarget(t *testing.T) {
+	tempDir := t.TempDir()
+	opts := CatOptions{TargetFile: tempDir}
+
+	err := ExecuteCatWithOptions(opts)
+	if err == nil {
+		t.Fatalf("expected error for directory target")
+	}
+
+	appErr, isApp := err.(*apperror.AppError)
+	if !isApp || appErr == nil {
+		t.Fatalf("expected AppError, got %T", err)
+	}
+
+	if appErr.Type != apperror.ErrorTypeValidation {
+		t.Errorf("expected ErrorTypeValidation, got %s", appErr.Type)
 	}
 }

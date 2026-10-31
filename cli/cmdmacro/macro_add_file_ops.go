@@ -145,7 +145,16 @@ func runRmFileCmd(args []string) error {
 	}
 
 	target := macro.ExpandPathAndEnv(args[0])
+
+	return removeTargetFile(target)
+}
+
+func removeTargetFile(target string) error {
 	if err := os.Remove(target); err != nil {
+		if os.IsNotExist(err) {
+			return apperror.NewNotFound("rmfile", "E4004", fmt.Sprintf("file %q not found", target))
+		}
+
 		return apperror.WrapSimple(err, fmt.Sprintf("remove file %q", target))
 	}
 

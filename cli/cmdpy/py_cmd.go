@@ -55,6 +55,9 @@ func warnAdHocAntiPatterns(args []string) {
 	checkFileReadTip(code)
 	checkOsWalkTip(code)
 	checkSleepTip(code)
+	checkTranscriptTip(code)
+	checkSocketCDPTip(code)
+	checkSqliteTaskTip(code)
 }
 
 func extractInlineCode(args []string) string {
@@ -69,12 +72,12 @@ func extractInlineCode(args []string) string {
 
 func checkFileReadTip(code string) {
 	hasOpen := strings.Contains(code, "open(")
-	hasRead := strings.Contains(code, ".read") || strings.Contains(code, "readlines") || strings.Contains(code, "for line in")
+	hasRead := strings.Contains(code, ".read") || strings.Contains(code, "readlines") || strings.Contains(code, "splitlines") || strings.Contains(code, "for line in")
 	if !hasOpen || !hasRead {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python file reading (`open(...)`). Use 'gitmap cat <filepath> [-L start:end] [-q query]'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python file reading (`open(...)`). Use 'gitmap cat <filepath> [-L start:end] [-q query] [-l limit]'.%s\n\n", constants.ColorYellow, constants.ColorReset)
 }
 
 func checkOsWalkTip(code string) {
@@ -91,6 +94,35 @@ func checkSleepTip(code string) {
 	}
 
 	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python sleep (`time.sleep(...)`). Use Antigravity 'schedule', 'gitmap watch', or background tasks.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkTranscriptTip(code string) {
+	hasTranscript := strings.Contains(code, "transcript.jsonl") || strings.Contains(code, "transcript_full.jsonl")
+	if !hasTranscript {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python transcript parsing. Use 'gitmap cat <log_path> -q <pattern>' or read compact transcript directly.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkSocketCDPTip(code string) {
+	hasSocket := strings.Contains(code, "socket.socket") || strings.Contains(code, "send_frame") || strings.Contains(code, "recv_frame")
+	hasDevTools := strings.Contains(code, "socket") && strings.Contains(code, "devtools")
+	if !hasSocket && !hasDevTools {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python socket DevTools scripts. Use native 'gitmap cdp probe', 'gitmap cdp eval <expr>', or 'gitmap cdp target'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkSqliteTaskTip(code string) {
+	hasSqlite := strings.Contains(code, "sqlite3")
+	hasTask := strings.Contains(code, "agent-task.db") || strings.Contains(code, "task") || strings.Contains(code, "subtask")
+	if !hasSqlite || !hasTask {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python SQLite queries on agent tasks. Use native 'gitmap agent task list' or 'gitmap agent subtask list'.%s\n\n", constants.ColorYellow, constants.ColorReset)
 }
 
 // RunPy executes the Python runner CLI command.

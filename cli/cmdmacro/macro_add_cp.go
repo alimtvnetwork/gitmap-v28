@@ -43,17 +43,34 @@ func executeInteractiveCopy(line string, args []string) error {
 }
 
 func executeCopyOperation(src, dst string) (bool, int, int64, error) {
-	srcStat, err := os.Stat(src)
+	srcStat, err := statCopySource(src)
 	if err != nil {
-		return false, 0, 0, apperror.WrapSimple(err, fmt.Sprintf("cannot stat %q", src))
+		return false, 0, 0, err
 	}
+
 	targetDst := resolveTargetDestination(src, dst)
 	if srcStat.IsDir() {
 		count, totalBytes, copyErr := copyDirectoryRecursive(src, targetDst)
+
 		return true, count, totalBytes, copyErr
 	}
+
 	copied, copyErr := copySingleFile(src, targetDst, srcStat.Mode())
+
 	return false, 1, copied, copyErr
+}
+
+func statCopySource(src string) (os.FileInfo, error) {
+	stat, err := os.Stat(src)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, apperror.NewNotFound("cp", "E4004", fmt.Sprintf("source %q not found", src))
+		}
+
+		return nil, apperror.WrapSimple(err, fmt.Sprintf("cannot stat %q", src))
+	}
+
+	return stat, nil
 }
 
 func resolveTargetDestination(src, dst string) string {

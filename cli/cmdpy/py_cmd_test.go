@@ -46,3 +46,10 @@ func TestResolveErrMsg(t *testing.T) {
 		t.Errorf("expected 'sample', got '%s'", msg)
 	}
 }
+
+func TestWarnAdHocAntiPatterns(t *testing.T) {
+	warnAdHocAntiPatterns([]string{"-c", "open('file.txt').splitlines()"})
+	warnAdHocAntiPatterns([]string{"-c", "import socket; s = socket.socket(); s.connect(('127.0.0.1', 9222))"})
+	warnAdHocAntiPatterns([]string{"-c", "import json; open('transcript_full.jsonl')"})
+	warnAdHocAntiPatterns([]string{"-c", "import sqlite3; conn = sqlite3.connect('agent-task.db')"})
+}

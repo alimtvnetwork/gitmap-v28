@@ -19,11 +19,37 @@ func ExecuteCatWithOptions(opts CatOptions) error {
 		return apperror.NewValidationError("missing filepath for cat")
 	}
 
-	data, err := os.ReadFile(opts.TargetFile)
+	data, err := readCatTargetData(opts.TargetFile)
 	if err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf("read file %q", opts.TargetFile))
+		return err
 	}
 
+	return dispatchCatContent(opts, data)
+}
+
+func readCatTargetData(target string) ([]byte, error) {
+	stat, statErr := os.Stat(target)
+	if statErr == nil && stat.IsDir() {
+		return nil, buildCatDirectoryError(target)
+	}
+
+	data, err := os.ReadFile(target)
+	if err != nil {
+		return nil, handleCatReadError(target, err)
+	}
+
+	return data, nil
+}
+
+func handleCatReadError(target string, err error) error {
+	if os.IsNotExist(err) {
+		return buildCatFileNotFoundError(target)
+	}
+
+	return apperror.WrapSimple(err, fmt.Sprintf("read file %q", target))
+}
+
+func dispatchCatContent(opts CatOptions, data []byte) error {
 	if opts.IsInfo {
 		printCatFileInfo(opts.TargetFile, data)
 
