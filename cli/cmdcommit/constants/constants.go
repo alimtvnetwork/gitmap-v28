@@ -5,6 +5,7 @@ const (
 	FlagAgentID   = "--agent-id"
 	FlagHeatmapID = "--heatmap-id"
 	FlagAI        = "--ai"
+	FlagAIAgent   = "--ai-agent"
 	FlagSpec      = "--spec"
 	FlagTask      = "--task"
 	FlagAuthor    = "--author"

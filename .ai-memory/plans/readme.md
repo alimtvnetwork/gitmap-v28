@@ -8,6 +8,8 @@ This registry catalogs the active, completed, and pending execution plans for Gi
 
 The following plans represent open and actively maintained development streams:
 
+- [359-gitmap-feature-implementation-and-update.md](pending/359-gitmap-feature-implementation-and-update.md) — Plan 359: GitMap Feature Implementation and Update: Autonomous AI Identity (`gitmap login set ai-auto [agent-name]`, `gitmap login set global ai-auto`), Commit `--ai-agent` Flag & Heatmap Attribution, and Cross-Repository V6/V7 Checklist & Verification Script Synchronization (Spec: [359-gitmap-feature-implementation-and-update](../../02-spec/21-app/359-gitmap-feature-implementation-and-update/01-architecture-spec.md)) (Status: `pending`)
+
 - [333-clone-and-fix-git-repositories.md](completed/333-clone-and-fix-git-repositories.md) — Plan 333: GitMap Clone Name Resolution, Suggestion Engine & Antigravity IDE Integration: Bare Repo Name & Slug Resolution, Catppuccin Fuzzy Suggestion Box, CFR/CRFB Routing Disambiguation, Dedicated CRF/CRFB Aliases, Automated Post-Clone Antigravity Workspace Registration, and Target Repos Cloning (`yt-manage-v1`, `go-email-sender`) (Spec: [333-clone-and-fix-git-repositories](../../02-spec/21-app/333-clone-and-fix-git-repositories/readme.md)) (Status: `completed`)
 
 - [330-context-menu-and-gitmap-ui-enhancements.md](completed/330-context-menu-and-gitmap-ui-enhancements.md) — Plan 330: Context Menu and GitMap UI Enhancements: File Right-Click Integration (*\shell\gitmap), Explorer Cascade Flattening, PowerShell Duplicate Cleaner, Help Visibility, and Web UI Settings (Spec: [330-context-menu-and-gitmap-ui-enhancements](../../02-spec/21-app/330-context-menu-and-gitmap-ui-enhancements/00-master-audit-ledger.md)) (Status: `completed`)

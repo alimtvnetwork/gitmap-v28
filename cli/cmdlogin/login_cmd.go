@@ -23,6 +23,14 @@ type loginOptions struct {
 	hasRevertOriginal  bool
 }
 
+type loginSetOptions struct {
+	agentName          string
+	isGlobal           bool
+	hasAIAuto          bool
+	hasRestrictionTime bool
+	isHelp             bool
+}
+
 func runLogin(args []string) error {
 	if len(args) == 0 {
 		return runInteractiveLogin()
@@ -50,12 +58,119 @@ func parseAndDispatchLogin(args []string) error {
 }
 
 func dispatchSubcommand(args []string) (bool, error) {
+	if len(args) > 0 && strings.EqualFold(args[0], constants.SubCmdLoginSet) {
+		return true, runLoginSet(args[1:])
+	}
+
 	method, err := enums.ParseLoginAuthMethod(args[0])
 	if err != nil {
 		return false, nil
 	}
 
 	return dispatchMethodAction(method, args[1:])
+}
+
+func runLoginSet(args []string) error {
+	if len(args) == 0 {
+		printLoginSetUsage()
+		return nil
+	}
+
+	opts, err := parseLoginSetArgs(args)
+	if err != nil {
+		return err
+	}
+
+	return dispatchLoginSet(opts)
+}
+
+func parseLoginSetArgs(args []string) (loginSetOptions, error) {
+	opts := loginSetOptions{}
+	for _, arg := range args {
+		if _, err := applyLoginSetToken(arg, &opts); err != nil {
+			return opts, err
+		}
+	}
+
+	return opts, nil
+}
+
+func applyLoginSetToken(arg string, opts *loginSetOptions) (bool, error) {
+	if isLoginSetFlag(arg, opts) {
+		return true, nil
+	}
+
+	if strings.HasPrefix(arg, "-") {
+		return false, apperror.NewValidationError(fmt.Sprintf("unknown flag %q for login set", arg))
+	}
+
+	return applyLoginSetAgentName(arg, opts)
+}
+
+func isLoginSetFlag(arg string, opts *loginSetOptions) bool {
+	if isLoginSetGlobalOrHelp(arg, opts) {
+		return true
+	}
+
+	return isLoginSetAIOption(arg, opts)
+}
+
+func isLoginSetGlobalOrHelp(arg string, opts *loginSetOptions) bool {
+	switch {
+	case strings.EqualFold(arg, constants.SubCmdLoginSet):
+		return true
+	case arg == constants.FlagHelpArg || arg == constants.FlagHelpShortArg:
+		opts.isHelp = true
+		return true
+	case strings.EqualFold(arg, "global") || arg == constants.FlagGlobalArg || arg == constants.FlagGlobalShortArg:
+		opts.isGlobal = true
+		return true
+	default:
+		return false
+	}
+}
+
+func isLoginSetAIOption(arg string, opts *loginSetOptions) bool {
+	switch {
+	case strings.EqualFold(arg, "ai-auto") || arg == "--ai-auto" || arg == "--use-ai-auto":
+		opts.hasAIAuto = true
+		return true
+	case arg == "--restriction-time" || arg == "--time-restriction":
+		opts.hasRestrictionTime = true
+		return true
+	default:
+		return false
+	}
+}
+
+func applyLoginSetAgentName(arg string, opts *loginSetOptions) (bool, error) {
+	if len(opts.agentName) == 0 {
+		opts.agentName = arg
+		return true, nil
+	}
+
+	return false, apperror.NewValidationError(fmt.Sprintf("unexpected argument %q for login set", arg))
+}
+
+func dispatchLoginSet(opts loginSetOptions) error {
+	if opts.isHelp {
+		printLoginSetUsage()
+		return nil
+	}
+
+	if !opts.hasAIAuto {
+		return apperror.NewValidationError("missing target for login set (e.g. `gitmap login set ai-auto`)")
+	}
+
+	return runUseAIAutoWithAgent(opts.agentName, opts.isGlobal, opts.hasRestrictionTime)
+}
+
+func printLoginSetUsage() {
+	fmt.Println(appconstants.ColorCyan + "Usage:" + appconstants.ColorReset)
+	fmt.Println("  gitmap login set ai-auto [agent-name]        # Set local or global AI automation identity")
+	fmt.Println("  gitmap login set global ai-auto [agent-name] # Set global AI automation identity")
+	fmt.Println("  gitmap login set ai-auto --global            # Explicit global AI automation identity")
+	fmt.Println("  gitmap login set ai-auto --restriction-time  # Apply time restriction defaults")
 }
 
 func dispatchMethodAction(method enums.LoginAuthMethodType, subArgs []string) (bool, error) {
@@ -109,6 +224,7 @@ func dispatchLoginOptions(opts loginOptions) error {
 		printLoginUsage()
 		return nil
 	}
+
 	if isHandled, err := dispatchAIAutoOptions(opts); isHandled {
 		return err
 	}
@@ -120,9 +236,11 @@ func dispatchAIAutoOptions(opts loginOptions) (bool, error) {
 	if opts.hasRevertOriginal {
 		return true, runRevertToOriginal()
 	}
+
 	if opts.hasAIAuto {
 		return true, runUseAIAuto(opts.hasRestrictionTime)
 	}
+
 	if opts.hasRestrictionTime {
 		return true, applyRestrictionTimeDefaults()
 	}
@@ -253,7 +371,9 @@ func printUsageExamples() {
 	fmt.Println("  gitmap login token [PAT]      # Log in with a personal access token")
 	fmt.Println("  gitmap login browser-flow     # Log in via the browser (GitHub CLI device flow)")
 	fmt.Println("  gitmap login --status         # Show current login state")
-	fmt.Println("  gitmap login --use-ai-auto [--restriction-time] # Switch to AI bot and apply wait defaults")
+	fmt.Println("  gitmap login set ai-auto [name] # Switch to AI bot (local repo or global)")
+	fmt.Println("  gitmap login set global ai-auto # Switch global Git identity to AI bot")
+	fmt.Println("  gitmap login --use-ai-auto    # Switch to AI bot and backup original user")
 	fmt.Println("  gitmap login --revert-to-original # Revert Git identity back to original user")
 	fmt.Println("  gitmap logout                 # Remove the stored GitHub credential")
 	fmt.Println("")
@@ -269,5 +389,5 @@ func printUsageNotes() {
 	fmt.Println("  --token validates the token against api.github.com before storing it.")
 	fmt.Println("  The token is stored in git global config (github.token) so clone/pull/push reuse it.")
 	fmt.Println("  Use --no-verify with --token to store without validation (offline use).")
-	fmt.Println("  --use-ai-auto sets user: gitmap automation bot - runs autonmously <info@rgitmap.com>.")
+	fmt.Println("  --use-ai-auto sets user: gitmap automation bot - runs autonomously <info@rgitmap.com>.")
 }

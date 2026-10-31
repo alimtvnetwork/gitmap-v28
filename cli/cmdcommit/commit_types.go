@@ -27,6 +27,7 @@ const (
 	FlagHeatmapID   = commitconstants.FlagHeatmapID
 	FlagHeatmap     = "--heatmap"
 	FlagAI          = commitconstants.FlagAI
+	FlagAIAgent     = commitconstants.FlagAIAgent
 	FlagSpec        = commitconstants.FlagSpec
 	FlagTask        = commitconstants.FlagTask
 	FlagTaskShort   = "-t"

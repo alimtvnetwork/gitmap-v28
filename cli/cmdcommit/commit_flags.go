@@ -1,6 +1,7 @@
 package cmdcommit
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -54,9 +55,16 @@ func isStandaloneFlag(arg string, meta *CommitMetadata) bool {
 	case FlagDryRunLong, FlagDryRunShort:
 		meta.IsDryRun = true
 		return true
-	case FlagAI:
+	case FlagAI, FlagAIAgent:
 		meta.IsAIMode = true
 		return true
+	default:
+		return isTimingStandaloneFlag(arg, meta)
+	}
+}
+
+func isTimingStandaloneFlag(arg string, meta *CommitMetadata) bool {
+	switch arg {
 	case FlagSchedule, FlagScheduleShort:
 		meta.IsTimeEnforced = true
 		return true
@@ -91,12 +99,27 @@ func hasProvenancePrefix(arg string, meta *CommitMetadata) bool {
 }
 
 func hasAgentOrHeatmapPrefix(arg string, meta *CommitMetadata) bool {
+	if hasAIAgentPrefix(arg, meta) {
+		return true
+	}
 	if matchPrefixTarget(arg, []string{FlagAgentID + "=", FlagAgent + "="}, &meta.AgentID) {
 		meta.IsAIMode = true
 		return true
 	}
 
 	return matchPrefixTarget(arg, []string{FlagHeatmapID + "=", FlagHeatmap + "="}, &meta.HeatmapID)
+}
+
+func hasAIAgentPrefix(arg string, meta *CommitMetadata) bool {
+	if !strings.HasPrefix(arg, FlagAIAgent+"=") {
+		return false
+	}
+	val := strings.TrimSpace(strings.TrimPrefix(arg, FlagAIAgent+"="))
+	meta.AgentID = val
+	meta.AIName = val
+	meta.IsAIMode = true
+
+	return true
 }
 
 func hasAIOrSpecPrefix(arg string, meta *CommitMetadata) bool {
@@ -172,10 +195,14 @@ func isTimezoneFlag(arg, val string, meta *CommitMetadata) bool {
 }
 
 func isAgentFlag(arg, val string, meta *CommitMetadata) bool {
-	if arg != FlagAgentID && arg != FlagAgent {
+	if arg != FlagAgentID && arg != FlagAgent && arg != FlagAIAgent {
 		return false
 	}
-	meta.AgentID = strings.TrimSpace(val)
+	cleanVal := strings.TrimSpace(val)
+	meta.AgentID = cleanVal
+	if arg == FlagAIAgent {
+		meta.AIName = cleanVal
+	}
 	meta.IsAIMode = true
 
 	return true
@@ -232,8 +259,8 @@ func applyAmbientFallbacks(meta *CommitMetadata) {
 	fallbackString(&meta.HeatmapID, EnvGitmapHeatmapID, EnvGitmapHeatmapSessionID)
 	fallbackString(&meta.TaskSlug, EnvGitmapTaskSlug, EnvGitmapTask)
 	fallbackString(&meta.SpecPath, EnvGitmapSpecPath)
-	resolveAuthorFallback(meta)
 	resolveAIFallbacks(meta)
+	resolveAuthorFallback(meta)
 	resolveTimeFallbacks(meta)
 }
 
@@ -258,14 +285,25 @@ func resolveAuthorFallback(meta *CommitMetadata) {
 	if meta.Author != "" {
 		return
 	}
+	if meta.IsAIMode && meta.AIName != "" {
+		botName := fmt.Sprintf("gitmap automation bot - %s - runs autonomously", meta.AIName)
+		meta.Author = formatAuthorIdentity(botName, "info@rgitmap.com")
+
+		return
+	}
+	meta.Author = resolveGitConfigAuthor()
+}
+
+func resolveGitConfigAuthor() string {
 	name, _ := execGitOutputCP("config", "user.name")
 	email, _ := execGitOutputCP("config", "user.email")
 	name = strings.TrimSpace(name)
 	email = strings.TrimSpace(email)
 	if name == "" && email == "" {
-		return
+		return ""
 	}
-	meta.Author = formatAuthorIdentity(name, email)
+
+	return formatAuthorIdentity(name, email)
 }
 
 func formatAuthorIdentity(name, email string) string {

@@ -4,42 +4,99 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
+	loginconstants "github.com/alimtvnetwork/gitmap-v28/cli/cmdlogin/constants"
+	appconstants "github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 	"github.com/alimtvnetwork/gitmap-v28/cli/usercontext"
 )
 
 const (
-	aiAutoBotName  = "gitmap automation bot - runs autonmously"
+	aiAutoBotName  = "gitmap automation bot - runs autonomously"
 	aiAutoBotEmail = "info@rgitmap.com"
 	aiAutoBotAlias = "autobot"
 )
 
 func runUseAIAuto(hasRestrictionTime bool) error {
-	cfg, _ := store.LoadGitProfiles()
-	attachExistingOriginalBackup(&cfg)
-	backupOriginalUser(&cfg)
-	if err := switchGitToAIAuto(); err != nil {
+	return runUseAIAutoWithAgent("", true, hasRestrictionTime)
+}
+
+func runUseAIAutoWithAgent(agentName string, isGlobal bool, hasRestrictionTime bool) error {
+	botName := resolveAIBotName(agentName)
+	cfg := prepareAIAutoProfiles()
+	targetGlobal := resolveTargetGlobal(isGlobal)
+	if err := usercontext.SetGitIdentity(botName, aiAutoBotEmail, targetGlobal); err != nil {
 		return err
 	}
 
-	updateAndActivateAutobotProfile(&cfg)
-	printAIAutoSwitchedNotice()
-	if hasRestrictionTime {
+	return applyAIAutoPostSwitch(&cfg, botName, targetGlobal, hasRestrictionTime)
+}
+
+func prepareAIAutoProfiles() model.GitProfileConfig {
+	cfg, _ := store.LoadGitProfiles()
+	attachExistingOriginalBackup(&cfg)
+	backupOriginalUser(&cfg)
+
+	return cfg
+}
+
+func resolveTargetGlobal(isGlobal bool) bool {
+	if isGlobal {
+		return true
+	}
+
+	return !isInsideGitRepo()
+}
+
+func isInsideGitRepo() bool {
+	cmd := exec.Command(loginconstants.GitBin, loginconstants.GitRevParse, loginconstants.GitInsideWorkTree)
+
+	return cmd.Run() == nil
+}
+
+func applyAIAutoPostSwitch(cfg *model.GitProfileConfig, botName string, isGlobal bool, hasRestriction bool) error {
+	updateAndActivateAutobotProfile(cfg, botName)
+	printAIAutoSwitchedNotice(botName, isGlobal)
+	if hasRestriction {
 		return applyRestrictionTimeDefaults()
 	}
 
 	return nil
 }
 
+func resolveAIBotName(agentName string) string {
+	clean := strings.Trim(strings.TrimSpace(agentName), "()[]{}")
+	if len(clean) == 0 {
+		return aiAutoBotName
+	}
+
+	return fmt.Sprintf("gitmap automation bot - %s - runs autonomously", clean)
+}
+
+func isAIBotIdentity(name string) bool {
+	trimmed := strings.TrimSpace(name)
+	if len(trimmed) == 0 {
+		return true
+	}
+
+	lower := strings.ToLower(trimmed)
+	if strings.HasPrefix(lower, "gitmap automation") {
+		return true
+	}
+
+	return strings.Contains(lower, "autonomously") || strings.Contains(lower, "autonmously")
+}
+
 func attachExistingOriginalBackup(cfg *model.GitProfileConfig) {
 	if cfg.OriginalIdentity != nil && len(cfg.OriginalIdentity.Name) > 0 {
 		return
 	}
+
 	if orig, isLoaded := loadOriginalUserFile(); isLoaded {
 		cfg.OriginalIdentity = orig
 	}
@@ -51,23 +108,32 @@ func switchGitToAIAuto() error {
 
 func backupOriginalUser(cfg *model.GitProfileConfig) {
 	curIdentity, _ := usercontext.GetGitIdentity(true)
-	if curIdentity.Name == aiAutoBotName || len(curIdentity.Name) == 0 {
+	if isAIBotIdentity(curIdentity.Name) {
 		return
 	}
+
 	if cfg.OriginalIdentity != nil && len(cfg.OriginalIdentity.Name) > 0 {
 		return
 	}
 
+	persistOriginalBackup(cfg, curIdentity)
+}
+
+func persistOriginalBackup(cfg *model.GitProfileConfig, identity usercontext.GitIdentity) {
 	orig := model.OriginalIdentity{
-		Name:         curIdentity.Name,
-		Email:        curIdentity.Email,
+		Name:         identity.Name,
+		Email:        identity.Email,
 		ProfileAlias: cfg.Active,
 		SavedAt:      time.Now(),
 	}
 	cfg.OriginalIdentity = &orig
 	saveOriginalUserFile(orig)
+	printBackupSavedNotice(orig)
+}
+
+func printBackupSavedNotice(orig model.OriginalIdentity) {
 	fmt.Printf("%s✔ Saved original Git identity: %s <%s>%s\n",
-		constants.ColorGreen, orig.Name, orig.Email, constants.ColorReset)
+		appconstants.ColorGreen, orig.Name, orig.Email, appconstants.ColorReset)
 }
 
 func saveOriginalUserFile(orig model.OriginalIdentity) {
@@ -92,6 +158,7 @@ func loadOriginalUserFile() (*model.OriginalIdentity, bool) {
 	if orig, isLoaded := readOriginalFileAt(store.BinaryDataDir()); isLoaded {
 		return orig, true
 	}
+
 	if globalDir := store.GlobalUserDataDir(); len(globalDir) > 0 {
 		return readOriginalFileAt(globalDir)
 	}
@@ -114,10 +181,10 @@ func readOriginalFileAt(dir string) (*model.OriginalIdentity, bool) {
 	return &orig, len(orig.Name) > 0
 }
 
-func updateAndActivateAutobotProfile(cfg *model.GitProfileConfig) {
+func updateAndActivateAutobotProfile(cfg *model.GitProfileConfig, botName string) {
 	prof := model.GitProfile{
 		ID:         aiAutoBotAlias,
-		Name:       aiAutoBotName,
+		Name:       botName,
 		Email:      aiAutoBotEmail,
 		Provider:   "git",
 		Type:       "user",
@@ -141,17 +208,25 @@ func appendOrUpdateBotProfile(profiles []model.GitProfile, p model.GitProfile) [
 	return append(profiles, p)
 }
 
-func printAIAutoSwitchedNotice() {
-	fmt.Printf("%s✔ Switched global Git identity to AI Automation:%s\n",
-		constants.ColorGreen, constants.ColorReset)
-	fmt.Printf("  Name:  %s\n", aiAutoBotName)
+func printAIAutoSwitchedNotice(botName string, isGlobal bool) {
+	fmt.Printf("%s✔ Switched %s Git identity to AI Automation:%s\n",
+		appconstants.ColorGreen, scopeLabel(isGlobal), appconstants.ColorReset)
+	fmt.Printf("  Name:  %s\n", botName)
 	fmt.Printf("  Email: %s\n", aiAutoBotEmail)
 	fmt.Printf("  Alias: %s (active)\n", aiAutoBotAlias)
 }
 
+func scopeLabel(isGlobal bool) string {
+	if isGlobal {
+		return "global"
+	}
+
+	return "local"
+}
+
 func applyRestrictionTimeDefaults() error {
 	fmt.Printf("%s✔ Applied time restriction defaults:%s\n",
-		constants.ColorGreen, constants.ColorReset)
+		appconstants.ColorGreen, appconstants.ColorReset)
 	fmt.Println("  - Pipeline-AI delay: 20s")
 	fmt.Println("  - Dynamic ETA sleep: >120s -> 30s | 60-120s -> 20s | <=60s -> 10s")
 	fmt.Println("  - Local runner wait: 60s")
@@ -165,7 +240,7 @@ func runRevertToOriginal() error {
 	orig := resolveOriginalIdentity(&cfg)
 	if orig == nil {
 		fmt.Printf("%s⚠ No original Git identity found to revert to.%s\n",
-			constants.ColorYellow, constants.ColorReset)
+			appconstants.ColorYellow, appconstants.ColorReset)
 		return nil
 	}
 
@@ -210,7 +285,7 @@ func removeOriginalUserFiles() {
 
 func printRevertedNotice(orig *model.OriginalIdentity) {
 	fmt.Printf("%s✔ Reverted global Git identity to original:%s\n",
-		constants.ColorGreen, constants.ColorReset)
+		appconstants.ColorGreen, appconstants.ColorReset)
 	fmt.Printf("  Name:  %s\n", orig.Name)
 	fmt.Printf("  Email: %s\n", orig.Email)
 	if len(orig.ProfileAlias) > 0 {

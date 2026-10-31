@@ -7,16 +7,9 @@ import (
 
 func TestCommitFlagsConstants(t *testing.T) {
 	flags := []string{
-		FlagAgentID,
-		FlagHeatmapID,
-		FlagAI,
-		FlagSpec,
-		FlagTask,
-		FlagAuthor,
-		FlagPush,
-		FlagDryRun,
+		FlagAgentID, FlagHeatmapID, FlagAI, FlagAIAgent,
+		FlagSpec, FlagTask, FlagAuthor, FlagPush, FlagDryRun,
 	}
-
 	for _, f := range flags {
 		if f == "" {
 			t.Errorf("expected non-empty flag constant")

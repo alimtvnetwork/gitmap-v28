@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdrestrict"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 func TestExtractCommitFlags_SpaceDelimited(t *testing.T) {
@@ -240,4 +241,54 @@ func TestExtractCommitFlags_EqualsTimeFlags(t *testing.T) {
 		t.Errorf("expected IsAutoWindow to be true")
 	}
 	assertCleanMessage(t, clean, []string{"fix: equals time flags"})
+}
+
+func TestExtractCommitFlags_AIAgentSpace(t *testing.T) {
+	clean, meta := ExtractCommitFlags([]string{"--ai-agent", "muse", "feat: test space agent"})
+	assertCleanMessage(t, clean, []string{"feat: test space agent"})
+	if meta.AgentID != "muse" || meta.AIName != "muse" {
+		t.Errorf("expected AgentID and AIName 'muse', got agent=%q ai=%q", meta.AgentID, meta.AIName)
+	}
+	if !meta.IsAIMode {
+		t.Errorf("expected IsAIMode to be true")
+	}
+	expectedAuthor := "gitmap automation bot - muse - runs autonomously <info@rgitmap.com>"
+	if meta.Author != expectedAuthor {
+		t.Errorf("expected Author %q, got %q", expectedAuthor, meta.Author)
+	}
+}
+
+func TestExtractCommitFlags_AIAgentEquals(t *testing.T) {
+	clean, meta := ExtractCommitFlags([]string{"--ai-agent=gemini", "fix: test equals agent"})
+	assertCleanMessage(t, clean, []string{"fix: test equals agent"})
+	if meta.AgentID != "gemini" || meta.AIName != "gemini" {
+		t.Errorf("expected AgentID and AIName 'gemini', got agent=%q ai=%q", meta.AgentID, meta.AIName)
+	}
+	if !meta.IsAIMode {
+		t.Errorf("expected IsAIMode to be true")
+	}
+	expectedAuthor := "gitmap automation bot - gemini - runs autonomously <info@rgitmap.com>"
+	if meta.Author != expectedAuthor {
+		t.Errorf("expected Author %q, got %q", expectedAuthor, meta.Author)
+	}
+}
+
+func TestBuildHeatmapActionRecord_PopulatesModelAndNotes(t *testing.T) {
+	rec := store.CommitHistoryRecord{
+		TaskSlug:      "test-slug",
+		RepoName:      "test-repo",
+		ShortSha:      "abc12345",
+		CommitSha:     "abc1234567890",
+		CommitMessage: "test commit",
+		AiModelName:   "gemini",
+		AiToolName:    "gitmap",
+		AgentId:       "muse",
+	}
+	action := buildHeatmapActionRecord(rec)
+	if action.ModelName != "gemini" {
+		t.Errorf("expected ModelName 'gemini', got %q", action.ModelName)
+	}
+	if action.Notes != "muse" {
+		t.Errorf("expected Notes 'muse', got %q", action.Notes)
+	}
 }

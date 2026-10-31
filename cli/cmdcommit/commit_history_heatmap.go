@@ -26,19 +26,15 @@ func recordHeatmapActionSafely(rec store.CommitHistoryRecord) {
 }
 
 func buildHeatmapActionRecord(rec store.CommitHistoryRecord) store.HeatmapActionLogRecord {
-	return store.HeatmapActionLogRecord{
-		TaskSlug:         rec.TaskSlug,
-		RepoName:         rec.RepoName,
-		ActionType:       "COMMIT",
-		CommandText:      "gitmap commit " + rec.ShortSha,
-		ReasoningState:   "EXECUTION",
-		ReasoningNotes:   rec.CommitMessage,
-		ExpectedOutcome:  "Commit recorded in git history",
-		ActualOutcome:    rec.CommitSha,
-		IsExpectationMet: true,
-		ModelName:        rec.AiModelName,
-		ToolName:         rec.AiToolName,
+	item := store.HeatmapActionLogRecord{
+		TaskSlug: rec.TaskSlug, RepoName: rec.RepoName, ActionType: "COMMIT",
+		CommandText: "gitmap commit " + rec.ShortSha, ReasoningState: "EXECUTION",
+		ReasoningNotes: rec.CommitMessage, ExpectedOutcome: "Commit recorded in git history",
+		ActualOutcome: rec.CommitSha, IsExpectationMet: true,
+		ModelName: rec.AiModelName, ToolName: rec.AiToolName, Notes: rec.AgentId,
 	}
+
+	return item
 }
 
 func recordHeatmapCommitLogSafely(rec store.CommitHistoryRecord) {
@@ -69,13 +65,22 @@ func ensureHeatmapCommitLogTable(conn *sql.DB) {
 
 func insertHeatmapCommitLogRow(conn *sql.DB, rec store.CommitHistoryRecord) {
 	query := `INSERT INTO HeatmapCommitLog (TaskSlug, RepoSlug, CommitSha, CommitMessage,
-		FilesCommittedCount, TransactionsCommittedCount, CommittedAt, PushedSuccessfully, RemoteOrigin)
-		VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, ?, '')`
+		FilesCommittedCount, TransactionsCommittedCount, CommittedAt, PushedSuccessfully, RemoteOrigin, Notes)
+		VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, ?, '', ?)`
 	hasPushedInt := 0
 	if rec.HasPushed {
 		hasPushedInt = 1
 	}
-	if _, err := conn.Exec(query, rec.TaskSlug, rec.RepoSlug, rec.CommitSha, rec.CommitMessage, rec.FilesChanged, hasPushedInt); err != nil {
+	notes := resolveHeatmapCommitNotes(rec)
+	if _, err := conn.Exec(query, rec.TaskSlug, rec.RepoSlug, rec.CommitSha, rec.CommitMessage, rec.FilesChanged, hasPushedInt, notes); err != nil {
 		fmt.Fprintf(output.UIErr(), "Warning: insert HeatmapCommitLog row failed: %v\n", err)
 	}
+}
+
+func resolveHeatmapCommitNotes(rec store.CommitHistoryRecord) string {
+	if rec.AgentId != "" {
+		return rec.AgentId
+	}
+
+	return rec.Notes
 }
