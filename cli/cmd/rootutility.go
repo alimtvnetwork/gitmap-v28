@@ -229,7 +229,7 @@ func utilityPipelineEntries() []dispatchEntry {
 
 func utilityDesktopEntries() []dispatchEntry {
 	return []dispatchEntry{
-		{[]string{cmdcopyconstants.CmdCopy, cmdcopyconstants.CmdCopyAliasMem, cmdcopyconstants.CmdCopyAliasToMem}, func() error { return cmdcopy.RunCopyCmd(argsTail()) }},
+		{[]string{cmdcopyconstants.CmdCopy, cmdcopyconstants.CmdCopyAlias, cmdcopyconstants.CmdCopyAliasMem, cmdcopyconstants.CmdCopyAliasToMem}, func() error { return runCopyDisambiguated(argsTail()) }},
 		{[]string{cmdcopyconstants.CmdPaste, cmdcopyconstants.CmdPasteAliasMem}, func() error { return cmdcopy.RunPasteCmd(argsTail()) }},
 		{[]string{"explorer", "open-explorer", "folder", "open-folder", "browse-folder"}, func() error { return RunExplorerCmd(argsTail()) }},
 		{[]string{"open-url", "browse", "browse-url", "open-browser"}, func() error { return cmdbrowse.RunBrowseCmd(argsTail()) }},
@@ -238,6 +238,52 @@ func utilityDesktopEntries() []dispatchEntry {
 		{[]string{"mkfile", "create-file"}, func() error { return cmdmacro.RunMkfileCmd(argsTail()) }},
 		{[]string{"fix"}, func() error { return cmdautofix.RunFixCmd(argsTail()) }},
 	}
+}
+
+func runCopyDisambiguated(args []string) error {
+	if isRemoteCopyArgs(args) {
+		return cmdssh.RunSSHCPCLI(args)
+	}
+
+	return cmdcopy.RunCopyCmd(args)
+}
+
+func isRemoteCopyArgs(args []string) bool {
+	for _, arg := range args {
+		if isRemoteCopyFlag(arg) || hasRemoteNodeColon(arg) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isRemoteCopyFlag(arg string) bool {
+	if arg == "-t" || arg == "--target" || arg == "--all" {
+		return true
+	}
+
+	return strings.HasPrefix(arg, "-t=") || strings.HasPrefix(arg, "--target=")
+}
+
+func hasRemoteNodeColon(arg string) bool {
+	if isWindowsDriveLetter(arg) {
+		return false
+	}
+
+	return strings.Contains(arg, ":")
+}
+
+func isWindowsDriveLetter(arg string) bool {
+	if len(arg) < 2 {
+		return false
+	}
+
+	return arg[1] == ':' && isAsciiLetter(arg[0])
+}
+
+func isAsciiLetter(b byte) bool {
+	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }
 
 func utilityUserEntries() []dispatchEntry {

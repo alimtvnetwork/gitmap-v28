@@ -36,8 +36,11 @@ The resulting output is rendered in a high-quality, professional terminal table 
 | `update` | Self-update local GitMap CLI to latest release. |
 | `update all` (or `ua`) | Broadcast parallel updates across all cluster nodes. |
 | `update <node>` | Update GitMap on a single remote node (by alias, IP, or sequence). |
-| `update ls` | Query and list installed packages and versions across all fleet nodes in parallel. |
-| `update agm` | Update Antigravity-Manager (`agm`) across cluster nodes. |
+| `update cursor [node\|all]` | Update Cursor IDE on a specific node or all online fleet nodes. |
+| `update vscode [node\|all]` | Update Visual Studio Code on a specific node or all fleet nodes. |
+| `update agm [node\|all]` | Update Antigravity Manager (`agm`) across cluster nodes. |
+| `update agy [node\|all]` | Update Antigravity Tools / IDE (`agy`) across cluster nodes. |
+| `node update <app> [node]` | Equivalent subcommand under `gitmap node update`. |
 | `update cleanup` | Purge obsolete handoff binaries and temporary installer artifacts. |
 
 ## Flags

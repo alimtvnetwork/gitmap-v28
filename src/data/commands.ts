@@ -2868,13 +2868,15 @@ export const commands: CommandDef[] = [
   // ═══════════════════════════════════════════
   {
     category: "movemerge",
-    name: "mv", alias: "move", description: "Move LEFT folder's contents into RIGHT, then delete LEFT entirely (each side may be a local folder or a remote git URL)",
-    usage: "gitmap mv LEFT RIGHT [--no-push] [--no-commit] [--force-folder] [--pull] [--init] [--dry-run]",
+    name: "mv", alias: "move", description: "Move files or folders across cluster fleet nodes or relocate folder contents into another path/repo with atomic source cleanup.",
+    usage: "gitmap mv <source> <destination> [--target <node>] [--all] [--dry-run]",
     examples: [
+      { command: "gitmap mv ./build.zip worker-1:/tmp/build.zip", description: "Move local file to remote node (upload and delete local)" },
+      { command: "gitmap mv worker-1:/tmp/report.csv ./reports/report.csv", description: "Move remote file to local directory (pull and delete remote)" },
+      { command: "gitmap mv worker-1:/tmp/db.bak worker-2:/backups/db.bak", description: "Move file directly between remote cluster nodes" },
+      { command: "gitmap mv ./pkg.tar all:/opt/pkg.tar", description: "Move file to all online nodes (upload to all and delete local)" },
       { command: "gitmap mv ./gitmap-v28 ./gitmap-v28", description: "Move local folder into another local folder, deleting source" },
       { command: "gitmap mv ./local https://github.com/owner/repo", description: "Move local folder into a remote repo (clone, copy, commit, push)" },
-      { command: "gitmap mv https://github.com/owner/repo:develop ./mirror", description: "Pin remote branch and move into local folder" },
-      { command: "gitmap mv ./a ./b --dry-run", description: "Preview the move without writing anything" },
     ],
     seeAlso: [
       { name: "merge-right", description: "Safer copy-with-prompt variant (LEFT not deleted)" },
@@ -3245,18 +3247,25 @@ export const commands: CommandDef[] = [
   {
     name: "copy",
     alias: "cp",
-    description: "Copy text, file contents, or piped input directly to the OS clipboard and persistent GitMap memory buffer.",
-    usage: "gitmap copy [text | --file <path>]",
+    description: "Copy files across cluster fleet nodes or copy text/file content directly to the OS clipboard and persistent GitMap memory buffer. Supports 8 syntax variants for local-to-node, node-to-node, fleet broadcast (all:), and recursive copy.",
+    usage: "gitmap copy [src] [node:dest | all:dest | text] [flags]",
     category: "tools",
     flags: [
+      { flag: "--target, -t <node>", description: "Target fleet node alias or IP for file copy" },
+      { flag: "--all", description: "Broadcast copy to all reachable fleet nodes" },
+      { flag: "--recursive, -r", description: "Recursively copy directory tree via streaming tar" },
       { flag: "--file <path>", description: "Read content from a file and copy to clipboard and memory" },
       { flag: "--quiet", description: "Suppress confirmation messages" },
       { flag: "--json", description: "Output JSON envelope" },
     ],
     examples: [
+      { command: "gitmap cp ./app.tar.gz worker-1:/tmp/app.tar.gz", description: "Copy local file to specific remote node" },
+      { command: "gitmap cp ./config.json all:/etc/config.json", description: "Broadcast copy to all online cluster nodes" },
+      { command: "gitmap cp worker-1:/var/log/app.log ./logs/app.log", description: "Pull file from remote node to local directory" },
+      { command: "gitmap cp worker-1:/data.db worker-2:/tmp/data.db", description: "Direct inter-node remote copy" },
+      { command: "gitmap cp -r ./src worker-1:/var/www/src", description: "Recursively copy directory to remote node" },
       { command: 'gitmap copy "npm run build && npm test"', description: "Copy command or text string to clipboard and memory buffer" },
-      { command: 'gitmap copy --file ./notes.txt', description: "Copy entire file contents to clipboard and memory" },
-      { command: 'gitmap copy notes.txt', description: "Copy file content when passed as positional argument" },
+      { command: "gitmap copy --file ./notes.txt", description: "Copy entire file contents to clipboard and memory" },
     ],
   },
   {
@@ -4016,6 +4025,54 @@ export const commands: CommandDef[] = [
       { name: "gitmap ram", description: "Inspect system RAM and memory usage" },
     ],
   },
+  {
+    name: "deploy",
+    alias: "deploy-bin, push-bin, sync-bin",
+    description: "Deploy and install binary executables across cluster fleet nodes with automatic OS compatibility filtering (skipping Windows .exe on Linux/Ubuntu nodes unless --force), offline node bypass, and remote installation.",
+    usage: "gitmap deploy [target|all] [--file <binary>] [--dest <path>] [--force] [--force-copy] [--no-install]",
+    category: "remote",
+    flags: [
+      { flag: "--file, -f <path>", description: "Path to binary executable (defaults to current compiled binary)" },
+      { flag: "--dest, -d <path>", description: "Custom destination path on remote target nodes" },
+      { flag: "--force", description: "Force deploy even if binary format and remote OS are incompatible" },
+      { flag: "--force-copy", description: "Force copy across incompatible operating systems" },
+      { flag: "--no-install", description: "Transfer binary without running installation/permission hook" },
+      { flag: "--json", description: "Output deployment summary and status as JSON" },
+    ],
+    examples: [
+      { command: "gitmap deploy all", description: "Deploy binary to all compatible, reachable cluster nodes" },
+      { command: "gitmap deploy w1", description: "Deploy binary to Windows node w1" },
+      { command: "gitmap deploy u1 --file ./gitmap-linux", description: "Deploy Linux binary to Ubuntu node u1" },
+      { command: "gitmap deploy all --force", description: "Force deployment ignoring OS compatibility checks" },
+    ],
+    seeAlso: [
+      { name: "copy", description: "Copy files across fleet nodes" },
+      { name: "update", description: "Update GitMap and software across fleet nodes" },
+    ],
+  },
+  {
+    name: "update-software",
+    alias: "update cursor, update vscode, update agm, update agy",
+    description: "Centrally update software (Cursor IDE, Visual Studio Code, Antigravity Manager, Antigravity Tools) across single nodes or the entire cluster fleet.",
+    usage: "gitmap update <cursor|vscode|agm|agy> [node|all] [--force] [--dry-run] [--json]",
+    category: "remote",
+    flags: [
+      { flag: "--force", description: "Force reinstallation or upgrade" },
+      { flag: "--dry-run", description: "Preview update commands on targets without executing" },
+      { flag: "--json", description: "Output software update results as JSON" },
+    ],
+    examples: [
+      { command: "gitmap update cursor all", description: "Update Cursor IDE across all reachable fleet nodes" },
+      { command: "gitmap update vscode all", description: "Update Visual Studio Code across all fleet nodes" },
+      { command: "gitmap update agm all", description: "Update Antigravity Manager across all fleet nodes" },
+      { command: "gitmap update agy all", description: "Update Antigravity Tools across all fleet nodes" },
+      { command: "gitmap node update cursor u1", description: "Update Cursor IDE on specific node u1" },
+    ],
+    seeAlso: [
+      { name: "deploy", description: "Deploy binary executables to fleet nodes" },
+      { name: "update", description: "Update local GitMap installation" },
+    ],
+  },
 
   // ═══════════════════════════════════════════
   // Repository Health & Structure (full-summary, new-commands, tree, which-format)
@@ -4166,7 +4223,7 @@ export const commands: CommandDef[] = [
   // ═══════════════════════════════════════════
   {
     name: "cpar",
-    alias: "cp, commit-push-all-repos",
+    alias: "commit-push-all-repos",
     description: "Workspace-wide parallel execution and synchronization engine to concurrently stage, commit, and push across dozens of repositories with throttled worker pools",
     usage: "gitmap cpar [command] [--message <msg>] [--concurrency <n>] [--timeout <sec>] [--continue-on-error]",
     category: "commit",

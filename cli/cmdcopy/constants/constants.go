@@ -5,6 +5,7 @@ import "os"
 // Command names and aliases for copy and paste operations.
 const (
 	CmdCopy           = "copy"
+	CmdCopyAlias      = "cp"
 	CmdCopyAliasMem   = "cp-mem"
 	CmdCopyAliasToMem = "copy-to-memory"
 	CmdPaste          = "paste"

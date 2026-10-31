@@ -314,6 +314,145 @@ function Add-ToPath([string]$dir) {
     }
 }
 
+function Write-ProfileSubtree([string]$header, [string[]]$paths) {
+    if (-not $paths -or $paths.Count -eq 0 -or $Quiet -or $JSON) { return }
+    $check = if ($hasColorSupport) { "$colGreen$([char]0x2713)$colReset " } else { "$([char]0x2713) " }
+    Write-Host "  $check$header"
+    $treeMid = "$([char]0x251C)$([char]0x2500)$([char]0x2500) "
+    $treeLast = "$([char]0x2514)$([char]0x2500)$([char]0x2500) "
+    for ($i = 0; $i -lt $paths.Count; $i++) {
+        $connector = if ($i -eq $paths.Count - 1) { $treeLast } else { $treeMid }
+        if ($hasColorSupport) {
+            Write-Host "    $colMuted$connector$colReset$($paths[$i])"
+        } else {
+            Write-Host "    $connector$($paths[$i])"
+        }
+    }
+    Write-Host ""
+}
+
+function Resolve-PowerShellProfileTargets {
+    $targets = @()
+    if ($PROFILE) { $targets += $PROFILE }
+    if ($env:USERPROFILE) {
+        $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\profile.ps1")
+        $targets += (Join-Path $env:USERPROFILE "Documents\PowerShell\Microsoft.PowerShell_profile.ps1")
+        $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\profile.ps1")
+        $targets += (Join-Path $env:USERPROFILE "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1")
+    }
+    return @($targets | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+}
+
+function Configure-PowerShellProfileSuggestions([string]$binPath = "") {
+    $marker = "# >>> gitmap shell completion & predictive suggestions >>>"
+    $endMarker = "# <<< gitmap shell completion & predictive suggestions <<<"
+    $block = @"
+# >>> gitmap shell completion & predictive suggestions >>>
+if (-not `$global:__gitmap_suggestions_configured) {
+    `$global:__gitmap_suggestions_configured = `$true
+    Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
+    if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
+        try {
+            Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        } catch {
+            try {
+                Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        try {
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+        } catch {}
+    }
+}
+`$compPath = "`$env:APPDATA\gitmap\completions.ps1"
+if (Test-Path -LiteralPath `$compPath) {
+    . `$compPath
+}
+# <<< gitmap shell completion & predictive suggestions <<<
+"@
+
+    $compPath = "$env:APPDATA\gitmap\completions.ps1"
+    $compDir = Split-Path $compPath -Parent
+    if ($compDir -and -not (Test-Path $compDir)) {
+        New-Item -ItemType Directory -Path $compDir -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+
+    if ($binPath -and (Test-Path -LiteralPath $binPath)) {
+        try {
+            $compOut = & $binPath completion powershell 2>$null
+            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($compOut)) {
+                Set-Content -Path $compPath -Value $compOut -Encoding UTF8 -ErrorAction SilentlyContinue
+                Write-OK "Generated shell completion: $compPath"
+            }
+        } catch {}
+    }
+
+    # Activate predictive suggestions and completions in current session immediately
+    Import-Module PSReadLine -MinimumVersion 2.2.0 -ErrorAction SilentlyContinue
+    if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
+        try {
+            Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        } catch {
+            try {
+                Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            } catch {}
+        }
+        try {
+            Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
+        } catch {}
+    }
+    if (Test-Path -LiteralPath $compPath) {
+        try {
+            . $compPath
+        } catch {}
+    }
+
+    $targets = Resolve-PowerShellProfileTargets
+    $configuredProfiles = @()
+    $activeProfiles = @()
+    foreach ($profilePath in $targets) {
+        $profileDir = Split-Path $profilePath -Parent
+        if ($profileDir -and -not (Test-Path $profileDir)) {
+            New-Item -ItemType Directory -Path $profileDir -Force -ErrorAction SilentlyContinue | Out-Null
+        }
+
+        if (-not (Test-Path $profilePath)) {
+            Add-Content -Path $profilePath -Value $block -Encoding UTF8
+            $configuredProfiles += $profilePath
+            $activeProfiles += $profilePath
+            continue
+        }
+
+        $content = Get-Content $profilePath -Raw -ErrorAction SilentlyContinue
+        if ($null -eq $content) { $content = "" }
+
+        $cleaned = $content -replace "(?s)# gitmap shell completion\s*\r?\n\s*\.\s*'[^']+'(?:\s*\r?\n\s*if\s*\(\(Get-Module[^}]+\}[^}]+\})?", ""
+        while ($cleaned -match "(\r?\n){3,}") {
+            $cleaned = $cleaned -replace "(\r?\n){3,}", "`r`n`r`n"
+        }
+
+        if ($cleaned -match [regex]::Escape($marker)) {
+            $pattern = "(?s)" + [regex]::Escape($marker) + ".*?" + [regex]::Escape($endMarker)
+            $newContent = [regex]::Replace($cleaned, $pattern, $block).TrimEnd() + "`r`n"
+        } else {
+            $trimmed = $cleaned.TrimEnd()
+            $newContent = if ([string]::IsNullOrWhiteSpace($trimmed)) { "$block`r`n" } else { "$trimmed`r`n`r`n$block`r`n" }
+        }
+
+        if ($newContent -ne $content) {
+            Set-Content -Path $profilePath -Value $newContent -Encoding UTF8
+            $configuredProfiles += $profilePath
+        }
+        $activeProfiles += $profilePath
+    }
+
+    if ($configuredProfiles.Count -gt 0) {
+        Write-ProfileSubtree "Configured predictive suggestions:" @($configuredProfiles | Select-Object -Unique)
+    } elseif ($activeProfiles.Count -gt 0) {
+        Write-ProfileSubtree "Active predictive suggestions (already configured):" @($activeProfiles | Select-Object -Unique)
+    }
+}
+
 # --- Main Local Installer Logic ---
 function Main {
     $scriptDir = $PSScriptRoot
@@ -497,6 +636,17 @@ function Main {
         Write-CardRow "Profile State:" "Invoke with full binary path: $targetBin" 80
     }
     Write-CardFooter 80
+
+    # Configure PowerShell profiles with PSReadLine predictive IntelliSense & completions
+    if (-not $Quiet -and -not $JSON) {
+        Write-Host ""
+        Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
+        try {
+            Configure-PowerShellProfileSuggestions $targetBin
+        } catch {
+            Write-Warning "[Main.ConfigurePowerShellProfileSuggestions] $_"
+        }
+    }
 
     if ($JSON) {
         @{

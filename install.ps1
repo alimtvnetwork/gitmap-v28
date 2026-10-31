@@ -1536,6 +1536,7 @@ if (Test-Path -LiteralPath `$compPath) {
 
     $targets = Resolve-PowerShellProfileTargets
     $configuredProfiles = @()
+    $activeProfiles = @()
     foreach ($profilePath in $targets) {
         $profileDir = Split-Path $profilePath -Parent
         if ($profileDir -and -not (Test-Path $profileDir)) {
@@ -1545,6 +1546,7 @@ if (Test-Path -LiteralPath `$compPath) {
         if (-not (Test-Path $profilePath)) {
             Add-Content -Path $profilePath -Value $block -Encoding UTF8
             $configuredProfiles += $profilePath
+            $activeProfiles += $profilePath
             continue
         }
 
@@ -1568,10 +1570,13 @@ if (Test-Path -LiteralPath `$compPath) {
             Set-Content -Path $profilePath -Value $newContent -Encoding UTF8
             $configuredProfiles += $profilePath
         }
+        $activeProfiles += $profilePath
     }
 
     if ($configuredProfiles.Count -gt 0) {
         Write-ProfileSubtree "Configured predictive suggestions:" @($configuredProfiles | Select-Object -Unique)
+    } elseif ($activeProfiles.Count -gt 0) {
+        Write-ProfileSubtree "Active predictive suggestions (already configured):" @($activeProfiles | Select-Object -Unique)
     }
 }
 
@@ -2184,7 +2189,7 @@ try {
     }
 
     # Configure PowerShell profiles with PSReadLine predictive IntelliSense & completions
-    if (-not $Quiet -and -not $JSON -and $env:GITMAP_UPDATING -ne "1") {
+    if (-not $Quiet -and -not $JSON) {
         Write-Host ""
         Write-Host "  -> Configuring PowerShell predictive suggestions & completions..." -ForegroundColor Cyan
         try {

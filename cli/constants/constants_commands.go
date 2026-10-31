@@ -89,7 +89,9 @@ const (
 	CmdCommitAlias3 = "ca"
 	// CmdCommitPush stages all changes, commits with a message, and pushes.
 	CmdCommitPush      = "commit-push"
-	CmdCommitPushAlias = "cp"
+	CmdCommitPushAlias = "cmp" // gitmap:cmd skip
+	CmdCopy            = "copy"
+	CmdCopyAlias       = "cp"
 	// CmdPullCommitPush pulls first (resolving conflicts), then stages, commits, pushes.
 	CmdPullCommitPush      = "pull-commit-push"
 	CmdPullCommitPushAlias = "pcp"

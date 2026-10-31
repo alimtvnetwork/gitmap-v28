@@ -14,8 +14,17 @@ move
 
 ## Usage
 
-    gitmap mv   LEFT RIGHT [flags]
-    gitmap move LEFT RIGHT [flags]
+```bash
+# Cluster Node Move
+gitmap mv <local-src> <node>:<dest>             # Move local file to remote node (uploads & deletes local)
+gitmap mv <node>:<remote-src> <local-dest>      # Move remote file to local (pulls & deletes remote)
+gitmap mv <node1>:<src> <node2>:<dest>          # Move file between remote nodes (relay & cleanup)
+gitmap mv <local-src> all:<dest>                # Move file to all online nodes (broadcast & deletes local)
+
+# Repository / Folder Relocation
+gitmap mv LEFT RIGHT [flags]
+gitmap move LEFT RIGHT [flags]
+```
 
 LEFT and RIGHT can each be:
 

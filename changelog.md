@@ -1,3 +1,25 @@
+## [v6.639.0] 2026-10-31 Release v6.639.0
+
+### Install GitMap v6.639.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.639.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.639.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.639.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.639.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Fixed Intermittent Terminal Installation Suggestions: Remediated 6 failure modes in `install.ps1`, `cli/scripts/install.ps1`, and `cli/fspath/install.ps1` where predictive suggestions vanished on subsequent installs or updates; actively tracks `$activeProfiles` to guarantee persistent visual confirmation across every run.
+- Local Installer Parity (`local-install.ps1`): Integrated `Configure-PowerShellProfileSuggestions` and profile discovery into Stage 5 of the offline installer, ensuring complete feature parity with remote installation.
+- Cobra Dual Completer for Short Alias (`gm`): Extended PowerShell argument completion in `cli/cmd/root_cobra_completion.go` and `cli/completion/powershell.go` to register for both `gitmap` and `gm`.
+- Unversioned Repo Release Install Hints: Updated `cli/release/releaseinstallhint.go` to recognize canonical unversioned `gitmap` repositories.
+- Actionable Next-Steps in `gitmap install gitmap`: Enriched already-installed readout in `cli/cmdinstall/install_prompt.go` with helpful suggestions box pointing to `gitmap completion install`, `gitmap status`, and fleet deployment.
+- Reassigned `cp` to `copy` (`CmdCopyAlias = "cp"`) and `commit-push` alias to `cmp` across CLI dispatchers, completions, and documentation.
+- Multi-Node File Copy (`gitmap copy` / `gitmap cp`): Implemented 8 syntax variants for local-to-node, node-to-node, fleet broadcast (`all:`), directory recursion (`-r`), and clipboard fallback.
+- Multi-Node File Move (`gitmap move` / `gitmap mv`): Added remote node move engine with atomic verified remote cleanup and local folder relocation fallback.
+- OS-Aware Binary Deployment (`gitmap deploy` / `deploy-bin`): Magic byte detection (PE vs ELF), automatic OS incompatibility skipping (Windows `.exe` skipped on Ubuntu by default), offline node bypass, and diagnostic feedback docket.
+- Cross-Node Fleet Software Updates: Centralized update commands for Cursor IDE, Visual Studio Code, Antigravity Manager, and Antigravity Tools (`gitmap update <cursor|vscode|agm|agy> [node|all]`).
+- Synchronized Web UI commands catalog (`src/data/commands.ts`), help manuals (`cli/helpdoc/`), and shell completions.
+
 ## [v6.638.0] 2026-10-31 Release v6.638.0
 
 ### Install GitMap v6.638.0
@@ -127,6 +149,8 @@ PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetw
 - Clone Bare Repo Resolution: `gitmap clone <name>` automatically resolves bare repository names to the highest semantic version release and converts to SSH when requested.
 
 # Changelog
+
+---
 
 ## [v6.635.3] - 2026-10-31
 

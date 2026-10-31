@@ -34,7 +34,7 @@ func RunCommitPush(args []string) error {
 	if errPrompt != nil {
 		return errPrompt
 	}
-	commitMessage := FormatCommitMessage("cp", cleanArgs)
+	commitMessage := FormatCommitMessage("cmp", cleanArgs)
 
 	return executeCommitPush(commitMessage, meta)
 }

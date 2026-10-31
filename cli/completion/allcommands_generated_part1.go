@@ -120,6 +120,7 @@ var generatedCommandsPart1 = []string{
 	"completion",
 	"config-export",
 	"config-import",
+	"copy",
 	"cp",
 	"cpb",
 	"cpc",
@@ -254,5 +255,4 @@ var generatedCommandsPart1 = []string{
 	"join",
 	"latest-branch",
 	"lb",
-	"lcf",
 }

@@ -16,7 +16,10 @@ const updateUsageHelpText = `Available update commands:
   gitmap update all zip --include-others - Distribute zip packages via SCP across all nodes
   gitmap update-all-zip --include-others - Fast zip distribution across all nodes (alias: uaz)
   gitmap update ls                       - List installed software inventory across fleet nodes
-  gitmap update agm                      - Update Antigravity Manager
+  gitmap update cursor [node|all]        - Update Cursor IDE across fleet nodes
+  gitmap update vscode [node|all]        - Update Visual Studio Code across fleet nodes
+  gitmap update agm [node|all]           - Update Antigravity Manager across fleet nodes
+  gitmap update agy [node|all]           - Update Antigravity Tools / IDE across fleet nodes
   gitmap update antigravity              - Update Google Antigravity Desktop IDE (alias: gitmap update ide)
   gitmap update ssh <target>             - Update package on specified SSH target
 `
@@ -55,6 +58,7 @@ var updateTargetSuggestions = map[string]string{
 	"zp": "zip", "zi": "zip",
 	"antigravity": "antigravity", "antigravity-ide": "antigravity",
 	"ide": "ide", "agy-ide": "ide",
+	"cur": "cursor", "vsc": "vscode", "vs": "vscode", "cod": "code",
 }
 
 func suggestUpdateTarget(token string) string {
@@ -136,7 +140,25 @@ func isKnownUpdateTargetOrFlag(token string) bool {
 	return strutil.EqualFoldAny(token,
 		"all", "all-nodes", "allnodes", "ls", "list", "ssh", "remote", "gitmap", "agm", "agy", "ag-manager", "antigravity-manager",
 		"zip", "uaz", "update-all-zip", "updateallzip", "--include-others", "--include-other",
-		"antigravity", "antigravity-ide", "ide", "agy-ide")
+		"antigravity", "antigravity-ide", "ide", "agy-ide",
+		"cursor", "cursor-ide", "vscode", "code", "vs-code", "agy-tools")
+}
+
+func isFleetSoftwareUpdateArg(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	return isSoftwareUpdateToken(args[0])
+}
+
+func isSoftwareUpdateToken(token string) bool {
+	return strutil.EqualFoldAny(token,
+		"cursor", "cursor-ide",
+		"vscode", "code", "vs-code",
+		"agm", "ag-manager", "antigravity-manager",
+		"agy", "agy-tools", "antigravity", "antigravity-ide", "ide",
+	)
 }
 
 func isVersionListRequest(args []string) bool {

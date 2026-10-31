@@ -1,6 +1,7 @@
 package cmdnodes
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmderrors"
@@ -161,7 +162,7 @@ func runNodesScanDispatch(args []string) error {
 
 // runUnifiedNodesCLI handles `gitmap nodes [flags] [target]`.
 func RunUnifiedNodesCLI(args []string) error {
-	for len(args) > 0 && strings.EqualFold(args[0], "nodes") {
+	for len(args) > 0 && (strings.EqualFold(args[0], "nodes") || strings.EqualFold(args[0], "node")) {
 		args = args[1:]
 	}
 	if len(args) == 0 {
@@ -169,6 +170,8 @@ func RunUnifiedNodesCLI(args []string) error {
 	}
 
 	switch {
+	case isNodesUpdateSoftwareRequest(args):
+		return runNodesUpdateSoftwareDispatch(args[1:])
 	case isNodesRunningOnlyRequest(args):
 		return RunNodesRunningOnlyCLI(args[1:])
 	case hasNodesRunningOnlyFlag(args):
@@ -290,4 +293,38 @@ func isNodesRemoteRunRequest(args []string) bool {
 	}
 	first := strings.ToLower(args[0])
 	return first == "run" || first == "exec" || first == "r"
+}
+
+func isNodesUpdateSoftwareRequest(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	first := strings.ToLower(args[0])
+
+	return first == "update" || first == "up" || first == "upgrade" || first == "update-software"
+}
+
+func runNodesUpdateSoftwareDispatch(args []string) error {
+	if len(args) == 0 {
+		printNodesUpdateSoftwareHelp()
+		return nil
+	}
+	app := args[0]
+
+	return RunFleetSoftwareUpdate(app, args[1:])
+}
+
+func printNodesUpdateSoftwareHelp() {
+	fmt.Println("\nUsage: gitmap nodes update <app> [node|all] [flags]")
+	fmt.Println("\nSupported software applications:")
+	fmt.Println("  cursor              - Cursor IDE")
+	fmt.Println("  vscode / code       - Visual Studio Code")
+	fmt.Println("  agm                 - Antigravity Manager")
+	fmt.Println("  agy / antigravity   - Antigravity Tools / IDE")
+	fmt.Println("\nExamples:")
+	fmt.Println("  gitmap nodes update cursor all")
+	fmt.Println("  gitmap nodes update vscode u1")
+	fmt.Println("  gitmap nodes update agm all")
+	fmt.Println("  gitmap nodes update agy all")
+	fmt.Println()
 }

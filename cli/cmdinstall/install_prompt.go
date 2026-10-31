@@ -50,8 +50,21 @@ func alreadyInstalled(installName string) bool {
 	}
 
 	fmt.Printf(constants.MsgInstallFound, installName, existingVersion)
+	if installName == "gitmap" {
+		printGitmapInstalledSuggestions()
+	}
 
 	return true
+}
+
+func printGitmapInstalledSuggestions() {
+	fmt.Println()
+	fmt.Println("  💡 GitMap Suggestions:")
+	fmt.Println("    • Enable terminal suggestions:   gitmap completion install")
+	fmt.Println("    • Inspect system & fleet health: gitmap status")
+	fmt.Println("    • Upgrade to latest release:     gitmap update")
+	fmt.Println("    • Deploy to remote SSH fleet:    gitmap deploy-bin all")
+	fmt.Println()
 }
 
 func announceInstallPlan(version, manager string) {

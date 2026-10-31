@@ -2,7 +2,7 @@ package completion
 
 // generatePowerShell returns the PowerShell completion script.
 func generatePowerShell() string {
-	return `Register-ArgumentCompleter -CommandName gitmap -ScriptBlock {
+	return `Register-ArgumentCompleter -CommandName gitmap,gm -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
     $elems = $commandAst.CommandElements | Select-Object -Skip 1
     $cmd = if ($elems.Count -gt 0) { $elems[0].ToString() } else { "" }

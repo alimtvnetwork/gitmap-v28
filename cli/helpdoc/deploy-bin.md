@@ -46,13 +46,33 @@ The command:
 ## Options
 
 - `--file, -f <path>`: Local binary to deploy. Defaults to current running executable or newly built binary in workspace.
+- `--dest, -d <path>`: Custom destination path on remote target nodes.
+- `--force`: Force deploy even if binary format and remote OS are incompatible (e.g. override skipping .exe on Linux).
+- `--force-copy`: Force copy across incompatible operating systems.
+- `--no-install`: Transfer binary without executing installation/permission hook.
 - `--dry-run`: Previews the target nodes and paths without transmitting data.
 - `--timeout, -t <duration>`: Network transfer timeout per node (default: 60s).
 - `--help, -h`: Show terminal help guide.
 
+## OS Compatibility & Feedback Docket
+
+`gitmap deploy-bin` automatically inspects executable magic bytes (`MZ` for Windows PE `.exe`, `\x7fELF` for Linux ELF) and compares them with the target node's operating system:
+- **Automatic Incompatibility Skipping:** By default, Windows `.exe` binaries are automatically skipped on Linux/Ubuntu nodes (and vice-versa), reporting `SKIPPED_INCOMPATIBLE_OS` without aborting deployment to other nodes.
+- **Offline Node Bypass:** Fast non-blocking TCP probes (1200ms) bypass unreachable or offline nodes without hanging.
+- **Diagnostic Feedback Docket:** After execution, a rich summary table displays total targets, successes, skipped (with clear reasons), and copy-pasteable next-step suggestions (cross-compilation commands, network diagnostic tests).
+
 ## Examples
 
 ```bash
+# Deploy to all online fleet machines concurrently (auto-skips incompatible OS)
+gitmap deploy-bin all
+
+# Force deploy ignoring OS compatibility check
+gitmap deploy-bin all --force
+
+# Deploy specific Linux binary to Ubuntu node
+gitmap deploy-bin u1 --file ./gitmap-linux
+
 # Deploy by alias to node w1
 gitmap deploy-bin w1
 

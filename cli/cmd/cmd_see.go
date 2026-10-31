@@ -46,8 +46,7 @@ func routeSeeCommand(args []string, joined string) *apperror.AppError {
 
 func isCommitPendingCmd(joined string) bool {
 	return strings.HasPrefix(joined, "commit pending") ||
-		strings.HasPrefix(joined, "commit-pending") ||
-		strings.HasPrefix(joined, "cp")
+		strings.HasPrefix(joined, "commit-pending")
 }
 
 func hasIgnorePrefix(joined string) bool {

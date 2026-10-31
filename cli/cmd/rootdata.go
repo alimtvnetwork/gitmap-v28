@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdamend"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdbookmark"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcd"
@@ -20,6 +22,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmultigroup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprofiles"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdschedule"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstartup"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstats"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdstorage"
@@ -163,7 +166,7 @@ func dataExecutionEntries() []dispatchEntry {
 		{[]string{"macro-import-single"}, func() error { return cmdmacro.RunMacroImport(append([]string{"--single"}, argsTail()...)) }},
 		{[]string{"record", "rec"}, func() error { return cmdmacro.RunMacroCmd(append([]string{"record"}, argsTail()...)) }},
 		{[]string{"retry", "loop", "until-success"}, func() error { return cmdmacro.RunMacroUntilSuccess(argsTail()) }},
-		{[]string{"mv", "move"}, func() error { return cmdmerge.RunMove(argsTail()) }},
+		{[]string{"mv", "move"}, func() error { return runMoveDisambiguated(argsTail()) }},
 		{[]string{constants.CmdStartup, constants.CmdStartupAlias}, func() error { return cmdstartup.RunStartupCmd(argsTail()) }},
 		{[]string{constants.CmdAsync, constants.CmdAsyncAlias}, func() error { return RunAsyncCmd(argsTail()) }},
 		{[]string{constants.CmdStorage, constants.CmdStorageAlias}, func() error { return cmdstorage.RunStorageCmd(argsTail()) }},
@@ -175,4 +178,50 @@ func dataExecutionEntries() []dispatchEntry {
 			return nil
 		}},
 	}
+}
+
+func runMoveDisambiguated(args []string) error {
+	if isRemoteMoveArgs(args) {
+		return cmdssh.RunSSHMvExtended(args)
+	}
+
+	return cmdmerge.RunMove(args)
+}
+
+func isRemoteMoveArgs(args []string) bool {
+	for _, arg := range args {
+		if isRemoteMoveFlag(arg) || hasRemoteMoveColon(arg) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isRemoteMoveFlag(arg string) bool {
+	if arg == "-t" || arg == "--target" || arg == "--all" {
+		return true
+	}
+
+	return strings.HasPrefix(arg, "-t=") || strings.HasPrefix(arg, "--target=")
+}
+
+func hasRemoteMoveColon(arg string) bool {
+	if isDrivePath(arg) {
+		return false
+	}
+
+	return strings.Contains(arg, ":")
+}
+
+func isDrivePath(arg string) bool {
+	if len(arg) < 2 {
+		return false
+	}
+
+	return arg[1] == ':' && isLetterByte(arg[0])
+}
+
+func isLetterByte(b byte) bool {
+	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }

@@ -157,6 +157,7 @@ func GenerateCobraCompletionScript(shell string) (string, error) {
 		hardened.WriteString("        Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue\n")
 		hardened.WriteString("    } catch {}\n")
 		hardened.WriteString("}\n")
+		hardened.WriteString("Register-ArgumentCompleter -CommandName 'gm' -ScriptBlock ${__gitmapCompleterBlock}\n")
 		return hardened.String(), nil
 	case constants.ShellBash:
 		if err := rootCmd.GenBashCompletionV2(&buf, true); err != nil {

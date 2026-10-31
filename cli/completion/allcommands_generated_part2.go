@@ -5,6 +5,7 @@ package completion
 // generatedCommandsPart2 holds chunk 2 of 3 of the generated command
 // list (see allcommands_generated.go).
 var generatedCommandsPart2 = []string{
+	"lcf",
 	"ld",
 	"lemon",
 	"lfs-common",
@@ -254,5 +255,4 @@ var generatedCommandsPart2 = []string{
 	"todo",
 	"tpl",
 	"tr",
-	"ud",
 }

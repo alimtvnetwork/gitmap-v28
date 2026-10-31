@@ -10,6 +10,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdagy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstaller"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdnodes"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdssh"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdupdate"
 	"github.com/alimtvnetwork/gitmap-v28/cli/heatmap"
@@ -18,13 +19,16 @@ import (
 func runUpdateHelp() error {
 	cmdName := subcommandName()
 	args := argsTail()
-	if handled, err := checkEarlyUpdateRouting(cmdName, args); handled {
-		return err
-	}
-	checkHelp("update", argsTail())
 	if handled, err := checkVersionListRouting(args); handled {
 		return err
 	}
+
+	if handled, err := checkEarlyUpdateRouting(cmdName, args); handled {
+		return err
+	}
+
+	checkHelp("update", argsTail())
+
 	return executeUpdateHelpFlow(args)
 }
 
@@ -32,12 +36,23 @@ func checkEarlyUpdateRouting(cmdName string, args []string) (bool, error) {
 	if cmdupdate.IsFleetUpdateCommand(cmdName, args) {
 		return true, cmdupdate.RunFleetUpdateDispatch(cmdName, args)
 	}
+
+	if isFleetSoftwareUpdateArg(args) {
+		return true, cmdnodes.RunFleetSoftwareUpdate(args[0], args[1:])
+	}
+
+	return checkSSHUpdateRouting(args)
+}
+
+func checkSSHUpdateRouting(args []string) (bool, error) {
 	if len(args) > 0 && (args[0] == "ssh" || args[0] == "remote") {
 		return true, cmdssh.RunSSHUpdateCLI(args[1:])
 	}
+
 	if hasSSHArg(args) {
 		return true, cmdssh.RunSSHUpdateCLI(stripSSHFlag(args))
 	}
+
 	return false, nil
 }
 
