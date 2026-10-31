@@ -47,6 +47,17 @@ gitmap agy remove-empty-convs
 gitmap agy running-projects ls
 gitmap agy last-active-projects 24
 
+# Inspect Antigravity conversation states, titles, and idle status (REPLACES ad-hoc sqlite scripts)
+gitmap agy summaries [N]
+gitmap agy summaries 10
+
+# Query conversation summaries via universal GitMap DB CLI with system alias
+gitmap db query "SELECT conversation_id, title, status, last_modified_time FROM conversation_summaries ORDER BY last_modified_time DESC LIMIT 10" --db agy
+
+# Inspect conversation transcript lines and extract specific JSON fields cleanly (REPLACES node/powershell)
+gitmap cat path/to/transcript.jsonl -L 1519 --field content
+gitmap cat path/to/transcript.jsonl -t 5 -q "media|USER_INPUT"
+
 # Inject prompt directly into active Antigravity window
 gitmap agy prompt "<instruction>"
 
@@ -74,3 +85,5 @@ gitmap chrome diff "Profile 1" "Profile 2"
 3. **Safe Process Termination:** Always confirm process name, PID, and executable path before attempting termination to prevent accidental termination of critical system processes or parent IDE hosts.
 4. **Preserve Transcript Integrity:** When cleaning AGY logs or temp files, preserve `.system_generated/logs/transcript.jsonl` files of active conversations.
 5. **No Uppercase ID Acronyms:** All identifiers must follow `ProfileId`, `ConversationId`, `processId`. Uppercase `ID` is prohibited.
+6. **Total Ban on Ad-Hoc Python Database and Shell Scripts:** NEVER write scratch Python scripts (`check_summaries.py`, `sqlite3.connect`) or run Node.js/PowerShell one-liners to inspect Antigravity conversation summaries or transcripts. ALWAYS use `gitmap agy summaries [N]`, `gitmap db query ... --db agy`, or `gitmap cat ... --field content`.
+7. **Dynamic Host Platform Identity:** NEVER blindly set or default `ai_auto.default_agent` to `muse` inside Antigravity. Always use `antigravity` (`gitmap login set ai-auto antigravity` and `gitmap settings set ai_auto.default_agent antigravity`).

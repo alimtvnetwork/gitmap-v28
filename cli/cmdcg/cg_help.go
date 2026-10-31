@@ -27,12 +27,13 @@ func buildCGHelpMenu() termout.HelpMenu {
 func buildCGUsageLines() []string {
 	return []string{
 		"gitmap cg <command> [targets...] [flags]",
-		"gitmap cg install [targets...] [--all] [--dry-run]",
-		"gitmap cg install-prompts [targets...] [--all] [--dry-run]",
+		"gitmap cg sync [targets...] [--all] [--dry-run]",
+		"gitmap cg prompt sync [targets...] [--dry-run]",
+		"gitmap cg skill sync [targets...] [--dry-run]",
+		"gitmap cg execute <v6|v7> [--raw]",
 		"gitmap cg status [--all]",
 		"gitmap cg audit [targets...]",
 		"gitmap cg doctor [targets...]",
-		"gitmap cg sync [targets...] [--all] [--exclude <csv>]",
 		"gitmap cg install-version-json --version 1.0.0",
 	}
 }
@@ -61,11 +62,14 @@ func buildCGPromptSection() termout.HelpSection {
 		BadgeText:  "AI",
 		BadgeColor: termout.RoleSGR(termout.RoleAccent),
 		Entries: []termout.CommandEntry{
+			{Command: "sync, sy", Description: "Unified 3-way synchronization across specs, prompts, skills, and scripts with human conflict protection"},
+			{Command: "prompt sync", Description: "Synchronize canonical 01-prompts/ templates using 3-way hash verification"},
+			{Command: "skill sync", Description: "Synchronize .agents/skills/ and .cursor/skills/ with human edit preservation"},
+			{Command: "execute <v6|v7>", Description: "Stream master V6 or V7 autonomous AI execution directives to terminal for model learning"},
 			{Command: "install-prompts", Description: "Install Prompt Architect v2 suite and canonical prompt library"},
 			{Command: "update-prompts", Description: "In-place update of Prompt Architect templates across target repos"},
 			{Command: "prompts-status", Description: "Check installed status and version of Prompt Architect"},
 			{Command: "prompts-version", Description: "Show Prompt Architect version installed in repositories"},
-			{Command: "sync, sy", Description: "Unified sync of both Coding Guidelines and Prompt Architect"},
 		},
 	}
 }

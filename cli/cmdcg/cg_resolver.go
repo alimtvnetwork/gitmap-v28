@@ -43,9 +43,9 @@ func ResolveCGTarget(spec string) (string, bool) {
 		return path, true
 	}
 
-	// 3. Check alias / slug / repo name
+	// 3. Check alias / slug / repo name / folder basename
 	for _, r := range repos {
-		if strings.EqualFold(r.Slug, trimmed) || strings.EqualFold(r.RepoName, trimmed) {
+		if strings.EqualFold(r.Slug, trimmed) || strings.EqualFold(r.RepoName, trimmed) || strings.EqualFold(filepath.Base(r.AbsolutePath), trimmed) || strings.Contains(strings.ToLower(r.RepoName), strings.ToLower(trimmed)) {
 			return r.AbsolutePath, true
 		}
 	}

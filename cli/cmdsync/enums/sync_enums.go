@@ -306,3 +306,82 @@ func (m SyncModeType) IsDryRun() bool {
 func (m SyncModeType) HasMutation() bool {
 	return m != SyncModeDryRun
 }
+
+// SyncScopeType represents which asset domains are synchronized.
+type SyncScopeType string
+
+const (
+	SyncScopeAll         SyncScopeType = "all"
+	SyncScopePrompts     SyncScopeType = "prompts"
+	SyncScopeSkills      SyncScopeType = "skills"
+	SyncScopeGitmapSkill SyncScopeType = "gitmap-skill"
+	SyncScopeSpecs       SyncScopeType = "specs"
+	SyncScopeScripts     SyncScopeType = "scripts"
+)
+
+// IsValid reports whether the scope matches a recognized sync scope variant.
+func (s SyncScopeType) IsValid() bool {
+	switch s {
+	case SyncScopeAll, SyncScopePrompts, SyncScopeSkills, SyncScopeGitmapSkill, SyncScopeSpecs, SyncScopeScripts:
+		return true
+	default:
+		return false
+	}
+}
+
+// String returns the string representation of the sync scope.
+func (s SyncScopeType) String() string {
+	return string(s)
+}
+
+// ParseSyncScopeType parses a string into a validated SyncScopeType.
+func ParseSyncScopeType(s string) (SyncScopeType, *apperror.AppError) {
+	val := SyncScopeType(strings.ToLower(strings.TrimSpace(s)))
+	if val.IsValid() {
+		return val, nil
+	}
+
+	return "", apperror.NewValidation("ParseSyncScopeType", "E1000", fmt.Sprintf("invalid sync scope: %q", s)).WithContext("value", s)
+}
+
+// AllSyncScopeTypes returns all valid SyncScopeType values.
+func AllSyncScopeTypes() []SyncScopeType {
+	return []SyncScopeType{
+		SyncScopeAll,
+		SyncScopePrompts,
+		SyncScopeSkills,
+		SyncScopeGitmapSkill,
+		SyncScopeSpecs,
+		SyncScopeScripts,
+	}
+}
+
+// IsAll reports whether scope is All.
+func (s SyncScopeType) IsAll() bool {
+	return s == SyncScopeAll || s == ""
+}
+
+// IsPrompts reports whether scope includes prompts.
+func (s SyncScopeType) IsPrompts() bool {
+	return s == SyncScopeAll || s == SyncScopePrompts
+}
+
+// IsSkills reports whether scope includes skills.
+func (s SyncScopeType) IsSkills() bool {
+	return s == SyncScopeAll || s == SyncScopeSkills || s == SyncScopeGitmapSkill
+}
+
+// IsGitmapSkillOnly reports whether scope targets only gitmap skill.
+func (s SyncScopeType) IsGitmapSkillOnly() bool {
+	return s == SyncScopeGitmapSkill
+}
+
+// IsSpecs reports whether scope includes specs.
+func (s SyncScopeType) IsSpecs() bool {
+	return s == SyncScopeAll || s == SyncScopeSpecs
+}
+
+// IsScripts reports whether scope includes scripts.
+func (s SyncScopeType) IsScripts() bool {
+	return s == SyncScopeAll || s == SyncScopeScripts
+}

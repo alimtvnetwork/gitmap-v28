@@ -26,7 +26,7 @@ func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) Rep
 
 	performSafetyBackupIfMutating(proj.Path, branch, opts)
 
-	stats, mirrorErr := MirrorAssets(sourceRoot, proj.Path)
+	stats, mirrorErr := MirrorAssetsWithScope(sourceRoot, proj.Path, opts.Scope, opts.DryRun)
 	if mirrorErr != nil {
 		return failSyncResult(res, constants.ActionMirrorFailed, mirrorErr)
 	}
@@ -79,6 +79,9 @@ func applyMirrorStats(res *RepoSyncResult, stats MirrorStats) {
 	res.FilesAdded = stats.Added
 	res.FilesUpdated = stats.Updated
 	res.FilesRemoved = stats.Removed
+	res.FilesPreserved = stats.Preserved
+	res.FilesConflicts = stats.Conflicts
+	res.FilesUnchanged = stats.InSync
 }
 
 func failSyncResult(res RepoSyncResult, action string, err error) RepoSyncResult {

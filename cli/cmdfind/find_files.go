@@ -100,10 +100,37 @@ func parseFindFilesOptions(args []string, defaultKind MatchKind) FindFilesOption
 	}
 	var nonFlags []string
 	opts, nonFlags = processFindArgs(args, opts)
-	if opts.Query == "" && len(nonFlags) > 0 {
+	if opts.Query == "" && len(nonFlags) == 1 {
 		opts.Query = nonFlags[0]
+		return opts
+	}
+	if opts.Query == "" && len(nonFlags) >= 2 {
+		return routeTwoNonFlags(opts, nonFlags[0], nonFlags[1])
 	}
 
+	return opts
+}
+
+func routeTwoNonFlags(opts FindFilesOptions, first, second string) FindFilesOptions {
+	firstInfo, firstErr := os.Stat(first)
+	secondInfo, secondErr := os.Stat(second)
+
+	firstIsDir := firstErr == nil && firstInfo.IsDir()
+	secondIsDir := secondErr == nil && secondInfo.IsDir()
+
+	if firstIsDir && !secondIsDir {
+		opts.TargetDir = first
+		opts.Query = second
+		return opts
+	}
+	if secondIsDir && !firstIsDir {
+		opts.TargetDir = second
+		opts.Query = first
+		return opts
+	}
+
+	opts.Query = first
+	opts.TargetDir = second
 	return opts
 }
 

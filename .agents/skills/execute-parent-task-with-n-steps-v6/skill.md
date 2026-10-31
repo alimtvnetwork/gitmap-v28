@@ -250,13 +250,13 @@ Every code modification executed across any subtask or wave must pass the 12-Pil
   - Activation & Identity Locking (MANDATORY AGENT NAME):
     ```bash
     # MANDATORY: Every autonomous AI agent MUST provide its AI name:
-    gitmap login set ai-auto <agent-name>   # e.g. gitmap login set ai-auto antigravity | muse | gemini | cursor-model
+    gitmap login set ai-auto antigravity    # inside Antigravity; or cursor-model | claude | gemini; TOTAL BAN on hardcoded muse
 
     # Generic machine-wide identity without agent name:
     gitmap login set global ai-auto
 
     # Settings configuration via CLI or Web Settings UI:
-    gitmap settings set ai_auto.default_agent <agent-name>  # e.g. antigravity, gemini, cursor-model, muse
+    gitmap settings set ai_auto.default_agent antigravity  # inside Antigravity; NEVER blindly default to muse!
     ```
     If an AI agent omits `<agent-name>` when running `gitmap login set ai-auto`, GitMap rejects the call with actionable on-the-fly teaching examples so the agent self-corrects immediately.
   - Commit Provenance Attribution:

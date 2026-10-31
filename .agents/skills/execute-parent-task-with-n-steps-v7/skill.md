@@ -96,7 +96,7 @@ Active when the user requests an automated bot persona, AI commit authoring, or 
      ```bash
      gitmap login set global ai-auto
      ```
-     Defaults (bot name, bot email, fallback agent) can be adjusted via Settings CLI (`gitmap settings set ai_auto.default_agent <name>`) or Web Settings UI (`Speed & Automation` -> `ai-auto`).
+     Defaults (bot name, bot email, fallback agent) can be adjusted via Settings CLI (`gitmap settings set ai_auto.default_agent antigravity` under Antigravity, or `cursor-model`/`claude`/`gemini`; TOTAL BAN on hardcoded `muse`) or Web Settings UI (`Speed & Automation` -> `ai-auto`).
    - Commit Provenance Attribution (MANDATORY):
      ```bash
      gitmap cpf/cpb/cpc/cfr/cpr "<module> - <summary>" --ai-agent <name>

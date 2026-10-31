@@ -467,6 +467,56 @@ gitmap prnt <url1> [url2...] [-e] [--json] [-o <dir>]
 
 ---
 
+### Mistake #16: Ad-Hoc Python SQLite Scripts for Conversation Inspection
+
+**Frequency:** High
+**Rule:** AH-DB1
+
+```python
+# ❌ AI GENERATES THIS (check_summaries.py)
+import sqlite3
+conn = sqlite3.connect(r'~/.gemini/antigravity/conversation_summaries.db')
+cur = conn.cursor()
+cur.execute("SELECT conversation_id, title, status FROM conversation_summaries ORDER BY last_modified_time DESC LIMIT 10")
+for r in cur.fetchall():
+    print(r)
+```
+
+```bash
+# ✅ CORRECT — native compiled GitMap commands
+gitmap agy summaries 10
+# Or query via universal GitMap DB CLI with system alias:
+gitmap db query "SELECT conversation_id, title, status FROM conversation_summaries ORDER BY last_modified_time DESC LIMIT 10" --db agy
+```
+
+---
+
+### Mistake #17: Blindly Defaulting AI Agent Identity to `muse`
+
+**Frequency:** High
+**Rule:** AH-ID1
+
+```bash
+# ❌ AI GENERATES THIS (on machines running Antigravity, Cursor, or Claude)
+gitmap settings set ai_auto.default_agent muse
+gitmap login set ai-auto muse
+```
+
+```bash
+# ✅ CORRECT — dynamically identify host agent platform
+# Inside Google Antigravity (AGY):
+gitmap settings set ai_auto.default_agent antigravity
+gitmap login set ai-auto antigravity
+
+# Inside Cursor IDE:
+gitmap login set ai-auto cursor-model
+
+# Inside Claude / DevTools:
+gitmap login set ai-auto claude
+```
+
+---
+
 ## Pattern Recognition Guide
 
 ### Signs AI is About to Hallucinate

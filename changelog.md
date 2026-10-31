@@ -1,3 +1,21 @@
+## [v6.643.0] 2026-10-31 Release v6.643.0
+
+### Install GitMap v6.643.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.643.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.643.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.643.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.643.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Canonical Single Root Authority & 3-Way Hash Sync Engine (`gitmap cg sync`): Promoted GitMap as the primary root authority (`SOURCE_ROOT`) for canonical specifications, prompts, skills, and AI scripts, replacing coding-guidelines dependency. Implemented deterministic 3-Way Hash State Engine ($B$, $U$, $L$) with cryptographic SHA-256 asset verification in `cli/cmdsync/manifest.go` and `cli/cmdsync/threeway.go`.
+- Human Modification Protection & Sidecar Conflicts: Automatic preservation of local files modified by human developers (`SyncStateLocalEdited`); true conflicts generate `.upstream` sidecars rather than blindly overwriting local edits.
+- Scoped Asset Synchronization (`gitmap cg prompt sync`, `gitmap cg skill sync`, `gitmap skill sync`): Added fine-grained CLI synchronization subcommands to mirror exclusively prompts, skills, or the autonomous companion GitMap skill in sub-second time.
+- On-The-Fly Terminal Execution Prompts (`gitmap cg execute v6`, `gitmap cg execute v7`): Added streaming execution standards directly to terminal stdout with educational framing and raw pipe flags (`--raw`) for on-the-fly model learning.
+- Muse AI Persona Onboarding & Prompt Catalog (`gitmap muse onboarding`, `gitmap muse help`): Implemented dedicated Muse CLI subsystem in `cli/cmdmuse/muse_cmd.go` rendering Tokyo Night cards detailing Muse prompt variants, execution rules, and trigger commands.
+- Positional Argument Smart-Routing in `gitmap find`: Enhanced `cli/cmdfind/find_files.go` to automatically disambiguate and route `<dir> <pattern>` and `<pattern> <dir>` without flags via `os.Stat` detection.
+- JSON Field Extraction in `gitmap cat`: Added `--field <key>` / `--json-field <key>` to `cli/cmdmacro/cat_options.go` and `cat_reader.go` to parse JSON/JSONL lines and stream field values directly to terminal stdout, replacing Node/Python read scripts.
+
 ## [v6.642.0] 2026-10-31 Release v6.642.0
 
 ### Install GitMap v6.642.0

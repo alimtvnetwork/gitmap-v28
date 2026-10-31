@@ -9,16 +9,20 @@ import (
 	"strconv"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/enums"
 	"github.com/alimtvnetwork/gitmap-v28/cli/lazyregex"
 )
 
 var specDirNumRe = lazyregex.New(`^(\d+)-`)
 
-// MirrorStats records added, updated, and removed file counts during asset mirroring.
+// MirrorStats records added, updated, removed, preserved, conflict, and in-sync counts.
 type MirrorStats struct {
-	Added   int
-	Updated int
-	Removed int
+	Added     int
+	Updated   int
+	Removed   int
+	Preserved int
+	Conflicts int
+	InSync    int
 }
 
 type syncDirMapping struct {
@@ -27,34 +31,67 @@ type syncDirMapping struct {
 	addOnly bool
 }
 
-// MirrorAssets synchronizes canonical assets from source to target repo adhering to boundaries.
+// MirrorAssets synchronizes canonical assets using 3-Way Hash state evaluation.
 func MirrorAssets(sourceRoot, targetRoot string) (MirrorStats, error) {
-	var stats MirrorStats
-	dirs := buildSyncDirMappings(sourceRoot)
+	return MirrorAssetsWithScope(sourceRoot, targetRoot, enums.SyncScopeAll, false)
+}
 
+// MirrorAssetsWithScope synchronizes canonical assets with designated scope and 3-way hash protection.
+func MirrorAssetsWithScope(sourceRoot, targetRoot string, scope enums.SyncScopeType, isDryRun bool) (MirrorStats, error) {
+	var stats MirrorStats
+	manifest, _ := LoadTargetManifest(targetRoot)
+	if manifest == nil {
+		manifest = &SyncManifest{Assets: make(map[string]string)}
+	}
+
+	dirs := buildSyncDirMappingsWithScope(sourceRoot, scope)
 	for _, d := range dirs {
-		if err := mirrorSingleDirectoryMapping(d, sourceRoot, targetRoot, &stats); err != nil {
+		if err := mirrorSingleDirectoryMapping(d, sourceRoot, targetRoot, manifest, isDryRun, &stats); err != nil {
 			return stats, err
 		}
+	}
+
+	if !isDryRun {
+		manifest.SectionHashes = ComputeSectionHashes(manifest.Assets)
+		_ = SaveTargetManifest(targetRoot, manifest)
 	}
 
 	return stats, nil
 }
 
-func buildSyncDirMappings(sourceRoot string) []syncDirMapping {
-	dirs := []syncDirMapping{
-		{constants.DirPrompts, constants.DirPrompts, false},
-		{filepath.FromSlash(constants.DirAgentsSkills), filepath.FromSlash(constants.DirAgentsSkills), false},
-		{filepath.FromSlash(constants.DirCursorSkills), filepath.FromSlash(constants.DirCursorSkills), false},
-		{constants.DirAiScripts, constants.DirAiScripts, true},
-		{filepath.FromSlash(constants.DirAgentsScripts), filepath.FromSlash(constants.DirAgentsScripts), true},
+func buildSyncDirMappingsWithScope(sourceRoot string, scope enums.SyncScopeType) []syncDirMapping {
+	if scope.IsGitmapSkillOnly() {
+		return []syncDirMapping{
+			{filepath.FromSlash(".agents/skills/gitmap"), filepath.FromSlash(".agents/skills/gitmap"), false},
+			{filepath.FromSlash(".cursor/skills/gitmap"), filepath.FromSlash(".cursor/skills/gitmap"), false},
+		}
 	}
-	specRoot := filepath.Join(sourceRoot, constants.DirSpec)
 
-	return appendSpecDirs(specRoot, dirs)
+	var dirs []syncDirMapping
+	if scope.IsPrompts() {
+		dirs = append(dirs, syncDirMapping{constants.DirPrompts, constants.DirPrompts, false})
+	}
+	if scope.IsSkills() {
+		dirs = append(dirs,
+			syncDirMapping{filepath.FromSlash(constants.DirAgentsSkills), filepath.FromSlash(constants.DirAgentsSkills), false},
+			syncDirMapping{filepath.FromSlash(constants.DirCursorSkills), filepath.FromSlash(constants.DirCursorSkills), false},
+		)
+	}
+	if scope.IsScripts() {
+		dirs = append(dirs,
+			syncDirMapping{constants.DirAiScripts, constants.DirAiScripts, true},
+			syncDirMapping{filepath.FromSlash(constants.DirAgentsScripts), filepath.FromSlash(constants.DirAgentsScripts), true},
+		)
+	}
+	if scope.IsSpecs() {
+		specRoot := filepath.Join(sourceRoot, constants.DirSpec)
+		dirs = appendSpecDirs(specRoot, dirs)
+	}
+
+	return dirs
 }
 
-func mirrorSingleDirectoryMapping(d syncDirMapping, sourceRoot, targetRoot string, stats *MirrorStats) error {
+func mirrorSingleDirectoryMapping(d syncDirMapping, sourceRoot, targetRoot string, manifest *SyncManifest, isDryRun bool, stats *MirrorStats) error {
 	srcDir := filepath.Join(sourceRoot, d.relSrc)
 	dstDir := filepath.Join(targetRoot, d.relDst)
 
@@ -62,7 +99,7 @@ func mirrorSingleDirectoryMapping(d syncDirMapping, sourceRoot, targetRoot strin
 		return nil
 	}
 
-	s, err := syncDirectory(srcDir, dstDir, sourceRoot, targetRoot, d.addOnly)
+	s, err := syncDirectory(srcDir, dstDir, sourceRoot, targetRoot, manifest, d.addOnly, isDryRun)
 	if err != nil {
 		return err
 	}
@@ -70,24 +107,27 @@ func mirrorSingleDirectoryMapping(d syncDirMapping, sourceRoot, targetRoot strin
 	stats.Added += s.Added
 	stats.Updated += s.Updated
 	stats.Removed += s.Removed
+	stats.Preserved += s.Preserved
+	stats.Conflicts += s.Conflicts
+	stats.InSync += s.InSync
 
 	return nil
 }
 
-func syncDirectory(srcDir, dstDir, sourceRoot, targetRoot string, addOnly bool) (MirrorStats, error) {
+func syncDirectory(srcDir, dstDir, sourceRoot, targetRoot string, manifest *SyncManifest, addOnly bool, isDryRun bool) (MirrorStats, error) {
 	var stats MirrorStats
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil {
 			return nil
 		}
 
-		return processWalkItem(path, info, srcDir, dstDir, sourceRoot, addOnly, &stats)
+		return processWalkItem(path, info, srcDir, dstDir, sourceRoot, manifest, addOnly, isDryRun, &stats)
 	})
 
 	return stats, err
 }
 
-func processWalkItem(path string, info os.FileInfo, srcDir, dstDir, sourceRoot string, addOnly bool, stats *MirrorStats) error {
+func processWalkItem(path string, info os.FileInfo, srcDir, dstDir, sourceRoot string, manifest *SyncManifest, addOnly bool, isDryRun bool, stats *MirrorStats) error {
 	relToSrc, _ := filepath.Rel(srcDir, path)
 	if relToSrc == "." || relToSrc == "" {
 		return nil
@@ -102,12 +142,13 @@ func processWalkItem(path string, info os.FileInfo, srcDir, dstDir, sourceRoot s
 
 	dstPath := filepath.Join(dstDir, relToSrc)
 	if info.IsDir() {
-		_ = os.MkdirAll(dstPath, 0755)
-
+		if !isDryRun {
+			_ = os.MkdirAll(dstPath, 0755)
+		}
 		return nil
 	}
 
-	return syncSingleFile(path, dstPath, addOnly, stats)
+	return syncSingleFileThreeWay(relFromRoot, path, dstPath, manifest, addOnly, isDryRun, stats)
 }
 
 func isExcludedSyncItem(normRel, name string) bool {
@@ -123,22 +164,123 @@ func handleExcludedItem(info os.FileInfo) error {
 	return nil
 }
 
-func syncSingleFile(srcPath, dstPath string, addOnly bool, stats *MirrorStats) error {
-	if _, dstErr := os.Stat(dstPath); dstErr != nil {
-		recordFileCopy(srcPath, dstPath, &stats.Added)
-
+func syncSingleFileThreeWay(relFromRoot, srcPath, dstPath string, manifest *SyncManifest, addOnly bool, isDryRun bool, stats *MirrorStats) error {
+	eval := EvaluateThreeWay(relFromRoot, srcPath, dstPath, manifest.Assets)
+	if eval.State == "InSync" {
+		stats.InSync++
 		return nil
+	}
+	if eval.State == "NewUpstream" {
+		return applyNewUpstream(eval, relFromRoot, srcPath, dstPath, manifest, isDryRun, stats)
 	}
 	if addOnly {
 		return nil
 	}
-
-	isEqual, cmpErr := filesEqual(srcPath, dstPath)
-	if cmpErr == nil && !isEqual {
-		recordFileCopy(srcPath, dstPath, &stats.Updated)
+	if eval.State == "CleanUpdate" {
+		return applyCleanUpdate(eval, relFromRoot, srcPath, dstPath, manifest, isDryRun, stats)
+	}
+	if eval.State == "LocalEdited" {
+		stats.Preserved++
+		return nil
+	}
+	if eval.State == "Collision" || eval.State == "UntrackedConflict" {
+		return applyConflictSidecar(eval, srcPath, dstPath, isDryRun, stats)
+	}
+	if eval.State == "Converged" {
+		stats.InSync++
+		manifest.Assets[filepath.ToSlash(relFromRoot)] = eval.SourceHash
+		return nil
 	}
 
 	return nil
+}
+
+func applyNewUpstream(eval ThreeWayResult, relFromRoot, src, dst string, m *SyncManifest, dry bool, stats *MirrorStats) error {
+	if err := ApplyThreeWayDecision(eval, src, dst, dry); err != nil {
+		return err
+	}
+	stats.Added++
+	m.Assets[filepath.ToSlash(relFromRoot)] = eval.SourceHash
+
+	return nil
+}
+
+func applyCleanUpdate(eval ThreeWayResult, relFromRoot, src, dst string, m *SyncManifest, dry bool, stats *MirrorStats) error {
+	if err := ApplyThreeWayDecision(eval, src, dst, dry); err != nil {
+		return err
+	}
+	stats.Updated++
+	m.Assets[filepath.ToSlash(relFromRoot)] = eval.SourceHash
+
+	return nil
+}
+
+func applyConflictSidecar(eval ThreeWayResult, src, dst string, dry bool, stats *MirrorStats) error {
+	if err := ApplyThreeWayDecision(eval, src, dst, dry); err != nil {
+		return err
+	}
+	stats.Conflicts++
+
+	return nil
+}
+
+func appendSpecDirs(specRoot string, dirs []syncDirMapping) []syncDirMapping {
+	entries, err := os.ReadDir(specRoot)
+	if err != nil {
+		return dirs
+	}
+
+	for _, e := range entries {
+		dirs = appendSingleSpecDir(e, dirs)
+	}
+
+	return dirs
+}
+
+func appendSingleSpecDir(e os.DirEntry, dirs []syncDirMapping) []syncDirMapping {
+	if !e.IsDir() {
+		return dirs
+	}
+
+	m := specDirNumRe.FindStringSubmatch(e.Name())
+	if len(m) < 2 {
+		return dirs
+	}
+
+	n, _ := strconv.Atoi(m[1])
+	if n < 1 || n > 20 {
+		return dirs
+	}
+
+	rel := filepath.Join(constants.DirSpec, e.Name())
+
+	return append(dirs, syncDirMapping{rel, rel, false})
+}
+
+func recordFileCopy(src, dst string, counter *int) {
+	if err := copyFile(src, dst); err == nil {
+		*counter++
+	}
+}
+
+func copyFile(src, dst string) error {
+	_ = os.MkdirAll(filepath.Dir(dst), 0755)
+
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+
+	return err
 }
 
 func filesEqual(p1, p2 string) (bool, error) {
@@ -168,64 +310,4 @@ func hashFile(p string) ([]byte, error) {
 	}
 
 	return h.Sum(nil), nil
-}
-
-func copyFile(src, dst string) error {
-	_ = os.MkdirAll(filepath.Dir(dst), 0755)
-
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-
-	return err
-}
-
-func recordFileCopy(src, dst string, count *int) {
-	if copyErr := copyFile(src, dst); copyErr == nil {
-		*count++
-	}
-}
-
-func appendSpecDirs(specRoot string, dirs []syncDirMapping) []syncDirMapping {
-	info, err := os.Stat(specRoot)
-	if err != nil || !info.IsDir() {
-		return dirs
-	}
-
-	entries, _ := os.ReadDir(specRoot)
-	for _, e := range entries {
-		dirs = appendMatchingSpecDir(e, dirs)
-	}
-
-	return dirs
-}
-
-func appendMatchingSpecDir(e os.DirEntry, dirs []syncDirMapping) []syncDirMapping {
-	if !e.IsDir() {
-		return dirs
-	}
-
-	m := specDirNumRe.FindStringSubmatch(e.Name())
-	if len(m) <= 1 {
-		return dirs
-	}
-
-	num, _ := strconv.Atoi(m[1])
-	if num < 1 || num > 20 {
-		return dirs
-	}
-
-	rel := filepath.Join(constants.DirSpec, e.Name())
-
-	return append(dirs, syncDirMapping{relSrc: rel, relDst: rel, addOnly: false})
 }

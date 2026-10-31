@@ -68,7 +68,7 @@ gitmap login set ai-auto claude
 # Mandatory Dynamic AI Identity Rule:
 # The AI agent MUST dynamically configure its own agent name (e.g. antigravity, gemini, cursor-model, muse, claude)
 # based on the environment it is executing in. NEVER assume or hardcode 'muse' as default.
-gitmap settings set ai_auto.default_agent <agent-name>  # e.g. antigravity, gemini, cursor-model, muse
+gitmap settings set ai_auto.default_agent antigravity  # inside Antigravity; NEVER blindly default to muse!
 gitmap settings set ai_auto.default_name "gitmap automation bot - runs autonomously"
 gitmap settings set ai_auto.default_email "info@rgitmap.com"
 # Or open Web Settings UI -> "Speed & Automation" pane -> "ai-auto" settings controls

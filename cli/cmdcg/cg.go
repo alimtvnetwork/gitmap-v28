@@ -63,6 +63,31 @@ func parseCGInstallGeneral(opts cgOptions, args []string) cgOptions {
 }
 
 func resolveCGSingleAction(opts cgOptions, args []string) cgOptions {
+	if (opts.Action == "prompt" || opts.Action == "prompts") && len(args) > 1 && args[1] == "sync" {
+		opts.Action = "prompt-sync"
+		if len(args) > 2 {
+			opts.Repos = args[2:]
+		}
+		return opts
+	}
+
+	if (opts.Action == "skill" || opts.Action == "skills") && len(args) > 1 && args[1] == "sync" {
+		opts.Action = "skill-sync"
+		if len(args) > 2 {
+			opts.Repos = args[2:]
+		}
+		return opts
+	}
+
+	if opts.Action == "execute" && len(args) > 1 {
+		opts.Action = "execute"
+		opts.VersionValue = args[1]
+		if len(args) > 2 {
+			opts.Repos = args[2:]
+		}
+		return opts
+	}
+
 	if opts.Action == "repo" && len(args) > 1 {
 		return parseCGRepoAction(opts, args)
 	}
@@ -167,6 +192,10 @@ func hasDispatchedCGMutation(action string, repos []string, opts cgOptions) bool
 	switch action {
 	case "sync", "sy":
 		RunCGSync(repos, opts.DryRun)
+	case "prompt-sync", "cg-prompt-sync", "prompts-sync":
+		RunCGPromptSync(repos, opts.DryRun)
+	case "skill-sync", "cg-skill-sync", "skills-sync":
+		RunCGSkillSync(repos, opts.DryRun)
 	case "update":
 		runCGUpdateAction(repos)
 	case "install":
@@ -230,6 +259,10 @@ func dispatchCGAction(opts cgOptions, repos []string, args []string) error {
 }
 
 func executeCGAction(opts cgOptions, args []string) error {
+	if opts.Action == "execute" {
+		return RunCGExecutePrompt(opts.VersionValue, args)
+	}
+
 	repos := resolveCGRepos(opts)
 	if len(repos) == 0 {
 		fmt.Println("No repositories to process.")

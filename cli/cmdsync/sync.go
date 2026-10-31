@@ -8,14 +8,21 @@ import (
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/constants"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/enums"
 )
 
 // RunSync is the main entry point for the gitmap sync CLI command.
 func RunSync(args []string) error {
+	return RunSyncWithScope(enums.SyncScopeAll, args)
+}
+
+// RunSyncWithScope executes synchronization targeting specific asset domains.
+func RunSyncWithScope(scope enums.SyncScopeType, args []string) error {
 	opts, parseErr := parseSyncFlags(args)
 	if parseErr != nil {
 		return parseErr
 	}
+	opts.Scope = scope
 
 	sourceRoot, srcErr := ResolveSourceRoot()
 	if srcErr != nil {
@@ -70,6 +77,7 @@ func bindPathAndFilterFlags(fs *flag.FlagSet, opts *SyncOptions, repoFlag *strin
 	fs.StringVar(&opts.Projects, constants.FlagProjectsShort, "", "Alias for --projects")
 	fs.StringVar(repoFlag, constants.FlagRepo, "", "Filter to specific repository name or comma-separated names")
 	fs.StringVar(repoFlag, constants.FlagRepoShort, "", "Alias for --repo")
+	fs.StringVar(repoFlag, "repos", "", "Alias for --repo")
 }
 
 func bindConcurrencyAndExecutionFlags(fs *flag.FlagSet, opts *SyncOptions) {
@@ -153,8 +161,12 @@ func runSingleWorkerLoop(sourceRoot string, opts SyncOptions, jobs <-chan Projec
 
 func printWorkerResult(res RepoSyncResult) {
 	statusTag := fmt.Sprintf("[%s]", res.Status)
-	fmt.Printf("%-6s %-32s | Pre: %-8s | Post: %-8s | +%d/~%d/-%d | %s\n",
-		statusTag, res.Repo, res.PreTag, res.PostTag, res.FilesAdded, res.FilesUpdated, res.FilesRemoved, res.Action)
+	preservedInfo := ""
+	if res.FilesPreserved > 0 || res.FilesConflicts > 0 {
+		preservedInfo = fmt.Sprintf(" [preserved %d human edits, %d sidecars]", res.FilesPreserved, res.FilesConflicts)
+	}
+	fmt.Printf("%-6s %-32s | Pre: %-8s | Post: %-8s | +%d/~%d/-%d | %s%s\n",
+		statusTag, res.Repo, res.PreTag, res.PostTag, res.FilesAdded, res.FilesUpdated, res.FilesRemoved, res.Action, preservedInfo)
 }
 
 func enqueueSyncJobs(jobs chan<- ProjectConfig, targets []ProjectConfig) {

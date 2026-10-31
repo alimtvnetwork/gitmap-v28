@@ -59,9 +59,10 @@ var DefaultTargetRepos = []string{
 	"wp-onboarding",
 	"seo-writing/alim-seo-writing",
 	"seo-packages",
+	"coding-guidelines",
 }
 
-// ResolveSourceRoot detects the canonical coding-guidelines repository root.
+// ResolveSourceRoot detects the canonical GitMap or coding-guidelines repository root.
 func ResolveSourceRoot() (string, error) {
 	if root, ok := checkCurrentAndRepoRoot(); ok {
 		return root, nil
@@ -70,16 +71,16 @@ func ResolveSourceRoot() (string, error) {
 		return root, nil
 	}
 
-	return "", apperror.NewNotFoundError("canonical source repository (coding-guidelines) not found")
+	return "", apperror.NewNotFoundError("canonical source repository (gitmap/coding-guidelines) not found")
 }
 
 func checkCurrentAndRepoRoot() (string, bool) {
 	cwd, err := os.Getwd()
-	if err == nil && isCanonicalSourceRepo(cwd) && strings.Contains(strings.ToLower(cwd), "coding-guidelines") {
+	if err == nil && isCanonicalSourceRepo(cwd) {
 		return filepath.Clean(cwd), true
 	}
 	repoRoot := cmdagent.FindRepoRoot()
-	if isCanonicalSourceRepo(repoRoot) && strings.Contains(strings.ToLower(repoRoot), "coding-guidelines") {
+	if isCanonicalSourceRepo(repoRoot) {
 		return filepath.Clean(repoRoot), true
 	}
 
@@ -89,16 +90,35 @@ func checkCurrentAndRepoRoot() (string, bool) {
 func checkParentAndSiblingCwd() (string, bool) {
 	repoRoot := cmdagent.FindRepoRoot()
 	parent := filepath.Dir(repoRoot)
+	gmPath := filepath.Join(parent, "gitmap")
+	if isCanonicalSourceRepo(gmPath) {
+		return filepath.Clean(gmPath), true
+	}
 	cgPath := filepath.Join(parent, "coding-guidelines")
 	if isCanonicalSourceRepo(cgPath) {
 		return filepath.Clean(cgPath), true
 	}
 	cwd, err := os.Getwd()
+	if siblingGm := checkSiblingGitmap(cwd, err); siblingGm != "" {
+		return siblingGm, true
+	}
 	if siblingCg := checkSiblingCodingGuidelines(cwd, err); siblingCg != "" {
 		return siblingCg, true
 	}
 
 	return "", false
+}
+
+func checkSiblingGitmap(cwd string, err error) string {
+	if err != nil {
+		return ""
+	}
+	sibling := filepath.Join(filepath.Dir(cwd), "gitmap")
+	if isCanonicalSourceRepo(sibling) {
+		return filepath.Clean(sibling)
+	}
+
+	return ""
 }
 
 func checkSiblingCodingGuidelines(cwd string, err error) string {
@@ -185,9 +205,11 @@ func matchesAnyRepoFilter(t ProjectConfig, filters []string) bool {
 	}
 	tNameLower := strings.ToLower(t.Name)
 	tFolderLower := strings.ToLower(t.Folder)
+	tPathLower := strings.ToLower(filepath.Clean(t.Path))
 	for _, r := range filters {
 		rLower := strings.ToLower(r)
-		if strings.Contains(tNameLower, rLower) || strings.Contains(tFolderLower, rLower) {
+		rCleanLower := strings.ToLower(filepath.Clean(r))
+		if strings.Contains(tNameLower, rLower) || strings.Contains(tFolderLower, rLower) || strings.EqualFold(tPathLower, rCleanLower) || strings.Contains(tPathLower, rLower) {
 			return true
 		}
 	}

@@ -13,6 +13,7 @@ type SyncOptions struct {
 	NoPush    bool
 	NoRelease bool
 	Verbose   bool
+	Scope     enums.SyncScopeType
 }
 
 // Mode returns the operational sync mode represented by these options.
@@ -44,15 +45,18 @@ type ProjectConfig struct {
 
 // RepoSyncResult records the synchronization outcome for a single repository.
 type RepoSyncResult struct {
-	Repo         string `json:"repo"`
-	Status       string `json:"status"` // OK, FAIL, SKIPPED
-	PreTag       string `json:"preTag"`
-	PostTag      string `json:"postTag"`
-	FilesAdded   int    `json:"filesAdded"`
-	FilesRemoved int    `json:"filesRemoved"`
-	FilesUpdated int    `json:"filesUpdated"`
-	Action       string `json:"action"`
-	Error        string `json:"error,omitempty"`
+	Repo           string `json:"repo"`
+	Status         string `json:"status"` // OK, FAIL, SKIPPED
+	PreTag         string `json:"preTag"`
+	PostTag        string `json:"postTag"`
+	FilesAdded     int    `json:"filesAdded"`
+	FilesRemoved   int    `json:"filesRemoved"`
+	FilesUpdated   int    `json:"filesUpdated"`
+	FilesPreserved int    `json:"filesPreserved"`
+	FilesConflicts int    `json:"filesConflicts"`
+	FilesUnchanged int    `json:"filesUnchanged"`
+	Action         string `json:"action"`
+	Error          string `json:"error,omitempty"`
 }
 
 // OutcomeStatus returns the typed repo status for this sync result.

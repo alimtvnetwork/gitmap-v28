@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmuse"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"strings"
 	"time"
@@ -11,12 +12,19 @@ import (
 // RunMuseCLI routes the top-level `gitmap muse` commands.
 func RunMuseCLI(args []string) error {
 	if len(args) == 0 {
-		printMuseUsage()
+		cmdmuse.RenderMuseHelp()
 		return nil
 	}
 
 	sub := strings.ToLower(args[0])
 	switch sub {
+	case "onboarding", "onboard", "train", "setup":
+		return cmdmuse.RunMuseOnboarding()
+	case "help", "-h", "--help":
+		cmdmuse.RenderMuseHelp()
+		return nil
+	case "prompt", "pmt":
+		return cmdmuse.RunMusePrompt(args[1:])
 	case "install", "in", "i":
 		return handleMuseInstallCommand(args[1:])
 	case "status", "stat", "check":

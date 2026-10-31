@@ -37,6 +37,11 @@ gitmap db sizes list
 gitmap pipeline purge
 
 # Read and explore database tables, views, and schemas (zero-lock WAL mode)
+gitmap db query "SELECT conversation_id, title, status FROM conversation_summaries LIMIT 10" --db agy
+gitmap db query "SELECT RepoId, AbsolutePath FROM TrackedRepository LIMIT 10" --db master
+gitmap db tables --db agy
+gitmap db schema conversation_summaries --db agy
+gitmap db columns conversation_summaries --db agy
 gitmap db-read master ls
 gitmap db-read tasks table Subtask --columns
 gitmap db-read ".ai-memory/heatmap.db" "SELECT COUNT(*) FROM HeatmapActionLog"

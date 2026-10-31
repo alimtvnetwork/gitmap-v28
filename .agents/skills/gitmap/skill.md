@@ -1139,17 +1139,24 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 15. **Total Ban on Raw Locked Binary Operations:** NEVER attempt manual binary replacement on locked, running executables using PowerShell `Move-Item`, `Copy-Item`, raw `taskkill` + copy, or shell copy scripts that cause locked file crashes or sharing violations (`ERROR_SHARING_VIOLATION` / `0x20`). You MUST use `gitmap swap-binary [--from <path>] [--to <path>] [--kill] [--reopen]` (or alias `gitmap swap-bin`) to safely generate a platform-specific runner script, gracefully terminate locking PIDs, rotate the active binary to `.old`, install the new binary, verify version integrity, and restart.
 16. **Total Ban on Raw Tauri Directory Inspection:** NEVER inspect Tauri roots with raw shell `dir` or `Get-ChildItem`. You MUST use `gitmap lf src-tauri`, `gitmap aum search "<pattern>" src-tauri`, and `gitmap pe -f tauri`.
 17. **Total Ban on Raw Git Pull, Raw Git Commits & Misusing Commit Verbs:** NEVER execute raw `git pull` without trying `gitmap pull` first. NEVER execute raw `git commit`, `git commit -m`, `git add -A`, or raw `git push`. NEVER misuse commit verbs (e.g. NEVER use `cpf` for releases or chores). Use `gitmap cpr` for releases, `gitmap cpc` for chores, `gitmap cbf` for bug fixes, `gitmap cfr` for refactors, and `gitmap cpf` for features. NEVER nest conventional prefixes (like `chore(release):`, `feat(...)`, `fix(...)`) inside the GitMap argument as GitMap provides the prefix automatically. Use `<module> - summary` format with a hyphen and NO square brackets `[...]` or colons in the argument. Module must be Title Case or lowercase representing the subsystem; TOTAL BAN on `commit` / `commits` as a module name.
-18. **Total Ban on Anonymous AI Autonomous Commits (Mandatory AI Name & On-The-Fly Teaching):** AI agents operating autonomously MUST provide their agent name when setting credentials (`gitmap login set ai-auto <agent-name>`) and when committing (`gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>`). Omitting the agent name triggers on-the-fly teaching diagnostics showing valid syntax (`antigravity`, `gemini`, `cursor-model`, `muse`, `claude`). Machine-wide generic bots use `gitmap login set global ai-auto`. Default bot parameters can be configured via CLI (`gitmap settings set ai_auto.default_agent <agent-name>`) or the Web Settings UI (`Speed & Automation` -> `ai-auto`). AI agents MUST configure their own active identity dynamically based on the executing environment; TOTAL BAN on hardcoding or blindly defaulting to `muse`.
+18. **Total Ban on Anonymous AI Autonomous Commits (Mandatory AI Name & On-The-Fly Teaching):** AI agents operating autonomously MUST provide their agent name when setting credentials (`gitmap login set ai-auto <agent-name>`) and when committing (`gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>`). Omitting the agent name triggers on-the-fly teaching diagnostics showing valid syntax (`antigravity`, `gemini`, `cursor-model`, `muse`, `claude`). Machine-wide generic bots use `gitmap login set global ai-auto`. Default bot parameters can be configured via CLI (`gitmap settings set ai_auto.default_agent <agent-name>`) or the Web Settings UI (`Speed & Automation` -> `ai-auto`).
+   - **MANDATORY DYNAMIC AGENT IDENTIFICATION:** AI agents MUST determine and configure their active identity dynamically based on their actual host platform; **TOTAL BAN on hardcoding or blindly defaulting to `muse`**.
+     - Inside **Google Antigravity (AGY)**: ALWAYS use `antigravity` (`gitmap login set ai-auto antigravity` and `gitmap settings set ai_auto.default_agent antigravity`).
+     - Inside **Cursor IDE**: ALWAYS use `cursor-model` (`gitmap login set ai-auto cursor-model`).
+     - Inside **Claude / DevTools**: ALWAYS use `claude` (`gitmap login set ai-auto claude`).
+     - Inside **Gemini CLI**: ALWAYS use `gemini` (`gitmap login set ai-auto gemini`).
+     - Inside **Muse Autonomous Agent**: Use `muse` ONLY when confirmed running within a dedicated Muse instance.
+
 19. **Total Ban on Ad-Hoc Python File Reading, Filesystem Crawling, Sleep Polling, and Shell Pipelines:**
 AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners, PowerShell pipeline scripts, or Node.js snippets to open, read, slice, search, or sleep across the codebase. You MUST use compiled, native GitMap commands:
 - ❌ **BANNED:** `powershell -Command "Get-Content 'path/to/transcript.jsonl' -Tail 5 | Select-String -Pattern 'media|USER_INPUT'"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/transcript.jsonl -t 5 -q "media|USER_INPUT"`
+- ❌ **BANNED:** `node -e "const fs = require('fs'); const lines = fs.readFileSync('.../transcript.jsonl', 'utf-8').trim().split('\n'); console.log(JSON.parse(lines[1519]).content);"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/transcript.jsonl -L 1519 --field content` (extracts any JSON key cleanly)
 - ❌ **BANNED:** `gitmap py -c "import time; time.sleep(8)"` or shell `sleep 8` / `Start-Sleep -Seconds 8`
   👉 **MANDATORY REPLACEMENT:** Use Antigravity `schedule` tool, `gitmap watch`, or reactive task wakeup. Sleep loops freeze terminal threads, burn CPU, and violate non-polling guidelines.
 - ❌ **BANNED:** `Get-ChildItem -Path "cli/cmdinstall" -File | Select-Object -ExpandProperty Name` or `dir /s /b`
   👉 **MANDATORY REPLACEMENT:** `gitmap lf cli/cmdinstall` or `gitmap find "*.*" cli/cmdinstall`
-- ❌ **BANNED:** `node -e "const fs = require('fs'); const lines = fs.readFileSync('.../transcript.jsonl', 'utf-8').trim().split('\n'); console.log(JSON.parse(lines[1519]).content);"`
-  👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/transcript.jsonl -L 1519` (or `-L 1519:1519 --num`)
 - ❌ **BANNED:** `gitmap py -c "import os; [print(root, files) for root, dirs, files in os.walk('...') if any('subagent' in f.lower() or 'research' in f.lower() for f in files)]"`
   👉 **MANDATORY REPLACEMENT:** `gitmap find "*subagent*" [dir]` and `gitmap find "*research*" [dir]`
 - ❌ **BANNED:** `gitmap py -c "import os; [print(os.path.join(r, f)) for r, d, fs in os.walk('cli/cmdui') for f in fs if 'settings' in f.lower()]"`
@@ -1165,7 +1172,7 @@ AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners, PowerSh
 - ❌ **BANNED:** `gitmap py -c "lines = open('path/to/file.ext').readlines(); print(''.join(lines[140:220]))"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -L 140:220 --num`
 - ❌ **BANNED:** `gitmap py -c "import json; line = [l for l in open('transcript.jsonl')...]"`
-  👉 **MANDATORY REPLACEMENT:** Use native agent tool `read_file` with line range bounds, or `gitmap cat transcript.jsonl -q "<query>"`
+  👉 **MANDATORY REPLACEMENT:** Use native agent tool `read_file` with line range bounds, or `gitmap cat transcript.jsonl -L <line> --field <key>`
 - ❌ **BANNED:** `pwsh -Command "Get-Content path/to/file.ext -TotalCount 30"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext --head 30` (or `gitmap head path/to/file.ext 30`)
 - ❌ **BANNED:** `gitmap py -c "lines = open('path/to/file.ext').readlines(); print(''.join(lines[-25:]))"`
@@ -1185,12 +1192,14 @@ When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-wit
 - **Zero Builds / Zero Tests Rule:** If E2E testing was NOT requested in the user prompt, you MUST NOT run full builds (`go build`, `npm run build`, `vite build`, `cargo build`) or full test suites (`go test ./...`, `npm test`, `pytest`, runner scripts). Verification is strictly static inspection and single-file targeted linters.
 - **Mandatory Completion Tables:** Every turn MUST conclude with the 4 mandatory completion tables (Task Execution Matrix, Coding Guidelines Table, Boundary Audit, Upstream Delivery Table) and the masked verification script. When E2E was not requested, Table 1 and Table 2 must explicitly document: `E2E Testing: Skipped (Not requested per Zero Build / Zero Test Invariant)`.
 
-22. **Total Ban on Ad-Hoc Python Database Scripts Querying Antigravity `conversation_summaries.db`:**
-- **❌ BANNED:** Creating scratch Python scripts (e.g. `check_summaries.py`, `query.py`, `brain/.../scratch/*.py`) or executing inline Python one-liners (`python -c "import sqlite3..."`, `gitmap py -c "import sqlite3..."`) to query `conversation_summaries.db` or other Split-DB SQLite databases.
+22. **Total Ban on Ad-Hoc Python Database Scripts Querying SQLite / Antigravity Databases:**
+- **❌ BANNED:** Creating scratch Python scripts (e.g. `check_summaries.py`, `query.py`, `brain/.../scratch/*.py`) or executing inline Python one-liners (`python -c "import sqlite3..."`, `gitmap py -c "import sqlite3..."`) to query `conversation_summaries.db`, `gitmap.db`, or any Split-DB SQLite database.
 - 👉 **MANDATORY REPLACEMENTS:**
-  - `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`)
-  - `gitmap db-read agy "SELECT conversation_id, title, status FROM conversation_summaries LIMIT 10"`
-  - `gitmap db-read <alias|path> "<sql>" [-l <limit>] [--json]`
+  - `gitmap agy summaries [N] [-q <query>] [-a] [-j]` (dedicated conversation state & summary inspector; aliases: `gitmap agy convs`, `gitmap convs`, `gitmap agy db`)
+  - `gitmap db query "<SQL>" --db agy` (query `conversation_summaries.db` via system alias)
+  - `gitmap db query "<SQL>" --db <alias|path> [--json]` (execute read-only SQL across any SQLite database)
+  - `gitmap db tables / schema / columns / list --db <alias|path>` (introspect tables, DDL, and columns)
+  - **Supported System Aliases:** `--db agy` (`conversation_summaries.db`), `--db master` (`gitmap.db`), `--db heatmap` (`heatmap.db`), `--db pipeline` (`pipeline/sql.db`), `--db tasks` (`tasks/sql.db`).
   - See `@[ai_code_execution_restrictions](file;.agents/rules/ai_code_execution_restrictions.md)` for full specifications.
 
 23. **Mandatory Heatmap Touch Notification Before Analyzing Files:**

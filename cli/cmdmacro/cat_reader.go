@@ -2,6 +2,7 @@
 package cmdmacro
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -89,6 +90,12 @@ func renderCatPayload(opts CatOptions, data []byte) error {
 	lines := extractCatLines(data)
 	matches := resolveCatMatches(lines, opts)
 
+	if opts.JsonField != "" {
+		emitFieldExtractedMatches(matches, opts.JsonField)
+
+		return nil
+	}
+
 	if opts.IsRaw {
 		emitRawCatMatches(matches, opts.HasLineNumbers)
 
@@ -98,6 +105,27 @@ func renderCatPayload(opts CatOptions, data []byte) error {
 	emitTokyoCatMatches(opts, matches, len(lines), len(data))
 
 	return nil
+}
+
+func emitFieldExtractedMatches(matches []LineMatch, field string) {
+	out := output.Raw()
+	for _, m := range matches {
+		var obj map[string]interface{}
+		if err := json.Unmarshal([]byte(m.Text), &obj); err == nil {
+			if val, ok := obj[field]; ok {
+				switch v := val.(type) {
+				case string:
+					fmt.Fprintln(out, v)
+				default:
+					b, _ := json.MarshalIndent(v, "", "  ")
+					fmt.Fprintln(out, string(b))
+				}
+				continue
+			}
+		}
+
+		fmt.Fprintln(out, m.Text)
+	}
 }
 
 func extractCatLines(data []byte) []string {

@@ -17,6 +17,7 @@ type CatOptions struct {
 	TailCount      int
 	Limit          int
 	Query          string
+	JsonField      string
 	HasLineNumbers bool
 	HasLineRange   bool
 	IsRaw          bool
@@ -95,6 +96,8 @@ func parseCatFlag(arg string, args []string, idx int, opts *CatOptions) int {
 		return parseLimitFlag(args, idx, opts)
 	case isLineNumberFlag(arg):
 		return parseLineNumberFlag(args, idx, opts)
+	case isFieldFlag(arg):
+		return parseFieldFlag(args, idx, opts)
 	case isInfoFlag(arg):
 		opts.IsInfo = true
 		return idx
@@ -175,6 +178,21 @@ func parseHeadFlag(args []string, idx int, opts *CatOptions) int {
 	}
 
 	return idx
+}
+
+func isFieldFlag(arg string) bool {
+	return arg == "--field" || arg == "-field" || arg == "--json-field" || arg == "-json-field"
+}
+
+func parseFieldFlag(args []string, idx int, opts *CatOptions) int {
+	if idx+1 >= len(args) {
+		return idx
+	}
+
+	opts.JsonField = args[idx+1]
+	opts.IsRaw = true
+
+	return idx + 1
 }
 
 func isTailFlag(arg string) bool {

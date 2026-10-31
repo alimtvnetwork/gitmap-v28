@@ -1,9 +1,11 @@
-// Package cmdcg provides unified synchronization for coding guidelines and prompt architecture.
+// Package cmdcg provides unified synchronization for coding guidelines, prompts, and skills.
 package cmdcg
 
 import (
-	"fmt"
+	"strings"
 
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/enums"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -12,45 +14,42 @@ var (
 	cgSyncSuccessStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
 )
 
-func printCGSyncHeader(repoCount int, isDryRun bool) {
-	dryLabel := ""
-	if isDryRun {
-		dryLabel = " (DRY RUN)"
-	}
-
-	fmt.Println(cgSyncHeaderStyle.Render(fmt.Sprintf("=== Coding Guidelines & Prompt Architect Sync%s ===", dryLabel)))
-	fmt.Printf("Synchronizing across %d target repository(ies)...\n\n", repoCount)
-}
-
-func printCGSyncStep(stepName string) {
-	fmt.Printf("► %s\n", cgAuditTitleStyle.Render(stepName))
-}
-
-func printCGSyncSummary(repoCount int) {
-	fmt.Println()
-	fmt.Println(cgSyncSuccessStyle.Render("✔ Unified sync completed successfully."))
-	fmt.Printf("  Synchronized %d repository(ies) with canonical standards and prompts.\n", repoCount)
-}
-
-func runSyncSteps(repos []string, isDryRun bool) error {
-	printCGSyncStep("Step 1: Updating Coding Guidelines Specifications")
-	runCGUpdateAction(repos)
-
-	printCGSyncStep("Step 2: Synchronizing Prompt Architect")
-
-	return runCGInstallPrompts(repos, isDryRun)
-}
-
-// RunCGSync executes a full synchronization of coding guidelines and prompt architect across repos.
+// RunCGSync executes a full 3-way synchronization across specs, prompts, skills, and scripts.
 func RunCGSync(repos []string, isDryRun bool) error {
-	printCGSyncHeader(len(repos), isDryRun)
+	args := buildSyncArgs(repos, isDryRun)
 
-	errSync := runSyncSteps(repos, isDryRun)
-	if errSync != nil {
-		return errSync
+	return cmdsync.RunSyncWithScope(enums.SyncScopeAll, args)
+}
+
+// RunCGPromptSync executes 3-way synchronization restricted strictly to 01-prompts/.
+func RunCGPromptSync(repos []string, isDryRun bool) error {
+	args := buildSyncArgs(repos, isDryRun)
+
+	return cmdsync.RunSyncWithScope(enums.SyncScopePrompts, args)
+}
+
+// RunCGSkillSync executes 3-way synchronization restricted to .agents/skills/ and .cursor/skills/.
+func RunCGSkillSync(repos []string, isDryRun bool) error {
+	args := buildSyncArgs(repos, isDryRun)
+
+	return cmdsync.RunSyncWithScope(enums.SyncScopeSkills, args)
+}
+
+// RunFastGitmapSkillSync updates strictly the .agents/skills/gitmap/ skill bundle.
+func RunFastGitmapSkillSync(repos []string, isDryRun bool) error {
+	args := buildSyncArgs(repos, isDryRun)
+
+	return cmdsync.RunSyncWithScope(enums.SyncScopeGitmapSkill, args)
+}
+
+func buildSyncArgs(repos []string, isDryRun bool) []string {
+	var args []string
+	if isDryRun {
+		args = append(args, "--dry-run")
+	}
+	if len(repos) > 0 {
+		args = append(args, "--repo", strings.Join(repos, ","))
 	}
 
-	printCGSyncSummary(len(repos))
-
-	return nil
+	return args
 }
