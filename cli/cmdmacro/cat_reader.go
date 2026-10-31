@@ -24,6 +24,12 @@ func ExecuteCatWithOptions(opts CatOptions) error {
 		return apperror.WrapSimple(err, fmt.Sprintf("read file %q", opts.TargetFile))
 	}
 
+	if opts.IsInfo {
+		printCatFileInfo(opts.TargetFile, data)
+
+		return nil
+	}
+
 	if shouldShowCatImageSummary(opts) {
 		printCatImageSummary(opts.TargetFile, data)
 
@@ -31,6 +37,16 @@ func ExecuteCatWithOptions(opts CatOptions) error {
 	}
 
 	return renderCatPayload(opts, data)
+}
+
+func printCatFileInfo(path string, data []byte) {
+	lines := extractCatLines(data)
+	ui := output.UI()
+
+	fmt.Fprintf(ui, "\n  %sFile Info: %s%s\n", constants.ColorCyan, path, constants.ColorReset)
+	fmt.Fprintf(ui, "  Lines:    %d\n", len(lines))
+	fmt.Fprintf(ui, "  Bytes:    %d\n", len(data))
+	fmt.Fprintf(ui, "  Size:     %s\n\n", formatImageFileSize(len(data)))
 }
 
 func shouldShowCatImageSummary(opts CatOptions) bool {
@@ -82,10 +98,10 @@ func resolveCatMatches(lines []string, opts CatOptions) []LineMatch {
 
 func filterLinesByQuery(lines []string, query string, limit int) []LineMatch {
 	var matches []LineMatch
-	qLower := strings.ToLower(query)
+	tokens := extractQueryTokens(query)
 
 	for idx, line := range lines {
-		if strings.Contains(strings.ToLower(line), qLower) {
+		if lineMatchesAnyToken(line, tokens) {
 			matches = append(matches, LineMatch{Number: idx + 1, Text: line})
 			if limit > 0 && len(matches) >= limit {
 				break
@@ -94,6 +110,34 @@ func filterLinesByQuery(lines []string, query string, limit int) []LineMatch {
 	}
 
 	return matches
+}
+
+func extractQueryTokens(query string) []string {
+	if strings.Contains(query, "|") {
+		parts := strings.Split(query, "|")
+		var tokens []string
+		for _, p := range parts {
+			trimmed := strings.ToLower(strings.TrimSpace(p))
+			if trimmed != "" {
+				tokens = append(tokens, trimmed)
+			}
+		}
+
+		return tokens
+	}
+
+	return []string{strings.ToLower(query)}
+}
+
+func lineMatchesAnyToken(line string, tokens []string) bool {
+	lLower := strings.ToLower(line)
+	for _, token := range tokens {
+		if strings.Contains(lLower, token) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func extractLinesByWindow(lines []string, opts CatOptions) []LineMatch {

@@ -46,12 +46,34 @@ func handleExitCode(exitCode int, runErr error) error {
 	return nil
 }
 
+func warnAdHocFileRead(args []string) {
+	if !hasAdHocFileRead(args) {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python file reading (`open(...)`). Use 'gitmap cat <filepath> -L <start>:<end>', 'gitmap cat <filepath> -q <query>', or native tool calls.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func hasAdHocFileRead(args []string) bool {
+	for idx, arg := range args {
+		if (arg == "-c" || arg == "--command") && idx+1 < len(args) {
+			code := args[idx+1]
+			if strings.Contains(code, "open(") && (strings.Contains(code, ".read") || strings.Contains(code, "for line in") || strings.Contains(code, "readlines")) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // RunPy executes the Python runner CLI command.
 func RunPy(args []string) error {
 	if isPyHelpRequest(args) {
 		PrintPyHelp()
 		return nil
 	}
+	warnAdHocFileRead(args)
 	binary, err := resolvePythonBinary()
 	if err != nil {
 		return err

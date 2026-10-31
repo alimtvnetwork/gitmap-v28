@@ -20,6 +20,7 @@ type CatOptions struct {
 	HasLineNumbers bool
 	HasLineRange   bool
 	IsRaw          bool
+	IsInfo         bool
 }
 
 // LineMatch holds an extracted line with its original 1-based line number.
@@ -94,6 +95,9 @@ func parseCatFlag(arg string, args []string, idx int, opts *CatOptions) int {
 		return parseLimitFlag(args, idx, opts)
 	case isLineNumberFlag(arg):
 		return parseLineNumberFlag(args, idx, opts)
+	case isInfoFlag(arg):
+		opts.IsInfo = true
+		return idx
 	case arg == "--raw":
 		opts.IsRaw = true
 		return idx
@@ -222,6 +226,10 @@ func parseLimitFlag(args []string, idx int, opts *CatOptions) int {
 	}
 
 	return idx
+}
+
+func isInfoFlag(arg string) bool {
+	return arg == "--info" || arg == "-i" || arg == "--stats"
 }
 
 func isLineNumberFlag(arg string) bool {
