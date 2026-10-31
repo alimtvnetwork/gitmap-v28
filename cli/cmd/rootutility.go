@@ -28,7 +28,6 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdui"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdundo"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdurl"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmduser"
 	"os"
 	"strings"
 
@@ -284,37 +283,4 @@ func isWindowsDriveLetter(arg string) bool {
 
 func isAsciiLetter(b byte) bool {
 	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
-}
-
-func utilityUserEntries() []dispatchEntry {
-	return []dispatchEntry{
-		{[]string{"change-user", "cu"}, runChangeUserUtility},
-		{[]string{"change-login", "cl"}, runChangeLoginUtility},
-		{[]string{"autobot", "bot"}, runAutobotUtility},
-		{[]string{"restrict", "restriction"}, runRestrictUtility},
-	}
-}
-
-func runChangeUserUtility() error {
-	checkHelp("change-user", argsTail())
-
-	_, err := cmduser.DispatchUser("change-user")
-
-	return err
-}
-
-func runChangeLoginUtility() error {
-	checkHelp("change-login", argsTail())
-
-	_, err := cmduser.DispatchUser("change-login")
-
-	return err
-}
-
-func runAutobotUtility() error {
-	checkHelp("autobot", argsTail())
-
-	_, err := cmduser.DispatchUser("autobot")
-
-	return err
 }

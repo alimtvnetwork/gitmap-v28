@@ -98,7 +98,7 @@ func dispatchCatContent(opts CatOptions, data []byte) error {
 		return nil
 	}
 
-	if shouldShowCatImageSummary(opts) {
+	if isCatImageSummaryShown(opts) {
 		printCatImageSummary(opts.TargetFile, data)
 
 		return nil
@@ -117,7 +117,9 @@ func printCatFileInfo(path string, data []byte) {
 	fmt.Fprintf(ui, "  Size:     %s\n\n", formatImageFileSize(len(data)))
 }
 
-func shouldShowCatImageSummary(opts CatOptions) bool {
+// isCatImageSummaryShown replaces shouldShowCatImageSummary (31-Oct-26):
+// the boolean-guidelines linter bans the should* prefix for bool funcs.
+func isCatImageSummaryShown(opts CatOptions) bool {
 	if !isImageExtension(opts.TargetFile) {
 		return false
 	}
@@ -152,20 +154,24 @@ func emitFieldExtractedMatches(matches []LineMatch, field string) {
 	out := output.Raw()
 	for _, m := range matches {
 		var obj map[string]interface{}
-		if err := json.Unmarshal([]byte(m.Text), &obj); err == nil {
-			if val, ok := obj[field]; ok {
-				switch v := val.(type) {
-				case string:
-					fmt.Fprintln(out, v)
-				default:
-					b, _ := json.MarshalIndent(v, "", "  ")
-					fmt.Fprintln(out, string(b))
-				}
-				continue
-			}
+		// WHY guard-continue: the nested unmarshal + field-lookup
+		// ifs tripped the nested-if linter; flat guards do not.
+		if err := json.Unmarshal([]byte(m.Text), &obj); err != nil {
+			fmt.Fprintln(out, m.Text)
+			continue
 		}
-
-		fmt.Fprintln(out, m.Text)
+		val, ok := obj[field]
+		if !ok {
+			fmt.Fprintln(out, m.Text)
+			continue
+		}
+		switch v := val.(type) {
+		case string:
+			fmt.Fprintln(out, v)
+		default:
+			b, _ := json.MarshalIndent(v, "", "  ")
+			fmt.Fprintln(out, string(b))
+		}
 	}
 }
 
@@ -181,143 +187,6 @@ func extractCatLines(data []byte) []string {
 	}
 
 	return lines
-}
-
-func resolveCatMatches(lines []string, opts CatOptions) []LineMatch {
-	if opts.HasLineRange {
-		window := extractLinesByWindow(lines, opts)
-		if opts.Query != "" {
-			return filterLineMatchesByQuery(window, opts.Query, opts.Limit)
-		}
-
-		return window
-	}
-
-	if opts.Query != "" {
-		return filterLinesWithWindow(lines, opts)
-	}
-
-	return extractLinesByWindow(lines, opts)
-}
-
-func filterLineMatchesByQuery(window []LineMatch, query string, limit int) []LineMatch {
-	var matches []LineMatch
-	tokens := extractQueryTokens(query)
-
-	for _, m := range window {
-		if lineMatchesAnyToken(m.Text, tokens) {
-			matches = append(matches, m)
-			if limit > 0 && len(matches) >= limit {
-				break
-			}
-		}
-	}
-
-	return matches
-}
-
-func filterLinesWithWindow(lines []string, opts CatOptions) []LineMatch {
-	matches := filterLinesByQuery(lines, opts.Query, 0)
-	if opts.TailCount > 0 && len(matches) > opts.TailCount {
-		return matches[len(matches)-opts.TailCount:]
-	}
-
-	if opts.HeadCount > 0 && len(matches) > opts.HeadCount {
-		return matches[:opts.HeadCount]
-	}
-
-	if opts.Limit > 0 && len(matches) > opts.Limit {
-		return matches[:opts.Limit]
-	}
-
-	return matches
-}
-
-func filterLinesByQuery(lines []string, query string, limit int) []LineMatch {
-	var matches []LineMatch
-	tokens := extractQueryTokens(query)
-
-	for idx, line := range lines {
-		if lineMatchesAnyToken(line, tokens) {
-			matches = append(matches, LineMatch{Number: idx + 1, Text: line})
-			if limit > 0 && len(matches) >= limit {
-				break
-			}
-		}
-	}
-
-	return matches
-}
-
-func extractQueryTokens(query string) []string {
-	if strings.Contains(query, "|") {
-		parts := strings.Split(query, "|")
-		var tokens []string
-		for _, p := range parts {
-			trimmed := strings.ToLower(strings.TrimSpace(p))
-			if trimmed != "" {
-				tokens = append(tokens, trimmed)
-			}
-		}
-
-		return tokens
-	}
-
-	return []string{strings.ToLower(query)}
-}
-
-func lineMatchesAnyToken(line string, tokens []string) bool {
-	lLower := strings.ToLower(line)
-	for _, token := range tokens {
-		if strings.Contains(lLower, token) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func extractLinesByWindow(lines []string, opts CatOptions) []LineMatch {
-	total := len(lines)
-	start, end := resolveWindowBounds(opts, total)
-	var matches []LineMatch
-
-	for idx := start; idx <= end && idx <= total; idx++ {
-		matches = append(matches, LineMatch{Number: idx, Text: lines[idx-1]})
-	}
-
-	return matches
-}
-
-func resolveWindowBounds(opts CatOptions, total int) (int, int) {
-	if opts.TailCount > 0 {
-		return resolveTailBounds(opts.TailCount, total)
-	}
-
-	start := opts.StartLine
-	if start <= 0 {
-		start = 1
-	}
-
-	end := total
-	if opts.EndLine > 0 && opts.EndLine < total {
-		end = opts.EndLine
-	}
-
-	if opts.HeadCount > 0 && opts.HeadCount < (end-start+1) {
-		end = start + opts.HeadCount - 1
-	}
-
-	return start, end
-}
-
-func resolveTailBounds(tailCount, total int) (int, int) {
-	start := total - tailCount + 1
-	if start < 1 {
-		start = 1
-	}
-
-	return start, total
 }
 
 func emitRawCatMatches(matches []LineMatch, hasLineNumbers bool) {
@@ -341,6 +210,16 @@ func emitTokyoCatMatches(opts CatOptions, matches []LineMatch, totalLines, fileS
 	fmt.Fprintf(ui, "  %s--------------------------------%s\n\n", constants.ColorCyan, constants.ColorReset)
 }
 
+// catBannerWindow returns the first/last match numbers, or the full
+// range when there are no matches. Single-level guard only.
+func catBannerWindow(matches []LineMatch, totalLines int) (int, int) {
+	if len(matches) == 0 {
+		return 1, totalLines
+	}
+
+	return matches[0].Number, matches[len(matches)-1].Number
+}
+
 func buildCatHeaderBanner(opts CatOptions, matches []LineMatch, totalLines, fileSize int) string {
 	if opts.Query != "" && opts.TailCount > 0 {
 		return fmt.Sprintf("--- %s (last %d matches for %q across %d lines, %d bytes) ---",
@@ -353,12 +232,9 @@ func buildCatHeaderBanner(opts CatOptions, matches []LineMatch, totalLines, file
 	}
 
 	if opts.HasLineRange || opts.HeadCount > 0 || opts.TailCount > 0 {
-		start := 1
-		end := totalLines
-		if len(matches) > 0 {
-			start = matches[0].Number
-			end = matches[len(matches)-1].Number
-		}
+		// WHY helper: the inner len(matches) check inside this
+		// branch tripped the nested-if linter.
+		start, end := catBannerWindow(matches, totalLines)
 
 		return fmt.Sprintf("--- %s (lines %d-%d of %d, %d bytes) ---",
 			opts.TargetFile, start, end, totalLines, fileSize)

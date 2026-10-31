@@ -32,6 +32,13 @@ gitmap cdp eval "<expr>" --json            # Output evaluated value as JSON
 - `probe`: Connects via pure Go RFC 6455 WebSocket client, executes a non-intrusive selector ladder across `textarea`, `div[contenteditable]`, and `[role="textbox"]`, and returns active element metadata.
 - `eval <expr>`: Executes a JavaScript expression in the context of the active target via `Runtime.evaluate` over WebSocket.
 
+## Examples
+
+```bash
+gitmap cdp targets
+gitmap cdp eval "document.title"
+```
+
 ## Policy Note for Autonomous AI Agents
 
 AI agents MUST NOT write ad-hoc Python raw socket WebSocket scripts (e.g., manual RFC 6455 masking, `struct.pack`, `send_frame`/`recv_frame`). Always use native `gitmap cdp probe` or `gitmap cdp eval`.

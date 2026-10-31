@@ -52,10 +52,10 @@ func extractInstallHintRepoName(normalized string) string {
 	return parts[0]
 }
 
+// isVersionedGitmapRepo matches only versioned repos (gitmap-v<digits>).
+// The bare "gitmap" name is a partial prefix, not a versioned repo, so
+// it must not match - otherwise unrelated repos would get the hint.
 func isVersionedGitmapRepo(repoName string) bool {
-	if repoName == "gitmap" {
-		return true
-	}
 	if strings.HasPrefix(repoName, constants.GitmapRepoNamePrefix) {
 		return isNumericString(strings.TrimPrefix(repoName, constants.GitmapRepoNamePrefix))
 	}

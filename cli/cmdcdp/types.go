@@ -4,12 +4,12 @@ import "encoding/json"
 
 // CDPTarget describes a Chrome DevTools Protocol debug target.
 type CDPTarget struct {
-	ID                  string `json:"id"`
-	Title               string `json:"title"`
-	Type                string `json:"type"`
-	URL                 string `json:"url"`
+	ID                   string `json:"id"`
+	Title                string `json:"title"`
+	Type                 string `json:"type"`
+	URL                  string `json:"url"`
 	WebSocketDebuggerURL string `json:"webSocketDebuggerUrl"`
-	DevtoolsFrontendURL string `json:"devtoolsFrontendUrl"`
+	DevtoolsFrontendURL  string `json:"devtoolsFrontendUrl"`
 }
 
 // CDPRequest represents a JSON-RPC command sent to a CDP target.

@@ -79,7 +79,11 @@ func toolingUtilSearchEntries() []dispatchEntry {
 		{[]string{constants.CmdFixSeqFiles, constants.CmdFixSeqFilesAlias}, func() error { return runFixSeqFiles(argsTail()) }},
 		{[]string{constants.CmdSequence, constants.CmdSequenceAlias}, func() error { return cmdsequence.RunSequence(argsTail()) }},
 		{[]string{constants.CmdGitRm}, func() error { return cmdgitrm.RunGitRm(argsTail()) }},
-		{[]string{constants.CmdCommitPush, constants.CmdCommitPushAlias}, func() error { return cmdcommit.RunCommitPush(argsTail()) }},
+		// WHY alias dropped (31-Oct-26): CmdCommitPushAlias ("cmp")
+		// collides with the completion alias, and the dispatch
+		// registry test fails on the collision. commit-push keeps
+		// its full name only; the constant itself is untouched.
+		{[]string{constants.CmdCommitPush}, func() error { return cmdcommit.RunCommitPush(argsTail()) }},
 		{[]string{constants.CmdPullCommitPush, constants.CmdPullCommitPushAlias}, func() error { return cmdcommit.RunPullCommitPush(argsTail()) }},
 		{[]string{constants.CmdCommitPushBug, constants.CmdCommitPushBugAlias, constants.CmdCommitPushBugAlias2}, func() error { return cmdcommit.RunCommitPushBug(argsTail()) }},
 		{[]string{constants.CmdCommitPushFeature, constants.CmdCommitPushFeatureAlias}, func() error { return cmdcommit.RunCommitPushFeature(argsTail()) }},
@@ -288,34 +292,4 @@ func handleJSONSubcommand(args []string) error {
 		return cmdimport.RunImportAllJSONCLI(args[1:])
 	}
 	return cmdconfig.RunWhichFormatCLI(args)
-}
-
-func toolingSystemEntries() []dispatchEntry {
-	return []dispatchEntry{
-		{[]string{"history clean", "history-clean"}, func() error {
-			return cmdhistory.RunHistoryPurgeCLI(argsTail())
-		}},
-		{[]string{"history-undo", "hu", "history restore", "history-restore", "undo-history"}, func() error {
-			return cmdhistory.RunHistoryUndoCLI(argsTail())
-		}},
-		{[]string{"history"}, func() error {
-			return handleHistoryParentDispatcher(argsTail())
-		}},
-	}
-}
-
-func handleHistoryParentDispatcher(args []string) error {
-	if len(args) == 0 {
-		return cmdhistory.RunHistory(args)
-	}
-
-	sub := strings.ToLower(args[0])
-	switch sub {
-	case "purge", "clean", "p":
-		return cmdhistory.RunHistoryPurgeCLI(args[1:])
-	case "undo", "restore", "u":
-		return cmdhistory.RunHistoryUndoCLI(args[1:])
-	default:
-		return cmdhistory.RunHistory(args)
-	}
 }

@@ -57,11 +57,13 @@ func resolveExecutePromptPath(version string) (string, error) {
 	}
 
 	sourceRoot, err := cmdsync.ResolveSourceRoot()
-	if err == nil {
-		upstreamCandidate := filepath.Join(sourceRoot, relCandidate)
-		if _, statErr := os.Stat(upstreamCandidate); statErr == nil {
-			return upstreamCandidate, nil
-		}
+	if err != nil {
+		return "", apperror.NewNotFoundError(fmt.Sprintf("execute prompt %s not found", fileName))
+	}
+
+	upstreamCandidate := filepath.Join(sourceRoot, relCandidate)
+	if _, statErr := os.Stat(upstreamCandidate); statErr == nil {
+		return upstreamCandidate, nil
 	}
 
 	return "", apperror.NewNotFoundError(fmt.Sprintf("execute prompt %s not found", fileName))

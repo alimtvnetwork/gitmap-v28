@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	flagName         = "--name"
-	flagEmail        = "--email"
-	flagTimezone     = "--tz"
-	flagBlockedAfter = "--blocked-after"
+	flagName          = "--name"
+	flagEmail         = "--email"
+	flagTimezone      = "--tz"
+	flagBlockedAfter  = "--blocked-after"
 	flagWeekendOpen   = "--weekend-open"
 	flagWeekendClosed = "--weekend-closed"
 	flagPermitStay    = "--permit-stay"

@@ -52,6 +52,20 @@ type ThreeWayResult struct {
 	HasConflict      bool
 }
 
+// fastPathThreeWayHash returns the cached source hash when the baseline,
+// size, and ModTime fast-path conditions all hold and the hash matches
+// the baseline; otherwise it reports not-in-sync. Single-level guard
+// only, so callers stay flat for the nested-if linter.
+func fastPathThreeWayHash(bHash string, srcInfo, dstInfo os.FileInfo, srcPath string) (string, bool) {
+	if bHash == "" || srcInfo.Size() != dstInfo.Size() || !srcInfo.ModTime().Equal(dstInfo.ModTime()) {
+		return "", false
+	}
+
+	fastHash, _ := getCachedSourceHash(srcPath)
+
+	return fastHash, fastHash == bHash
+}
+
 // EvaluateThreeWay performs the 3-way cryptographic hash comparison with ModTime/Size fast-path.
 func EvaluateThreeWay(relPath, srcPath, dstPath string, baselineMap map[string]string) ThreeWayResult {
 	res := ThreeWayResult{RelPath: relPath}
@@ -77,14 +91,13 @@ func EvaluateThreeWay(relPath, srcPath, dstPath string, baselineMap map[string]s
 
 	// FAST PATH: If baseline is known, size and ModTime match exactly,
 	// file is verified InSync without reading destination bytes.
-	if bHash != "" && srcInfo.Size() == dstInfo.Size() && srcInfo.ModTime().Equal(dstInfo.ModTime()) {
-		uHash, _ := getCachedSourceHash(srcPath)
-		if bHash == uHash {
-			res.SourceHash = uHash
-			res.LocalHash = bHash
-			res.State = "InSync"
-			return res
-		}
+	// WHY helper: the inner bHash==uHash check inside the fast-path
+	// guard tripped the nested-if linter on the v6.644.0 tip.
+	if fastHash, isFastInSync := fastPathThreeWayHash(bHash, srcInfo, dstInfo, srcPath); isFastInSync {
+		res.SourceHash = fastHash
+		res.LocalHash = bHash
+		res.State = "InSync"
+		return res
 	}
 
 	uHash, uErr := getCachedSourceHash(srcPath)

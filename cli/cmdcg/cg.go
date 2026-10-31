@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 
-	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cmdprompt"
 	"github.com/alimtvnetwork/gitmap-v28/cli/fsutil"
 	"github.com/alimtvnetwork/gitmap-v28/cli/model"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
@@ -26,29 +23,6 @@ type cgOptions struct {
 	Action       string
 }
 
-func isCGHelpArg(arg string) bool {
-	return slices.Contains([]string{"help", "-h", "--help"}, arg)
-}
-
-func hasCGHelpArg(args []string) bool {
-	for _, arg := range args {
-		if isCGHelpArg(arg) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func initCGFlagSet(fs *flag.FlagSet, opts *cgOptions) {
-	fs.BoolVar(&opts.All, "all", false, "Run on all workspaces")
-	fs.BoolVar(&opts.DryRun, "dry-run", false, "Simulate execution without modifying files")
-	fs.StringVar(&opts.Exclude, "except", "", "Exclude repos (comma separated)")
-	fs.StringVar(&opts.Exclude, "exclude", "", "Exclude repos (comma separated)")
-	fs.StringVar(&opts.VersionValue, "version", "", "Starting version value for version.json (default: 1.0.0)")
-	fs.StringVar(&opts.VersionValue, "version-value", "", "Starting version value for version.json (default: 1.0.0)")
-}
-
 func isCGGeneralInstall(args []string) bool {
 	return len(args) > 1 && (args[1] == "general" || args[1] == "general-install")
 }
@@ -62,29 +36,34 @@ func parseCGInstallGeneral(opts cgOptions, args []string) cgOptions {
 	return opts
 }
 
+// reposFromArgsAfter returns args[start:] when present, else the
+// caller's existing repos. WHY: it keeps single-action parsing flat,
+// so the nested-if linter never sees a depth-2 repos assignment.
+func reposFromArgsAfter(existing []string, args []string, start int) []string {
+	if len(args) > start {
+		return args[start:]
+	}
+
+	return existing
+}
+
 func resolveCGSingleAction(opts cgOptions, args []string) cgOptions {
 	if (opts.Action == "prompt" || opts.Action == "prompts") && len(args) > 1 && args[1] == "sync" {
 		opts.Action = "prompt-sync"
-		if len(args) > 2 {
-			opts.Repos = args[2:]
-		}
+		opts.Repos = reposFromArgsAfter(opts.Repos, args, 2)
 		return opts
 	}
 
 	if (opts.Action == "skill" || opts.Action == "skills") && len(args) > 1 && args[1] == "sync" {
 		opts.Action = "skill-sync"
-		if len(args) > 2 {
-			opts.Repos = args[2:]
-		}
+		opts.Repos = reposFromArgsAfter(opts.Repos, args, 2)
 		return opts
 	}
 
 	if opts.Action == "execute" && len(args) > 1 {
 		opts.Action = "execute"
 		opts.VersionValue = args[1]
-		if len(args) > 2 {
-			opts.Repos = args[2:]
-		}
+		opts.Repos = reposFromArgsAfter(opts.Repos, args, 2)
 		return opts
 	}
 
@@ -154,108 +133,6 @@ func parseCGGeneralAction(opts cgOptions, args []string) cgOptions {
 	opts.Repos = args[1:]
 
 	return opts
-}
-
-func hasDispatchedCGStatus(action string, repos []string) bool {
-	switch action {
-	case "help":
-		RenderCGHelp()
-	case "version", "ver", "-v":
-		PrintCGVersion(repos)
-	case "status", "stat", "ls":
-		PrintCGStatus(repos)
-	default:
-
-		return false
-	}
-
-	return true
-}
-
-func hasDispatchedCGDiagnostic(action string, repos []string) bool {
-	switch action {
-	case "audit", "check":
-		RunCGAudit(repos, false)
-	case "doctor", "doc":
-		RunCGDoctor(repos)
-	case "diff", "drift":
-		RunCGDiff(repos)
-	default:
-
-		return false
-	}
-
-	return true
-}
-
-func hasDispatchedCGMutation(action string, repos []string, opts cgOptions) bool {
-	switch action {
-	case "sync", "sy":
-		RunCGSync(repos, opts.DryRun)
-	case "prompt-sync", "cg-prompt-sync", "prompts-sync":
-		RunCGPromptSync(repos, opts.DryRun)
-	case "skill-sync", "cg-skill-sync", "skills-sync":
-		RunCGSkillSync(repos, opts.DryRun)
-	case "update":
-		runCGUpdateAction(repos)
-	case "install":
-		executeCGWorkers(repos)
-	default:
-
-		return false
-	}
-
-	return true
-}
-
-func hasDispatchedCGVersionInit(action string, repos []string, opts cgOptions) bool {
-	if action != "install-version-json" && action != "install-version" && action != "init-version" && action != "version-init" {
-		return false
-	}
-
-	runCGInstallVersionJSON(repos, opts.VersionValue, opts.DryRun)
-
-	return true
-}
-
-func hasDispatchedCGPrompt(action string, repos []string, opts cgOptions) bool {
-	switch action {
-	case "install-prompts", "install-prompt", "prompts-install", "update-prompts", "update-prompt", "prompts-update":
-		runCGInstallPrompts(repos, opts.DryRun)
-	case "prompts-status", "prompts-ls", "prompt-status":
-		cmdprompt.RunPromptStatus(repos)
-	case "prompts-version", "prompt-version":
-		cmdprompt.RunPromptVersion(repos)
-	default:
-
-		return false
-	}
-
-	return true
-}
-
-func hasDispatchedAnyCGAction(opts cgOptions, repos []string) bool {
-	hasStatus := hasDispatchedCGStatus(opts.Action, repos)
-	hasDiag := hasDispatchedCGDiagnostic(opts.Action, repos)
-	hasMut := hasDispatchedCGMutation(opts.Action, repos, opts)
-	hasVer := hasDispatchedCGVersionInit(opts.Action, repos, opts)
-	hasPrompt := hasDispatchedCGPrompt(opts.Action, repos, opts)
-
-	return hasStatus || hasDiag || hasMut || hasVer || hasPrompt
-}
-
-func dispatchCGAction(opts cgOptions, repos []string, args []string) error {
-	if hasDispatchedAnyCGAction(opts, repos) {
-		return nil
-	}
-
-	if opts.Action == "general" || opts.Action == "general-install" || opts.Action == "install-general" {
-		return RunCGGeneral(args)
-	}
-
-	RenderCGHelp()
-
-	return apperror.NewValidationError(fmt.Sprintf("unknown action: %s", opts.Action))
 }
 
 func executeCGAction(opts cgOptions, args []string) error {

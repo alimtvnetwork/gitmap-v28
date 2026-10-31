@@ -36,7 +36,6 @@ func printCatUsage() {
 	fmt.Println()
 }
 
-
 func runTouchCmd(args []string) error {
 	if len(args) == 0 {
 		printTouchUsage()
@@ -150,15 +149,17 @@ func runRmFileCmd(args []string) error {
 }
 
 func removeTargetFile(target string) error {
-	if err := os.Remove(target); err != nil {
-		if os.IsNotExist(err) {
-			return apperror.NewNotFound("rmfile", "E4004", fmt.Sprintf("file %q not found", target))
-		}
+	// WHY flat guards: the nested IsNotExist check inside the err
+	// branch tripped the nested-if linter once this file was touched.
+	err := os.Remove(target)
+	if err == nil {
+		fmt.Printf("  %s✓ Removed file: %s%s\n\n", constants.ColorGreen, target, constants.ColorReset)
 
-		return apperror.WrapSimple(err, fmt.Sprintf("remove file %q", target))
+		return nil
+	}
+	if os.IsNotExist(err) {
+		return apperror.NewNotFound("rmfile", "E4004", fmt.Sprintf("file %q not found", target))
 	}
 
-	fmt.Printf("  %s✓ Removed file: %s%s\n\n", constants.ColorGreen, target, constants.ColorReset)
-
-	return nil
+	return apperror.WrapSimple(err, fmt.Sprintf("remove file %q", target))
 }

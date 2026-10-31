@@ -116,7 +116,7 @@ All skill and file links within prompt formatters must strictly adhere to relati
 
 ## 4. Multi-Repository Fleet Synchronization Protocol
 
-Once the prompt formatters in `d:\work\gitmap` are pruned and validated under 5,000 characters, changes must be mirrored across the entire fleet of 43 connected repositories using the canonical synchronization script.
+Once the prompt formatters in the `gitmap-v28` repo are pruned and validated under 5,000 characters, changes must be mirrored across the entire fleet of 43 connected repositories using the canonical synchronization script.
 
 ### 4.1 Synchronization Architecture
 
@@ -124,7 +124,7 @@ Once the prompt formatters in `d:\work\gitmap` are pruned and validated under 5,
 sequenceDiagram
     autonumber
     participant Engine as 03-ai-scripts/38-sync-prompts-skills-scripts.py
-    participant GitMap as d:\work\gitmap (Source)
+    participant GitMap as gitmap-v28 (Source)
     participant Fleet as 43 Target Repositories
 
     Engine->>GitMap: Validate character budget (< 5,000 chars across all 12 prompts)

@@ -157,7 +157,7 @@ This subtask governs the discrete execution plan for authoring the new Letterly 
 - **Actions:**
   1. Execute `git diff --name-only` to verify modified files match expectations.
   2. Confirm `01-prompts/14-execute/02-execute-parent-task-with-n-steps-v6.md` is NOT in the diff list.
-  3. Scan authored files for illegal absolute path prefixes (`C:`, `D:`, `file:///C:`, `file:///D:`).
+  3. Scan authored files for illegal absolute path prefixes (drive-letter paths and file URIs with a drive letter).
   4. Validate all boolean identifiers conform to `is*` or `has*`.
 
 ---

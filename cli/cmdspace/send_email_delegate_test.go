@@ -80,7 +80,11 @@ func TestDelegateSendEmailArgvFile(t *testing.T) {
 		t.Fatal(readErr)
 	}
 	lines := strings.Split(strings.TrimSpace(string(raw)), "\n")
-	want := []string{"send", "--to", "file@x.com", "--file", yml}
+	// WHY subject included (31-Oct-26): delegateSendEmailArgv always
+	// passes the merged subject, and the file supplies FileSubj, so
+	// the argv carries --subject FileSubj before --file. The old
+	// expectation omitted it and failed locally and in full-suite runs.
+	want := []string{"send", "--to", "file@x.com", "--subject", "FileSubj", "--file", yml}
 	if len(lines) != len(want) {
 		t.Fatalf("argv wrong: %v", lines)
 	}

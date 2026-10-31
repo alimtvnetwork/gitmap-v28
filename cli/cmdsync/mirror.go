@@ -1,9 +1,6 @@
 package cmdsync
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -141,10 +138,12 @@ func processWalkItem(path string, info os.FileInfo, srcDir, dstDir, sourceRoot s
 	}
 
 	dstPath := filepath.Join(dstDir, relToSrc)
+	// WHY flat: the nested isDryRun check inside IsDir tripped the
+	// nested-if linter on the v6.643.0 tip; both guards are depth-1 now.
+	if info.IsDir() && !isDryRun {
+		_ = os.MkdirAll(dstPath, 0755)
+	}
 	if info.IsDir() {
-		if !isDryRun {
-			_ = os.MkdirAll(dstPath, 0755)
-		}
 		return nil
 	}
 
@@ -255,59 +254,4 @@ func appendSingleSpecDir(e os.DirEntry, dirs []syncDirMapping) []syncDirMapping 
 	rel := filepath.Join(constants.DirSpec, e.Name())
 
 	return append(dirs, syncDirMapping{rel, rel, false})
-}
-
-func recordFileCopy(src, dst string, counter *int) {
-	if err := copyFile(src, dst); err == nil {
-		*counter++
-	}
-}
-
-func copyFile(src, dst string) error {
-	_ = os.MkdirAll(filepath.Dir(dst), 0755)
-
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-
-	return err
-}
-
-func filesEqual(p1, p2 string) (bool, error) {
-	h1, err1 := hashFile(p1)
-	if err1 != nil {
-		return false, err1
-	}
-
-	h2, err2 := hashFile(p2)
-	if err2 != nil {
-		return false, err2
-	}
-
-	return bytes.Equal(h1, h2), nil
-}
-
-func hashFile(p string) ([]byte, error) {
-	f, err := os.Open(p)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return nil, err
-	}
-
-	return h.Sum(nil), nil
 }

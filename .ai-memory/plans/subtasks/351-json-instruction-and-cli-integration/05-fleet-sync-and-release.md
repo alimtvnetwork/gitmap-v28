@@ -72,7 +72,7 @@ sequenceDiagram
 ## 4. Implementation Steps
 
 1. **Step 1: Pre-Sync Validation**
-   - Verify that all 12 prompt files in `d:\work\gitmap` are strictly under 5,000 characters.
+   - Verify that all 12 prompt files in the `gitmap-v28` repo are strictly under 5,000 characters.
    - Verify that all unit tests in GitMap pass.
 2. **Step 2: Execute Fleet Synchronization**
    - Run: `python 03-ai-scripts/38-sync-prompts-skills-scripts.py --force`.

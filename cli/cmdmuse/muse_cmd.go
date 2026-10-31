@@ -15,7 +15,8 @@ var (
 	museCyanStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#8be9fd"))
 	museGreenStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
 	museMutedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#6272a4"))
-	museTableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#6272a4")).Padding(0, 1)
+	// museTableStyle was deleted here on 31-Oct-26 - it was unused
+	// (golangci-lint unused finding on the v6.643.0 baseline diff).
 )
 
 // MusePromptDoc holds metadata describing a specific Muse prompt template.

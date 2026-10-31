@@ -16,7 +16,7 @@ Previously, autonomous agents relied on verbose external shell commands (`gitmap
 This feature natively embeds:
 1. **Sovereign Login Configuration (`gitmap login set ai-auto [agent-name]` & `gitmap login set global ai-auto`):** Directly configures the autonomous bot identity (`user.name` and `user.email`), backs up human developer identity for non-destructive restoration, and updates Git profiles.
 2. **Commit Provenance via `--ai-agent <name>`:** Extends semantic commit verbs (`cpf`, `cpb`, `cpc`, `cfr`, `cpr`, `pcp`) with an explicit `--ai-agent` flag, attributing the commit to the active agent in git history, Split-DB telemetry (`repodb/commit_history.db`), and cognitive heatmaps (`repodb/heatmap.db`).
-3. **Repository-Wide Skill & Prompt Synchronization:** Realigns canonical skills (`gitmap`, `gitmap-automation-bot`, `execute-parent-task-with-n-steps-v6`, `execute-parent-task-with-n-steps-v7`) and execution prompts across both `d:/work/gitmap` and `d:/work/coding-guidelines`, introducing completion checklists of tables, masked verification script requirements, and explicit zero-build/zero-test guardrails unless explicitly instructed.
+3. **Repository-Wide Skill & Prompt Synchronization:** Realigns canonical skills (`gitmap`, `gitmap-automation-bot`, `execute-parent-task-with-n-steps-v6`, `execute-parent-task-with-n-steps-v7`) and execution prompts across both the `gitmap-v28` and `coding-guidelines-v24` repos, introducing completion checklists of tables, masked verification script requirements, and explicit zero-build/zero-test guardrails unless explicitly instructed.
 
 ---
 

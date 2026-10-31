@@ -62,7 +62,7 @@ gitmap cpr "v6.633.0 - release summary" --ai-agent muse
 ---
 
 ## 3. Cross-Repository Synchronization
-The following artifacts must be kept in 100% parity across `d:/work/gitmap` and `d:/work/coding-guidelines`:
+The following artifacts must be kept in 100% parity across the `gitmap-v28` and `coding-guidelines-v24` repos:
 1. `.agents/skills/gitmap/skill.md`
 2. `.agents/skills/gitmap-automation-bot/skill.md`
 3. `.agents/skills/execute-parent-task-with-n-steps-v6/skill.md`

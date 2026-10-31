@@ -64,7 +64,7 @@ func handleAPIHelpDoc(w http.ResponseWriter, r *http.Request) {
 	content, err := helpdoc.ReadRaw(topic)
 	if err != nil {
 		logHelpTopicMiss(topic)
-		http.Error(w, helpTopicMissMessagePrefix + topic, http.StatusNotFound)
+		http.Error(w, helpTopicMissMessagePrefix+topic, http.StatusNotFound)
 
 		return
 	}

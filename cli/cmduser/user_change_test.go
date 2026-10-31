@@ -155,7 +155,10 @@ func TestParseAutobotArgs_CustomEmail(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if opts.Name != "gitmap automation" || opts.Email != "custom@corp.internal" {
+	// WHY "GitMap automation" (31-Oct-26): the canonical autobot name
+	// is title-cased, matching the defaults test and help menu; the
+	// old lowercase expectation was stale and failed in CI.
+	if opts.Name != "GitMap automation" || opts.Email != "custom@corp.internal" {
 		t.Errorf("unexpected custom email autobot: %s / %s", opts.Name, opts.Email)
 	}
 }
@@ -166,7 +169,9 @@ func TestParseAutobotArgs_EmptyEmail(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if opts.Name != "gitmap automation" || opts.Email != "" || !opts.HasEmptyEmail {
+	// WHY "GitMap automation" (31-Oct-26): same canonical-name fix
+	// as the custom-email test above.
+	if opts.Name != "GitMap automation" || opts.Email != "" || !opts.HasEmptyEmail {
 		t.Errorf("unexpected empty email autobot: %+v", opts)
 	}
 }

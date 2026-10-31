@@ -1,17 +1,14 @@
 // Package cmdcg provides unified synchronization for coding guidelines, prompts, and skills.
 package cmdcg
 
+// NOTE: the cgSyncHeaderStyle/cgSyncSuccessStyle vars were deleted here
+// on 31-Oct-26 - they were unused (golangci-lint unused findings on the
+// v6.643.0 baseline diff) and keeping them would keep failing that gate.
 import (
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdsync/enums"
-	"github.com/charmbracelet/lipgloss"
-)
-
-var (
-	cgSyncHeaderStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#bd93f9"))
-	cgSyncSuccessStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#50fa7b"))
 )
 
 // RunCGSync executes a full 3-way synchronization across specs, prompts, skills, and scripts.

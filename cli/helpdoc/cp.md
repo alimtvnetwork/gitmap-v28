@@ -19,3 +19,10 @@ gitmap cp -r <local-dir> <node>:<dest-dir>      # Recursive directory copy
 ```
 
 See [copy.md](copy.md) for full documentation and options.
+
+## Examples
+
+```bash
+gitmap cp ./report.txt node1:/tmp/report.txt
+gitmap cp ./report.txt all:/tmp/report.txt
+```

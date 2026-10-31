@@ -17,7 +17,7 @@ type ctxEntry struct {
 	//                  Supports the constants.CtxIconExeToken ("{exe}") placeholder,
 	//                  which is substituted with the resolved gitmap binary path at
 	//                  registry-write time (see leafCommands / categoryCommands).
-	Extended bool       // Windows: Shift+right-click only (HKCU "Extended" REG_SZ); macOS/Linux: prepend confirm prompt
+	Extended bool // Windows: Shift+right-click only (HKCU "Extended" REG_SZ); macOS/Linux: prepend confirm prompt
 	// HasMenuGap writes CommandFlags so Explorer draws a separator before this item.
 	HasMenuGap bool
 	Children   []ctxEntry // non-nil => this is a submenu
