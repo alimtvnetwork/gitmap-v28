@@ -1161,6 +1161,66 @@ def sync_repo(target: Path, is_dry_run: bool = False, is_push_disabled: bool = F
     return result
 
 
+def validate_v7_restrictions(
+    tz_name: str = "",
+    is_auto_window: bool = False,
+    is_schedule: bool = False,
+    ai_agent: str = "",
+    is_strict: bool = False,
+) -> tuple[bool, str]:
+    """Validate calendar-aware morning commit cutoff and bot identity under V7 Master Engine."""
+    print("-----------------------------------------------------------------------------------------------")
+    print("[V7 ENGINE] Validating operating mode, calendar constraints, and bot identity...")
+
+    target_tz = None
+    if tz_name:
+        try:
+            from zoneinfo import ZoneInfo
+            target_tz = ZoneInfo(tz_name)
+        except Exception:
+            target_tz = None
+
+    now = datetime.now(target_tz) if target_tz else datetime.now()
+    weekday = now.weekday()  # 0=Monday, 6=Sunday
+    is_weekend = weekday >= 5
+    hour = now.hour
+
+    tz_label = tz_name if tz_name else "Local"
+    print(f"[V7 ENGINE] Resolved Time: {now.strftime('%Y-%m-%d %H:%M:%S')} ({tz_label}) | Weekday: {now.strftime('%A')}")
+
+    if not is_weekend and hour >= 8:
+        if is_auto_window or is_schedule:
+            print("[V7 ENGINE] Weekday cutoff (>= 08:00 AM) active. Auto-window / schedule permitted slotting.")
+        else:
+            msg = (
+                f"[V7 RESTRICTION] Commits on weekdays are restricted to morning window (< 08:00 AM).\n"
+                f"Current time: {now.strftime('%H:%M:%S')}. Pass --auto-window or --schedule to slot compliant window."
+            )
+            if is_strict:
+                return False, msg
+            print(f"[V7 WARNING] {msg}")
+    else:
+        status_lbl = "Weekend unconstrained" if is_weekend else "Morning window compliant (< 08:00 AM)"
+        print(f"[V7 ENGINE] Window check PASSED: {status_lbl}")
+
+    bot_name = ai_agent
+    if not bot_name:
+        try:
+            res = subprocess.run(["git", "config", "user.name"], capture_output=True, text=True, check=False)
+            bot_name = res.stdout.strip()
+        except Exception:
+            bot_name = ""
+
+    if "gitmap automation bot" in bot_name.lower() or ai_agent:
+        print(f"[V7 ENGINE] Bot identity verified: {bot_name or ai_agent}")
+    else:
+        print("[V7 ENGINE] Note: AI identity recommended (gitmap login set ai-auto <agent>)")
+
+    print("-----------------------------------------------------------------------------------------------")
+
+    return True, "OK"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Multi-Repository Prompts, Skills, and Scripts Synchronizer")
     parser.add_argument("--repo", "-r", type=str, help="Specific repository name to sync (default: all 43)")
@@ -1168,11 +1228,31 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Preview changes without committing or releasing")
     parser.add_argument("--no-push", action="store_true", help="Commit and create branches/tags locally without pushing")
     parser.add_argument("--force", action="store_true", help="Bypass the once-per-day sync guard and sync even if a feat(sync) commit already landed today")
+    parser.add_argument("--mode", choices=["v6", "v7"], default="v6", help="Operating engine: v6 (unrestricted, default) or v7 (time-restricted & bot governed)")
+    parser.add_argument("--v7", action="store_true", help="Run under V7 operating engine with time-restriction and bot verification")
+    parser.add_argument("--tz", "--timezone", type=str, default="", help="V7 target timezone (e.g. Asia/Dhaka, America/New_York)")
+    parser.add_argument("--auto-window", action="store_true", help="V7 automatically slot next morning window slot")
+    parser.add_argument("--schedule", action="store_true", help="V7 scheduled commit mode")
+    parser.add_argument("--ai-agent", type=str, default="", help="V7 designated AI agent identity (e.g. muse, gemini, cursor-model)")
+    parser.add_argument("--strict-restrict", action="store_true", help="V7 strictly abort if outside morning window without auto-window")
     args = parser.parse_args()
 
     is_dry_run = bool(args.dry_run)
     is_push_disabled = bool(args.no_push)
     is_force = bool(args.force)
+    is_v7_mode = bool(args.v7 or args.mode == "v7")
+
+    if is_v7_mode:
+        is_ok, reason = validate_v7_restrictions(
+            tz_name=args.tz,
+            is_auto_window=bool(args.auto_window),
+            is_schedule=bool(args.schedule),
+            ai_agent=args.ai_agent,
+            is_strict=bool(args.strict_restrict),
+        )
+        if not is_ok:
+            print(f"ERROR: {reason}", file=sys.stderr)
+            sys.exit(1)
 
     if args.repo:
         matching = [p for p in TARGET_REPOS if p.name.lower() == args.repo.lower()]

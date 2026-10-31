@@ -55,6 +55,9 @@ func TestHandleMacroAddValidationErrors(t *testing.T) {
 	tempDir := t.TempDir()
 	t.Setenv("HOME", tempDir)
 	t.Setenv("USERPROFILE", tempDir)
+	t.Setenv("SSH_CLIENT", "")
+	t.Setenv("SSH_TTY", "")
+	t.Setenv("SSH_CONNECTION", "")
 
 	// Zero args
 	if err := handleMacroAdd([]string{}); err == nil {

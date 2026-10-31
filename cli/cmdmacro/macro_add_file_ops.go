@@ -11,75 +11,31 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/macro"
-	"github.com/alimtvnetwork/gitmap-v28/cli/output"
 )
 
 func runCatCmd(args []string) error {
-	if len(args) == 0 {
-		printCatUsage()
-
-		return apperror.NewValidationError("missing filepath for cat")
-	}
-
-	target := macro.ExpandPathAndEnv(resolveCatArg(args))
-
-	return executeCatTarget(target)
-}
-
-func resolveCatArg(args []string) string {
-	if len(args) == 1 {
-		return args[0]
-	}
-
-	return strings.Join(args, " ")
-}
-
-func executeCatTarget(target string) error {
-	data, err := os.ReadFile(target)
+	opts, err := ParseCatOptions(args)
 	if err != nil {
-		return apperror.WrapSimple(err, fmt.Sprintf("read file %q", target))
+		return err
 	}
 
-	displayCatPayload(target, data)
-
-	return nil
-}
-
-func displayCatPayload(target string, data []byte) {
-	if isImageExtension(target) {
-		printCatImageSummary(target, data)
-
-		return
-	}
-
-	printCatContent(target, data)
+	return ExecuteCatWithOptions(opts)
 }
 
 func printCatUsage() {
-	fmt.Println("Usage: gitmap cat <filepath>")
+	fmt.Println("Usage: gitmap cat <filepath> [flags]")
 	fmt.Println()
-	fmt.Println("Displays file contents or image asset summaries cleanly in the terminal across all operating systems.")
+	fmt.Println("Flags:")
+	fmt.Println("  -L, --lines <start:end>   Slice lines from start to end (e.g. -L 140:220)")
+	fmt.Println("  -n, --head <count>        Show first N lines (e.g. --head 30, -n 25)")
+	fmt.Println("  --tail <count>            Show last N lines (e.g. --tail 30)")
+	fmt.Println("  -num, --number            Display 1-based line numbers in gutter")
+	fmt.Println("  -q, --query <text>        Filter lines matching query string")
+	fmt.Println("  -l, --limit <count>       Cap maximum matching lines (default: 50)")
+	fmt.Println("  --raw                     Output raw bytes without borders or banners")
 	fmt.Println()
 }
 
-func printCatContent(target string, data []byte) {
-	// Byte-faithful bypass: the decorative banner is UI chrome and
-	// goes through the filtered dispatch writer, but the file
-	// payload goes through output.Raw() — the unfiltered original
-	// stdout — so emoji/ANSI bytes in file content are never
-	// rewritten, even in --glyphs safe mode or TERM=dumb.
-	ui := output.UI()
-	fmt.Fprintf(ui, "\n  %s--- %s (%d bytes) ---%s\n",
-		constants.ColorCyan, target, len(data), constants.ColorReset)
-
-	_, _ = output.Raw().Write(data)
-
-	if len(data) > 0 && data[len(data)-1] != '\n' {
-		fmt.Fprintln(ui)
-	}
-
-	fmt.Fprintf(ui, "  %s--------------------------------%s\n\n", constants.ColorCyan, constants.ColorReset)
-}
 
 func runTouchCmd(args []string) error {
 	if len(args) == 0 {
