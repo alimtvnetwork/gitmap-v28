@@ -250,7 +250,7 @@ Every code modification executed across any subtask or wave must pass the 12-Pil
     gitmap login set global ai-auto
 
     # Settings configuration via CLI or Web Settings UI:
-    gitmap settings set ai_auto.default_agent muse
+    gitmap settings set ai_auto.default_agent <agent-name>  # e.g. antigravity, gemini, cursor-model, muse
     ```
     If an AI agent omits `<agent-name>` when running `gitmap login set ai-auto`, GitMap rejects the call with actionable on-the-fly teaching examples so the agent self-corrects immediately.
   - Commit Provenance Attribution:

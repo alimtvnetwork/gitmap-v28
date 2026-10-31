@@ -65,7 +65,10 @@ gitmap login set ai-auto claude
 
 # Settings & Settings UI Configuration:
 # Default bot name, bot email, and default fallback agent can be configured via CLI or Web Settings UI:
-gitmap settings set ai_auto.default_agent muse
+# Mandatory Dynamic AI Identity Rule:
+# The AI agent MUST dynamically configure its own agent name (e.g. antigravity, gemini, cursor-model, muse, claude)
+# based on the environment it is executing in. NEVER assume or hardcode 'muse' as default.
+gitmap settings set ai_auto.default_agent <agent-name>  # e.g. antigravity, gemini, cursor-model, muse
 gitmap settings set ai_auto.default_name "gitmap automation bot - runs autonomously"
 gitmap settings set ai_auto.default_email "info@rgitmap.com"
 # Or open Web Settings UI -> "Speed & Automation" pane -> "ai-auto" settings controls
