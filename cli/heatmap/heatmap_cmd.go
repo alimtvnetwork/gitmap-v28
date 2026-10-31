@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdmacro"
 	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
@@ -57,10 +60,14 @@ func dispatchHeatmapAdmin(ctx context.Context, subcmd string, args []string, fla
 	}
 }
 
-// DispatchHeatmapSubsystem routes heatmap subcommands (log, search, tree, status, help).
+// DispatchHeatmapSubsystem routes heatmap subcommands or direct file reads.
 func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer) error {
 	if isHeatmapOverviewRequested(args) {
 		return DispatchHeatmapOverview(ctx, out, false)
+	}
+
+	if isHeatmapFileReadTarget(args[0]) {
+		return cmdmacro.RunCat(args)
 	}
 
 	subcmd, flags, pos := parseSubcmdAndArgs(args)
@@ -70,6 +77,40 @@ func DispatchHeatmapSubsystem(ctx context.Context, args []string, out io.Writer)
 	}
 
 	return dispatchHeatmapAdmin(ctx, subcmd, args, flags, pos, out)
+}
+
+func isHeatmapFileReadTarget(target string) bool {
+	trimmed := strings.TrimSpace(target)
+	if trimmed == "" || strings.HasPrefix(trimmed, "-") {
+		return false
+	}
+
+	if isKnownHeatmapSubcommand(trimmed) {
+		return false
+	}
+
+	if info, err := os.Stat(trimmed); err == nil && !info.IsDir() {
+		return true
+	}
+
+	hasFileExt := strings.Contains(filepath.Base(trimmed), ".")
+	hasPathSep := strings.ContainsAny(trimmed, "/\\")
+
+	return hasFileExt || hasPathSep
+}
+
+func isKnownHeatmapSubcommand(sub string) bool {
+	switch strings.ToLower(sub) {
+	case "overview", "tables", "table", "view", "list", "query", "sql",
+		"failures", "broken", "failed", "unmet", "hotfiles", "hot", "hotspots",
+		"recent", "latest", "tasks", "task-list", "rc", "rc-heatmap",
+		"status", "tree", "live", "watch", "in-flight", "inflight",
+		"search", "log", "update", "outcome", "touch", "touch-file",
+		"analyze", "inspect", "help", "sync":
+		return true
+	default:
+		return false
+	}
 }
 
 func normalizeJSONInputFlag(flags map[string]string) {
@@ -147,7 +188,15 @@ func runHeatmapTouch(flags map[string]string, pos []string, out io.Writer) error
 		flags["reason"] = strings.Join(pos[1:], " ")
 	}
 
-	return runHeatmapLog(flags, out)
+	if err := runHeatmapLog(flags, out); err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(filePath); err == nil {
+		return cmdmacro.RunCat([]string{filePath})
+	}
+
+	return nil
 }
 
 func runHeatmapLog(flags map[string]string, out io.Writer) error {

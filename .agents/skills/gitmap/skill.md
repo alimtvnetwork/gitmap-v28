@@ -1202,10 +1202,15 @@ When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-wit
   - **Supported System Aliases:** `--db agy` (`conversation_summaries.db`), `--db master` (`gitmap.db`), `--db heatmap` (`heatmap.db`), `--db pipeline` (`pipeline/sql.db`), `--db tasks` (`tasks/sql.db`).
   - See `@[ai_code_execution_restrictions](file;.agents/rules/ai_code_execution_restrictions.md)` for full specifications.
 
-23. **Mandatory Heatmap Touch Notification Before Analyzing Files:**
-- Whenever an AI agent begins reading, inspecting, or analyzing a source code file or specification during troubleshooting, research, or planning, the agent MUST notify GitMap Heatmap:
+23. **Mandatory Heatmap Inspection & Auto-Touch on File Read (Zero UDFs):**
+- Whenever an AI agent begins reading, inspecting, or analyzing a source code file or specification during troubleshooting, research, or planning, the agent SHOULD use:
   ```bash
-  gitmap heatmap touch <filepath> --reason "<why the file is being read/analyzed>"
+  # Inspect and automatically touch heatmap (Zero UDF flags needed):
+  gitmap heatmap <filepath> [-L start:end] [--num]
+
+  # Or use native cat (automatically records touch in heatmap in background):
+  gitmap cat <filepath> [-L start:end] [--num]
   ```
-  *(Alternatively, run `gitmap cat <filepath> --touch` to read and record touch in a single stream).*
-  This records active inspection intent and file leases in `repodb/heatmap.db`, preventing write collisions across autonomous agent swarms.
+- **Zero UDFs Required:** No need to supply `--reason`, `--action`, or manual JSON payloads for file inspection. GitMap automatically resolves relative and absolute paths, sets `action="read"`, `tool="cat"`, and records line ranges in `repodb/heatmap.db`.
+- The file content is printed directly to the terminal, and the heatmap record is stored atomically in SQLite.
+- **TOTAL BAN on ad-hoc Python reading:** `gitmap py -c "lines = open('...').readlines()"` is strictly prohibited. Use `gitmap heatmap <filepath>` or `gitmap cat <filepath>`.

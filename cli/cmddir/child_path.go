@@ -409,6 +409,10 @@ func scanChildPathDepthWalk(opts ChildPathOptions) ([]ChildPathItem, error) {
 			return handleFindWalkErr(walkErr)
 		}
 
+		if d == nil {
+			return nil
+		}
+
 		if currentPath == cleanRoot {
 			return nil
 		}

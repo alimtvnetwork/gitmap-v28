@@ -18,7 +18,9 @@ var leadingDigitsRe = lazyregex.New(`^(\d+)`)
 func SyncSingleRepo(sourceRoot string, proj ProjectConfig, opts SyncOptions) RepoSyncResult {
 	res := newInitialSyncResult(proj.Name)
 	branch := resolveCurrentRepoBranch(proj.Path)
-	pullLatestUpstream(proj.Path, branch)
+	if !opts.DryRun {
+		pullLatestUpstream(proj.Path, branch)
+	}
 
 	preTag := resolvePreTag(proj.Path)
 	res.PreTag = preTag
@@ -55,7 +57,7 @@ func resolveCurrentRepoBranch(repoPath string) string {
 }
 
 func pullLatestUpstream(repoPath, branch string) {
-	_, _ = gitutil.ExecGitWithTimeout(30*time.Second, repoPath, constants.GitCmdPull, constants.GitRemoteOrigin, branch, constants.FlagNoRebase)
+	_, _ = gitutil.ExecGitWithTimeout(8*time.Second, repoPath, constants.GitCmdPull, constants.GitRemoteOrigin, branch, constants.FlagNoRebase)
 }
 
 func resolvePreTag(repoPath string) string {

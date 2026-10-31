@@ -6,7 +6,40 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 )
+
+var (
+	srcHashCacheMu sync.RWMutex
+	srcHashCache   = make(map[string]string)
+)
+
+// ClearSourceHashCache resets the in-memory source hash cache.
+func ClearSourceHashCache() {
+	srcHashCacheMu.Lock()
+	srcHashCache = make(map[string]string)
+	srcHashCacheMu.Unlock()
+}
+
+func getCachedSourceHash(srcPath string) (string, error) {
+	srcHashCacheMu.RLock()
+	h, ok := srcHashCache[srcPath]
+	srcHashCacheMu.RUnlock()
+	if ok {
+		return h, nil
+	}
+
+	h, err := NormalizedFileHash(srcPath)
+	if err != nil {
+		return "", err
+	}
+
+	srcHashCacheMu.Lock()
+	srcHashCache[srcPath] = h
+	srcHashCacheMu.Unlock()
+
+	return h, nil
+}
 
 // ThreeWayResult captures the evaluation decision for a single file.
 type ThreeWayResult struct {
@@ -19,27 +52,47 @@ type ThreeWayResult struct {
 	HasConflict      bool
 }
 
-// EvaluateThreeWay performs the 3-way cryptographic hash comparison.
+// EvaluateThreeWay performs the 3-way cryptographic hash comparison with ModTime/Size fast-path.
 func EvaluateThreeWay(relPath, srcPath, dstPath string, baselineMap map[string]string) ThreeWayResult {
 	res := ThreeWayResult{RelPath: relPath}
-	uHash, uErr := NormalizedFileHash(srcPath)
-	if uErr != nil {
-		res.State = "Error"
-		return res
-	}
-	res.SourceHash = uHash
-
 	bHash := ""
 	if baselineMap != nil {
 		bHash = baselineMap[filepath.ToSlash(relPath)]
 	}
 	res.BaselineHash = bHash
 
+	srcInfo, srcErr := os.Stat(srcPath)
+	if srcErr != nil {
+		res.State = "Error"
+		return res
+	}
+
 	dstInfo, dstErr := os.Stat(dstPath)
 	if os.IsNotExist(dstErr) || dstInfo == nil {
+		uHash, _ := getCachedSourceHash(srcPath)
+		res.SourceHash = uHash
 		res.State = "NewUpstream"
 		return res
 	}
+
+	// FAST PATH: If baseline is known, size and ModTime match exactly,
+	// file is verified InSync without reading destination bytes.
+	if bHash != "" && srcInfo.Size() == dstInfo.Size() && srcInfo.ModTime().Equal(dstInfo.ModTime()) {
+		uHash, _ := getCachedSourceHash(srcPath)
+		if bHash == uHash {
+			res.SourceHash = uHash
+			res.LocalHash = bHash
+			res.State = "InSync"
+			return res
+		}
+	}
+
+	uHash, uErr := getCachedSourceHash(srcPath)
+	if uErr != nil {
+		res.State = "Error"
+		return res
+	}
+	res.SourceHash = uHash
 
 	lHash, lErr := NormalizedFileHash(dstPath)
 	if lErr != nil {
@@ -133,6 +186,13 @@ func copyFileContents(src, dst string) error {
 	}
 	defer out.Close()
 
-	_, err = io.Copy(out, in)
-	return err
+	if _, err = io.Copy(out, in); err != nil {
+		return err
+	}
+
+	if srcStat, statErr := os.Stat(src); statErr == nil {
+		_ = os.Chtimes(dst, srcStat.ModTime(), srcStat.ModTime())
+	}
+
+	return nil
 }

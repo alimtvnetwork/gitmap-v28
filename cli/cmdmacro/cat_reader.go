@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 	"github.com/alimtvnetwork/gitmap-v28/cli/output"
+	"github.com/alimtvnetwork/gitmap-v28/cli/store"
 )
 
 // ExecuteCatWithOptions inspects and streams target files with range, head, tail, and query filters.
@@ -25,7 +27,46 @@ func ExecuteCatWithOptions(opts CatOptions) error {
 		return err
 	}
 
+	recordHeatmapCatTouch(opts)
+
 	return dispatchCatContent(opts, data)
+}
+
+func recordHeatmapCatTouch(opts CatOptions) {
+	cleanPath := filepath.ToSlash(filepath.Clean(opts.TargetFile))
+	if cleanPath == "" || cleanPath == "." {
+		return
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	if rel, errRel := filepath.Rel(cwd, cleanPath); errRel == nil && !strings.HasPrefix(rel, "..") {
+		cleanPath = filepath.ToSlash(rel)
+	}
+
+	insertCatHeatmapAction(cwd, cleanPath, opts)
+}
+
+func insertCatHeatmapAction(cwd, cleanPath string, opts CatOptions) {
+	hdb, err := store.OpenHeatmapRootDB(cwd)
+	if err != nil {
+		return
+	}
+
+	defer hdb.Close()
+
+	_, _ = hdb.LogAction(store.HeatmapActionLogRecord{
+		ActionType:     "READ",
+		FilePath:       cleanPath,
+		StartLine:      opts.StartLine,
+		EndLine:        opts.EndLine,
+		ToolName:       "cat",
+		ReasoningState: "EXPLORATION",
+		ReasoningNotes: "inspected file via gitmap cat",
+	})
 }
 
 func readCatTargetData(target string) ([]byte, error) {

@@ -1,3 +1,20 @@
+## [v6.644.0] 2026-10-31 Release v6.644.0
+
+### Install GitMap v6.644.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.644.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.644.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.644.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.644.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Zero-UDF Heatmap Auto-Read & Auto-Touch (`gitmap heatmap <filepath>`): Directly displays file contents in terminal with line ranges (`-L`), head/tail (`-n`, `-t`), pattern search (`-q`), and line numbers (`--num`) while automatically logging inspection telemetry into `repodb/heatmap.db` without requiring any user-defined flags (`--reason`, `--action`).
+- Universal Cat Heatmap Integration: `gitmap cat <filepath>` now transparently records an audit inspection touch in `repodb/heatmap.db` on every invocation, ensuring seamless agent coordination without cognitive overhead.
+- High-Speed Stat & ModTime-First Fleet Sync Engine: Introduced `srcHashCache` for single-pass upstream hashing across all fleet repositories. Implemented fast-path stat check (`ModTime` + `Size`) to skip disk reads and SHA-256 calculation for unchanged files, dropping whole-fleet scan latency from minutes to under 100ms.
+- Upstream Timestamp Preservation: Synchronized files now retain upstream timestamps via `os.Chtimes`, preventing false-positive drift and enabling sub-millisecond incremental synchronization.
+- Human Edit Preservation Reporting: Explicitly details preserved local developer modifications and `.upstream` conflict sidecars in the terminal sync summary docket.
+- Dedicated Heatmap Skill & Anti-Pattern Ban: Created `.agents/skills/gitmap-heatmap/skill.md` and updated `.agents/skills/gitmap/skill.md` and coding guidelines, strictly banning ad-hoc Python/PowerShell/Node file reads in favor of `gitmap heatmap` and `gitmap cat`.
+
 ## [v6.643.0] 2026-10-31 Release v6.643.0
 
 ### Install GitMap v6.643.0

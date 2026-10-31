@@ -224,6 +224,10 @@ func scanAndMatchFiles(opts FindFilesOptions) ([]string, error) {
 			return err
 		}
 
+		if d == nil {
+			return nil
+		}
+
 		if d.IsDir() {
 			return handleFindDirSkip(d.Name())
 		}

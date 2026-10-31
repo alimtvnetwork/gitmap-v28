@@ -190,7 +190,27 @@ func printSyncSummary(results []RepoSyncResult) {
 	for _, r := range results {
 		printSummaryRow(r)
 	}
+	printHumanPreservedSummary(results)
 	fmt.Println()
+}
+
+func printHumanPreservedSummary(results []RepoSyncResult) {
+	var countPreserved, countConflicts int
+	for _, r := range results {
+		countPreserved += r.FilesPreserved
+		countConflicts += r.FilesConflicts
+	}
+	if countPreserved == 0 && countConflicts == 0 {
+		return
+	}
+
+	fmt.Printf("\n● Human Edits Detected & Preserved (Zero Data Loss Invariant):\n")
+	for _, r := range results {
+		if r.FilesPreserved > 0 || r.FilesConflicts > 0 {
+			fmt.Printf("  • %-30s : %d local edit(s) preserved untouched, %d .upstream sidecar(s) generated\n", r.Repo, r.FilesPreserved, r.FilesConflicts)
+		}
+	}
+	fmt.Printf("Notice: Local changes were left intact. Upstream differences are safely isolated in '<file>.upstream' sidecars.\n")
 }
 
 func printSummaryHeader() {
