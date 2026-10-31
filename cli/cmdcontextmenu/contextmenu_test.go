@@ -2,6 +2,8 @@ package cmdcontextmenu
 
 import (
 	"testing"
+
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdinstall"
 )
 
 func TestRunContextMenu_Help(t *testing.T) {
@@ -137,6 +139,13 @@ func TestRunContextMenu_ToggleGitActions(t *testing.T) {
 	mockRunner := func(args ...string) ([]byte, error) {
 		return []byte("ok"), nil
 	}
+	// WHY: hide/show/toggle write the real HideGitActions registry value
+	// on Windows (SetGitActionsHidden uses exec reg, not the mocked
+	// regRunner), and the toggle ends on hidden. Restore the prior
+	// value so other packages' tests on the same runner don't observe
+	// a hidden menu.
+	prevHidden := cmdinstall.IsGitActionsHidden()
+	defer func() { _ = cmdinstall.SetGitActionsHidden(prevHidden) }()
 	withMockReg("windows", mockRunner, func() {
 		if err := RunContextMenu([]string{"hide-git-actions"}); err != nil {
 			t.Fatalf("hide-git-actions failed: %v", err)

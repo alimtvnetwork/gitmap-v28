@@ -78,6 +78,10 @@ var expectedCtxArgv = map[string]struct {
 // must match the first.
 func flattenCtxMenuByPath(t *testing.T) map[string]ctxEntry {
 	t.Helper()
+	// WHY: same Windows-runner registry leak as collectCtxLeaves (see
+	// installctx_harness_test.go): pin the direct entries visible so
+	// the argv table covers the full menu regardless of test order.
+	_ = SetGitActionsHidden(false)
 	out := map[string]ctxEntry{}
 	var walk func(prefix string, entries []ctxEntry)
 	walk = func(prefix string, entries []ctxEntry) {

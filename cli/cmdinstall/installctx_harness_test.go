@@ -34,6 +34,11 @@ type ctxFlatLeaf struct {
 
 func collectCtxLeaves(t *testing.T) []ctxFlatLeaf {
 	t.Helper()
+	// WHY: on Windows runners the cmdcontextmenu toggle test leaves
+	// HideGitActions=1 in HKCU, which hides the direct entries from
+	// ctxMenu() and breaks full-menu assertions. Pin visible here so
+	// these tests assert the full menu regardless of test order.
+	_ = SetGitActionsHidden(false)
 	flat := flattenCtxMenu()
 	out := make([]ctxFlatLeaf, 0, len(flat))
 	pathByLeaf := buildLeafPaths()

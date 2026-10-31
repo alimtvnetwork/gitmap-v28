@@ -42,10 +42,6 @@ func executeInteractivePowerShell(psPath string) error {
 	return nil
 }
 
-func executePowerShellProcess(psPath string, args []string) error {
-	return executePowerShellWithInterceptor(psPath, args)
-}
-
 func findPowerShellExecutable() (string, bool) {
 	if p, err := exec.LookPath("pwsh"); err == nil && p != "" {
 		return p, true
