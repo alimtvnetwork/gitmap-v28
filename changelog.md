@@ -1,3 +1,18 @@
+## [v6.638.0] 2026-10-31 Release v6.638.0
+
+### Install GitMap v6.638.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.638.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.638.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.638.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.638.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Multi-Token OR Query Matching in `gitmap cat`: Support pipe-delimited search queries (`-q "pattern1|pattern2|pattern3"`) to match any token across file lines without complex regex or Python one-liners.
+- File Metadata & Info Inspection: Added `--info` (`-i`, `--stats`) to `gitmap cat` to report exact line counts, byte sizes, and formats without dumping file contents.
+- On-The-Fly Teaching Warning in `gitmap py`: Warns agents running `gitmap py -c` with `open(...)` anti-patterns and suggests canonical `gitmap cat` alternatives.
+- Strict Zero-Build / Zero-Test Invariant Enforcement: Strengthened V6 and V7 execution prompt invariants against unauthorized E2E test task injection.
+
 ## [v6.637.0] 2026-10-31 Release v6.637.0
 
 ### Install GitMap v6.637.0
