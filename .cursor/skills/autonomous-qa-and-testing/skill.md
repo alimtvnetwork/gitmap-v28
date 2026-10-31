@@ -1,0 +1,28 @@
+---
+name: autonomous-qa-and-testing
+description: Autonomously run test suites, verify quality gates, and prevent regressions across polyglot stacks.
+---
+
+# Autonomous QA and Testing
+
+> [!IMPORTANT]
+> **Owner Command Required:** Running unit tests and test suites (`go test`, `npm run test`, `pytest`) is strictly prohibited in standard development turns. Tests may ONLY be run when explicitly commanded by the repository owner, or as part of the mandatory pre-release quality gate during a release ceremony. In routine turns, the full CI/CD runner is banned; run targeted single-file linters instead. The full runner (`06-cicd-local-runner.py`) may ONLY run when explicitly commanded by the repository owner.
+
+Executes comprehensive testing, linting verification, and quality gate validation.
+
+## Checks
+
+1. **TypeScript / React:** `npm run test`, `npm run lint`
+2. **Go:** `go test ./...`
+3. **Targeted Verification (Routine):** Run targeted linters on modified files (full `06-cicd-local-runner.py` is strictly banned in routine turns).
+4. **Full Runner (Owner Explicit Command Only):** `python 03-ai-scripts/06-cicd-local-runner.py`
+5. **Pre-Release Full Gates (Release Ceremony Only):** `python 03-ai-scripts/06-cicd-local-runner.py --run-tests`
+6. **Git Hygiene:** Verify no un-ignored test dumps or binaries via `git status`.
+7. **Atomic Change Tracking:** Record modified files under lock via `python 03-ai-scripts/33-test-inventory-generator.py --record <files...>`.
+8. **Consolidated Atomic Commits:** NEVER commit 1-2 files piecemeal. Stage all modified files and plans together as a single atomic unit.
+9. **Immediate Push to GitHub:** ALWAYS push immediately to GitHub (`git push origin <branch>`) after creating any commit.
+10. **No Routine Builds:** NEVER run full builds (`npm run build`, `go build ./...`) during routine tasks.
+11. **Temp & Failure Folder Isolation:** All temporary test files, caches, and scratch directories MUST be isolated strictly to `.ai-memory/temp/`. Never create `.tmp/` at root. Failed tests/gates write logs strictly to `.ai-memory/temp/failures/<test-or-job>.log`. Passing tests MUST remain completely silent in output logs and produce zero filesystem artifacts.
+12. **In-Flight ETA Wait Protocol:** When executing CI/CD runner or test suites in the background, the runner emits in-flight heartbeats strictly every 25 seconds or more. Agents MUST sleep/wait for 1 minute (60 seconds) each time, or dynamically sleep for the remaining ETA duration read from `.ai-memory/temp/runner-eta.json` (or based on previous total approximate delay) instead of busy-polling.
+13. **Centralized Test Inventory & Incremental Caching:** All unit tests are mapped in `.ai-memory/test-inventory.json` with strictly repository-relative paths (`target_file`, `test_file`). First run profiles all tests to calculate baseline timings; subsequent runs execute incrementally only when target code or test files change. Configurable slow threshold defaults to `4.0s` (`GITMAP_SLOW_TEST_THRESHOLD`).
+14. **Dual-Queue Worker Pools:** Slow tests run in a 4-worker pool running at most 2 tests at a time per batch. Fast tests run in a 4-worker pool running at most 4 tests at a time, pulling in chunks of 100 tests from the test inventory queue until completion.
