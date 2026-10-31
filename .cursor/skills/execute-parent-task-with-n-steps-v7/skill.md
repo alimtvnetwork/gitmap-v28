@@ -153,6 +153,10 @@ Followed by confirmed task breakdown with explicit `Understood / AI Comprehensio
 - Research codebase via 3 `research` subagents.
 - Author specs in `02-spec/21-app/XX-<slug>/` and plans in `.ai-memory/plans/pending/XX-<slug>.md` via 3 authoring subagents.
 - Initialize SQLite task database at `.ai-memory/temp-agents/<slug>/agent-task.db`.
+- **Subtask Planning Invariant (CRITICAL):**
+  * TOTAL BAN on creating, generating, or adding an E2E testing subtask (e.g. `TASK-XX: E2E Test Suite Remediation (Achieve 100% Pass in ...)`) unless the user prompt EXPLICITLY requested E2E testing!
+  * TOTAL BAN on creating a release or version bump subtask unless the user prompt EXPLICITLY requested a release!
+  * Decomposed subtasks must strictly focus on spec authoring, discrete file implementation, and file-scoped static linting. Never inject unrequested test or build tasks.
 
 ### Phase 2: Prerequisite Setup & Disjoint Execution (Steps 101–250)
 - Workers execute modifications in strictly disjoint file boxes.
@@ -195,6 +199,8 @@ Followed by confirmed task breakdown with explicit `Understood / AI Comprehensio
   * Did the user explicitly ask for E2E testing or builds?
     - If **NO**: Skip all builds and test suite executions. Verify via targeted linters and syntax checks only.
     - If **YES**: Run targeted test suites for the modified components and ensure 100% green pass.
+- **Completion Tables Check:** If E2E testing was not requested, Table 1 and Table 2 must explicitly document: `E2E Testing: Skipped (Not requested per Zero Build / Zero Test Invariant)`.
+- **Zero E2E Subtasks in Plan:** Planners MUST NEVER enqueue an E2E testing subtask into `.ai-memory/plans/` or `agent-task.db` when E2E testing was not explicitly mandated.
 
 ---
 

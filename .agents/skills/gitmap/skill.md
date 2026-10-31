@@ -1124,8 +1124,14 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 AI agents are STRICTLY PROHIBITED from running ad-hoc Python one-liners or writing temporary Python scripts to open, read, slice, or grep files across the codebase. You MUST use compiled, native `gitmap cat`:
 - ❌ **BANNED:** `gitmap py -c "open_f = open('path/to/file.ext').read(); [print(l) for l in open_f.splitlines() if 'word' in l.lower()][:15]"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -q "word" -l 15`
+- ❌ **BANNED:** `gitmap py -c "open_f = open('path').read(); [print(l) for l in open_f.splitlines() if 'Get-ChildItem' in l or 'gitmap find' in l or 'ban' in l.lower() or 'search' in l.lower()][:15]"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path -q "Get-ChildItem|gitmap find|ban|search" -l 15` (multi-token pipe search)
+- ❌ **BANNED:** `gitmap py -c "open_f = open('path').read(); print('File length:', len(open_f))"`
+  👉 **MANDATORY REPLACEMENT:** `gitmap cat path --info` (or `-i`, `--stats`)
 - ❌ **BANNED:** `gitmap py -c "lines = open('path/to/file.ext').readlines(); print(''.join(lines[140:220]))"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext -L 140:220 --num`
+- ❌ **BANNED:** `gitmap py -c "import json; line = [l for l in open('transcript.jsonl')...]"`
+  👉 **MANDATORY REPLACEMENT:** Use native agent tool `read_file` with line range bounds, or `gitmap cat transcript.jsonl -q "<query>"`
 - ❌ **BANNED:** `gitmap py -c "print(open('path/to/file.ext', encoding='utf-8').read())"`
   👉 **MANDATORY REPLACEMENT:** `gitmap cat path/to/file.ext`
 - ❌ **BANNED:** `pwsh -Command "Get-Content path/to/file.ext -TotalCount 30"`
@@ -1141,3 +1147,8 @@ When executing under the V7 Master Autonomous Engine (`@[execute-parent-task-wit
   1. Operating window: Commits on weekdays are restricted to morning window (< 08:00 AM) in target timezone, or auto-window slotting.
   2. Autonomous bot identity: Confirms `gitmap automation bot` identity or active `--ai-agent <name>` persona.
   3. Safe multi-branch backup, pre/post release tagging, and non-negotiable boundaries (Spec 21 exclusion, additive scripts).
+
+21. **Total Ban on Unauthorized E2E Testing, Builds, and Test Subtask Injection (Zero-Build / Zero-Test Invariant):**
+- **Subtask Decomposition Invariant:** In Phase 1C planning (`gitmap agent subtask add`), AI planners MUST NEVER create, plan, or inject an E2E testing subtask (e.g. `TASK-XX: E2E Test Suite Remediation (Achieve 100% Pass in ...)`), compiler build subtask, or release ceremony subtask unless the user prompt EXPLICITLY requested E2E testing or a version release!
+- **Zero Builds / Zero Tests Rule:** If E2E testing was NOT requested in the user prompt, you MUST NOT run full builds (`go build`, `npm run build`, `vite build`, `cargo build`) or full test suites (`go test ./...`, `npm test`, `pytest`, runner scripts). Verification is strictly static inspection and single-file targeted linters.
+- **Mandatory Completion Tables:** Every turn MUST conclude with the 4 mandatory completion tables (Task Execution Matrix, Coding Guidelines Table, Boundary Audit, Upstream Delivery Table) and the masked verification script. When E2E was not requested, Table 1 and Table 2 must explicitly document: `E2E Testing: Skipped (Not requested per Zero Build / Zero Test Invariant)`.
