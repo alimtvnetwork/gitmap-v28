@@ -304,8 +304,8 @@ func resolveAuthorFallback(meta *CommitMetadata) {
 
 func warnMissingAIAgentGuidance() {
 	fmt.Printf("%s💡 Notice: AI agent attribution is mandatory for cognitive heatmap tracking.%s\n", appconstants.ColorYellow, appconstants.ColorReset)
-	fmt.Println("  Use --ai-agent <name> on your commit commands (e.g. gitmap cpf '...' --ai-agent muse).")
-	fmt.Println("  Or configure a default AI agent via: gitmap settings set ai_auto.default_agent muse")
+	fmt.Println("  Use --ai-agent <name> on your commit commands (e.g. --ai-agent antigravity, gemini, cursor-model, muse).")
+	fmt.Println("  Or configure your active AI agent via: gitmap settings set ai_auto.default_agent <agent-name>")
 }
 
 func resolveGitConfigAuthor() string {

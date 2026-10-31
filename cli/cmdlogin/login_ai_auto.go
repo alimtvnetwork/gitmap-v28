@@ -68,8 +68,8 @@ func formatMissingAgentNameError() error {
 		"To configure a generic machine-wide bot without an agent name, use:",
 		"  • gitmap login set global ai-auto",
 		"",
-		"Or configure a default AI agent in Settings:",
-		"  • gitmap settings set ai_auto.default_agent muse",
+		"Or configure a default AI agent for this machine in Settings:",
+		"  • gitmap settings set ai_auto.default_agent <agent-name> (e.g. antigravity, gemini, cursor-model, muse)",
 	}, "\n")
 
 	return apperror.NewValidationError(msg)

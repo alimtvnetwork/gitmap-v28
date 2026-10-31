@@ -26,7 +26,7 @@ gitmap thelp settings            # Speed settings and AI Auto configuration
 | `merge-in` | Chronological commit-in | `gitmap merge-in ./target all --default` |
 | `commit-in` | Replay commit history | `gitmap cin ./target ./fork1,./fork2` |
 | `login` | Provider auth & AI bot | `gitmap login set ai-auto gemini` |
-| `settings` | Unified speed settings | `gitmap settings set ai_auto.default_agent muse` |
+| `settings` | Unified speed settings | `gitmap settings set ai_auto.default_agent antigravity` |
 
 ## Flags
 

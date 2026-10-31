@@ -43,7 +43,7 @@ gitmap settings
 # Configure AI bot credentials
 gitmap settings set ai_auto.default_name "gitmap automation bot - runs autonomously"
 gitmap settings set ai_auto.default_email info@rgitmap.com
-gitmap settings set ai_auto.default_agent muse
+gitmap settings set ai_auto.default_agent antigravity # or gemini, cursor-model, muse
 
 # Set PAE commit lookback to 72 hours
 gitmap settings set pae_recency_window_hours 72

@@ -1,3 +1,17 @@
+## [v6.637.0] 2026-10-31 Release v6.637.0
+
+### Install GitMap v6.637.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.637.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.637.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.637.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.637.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Dynamic AI Agent Identity Governance: Eliminated hardcoded `muse` defaults from CLI guidance, on-the-fly teaching diagnostics, and help documentation (`commit_flags.go`, `login_ai_auto.go`, `settings.md`, `specific.md`).
+- Mandatory Dynamic AI Configuration Rule: AI agents must dynamically detect and configure their own executing identity (e.g. `antigravity`, `gemini`, `cursor-model`, `muse`, `claude`) and are strictly banned from blindly defaulting to `muse`.
+- Synchronized Coding Guidelines & Skills: Updated `gitmap-automation-bot`, `execute-parent-task-with-n-steps-v6`, `execute-parent-task-with-n-steps-v7`, and `gitmap` skills across the fleet.
+
 ## [v6.636.0] 2026-10-31 Release v6.636.0
 
 ### Install GitMap v6.636.0

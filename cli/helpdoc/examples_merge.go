@@ -227,8 +227,8 @@ func buildSettingsExample() HelpExample {
 				ExpectedOutput: "● GitMap & Antigravity Unified Speed Settings\n  AI Auto Bot Name: gitmap automation bot - runs autonomously\n  AI Auto Bot Email: info@rgitmap.com\n  AI Auto Default Agent: gemini",
 			},
 			{
-				Invocation: "gitmap settings set ai_auto.default_agent muse",
-				ExpectedOutput: "setting 'ai_auto.default_agent' updated to 'muse'",
+				Invocation: "gitmap settings set ai_auto.default_agent antigravity",
+				ExpectedOutput: "setting 'ai_auto.default_agent' updated to 'antigravity'",
 			},
 		},
 	}
