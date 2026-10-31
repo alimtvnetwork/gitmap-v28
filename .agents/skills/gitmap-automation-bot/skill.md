@@ -26,9 +26,9 @@ When bot execution is engaged, GitMap provisions a sandboxed Git identity design
 
 | Parameter | Standard Value | Alternate Preset |
 | :--- | :--- | :--- |
-| **`user.name`** | `gitmap automation` | `AI automation bot` |
-| **`user.email`** | `local@local` (or empty) | `bot@local` |
-| **Default Scope** | `--local` (repository level) | `--global` (workstation level when requested) |
+| **`user.name`** | `GitMap automation` | `AI automation` |
+| **`user.email`** | `info@rgitmap.com` | `info@rgitmap.com` |
+| **Default Scope** | `--global` (machine global) / `--local` | `--global` |
 | **Audit Tag** | `[bot]` | `[agent]` |
 
 ---
@@ -39,14 +39,14 @@ GitMap provides dedicated subcommands for rapid identity transitions:
 
 ### 3.1 Instant Autobot Activation
 
-To switch the current repository to the default bot persona:
+To switch the current repository or machine to the default bot persona:
 
 ```bash
 # Set repository local git identity to autobot
 gitmap autobot
 
 # Or explicitly via change-user
-gitmap change-user "gitmap automation <local@local>"
+gitmap change-user "GitMap automation <info@rgitmap.com>"
 ```
 
 ### 3.2 Inspecting Current Identity
@@ -54,8 +54,8 @@ gitmap change-user "gitmap automation <local@local>"
 Verify that the active author and committer match expected bot credentials:
 
 ```bash
-# Query active user identity
-gitmap user-info
+# Query active user identity card
+gitmap user info
 
 # Fallback identity check
 gitmap whoami
@@ -63,14 +63,14 @@ gitmap whoami
 
 ### 3.3 Scope-Specific Identity Binding
 
-To configure bot identity without affecting other repositories or global profiles:
+To configure bot identity across repository or global scopes:
 
 ```bash
-# Repository-local only (recommended default)
-gitmap change-user --local "gitmap automation <local@local>"
+# Repository-local only
+gitmap change-user --local "GitMap automation <info@rgitmap.com>"
 
-# Workstation-global (use only when instructed)
-gitmap change-user --global "gitmap automation <local@local>"
+# Workstation-global (mandatory for machine-wide bot identity)
+gitmap change-user --global "GitMap automation" "info@rgitmap.com"
 
 # Project-level binding
 gitmap user project bind autobot

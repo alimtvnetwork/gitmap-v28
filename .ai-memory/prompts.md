@@ -217,6 +217,9 @@ It is referenced from `.ai-memory/coding-guidelines.md` as a required read befor
 | `26-gitmap` | [`26-gitmap/readme.md`](../01-prompts/26-gitmap/readme.md) | GitMap AI Training & Autonomous Automation Prompts (`26-gitmap`) |
 | `27-muse-prompts` | [`27-muse-prompts/01-muse-master-prompt.md`](../01-prompts/27-muse-prompts/01-muse-master-prompt.md) | [V6] MUSE MASTER ONBOARDING, FLEET ORCHESTRATION & AUTONOMOUS EXECUTION PROMPT — AGENT DIRECTIVE |
 | `27-muse-prompts` | [`27-muse-prompts/02-muse-generic.md`](../01-prompts/27-muse-prompts/02-muse-generic.md) | [V6] MUSE GENERIC MASTER ONBOARDING, GITMAP SUITE & AUTONOMOUS EXECUTION DIRECTIVE |
+| `27-muse-prompts` | [`27-muse-prompts/03-muse-standalone-master-prompt.md`](../01-prompts/27-muse-prompts/03-muse-standalone-master-prompt.md) | [V6] MUSE STANDALONE MASTER — pure native Git, no GitMap |
+| `27-muse-prompts` | [`27-muse-prompts/04-muse-universal-master-prompt.md`](../01-prompts/27-muse-prompts/04-muse-universal-master-prompt.md) | [V6] MUSE UNIVERSAL MASTER — 9-step onboarding for any repository |
+| `27-muse-prompts` | [`27-muse-prompts/05-muse-execute-in-a-step.md`](../01-prompts/27-muse-prompts/05-muse-execute-in-a-step.md) | Muse execute in a step — RUNNING or NOT RUNNING, ETA, five-minute status |
 | `27-muse-prompts` | [`27-muse-prompts/readme.md`](../01-prompts/27-muse-prompts/readme.md) | Muse Prompts (`27-muse-prompts`) — Index & Catalog |
 | `28-mastery-prompts` | [`28-mastery-prompts/01-mastery-bootstrap-prompt.md`](../01-prompts/28-mastery-prompts/01-mastery-bootstrap-prompt.md) | Mastery Bootstrap Prompt — foolproof standalone session starter |
 | `28-mastery-prompts` | [`28-mastery-prompts/readme.md`](../01-prompts/28-mastery-prompts/readme.md) | Mastery Prompts (`28-mastery-prompts`) — Index & Catalog |

@@ -79,17 +79,27 @@ Active by default when no time restrictions, maintenance windows, or scheduling 
 Active when the user requests an automated bot persona, AI commit authoring, or headless execution.
 
 1. **Identity Presets:**
-   - Name: `"gitmap automation"` (or `"AI automation bot"`).
-   - Email: `"local@local"`.
-2. **Activation:**
-   - Run `gitmap autobot` or `gitmap change-user "gitmap automation <local@local>"`.
+   - Name: `"gitmap automation bot - runs autonmously"`.
+   - Email: `"info@rgitmap.com"`.
+2. **Activation & Machine-Global Synchronization:**
+   - Run `gitmap autobot` or `gitmap change-user "gitmap automation bot - runs autonmously <info@rgitmap.com>"`.
+   - The Git username and email MUST be configured as `"gitmap automation bot - runs autonmously <info@rgitmap.com>"` machine-wide globally and in GitMap.
+   - Enforce globally via:
+     ```bash
+     gitmap change-user --global "gitmap automation bot - runs autonmously" "info@rgitmap.com"
+     ```
+   - Verify identity context using GitMap:
+     ```bash
+     gitmap user info
+     ```
+     Ensure `Active Git` and `Global Git` reflect `gitmap automation bot - runs autonmously <info@rgitmap.com>`.
 3. **Pairing with Time Restriction:**
    - When both Autobot and Time-Restriction are active, automated runs must combine both:
      ```bash
      gitmap autobot
      gitmap cpf "Module - summary" --tz <timezone> --schedule --auto-window --non-interactive
      ```
-4. **Operational reference:** [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot).
+4. **Operational reference:** [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction).
 
 ---
 

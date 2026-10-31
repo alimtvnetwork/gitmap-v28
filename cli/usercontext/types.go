@@ -14,9 +14,9 @@ const (
 
 const (
 	DefaultBotProfileID  = "autobot"
-	DefaultBotName       = "gitmap automation"
-	DefaultLegacyBotName = "AI automation bot"
-	DefaultBotEmail      = "local@local"
+	DefaultBotName       = "GitMap automation"
+	DefaultLegacyBotName = "AI automation"
+	DefaultBotEmail      = "info@rgitmap.com"
 	DefaultBotRole       = "automation agent"
 )
 

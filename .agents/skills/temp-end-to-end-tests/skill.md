@@ -167,7 +167,7 @@ To reduce markdown file count and bloat, consolidate subtasks when all deliverab
 3. Delete the original granular `.md` files in `.ai-memory/plans/subtasks/xx-<slug>/`.
 4. Delete the original parent plan `.ai-memory/plans/pending/xx-<slug>.md`.
 5. Update `.ai-memory/plans/readme.md` to point to the newly consolidated completed file.
-6. **Final Step Git Commit & Push (Mandatory):** Stage all modified files, consolidated plans, and memory records (`git add -A`), commit them in a single clean grouped atomic commit (`git commit -m "<summary>"`), and push to git (`git push origin <branch>`). Under no circumstances commit each file individually.
+6. **Final Step Git Commit & Push (Mandatory):** Stage only the paths this task changed (`git add -- <paths>`). Use `gitmap cpf` or `gitmap cpb` only when `git status --porcelain` was clean before the task, because those commands stage every file. Under no circumstances commit each file individually.
 
 ---
 
@@ -320,11 +320,11 @@ Whenever the task involves fixing an issue, bug, pipeline failure, or performing
 - [ ] Index Sync Deadman Switch: Every new file is explicitly linked in `readme.md` and enqueued in `.ai-memory/what-to-read.md`.
 - [ ] Blast Radius Acknowledgment: Global search across codebase performed to update all callers of modified symbols.
 - [ ] Clean Teardown Verified: Confirmed temporary E2E tests clean up databases, files, and sockets upon completion.
-- [ ] Final Step Commit & Push Verified: Staged all changes (`git add -A`), committed everything in a single grouped atomic commit, and pushed to git before ending the turn (no per-file commits).
+- [ ] Final Step Commit & Push Verified: Staged only the paths this task changed (`git add -- <paths>`), then committed with `gitmap cpf` or `gitmap cpb` only when the tree was clean before the task.
 
 ---
 
 ## 5. Final Step Git Commit & Push Mandate (Strict Checklist)
 
-- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. (Fallback to `git add -A && git commit && git push` only if GitMap CLI is unavailable). Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
+- [ ] MANDATORY FINAL COMMIT & PUSH VIA GITMAP (ANYHOW): At the final step of the turn, after all targeted files have been refactored, verified with targeted linters, and plans/subtasks consolidated, use GitMap semantic commit commands: `gitmap cpf "<summary>"` (features), `gitmap cpb "<summary>"` (bugs), or `gitmap cpr "<summary>"` (releases) which automatically stage, commit with standardized prefixes, and push directly to the remote repository. If GitMap is unavailable, stage only the paths this task changed (`git add -- <paths>`) and stop. Do not run `git add -A`. Leaving uncommitted changes or unpushed commits on the active branch at the end of a turn is an immediate failure.
 - [ ] TOTAL BAN ON PER-FILE COMMITS (DO NOT COMMIT EACH FILE INDIVIDUALLY): You must not create separate git commits for each individual file as you edit them (e.g. running `git commit` or `gitmap cpf` after editing File 1, then committing again after File 2 is strictly forbidden). Committing file-by-file pollutes git log history, creates subagent lock collisions, and breaks atomic rollback. All modified files, test change caches, and plan records across the turn must be accumulated in the working tree and committed together in a single grouped atomic commit at the final step before pushing.

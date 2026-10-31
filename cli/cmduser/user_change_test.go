@@ -140,7 +140,7 @@ func TestParseAutobotArgs_Defaults(t *testing.T) {
 		t.Fatalf("unexpected error parsing autobot defaults: %v", err)
 	}
 
-	if opts.Name != "gitmap automation" || opts.Email != "local@local" {
+	if opts.Name != "GitMap automation" || opts.Email != "info@rgitmap.com" {
 		t.Errorf("unexpected autobot defaults: %s / %s", opts.Name, opts.Email)
 	}
 

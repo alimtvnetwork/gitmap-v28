@@ -10,7 +10,7 @@ func TestAddEditStatus(t *testing.T) {
 	home := t.TempDir()
 	restrictionsDirOverride = home
 	t.Cleanup(func() { restrictionsDirOverride = "" })
-	errAdd := Run([]string{"add", "--name", "morning", "--email", "local@local", "--tz", "Asia/Singapore", "--blocked-after", "08:00", "--weekend-open", "--permit-stay"})
+	errAdd := Run([]string{"add", "--name", "morning", "--email", "info@rgitmap.com", "--tz", "Asia/Singapore", "--blocked-after", "08:00", "--weekend-open", "--permit-stay"})
 	if errAdd != nil {
 		t.Fatal(errAdd)
 	}

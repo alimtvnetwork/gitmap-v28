@@ -396,7 +396,7 @@ func resolveAutobotEmail(in buildUserChangeInput) string {
 		return explicitEmail
 	}
 
-	return "local@local"
+	return usercontext.DefaultBotEmail
 }
 
 func resolveExplicitAutobotEmail(in buildUserChangeInput) string {

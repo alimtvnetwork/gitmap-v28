@@ -39,6 +39,7 @@ Its installable skill is `muse-master-prompt`
 | [`02-muse-generic.md`](02-muse-generic.md) | 6.5.0 | Generic Master Prompt (GitMap Suite) | Clean, public, generic master prompt for any codebase: zero hardcoded repos/secrets, dynamic repository onboarding gate, cross-platform GitMap installation & update suite, full Muse capabilities (code fixing, bulk operations, scheduling, email alerts, content, image/video asset generation), canonical directory architecture (`WORKSPACE_ROOT = ~/workspace/repos/`, `02-spec/21-app/XX-<slug>/`), and companion first-time/daily runner scripts. | **Active (Canonical)** |
 | [`03-muse-standalone-master-prompt.md`](03-muse-standalone-master-prompt.md) | 6.5.0 | Standalone Universal Master Prompt (Pure Native Git) | Pure native Git standalone master prompt for general users outside the company: zero `gitmap` dependency, zero hardcoded repos/secrets, interactive Git connection ritual (prompt for repo URL, clone or init), Full Turbo Mode ("Act, don't ask", write-and-execute), recommended yet adaptable folder structure, standard Git commit workflow, and companion Bash/PowerShell runner scripts. | **Active (Canonical)** |
 | [`04-muse-universal-master-prompt.md`](04-muse-universal-master-prompt.md) | 6.5.0 | Universal Master Prompt for Everyone (Following 01 Architecture) | Comprehensive 9-step universal onboarding prompt following the full architecture of `01-muse-master-prompt.md`: dynamic Git repository onboarding gate (asks for repo URLs/local path, clones/connects, and auto-starts), V6 autonomous execution engine, mandatory subagent swarm (A=3, H=2), TURBO-01..05 & GUARD-01..09 operating contract, adaptive folder layout, and Phase 7.5 Git troubleshooting runbooks. | **Active (Canonical)** |
+| [`05-muse-execute-in-a-step.md`](05-muse-execute-in-a-step.md) | 1.0.0 | Execute after the task list | Forces `RUNNING` or `NOT RUNNING` plus an ETA, then a status line every five minutes. Listing the tasks and stopping is a failure. | **Active** |
 
 ---
 
@@ -50,5 +51,6 @@ Its installable skill is `muse-master-prompt`
 ├── 02-muse-generic.md                  # GENERIC master prompt (GitMap suite)
 ├── 03-muse-standalone-master-prompt.md # STANDALONE universal master prompt (pure native Git, no GitMap)
 ├── 04-muse-universal-master-prompt.md  # UNIVERSAL 9-step master prompt for everyone (following 01 + dynamic Git auto-start)
+├── 05-muse-execute-in-a-step.md        # RUNNING or NOT RUNNING, ETA, five-minute status
 └── readme.md                           # this index
 ```
