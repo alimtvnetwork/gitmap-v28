@@ -1,6 +1,7 @@
 ---
 name: execute-parent-task-with-n-steps-v7
-description: Master autonomous execution engine with dual operating modes (Option 1: Time-Restricted with timezone & weekday < 8:00 AM cutoff; Option 2: Unrestricted), AI automation bot integration, Tree Swarm Hierarchy (A=3, H=2, Capacity=6), and GitMap atomic commits.
+description: >-
+  Master autonomous execution engine with dual operating modes (Option 1: Time-Restricted with timezone & weekday < 8:00 AM cutoff; Option 2: Unrestricted), AI automation bot integration, Tree Swarm Hierarchy (A=3, H=2, Capacity=6), and GitMap atomic commits.
 ---
 
 # [V7] Master Autonomous Execution Engine — Continuous Loop & Swarm Orchestration (must follow)
