@@ -129,6 +129,7 @@ const (
 	WingetPkgOhMyPosh        = "JanDeDobbeleer.OhMyPosh"
 	WingetPkgScoop           = "ScoopInstaller.Scoop"
 	WingetPkgTortoiseGit     = "TortoiseGit.TortoiseGit"
+	WingetPkgPHP             = "PHP.PHP.8.5"
 )
 
 // Apt package IDs.

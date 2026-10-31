@@ -68,6 +68,7 @@ func buildInstallCoreSection() termout.HelpSection {
 			{Command: "rust (cargo)", Description: "Rust language & Cargo package manager"},
 			{Command: "dotnet (sdk)", Description: ".NET SDK and developer platform"},
 			{Command: "docker", Description: "Docker container engine & CLI"},
+			{Command: "php", Description: "PHP programming language (8.5 line, pinned with --version)"},
 		},
 	}
 }

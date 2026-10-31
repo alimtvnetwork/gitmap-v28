@@ -197,6 +197,7 @@ var wingetPackageMap = map[string]string{
 	constants.ToolBeyondCompare:   constants.WingetPkgBeyondCompare,
 	constants.ToolTortoiseGit:     constants.WingetPkgTortoiseGit,
 	constants.ToolVcRedist:        constants.WingetPkgVcRedist,
+	constants.ToolPHP:             constants.WingetPkgPHP,
 	constants.ToolDirectX:         constants.WingetPkgDirectX,
 	constants.ToolDirectXSdk:      constants.WingetPkgDirectXSdk,
 	constants.ToolStarship:        constants.WingetPkgStarship,

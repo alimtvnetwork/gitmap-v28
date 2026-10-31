@@ -113,6 +113,9 @@ func resolveLinuxAppHandler(tool string) func(installOptions) {
 	case constants.ToolChrome, constants.ToolGoogleChrome:
 
 		return func(opts installOptions) { _ = runInstallChromeLinux(opts) }
+	case constants.ToolPHP:
+
+		return func(opts installOptions) { _ = runInstallPhpLinux(opts) }
 	default:
 
 		return nil
