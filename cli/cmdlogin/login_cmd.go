@@ -12,12 +12,15 @@ import (
 )
 
 type loginOptions struct {
-	tokenValue string
-	hasToken   bool
-	isBrowser  bool
-	isStatus   bool
-	isHelp     bool
-	isVerify   bool
+	tokenValue         string
+	hasToken           bool
+	isBrowser          bool
+	isStatus           bool
+	isHelp             bool
+	isVerify           bool
+	hasAIAuto          bool
+	hasRestrictionTime bool
+	hasRevertOriginal  bool
 }
 
 func runLogin(args []string) error {
@@ -106,7 +109,28 @@ func dispatchLoginOptions(opts loginOptions) error {
 		printLoginUsage()
 		return nil
 	}
+	if isHandled, err := dispatchAIAutoOptions(opts); isHandled {
+		return err
+	}
 
+	return dispatchStandardLoginOptions(opts)
+}
+
+func dispatchAIAutoOptions(opts loginOptions) (bool, error) {
+	if opts.hasRevertOriginal {
+		return true, runRevertToOriginal()
+	}
+	if opts.hasAIAuto {
+		return true, runUseAIAuto(opts.hasRestrictionTime)
+	}
+	if opts.hasRestrictionTime {
+		return true, applyRestrictionTimeDefaults()
+	}
+
+	return false, nil
+}
+
+func dispatchStandardLoginOptions(opts loginOptions) error {
 	if opts.isStatus {
 		return runLoginStatus()
 	}
@@ -152,6 +176,30 @@ func applyLoginArgFlag(args []string, i int, opts *loginOptions) (int, bool, err
 }
 
 func isSimpleFlag(arg string, opts *loginOptions) bool {
+	if isAIFlag(arg, opts) {
+		return true
+	}
+
+	return isStandardFlag(arg, opts)
+}
+
+func isAIFlag(arg string, opts *loginOptions) bool {
+	switch arg {
+	case "--use-ai-auto", "--ai-auto":
+		opts.hasAIAuto = true
+		return true
+	case "--restriction-time", "--time-restriction":
+		opts.hasRestrictionTime = true
+		return true
+	case "--revert-to-original", "--revert-original":
+		opts.hasRevertOriginal = true
+		return true
+	default:
+		return false
+	}
+}
+
+func isStandardFlag(arg string, opts *loginOptions) bool {
 	switch arg {
 	case constants.FlagHelpShortArg, constants.FlagHelpArg:
 		opts.isHelp = true
@@ -205,13 +253,21 @@ func printUsageExamples() {
 	fmt.Println("  gitmap login token [PAT]      # Log in with a personal access token")
 	fmt.Println("  gitmap login browser-flow     # Log in via the browser (GitHub CLI device flow)")
 	fmt.Println("  gitmap login --status         # Show current login state")
+	fmt.Println("  gitmap login --use-ai-auto [--restriction-time] # Switch to AI bot and apply wait defaults")
+	fmt.Println("  gitmap login --revert-to-original # Revert Git identity back to original user")
 	fmt.Println("  gitmap logout                 # Remove the stored GitHub credential")
 	fmt.Println("")
 }
 
 func printUsageNotes() {
+	fmt.Println(appconstants.ColorCyan + "Flags:" + appconstants.ColorReset)
+	fmt.Println("  --use-ai-auto        Switch identity to AI automation bot and backup original user")
+	fmt.Println("  --restriction-time   Auto-apply time restriction & dynamic waiting defaults (20s)")
+	fmt.Println("  --revert-to-original Revert Git identity back to backed-up original user info")
+	fmt.Println("")
 	fmt.Println(appconstants.ColorCyan + "Notes:" + appconstants.ColorReset)
 	fmt.Println("  --token validates the token against api.github.com before storing it.")
 	fmt.Println("  The token is stored in git global config (github.token) so clone/pull/push reuse it.")
 	fmt.Println("  Use --no-verify with --token to store without validation (offline use).")
+	fmt.Println("  --use-ai-auto sets user: gitmap automation bot - runs autonmously <info@rgitmap.com>.")
 }

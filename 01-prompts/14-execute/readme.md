@@ -11,7 +11,7 @@
 
 The `14-execute` prompt category houses the autonomous execution prompts for decomposing and executing complex software engineering tasks.
 
-The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v6.md`](02-execute-parent-task-with-n-steps-v6.md), running the **Canonical V6 Workflow** (`N = 300`, `A = 2`, `H = 2`, `C = 30`). It enforces mandatory subagent spawning via `invoke_subagent`, GitMap command primacy, SQLite task tracking, and atomic final commits without raw git usage.
+The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v7.md`](02-execute-parent-task-with-n-steps-v7.md), running the **Canonical V7 Workflow** (`N = 400`, `A = 3`, `H = 2`, `C = 30`). It enforces mandatory subagent spawning via `invoke_subagent`, GitMap command primacy, mandatory Git authorship governance (`GitMap automation <info@rgitmap.com>`), Time Restriction & Anti-Credit-Waste Dynamic Waiting Protocol, SQLite task tracking, and atomic final commits without raw git usage. [`02-execute-parent-task-with-n-steps-v6.md`](02-execute-parent-task-with-n-steps-v6.md) remains available as the prior stable baseline.
 
 > [!NOTE]
 > **Archived Versions Notice:**
@@ -26,7 +26,8 @@ The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v6.md`](02-e
 | Prompt File | Version | Scope | Key Capabilities |
 | :--- | :--- | :--- | :--- |
 | [`01-execute-pending-tasks.md`](01-execute-pending-tasks.md) | Canonical V6 | Backlog Execution | Parameter-driven execution loop (N=300, A=2, H=2, C=30) executing pending tasks in `.ai-memory/plans/pending/` with SQLite tracking and GitMap atomic commits. |
-| [`02-execute-parent-task-with-n-steps-v6.md`](02-execute-parent-task-with-n-steps-v6.md) | Canonical V6 | Master Orchestration | Parameter-driven execution loop (N=300, A=2, H=2, C=30) with mandatory subagents, SQLite task logging, and GitMap atomic commits. |
+| [`02-execute-parent-task-with-n-steps-v7.md`](02-execute-parent-task-with-n-steps-v7.md) | Canonical V7 | Master Orchestration | Parameter-driven execution loop (N=400, A=3, H=2, C=30) with Tree Swarm Hierarchy, mandatory subagents, GitMap author governance (`GitMap automation <info@rgitmap.com>`), Time Restriction Protocol, SQLite task logging, and GitMap atomic commits. |
+| [`02-execute-parent-task-with-n-steps-v6.md`](02-execute-parent-task-with-n-steps-v6.md) | Prior V6 Baseline | Master Orchestration | Parameter-driven execution loop (N=300, A=2, H=2, C=30) with mandatory subagents, SQLite task logging, and GitMap atomic commits. |
 | [`03-execute-batched-loop.md`](03-execute-batched-loop.md) | V4 | Batched Loop | Micro-task batched multi-agent loop with file collision matrix. |
 | [`04-execute-ai-instruction-writer.md`](04-execute-ai-instruction-writer.md) | V4 | Instruction Writer | Decomposes complex prompt requirements into subagents and modular specs. |
 | [`05-execute-batched-loop-wor.md`](05-execute-batched-loop-wor.md) | V4 | Batched Loop (WOR) | Batched multi-agent loop without automatic release triggers. |
@@ -42,7 +43,8 @@ The canonical orchestrator is [`02-execute-parent-task-with-n-steps-v6.md`](02-e
 ```text
 01-prompts/14-execute/
 ├── 01-execute-pending-tasks.md
-├── 02-execute-parent-task-with-n-steps-v6.md    # Canonical V6 Orchestrator
+├── 02-execute-parent-task-with-n-steps-v7.md    # Canonical V7 Orchestrator
+├── 02-execute-parent-task-with-n-steps-v6.md    # Prior V6 Baseline
 ├── 03-execute-batched-loop.md
 ├── 04-execute-ai-instruction-writer.md
 ├── 05-execute-batched-loop-wor.md

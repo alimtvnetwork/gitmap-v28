@@ -10,6 +10,9 @@ gitmap login ssh [alias] [-y] # Generate or reuse SSH key and copy public key to
 gitmap login token [PAT]      # Log in with a Personal Access Token
 gitmap login browser-flow     # Log in via browser OAuth / GitHub CLI device flow
 gitmap login --status         # Show current login state and active identity
+gitmap login --use-ai-auto    # Switch global Git identity to AI bot and backup original user
+gitmap login --use-ai-auto --restriction-time # Switch to AI bot and auto-apply wait defaults
+gitmap login --revert-to-original # Revert Git identity back to backed-up original user
 gitmap logout                 # Remove stored GitHub credentials
 ```
 
@@ -73,6 +76,28 @@ gitmap login --status
 
 - Inspects system environment, Windows Credential Manager, global git configuration, and GitHub CLI to display current authentication state with masked credentials.
 
+### 5. AI Automation Identity (`gitmap login --use-ai-auto`)
+
+```bash
+gitmap login --use-ai-auto [--restriction-time]
+```
+
+- Automatically preserves the original user's Git identity (`user.name`, `user.email`, and active GitMap profile) before switching.
+- Configures global Git identity to:
+  - **Name:** `gitmap automation bot - runs autonmously`
+  - **Email:** `info@rgitmap.com`
+- Registers and activates the `autobot` profile in GitMap.
+- Pass `--restriction-time` to auto-apply anti-credit-waste dynamic waiting defaults (20s Pipeline-AI delay, 10s–30s dynamic ETA sleep intervals, 60s runner wait, and rapid polling ban).
+
+### 6. Revert to Original User (`gitmap login --revert-to-original`)
+
+```bash
+gitmap login --revert-to-original
+```
+
+- Restores the backed-up `user.name` and `user.email` to global Git configuration.
+- Reactivates the original user's GitMap profile alias.
+
 ## Flags
 
 | Flag | Description |
@@ -83,6 +108,9 @@ gitmap login --status
 | `--web`, `--browser` | Trigger browser login flow. |
 | `--status` | Show login state and masked token. |
 | `--no-verify` | Store token without remote validation. |
+| `--use-ai-auto` | Switch global Git identity to AI bot (`gitmap automation bot - runs autonmously <info@rgitmap.com>`) and backup original user. |
+| `--restriction-time` | Auto-apply time restriction & dynamic waiting defaults (20s delay, 10s–30s ETA intervals). |
+| `--revert-to-original` | Revert Git identity back to original backed-up user info. |
 | `-h`, `--help` | Show usage help. |
 
 ## Examples
@@ -108,6 +136,15 @@ gitmap login browser-flow
 
 # Verify current authentication state
 gitmap login --status
+
+# Switch to AI automation bot and backup original developer identity
+gitmap login --use-ai-auto
+
+# Switch to AI automation bot with automatic dynamic waiting defaults applied
+gitmap login --use-ai-auto --restriction-time
+
+# Revert back to original developer identity
+gitmap login --revert-to-original
 ```
 
 ## See Also

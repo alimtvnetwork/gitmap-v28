@@ -2,6 +2,14 @@ package model
 
 import "time"
 
+// OriginalIdentity stores backed-up user credentials prior to switching to AI automation.
+type OriginalIdentity struct {
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	ProfileAlias string    `json:"profileAlias,omitempty"`
+	SavedAt      time.Time `json:"savedAt"`
+}
+
 // GitProfile represents an authenticated Git provider account or organization.
 type GitProfile struct {
 	ID         string    `json:"id"`
@@ -26,9 +34,10 @@ type ProjectBinding struct {
 
 // GitProfileConfig holds all configured Git profiles, bindings, and active defaults.
 type GitProfileConfig struct {
-	Profiles        []GitProfile              `json:"profiles"`
-	Active          string                    `json:"active"`
-	Default         string                    `json:"default"`
-	ProjectBindings map[string]ProjectBinding `json:"projectBindings,omitempty"`
-	UpdatedAt       time.Time                 `json:"updatedAt"`
+	Profiles         []GitProfile              `json:"profiles"`
+	Active           string                    `json:"active"`
+	Default          string                    `json:"default"`
+	ProjectBindings  map[string]ProjectBinding `json:"projectBindings,omitempty"`
+	UpdatedAt        time.Time                 `json:"updatedAt"`
+	OriginalIdentity *OriginalIdentity         `json:"originalIdentity,omitempty"`
 }

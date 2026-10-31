@@ -118,15 +118,21 @@ You are pair programming with **GitMap**, the ultra-fast developer companion and
   - Runs in under 15ms and writes the resolved runtime executable into local SQLite `installation.db`.
   - Avoids ambient PATH discovery issues across different shell profiles.
 
-### Feature 8: LLM Training Curriculum & Pipeline Diagnostics (`gitmap llm train`, `gitmap pe`)
+### Feature 8: LLM Training Curriculum, Pipeline Diagnostics & Time Restriction Protocol (`gitmap llm train`, `gitmap pe`, `gitmap pipeline-ai`)
 - **CLI Commands:**
   - Run full curriculum: `gitmap llm train` (alias: `gitmap llm chain`)
   - Stdout-only curriculum: `gitmap llm train --text-only`
   - View markdown reference matrix: `gitmap ld` (alias: `gitmap llm-docs`)
   - Inspect pipeline failures: `gitmap pe` (alias: `gitmap pipeline errors`)
   - Analyze CI/CD pipeline run history: `gitmap pe history-ai`
-- **Rules of Engagement:**
+  - Dynamic timeout wait on pipeline completion: `gitmap pipeline-ai status -t <eta>` (alias `gitmap pl-ai status -t <sec>`)
+- **Rules of Engagement & Time Restriction Protocol:**
   - AI agents use `gitmap pe` to extract bounded error logs and run 4-part Root Cause Analysis (RCA) without manual dashboard navigation.
+  - **Adaptive Waiting / Sleep Protocol (Anti-Credit-Waste Mandate):** Never loop rapidly or busy-poll (`gh run view` in tight loops). When CI/CD verification is explicitly asked, query state with `gitmap pipeline-ai status --json` and sleep dynamically using `-t <eta>`:
+    * ETA > 120s: wait 20s–30s
+    * 60s < ETA <= 120s: wait 10s–20s
+    * ETA <= 60s: wait 5s–10s
+  - For local runner in-flight ETA, sleep 1 minute (60s) or dynamically sleep for remaining ETA from `.ai-memory/temp/runner-eta.json`.
 
 ### Feature 9: Semantic Hyphen-Separated Atomic Commits (`gitmap cpf`, `gitmap cpb`, `gitmap cpr`)
 - **CLI Commands:**
@@ -147,3 +153,5 @@ You are pair programming with **GitMap**, the ultra-fast developer companion and
 3. **Positive Boolean Hygiene:** Use affirmative booleans only (`isReady`, `hasCache`, `isValid`). Ban explicit equality against booleans (`if isReady == true`).
 4. **Zero-Storage Actions:** GitHub Actions workflows must NEVER upload test or build artifacts to Actions storage.
 5. **Strict Relative Git Paths:** Write relative paths from repository root everywhere in code, specs, plans, and commits.
+6. **Time Restriction & Anti-Credit-Waste Dynamic Waiting:** Routine turns must NEVER query or loop rapidly (`gh run view` in tight loops) or waste steps on continuous polling. When CI/CD verification is explicitly asked, always query state using GitMap Pipeline-AI (`gitmap pipeline-ai status --json` or `gitmap pl-ai status -t <sec>`) and strictly sleep based on `etaSeconds` (ETA > 120s: wait 20–30s; 60s < ETA <= 120s: wait 10–20s; ETA <= 60s: wait 5–10s).
+7. **Mandatory Git Identity & Credential Governance:** The machine global Git identity and GitMap active user profile MUST be configured to Name: `GitMap automation` (alias `AI automation`) and Email: `info@rgitmap.com`. Use `gitmap whoami` or `gitmap user info` during preflight to inspect active identity. If unconfigured or diverging, immediately remediate using `gitmap user config global --name "GitMap automation" --email "info@rgitmap.com"` and `gitmap user switch autobot --global`.

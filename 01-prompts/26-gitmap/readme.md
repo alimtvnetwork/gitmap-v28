@@ -36,7 +36,7 @@ This directory contains the canonical AI training prompts and specifications for
 5. **Deterministic Terminal File Streaming (`gitmap cat`):** Zero-disk file content streaming directly to stdout.
 6. **Script Execution & Cache Offloading (`gitmap py` / `gitmap ps` / `gitmap rc`):** Cross-platform script execution with automatic temporary script offloading into `repo-cache`.
 7. **Python Toolchain Locator & Cache Backup (`gitmap aum locate python`):** Ultra-fast (<15ms) runtime discovery persisted in `installation.db`.
-8. **LLM Training Curriculum & Pipeline Diagnostics (`gitmap llm train` / `gitmap ld` / `gitmap pe`):** Chained AI curriculum and CI/CD error log extraction for 4-part RCA remediation.
+8. **LLM Training Curriculum, Pipeline Diagnostics & Time Restriction (`gitmap llm train` / `gitmap ld` / `gitmap pe` / `gitmap pipeline-ai`):** Chained AI curriculum, CI/CD error log extraction for 4-part RCA remediation, and adaptive ETA-based sleep protocol (Anti-Credit-Waste mandate).
 9. **Semantic Hyphen-Separated Atomic Commits (`gitmap cpf` / `gitmap cpb` / `gitmap cpr`):** Clean hyphen-separated commit messages without colons.
 
 ---
