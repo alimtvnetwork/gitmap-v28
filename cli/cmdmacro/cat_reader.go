@@ -89,11 +89,53 @@ func extractCatLines(data []byte) []string {
 }
 
 func resolveCatMatches(lines []string, opts CatOptions) []LineMatch {
+	if opts.HasLineRange {
+		window := extractLinesByWindow(lines, opts)
+		if opts.Query != "" {
+			return filterLineMatchesByQuery(window, opts.Query, opts.Limit)
+		}
+
+		return window
+	}
+
 	if opts.Query != "" {
-		return filterLinesByQuery(lines, opts.Query, opts.Limit)
+		return filterLinesWithWindow(lines, opts)
 	}
 
 	return extractLinesByWindow(lines, opts)
+}
+
+func filterLineMatchesByQuery(window []LineMatch, query string, limit int) []LineMatch {
+	var matches []LineMatch
+	tokens := extractQueryTokens(query)
+
+	for _, m := range window {
+		if lineMatchesAnyToken(m.Text, tokens) {
+			matches = append(matches, m)
+			if limit > 0 && len(matches) >= limit {
+				break
+			}
+		}
+	}
+
+	return matches
+}
+
+func filterLinesWithWindow(lines []string, opts CatOptions) []LineMatch {
+	matches := filterLinesByQuery(lines, opts.Query, 0)
+	if opts.TailCount > 0 && len(matches) > opts.TailCount {
+		return matches[len(matches)-opts.TailCount:]
+	}
+
+	if opts.HeadCount > 0 && len(matches) > opts.HeadCount {
+		return matches[:opts.HeadCount]
+	}
+
+	if opts.Limit > 0 && len(matches) > opts.Limit {
+		return matches[:opts.Limit]
+	}
+
+	return matches
 }
 
 func filterLinesByQuery(lines []string, query string, limit int) []LineMatch {
@@ -205,6 +247,11 @@ func emitTokyoCatMatches(opts CatOptions, matches []LineMatch, totalLines, fileS
 }
 
 func buildCatHeaderBanner(opts CatOptions, matches []LineMatch, totalLines, fileSize int) string {
+	if opts.Query != "" && opts.TailCount > 0 {
+		return fmt.Sprintf("--- %s (last %d matches for %q across %d lines, %d bytes) ---",
+			opts.TargetFile, len(matches), opts.Query, totalLines, fileSize)
+	}
+
 	if opts.Query != "" {
 		return fmt.Sprintf("--- %s (%d matches for %q across %d lines, %d bytes) ---",
 			opts.TargetFile, len(matches), opts.Query, totalLines, fileSize)

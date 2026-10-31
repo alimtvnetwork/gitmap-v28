@@ -178,7 +178,7 @@ func parseHeadFlag(args []string, idx int, opts *CatOptions) int {
 }
 
 func isTailFlag(arg string) bool {
-	return arg == "--tail" || arg == "-tail"
+	return arg == "-t" || arg == "-T" || arg == "--tail" || arg == "-tail"
 }
 
 func parseTailFlag(args []string, idx int, opts *CatOptions) int {

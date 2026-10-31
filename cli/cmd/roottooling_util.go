@@ -7,6 +7,7 @@ import (
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdasset"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdauditlegacy"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdauthor"
+	"github.com/alimtvnetwork/gitmap-v28/cli/cmdcdp"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchrome"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdchromeprofile"
 	"github.com/alimtvnetwork/gitmap-v28/cli/cmdclone"
@@ -160,6 +161,7 @@ func toolingChromeEntries() []dispatchEntry {
 		{[]string{"chrome-profile-export-all", "cpe-all", "export-all"}, func() error { return cmdchromeprofile.RunExportAll(argsTail()) }},
 		{[]string{"chrome-profile-import-all", "cpi-all", "import-all"}, func() error { return cmdchromeprofile.RunImportAll(argsTail()) }},
 		{[]string{constants.CmdChrome, constants.CmdChromeAlias, constants.CmdChromeAlias2}, func() error { return cmdchrome.RunChrome(argsTail()) }},
+		{[]string{"cdp", "chrome-devtools"}, func() error { return cmdcdp.RunCDP(argsTail()) }},
 	}
 }
 

@@ -246,6 +246,8 @@ var topicSummaries = map[string]string{
 	"replace-binary":              "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
 	"replace-bin":                 "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
 	"bin-swap":                    "Safely terminate locking processes and replace active installed GitMap executable with a freshly compiled binary.",
+	"cdp":                         "Chrome DevTools Protocol (CDP) WebSocket inspection engine: list active debugging targets, probe DOM input elements, and evaluate JavaScript in live browser pages.",
+	"chrome-devtools":             "Alias for cdp - Chrome DevTools Protocol inspection and evaluation.",
 }
 
 // GetTopicDetailedSummary returns documentation content for a specific command topic.

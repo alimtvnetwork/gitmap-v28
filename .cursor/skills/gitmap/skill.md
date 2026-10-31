@@ -357,6 +357,21 @@ Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers)
 > NEVER run inline Python sqlite3 snippets or execute raw database queries against `.ai-memory/temp-agents/<slug>/agent-task.db`.
 > All agent task lifecycle operations, status inspections, claiming, logging, and diagnostics MUST use compiled `gitmap agent` CLI commands (`task init`, `task status`, `task ls`, `subtask add`, `subtask ls`, `subtask claim`, `subtask complete`, `subtask fail`, `log`, `diagnose`, `crashed`, `temp-clear`).
 
+### 10.2 Chrome DevTools Protocol (CDP) WebSocket Engine & DOM Inspector
+
+GitMap provides a native pure Go RFC 6455 WebSocket client and JavaScript evaluator for Chrome DevTools Protocol inspection without external dependencies:
+
+- `gitmap cdp targets [-p <port>] [--json]` — Discovers active debugging targets on common DevTools ports (`9222`, `49994`, `9229`, `8315`) or custom port via `http://127.0.0.1:<port>/json/list`.
+- `gitmap cdp probe [-p <port>] [-t <target-id>] [--json]` — Connects via native Go WebSocket client, executes a non-intrusive DOM selector ladder across `textarea`, `div[contenteditable]`, and `[role="textbox"]`, and returns active input element metadata.
+- `gitmap cdp eval "<expression>" [-p <port>] [-t <target-id>] [--json]` — Evaluates arbitrary JavaScript expressions on the active page via `Runtime.evaluate` over WebSocket.
+
+> [!CAUTION]
+> **TOTAL BAN ON RAW PYTHON WEBSOCKET SCRIPTS (`python -c "import socket; send_frame..."`):**
+> AI agents MUST NEVER write or execute ad-hoc Python socket scripts to send/receive masked WebSocket frames (`struct.pack`, `send_frame`, `recv_frame`).
+> Ephemeral ports and target IDs change across browser restarts, and manual socket masking leads to fragile buffers and transcript token bloat.
+> Always use native GitMap commands: `gitmap cdp targets`, `gitmap cdp probe`, or `gitmap cdp eval`.
+
+
 ### 11. System Diagnostics & Performance Telemetry
 - `gitmap os --json` — Structured machine and OS identity with kernel, build, and version telemetry.
 - `gitmap cpu` / `gitmap processor` — Live & 5s cached CPU utilization, architecture, and core counts.

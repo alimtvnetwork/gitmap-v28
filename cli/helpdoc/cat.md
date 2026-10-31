@@ -12,18 +12,18 @@ Display file contents, line ranges, or search filters cleanly in the terminal ac
 
 ## Flags
 
-- `-L, --lines <start:end>`: Slices lines from 1-based start line to end line (e.g. `-L 140:220`, `-L 100-150`).
+- `-L, --lines <start:end>`: Slices lines from 1-based start line to end line (e.g. `-L 140:220`, `-L 100-150`, or `-L 1519`).
 - `-n, --head <count>`: Shows the first N lines (e.g. `-n 30`, `--head 30`).
-- `--tail <count>`: Shows the last N lines (e.g. `--tail 30`).
+- `-t, --tail <count>`: Shows the last N lines (e.g. `-t 5`, `--tail 30`).
 - `-num, --number, --numbers`: Displays 1-based line numbers in the gutter (`  140 | ...`).
-- `-q, --query, --filter, -s <string>`: Filters lines matching query string or multiple pipe-delimited tokens (e.g. `-q "foo|bar|baz"`).
+- `-q, --query, --filter, -s <string>`: Filters lines matching query string or multiple pipe-delimited tokens (e.g. `-q "foo|bar|baz"`). Can be combined with `-t` or `-n`.
 - `-l, --limit <count>`: Maximum matching lines to display (default: 50 when filtering).
 - `-i, --info, --stats`: Displays file metadata (line count, byte size, format) without dumping full contents.
 - `--raw`: Emits content directly to stdout without Tokyo banners or borders.
 
 ## Description
 
-The `cat` command provides an ultra-fast, cross-platform file reader and line inspector. It eliminates the need for ad-hoc Python one-liners (`open(...).readlines()`) or PowerShell `Get-Content` commands. It expands paths, environment variables, tildes, markdown URIs, and brackets, and automatically presents safe image summary cards for raster assets.
+The `cat` command provides an ultra-fast, cross-platform file reader and line inspector. It eliminates the need for ad-hoc Python one-liners (`open(...).readlines()`), PowerShell `Get-Content` commands, or Node `fs.readFileSync` scripts. It expands paths, environment variables, tildes, markdown URIs, and brackets, and automatically presents safe image summary cards for raster assets.
 
 ## Examples
 
@@ -33,6 +33,12 @@ gitmap cat .env
 
 # Slices lines 140 to 220 with formatted line numbers
 gitmap cat src-tauri/src/modules/repo_db/dispatch.rs -L 140:220 --num
+
+# View single line 1519 (e.g. from JSONL log)
+gitmap cat transcript.jsonl -L 1519
+
+# View the last 5 lines matching query (replaces Get-Content ... -Tail 5 | Select-String)
+gitmap cat transcript.jsonl -t 5 -q "media|USER_INPUT"
 
 # Search for "ban" in skill.md and limit to 15 matches
 gitmap cat .agents/skills/execute-parent-task-with-n-steps-v7/skill.md -q "ban" -l 15

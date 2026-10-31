@@ -46,25 +46,51 @@ func handleExitCode(exitCode int, runErr error) error {
 	return nil
 }
 
-func warnAdHocFileRead(args []string) {
-	if !hasAdHocFileRead(args) {
+func warnAdHocAntiPatterns(args []string) {
+	code := extractInlineCode(args)
+	if code == "" {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python file reading (`open(...)`). Use 'gitmap cat <filepath> -L <start>:<end>', 'gitmap cat <filepath> -q <query>', or native tool calls.%s\n\n", constants.ColorYellow, constants.ColorReset)
+	checkFileReadTip(code)
+	checkOsWalkTip(code)
+	checkSleepTip(code)
 }
 
-func hasAdHocFileRead(args []string) bool {
+func extractInlineCode(args []string) string {
 	for idx, arg := range args {
 		if (arg == "-c" || arg == "--command") && idx+1 < len(args) {
-			code := args[idx+1]
-			if strings.Contains(code, "open(") && (strings.Contains(code, ".read") || strings.Contains(code, "for line in") || strings.Contains(code, "readlines")) {
-				return true
-			}
+			return args[idx+1]
 		}
 	}
 
-	return false
+	return ""
+}
+
+func checkFileReadTip(code string) {
+	hasOpen := strings.Contains(code, "open(")
+	hasRead := strings.Contains(code, ".read") || strings.Contains(code, "readlines") || strings.Contains(code, "for line in")
+	if !hasOpen || !hasRead {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python file reading (`open(...)`). Use 'gitmap cat <filepath> [-L start:end] [-q query]'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkOsWalkTip(code string) {
+	if !strings.Contains(code, "os.walk") {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python filesystem crawling (`os.walk(...)`). Use 'gitmap find \"<pattern>\" [dir]' or 'gitmap lf [dir]'.%s\n\n", constants.ColorYellow, constants.ColorReset)
+}
+
+func checkSleepTip(code string) {
+	if !strings.Contains(code, "time.sleep") {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "\n  %s💡 GitMap Tip: Avoid ad-hoc Python sleep (`time.sleep(...)`). Use Antigravity 'schedule', 'gitmap watch', or background tasks.%s\n\n", constants.ColorYellow, constants.ColorReset)
 }
 
 // RunPy executes the Python runner CLI command.
@@ -73,7 +99,7 @@ func RunPy(args []string) error {
 		PrintPyHelp()
 		return nil
 	}
-	warnAdHocFileRead(args)
+	warnAdHocAntiPatterns(args)
 	binary, err := resolvePythonBinary()
 	if err != nil {
 		return err
