@@ -1,3 +1,19 @@
+## [v6.636.0] 2026-10-31 Release v6.636.0
+
+### Install GitMap v6.636.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.636.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.636.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.636.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.636.0"`
+
+### Added / Changed / Fixed / Removed
+
+- Advanced `gitmap cat` Range, Query, and Line Inspection Engine: Native support for line ranges (`-L start:end`), query filtering (`-q <query>`), head (`--head N`), tail (`--tail N`), and gutter line numbers (`--num`), eliminating the need for ad-hoc Python file reading.
+- Total Ban on Ad-Hoc Python File Reading: Explicit ban on `gitmap py -c "open(...)"`, `lines=open(...).readlines()`, and `pwsh Get-Content` across the codebase, with a grounded replacement matrix.
+- Sync Script Dual Versioning: Added V6 (`38-sync-prompts-skills-scripts.py`) and V7 (`38-sync-prompts-skills-scripts-v7.py`) versions supporting calendar-aware morning commit cutoff (< 08:00 AM on weekdays), auto-window scheduling, and bot identity checks.
+- Canonical Skill Synchronizer: Updated and propagated `.agents/skills/gitmap/skill.md` with Rules 19 and 20 across all 43 connected fleet repositories.
+- Terminal Documentation: Updated `cli/helpdoc/cat.md` and `gitmap cat` usage instructions with examples.
+
 ## [v6.635.0] 2026-10-31 Release v6.635.0
 
 ### Install GitMap v6.635.0

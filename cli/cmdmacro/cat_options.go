@@ -67,8 +67,17 @@ func resolveRawCatTarget(rawTargets []string) string {
 	}
 
 	joined := strings.Join(rawTargets, " ")
+	expanded := macro.ExpandPathAndEnv(joined)
 
-	return macro.ExpandPathAndEnv(joined)
+	return cleanQuotedString(expanded)
+}
+
+func cleanQuotedString(val string) string {
+	trimmed := strings.TrimSpace(val)
+	trimmed = strings.Trim(trimmed, "\"")
+	trimmed = strings.Trim(trimmed, "'")
+
+	return trimmed
 }
 
 func parseCatFlag(arg string, args []string, idx int, opts *CatOptions) int {
@@ -191,7 +200,7 @@ func parseQueryFlag(args []string, idx int, opts *CatOptions) int {
 		return idx
 	}
 
-	opts.Query = args[idx+1]
+	opts.Query = cleanQuotedString(args[idx+1])
 	opts.HasLineNumbers = true
 
 	return idx + 1
