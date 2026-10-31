@@ -32,7 +32,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Python sleep polling (`gitmap py -c "import time; time.sleep(N)"`) or shell sleep loops | ✅ Use Antigravity `schedule` tool, `gitmap watch`, or reactive task wakeup | Sleep loops freeze terminal threads, burn CPU, and violate non-polling guidelines. |
 | ❌ Bypassing restrict conditions during fleet sync or running V6 script under V7 parent task | ✅ `python 03-ai-scripts/38-sync-prompts-skills-scripts-v7.py` (V7) or `python 03-ai-scripts/38-sync-prompts-skills-scripts.py` (V6) | Dedicated V7 sync engine validates calendar window (< 08:00 AM on weekdays), auto-window slotting, target timezone, and autonomous bot credentials. |
 | ❌ Raw ambient `python script.py` or `python -c "..."` | ✅ `gitmap py "<code-or-script>"` or `gitmap py -c "<expression>"` | Auto-resolves verified Python interpreter from `installation.db` cache (<15ms), avoiding environment discrepancies. |
-| ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. |
+| ❌ Raw directory/file execution via `gitmap ps` (e.g. `gitmap ps "dir"`, `gitmap ps "ls"`, `gitmap ps "Get-ChildItem"`, `gitmap ps "Get-Content"`, `gitmap ps "cat"`) or querying subtasks/plans via PowerShell | ✅ `gitmap dir [path]` / `gitmap ls [path]`<br>`gitmap agent subtask ls [task-id]`<br>`gitmap heatmap`<br>`gitmap cat <filepath>` | `gitmap ps` resolves `pwsh` first (or `powershell.exe` on Windows fallback) and spawns an OS subprocess with `-NoProfile -Command`. Spawning PowerShell for filesystem traversal or file inspection incurs 200–800ms process startup latency, dumps verbose pipeline text into context, and bypasses GitMap's SQLite split-db and DH2D hot cache. TOTAL BAN on raw directory/file execution via `gitmap ps`. |
+| ❌ `powershell -Command "..."` or `pwsh -Command "..."` | ✅ `gitmap pwsh "<cmd>"` or `gitmap ps -c "<cmd>"` | Cross-platform PowerShell execution with deterministic `-NoProfile`, UTF-8 encoding, and automatic fallback. For administrative tasks only; strictly banned for directory/file inspection. |
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
@@ -93,6 +94,16 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap py -c "<code-or-expression>"` — Direct inline Python command evaluation.
 - `gitmap pwsh "<cmd>"` / `gitmap ps "<cmd>"` — Cross-platform PowerShell execution with `-NoProfile`.
 - `gitmap ps -c "<cmd>"` — Direct inline PowerShell command evaluation.
+- **PowerShell Execution Mechanics (`pwsh` vs `powershell.exe`):**
+  - GitMap first probes `pwsh` (PowerShell 7+ Core, cross-platform) in system `PATH`.
+  - On Windows only (`constants.IsWindowsPlatform()`), falls back to `powershell` (`powershell.exe`, Windows PowerShell 5.1).
+  - On non-Windows platforms, returns `E_POWERSHELL_NOT_FOUND` if `pwsh` is missing.
+  - Passes `-NoProfile -Command "<script>"` on Windows, `-Command "<script>"` on Unix.
+  - **STRICT ENFORCEMENT:** `gitmap ps` is strictly reserved for legitimate PowerShell cmdlets and administrative scripting. Raw directory and file inspection via `gitmap ps` is strictly banned. Always use exact replacement commands:
+    - Directory / file listing: `gitmap dir [path]`, `gitmap ls [path]`, or `gitmap lf [dir]`
+    - Subtask listing: `gitmap agent subtask ls [task-id]`
+    - Cognitive trace & decision history: `gitmap heatmap` or `gitmap heatmap tree`
+    - File reading, slicing & image preview: `gitmap cat <filepath>`
 - `gitmap bash "<cmd>"` / `gitmap sh "<cmd>"` — Cross-platform Bash execution.
 - `gitmap bash -c "<cmd>"` — Direct inline POSIX Bash evaluation.
 - All runner commands support `--dry-run` and `--json` flags for pipeline automation.
@@ -643,10 +654,18 @@ gitmap py "03-ai-scripts/06-cicd-local-runner.py"
 gitmap py -c "import sys; print(sys.version_info[:2])"
 
 # Cross-platform PowerShell execution with deterministic -NoProfile and UTF-8
+# (Probes pwsh first, falls back to powershell.exe on Windows. BANNED for directory/file exploration!)
 gitmap pwsh "Get-Process | Where-Object WorkingSet -gt 500MB"
 
-# Direct inline PowerShell command evaluation
-gitmap ps -c "Test-Path .ai-memory/heatmap.db"
+# Direct inline PowerShell command evaluation for administrative tasks
+gitmap ps -c "$PSVersionTable.PSVersion"
+
+# BANNED ANTI-PATTERN: gitmap ps "dir", gitmap ps "Get-ChildItem", gitmap ps "cat", gitmap ps "Get-Content"
+# MANDATORY REPLACEMENTS:
+#   gitmap dir [path] / gitmap ls [path]           # Directory & file listing
+#   gitmap agent subtask ls [task-id]              # Subtask listing
+#   gitmap heatmap / gitmap heatmap tree           # Decision history & cognitive trace
+#   gitmap cat <filepath> [-L A:B] [-q query]      # Streaming file inspection & slicing
 
 # Cross-platform POSIX Bash execution across Windows, Linux, and macOS
 gitmap bash "chmod +x scripts/*.sh && ./scripts/check.sh"

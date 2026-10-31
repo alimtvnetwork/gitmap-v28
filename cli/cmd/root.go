@@ -304,7 +304,8 @@ func handleGlobalError(command string, err error) {
 	}
 
 	if isAbortOrReportedError(err) {
-		cliexit.HandleError(nil, 1)
+		exitCode := resolveAbortExitCode(err)
+		cliexit.HandleError(nil, exitCode)
 
 		return
 	}
@@ -397,6 +398,33 @@ func isReportedRootContext(ctx map[string]any) bool {
 	isReported, isBool := val.(bool)
 
 	return isBool && isReported
+}
+
+func resolveAbortExitCode(err error) int {
+	if err == nil {
+		return 0
+	}
+
+	appErr, isApp := err.(*apperror.AppError)
+	if !isApp || appErr == nil || appErr.Ctx == nil {
+		return int(cliexit.ExitCodeGeneralError)
+	}
+
+	return extractExitCodeFromContext(appErr.Ctx)
+}
+
+func extractExitCodeFromContext(ctx map[string]any) int {
+	codeVal, hasCode := ctx["exitCode"]
+	if !hasCode {
+		return int(cliexit.ExitCodeGeneralError)
+	}
+
+	code, isInt := codeVal.(int)
+	if !isInt || code <= 0 {
+		return int(cliexit.ExitCodeGeneralError)
+	}
+
+	return code
 }
 
 func resolveErrorStackTrace(err error) string {
@@ -591,7 +619,8 @@ func handleDispatchResult(
 		return false
 	}
 
-	cmdaudit.FinishCommandAudit(ctx.shouldAudit, ctx.auditID, ctx.auditStart, 0, "", 0)
+	exitCode := resolveAbortExitCode(err)
+	cmdaudit.FinishCommandAudit(ctx.shouldAudit, ctx.auditID, ctx.auditStart, exitCode, "", 0)
 	if err != nil {
 		handleGlobalError(command, err)
 	}

@@ -1,3 +1,19 @@
+## [v6.645.0] 2026-10-31 Release v6.645.0
+
+### Install GitMap v6.645.0
+
+To pin your repository to this exact version, run the following one-liner:
+Unix/Bash: `curl -sL https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.645.0/install.sh | bash -s -- ".ai-memory/prompts" "v6.645.0"`
+PowerShell: `Invoke-WebRequest -Uri https://raw.githubusercontent.com/alimtvnetwork/gitmap-v28/v6.645.0/install.ps1 -OutFile install.ps1; .\install.ps1 -TargetDir ".ai-memory/prompts" -Version "v6.645.0"`
+
+### Added / Changed / Fixed / Removed
+
+- PowerShell Argument Pre-Flight Inspection & AI Reflection Guard: Added intelligent target classification in `cli/cmd/powershell_advice.go` intercepting non-executable directory paths (e.g. `.ai-memory/plans/...`, `02-spec/...`) and document formats (`.md`, `.json`, `.sql`, etc.) before subprocess spawn in `< 2ms`.
+- Tokyo Night AI Diagnostic Inquiry Card: Renders structured visual error cards asking AI agents self-reflection questions ("Why did you run this? What was your expectation? Did you mistake 'gitmap ps' for directory listing or task inspection?"), explaining actual PowerShell subprocess behavior (`pwsh -NoProfile -Command`), and presenting a 3-step immediate learning action roadmap.
+- Actionable Native Command Replacement Matrix: Suggests drop-in replacements tailored to intent: `gitmap dir <path>` / `gitmap ls <path>` for directories, `gitmap agent subtask ls` for subtasks, `gitmap cat <filepath>` / `gitmap heatmap <file>` for documents, and quoted PowerShell queries (`gitmap ps "Get-ChildItem -Path '<path>'"`) for scripts.
+- Post-Execution Fallback Interceptor & Stack Trace Suppression: Enhanced `cli/cmd/powershell_interceptor.go` and `cli/cmd/root.go` to capture PowerShell `ParserError`, `Cannot find path`, and unrecognized cmdlet errors, formatting them cleanly and suppressing raw Go runtime stack traces (`reported: true`, `exitCode: 2`).
+- Guideline & Anti-Pattern Updates: Added Anti-Pattern 6 to `02-spec/02-coding-guidelines/06-ai-optimization/10-anti-pattern-replacements.md`, updated `.agents/skills/gitmap/skill.md` and `.cursor/skills/gitmap/skill.md`, and added comprehensive unit test suite in `cli/cmd/cmd_powershell_test.go` and `cli/cmd/powershell_advice_test.go` with 100% test coverage.
+
 ## [v6.644.0] 2026-10-31 Release v6.644.0
 
 ### Install GitMap v6.644.0

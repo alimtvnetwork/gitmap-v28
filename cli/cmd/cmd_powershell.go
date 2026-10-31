@@ -18,7 +18,32 @@ func RunPowerShell(args []string) error {
 		return apperror.NewSimple("powershell not found", "E_POWERSHELL_NOT_FOUND")
 	}
 
-	return executePowerShellProcess(psPath, args)
+	cleanArgs := stripForceFlag(args)
+	if len(cleanArgs) == 0 {
+		return executeInteractivePowerShell(psPath)
+	}
+
+	if err := inspectPowerShellPreflight(cleanArgs); err != nil {
+		return err
+	}
+
+	return executePowerShellWithInterceptor(psPath, cleanArgs)
+}
+
+func executeInteractivePowerShell(psPath string) error {
+	cmd := exec.Command(psPath)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return apperror.WrapSimple(err, "execute powershell")
+	}
+
+	return nil
+}
+
+func executePowerShellProcess(psPath string, args []string) error {
+	return executePowerShellWithInterceptor(psPath, args)
 }
 
 func findPowerShellExecutable() (string, bool) {
@@ -33,18 +58,6 @@ func findPowerShellExecutable() (string, bool) {
 	p, err := exec.LookPath("powershell")
 
 	return p, err == nil && p != ""
-}
-
-func executePowerShellProcess(psPath string, args []string) error {
-	cmd := buildPowerShellCmd(psPath, args)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return apperror.WrapSimple(err, "execute powershell")
-	}
-
-	return nil
 }
 
 func buildPowerShellCmd(psPath string, args []string) *exec.Cmd {
