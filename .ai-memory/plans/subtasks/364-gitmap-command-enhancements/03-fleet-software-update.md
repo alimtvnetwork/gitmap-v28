@@ -1,9 +1,9 @@
 # Subtask 03: Cross-Node Fleet Software Updates (Cursor, VS Code, AGM, AGY Tools)
 
-> **Subtask ID:** `363-03`  
-> **Parent Plan:** [363-gitmap-command-enhancements.md](../../pending/363-gitmap-command-enhancements.md)  
-> **Specification Reference:** [03-fleet-software-update-spec.md](../../../../02-spec/21-app/363-gitmap-command-enhancements/03-fleet-software-update-spec.md)  
-> **Status:** `pending`  
+> **Subtask ID:** `364-03`  
+> **Parent Plan:** [364-gitmap-command-enhancements.md](../../completed/364-gitmap-command-enhancements.md)  
+> **Specification Reference:** [03-fleet-software-update-spec.md](../../../../02-spec/21-app/364-gitmap-command-enhancements/03-fleet-software-update-spec.md)  
+> **Status:** `completed`  
 > **Creation Date:** 31-Oct-26  
 > **Lead Architecture:** Swarm Subagent 3 (Fleet Software Update Spec Author)  
 

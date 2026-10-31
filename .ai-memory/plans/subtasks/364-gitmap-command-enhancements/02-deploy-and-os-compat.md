@@ -1,8 +1,8 @@
 # Subtask 02: OS-Aware Binary Deploy & Installation Engine
 
-- **Parent Plan:** [363-gitmap-command-enhancements.md](../../pending/363-gitmap-command-enhancements.md)
-- **Specification:** [02-deploy-and-os-compat-spec.md](../../../../02-spec/21-app/363-gitmap-command-enhancements/02-deploy-and-os-compat-spec.md)
-- **Status:** `pending`
+- **Parent Plan:** [364-gitmap-command-enhancements.md](../../completed/364-gitmap-command-enhancements.md)
+- **Specification:** [02-deploy-and-os-compat-spec.md](../../../../02-spec/21-app/364-gitmap-command-enhancements/02-deploy-and-os-compat-spec.md)
+- **Status:** `completed`
 - **Owner:** GitMap Deploy and OS Compatibility Spec Author
 - **Date:** 31-Oct-26
 

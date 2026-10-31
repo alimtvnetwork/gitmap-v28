@@ -1,12 +1,12 @@
 # Subtask 01: Command Alias Disambiguation, Multi-Node File Copy (CP) & Move (MV)
 
-- **Plan:** `363-gitmap-command-enhancements`
+- **Plan:** `364-gitmap-command-enhancements`
 - **Subtask ID:** `TASK-01`
 - **Slug:** `01-alias-and-copy-move`
-- **Status:** `pending`
+- **Status:** `completed`
 - **Owner:** Subagent 1 (Alias and Copy-Move Spec Author)
-- **Specification:** [01-alias-and-copy-move-spec.md](../../../../02-spec/21-app/363-gitmap-command-enhancements/01-alias-and-copy-move-spec.md)
-- **Parent Plan:** [.ai-memory/plans/pending/363-gitmap-command-enhancements.md](../../pending/363-gitmap-command-enhancements.md)
+- **Specification:** [01-alias-and-copy-move-spec.md](../../../../02-spec/21-app/364-gitmap-command-enhancements/01-alias-and-copy-move-spec.md)
+- **Parent Plan:** [.ai-memory/plans/completed/364-gitmap-command-enhancements.md](../../completed/364-gitmap-command-enhancements.md)
 
 ---
 
