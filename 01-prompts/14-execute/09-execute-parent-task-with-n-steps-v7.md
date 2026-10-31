@@ -1,6 +1,7 @@
 ---
 name: execute-parent-task-with-n-steps-v7
-description: Master autonomous execution engine with dual operating modes (Option 1: Time-Restricted with timezone & weekday < 8:00 AM cutoff; Option 2: Unrestricted), AI automation bot integration, Tree Swarm Hierarchy (A=3, H=2, Capacity=6), and GitMap atomic commits.
+description: >-
+  Master autonomous execution engine with dual operating modes (Option 1: Time-Restricted with timezone & weekday < 8:00 AM cutoff; Option 2: Unrestricted), AI automation bot integration, Tree Swarm Hierarchy (A=3, H=2, Capacity=6), and GitMap atomic commits.
 ---
 
 # [V7] Master Autonomous Execution Engine — Continuous Loop & Swarm Orchestration (must follow)
@@ -50,11 +51,9 @@ Active when the user prompt specifies time windows, schedule bounds, restricted 
 3. **Headless & One-Liner Automation (Mandatory for Subagents):**
    - Subagents and automated pipelines must never hang on interactive prompts; always pass headless flags:
      ```bash
-     gitmap cpf "Module - summary" --tz <timezone> --schedule "<DD-MMM-YY hh:mm:ss>" --auto-window --non-interactive
+     gitmap cpf "Module - summary" --tz <timezone> --schedule --auto-window --non-interactive
      ```
    - `--auto-window`: Automatically calculates the next valid morning window slot (07:30 AM) and sets compliant `GIT_AUTHOR_DATE` / `GIT_COMMITTER_DATE` timestamps.
-   - **Pre-commit time validation (mandatory, in order):** query current time in the target timezone (`gitmap time-now --tz <timezone> --format "DD-MMM-YY hh:mm A"`); Saturday/Sunday -> permitted immediately; weekday before 08:00 AM -> permitted; weekday at or after 08:00 AM -> if `--auto-window` is set, shift the timestamp to the next valid window, otherwise halt (strict block) and report the schedule block. Never commit outside a valid window by skipping this check.
-   - **On-call note:** this Option 1 section is on-call only; it applies only when the task explicitly specifies time windows, schedule bounds, or restricted commit pacing. Otherwise Option 2 applies.
 4. **Recommit & History Normalization:**
    - When amending or recommitting prior work: verify clean working tree (`gitmap st`), soft reset (`gitmap git-reset HEAD~1 --no-push`), and recommit using semantic verbs with target timezone stamps.
    - Operational reference: [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction).
@@ -75,29 +74,39 @@ Active by default when no time restrictions, maintenance windows, or scheduling 
 
 ---
 
-## 🤖 System-Wide Single Autonomous Bot User (Mandatory Across All Runs)
+## 🤖 AI Automation Bot Integration (Applies to Both Options)
 
-Invariant across all autonomous agent runs, AI pairs, and headless multi-agent workflows. AI agents are **STRICTLY FORBIDDEN** from committing under human developer credentials (`MD ALIM UL KARIM`, personal emails, etc.). Step 0 of every run unconditionally verifies and locks machine-wide identity to the single autonomous bot:
+Active when the user requests an automated bot persona, AI commit authoring, or headless execution.
 
-1. **Identity Presets:**
-   - Name: `"gitmap automation bot - muse - runs autonomously"`.
-   - Email: `"info@rgitmap.com"`.
-2. **Machine-Wide & Project Activation (Step 0 Invariant):**
-   - Enforce globally and per-project via:
+1. **Identity Standards & Invariants:**
+   - Default Global Identity: `gitmap automation bot - runs autonomously <info@rgitmap.com>`
+   - Named Subagent Identity: `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>`
+2. **Activation & Identity Locking:**
+   - Machine-Global Bot Identity:
      ```bash
-     gitmap user change-user "gitmap automation bot - muse - runs autonomously" "info@rgitmap.com" --global
-     gitmap user change-user "gitmap automation bot - muse - runs autonomously" "info@rgitmap.com" --project
+     gitmap login set global ai-auto
      ```
+     Locks workstation-global Git config (`user.name` and `user.email`) to `gitmap automation bot - runs autonomously <info@rgitmap.com>` and preserves original human user configuration in `original_user.json`.
+   - Repository-Local / Named Agent Identity:
+     ```bash
+     gitmap login set ai-auto [agent-name]
+     ```
+     Locks Git identity to `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>` (defaults to `gitmap automation bot - runs autonomously <info@rgitmap.com>` if agent name omitted).
+   - Commit Provenance Attribution:
+     ```bash
+     gitmap cpf/cpb/cpc/cfr/cpr "<module> - <summary>" --ai-agent <name>
+     ```
+     Attaches designated subagent attribution directly to Git commit author, Split-DB commit history (`repodb/commit_history.db`), and cognitive heatmap tables (`repodb/heatmap.db`).
    - Verify identity context using GitMap:
      ```bash
      gitmap user info
      ```
-     Ensure `Active Git` and `Global Git` reflect `gitmap automation bot - muse - runs autonomously <info@rgitmap.com>`.
-   - **Careful:** do NOT substitute the built-in autobot activation (`gitmap autobot` or `gitmap user switch autobot`) for the commands above. The built-in autobot profile sets a different name and email and does NOT satisfy this identity.
+     Ensure `Active Git` reflects the expected bot credentials.
 3. **Pairing with Time Restriction:**
-   - When Time-Restriction is active, automated runs combine both:
+   - When both Autobot and Time-Restriction are active, automated runs must combine both:
      ```bash
-     gitmap cpf "Module - summary" --tz <timezone> --schedule "<DD-MMM-YY hh:mm:ss>" --auto-window --non-interactive
+     gitmap login set global ai-auto
+     gitmap cpf "Module - summary" --ai-agent <name> --tz <timezone> --schedule --auto-window --non-interactive
      ```
 4. **Operational reference:** [gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot) and [gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction).
 
@@ -156,16 +165,96 @@ Followed by confirmed task breakdown with explicit `Understood / AI Comprehensio
 
 ## Core Invariants & Rules Reference
 
-- **R0 Code Search Ban & Anti-Pattern:** TOTAL BAN on `Get-ChildItem` (all variants: `Get-ChildItem -Path <dir> -Recurse -Filter "*pat*"`, bare `Get-ChildItem`), `dir`, `ls`, `Select-String`, `findstr`, `grep`, `git grep`, `rg`, `ripgrep`. Exclusively use GitMap (`gitmap find "*<pat>*" [dir]`, `gitmap find-files-any "<substring>"`, `gitmap lf <dir>`, `gitmap aum search "<pattern>" [dir]`, `gitmap cat <filepath>`).
 - **R1 Zero Builds / Tests Ban:** Never run full builds or test suites. Only targeted, file-scoped checks on modified files.
 - **R2 Targeted Checks Only:** Check only specifically modified files.
 - **R3 Evidence or It Did Not Happen:** Every claim must cite a file path, diffstat, or exit code.
 - **R4 Never Invent Commands:** Verify commands with harmless calls.
-- **R5 Mandatory Subagents & Constraint Envelope:** Always call `invoke_subagent` ($A=3, H=2, \text{Capacity}=6$). Every subagent prompt MUST start with the `[CRITICAL_SUBAGENT_CONSTRAINTS]` envelope banning raw search and worker git calls.
+- **R5 Mandatory Subagents:** Always call `invoke_subagent` ($A=3, H=2, \text{Capacity}=6$).
 - **R6 One Owner Per File:** Disjoint file boundaries for workers.
 - **R7 Worker Git Ban:** Workers never run git commands; only lead commits.
-- **R8 Mandatory Single Autonomous Bot User:** Machine-wide invariant locked at Step 0 via `gitmap user change-user "gitmap automation bot - muse - runs autonomously" "info@rgitmap.com" --global`. Ban human developer credentials.
-- **R9 Atomic Commit via GitMap:** Single atomic commit (`gitmap cpf`, `gitmap cbf`, `gitmap cpc`, `gitmap cpr`). Title Case or lowercase subsystem module; NO square brackets `[...]`, NO colons in argument, and NO 'commit' pseudo-module.
+- **R8/R9 Atomic Commit via GitMap:** Single atomic commit. Title Case or lowercase subsystem module; NO square brackets `[...]`, NO colons, and NO 'commit' pseudo-module.
 - **R10 Zero Unauthorized Releases:** Never bump versions unless requested.
 - **R11 Leaf Error Sovereignty:** Leaf functions return errors directly; never call exit handlers.
 - **R11b Strict Relative Git Paths:** Absolute paths and `file:///` URIs are banned.
+
+---
+
+## 🛑 Conditional E2E Testing & Build Guardrail (Strict Invariant)
+
+- **Mandatory Default (Zero Builds / Zero Tests):** If end-to-end testing, local test suite execution, or build verification was **NOT EXPLICITLY REQUESTED** in the user prompt or instruction header, you **MUST NOT** run full builds (`go build`, `npm run build`, `vite build`, `cargo build`), compiler checks, or full test suites (`go test ./...`, `npm test`, `pytest`, runner scripts).
+- **Static & Single-File Verification Only:** Code modifications must be verified through static inspection and targeted, file-scoped single-file linters ONLY. Never execute project-wide builds or test suites unless asked.
+- **Explicit Opt-In Exceptions Only:** E2E testing and full test suites run ONLY when:
+  1. The user explicitly requests E2E tests (e.g. "run e2e tests", "execute with e2e", "run full test suites").
+  2. The prompt specifically invokes `execute-with-e2e`.
+- **Pre-Execution Testing Decision Gate:**
+  * Did the user explicitly ask for E2E testing or builds?
+    - If **NO**: Skip all builds and test suite executions. Verify via targeted linters and syntax checks only.
+    - If **YES**: Run targeted test suites for the modified components and ensure 100% green pass.
+
+---
+
+## 📋 Mandatory Completion Checklist of Tables
+
+Before concluding the turn and rendering the final completion summary, the lead orchestrator MUST generate and verify the following four comprehensive completion tables:
+
+### Table 1: Task Execution & Verification Matrix
+| Task ID | Task Slug / Scope | Assigned Agent / Role | Verification Evidence & Exit Code | Heatmap Action Log ID | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `Task-01` | `<slug-1>` | `<Agent-01>` | Verified file modifications, targeted linter PASS (exit 0) | `act-<id-1>` | `✅ COMPLETED` |
+| `Task-02` | `<slug-2>` | `<Agent-02>` | Verified schema / config updates, syntax check PASS (exit 0) | `act-<id-2>` | `✅ COMPLETED` |
+
+### Table 2: Coding Guidelines & Invariants Compliance Table
+| Guideline / Invariant | Status | Verification Detail / Proof |
+| :--- | :--- | :--- |
+| **Leaf Error Sovereignty** | `✅ COMPLIANT` | Zero `os.Exit` or `cliexit.HandleError` in leaf helpers; errors bubble up to caller |
+| **Function Length (<= 15 Lines)** | `✅ COMPLIANT` | All modified and created functions verified <= 15 lines (8 lines preferred) |
+| **Zero Nested Ifs** | `✅ COMPLIANT` | All branching flattened with guard clauses and early returns |
+| **Positive Booleans Only** | `✅ COMPLIANT` | All booleans prefixed with `is` or `has`; zero negative booleans (`isNot...` banned) |
+| **Parameter Structs (> 2-3 Args)** | `✅ COMPLIANT` | Functions with > 2 arguments use structured parameter objects with vertical formatting |
+| **Relative Git Paths Only** | `✅ COMPLIANT` | Zero absolute paths (`C:\...`, `D:\...`) or `file:///` URIs; strictly relative paths |
+| **Zero Build / Test Rule** | `✅ COMPLIANT` | Verified no unrequested full builds or test suites were executed |
+| **No Raw Git Commands in Workers** | `✅ COMPLIANT` | Zero git commands run by subagents; git staging and commit performed exclusively by lead |
+
+### Table 3: File Ownership & Boundary Audit
+| Modified File Path | Owning Subagent / Role | Action Type (`READ`/`EDIT`/`CREATE`) | Boundary Check | Churn / Diffstat |
+| :--- | :--- | :--- | :--- | :--- |
+| `relative/path/to/file1.ext` | `Worker 01` | `EDIT` | `✅ DISJOINT (Single Owner)` | `+X, -Y` |
+| `relative/path/to/file2.ext` | `Worker 02` | `EDIT` | `✅ DISJOINT (Single Owner)` | `+A, -B` |
+
+### Table 4: Git Delivery & Upstream Invariant Table
+| Delivery Invariant | Requirement | Status | Verification Proof |
+| :--- | :--- | :--- | :--- |
+| **Semantic Commit Verb** | `cpr` (release), `cpf` (feat), `cbf` (fix), `cfr` (refactor), `cpc` (chore) | `✅ VERIFIED` | Used authorized GitMap semantic verb |
+| **Message Formatting** | `"<Module> - <summary>"` (no colons, no third brackets) | `✅ VERIFIED` | Formatted with Title Case or lowercase module and hyphen |
+| **Subagent Attribution** | `--ai-agent <name>` supplied | `✅ VERIFIED` | AI agent identity attached to commit and telemetry |
+| **Working Tree Cleanliness** | `git status --porcelain` returns completely empty | `✅ VERIFIED` | Zero untracked files or uncommitted modifications |
+| **Upstream Delivery** | Pushed to remote tracking branch ('No Push = Not Done') | `✅ VERIFIED` | Pushed upstream successfully; remote reflects latest HEAD |
+
+---
+
+## 🔒 Masked Verification Script Mandate
+
+At the conclusion of Phase 3, the lead orchestrator MUST generate and execute a self-contained, masked verification script (or provide the exact masked script template) proving that all changes meet specifications and invariants without exposing sensitive tokens or credentials:
+
+```bash
+# ==============================================================================
+# GitMap Masked Verification Script
+# ==============================================================================
+# 1. Verify clean working tree (zero dirty or uncommitted files)
+gitmap status --dirty --compact
+
+# 2. Verify active bot identity context (masked credentials)
+gitmap user info
+
+# 3. Verify cognitive heatmap telemetry and action closure
+gitmap heatmap status --task "<task-slug>"
+
+# 4. Verify no absolute paths or prohibited strings in modified files
+gitmap aum search "file:///" <folder> -e <ext>
+gitmap aum search "C:\\" <folder> -e <ext>
+
+# 5. Verify upstream delivery status
+gitmap has-any-updates
+# ==============================================================================
+```
+This script must be masked (zero plaintext API keys, passwords, or personal access tokens) and reported as conclusive verification evidence.

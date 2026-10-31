@@ -5,53 +5,58 @@ description: Autonomous developer companion skill for system-wide single-user AI
 
 # GitMap AI Automation Bot Skill
 
-## 1. Overview & System-Wide Single-User Invariant
+## 1. Overview & System-Wide Autonomous Bot Invariant
 
 This skill manages automated identity switching, sandboxed bot configurations, and headless commit authoring across local, workspace, and global scopes.
 
 > [!IMPORTANT]
-> **System-Wide Single Autonomous Bot Invariant**: Across all autonomous agent runs, AI pairs, and headless multi-agent workflows, GitMap enforces **ONE UNIFIED AUTONOMOUS BOT USER** across the entire workstation and all connected repositories:
-> - **Git Author Name:** `gitmap automation bot - runs autonmously`
-> - **Git Author Email:** `info@rgitmap.com`
+> **System-Wide Autonomous Bot Identity Standard**: Across all autonomous agent runs, AI pairs, and headless multi-agent workflows, GitMap enforces standardized autonomous bot identities:
+> - **Global Bot Identity:** `gitmap automation bot - runs autonomously <info@rgitmap.com>`
+> - **Agent-Specific Identity:** `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>`
 > 
-> AI agents are **STRICTLY FORBIDDEN** from committing under human developer credentials (`MD ALIM UL KARIM`, personal emails, etc.). Commits authored under human accounts in automated sessions cause misplaced attribution, pollute repository history, and violate the autonomous audit invariant.
+> Before applying any bot identity, GitMap automatically backs up the original human identity to `original_user.json` to enable non-destructive restoration. AI agents are **STRICTLY FORBIDDEN** from committing under human developer credentials (`MD ALIM UL KARIM`, personal emails, etc.). Commits authored under human accounts in automated sessions cause misplaced attribution, pollute repository history, and violate the autonomous audit invariant.
 >
-> **Invocation:** `@[gitmap-automation-bot](file;.cursor/skills/gitmap-automation-bot)`  
+> **Invocation:** `@[gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot)`  
 
 ### Trigger Keywords & Directives
 - `automation bot`, `autobot`, `gitmap automation`, `ai automation bot`
 - `change user to bot`, `switch to bot`, `headless commit`, `bot identity`
-- Prompt reference: `[gitmap-automation-bot](file;.cursor/skills/gitmap-automation-bot)`
+- Prompt reference: `[gitmap-automation-bot](file;.agents/skills/gitmap-automation-bot)`
 
 ---
 
-## 2. Bot Identity Standards (Universal Single Identity)
+## 2. Bot Identity Standards
 
-When bot execution is engaged or when any autonomous task executes, GitMap locks the Git identity machine-wide to guarantee that all autonomous agent contributions are cleanly attributed to the autonomous bot engine:
+When bot execution is engaged or when any autonomous task executes, GitMap provisions a sandboxed Git identity designed to differentiate autonomous agent contributions from human developer commits.
 
-| Parameter | Standard Value | Scope & Enforcement |
+| Parameter | Standard Global Preset (`ai-auto`) | Agent-Specific Preset (`ai-auto [name]`) |
 | :--- | :--- | :--- |
-| **`user.name`** | `gitmap automation bot - runs autonmously` | Workstation `--global` and Repository `--project` |
-| **`user.email`** | `info@rgitmap.com` | Workstation `--global` and Repository `--project` |
-| **Default Scope** | `--global` + `--project` | Machine-wide invariant enforced at Step 0 preflight |
-| **Audit Tag** | `[bot]` | Autonomous execution provenance |
+| **`user.name`** | `gitmap automation bot - runs autonomously` | `gitmap automation bot - <agent-name> - runs autonomously` |
+| **`user.email`** | `info@rgitmap.com` | `info@rgitmap.com` |
+| **Mandatory Command** | `gitmap login set global ai-auto` | `gitmap login set ai-auto [agent-name]` |
+| **Default Scope** | `--global` (machine-global) | `--local` (repository-local) |
+| **Human Backup** | Automatically saved to `original_user.json` | Automatically saved to `original_user.json` |
+| **Commit Provenance** | `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>` | `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>` |
 
 ---
 
 ## 3. GitMap Command Taxonomy
 
-GitMap provides dedicated subcommands for rapid identity locking and verification:
+GitMap provides dedicated subcommands for rapid identity locking, subagent attribution, and verification:
 
-### 3.1 System-Wide Identity Enforcement
+### 3.1 Instant AI Automation Bot Activation
 
-To lock the machine-wide global and project identity to the single autonomous bot:
+To switch the workstation or repository to the standardized bot persona:
 
 ```bash
-# Enforce globally across workstation
-gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --global
+# Lock workstation-global Git identity to default AI automation bot
+gitmap login set global ai-auto
 
-# Enforce in current project repository
-gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --project
+# Lock repository Git identity to named AI automation bot (e.g. worker-01, muse)
+gitmap login set ai-auto worker-01
+
+# Lock repository Git identity to default AI automation bot (agent name omitted)
+gitmap login set ai-auto
 ```
 
 ### 3.2 Inspecting Active Identity Context
@@ -68,39 +73,51 @@ gitmap whoami
 
 Verify that the output displays:
 ```text
-● Active Git: gitmap automation bot - runs autonmously <info@rgitmap.com> (local)
-● Global Git: gitmap automation bot - runs autonmously <info@rgitmap.com>
+● Active Git: gitmap automation bot - runs autonomously <info@rgitmap.com> (local)
+● Global Git: gitmap automation bot - runs autonomously <info@rgitmap.com>
 ```
 
-### 3.3 Scope-Specific Identity Binding
+### 3.3 Commit Provenance & Subagent Attribution
 
-To configure or re-bind bot identity across scopes:
+Attach subagent attribution directly to Git author metadata, Split-DB commit history (`repodb/commit_history.db`), and cognitive heatmaps (`repodb/heatmap.db`):
 
 ```bash
-# Repository-local only
-gitmap change-user --local "gitmap automation bot - runs autonmously <info@rgitmap.com>"
+# Feature commit with explicit subagent attribution
+gitmap cpf "Module - implement autonomous subtask" --ai-agent "worker-01"
 
-# Workstation-global
-gitmap change-user --global "gitmap automation bot - runs autonmously <info@rgitmap.com>"
+# Bug fix commit with explicit subagent attribution
+gitmap cbf "Scanner - resolve null pointer probe" --ai-agent "worker-02"
 
-# Project-level binding
-gitmap user project bind autobot
+# Chore commit with explicit subagent attribution
+gitmap cpc "Docs - align prompt checklists" --ai-agent "worker-03"
 ```
 
-### 3.4 Pairing Autobot with Headless Time-Restriction
+### 3.4 Identity Reversion & Restoration
 
-When autonomous agents operate under time-restricted maintenance windows, pair the autonomous bot with headless time-restriction flags:
+When a task requires restoring the original human developer profile after bot execution:
+
+```bash
+# Revert to previously saved human profile from original_user.json
+gitmap change-user --restore
+
+# Or set back to specific developer profile
+gitmap change-user "<Developer Name> <developer@email.com>"
+```
+
+### 3.5 Pairing Autobot with Headless Time-Restriction
+
+When autonomous agents operate under time-restricted maintenance windows, pair `gitmap login set global ai-auto` (or `gitmap login set ai-auto [agent-name]`) with headless time-restriction flags:
 
 - `--tz <timezone>`: Target timezone perspective for schedule validation.
 - `--auto-window`: Automatically normalizes commit timestamps to the next valid window (strictly before 08:00 AM on weekdays or anytime on weekends).
 - `--non-interactive`: Enforces headless execution without interactive terminal prompts.
 
 ```bash
-# Step 1: Switch repository git identity to autobot globally
-gitmap user change-user "gitmap automation bot - runs autonmously" "info@rgitmap.com" --global
+# Step 1: Switch workstation git identity to autobot globally
+gitmap login set global ai-auto
 
-# Step 2: Execute atomic commit with headless time-restriction flags
-gitmap cpf "Module - implement autonomous subtask" --tz "America/New_York" --auto-window --non-interactive
+# Step 2: Execute atomic commit with headless time-restriction and subagent attribution
+gitmap cpf "Module - implement autonomous subtask" --ai-agent "worker-01" --tz "America/New_York" --auto-window --non-interactive
 ```
 
 ---
@@ -123,7 +140,7 @@ When operating under bot mode, all commits must adhere to GitMap semantic commit
    - Touch only files assigned to the active subtask.
    - Run pre-flight pull (`gitmap pull`) before writing changes.
 4. **Time-Restriction Flag Integration**:
-   - In automated bot workflows governed by `[gitmap-time-restriction](file;.cursor/skills/gitmap-time-restriction)`, always supply `--tz`, `--auto-window`, and `--non-interactive` to prevent interactive blocks and maintain schedule compliance.
+   - In automated bot workflows governed by `[gitmap-time-restriction](file;.agents/skills/gitmap-time-restriction)`, always supply `--tz`, `--auto-window`, and `--non-interactive` to prevent interactive blocks and maintain schedule compliance.
 
 ---
 
@@ -132,7 +149,7 @@ When operating under bot mode, all commits must adhere to GitMap semantic commit
 When authoring code, scripts, or plans supporting the automation bot:
 
 1. **Strict Relative Git Paths**:
-   - Always reference `.cursor/skills/gitmap-automation-bot/skill.md`, `02-spec/...`, `.ai-memory/...`.
+   - Always reference `.agents/skills/gitmap-automation-bot/skill.md`, `02-spec/...`, `.ai-memory/...`.
    - Never use absolute paths (`C:\...`, `D:\...`).
 2. **Positive Boolean Naming**:
    - Use `isAutobotActive`, `hasLocalScope`, `isRestored`, `isValidProfile`, `hasTimeRestriction`, `hasAutoWindow`, `isHeadless`.
@@ -151,8 +168,8 @@ Validate the skill installation and compliance:
 
 ```bash
 # Verify skill file presence
-gitmap find "skill.md" .cursor/skills/gitmap-automation-bot
+gitmap find "skill.md" .agents/skills/gitmap-automation-bot
 
 # Validate YAML frontmatter
-gitmap cat .cursor/skills/gitmap-automation-bot/skill.md
+gitmap cat .agents/skills/gitmap-automation-bot/skill.md
 ```

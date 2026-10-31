@@ -5,7 +5,7 @@ description: Autonomous developer companion and CLI for ultra-fast repository sc
 
 # GitMap Autonomous Engineering Skill
 
-> **Invocation:** `@[gitmap](file;.cursor/skills/gitmap)`
+> **Invocation:** `@[gitmap](file;.agents/skills/gitmap)`
 
 ## Overview
 GitMap is an ultra-fast developer companion and autonomous CLI engine designed for AI coding agents and software engineers.
@@ -32,6 +32,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 | ❌ Raw `bash -c "..."` or `sh -c "..."` | ✅ `gitmap bash "<cmd>"` or `gitmap bash -c "<cmd>"` | Uniform POSIX execution with cross-platform environment isolation across Windows, macOS, and Linux. |
 | ❌ Multi-repo `git status` loops or manual directory scanning | ✅ `gitmap status --dirty` / `gitmap status --json` / `gitmap st` | Single-shot multi-repository audit matrix displaying dirty counts, ahead/behind branches, and uncommitted stashes. |
 | ❌ `gh auth login` interactive prompts or plaintext `.env` files | ✅ `gitmap login --web`, `gitmap login --status`, `gitmap login --token <PAT>` | Token validated via GitHub API before writing; auto-resolved for all clone, pull, and push commands. |
+| ❌ Ad-hoc `git config --global user.name` / `user.email` or manual shell identity toggling for bots | ✅ `gitmap login set global ai-auto` or `gitmap login set ai-auto [agent-name]` | Locks standardized AI automation bot credentials (`gitmap automation bot - runs autonomously <info@rgitmap.com>` or named agent persona) machine-wide or per-repo with automatic original user backup. |
+| ❌ Manual commit author flags (`git commit --author="..."`) or uncredited subagent commits | ✅ `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>` | Attaches designated subagent identity to commit provenance, Git author metadata, Split-DB telemetry, and cognitive heatmap tables. |
 | ❌ Raw `git pull`, `git pull origin <branch>`, `git pull --rebase` | ✅ `gitmap pull [repo]` (or `gitmap pull` in current repo, alias `gitmap p`), `gitmap pull-all` (alias `gitmap pa`) | High-speed multi-phase pull with conflict detection, branch tracking, and auto-stash/rebase handling. TOTAL BAN on raw `git pull` without attempting `gitmap pull` first. |
 | ❌ Third brackets, lowercase conventional syntax, colons in arguments, or misusing commit verbs (`gitmap cpf "chore(release): ..."` or `gitmap cpf "[module]: feat: ..."` or `git commit -m "..."`) | ✅ `gitmap cpr "<module> - <summary>"` (release), `gitmap cpc "<module> - <summary>"` (chore), `gitmap cbf "<module> - <summary>"` (bug fix), `gitmap cfr "<module> - <summary>"` (refactor), `gitmap cpf "<module> - <summary>"` (feature) | Strict verb taxonomy: NEVER use `cpf` for releases, chores, or bugs. GitMap automatically prepends the sovereign type. TOTAL BAN on square brackets `[...]`, colons in arguments, raw `git commit`, and conventional prefixes (`chore(...)`, `feat(...)`, `fix(...)`) inside arguments. |
 | ❌ Raw `$env:LIBCLANG_PATH` exports or manual Cargo wrapper scripts | ✅ `gitmap cargo [args...]` or `gitmap rust status` | Automated LLVM/libclang path discovery on Windows and Linux, injecting `LIBCLANG_PATH` and `PATH` transparently. |
@@ -63,6 +65,8 @@ All AI agents operating within GitMap-managed repositories MUST strictly adhere 
 - `gitmap login --token <PAT>` — Non-interactive token ingestion (pre-validated against `api.github.com/user` before saving to global git config).
 - `gitmap login --token <PAT> --no-verify` — Offline token ingestion without network probe.
 - `gitmap login --status` — Displays current masked credential state and active user.
+- `gitmap login set global ai-auto` — Locks workstation-global Git identity to `gitmap automation bot - runs autonomously <info@rgitmap.com>` while safely preserving the original developer identity in `original_user.json`.
+- `gitmap login set ai-auto [agent-name]` — Locks Git identity to `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>` (defaults to `gitmap automation bot - runs autonomously <info@rgitmap.com>` if agent name omitted).
 - `gitmap token list` — Resolves active GitHub token and shows credential origin.
 - `gitmap logout` — Purges stored GitHub credentials from Git global configuration.
 
@@ -156,6 +160,8 @@ Disciplined atomic commit workflow enforcing hyphen-separated messages (`<Module
   `gitmap cpr "v2.18.0 - bump minor version and update changelog"`
 - `gitmap pcp "<Module> - <summary>"` — Pull latest with rebase, stage all, commit, and push with preflight verification:
   `gitmap pcp "Skills - sync cross-platform runner templates"`
+- `gitmap cpf/cpb/cpc/cfr/cpr "<Module> - <summary>" --ai-agent <name>` — Attaches designated subagent identity (e.g. `--ai-agent "worker-01"`) to commit author metadata, GitMap Split-DB commit history (`repodb/commit_history.db`), and cognitive heatmap tables (`repodb/heatmap.db`). Default author becomes `gitmap automation bot - <name> - runs autonomously <info@rgitmap.com>`:
+  `gitmap cpf "Module - implement feature" --ai-agent "worker-01"`
 - `gitmap workgroup ls` (alias `gitmap wg ls`) — Inspect folder-specific workgroups, bound SSH keys, and ancestor bindings.
 - `gitmap workgroup add <name> <dir> --ssh-key <key>` — Register folder workgroup and bind dedicated SSH private key.
 - `gitmap workgroup bind <dir> <key>` — Bind folder to dedicated SSH key.
@@ -348,6 +354,29 @@ Autonomous subagents (Lead Orchestrators, Branch Coordinators, and Leaf Workers)
 - `gitmap ram` — Live & 5s cached memory capacity, free/used MB, and visual utilization meter.
 - `gitmap network [--json]` — Network adapter configuration, IPs, MAC addresses, link speeds, and throughput metrics.
 
+---
+
+## Autonomous AI Identity & Agent Attribution
+
+Autonomous multi-agent swarms (e.g. V6 and V7 orchestrators) and automated pipelines require distinct identity tracking and commit provenance to differentiate automated AI agent contributions from human developer work.
+
+### 1. Identity Locking Commands
+- `gitmap login set global ai-auto`: locks global Git identity to `gitmap automation bot - runs autonomously <info@rgitmap.com>`. Safely backs up original human developer credentials to `original_user.json` before applying changes.
+- `gitmap login set ai-auto [agent-name]`: locks Git identity to `gitmap automation bot - <agent-name> - runs autonomously <info@rgitmap.com>` (e.g. `gitmap login set ai-auto muse` sets `gitmap automation bot - muse - runs autonomously <info@rgitmap.com>`). If no agent name is specified, defaults to `gitmap automation bot - runs autonomously <info@rgitmap.com>`.
+
+### 2. Semantic Commit Provenance with `--ai-agent`
+- `gitmap cpf/cpb/cpc/cfr/cpr --ai-agent <name>`: attaches designated subagent identity to commit and Split-DB heatmap tables.
+- Example: `gitmap cpf "Module - implement feature" --ai-agent "worker-01"` automatically sets the author to `gitmap automation bot - worker-01 - runs autonomously <info@rgitmap.com>` if `--author` was omitted, recording `meta.AIName` and `meta.IsAIMode`.
+
+### 3. Heatmap Attribution Mechanics
+GitMap cognitive heatmaps natively capture agent attribution across both local Split-DB (`repodb/heatmap.db` and `.ai-memory/heatmap.db`) and companion `repo-cache` databases:
+- **Status & Summary Attribution:** `gitmap heatmap status` and `gitmap heatmap tree` display active agent models, subagent identities, and touch distributions per agent.
+- **Granular Action Records:** Every action logged via `gitmap heatmap log --json '{"task":"<task-slug>","action":"EDIT","file":"<path>","state":"EXECUTION","expected":"<goal>","model":"<model>","tool":"<tool>"}'` stores the calling model, tool environment, and agent identifier in `HeatmapActionLog`.
+- **Commit Telemetry Binding:** Commits executed with `--ai-agent <name>` automatically synchronize with heatmap tables, recording the exact subagent responsible for file touches, modifications, and git hashes in `repodb/heatmap.db` and `repodb/commit_history.db`.
+- **Swarm Collision Forensics:** `gitmap agent heatmap` and `gitmap heatmap discuss` aggregate agent leases and write claims, displaying which specific subagent owns or recently edited a given file box.
+
+---
+
 ### 12. File Contention Heatmap, Cognitive Telemetry & Agent Activity Observation
 - `gitmap heatmap` — **Heatmap Database Discovery Catalog**: Surveys all 3 tiers of heatmap databases (local root `<EffectiveDataDir>/heatmap.db`, per-repo split DBs `<EffectiveDataDir>/heatmap/<repo>/sql.db`, and repo-cache multi-AI DBs `repo-cache/.heatmap/<seq>-<ai>/`), maps registered repository aliases via `db.ListAliasesWithRepo()`, aggregates recent tasks across 2–5 repositories (minimum 5 tasks), and provides dynamic interactive AI suggestion pills.
 - `gitmap heatmap --repo <alias>` / `gitmap rc heatmap [--repo <alias>]` — Repository-scoped heatmap discovery and companion database inspection with alias enrichment and action rollups.
@@ -512,6 +541,15 @@ gitmap login --token "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" --no-verify
 
 # Non-interactive SSH key profile configuration
 gitmap login ssh work -y
+
+# Lock workstation-global Git identity to default AI automation bot
+gitmap login set global ai-auto
+
+# Lock repository Git identity to named AI automation bot (e.g. worker-01, muse)
+gitmap login set ai-auto worker-01
+
+# Lock repository Git identity to default AI automation bot (agent name omitted)
+gitmap login set ai-auto
 
 # Inspect current authenticated user and masked credential origin
 gitmap login --status
@@ -714,6 +752,9 @@ gitmap cpr "v2.18.0 - bump minor version and update changelog"
 
 # Pull latest with rebase, stage all, commit, and push in one verified flow
 gitmap pcp "Skills - sync cross-platform runner templates"
+
+# Commit with explicit subagent attribution for Split-DB heatmap tracking
+gitmap cpf "Module - implement autonomous subtask" --ai-agent "worker-01"
 
 # Apply automated repository remediation (stash, discard, or auto-fix)
 gitmap fix all -y
@@ -1027,6 +1068,29 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 
 ---
 
+## Skill Activation Bands & Guardrails (When to Use GitMap)
+
+### ✅ When to Activate This Skill (Green Band)
+- Operating inside any workspace or repository containing `.git` managed by or integrated with GitMap.
+- Multi-agent swarm orchestration (`execute-parent-task-with-n-steps-v6`, `execute-parent-task-with-n-steps-v7`, `execute-with-e2e`).
+- Performing rapid file discovery (`gitmap lf`, `gitmap find`) or streaming regex code search (`gitmap aum search`).
+- Setting up AI automation bot credentials (`gitmap login set global ai-auto`, `gitmap login set ai-auto [agent-name]`).
+- Staging, formatting, and pushing atomic semantic commits (`gitmap cpf`, `gitmap cbf`, `gitmap cpc`, `gitmap cfr`, `gitmap cpr`).
+- Inspecting CI/CD pipeline health and error telemetry (`gitmap pipeline-ai`, `gitmap pe -t`).
+- Querying, mutating, or serving SQLite Split-DB architectures (`gitmap db-read`, `gitmap db-find`, `gitmap db-view`).
+- Downloading screenshot assets (`gitmap prnt`) or fetching remote URLs with caching (`gitmap url read`).
+- Safe process termination (`gitmap kill`) and binary rotation (`gitmap swap-binary`).
+
+### ⛔ When NOT to Use / Out of Bounds (Red Band)
+- Subagents must NEVER execute raw `git` commands (`git commit`, `git add`, `git push`, `git checkout`); only the lead orchestrator invokes GitMap semantic commit verbs.
+- Routine builds and tests: Do NOT run full test suites (`go test ./...`, `npm test`, `pytest`) or full project builds (`go build`, `npm run build`, `cargo build`) unless explicitly commanded by the user or executing `execute-with-e2e`.
+- Do NOT use slow prohibited legacy tools (`rg`, `ripgrep`, `grep`, `git grep`, `Select-String`, `findstr`, `Get-ChildItem`, `dir`, `ls`).
+- Do NOT run inline Python SQLite scripts (`python -c "import sqlite3..."`).
+- Do NOT use absolute file paths or `file:///` URIs; use strictly relative Git paths.
+- Do NOT invent CLI flags; verify commands before execution.
+
+---
+
 ## Operational Guardrails & Non-Negotiable Invariants
 
 1. **Learning & Skill Acquisition:** Run `gitmap llm train` (or `gitmap train --loop`) to initialize or verify GitMap skills. Run `gitmap llm train muse --days 7` when performing Muse memory IO synchronization. Never run broad keyword searches like `gitmap aum search "train"` to discover how commands work.
@@ -1038,7 +1102,7 @@ gitmap swap-binary --from ./dist/gitmap.exe --script-only
 7. **Strict Relative Git Paths:** All paths and references must be relative to repository root (`02-spec/...`, `.ai-memory/...`); zero absolute paths and zero `file:///` URIs.
 8. **Zero Storage Ban:** Zero uploads to `actions/upload-artifact`. Maintain 0.0 GB Actions storage quota across all repositories.
 9. **Total Ban on Python SQLite Scripts & Ad-Hoc Database Queries:** NEVER run `python 03-ai-scripts/46-agent-sqlite-task-manager.py` or ad-hoc scripts like `python -c "import sqlite3..."`. Ad-hoc Python SQLite usage is AGGRESSIVELY PROHIBITED. You MUST use native compiled GitMap database commands exclusively: `gitmap db-find` / `gitmap dbf` for pattern-matching and regular expression searches across tables and columns; `gitmap db-read` / `gitmap dbr` for read-only table/SQL inspection; `gitmap db-listing` / `gitmap dbl` to discover registered Split-DB tiers; `gitmap db-view` / `gitmap dbv` for join analysis; `gitmap db-add` / `gitmap db-edit` / `gitmap db-rm` for safe mutations; and `gitmap agent` subcommands for task tracking.
-10. **Total Ban on Ad-Hoc Python Web Scrapers:** NEVER run `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[gitmap](file;.cursor/skills/gitmap)` for full command reference.
+10. **Total Ban on Ad-Hoc Python Web Scrapers:** NEVER run `python -c "import urllib.request..."` or write ad-hoc Python scripts (`fetch_urls.py`, etc.) to scrape web pages, extract images, or download screenshot URLs (e.g., `prnt.sc`, `image.prntscr.com`, `i.imgur.com`). You MUST use native compiled `gitmap prnt <url1> [url2...] [--extract-only] [--json]` (alias `gitmap download-prnt`), which automatically handles User-Agent headers, multi-tier CDN resolution, and bidirectional Antigravity Brain synchronization. See `@[gitmap](file;.agents/skills/gitmap)` for full command reference.
 11. **Total Ban on Raw Web Fetchers & Single-Stream Downloads:** NEVER invoke `curl`, `wget`, `Invoke-WebRequest`, or custom HTTP scripts to read remote files. All remote URLs MUST be fetched via `gitmap url read <url>` (aliases: `gitmap url`, `gitmap get`), which provides dedicated Split-DB caching (`repodb/url_cache.db`), sub-millisecond retrieval (<0.5ms), unbuffered byte-faithful streaming via `output.Raw()`, and automatic 10-split segmented downloading (`aria2c` or native Go Range workers) for files $\ge 1\text{--}2\text{ MB}$.
 12. **Total Ban on Filesystem Grepping for Past Agent Decisions:** NEVER grep source files or guess past subagent actions. You MUST run `gitmap heatmap` or `gitmap rc heatmap --repo <alias>` to discover multi-tier SQLite heatmap databases, cross-referenced repository aliases, and recent tasks across 2–5 repositories with interactive suggestion pills.
 13. **Total Ban on Raw Cargo Invocations & Ad-Hoc Toolchain Variables:** NEVER run raw `cargo build`, `cargo test`, `cargo check`, or hardcode `$env:LIBCLANG_PATH` manually. You MUST use `gitmap cargo build [--install]`, `gitmap cargo test`, `gitmap crg check`, and dynamic resolution via `gitmap aum locate llvm` and `gitmap env set LIBCLANG_PATH <path>`.
