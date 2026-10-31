@@ -1,13 +1,14 @@
 package cmdpy
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"slices"
 	"strings"
 
 	"github.com/alimtvnetwork/gitmap-v28/cli/apperror"
-	"github.com/alimtvnetwork/gitmap-v28/cli/cliexit"
 	"github.com/alimtvnetwork/gitmap-v28/cli/constants"
 )
 
@@ -37,13 +38,32 @@ func isPyHelpRequest(args []string) bool {
 }
 
 func handleExitCode(exitCode int, runErr error) error {
-	if exitCode != 0 && runErr == nil {
-		cliexit.HandleError(nil, exitCode)
+	if runErr == nil && exitCode != 0 {
+		return buildPythonAbortError(exitCode)
 	}
+
 	if runErr != nil {
+		var exitErr *exec.ExitError
+		if errors.As(runErr, &exitErr) {
+			return buildPythonAbortError(exitErr.ExitCode())
+		}
+
 		return apperror.WrapSimple(runErr, "python execution failed")
 	}
+
 	return nil
+}
+
+func buildPythonAbortError(code int) error {
+	return apperror.NewWithDetails(
+		"python",
+		"E9001",
+		fmt.Sprintf("python process exited with code %d", code),
+		"cmdpy",
+		apperror.ErrorTypeAbort,
+		apperror.SeverityWarn,
+		map[string]any{"reported": true},
+	)
 }
 
 func warnAdHocAntiPatterns(args []string) {

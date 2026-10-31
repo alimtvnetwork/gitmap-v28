@@ -115,6 +115,7 @@ func buildDiagnosticsSection() termout.HelpSection {
 	return termout.HelpSection{
 		Title: "Diagnostics & Optimization",
 		Entries: []termout.CommandEntry{
+			{Command: "summaries (convs, db) [N]", Description: "Inspect Antigravity conversation states, titles & idle status from conversation_summaries.db"},
 			{Command: "active (running)", Description: "List conversations with active prompts currently running"},
 			{Command: "queues (queue)", Description: "Inspect pending prompt queues across all workspaces"},
 			{Command: "ping (check)", Description: "Ping Antigravity IDE and inspect environment health"},
